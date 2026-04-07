@@ -19,7 +19,9 @@ import {
   AlignCenter,
   AlignRight,
   Type,
-  Baseline
+  Baseline,
+  List,
+  ListOrdered
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -171,11 +173,16 @@ const Toolbar = ({ editor }: { editor: any }) => {
           </div>
       </div>
 
-      {/* Nhóm Căn lề */}
+      {/* Nhóm Căn lề & Liệt kê */}
       <div className="flex items-center border-r border-gray-100 pr-1 mr-1 gap-0.5">
         <Button size="sm" variant="ghost" onClick={() => editor.chain().focus().setTextAlign("left").run()} className={`h-8 w-8 p-0 ${editor.isActive({ textAlign: "left" }) ? "bg-gray-100 text-blue-600" : ""}`}><AlignLeft size={14} /></Button>
         <Button size="sm" variant="ghost" onClick={() => editor.chain().focus().setTextAlign("center").run()} className={`h-8 w-8 p-0 ${editor.isActive({ textAlign: "center" }) ? "bg-gray-100 text-blue-600" : ""}`}><AlignCenter size={14} /></Button>
         <Button size="sm" variant="ghost" onClick={() => editor.chain().focus().setTextAlign("right").run()} className={`h-8 w-8 p-0 ${editor.isActive({ textAlign: "right" }) ? "bg-gray-100 text-blue-600" : ""}`}><AlignRight size={14} /></Button>
+        
+        <div className="w-px h-4 bg-gray-100 mx-1" />
+        
+        <Button size="sm" variant="ghost" onClick={() => editor.chain().focus().toggleBulletList().run()} className={`h-8 w-8 p-0 ${editor.isActive("bulletList") ? "bg-gray-100 text-blue-600" : ""}`}><List size={14} /></Button>
+        <Button size="sm" variant="ghost" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={`h-8 w-8 p-0 ${editor.isActive("orderedList") ? "bg-gray-100 text-blue-600" : ""}`}><ListOrdered size={14} /></Button>
       </div>
 
       {/* Nhóm Multimedia */}
