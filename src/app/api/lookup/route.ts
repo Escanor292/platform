@@ -1,71 +1,63 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-/**
- * GET /api/lookup?code=...
- * Tra cứu công khai chi tiết một giao dịch qua Payment ID hoặc Transaction Reference
- */
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const code = searchParams.get("code");
-
-  if (!code) {
-    return NextResponse.json({ error: "Missing transaction code" }, { status: 400 });
-  }
-
+export async function GET(request: NextRequest) {
   try {
-    // 1. Thử tìm trong bảng Transaction (chính thức sau khi success)
-    const transaction = await prisma.transaction.findFirst({
-      where: {
-        OR: [
-          { referenceCode: code },
-          { gatewayTransactionId: code },
-          { paymentId: code }
-        ]
-      },
+    const searchParams = request.nextUrl.searchParams;
+    const transactionId = searchParams.get("transactionId");
+
+    if (!transactionId) {
+      return NextResponse.json(
+        { error: "Vui lòng cung cấp mã giao dịch (transactionId)" },
+        { status: 400 }
+      );
+    }
+
+    // Tra cứu Pledge theo transactionId
+    const pledge = await prisma.pledge.findUnique({
+      where: { transactionId },
       include: {
         campaign: {
           select: {
             title: true,
             slug: true,
-            imageUrl: true
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
-    if (transaction) {
-      // Bảo mật: Lọc bỏ IP và các thông tin nhạy cảm
-      const { ipAddress, ...safeTransaction } = transaction;
-      return NextResponse.json({ transaction: safeTransaction });
+    if (!pledge) {
+      return NextResponse.json(
+        { error: "Không tìm thấy giao dịch nào với mã này" },
+        { status: 404 }
+      );
     }
 
-    // 2. Thử tìm trong bảng Payment (nếu thanh toán chưa hoàn tất hoặc vừa xong)
-    const payment = await prisma.payment.findUnique({
-      where: { id: code },
-      include: {
-        pledge: {
-          include: {
-            campaign: {
-              select: {
-                title: true,
-                slug: true,
-                imageUrl: true
-              }
-            }
-          }
-        }
-      }
-    });
+    // Format dữ liệu an toàn để trả về (Bỏ đi IP, Device, Contact)
+    // "Ẩn danh với public ≠ ẩn danh với system"
+    const safeData = {
+      transactionId: pledge.transactionId,
+      displayName: pledge.isAnonymous ? "Người dùng ẩn danh" : pledge.displayName,
+      amount: pledge.amount,
+      tipAmount: pledge.tipAmount,
+      vatAmount: pledge.vatAmount,
+      totalAmount: pledge.totalAmount,
+      paymentProvider: pledge.paymentProvider,
+      status: pledge.status,
+      refundStatus: pledge.refundStatus,
+      createdAt: pledge.createdAt,
+      campaign: {
+        title: pledge.campaign.title,
+        slug: pledge.campaign.slug,
+      },
+    };
 
-    if (payment) {
-      return NextResponse.json({ payment });
-    }
-
-    return NextResponse.json({ error: "Không tìm thấy giao dịch" }, { status: 404 });
-
-  } catch (error: any) {
-    console.error("Lookup API Error:", error);
-    return NextResponse.json({ error: "Lỗi hệ thống tra cứu" }, { status: 500 });
+    return NextResponse.json(safeData);
+  } catch (error) {
+    console.error("[LOOKUP_API]", error);
+    return NextResponse.json(
+      { error: "Lỗi hệ thống trong quá trình tra cứu" },
+      { status: 500 }
+    );
   }
 }
