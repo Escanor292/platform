@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+.next/
+out/
+dist/
+build/
+
+# Environment variables - KHÔNG commit!
+.env
+.env.local
+.env.*.local
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Prisma
+prisma/migrations/
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Misc
+.vercel
+.turbo
+*.local
+
+# Temp files (được tạo bởi script debug)
+file_list.txt
+file_list_utf8.txt
+filtered_file_list.txt
+final_error.txt
+final_report.txt
+val_err.txt
+prisma_debug.txt
+prisma_err.txt
+prisma_error_report.txt
+restore.bat

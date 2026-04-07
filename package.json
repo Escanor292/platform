@@ -1,0 +1,45 @@
+{
+  "name": "crowdfunding-vn",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "postinstall": "prisma generate",
+    "prisma:seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} src/data/seed.ts"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma",
+    "seed": "npm run prisma:seed"
+  },
+  "dependencies": {
+    "@auth/prisma-adapter": "latest",
+    "@payos/node": "latest",
+    "@prisma/client": "7.5.0",
+    "cloudinary": "latest",
+    "clsx": "latest",
+    "lucide-react": "latest",
+    "next": "16.1.6",
+    "next-auth": "5.0.0-beta.25",
+    "qrcode": "latest",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "tailwind-merge": "latest",
+    "vnpay": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "postcss": "latest",
+    "prisma": "^7.5.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
