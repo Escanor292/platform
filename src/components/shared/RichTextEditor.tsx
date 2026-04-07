@@ -49,11 +49,18 @@ const FontSize = Mark.create({
   },
   addCommands() {
     return {
-      setFontSize: (size: string) => ({ chain }) => {
-        return chain().setMark("fontSize", { size }).run();
+      setFontSize: (size: string) => ({ chain, state }) => {
+        const { selection } = state;
+        const { $from, $to } = selection;
+        const isCurrentSize = this.editor.isActive("fontSize", { size });
+
+        if (isCurrentSize) {
+          return (chain() as any).unsetMark("fontSize").run();
+        }
+        return (chain() as any).setMark("fontSize", { size }).run();
       },
       unsetFontSize: () => ({ chain }) => {
-        return chain().unsetMark("fontSize").run();
+        return (chain() as any).unsetMark("fontSize").run();
       },
     };
   },
@@ -207,7 +214,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
         <Button
           type="button" variant="ghost" size="sm"
           onClick={() => editor.chain().focus().setFontSize("36px").run()}
-          className={editor.getAttributes("fontSize").size === "36px" ? "bg-blue-100 text-blue-600" : ""}
+          className={editor.isActive("fontSize", { size: "36px" }) ? "bg-blue-100 text-blue-600" : ""}
           title="H1 - Inline (36px)"
         >
           <span className="font-bold">H1</span>
@@ -215,7 +222,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
         <Button
           type="button" variant="ghost" size="sm"
           onClick={() => editor.chain().focus().setFontSize("24px").run()}
-          className={editor.getAttributes("fontSize").size === "24px" ? "bg-blue-100 text-blue-600" : ""}
+          className={editor.isActive("fontSize", { size: "24px" }) ? "bg-blue-100 text-blue-600" : ""}
           title="H2 - Inline (24px)"
         >
           <span className="font-bold">H2</span>
