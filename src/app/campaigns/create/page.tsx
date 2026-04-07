@@ -21,6 +21,23 @@ export default function CreateCampaignPage() {
     endDate: "",
   });
 
+  const [displayAmount, setDisplayAmount] = useState("1.000.000");
+
+  const formatVNDInput = (value: string) => {
+    const numericValue = value.replace(/\D/g, "");
+    if (!numericValue) return "";
+    return new Intl.NumberFormat("vi-VN").format(Number(numericValue));
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+    const formatted = formatVNDInput(rawValue);
+    const numeric = Number(rawValue.replace(/\D/g, ""));
+
+    setDisplayAmount(formatted);
+    setFormData({ ...formData, goalAmount: numeric });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -91,11 +108,11 @@ export default function CreateCampaignPage() {
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700">Số vốn mục tiêu (VND)</label>
                 <Input 
-                  type="number" 
+                  type="text" 
                   required 
-                  min={100000}
-                  value={formData.goalAmount}
-                  onChange={(e) => setFormData({ ...formData, goalAmount: Number(e.target.value) })}
+                  placeholder="VD: 1.000.000"
+                  value={displayAmount}
+                  onChange={handleAmountChange}
                 />
               </div>
 

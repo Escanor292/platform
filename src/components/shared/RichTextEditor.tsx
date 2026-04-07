@@ -39,28 +39,36 @@ const MenuBar = ({ editor }: { editor: any }) => {
   const addYoutubeVideo = () => {
     const url = prompt("Nhập link YouTube video:");
     if (url) {
-      editor.commands.setYoutubeVideo({
+      editor.chain().focus().setYoutubeVideo({
         src: url,
         width: 640,
         height: 480,
-      });
+      }).run();
     }
   };
 
   const setLink = () => {
     const previousUrl = editor.getAttributes("link").href;
-    const url = prompt("Nhập URL:", previousUrl);
+    const url = prompt("Nhập URL (ví dụ: https://google.com):", previousUrl);
 
+    // If cancelled
     if (url === null) {
       return;
     }
 
+    // If empty, remove link
     if (url === "") {
       editor.chain().focus().extendMarkRange("link").unsetLink().run();
       return;
     }
 
-    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+    // Add https:// if missing and not an internal link
+    let finalUrl = url;
+    if (!url.startsWith("http") && !url.startsWith("/") && !url.startsWith("#")) {
+      finalUrl = `https://${url}`;
+    }
+
+    editor.chain().focus().extendMarkRange("link").setLink({ href: finalUrl }).run();
   };
 
   return (
