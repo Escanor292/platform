@@ -27,7 +27,7 @@ export default function RichTextRenderer({ content }: RichTextRendererProps) {
 
   const sanitizedHtml = DOMPurify.sanitize(content, {
     ADD_TAGS: ["iframe"],
-    ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "src"],
+    ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "src", "style"],
   });
 
   return (
