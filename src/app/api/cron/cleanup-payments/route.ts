@@ -8,24 +8,24 @@ export async function GET(request: Request) {
   try {
     const threshold = new Date(Date.now() - 48 * 60 * 60 * 1000); // 48 giờ trước
 
-    // 1. Tìm các Payment PENDING quá 48h
-    const stalePayments = await prisma.payment.findMany({
+    // 1. Tìm các Pledge PENDING quá 48h
+    const stalePledges = await prisma.pledge.findMany({
       where: {
         status: "PENDING",
         createdAt: { lt: threshold }
       }
     });
 
-    for (const payment of stalePayments) {
-      await prisma.payment.update({
-        where: { id: payment.id },
+    for (const pledge of stalePledges) {
+      await prisma.pledge.update({
+        where: { id: pledge.id },
         data: { status: "FAILED" }
       });
     }
 
     return NextResponse.json({ 
         success: true, 
-        message: `Đã đánh dấu thất bại cho ${stalePayments.length} thanh toán hết hạn.` 
+        message: `Đã đánh dấu thất bại cho ${stalePledges.length} giao dịch hết hạn.` 
     });
 
   } catch (error: any) {

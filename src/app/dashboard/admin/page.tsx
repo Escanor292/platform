@@ -1,22 +1,22 @@
-import { getUser } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import prisma from "@/lib/prisma";
 import { formatVND } from "@/lib/utils";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { 
   Users, BarChart3, ShieldCheck, 
-  Settings, TrendingUp, AlertTriangle 
+  TrendingUp, AlertTriangle 
 } from "lucide-react";
 
 export default async function AdminDashboard() {
-  const user = await getUser();
-  if (!user || user.role !== "ADMIN") redirect("/");
+  const session = await auth();
+  if (!session?.user || (session.user as any).role !== "ADMIN") redirect("/");
 
   // Thống kê nhanh
   const [userCount, campaignCount, pendingCampaigns, totalPledges] = await Promise.all([
     prisma.user.count(),
     prisma.campaign.count(),
-    prisma.campaign.count({ where: { status: "PENDING" } }),
+    prisma.campaign.count({ where: { status: "PENDING_REVIEW" } }),
     prisma.pledge.aggregate({ _sum: { amount: true } })
   ]);
 
@@ -57,7 +57,7 @@ export default async function AdminDashboard() {
             <p className="text-gray-400 text-sm mb-8 leading-relaxed">
                Kiểm tra tính pháp lý và phê duyệt các chiến dịch gọi vốn mới. Đảm bảo tuân thủ tiêu chuẩn cộng đồng.
             </p>
-            <Link href="/dashboard/admin/campaigns" className="px-8 py-4 bg-green-600 text-white font-black rounded-2xl hover:bg-green-700 transition btn-click-scale inline-block">
+            <Link href="/dashboard/admin/campaigns" className="px-8 py-4 bg-green-600 text-white font-black rounded-2xl hover:bg-green-700 transition inline-block">
                Tới trang xét duyệt →
             </Link>
          </section>
@@ -68,9 +68,9 @@ export default async function AdminDashboard() {
                Doanh thu sàn
             </h2>
             <p className="text-gray-500 text-sm mb-8 leading-relaxed">
-               Quản lý dòng tiền, phí dịch vụ 5% và ngân sách dành cho các quỹ cộng đồng. Theo dõi báo cáo thuế định kỳ.
+               Quản lý dòng tiền, phí dịch vụ và ngân sách dành cho các quỹ cộng đồng. Theo dõi báo cáo định kỳ.
             </p>
-            <Link href="/dashboard/admin/revenue" className="px-8 py-4 bg-gray-900 text-white font-black rounded-2xl hover:bg-black transition btn-click-scale inline-block shadow-lg">
+            <Link href="/dashboard/admin/revenue" className="px-8 py-4 bg-gray-900 text-white font-black rounded-2xl hover:bg-black transition inline-block shadow-lg">
                Xem báo cáo doanh thu
             </Link>
          </section>

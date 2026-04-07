@@ -1,20 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-type Params = { params: Promise<{ id: string }> };
+type Params = { params: Promise<{ slug: string }> };
 
 /**
- * GET /api/campaigns/[id]
+ * GET /api/campaigns/[slug]
  * Lấy chi tiết campaign theo ID hoặc slug
  */
 export async function GET(_req: NextRequest, { params }: Params) {
   try {
-    const { id } = await params;
+    const { slug } = await params;
 
     const campaign = await prisma.campaign.findFirst({
-      where: { OR: [{ id }, { slug: id }] },
+      where: { OR: [{ id: slug }, { slug }] },
       include: {
-        creator: { select: { id: true, name: true, image: true } },
+        creator: { select: { id: true, name: true, avatar: true } },
         rewards: { orderBy: { amount: "asc" } },
         pledges: {
           where: { isAnonymous: false },
@@ -51,10 +51,10 @@ export async function GET(_req: NextRequest, { params }: Params) {
  */
 export async function PUT(req: NextRequest, { params }: Params) {
   try {
-    const { id } = await params;
+    const { slug } = await params;
     const body = await req.json();
 
-    const campaign = await prisma.campaign.findUnique({ where: { id } });
+    const campaign = await prisma.campaign.findUnique({ where: { id: slug } });
     if (!campaign) {
       return NextResponse.json(
         { error: "Không tìm thấy campaign" },
@@ -63,11 +63,11 @@ export async function PUT(req: NextRequest, { params }: Params) {
     }
 
     const updated = await prisma.campaign.update({
-      where: { id },
+      where: { id: slug },
       data: {
         title: body.title,
-        tagline: body.tagline,
-        description: body.description,
+        description: body.tagline,
+        longDescription: body.description,
         goalAmount: body.goalAmount,
         category: body.category,
         imageUrl: body.imageUrl,
@@ -89,10 +89,10 @@ export async function PUT(req: NextRequest, { params }: Params) {
  */
 export async function DELETE(_req: NextRequest, { params }: Params) {
   try {
-    const { id } = await params;
+    const { slug } = await params;
 
     const campaign = await prisma.campaign.findUnique({
-      where: { id },
+      where: { id: slug },
       include: { _count: { select: { pledges: true } } },
     });
 
@@ -110,7 +110,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
       );
     }
 
-    await prisma.campaign.delete({ where: { id } });
+    await prisma.campaign.delete({ where: { id: slug } });
     return NextResponse.json({ message: "Đã xóa campaign" });
   } catch (error) {
     console.error("[DELETE /api/campaigns/[id]]", error);

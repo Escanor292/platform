@@ -41,7 +41,7 @@ export default function RefundPolicy() {
                </div>
                <div className="p-6 bg-gray-50 rounded-2xl border border-gray-100">
                   <h3 className="font-black text-gray-900 mb-2">Không đạt mục tiêu</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed">Đối với các dự án "Tất cả hoặc không có gì", tiền sẽ được hoàn trả nếu không đạt 100% mục tiêu.</p>
+                  <p className="text-xs text-gray-500 leading-relaxed">Đối với các dự án &quot;Tất cả hoặc không có gì&quot;, tiền sẽ được hoàn trả nếu không đạt 100% mục tiêu.</p>
                </div>
             </div>
          </section>

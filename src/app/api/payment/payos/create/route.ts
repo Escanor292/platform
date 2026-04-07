@@ -1,76 +1,75 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import PayOS from "@payos/node";
-import { getUser } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 
-const payos = new PayOS(
-  process.env.PAYOS_CLIENT_ID!,
-  process.env.PAYOS_API_KEY!,
-  process.env.PAYOS_CHECKSUM_KEY!
-);
+let payosInstance: any = null;
+
+function getPayos() {
+  if (payosInstance) return payosInstance;
+  
+  const PayOSClass = (PayOS as any).default || PayOS;
+  if (!PayOSClass) {
+    throw new Error("PayOS module not found or failed to load");
+  }
+  
+  payosInstance = new PayOSClass(
+    process.env.PAYOS_CLIENT_ID!,
+    process.env.PAYOS_API_KEY!,
+    process.env.PAYOS_CHECKSUM_KEY!
+  );
+  return payosInstance;
+}
 
 export async function POST(request: Request) {
   try {
-    const user = await getUser();
+    const session = await auth();
     const data = await request.json();
     const { 
-      amount, campaignId, rewardId, 
+      amount, campaignId, 
       tipAmount = 0, vatAmount = 0,
       guestEmail = null, displayName = null, 
-      isAnonymous = false, ipAddress = null,
-      isInvoiceRequired = false, 
-      invoiceName = null, invoiceTaxId = null, invoiceAddress = null
+      isAnonymous = false, ipAddress = null
     } = data;
 
-    // 1. Tạo bản ghi Pledge
+    const transactionId = `PAYOS-${Date.now()}`;
+
+    // 1. Tạo bản ghi Pledge (Trạng thái PENDING)
     const pledge = await prisma.pledge.create({
       data: {
-        userId: user?.id || null, // Guest support
+        userId: session?.user?.id || null,
         campaignId,
-        rewardId,
-        amount,
-        projectAmount: amount - tipAmount - vatAmount,
-        platformTipAmount: tipAmount,
-        vatAmount: vatAmount,
+        amount: amount,
+        tipAmount,
+        vatAmount,
+        totalAmount: amount + tipAmount + vatAmount,
         
-        guestEmail,
-        displayName: isAnonymous ? "Người dùng ẩn danh" : (displayName || user?.name || "Người ủng hộ"),
+        email: guestEmail,
+        displayName: isAnonymous ? "Người dùng ẩn danh" : (displayName || session?.user?.name || "Người ủng hộ"),
         isAnonymous,
         ipAddress,
 
-        isInvoiceRequired,
-        invoiceName,
-        invoiceTaxId,
-        invoiceAddress,
+        paymentProvider: "PAYOS",
+        transactionId: transactionId,
+        status: "PENDING",
       }
     });
 
-    // 2. Tạo bản ghi Payment
+    // 2. Tạo link thanh toán PayOS
     const orderCode = Number(Date.now());
-    const payment = await prisma.payment.create({
-      data: {
-        pledgeId: pledge.id,
-        userId: user?.id || null,
-        amount,
-        method: "PAYOS",
-        orderCode: BigInt(orderCode),
-      }
-    });
-
-    // 3. Tạo link thanh toán PayOS
     const body = {
       orderCode,
-      amount,
-      description: `CFVN-PLEDGE-${pledge.id.slice(0, 8)}`,
+      amount: Number(amount + tipAmount + vatAmount),
+      description: `Ủng hộ dự án ${campaignId.slice(0, 8)}`,
       cancelUrl: `${process.env.NEXTAUTH_URL}/campaigns`,
-      returnUrl: `${process.env.NEXTAUTH_URL}/payment-success?code=${payment.id}`,
+      returnUrl: `${process.env.NEXTAUTH_URL}/payment-success?status=success&ref=${pledge.id}`,
     };
 
-    const paymentLinkRes = await payos.createPaymentLink(body);
+    const paymentLinkRes = await getPayos().createPaymentLink(body);
 
     return NextResponse.json({ 
       checkoutUrl: paymentLinkRes.checkoutUrl,
-      paymentId: payment.id 
+      pledgeId: pledge.id 
     });
 
   } catch (error: any) {

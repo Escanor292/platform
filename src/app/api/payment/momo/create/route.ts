@@ -1,56 +1,48 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { getUser } from "@/lib/auth";
-import crypto from "crypto";
+import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
-    const user = await getUser();
-    const data = await request.json();
+    const session = await auth();
+    const user = session?.user;
+    const body = await request.json();
     const { 
-      amount, campaignId, rewardId, 
+      amount, campaignId, 
       tipAmount = 0, vatAmount = 0,
       guestEmail = null, displayName = null, 
       isAnonymous = false, ipAddress = null
-    } = data;
+    } = body;
 
-    // 1. Tạo bản ghi Pledge
+    const totalAmount = amount + tipAmount + vatAmount;
+    const transactionId = `MOMO-${Date.now()}`;
+
+    // 1. Tạo bản ghi Pledge (Trạng thái PENDING)
     const pledge = await prisma.pledge.create({
       data: {
         userId: user?.id || null,
         campaignId,
-        rewardId,
         amount,
-        projectAmount: amount - tipAmount - vatAmount,
-        platformTipAmount: tipAmount,
-        vatAmount: vatAmount,
-        guestEmail,
+        tipAmount,
+        vatAmount,
+        totalAmount,
+        email: guestEmail,
         displayName: isAnonymous ? "Người dùng ẩn danh" : (displayName || user?.name || "Người ủng hộ"),
         isAnonymous,
         ipAddress,
+        paymentProvider: "MOMO",
+        transactionId: transactionId,
+        status: "PENDING",
       }
     });
 
-    // 2. Tạo bản ghi Payment
-    const payment = await prisma.payment.create({
-      data: {
-        pledgeId: pledge.id,
-        userId: user?.id || null,
-        amount,
-        method: "MOMO",
-      }
-    });
-
-    // 3. Giả lập tích hợp MoMo (Tạo link redirect)
-    // Thực tế sẽ dùng MoMo SDK gửi request tới Partner API
-    const requestId = payment.id;
-    const orderId = payment.id;
-    const redirectUrl = `${process.env.NEXTAUTH_URL}/payment-success?code=${payment.id}`;
+    // 2. Giả lập tích hợp MoMo (Tạo link redirect)
+    // Trong môi trường DEMO, chúng ta chuyển về trang thành công với ref=pledgeId
+    const redirectUrl = `${process.env.NEXTAUTH_URL}/payment-success?status=success&ref=${pledge.id}`;
     
-    // TRONG DEMO: Giả lập chuyển hướng tới trang thành công
     return NextResponse.json({ 
         checkoutUrl: redirectUrl,
-        paymentId: payment.id 
+        pledgeId: pledge.id 
     });
 
   } catch (error: any) {

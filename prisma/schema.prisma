@@ -3,21 +3,178 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"   // thay thành "mysql" nếu bạn dùng MySQL
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-// ====================== ENUMS ======================
+model User {
+  id              String            @id @default(cuid())
+  email           String            @unique
+  password        String?
+  name            String
+  displayName     String?
+  avatar          String?
+  phone           String?
+  role            UserRole          @default(BACKER)
+  isPro           Boolean           @default(false)
+  isOrganization  Boolean           @default(false)
+  isAdmin         Boolean           @default(false)
+  bio             String?
+  idCard          String?
+  businessLicense String?
+  bankAccount     String?
+  bankName        String?
+  approvedAt      DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  campaigns       Campaign[]
+  invoices        PlatformInvoice[]
+  pledges         Pledge[]
+  reviews         Review[]
+
+  @@map("users")
+}
+
+model Campaign {
+  id              String            @id @default(cuid())
+  campaignCode    String            @unique
+  slug            String            @unique
+  title           String
+  description     String
+  longDescription String?
+  videoUrl        String?
+  imageUrl        String?
+  type            CampaignType      @default(REWARD)
+  category        String
+  goalAmount      Decimal
+  currentAmount   Decimal           @default(0)
+  status          CampaignStatus    @default(DRAFT)
+  startDate       DateTime?
+  endDate         DateTime?
+  creatorId       String
+  feeRate         Float             @default(0.08)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  updates         CampaignUpdate[]
+  creator         User              @relation(fields: [creatorId], references: [id])
+  invoices        PlatformInvoice[]
+  pledges         Pledge[]
+  Review          Review[]
+  rewards         Reward[]
+
+  @@map("campaigns")
+}
+
+model Reward {
+  id          String   @id @default(cuid())
+  campaignId  String
+  title       String
+  description String
+  amount      Decimal
+  quantity    Int?
+  remaining   Int?
+  createdAt   DateTime @default(now())
+  campaign    Campaign @relation(fields: [campaignId], references: [id])
+
+  @@map("rewards")
+}
+
+model Pledge {
+  id               String       @id @default(cuid())
+  campaignId       String
+  userId           String?
+  displayName      String
+  isAnonymous      Boolean      @default(false)
+  email            String?
+  phoneNumber      String?
+  amount           Decimal
+  tipAmount        Decimal      @default(0)
+  platformFee      Decimal      @default(0)
+  vatAmount        Decimal      @default(0)
+  totalAmount      Decimal
+  paymentProvider  String
+  transactionId    String       @unique
+  ipAddress        String?
+  deviceInfo       Json?
+  status           PledgeStatus @default(PENDING)
+  refundStatus     RefundStatus @default(NO_REFUND)
+  refundedAt       DateTime?
+  invoiceGroupDate DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  campaign         Campaign     @relation(fields: [campaignId], references: [id])
+  user             User?        @relation(fields: [userId], references: [id])
+
+  @@map("pledges")
+}
+
+model CampaignUpdate {
+  id         String   @id @default(cuid())
+  campaignId String
+  title      String
+  content    String
+  imageUrl   String?
+  createdAt  DateTime @default(now())
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+
+  @@map("campaign_updates")
+}
+
+model Review {
+  id         String    @id @default(cuid())
+  userId     String
+  campaignId String?
+  rating     Int
+  comment    String
+  imageUrl   String?
+  createdAt  DateTime  @default(now())
+  campaign   Campaign? @relation(fields: [campaignId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
+
+  @@map("reviews")
+}
+
+model DailyTipInvoice {
+  id          String   @id @default(cuid())
+  invoiceDate DateTime @unique
+  totalTip    Decimal
+  totalVat    Decimal
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+
+  @@map("daily_tip_invoices")
+}
+
+model PlatformInvoice {
+  id            String        @id @default(cuid())
+  invoiceNumber String        @unique
+  campaignId    String
+  creatorId     String
+  amount        Decimal
+  vatAmount     Decimal
+  totalAmount   Decimal
+  status        InvoiceStatus @default(PENDING)
+  dueDate       DateTime
+  paidAt        DateTime?
+  paymentMethod String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  campaign      Campaign      @relation(fields: [campaignId], references: [id])
+  creator       User          @relation(fields: [creatorId], references: [id])
+
+  @@map("platform_invoices")
+}
+
 enum UserRole {
-  BACKER           // Người ủng hộ (cá nhân hoặc tổ chức)
-  CREATOR_PENDING  // Đang chờ duyệt Creator
-  CREATOR          // Creator thường
-  CREATOR_PRO      // Creator Pro - tích xanh lá
+  BACKER
+  CREATOR_PENDING
+  CREATOR
+  CREATOR_PRO
 }
 
 enum CampaignType {
-  REWARD           // Có phần thưởng
-  DONATION         // Từ thiện
+  REWARD
+  DONATION
 }
 
 enum CampaignStatus {
@@ -49,198 +206,4 @@ enum InvoiceStatus {
   PAID
   OVERDUE
   CANCELLED
-}
-
-// ====================== MODELS ======================
-model User {
-  id               String      @id @default(cuid())     // ID riêng, duy nhất nội bộ
-  email            String      @unique                  // Gmail duy nhất, không cho trùng
-  password         String?     // hashed password
-
-  name             String      // Tên thật (có thể trùng)
-  displayName      String?     // Tên hiển thị (có thể trùng)
-  avatar           String?
-  phone            String?     // Có thể trùng
-
-  role             UserRole    @default(BACKER)
-  isPro            Boolean     @default(false)
-  isOrganization   Boolean     @default(false)
-  isAdmin          Boolean     @default(false)
-
-  // Thông tin bổ sung cho Creator
-  bio              String?
-  idCard           String?     // CCCD/CMND
-  businessLicense  String?
-  bankAccount      String?     // Số tài khoản ngân hàng (có thể trùng)
-  bankName         String?
-
-  approvedAt       DateTime?
-
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
-
-  // Quan hệ
-  campaigns        Campaign[]
-  pledges          Pledge[]
-  reviews          Review[]
-  invoices         PlatformInvoice[]
-
-  @@map("users")
-}
-
-model Campaign {
-  id               String          @id @default(cuid())
-  
-  campaignCode     String          @unique      // Mã dự án dễ tra cứu: CF20260407-1234
-  slug             String          @unique      // Dùng cho URL
-
-  title            String
-  description      String
-  longDescription  String?
-  videoUrl         String?
-  imageUrl         String?
-
-  type             CampaignType    @default(REWARD)
-  category         String          // "Công nghệ", "Nghệ thuật", "Xã hội - Từ thiện", ...
-
-  goalAmount       Decimal
-  currentAmount    Decimal         @default(0)
-  status           CampaignStatus  @default(DRAFT)
-
-  startDate        DateTime?
-  endDate          DateTime?
-
-  creatorId        String
-  creator          User            @relation(fields: [creatorId], references: [id])
-
-  feeRate          Float           @default(0.08)   // 8% hoặc 0% cho từ thiện
-
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-
-  rewards          Reward[]
-  pledges          Pledge[]
-  updates          CampaignUpdate[]
-  invoices         PlatformInvoice[]
-
-  @@map("campaigns")
-}
-
-model Reward {
-  id          String    @id @default(cuid())
-  campaignId  String
-  campaign    Campaign  @relation(fields: [campaignId], references: [id])
-
-  title       String
-  description String
-  amount      Decimal
-  quantity    Int?
-  remaining   Int?
-
-  createdAt   DateTime  @default(now())
-
-  @@map("rewards")
-}
-
-model Pledge {
-  id                String        @id @default(cuid())
-  campaignId        String
-  campaign          Campaign      @relation(fields: [campaignId], references: [id])
-
-  userId            String?                       // nullable → Guest
-  user              User?         @relation(fields: [userId], references: [id])
-
-  displayName       String                        // Tên hiển thị (có thể trùng)
-  isAnonymous       Boolean       @default(false)
-
-  email             String?
-  phoneNumber       String?
-
-  amount            Decimal
-  tipAmount         Decimal       @default(0)
-  platformFee       Decimal       @default(0)
-  vatAmount         Decimal       @default(0)
-  totalAmount       Decimal
-
-  paymentProvider   String        // "VNPAY", "MOMO", "PAYOS", "BANK_TRANSFER"
-  transactionId     String        @unique
-
-  ipAddress         String?
-  deviceInfo        Json?
-
-  status            PledgeStatus  @default(PENDING)
-  refundStatus      RefundStatus  @default(NO_REFUND)
-  refundedAt        DateTime?
-
-  invoiceGroupDate  DateTime?     // Dùng để gộp tip theo ngày
-
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-
-  @@map("pledges")
-}
-
-model CampaignUpdate {
-  id          String    @id @default(cuid())
-  campaignId  String
-  campaign    Campaign  @relation(fields: [campaignId], references: [id])
-
-  title       String
-  content     String
-  imageUrl    String?
-
-  createdAt   DateTime  @default(now())
-
-  @@map("campaign_updates")
-}
-
-model Review {
-  id          String    @id @default(cuid())
-  userId      String
-  user        User      @relation(fields: [userId], references: [id])
-  campaignId  String?
-  campaign    Campaign? @relation(fields: [campaignId], references: [id])
-
-  rating      Int
-  comment     String
-  createdAt   DateTime  @default(now())
-
-  @@map("reviews")
-}
-
-model DailyTipInvoice {
-  id          String    @id @default(cuid())
-  invoiceDate DateTime  @unique
-  totalTip    Decimal
-  totalVat    Decimal
-  status      String    @default("PENDING")
-
-  createdAt   DateTime  @default(now())
-
-  @@map("daily_tip_invoices")
-}
-
-model PlatformInvoice {
-  id              String        @id @default(cuid())
-  invoiceNumber   String        @unique
-
-  campaignId      String
-  campaign        Campaign      @relation(fields: [campaignId], references: [id])
-
-  creatorId       String
-  creator         User          @relation(fields: [creatorId], references: [id])
-
-  amount          Decimal
-  vatAmount       Decimal
-  totalAmount     Decimal
-
-  status          InvoiceStatus @default(PENDING)
-  dueDate         DateTime
-  paidAt          DateTime?
-  paymentMethod   String?
-
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-
-  @@map("platform_invoices")
 }

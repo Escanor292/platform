@@ -1,0 +1,32 @@
+
+> crowdfunding-vn@0.1.0 build
+> next build
+
+   ▲ Next.js 15.5.14
+   - Environments: .env
+
+   Creating an optimized production build ...
+Failed to compile.
+
+./src/lib/auth.ts
+Error:   [31mx[0m Expected ',', got ']'
+    ,-[[36;1;4mD:\Du_An\crowdfunding-vn\src\lib\auth.ts[0m:62:1]
+ [2m59[0m |       }
+ [2m60[0m |       return token;
+ [2m61[0m |     }
+ [2m62[0m |   ],
+    : [35;1m  ^[0m
+ [2m63[0m |   session: {
+ [2m64[0m |     strategy: "jwt" // Required for Credentials provider
+ [2m65[0m |   },
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/lib/auth.ts
+./src/app/api/campaigns/route.ts
+
+
+> Build failed because of webpack errors

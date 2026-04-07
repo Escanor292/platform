@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   try {
@@ -33,11 +33,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Format dữ liệu an toàn để trả về (Bỏ đi IP, Device, Contact)
-    // "Ẩn danh với public ≠ ẩn danh với system"
+    // Format dữ liệu an toàn để trả về
     const safeData = {
       transactionId: pledge.transactionId,
-      displayName: pledge.isAnonymous ? "Người dùng ẩn danh" : pledge.displayName,
+      displayName: pledge.isAnonymous ? "Người dùng ẩn danh" : (pledge.displayName || "Khách"),
       amount: pledge.amount,
       tipAmount: pledge.tipAmount,
       vatAmount: pledge.vatAmount,

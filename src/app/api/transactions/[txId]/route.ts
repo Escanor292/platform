@@ -5,7 +5,7 @@ type Params = { params: Promise<{ txId: string }> };
 
 /**
  * GET /api/transactions/[txId]
- * Tra cứu thông tin giao dịch công khai bằng mã tham chiếu
+ * Tra cứu thông tin giao dịch công khai bằng mã tham chiếu (transactionId hoặc ID)
  */
 export async function GET(_req: NextRequest, { params }: Params) {
   try {
@@ -18,20 +18,23 @@ export async function GET(_req: NextRequest, { params }: Params) {
       );
     }
 
-    const transaction = await prisma.transaction.findFirst({
+    // Trong schema mới, thông tin thanh toán nằm trong model Pledge
+    const pledge = await prisma.pledge.findFirst({
       where: {
         OR: [
           { id: txId },
-          { referenceCode: txId },
+          { transactionId: txId },
         ],
       },
       select: {
         id: true,
-        referenceCode: true,
+        transactionId: true,
         amount: true,
-        type: true,
         status: true,
         createdAt: true,
+        displayName: true,
+        isAnonymous: true,
+        paymentProvider: true,
         campaign: {
           select: {
             id: true,
@@ -40,29 +43,23 @@ export async function GET(_req: NextRequest, { params }: Params) {
             imageUrl: true,
           },
         },
-        pledge: {
-          select: {
-            displayName: true,
-            isAnonymous: true,
-            amount: true,
-          },
-        },
       },
     });
 
-    if (!transaction) {
+    if (!pledge) {
       return NextResponse.json(
         { error: "Không tìm thấy giao dịch với mã này" },
         { status: 404 }
       );
     }
 
-    // Ẩn tên nếu ẩn danh
-    if (transaction.pledge?.isAnonymous) {
-      transaction.pledge.displayName = "Ẩn danh";
-    }
+    // Ẩn tên nếu ủng hộ ẩn danh
+    const responseData = {
+      ...pledge,
+      displayName: pledge.isAnonymous ? "Người dùng ẩn danh" : pledge.displayName,
+    };
 
-    return NextResponse.json(transaction);
+    return NextResponse.json(responseData);
   } catch (error) {
     console.error("[GET /api/transactions/[txId]]", error);
     return NextResponse.json({ error: "Lỗi server" }, { status: 500 });

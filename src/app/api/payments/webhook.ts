@@ -5,7 +5,7 @@ import { releaseEscrow } from "@/lib/payment/escrow";
 
 /**
  * GET /api/payments/webhook
- * VNPAY Return URL callback (redirect sau khi thanh toán)
+ * VNPAY Return URL callback
  */
 export async function GET(req: NextRequest) {
   try {
@@ -14,41 +14,35 @@ export async function GET(req: NextRequest) {
 
     const result = verifyVNPayReturn(queryParams);
 
-    const paymentId = queryParams["vnp_TxnRef"];
+    const pledgeId = queryParams["vnp_TxnRef"];
     const responseCode = queryParams["vnp_ResponseCode"];
 
-    if (!paymentId) {
+    if (!pledgeId) {
       return NextResponse.redirect(new URL("/payment-success?status=error", req.url));
     }
 
     if (responseCode === "00" && result.isVerified) {
-      // Thanh toán thành công
-      await prisma.payment.update({
-        where: { id: paymentId },
+      // 1. Cập nhật trạng thái Pledge
+      const pledge = await prisma.pledge.update({
+        where: { id: pledgeId },
         data: { status: "SUCCESS" },
       });
 
-      const payment = await prisma.payment.findUnique({
-        where: { id: paymentId },
-        include: { pledge: true },
-      });
-
-      if (payment?.pledge) {
-        await releaseEscrow(payment.pledge.campaignId);
-      }
+      // 2. Cập nhật số tiền dự án (Escrow)
+      await releaseEscrow(pledge.campaignId);
 
       return NextResponse.redirect(
-        new URL(`/payment-success?status=success&ref=${paymentId}`, req.url)
+        new URL(`/payment-success?status=success&ref=${pledgeId}`, req.url)
       );
     } else {
       // Thanh toán thất bại
-      await prisma.payment.update({
-        where: { id: paymentId },
+      await prisma.pledge.update({
+        where: { id: pledgeId },
         data: { status: "FAILED" },
       });
 
       return NextResponse.redirect(
-        new URL(`/payment-success?status=failed&ref=${paymentId}`, req.url)
+        new URL(`/payment-success?status=failed&ref=${pledgeId}`, req.url)
       );
     }
   } catch (error) {
@@ -59,32 +53,33 @@ export async function GET(req: NextRequest) {
 
 /**
  * POST /api/payments/webhook
- * IPN (Instant Payment Notification) từ VNPAY / MoMo
+ * IPN from PayOS or others
  */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // Xử lý MoMo IPN
-    if (body.partnerCode) {
-      const { orderId, resultCode, amount } = body;
+    // Ví dụ xử lý PayOS Webhook
+    if (body.orderCode && body.status === "PAID") {
+       // PayOS thường gửi orderCode là Number, chúng ta lưu transactionId hoặc pledgeId tương ứng
+       // Ở đây chúng ta cần tìm pledge dựa trên transactionId hoặc orderCode
+       // Phụ thuộc vào cách chúng ta map ở Create Route.
+       // Giả sử chúng ta tìm qua transactionId:
+       const pledge = await prisma.pledge.findFirst({
+         where: { transactionId: `PAYOS-${body.orderCode}` } 
+       });
 
-      if (resultCode === 0) {
-        await prisma.payment.update({
-          where: { id: orderId },
-          data: { status: "SUCCESS", amount },
-        });
-      } else {
-        await prisma.payment.update({
-          where: { id: orderId },
-          data: { status: "FAILED" },
-        });
-      }
-
-      return NextResponse.json({ message: "ok" });
+       if (pledge) {
+          await prisma.pledge.update({
+            where: { id: pledge.id },
+            data: { status: "SUCCESS" }
+          });
+          await releaseEscrow(pledge.campaignId);
+       }
+       return NextResponse.json({ success: true });
     }
 
-    return NextResponse.json({ message: "unknown provider" }, { status: 400 });
+    return NextResponse.json({ message: "ignored" });
   } catch (error) {
     console.error("[POST /api/payments/webhook]", error);
     return NextResponse.json({ error: "Lỗi server" }, { status: 500 });

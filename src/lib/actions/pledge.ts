@@ -1,113 +1,37 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { generateTxRef } from "@/lib/utils";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-interface PledgeInput {
-  campaignId: string;
-  rewardId?: string;
-  amount: number;
-  platformTipPercent?: number;
-  isAnonymous?: boolean;
-  displayName?: string;
-  guestEmail?: string;
-  userId?: string;
-}
+export async function createPledgeAction(formData: FormData) {
+  const session = await auth();
+  const campaignId = formData.get("campaignId") as string;
+  const amount = Number(formData.get("amount"));
+  const isAnonymous = formData.get("isAnonymous") === "on";
+  const displayName = formData.get("displayName") as string;
 
-/**
- * Server Action: Tạo pledge mới (ủng hộ campaign)
- * Có thể dùng từ Client Component hoặc Server Component
- */
-export async function createPledgeAction(input: PledgeInput) {
-  const {
-    campaignId,
-    rewardId,
-    amount,
-    platformTipPercent = 5,
-    isAnonymous = false,
-    displayName,
-    guestEmail,
-    userId,
-  } = input;
+  if (!campaignId || !amount || amount < 10000) {
+    throw new Error("Dữ liệu không hợp lệ");
+  }
 
-  // Validate campaign
-  const campaign = await prisma.campaign.findUnique({
-    where: { id: campaignId },
-  });
-
-  if (!campaign) throw new Error("Không tìm thấy campaign");
-  if (campaign.status !== "ACTIVE") throw new Error("Campaign không còn nhận ủng hộ");
-
-  const tipAmount = Math.round((amount * platformTipPercent) / 100);
-  const totalAmount = amount + tipAmount;
-
-  // Tạo pledge
+  // Trong thực tế, đây sẽ là nơi gọi API thanh toán (VNPay/MoMo/PayOS)
+  // Ở đây chúng ta giả lập tạo một Pledge PENDING và chuyển hướng tới trang chọn phương thức
+  
   const pledge = await prisma.pledge.create({
     data: {
       campaignId,
-      rewardId: rewardId || undefined,
-      userId: userId || undefined,
-      amount: totalAmount,
-      projectAmount: amount,
-      platformTipAmount: tipAmount,
-      vatAmount: 0,
+      userId: session?.user?.id || null,
+      amount,
+      totalAmount: amount, // Đơn giản hóa cho action này
+      displayName: isAnonymous ? "Người dùng ẩn danh" : (displayName || session?.user?.name || "Người ủng hộ"),
       isAnonymous,
-      displayName: isAnonymous ? null : (displayName || null),
-      guestEmail: guestEmail || null,
-      isReleased: false,
-    },
-  });
-
-  // Tạo transaction record
-  await prisma.transaction.create({
-    data: {
-      amount: totalAmount,
-      type: "PLEDGE",
+      paymentProvider: "VNPAY", // Default chosen for demo
+      transactionId: `TX-${Date.now()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`,
       status: "PENDING",
-      referenceCode: generateTxRef("PLG"),
-      campaignId,
-      userId: userId || null,
-      pledgeId: pledge.id,
     },
   });
 
-  return { pledgeId: pledge.id };
-}
-
-/**
- * Server Action: Hủy pledge (trong vòng 24h)
- */
-export async function cancelPledgeAction(pledgeId: string, userId: string) {
-  const pledge = await prisma.pledge.findUnique({
-    where: { id: pledgeId },
-    include: { payment: true },
-  });
-
-  if (!pledge) throw new Error("Không tìm thấy pledge");
-  if (pledge.userId !== userId) throw new Error("Không có quyền hủy pledge này");
-
-  const hoursSinceCreated =
-    (Date.now() - new Date(pledge.createdAt).getTime()) / (1000 * 60 * 60);
-
-  if (hoursSinceCreated > 24) {
-    throw new Error("Chỉ có thể hủy trong vòng 24 giờ sau khi ủng hộ");
-  }
-
-  if (pledge.isReleased) {
-    throw new Error("Tiền đã được giải ngân, không thể hủy");
-  }
-
-  // Soft delete pledge
-  await prisma.pledge.update({
-    where: { id: pledgeId },
-    data: { isReleased: false },
-  });
-
-  // Cập nhật currentAmount campaign
-  await prisma.campaign.update({
-    where: { id: pledge.campaignId },
-    data: { currentAmount: { decrement: pledge.amount } },
-  });
-
-  return { success: true };
+  // Chuyển hướng tới trang thanh toán (giả định có route xử lý payment)
+  redirect(`/checkout/${pledge.id}`);
 }

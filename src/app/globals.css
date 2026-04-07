@@ -1,1 +1,64 @@
- 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 224 71.4% 4.1%;
+  }
+  body {
+    @apply text-slate-900 bg-white selection:bg-blue-100 selection:text-blue-900 antialiased;
+  }
+}
+
+@layer components {
+  .glass-morphism {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-premium;
+  }
+  
+  .btn-primary {
+    @apply px-8 py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 hover:shadow-premium transition-all duration-300 active:scale-95;
+  }
+  
+  .btn-outline {
+    @apply px-8 py-4 bg-white text-gray-900 border border-gray-100 font-black rounded-2xl hover:border-blue-600 hover:text-blue-600 transition-all duration-300 active:scale-95;
+  }
+  
+  .card-premium {
+    @apply bg-white rounded-[2.5rem] border border-gray-100 shadow-soft hover:shadow-premium hover:-translate-y-2 transition-all duration-500 overflow-hidden;
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-emerald-500;
+}
+
+/* TipTap Content Styles */
+.prose iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.prose .text-center {
+  text-align: center;
+}
+
+.prose .text-right {
+  text-align: right;
+}
+
+.prose .text-left {
+  text-align: left;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-blue-600 bg-blue-50/50 p-6 rounded-r-2xl font-serif italic text-blue-900;
+}

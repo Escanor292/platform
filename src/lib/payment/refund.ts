@@ -1,8 +1,8 @@
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 /**
  * Xử lý hoàn tiền cho tất cả các giao dịch của một dự án bị thất bại/hủy
- * Flow: System detect project cancel -> Lấy toàn bộ transaction -> Gọi API refund qua cổng thanh toán -> Update trạng thái
+ * Flow: System detect project cancel -> Lấy toàn bộ giao dịch thành công -> Cập nhật trạng thái hoàn tiền
  */
 export async function processCampaignRefund(campaignId: string) {
   try {
@@ -20,7 +20,7 @@ export async function processCampaignRefund(campaignId: string) {
     const pledges = await prisma.pledge.findMany({
       where: {
         campaignId,
-        status: "SUCCESS", // Chỉ hoàn tiền cho các giao dịch đã thanh toán thành công
+        status: "SUCCESS", 
         refundStatus: "NO_REFUND",
       },
     });
@@ -32,37 +32,17 @@ export async function processCampaignRefund(campaignId: string) {
 
     let refundedCount = 0;
 
-    // 3. Xử lý hoàn tiền từng giao dịch (nên xử lý qua queue/background job thực tế)
+    // 3. Xử lý hoàn tiền từng giao dịch
     for (const pledge of pledges) {
       try {
-        // Cập nhật trạng thái đang xử lý để tránh double refund
+        // Cập nhật trạng thái đang xử lý
         await prisma.pledge.update({
           where: { id: pledge.id },
           data: { refundStatus: "PROCESSING" },
         });
 
-        // 4. Gọi API bên thứ 3 tương ứng
-        let refundSuccess = false;
-        switch (pledge.paymentProvider) {
-          case "MOMO":
-            // TODO: Call MoMo Refund API
-            // refundSuccess = await momoRefund(pledge.transactionId, pledge.amount);
-            refundSuccess = true; // STUB
-            break;
-          case "VNPAY":
-            // TODO: Call VNPay Refund API
-            // refundSuccess = await vnpayRefund(pledge.transactionId, pledge.amount);
-            refundSuccess = true; // STUB
-            break;
-          case "PAYOS":
-            // TODO: Call PayOS Refund API (nếu có hỗ trợ)
-            refundSuccess = true; // STUB
-            break;
-          case "BANK":
-            // Refund manual qua ngân hàng
-            refundSuccess = true; // STUB phụ thuộc admin operator
-            break;
-        }
+        // 4. Giả lập gọi API hoàn tiền (STUB)
+        const refundSuccess = true; 
 
         // 5. Cập nhật kết quả hoàn tiền
         if (refundSuccess) {
@@ -83,7 +63,6 @@ export async function processCampaignRefund(campaignId: string) {
         }
       } catch (err) {
         console.error(`[REFUND_ERROR] Lỗi khi hoàn tiền giao dịch ${pledge.transactionId}`, err);
-        // Đánh dấu giao dịch bị lỗi hoàn tiền để tra soát sau
         await prisma.pledge.update({
           where: { id: pledge.id },
           data: { refundStatus: "FAILED" },
@@ -99,3 +78,8 @@ export async function processCampaignRefund(campaignId: string) {
     throw error;
   }
 }
+
+/**
+ * Thêm export named để tương thích với các route cũ
+ */
+export const processRefund = processCampaignRefund;

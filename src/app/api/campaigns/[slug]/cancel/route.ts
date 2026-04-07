@@ -37,38 +37,30 @@ export async function POST(
     }
 
     // === Bắt đầu quá trình hủy & hoàn tiền ===
-    const successPayments = await prisma.payment.findMany({
+    const successPledges = await prisma.pledge.findMany({
       where: {
-        pledge: { campaignId },
+        campaignId,
         status: "SUCCESS",
-      },
-      include: {
-        pledge: true
       }
     });
 
     let refundedCount = 0;
     const refundErrors: string[] = [];
 
-    for (const payment of successPayments) {
+    for (const pledge of successPledges) {
       try {
-        await prisma.payment.update({
-          where: { id: payment.id },
-          data: { status: "REFUNDED" }
-        });
-
-        await prisma.transaction.updateMany({
-          where: { paymentId: payment.id },
-          data: { status: "REFUNDED" }
+        await prisma.pledge.update({
+          where: { id: pledge.id },
+          data: { refundStatus: "PROCESSING" }
         });
 
         refundedCount++;
       } catch (err: any) {
-        refundErrors.push(`Payment ${payment.id}: ${err.message}`);
+        refundErrors.push(`Pledge ${pledge.id}: ${err.message}`);
       }
     }
 
-    const totalRefundAmount = successPayments.reduce((sum, p) => sum + p.pledge.projectAmount, 0);
+    const totalRefundAmount = successPledges.reduce((sum: number, p: any) => sum + Number(p.totalAmount), 0);
 
     await prisma.campaign.update({
       where: { id: campaignId },
@@ -80,7 +72,7 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      message: `Dự án đã được hủy. Đã xử lý hoàn tiền cho ${refundedCount}/${successPayments.length} giao dịch.`,
+      message: `Dự án đã được hủy. Đã xử lý hoàn tiền cho ${refundedCount}/${successPledges.length} giao dịch.`,
       refundedCount,
       totalRefundAmount,
       errors: refundErrors.length > 0 ? refundErrors : undefined,
