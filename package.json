@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "save": "git add . && git commit -m 'manual save' && git push origin main",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "next": "16.1.6",
