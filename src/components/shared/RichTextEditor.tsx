@@ -22,13 +22,6 @@ import {
   Baseline
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 // --- TypeScript Augmentation for Custom Commands ---
 declare module '@tiptap/core' {
@@ -141,18 +134,20 @@ const Toolbar = ({ editor }: { editor: any }) => {
 
       {/* Nhóm Kích thước chữ */}
       <div className="flex items-center border-r border-gray-100 pr-2 mr-1 gap-2">
-         <Select onValueChange={(value) => editor.chain().focus().setFontSize(value).run()}>
-            <SelectTrigger className="h-8 w-[140px] text-xs border-none bg-gray-50 focus:ring-0">
-               <Type size={14} className="mr-2 opacity-50" />
-               <SelectValue placeholder="Cỡ chữ" />
-            </SelectTrigger>
-            <SelectContent>
+         <div className="relative flex items-center group/size ml-1">
+            <Type size={14} className="absolute left-2.5 text-gray-400 z-10 pointer-events-none" />
+            <select 
+               className="h-8 pl-8 pr-2 w-32 text-[11px] font-bold bg-gray-50 border-none rounded-xl focus:ring-0 cursor-pointer hover:bg-gray-100 transition-all appearance-none text-gray-700"
+               onChange={(e) => editor.chain().focus().setFontSize(e.target.value).run()}
+               value={editor.getAttributes("fontSize").size || "16px"}
+            >
                {fontSizes.map((s) => (
-                 <SelectItem key={s.value} value={s.value} className="text-xs">{s.label}</SelectItem>
+                 <option key={s.value} value={s.value}>{s.label}</option>
                ))}
-            </SelectContent>
-         </Select>
-         <Button variant="ghost" size="sm" onClick={resetToNormal} className="h-8 px-2 text-[10px] font-bold uppercase transition-all hover:bg-gray-100">Normal</Button>
+            </select>
+            <div className="absolute right-2 pointer-events-none text-[10px] opacity-30 select-none">▼</div>
+         </div>
+         <Button variant="ghost" size="sm" onClick={resetToNormal} className="h-8 px-2 text-[10px] font-black uppercase transition-all hover:bg-gray-100 tracking-tighter text-blue-500">Normal</Button>
       </div>
 
       {/* Nhóm Định dạng chữ */}
