@@ -15,7 +15,8 @@ export const authConfig = {
       const isPublicRoute = 
         nextUrl.pathname === "/" || 
         nextUrl.pathname.startsWith("/campaigns") || 
-        nextUrl.pathname.startsWith("/lookup");
+        nextUrl.pathname.startsWith("/lookup") ||
+        nextUrl.pathname.startsWith("/policy");
       const isAuthRoute = 
         nextUrl.pathname.startsWith("/auth/login") || 
         nextUrl.pathname.startsWith("/auth/register");
