@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import colors from "tailwindcss/colors";
 
 const config: Config = {
   content: [
@@ -11,6 +12,12 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        // Thay thế toàn bộ viền/text Đen/Xám thô cứng thành Tông Xanh Than (Slate/Navy) mềm mại
+        gray: {
+          ...colors.slate,
+          900: "#091428", // Deep Navy Blue (Thay thế đen tuyền)
+          800: "#0f1f38",
+        },
         green: {
           50: "#f0fdf4",
           100: "#dcfce7",
