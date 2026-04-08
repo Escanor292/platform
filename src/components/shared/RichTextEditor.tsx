@@ -1,18 +1,24 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
-import dynamic from "next/dynamic";
-import { type Editor as TiptapEditor } from "@tiptap/core";
-
-// Import Novel Editor dynamic to avoid SSR issues in Next.js 15
-const Editor = dynamic(() => import("novel").then((m) => m.Editor), {
-  ssr: false,
-  loading: () => (
-    <div className="flex w-full h-[500px] items-center justify-center bg-gray-50/50 rounded-2xl border border-gray-100 animate-pulse">
-        <div className="text-gray-400 font-medium tracking-widest text-xs uppercase">Khởi tạo trình soạn thảo...</div>
-    </div>
-  ),
-});
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
+import Link from "@tiptap/extension-link";
+import TextAlign from "@tiptap/extension-text-align";
+import Youtube from "@tiptap/extension-youtube";
+import Color from "@tiptap/extension-color";
+import TextStyle from "@tiptap/extension-text-style";
+import Highlight from "@tiptap/extension-highlight";
+import TaskList from "@tiptap/extension-task-list";
+import TaskItem from "@tiptap/extension-task-item";
+import Placeholder from "@tiptap/extension-placeholder";
+import React, { useCallback } from "react";
+import {
+  Bold, Italic, Underline as UnderlineIcon, Strikethrough,
+  List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
+  Link as LinkIcon, Heading1, Heading2, Quote, Code,
+  Minus, Undo, Redo, Youtube as YoutubeIcon,
+} from "lucide-react";
 
 interface RichTextEditorProps {
   content: string;
@@ -20,70 +26,214 @@ interface RichTextEditorProps {
   placeholder?: string;
 }
 
-export default function RichTextEditor({ content, onChange, placeholder }: RichTextEditorProps) {
-  const [saveStatus, setSaveStatus] = useState("Đã lưu");
+type ToolbarButtonProps = {
+  onClick: () => void;
+  isActive?: boolean;
+  title: string;
+  children: React.ReactNode;
+};
 
-  const handleUpdate = useCallback((editor?: TiptapEditor) => {
+function ToolbarButton({ onClick, isActive, title, children }: ToolbarButtonProps) {
+  return (
+    <button
+      type="button"
+      onMouseDown={(e) => { e.preventDefault(); onClick(); }}
+      title={title}
+      className={`
+        flex items-center justify-center w-8 h-8 rounded-md text-sm transition-all duration-150
+        ${isActive
+          ? "bg-blue-100 text-blue-700 shadow-inner"
+          : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+        }
+      `}
+    >
+      {children}
+    </button>
+  );
+}
+
+function ToolbarDivider() {
+  return <div className="w-px h-5 bg-gray-200 mx-1 flex-shrink-0" />;
+}
+
+export default function RichTextEditor({ content, onChange, placeholder }: RichTextEditorProps) {
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        bulletList: { keepMarks: true, keepAttributes: false },
+        orderedList: { keepMarks: true, keepAttributes: false },
+      }),
+      Underline,
+      TextStyle,
+      Color,
+      Highlight.configure({ multicolor: true }),
+      Link.configure({ openOnClick: false, HTMLAttributes: { class: "text-blue-600 underline cursor-pointer" } }),
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
+      Youtube.configure({ controls: false, nocookie: true }),
+      TaskList,
+      TaskItem.configure({ nested: true }),
+      Placeholder.configure({ placeholder: placeholder ?? "Viết nội dung chiến dịch của bạn ở đây..." }),
+    ],
+    content: content || "",
+    editorProps: {
+      attributes: {
+        class: "prose prose-lg max-w-none min-h-[400px] px-8 py-6 focus:outline-none",
+      },
+    },
+    onUpdate: ({ editor }) => {
+      onChange(editor.getHTML());
+    },
+  });
+
+  const setLink = useCallback(() => {
     if (!editor) return;
-    setSaveStatus("Đang lưu...");
-    const html = editor.getHTML();
-    onChange(html);
-    
-    // Simulate a small delay for "Saved" status feedback
-    setTimeout(() => {
-        setSaveStatus("Đã lưu");
-    }, 500);
-  }, [onChange]);
+    const prev = editor.getAttributes("link").href || "";
+    const url = window.prompt("Nhập URL:", prev);
+    if (url === null) return;
+    if (url === "") { editor.chain().focus().extendMarkRange("link").unsetLink().run(); return; }
+    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+  }, [editor]);
+
+  const addYoutube = useCallback(() => {
+    if (!editor) return;
+    const url = window.prompt("Nhập URL YouTube:");
+    if (url) editor.chain().focus().setYoutubeVideo({ src: url }).run();
+  }, [editor]);
+
+  if (!editor) return null;
 
   return (
-    <div className="relative w-full border border-gray-200 rounded-3xl bg-white shadow-soft transition-all focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-200 group/editor">
+    <div className="w-full border border-gray-200 rounded-2xl bg-white shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-300 transition-all">
       
-      {/* Novel Editor Component */}
-      <div className="novel-editor-wrapper min-h-[500px]">
-        <Editor
-          defaultValue={content}
-          onUpdate={handleUpdate}
-          className="relative min-h-[500px] w-full max-w-none bg-white p-8 prose prose-lg sm:prose-xl focus:outline-none"
-          disableLocalStorage={true}
-        />
+      {/* ── TOOLBAR ── */}
+      <div className="flex flex-wrap items-center gap-0.5 px-3 py-2 bg-gray-50 border-b border-gray-200">
+        
+        {/* History */}
+        <ToolbarButton onClick={() => editor.chain().focus().undo().run()} title="Hoàn tác (Ctrl+Z)">
+          <Undo size={15} />
+        </ToolbarButton>
+        <ToolbarButton onClick={() => editor.chain().focus().redo().run()} title="Làm lại (Ctrl+Y)">
+          <Redo size={15} />
+        </ToolbarButton>
+
+        <ToolbarDivider />
+
+        {/* Headings */}
+        <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} isActive={editor.isActive("heading", { level: 1 })} title="Tiêu đề 1">
+          <Heading1 size={15} />
+        </ToolbarButton>
+        <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} isActive={editor.isActive("heading", { level: 2 })} title="Tiêu đề 2">
+          <Heading2 size={15} />
+        </ToolbarButton>
+
+        <ToolbarDivider />
+
+        {/* Text formatting */}
+        <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} isActive={editor.isActive("bold")} title="In đậm (Ctrl+B)">
+          <Bold size={15} />
+        </ToolbarButton>
+        <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} isActive={editor.isActive("italic")} title="In nghiêng (Ctrl+I)">
+          <Italic size={15} />
+        </ToolbarButton>
+        <ToolbarButton onClick={() => editor.chain().focus().toggleUnderline().run()} isActive={editor.isActive("underline")} title="Gạch chân (Ctrl+U)">
+          <UnderlineIcon size={15} />
+        </ToolbarButton>
+        <ToolbarButton onClick={() => editor.chain().focus().toggleStrike().run()} isActive={editor.isActive("strike")} title="Gạch ngang">
+          <Strikethrough size={15} />
+        </ToolbarButton>
+        <ToolbarButton onClick={() => editor.chain().focus().toggleCode().run()} isActive={editor.isActive("code")} title="Code">
+          <Code size={15} />
+        </ToolbarButton>
+
+        <ToolbarDivider />
+
+        {/* Lists */}
+        <ToolbarButton onClick={() => editor.chain().focus().toggleBulletList().run()} isActive={editor.isActive("bulletList")} title="Danh sách dấu chấm">
+          <List size={15} />
+        </ToolbarButton>
+        <ToolbarButton onClick={() => editor.chain().focus().toggleOrderedList().run()} isActive={editor.isActive("orderedList")} title="Danh sách đánh số">
+          <ListOrdered size={15} />
+        </ToolbarButton>
+        <ToolbarButton onClick={() => editor.chain().focus().toggleBlockquote().run()} isActive={editor.isActive("blockquote")} title="Trích dẫn">
+          <Quote size={15} />
+        </ToolbarButton>
+
+        <ToolbarDivider />
+
+        {/* Alignment */}
+        <ToolbarButton onClick={() => editor.chain().focus().setTextAlign("left").run()} isActive={editor.isActive({ textAlign: "left" })} title="Căn trái">
+          <AlignLeft size={15} />
+        </ToolbarButton>
+        <ToolbarButton onClick={() => editor.chain().focus().setTextAlign("center").run()} isActive={editor.isActive({ textAlign: "center" })} title="Căn giữa">
+          <AlignCenter size={15} />
+        </ToolbarButton>
+        <ToolbarButton onClick={() => editor.chain().focus().setTextAlign("right").run()} isActive={editor.isActive({ textAlign: "right" })} title="Căn phải">
+          <AlignRight size={15} />
+        </ToolbarButton>
+
+        <ToolbarDivider />
+
+        {/* Insert */}
+        <ToolbarButton onClick={setLink} isActive={editor.isActive("link")} title="Chèn liên kết">
+          <LinkIcon size={15} />
+        </ToolbarButton>
+        <ToolbarButton onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Đường kẻ ngang">
+          <Minus size={15} />
+        </ToolbarButton>
+        <ToolbarButton onClick={addYoutube} title="Chèn video YouTube">
+          <YoutubeIcon size={15} />
+        </ToolbarButton>
       </div>
 
-      {/* Modern Status Footer */}
-      <div className="px-8 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-between items-center rounded-b-3xl">
-         <div className="flex items-center gap-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-            <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${saveStatus === "Đã lưu" ? "bg-green-500" : "bg-amber-500 animate-pulse"}`} />
-                <span>{saveStatus}</span>
-            </div>
-         </div>
-         <div className="text-[9px] font-black text-gray-300 uppercase tracking-[0.2em] group-hover/editor:text-blue-400 transition-colors">
-            Novel Core Engine
-         </div>
+      {/* ── EDITOR AREA ── */}
+      <EditorContent editor={editor} />
+
+      {/* ── FOOTER ── */}
+      <div className="px-8 py-2 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
+        <span className="text-[11px] text-gray-400">
+          {editor.storage.characterCount?.characters?.() ?? 0} ký tự
+        </span>
+        <span className="text-[11px] text-gray-300 uppercase tracking-widest font-semibold">TipTap Editor</span>
       </div>
 
-      {/* Global CSS for Novel Styles override */}
+      {/* ── TYPOGRAPHY STYLES ── */}
       <style jsx global>{`
-        .novel-editor-wrapper .prose {
-          max-width: 100%;
-          min-height: 500px;
+        .ProseMirror p.is-editor-empty:first-child::before {
+          color: #adb5bd;
+          content: attr(data-placeholder);
+          float: left;
+          height: 0;
+          pointer-events: none;
         }
-        .novel-editor-wrapper .prose :focus {
-          outline: none;
+        .ProseMirror ul, .ProseMirror ol {
+          padding-left: 1.5rem;
         }
-        /* Custom scrollbar for better feel */
-        .novel-editor-wrapper::-webkit-scrollbar {
-          width: 8px;
+        .ProseMirror ul { list-style-type: disc; }
+        .ProseMirror ol { list-style-type: decimal; }
+        .ProseMirror li { margin: 0.25rem 0; }
+        .ProseMirror blockquote {
+          border-left: 3px solid #e5e7eb;
+          padding-left: 1rem;
+          color: #6b7280;
+          font-style: italic;
+          margin: 1rem 0;
         }
-        .novel-editor-wrapper::-webkit-scrollbar-track {
-          background: transparent;
+        .ProseMirror hr {
+          border: none;
+          border-top: 2px solid #e5e7eb;
+          margin: 1.5rem 0;
         }
-        .novel-editor-wrapper::-webkit-scrollbar-thumb {
-          background: #f1f1f1;
-          border-radius: 10px;
+        .ProseMirror h1 { font-size: 1.875rem; font-weight: 700; margin: 1rem 0 0.5rem; }
+        .ProseMirror h2 { font-size: 1.5rem; font-weight: 600; margin: 1rem 0 0.5rem; }
+        .ProseMirror code {
+          background: #f3f4f6;
+          border-radius: 4px;
+          padding: 0.1em 0.4em;
+          font-size: 0.875em;
+          font-family: monospace;
         }
-        .novel-editor-wrapper::-webkit-scrollbar-thumb:hover {
-          background: #e5e5e5;
-        }
+        .ProseMirror a { color: #2563eb; text-decoration: underline; }
+        .ProseMirror iframe { max-width: 100%; border-radius: 8px; margin: 1rem auto; display: block; }
       `}</style>
     </div>
   );
