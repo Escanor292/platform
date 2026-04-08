@@ -163,7 +163,7 @@ export default function CreateCampaignPage() {
           {/* Block 3: Mục tiêu & Thời gian */}
           <div className="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-soft">
             <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
-               <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+               <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
                   <Target size={20} />
                </div>
                <h2 className="text-2xl font-bold text-gray-900">Mục tiêu & Lịch trình</h2>
