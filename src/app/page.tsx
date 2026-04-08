@@ -49,18 +49,18 @@ export default async function Home() {
           </div>
           
           <div className="mt-16 flex flex-wrap justify-center items-center gap-6 md:gap-12">
-             <div className="flex items-center gap-2 px-6 py-3 bg-white/70 backdrop-blur rounded-2xl shadow-sm border border-gray-100/50">
-               <TrendingUp size={20} className="text-blue-600"/> 
-               <span className="font-extrabold text-gray-900">Viral</span>
-             </div>
-             <div className="flex items-center gap-2 px-6 py-3 bg-white/70 backdrop-blur rounded-2xl shadow-sm border border-gray-100/50">
-               <ShieldCheck size={20} className="text-emerald-500"/> 
-               <span className="font-extrabold text-gray-900">Tin cậy</span>
-             </div>
-             <div className="flex items-center gap-2 px-6 py-3 bg-white/70 backdrop-blur rounded-2xl shadow-sm border border-gray-100/50">
-               <Globe size={20} className="text-blue-600"/> 
-               <span className="font-extrabold text-gray-900">Sứ mệnh</span>
-             </div>
+             <Link href="/policy" className="flex items-center gap-2 px-6 py-3 bg-white/70 backdrop-blur rounded-2xl shadow-sm border border-gray-100/50 hover:bg-white hover:shadow-premium hover:-translate-y-1 transition-all duration-300 cursor-pointer active:scale-95 group/pill">
+               <TrendingUp size={20} className="text-blue-600 group-hover/pill:scale-110 transition-transform"/> 
+               <span className="font-extrabold text-gray-900 group-hover/pill:text-blue-600 transition-colors">Viral</span>
+             </Link>
+             <Link href="/policy" className="flex items-center gap-2 px-6 py-3 bg-white/70 backdrop-blur rounded-2xl shadow-sm border border-gray-100/50 hover:bg-white hover:shadow-premium hover:-translate-y-1 transition-all duration-300 cursor-pointer active:scale-95 group/pill">
+               <ShieldCheck size={20} className="text-emerald-500 group-hover/pill:scale-110 transition-transform"/> 
+               <span className="font-extrabold text-gray-900 group-hover/pill:text-emerald-500 transition-colors">Tin cậy</span>
+             </Link>
+             <Link href="/policy" className="flex items-center gap-2 px-6 py-3 bg-white/70 backdrop-blur rounded-2xl shadow-sm border border-gray-100/50 hover:bg-white hover:shadow-premium hover:-translate-y-1 transition-all duration-300 cursor-pointer active:scale-95 group/pill">
+               <Globe size={20} className="text-blue-600 group-hover/pill:scale-110 transition-transform"/> 
+               <span className="font-extrabold text-gray-900 group-hover/pill:text-blue-600 transition-colors">Sứ mệnh</span>
+             </Link>
           </div>
         </div>
       </section>
