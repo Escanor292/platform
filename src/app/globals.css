@@ -14,15 +14,19 @@
 
 @layer components {
   .glass-morphism {
-    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-premium;
+    @apply bg-white/60 backdrop-blur-2xl border border-white/50 shadow-soft transition-all duration-300;
+  }
+  
+  .glass-morphism:hover {
+    @apply shadow-premium border-white/80 bg-white/80;
   }
   
   .btn-primary {
-    @apply px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 hover:shadow-[0_8px_20px_rgb(37,99,235,0.25)] transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
+    @apply px-6 py-3 bg-gradient-to-br from-blue-500 to-blue-700 text-white font-bold rounded-xl shadow-[0_8px_20px_rgb(37,99,235,0.3)] border border-blue-400/50 hover:shadow-[0_10px_25px_rgb(37,99,235,0.4)] hover:brightness-110 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
   }
   
   .btn-outline {
-    @apply px-6 py-3 bg-white text-gray-900 border border-gray-200 font-bold rounded-xl hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
+    @apply px-6 py-3 bg-white/70 backdrop-blur-md text-gray-900 border border-gray-200 shadow-sm font-bold rounded-xl hover:border-blue-400 hover:text-blue-600 hover:shadow-premium transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
   }
   
   .card-premium {
