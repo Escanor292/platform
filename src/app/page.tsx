@@ -147,7 +147,7 @@ export default async function Home() {
                <p className="text-gray-500 font-medium text-lg leading-relaxed">
                   Chúng tôi vận hành với cơ chế Smart Contract (giả lập) và quy trình đối soát chặt chẽ. Tiền của bạn chỉ được giải ngân khi dự án đạt mục tiêu.
                </p>
-               <button className="btn-primary">Tìm hiểu thêm về CFVN</button>
+               <Link href="/policy" className="btn-primary inline-flex mt-4 w-max">Tìm hiểu thêm về CFVN</Link>
             </div>
             <div className="flex-1 relative">
                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-600/20 rounded-full blur-[80px]" />

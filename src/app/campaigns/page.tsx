@@ -32,10 +32,10 @@ export default async function CampaignsPage() {
                 />
              </div>
              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
-                <button className="px-4 py-2 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-full whitespace-nowrap">Tất cả</button>
-                <button className="px-4 py-2 bg-white text-gray-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-gray-100 hover:border-blue-600 hover:text-blue-600 transition whitespace-nowrap">Công nghệ</button>
-                <button className="px-4 py-2 bg-white text-gray-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-gray-100 hover:border-blue-600 hover:text-blue-600 transition whitespace-nowrap">Môi trường</button>
-                <button className="px-4 py-2 bg-white text-gray-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-gray-100 hover:border-blue-600 hover:text-blue-600 transition whitespace-nowrap">Giáo dục</button>
+                <Link href="/campaigns" className="px-5 py-2 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-full whitespace-nowrap focus-ring">Tất cả</Link>
+                <Link href="/campaigns?category=Công nghệ" className="px-5 py-2 bg-white text-gray-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-gray-200 hover:border-blue-600 hover:text-blue-600 transition whitespace-nowrap focus-ring">Công nghệ</Link>
+                <Link href="/campaigns?category=Môi trường" className="px-5 py-2 bg-white text-gray-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-gray-200 hover:border-blue-600 hover:text-blue-600 transition whitespace-nowrap focus-ring">Môi trường</Link>
+                <Link href="/campaigns?category=Giáo dục" className="px-5 py-2 bg-white text-gray-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-gray-200 hover:border-blue-600 hover:text-blue-600 transition whitespace-nowrap focus-ring">Giáo dục</Link>
              </div>
           </div>
         </div>
