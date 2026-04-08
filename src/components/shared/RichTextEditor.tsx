@@ -6,18 +6,19 @@ import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import Youtube from "@tiptap/extension-youtube";
-import Color from "@tiptap/extension-color";
 import TextStyle from "@tiptap/extension-text-style";
 import Highlight from "@tiptap/extension-highlight";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import Placeholder from "@tiptap/extension-placeholder";
-import React, { useCallback } from "react";
+import CharacterCount from "@tiptap/extension-character-count";
+import React, { useCallback, useState } from "react";
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
   Link as LinkIcon, Heading1, Heading2, Quote, Code,
   Minus, Undo, Redo, Youtube as YoutubeIcon,
+  Highlighter, CheckSquare
 } from "lucide-react";
 
 interface RichTextEditorProps {
@@ -57,6 +58,8 @@ function ToolbarDivider() {
 }
 
 export default function RichTextEditor({ content, onChange, placeholder }: RichTextEditorProps) {
+  const [saveStatus, setSaveStatus] = useState("Đã lưu");
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -65,7 +68,6 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
       }),
       Underline,
       TextStyle,
-      Color,
       Highlight.configure({ multicolor: true }),
       Link.configure({ openOnClick: false, HTMLAttributes: { class: "text-blue-600 underline cursor-pointer" } }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
@@ -73,15 +75,21 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
       TaskList,
       TaskItem.configure({ nested: true }),
       Placeholder.configure({ placeholder: placeholder ?? "Viết nội dung chiến dịch của bạn ở đây..." }),
+      CharacterCount.configure({ limit: 50000 }), // Giới hạn (nếu cần), hiện để 50k
     ],
     content: content || "",
     editorProps: {
       attributes: {
-        class: "prose prose-lg max-w-none min-h-[400px] px-8 py-6 focus:outline-none",
+        class: "prose prose-lg max-w-none min-h-[400px] px-6 py-6 sm:px-8 focus:outline-none",
       },
     },
     onUpdate: ({ editor }) => {
+      setSaveStatus("Đang lưu...");
       onChange(editor.getHTML());
+      
+      setTimeout(() => {
+        setSaveStatus("Đã lưu");
+      }, 500);
     },
   });
 
@@ -141,21 +149,27 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
         <ToolbarButton onClick={() => editor.chain().focus().toggleStrike().run()} isActive={editor.isActive("strike")} title="Gạch ngang">
           <Strikethrough size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleCode().run()} isActive={editor.isActive("code")} title="Code">
-          <Code size={15} />
+        <ToolbarButton onClick={() => editor.chain().focus().toggleHighlight().run()} isActive={editor.isActive("highlight")} title="Tô sáng (Highlight)">
+          <Highlighter size={15} />
         </ToolbarButton>
 
         <ToolbarDivider />
 
-        {/* Lists */}
+        {/* Lists & Blocks */}
         <ToolbarButton onClick={() => editor.chain().focus().toggleBulletList().run()} isActive={editor.isActive("bulletList")} title="Danh sách dấu chấm">
           <List size={15} />
         </ToolbarButton>
         <ToolbarButton onClick={() => editor.chain().focus().toggleOrderedList().run()} isActive={editor.isActive("orderedList")} title="Danh sách đánh số">
           <ListOrdered size={15} />
         </ToolbarButton>
+        <ToolbarButton onClick={() => editor.chain().focus().toggleTaskList().run()} isActive={editor.isActive("taskList")} title="Checklist công việc">
+          <CheckSquare size={15} />
+        </ToolbarButton>
         <ToolbarButton onClick={() => editor.chain().focus().toggleBlockquote().run()} isActive={editor.isActive("blockquote")} title="Trích dẫn">
           <Quote size={15} />
+        </ToolbarButton>
+        <ToolbarButton onClick={() => editor.chain().focus().toggleCode().run()} isActive={editor.isActive("code")} title="Code">
+          <Code size={15} />
         </ToolbarButton>
 
         <ToolbarDivider />
@@ -186,14 +200,27 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
       </div>
 
       {/* ── EDITOR AREA ── */}
-      <EditorContent editor={editor} />
+      <div className="cursor-text bg-white" onClick={() => editor.commands.focus()}>
+         <EditorContent editor={editor} />
+      </div>
 
       {/* ── FOOTER ── */}
-      <div className="px-8 py-2 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
-        <span className="text-[11px] text-gray-400">
-          {editor.storage.characterCount?.characters?.() ?? 0} ký tự
-        </span>
-        <span className="text-[11px] text-gray-300 uppercase tracking-widest font-semibold">TipTap Editor</span>
+      <div className="px-6 py-3 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
+        {/* Left Side: Status */}
+        <div className="flex items-center gap-2 text-xs font-medium text-gray-500">
+           <div className={`w-2 h-2 rounded-full transition-colors duration-300 ${saveStatus === "Đã lưu" ? "bg-emerald-500" : "bg-amber-500 animate-pulse"}`} />
+           <span>{saveStatus}</span>
+        </div>
+
+        {/* Right Side: Counters */}
+        <div className="flex items-center gap-4">
+            <span className="text-xs font-semibold text-gray-400">
+            {editor.storage.characterCount.words()} từ
+            </span>
+            <span className="text-xs font-semibold text-gray-400">
+            {editor.storage.characterCount.characters()} ký tự
+            </span>
+        </div>
       </div>
 
       {/* ── TYPOGRAPHY STYLES ── */}
@@ -225,6 +252,11 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
         }
         .ProseMirror h1 { font-size: 1.875rem; font-weight: 700; margin: 1rem 0 0.5rem; }
         .ProseMirror h2 { font-size: 1.5rem; font-weight: 600; margin: 1rem 0 0.5rem; }
+        .ProseMirror mark {
+          background-color: #fef08a;
+          border-radius: 2px;
+          padding: 0.1em 0.2em;
+        }
         .ProseMirror code {
           background: #f3f4f6;
           border-radius: 4px;
@@ -234,6 +266,25 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
         }
         .ProseMirror a { color: #2563eb; text-decoration: underline; }
         .ProseMirror iframe { max-width: 100%; border-radius: 8px; margin: 1rem auto; display: block; }
+        
+        /* Task List Styles */
+        ul[data-type="taskList"] {
+          list-style: none;
+          padding: 0;
+        }
+        ul[data-type="taskList"] li[data-type="taskItem"] {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.5rem;
+          margin: 0.5rem 0;
+        }
+        ul[data-type="taskList"] li[data-type="taskItem"] > label {
+          margin-top: 0.25rem;
+          user-select: none;
+        }
+        ul[data-type="taskList"] li[data-type="taskItem"] > div {
+          flex: 1;
+        }
       `}</style>
     </div>
   );
