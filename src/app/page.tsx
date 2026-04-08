@@ -14,9 +14,9 @@ export default async function Home() {
   });
 
   return (
-    <main className="min-h-screen bg-slate-50/50">
+    <main className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-24 px-6 overflow-hidden">
+      <section className="relative pt-32 pb-24 px-6 overflow-hidden bg-grid">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full -z-10">
           <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-[100px] animate-pulse" />
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px]" />
@@ -48,10 +48,19 @@ export default async function Home() {
             </Link>
           </div>
           
-          <div className="mt-16 flex justify-center items-center gap-12 grayscale opacity-50">
-             <div className="flex items-center gap-2 font-black text-gray-400"><TrendingUp size={24}/> Viral</div>
-             <div className="flex items-center gap-2 font-black text-gray-400"><ShieldCheck size={24}/> Trusted</div>
-             <div className="flex items-center gap-2 font-black text-gray-400"><Globe size={24}/> Global</div>
+          <div className="mt-16 flex flex-wrap justify-center items-center gap-6 md:gap-12">
+             <div className="flex items-center gap-2 px-6 py-3 bg-white/70 backdrop-blur rounded-2xl shadow-sm border border-gray-100/50">
+               <TrendingUp size={20} className="text-blue-600"/> 
+               <span className="font-extrabold text-gray-900">Viral</span>
+             </div>
+             <div className="flex items-center gap-2 px-6 py-3 bg-white/70 backdrop-blur rounded-2xl shadow-sm border border-gray-100/50">
+               <ShieldCheck size={20} className="text-emerald-500"/> 
+               <span className="font-extrabold text-gray-900">Tin cậy</span>
+             </div>
+             <div className="flex items-center gap-2 px-6 py-3 bg-white/70 backdrop-blur rounded-2xl shadow-sm border border-gray-100/50">
+               <Globe size={20} className="text-blue-600"/> 
+               <span className="font-extrabold text-gray-900">Sứ mệnh</span>
+             </div>
           </div>
         </div>
       </section>
