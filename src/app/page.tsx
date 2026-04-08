@@ -28,13 +28,13 @@ export default async function Home() {
             <span className="text-xs font-black text-gray-900 uppercase tracking-widest">Nền tảng gọi vốn số 1 Việt Nam</span>
           </div>
           
-          <h1 className="text-6xl md:text-8xl font-black text-gray-900 mb-8 tracking-tighter leading-[0.9]">
+          <h1 className="text-6xl md:text-8xl font-black text-gray-900 mb-8 tracking-tighter leading-[1.1]">
             Khơi nguồn <span className="text-gradient">sáng tạo</span>,<br />
-            Lan tỏa <span className="text-blue-600 underline decoration-emerald-400 decoration-8 underline-offset-4">Yêu thương</span>.
+            Lan tỏa <span className="text-gradient">yêu thương</span>
           </h1>
           
-          <p className="text-lg md:text-2xl text-gray-400 font-medium mb-12 max-w-3xl mx-auto leading-relaxed">
-            Nơi những ý tưởng táo bạo nhất được hiện thực hóa bởi sự tin tưởng từ cộng đồng. Biến giấc mơ của bạn thành hiện thực ngay hôm nay.
+          <p className="text-lg md:text-2xl text-gray-500 font-medium mb-12 max-w-3xl mx-auto leading-relaxed">
+            Nơi những ý tưởng táo bạo nhất được cộng đồng chung tay xây dựng. Hãy bước ra ánh sáng và bắt đầu chiến dịch của riêng bạn hôm nay.
           </p>
           
           <div className="flex flex-col md:flex-row gap-6 justify-center items-center">

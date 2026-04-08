@@ -19,7 +19,9 @@ export default async function CampaignsPage() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
           <div className="flex-grow space-y-4">
             <h1 className="text-5xl md:text-7xl font-black text-gray-900 tracking-tighter leading-none">Khám phá <span className="text-gradient">ý tưởng</span></h1>
-            <p className="text-lg text-gray-400 font-medium">Tìm kiếm những dự án thay đổi tương lai và bắt đầu hành trợ của bạn.</p>
+            <p className="text-lg text-gray-500 font-medium max-w-xl">
+              Tìm kiếm những dự án thay đổi tương lai và bắt đầu hành trình hỗ trợ của bạn dưới sự bảo vệ tuyệt đối.
+            </p>
           </div>
           
           <div className="w-full max-w-md space-y-4">
@@ -28,10 +30,10 @@ export default async function CampaignsPage() {
                 <input 
                   type="text" 
                   placeholder="Tìm tên dự án, chủ đề..." 
-                  className="w-full h-20 pl-16 pr-8 bg-gray-50 border-0 rounded-[2rem] focus:ring-2 focus:ring-blue-600 font-bold text-gray-900 placeholder:text-gray-400 transition-all shadow-soft"
+                  className="w-full h-16 pl-16 pr-8 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-600 focus:border-transparent font-medium text-gray-900 placeholder:text-gray-400 transition-all shadow-soft"
                 />
              </div>
-             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
+             <div className="flex gap-3 overflow-x-auto pb-1 hide-scrollbar">
                 <Link href="/campaigns" className="px-5 py-2 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-full whitespace-nowrap focus-ring">Tất cả</Link>
                 <Link href="/campaigns?category=Công nghệ" className="px-5 py-2 bg-white text-gray-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-gray-200 hover:border-blue-600 hover:text-blue-600 transition whitespace-nowrap focus-ring">Công nghệ</Link>
                 <Link href="/campaigns?category=Môi trường" className="px-5 py-2 bg-white text-gray-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-gray-200 hover:border-blue-600 hover:text-blue-600 transition whitespace-nowrap focus-ring">Môi trường</Link>
