@@ -44,19 +44,26 @@
 }
 
 .text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-emerald-500;
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-emerald-400;
+}
+
+/* Beautiful modern fintech background grids */
+.bg-grid {
+  background-size: 40px 40px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
 }
 
 .prose h1 {
-  @apply text-4xl font-black text-gray-900 mb-6 mt-8 tracking-tighter;
+  @apply text-4xl font-extrabold text-gray-900 mb-6 mt-8 tracking-tight;
 }
 
 .prose h2 {
-  @apply text-2xl font-black text-gray-900 mb-4 mt-6 tracking-tight;
+  @apply text-2xl font-bold text-gray-900 mb-4 mt-6 tracking-normal;
 }
 
 .prose p {
-  @apply mb-4 leading-relaxed;
+  @apply mb-4 leading-relaxed text-gray-600;
 }
 
 .prose iframe {

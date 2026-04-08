@@ -28,14 +28,14 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-6 h-18 flex items-center justify-between">
+    <nav className="sticky top-0 md:top-4 z-50 max-w-7xl mx-auto w-full px-0 md:px-6 transition-all duration-300">
+      <div className="bg-white/70 backdrop-blur-xl md:rounded-[2rem] border-b md:border border-white/40 shadow-soft md:shadow-premium px-6 h-18 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group focus-ring rounded-xl p-1">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white group-hover:rotate-6 transition-transform">
-             <Rocket size={24} />
+          <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-700 rounded-[10px] flex items-center justify-center text-white shadow-sm group-hover:rotate-6 transition-transform">
+             <Rocket size={20} />
           </div>
-          <span className="text-xl font-black text-gray-900 tracking-tighter uppercase italic">Crowdfund<span className="text-blue-600">VN</span></span>
+          <span className="text-xl font-extrabold tracking-tight text-gray-900">crowdfund<span className="text-blue-600">.vn</span></span>
         </Link>
 
         {/* Desktop Navigation */}
