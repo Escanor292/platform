@@ -65,6 +65,36 @@ export async function POST(request: NextRequest) {
       paymentUrl = `${process.env.NEXTAUTH_URL}/api/payment/payos/create?pledgeId=${pledge.id}`;
     } else if (paymentMethod === "VNPAY") {
       paymentUrl = `${process.env.NEXTAUTH_URL}/api/payment/vnpay/create?pledgeId=${pledge.id}`;
+    } else if (paymentMethod === "SEPAY") {
+      // SePay sẽ trả về QR code thay vì redirect URL
+      const sepayResponse = await fetch(`${process.env.NEXTAUTH_URL}/api/payment/sepay/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount,
+          campaignId,
+          tipAmount,
+          vatAmount,
+          guestEmail,
+          displayName: finalDisplayName,
+          isAnonymous,
+          ipAddress,
+        }),
+      });
+      
+      const sepayData = await sepayResponse.json();
+      if (!sepayResponse.ok) {
+        throw new Error(sepayData.error || "SePay payment failed");
+      }
+      
+      return NextResponse.json({
+        message: "SePay QR generated",
+        pledgeId: sepayData.pledgeId,
+        paymentMethod: "SEPAY",
+        qrCode: sepayData.qrCode,
+        bankInfo: sepayData.bankInfo,
+        returnUrl: sepayData.returnUrl,
+      });
     } else if (paymentMethod === "BANK") {
       return NextResponse.json({
         message: "Pledge created",

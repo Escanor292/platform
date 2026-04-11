@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatVND } from "@/lib/utils";
+import SePayQRModal from "@/components/payment/SePayQRModal";
 
 interface Reward {
   id: string;
@@ -30,6 +31,10 @@ export default function PledgeForm({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  
+  // SePay modal state
+  const [showSePayModal, setShowSePayModal] = useState(false);
+  const [sePayData, setSePayData] = useState<any>(null);
 
   const [selectedRewardId, setSelectedRewardId] = useState<string | null>(
     preselectedRewardId ?? null
@@ -39,7 +44,7 @@ export default function PledgeForm({
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"VNPAY" | "MOMO" | "PAYOS" | "BANK">("PAYOS");
+  const [paymentMethod, setPaymentMethod] = useState<"VNPAY" | "MOMO" | "PAYOS" | "SEPAY" | "BANK">("PAYOS");
 
   const selectedReward = rewards.find((r) => r.id === selectedRewardId);
   const baseAmount = selectedReward ? selectedReward.amount : customAmount;
@@ -70,6 +75,14 @@ export default function PledgeForm({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Có lỗi xảy ra");
 
+      // Xử lý SePay (hiển thị QR modal)
+      if (data.paymentMethod === "SEPAY") {
+        setSePayData(data);
+        setShowSePayModal(true);
+        return;
+      }
+
+      // Xử lý các payment gateway khác (redirect)
       if (data.paymentUrl) {
         window.location.href = data.paymentUrl;
       } else if (data.pledgeId) {
@@ -244,7 +257,7 @@ export default function PledgeForm({
             Phương thức thanh toán
           </label>
           <div className="grid grid-cols-2 gap-2">
-            {(["PAYOS", "VNPAY", "MOMO", "BANK"] as const).map((method) => (
+            {(["PAYOS", "SEPAY", "VNPAY", "MOMO"] as const).map((method) => (
               <label
                 key={method}
                 className={`flex items-center justify-center gap-2 p-3 border rounded-xl cursor-pointer text-sm transition ${
@@ -261,10 +274,10 @@ export default function PledgeForm({
                   onChange={() => setPaymentMethod(method)}
                   className="hidden"
                 />
-                {method === "PAYOS" && "🏦 PayOS (VietQR)"}
+                {method === "PAYOS" && "🏦 PayOS"}
+                {method === "SEPAY" && "📱 SePay (QR)"}
                 {method === "VNPAY" && "💳 VNPay"}
                 {method === "MOMO" && "🟣 MoMo"}
-                {method === "BANK" && "🏧 Chuyển khoản"}
               </label>
             ))}
           </div>
@@ -305,6 +318,21 @@ export default function PledgeForm({
           🔒 Thanh toán bảo mật. Tiền giữ escrow, hoàn tiền nếu không đạt mục tiêu.
         </p>
       </form>
+
+      {/* SePay QR Modal */}
+      {showSePayModal && sePayData && (
+        <SePayQRModal
+          isOpen={showSePayModal}
+          onClose={() => setShowSePayModal(false)}
+          qrCode={sePayData.qrCode}
+          bankInfo={sePayData.bankInfo}
+          pledgeId={sePayData.pledgeId}
+          onSuccess={() => {
+            setShowSePayModal(false);
+            router.push(`/payment-success?pledgeId=${sePayData.pledgeId}&status=success&method=sepay`);
+          }}
+        />
+      )}
     </div>
   );
 }

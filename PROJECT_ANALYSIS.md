@@ -188,11 +188,14 @@ POST   /api/campaigns/[slug]/reviews - Tạo đánh giá
 
 ### 4.3. Payment API
 ```
-POST /api/payment/vnpay/create  - Tạo thanh toán VNPay
-POST /api/payment/momo/create   - Tạo thanh toán MoMo
-POST /api/payment/payos/create  - Tạo thanh toán PayOS
-POST /api/payments/webhook      - Webhook từ payment gateway
-POST /api/payments/refund       - Hoàn tiền
+POST /api/payment/vnpay/create   - Tạo thanh toán VNPay
+POST /api/payment/momo/create    - Tạo thanh toán MoMo
+POST /api/payment/payos/create   - Tạo thanh toán PayOS
+POST /api/payment/sepay/create   - Tạo QR code SePay
+POST /api/payment/sepay/webhook  - Webhook từ SePay
+GET  /api/payment/sepay/status/[pledgeId] - Check trạng thái SePay
+POST /api/payments/webhook       - Webhook từ payment gateway
+POST /api/payments/refund        - Hoàn tiền
 ```
 
 ### 4.4. Transaction API
@@ -293,7 +296,9 @@ GET /api/cron/update-campaign-status - Cập nhật trạng thái chiến dịch
 - Highlight, underline, text align
 
 ### 7.2. Payment Integration
-- Tích hợp 3 cổng thanh toán: VNPay, MoMo, PayOS
+- Tích hợp 4 cổng thanh toán: VNPay, MoMo, PayOS, SePay
+- **VNPay/MoMo/PayOS**: Redirect sang trang thanh toán → Quét QR/Nhập thẻ
+- **SePay**: Hiển thị QR code ngay trên trang → User chuyển khoản → Webhook tự động
 - Xử lý webhook để cập nhật trạng thái tự động
 - Hỗ trợ hoàn tiền tự động
 
