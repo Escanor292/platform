@@ -31,6 +31,8 @@ model User {
   invoices        PlatformInvoice[]
   pledges         Pledge[]
   reviews         Review[]
+  kycInfo         KYCInfo?
+  auditLogs       AuditLog[]
 
   @@map("users")
 }
@@ -80,30 +82,32 @@ model Reward {
 }
 
 model Pledge {
-  id               String       @id @default(cuid())
+  id               String          @id @default(cuid())
   campaignId       String
   userId           String?
   displayName      String
-  isAnonymous      Boolean      @default(false)
+  isAnonymous      Boolean         @default(false)
   email            String?
   phoneNumber      String?
   amount           Decimal
-  tipAmount        Decimal      @default(0)
-  platformFee      Decimal      @default(0)
-  vatAmount        Decimal      @default(0)
+  tipAmount        Decimal         @default(0)
+  platformFee      Decimal         @default(0)
+  vatAmount        Decimal         @default(0)
   totalAmount      Decimal
   paymentProvider  String
-  transactionId    String       @unique
+  transactionId    String          @unique
   ipAddress        String?
   deviceInfo       Json?
-  status           PledgeStatus @default(PENDING)
-  refundStatus     RefundStatus @default(NO_REFUND)
+  status           PledgeStatus    @default(PENDING)
+  refundStatus     RefundStatus    @default(NO_REFUND)
   refundedAt       DateTime?
   invoiceGroupDate DateTime?
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
-  campaign         Campaign     @relation(fields: [campaignId], references: [id])
-  user             User?        @relation(fields: [userId], references: [id])
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  campaign         Campaign        @relation(fields: [campaignId], references: [id])
+  user             User?           @relation(fields: [userId], references: [id])
+  backerInvoice    BackerInvoice?
+  auditLogs        AuditLog[]
 
   @@map("pledges")
 }
@@ -206,4 +210,177 @@ enum InvoiceStatus {
   PAID
   OVERDUE
   CANCELLED
+}
+
+// ============================================================
+// KYC (Know Your Customer) - Xác minh danh tính
+// ============================================================
+model KYCInfo {
+  id                String        @id @default(cuid())
+  userId            String        @unique
+  fullName          String        // Họ tên đầy đủ
+  idCardNumber      String        @unique // Số CMND/CCCD/Passport
+  idCardType        IDCardType    // Loại giấy tờ
+  idCardFrontImage  String?       // Ảnh mặt trước
+  idCardBackImage   String?       // Ảnh mặt sau
+  idCardIssueDate   DateTime?     // Ngày cấp
+  idCardIssuePlace  String?       // Nơi cấp
+  dateOfBirth       DateTime?     // Ngày sinh
+  placeOfBirth      String?       // Nơi sinh
+  nationality       String        @default("VN") // Quốc tịch
+  permanentAddress  String?       // Địa chỉ thường trú
+  currentAddress    String?       // Địa chỉ hiện tại
+  occupation        String?       // Nghề nghiệp
+  monthlyIncome     String?       // Thu nhập hàng tháng
+  verificationStatus KYCStatus    @default(PENDING)
+  verifiedAt        DateTime?     // Thời gian xác minh
+  verifiedBy        String?       // Người xác minh (admin ID)
+  rejectedReason    String?       // Lý do từ chối
+  riskLevel         RiskLevel     @default(LOW) // Mức độ rủi ro
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("kyc_info")
+}
+
+// ============================================================
+// Hóa đơn cho Backer (Người ủng hộ)
+// ============================================================
+model BackerInvoice {
+  id              String        @id @default(cuid())
+  invoiceNumber   String        @unique // Số hóa đơn: INV-YYYYMMDD-XXXXX
+  pledgeId        String        @unique
+  backerName      String        // Tên người ủng hộ
+  backerEmail     String?       // Email
+  backerPhone     String?       // Số điện thoại
+  backerAddress   String?       // Địa chỉ (nếu yêu cầu)
+  backerTaxCode   String?       // Mã số thuế (nếu là công ty)
+  companyName     String?       // Tên công ty (nếu có)
+  amount          Decimal       // Số tiền ủng hộ
+  tipAmount       Decimal       // Tiền tip
+  platformFee     Decimal       // Phí nền tảng
+  vatAmount       Decimal       // VAT
+  totalAmount     Decimal       // Tổng cộng
+  campaignTitle   String        // Tên chiến dịch
+  paymentMethod   String        // Phương thức thanh toán
+  transactionId   String        // Mã giao dịch
+  status          InvoiceStatus @default(PENDING)
+  issuedAt        DateTime      @default(now()) // Ngày xuất hóa đơn
+  pdfUrl          String?       // Link file PDF
+  sentAt          DateTime?     // Thời gian gửi email
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  pledge          Pledge        @relation(fields: [pledgeId], references: [id], onDelete: Cascade)
+
+  @@map("backer_invoices")
+}
+
+// ============================================================
+// Audit Log - Lịch sử thay đổi
+// ============================================================
+model AuditLog {
+  id          String    @id @default(cuid())
+  userId      String?   // Người thực hiện (null nếu system)
+  action      AuditAction // Hành động
+  entityType  String    // Loại entity: USER, CAMPAIGN, PLEDGE, INVOICE
+  entityId    String    // ID của entity
+  oldValue    Json?     // Giá trị cũ
+  newValue    Json?     // Giá trị mới
+  changes     Json?     // Chi tiết thay đổi
+  ipAddress   String?   // IP address
+  userAgent   String?   // User agent
+  reason      String?   // Lý do thay đổi
+  metadata    Json?     // Thông tin bổ sung
+  createdAt   DateTime  @default(now())
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  pledge      Pledge?   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================================
+// Transaction Limit - Giới hạn giao dịch
+// ============================================================
+model TransactionLimit {
+  id              String   @id @default(cuid())
+  userId          String?  @unique // null = áp dụng cho tất cả
+  kycStatus       KYCStatus? // Áp dụng cho KYC status nào
+  maxPerTransaction Decimal // Giới hạn mỗi giao dịch
+  maxPerDay       Decimal  // Giới hạn mỗi ngày
+  maxPerMonth     Decimal  // Giới hạn mỗi tháng
+  maxTransactionsPerDay Int // Số lần giao dịch tối đa/ngày
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("transaction_limits")
+}
+
+// ============================================================
+// Blacklist - Danh sách đen
+// ============================================================
+model Blacklist {
+  id          String        @id @default(cuid())
+  type        BlacklistType // Loại: IP, EMAIL, PHONE, BANK_ACCOUNT
+  value       String        // Giá trị bị chặn
+  reason      String        // Lý do
+  addedBy     String?       // Admin thêm vào
+  isActive    Boolean       @default(true)
+  expiresAt   DateTime?     // Thời gian hết hạn (null = vĩnh viễn)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@unique([type, value])
+  @@index([type, value, isActive])
+  @@map("blacklist")
+}
+
+// ============================================================
+// Enums mới
+// ============================================================
+enum IDCardType {
+  CMND      // Chứng minh nhân dân
+  CCCD      // Căn cước công dân
+  PASSPORT  // Hộ chiếu
+}
+
+enum KYCStatus {
+  PENDING   // Chờ xác minh
+  VERIFIED  // Đã xác minh
+  REJECTED  // Bị từ chối
+  EXPIRED   // Hết hạn
+}
+
+enum RiskLevel {
+  LOW       // Thấp
+  MEDIUM    // Trung bình
+  HIGH      // Cao
+  CRITICAL  // Nghiêm trọng
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  REFUND
+  APPROVE
+  REJECT
+  CANCEL
+  LOGIN
+  LOGOUT
+  KYC_SUBMIT
+  KYC_APPROVE
+  KYC_REJECT
+}
+
+enum BlacklistType {
+  IP
+  EMAIL
+  PHONE
+  BANK_ACCOUNT
+  DEVICE_ID
 }
