@@ -8,10 +8,10 @@ import { auth } from "@/lib/auth";
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
 
     const campaign = await prisma.campaign.findFirst({
       where: { OR: [{ slug }, { id: slug }] },
@@ -43,7 +43,7 @@ export async function GET(
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const session = await auth();
@@ -51,7 +51,7 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { slug } = params;
+    const { slug } = await params;
     const { comment, imageUrl, rating } = await req.json();
 
     const campaign = await prisma.campaign.findFirst({

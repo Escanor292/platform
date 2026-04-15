@@ -1,7 +1,7 @@
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { formatVND } from "@/lib/utils";
-import { Search, Rocket, Sparkles, Filter, Zap } from "lucide-react";
+import { Search, Rocket, ArrowRight } from "lucide-react";
 
 export default async function CampaignsPage() {
   const campaigns = await prisma.campaign.findMany({
@@ -13,71 +13,146 @@ export default async function CampaignsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50/50">
+    <div className="min-h-screen bg-white">
       {/* Search Header */}
-      <section className="bg-white border-b border-gray-100 pt-32 pb-16 px-6">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
-          <div className="flex-grow space-y-4">
-            <h1 className="text-5xl md:text-7xl font-black text-gray-900 tracking-tighter leading-none">Khám phá <span className="text-gradient">ý tưởng</span></h1>
-            <p className="text-lg text-gray-500 font-medium max-w-xl">
-              Tìm kiếm những dự án thay đổi tương lai và bắt đầu hành trình hỗ trợ của bạn dưới sự bảo vệ tuyệt đối.
+      <section 
+        className="pt-32 pb-16 px-6 relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(180deg, #F8F7F2 0%, #f0f8f4 50%, #F8F7F2 100%)'
+        }}
+      >
+        {/* Background elements */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <div 
+            className="absolute top-10 left-[5%] w-96 h-96 bg-gradient-to-br from-fgreen/20 via-fgreen/8 to-transparent rounded-full blur-3xl opacity-70"
+            style={{ animation: 'pulse 8s ease-in-out infinite' }}
+          />
+          <div 
+            className="absolute top-32 right-[8%] w-80 h-80 bg-gradient-to-tl from-tblue/15 via-transparent to-transparent rounded-full blur-3xl opacity-60"
+            style={{ animation: 'pulse 10s ease-in-out 2s infinite' }}
+          />
+        </div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="text-center mb-12">
+            <h1 className="font-display font-black text-5xl lg:text-6xl text-dblue mb-4" style={{ lineHeight: '1.3' }}>
+              Khám phá <span className="text-transparent bg-clip-text bg-gradient-to-r from-pgreen via-fgreen to-tblue">ý tưởng</span>
+            </h1>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Tìm kiếm những dự án thay đổi tương lai và bắt đầu hành trình hỗ trợ của bạn
             </p>
           </div>
           
-          <div className="w-full max-w-md space-y-4">
-             <div className="relative group">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition" size={24} />
-                <input 
-                  type="text" 
-                  placeholder="Tìm tên dự án, chủ đề..." 
-                  className="w-full h-16 pl-16 pr-8 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-600 focus:border-transparent font-medium text-gray-900 placeholder:text-gray-400 transition-all shadow-soft"
-                />
-             </div>
-             <div className="flex gap-3 overflow-x-auto pb-1 hide-scrollbar">
-                <Link href="/campaigns" className="px-5 py-2 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-full whitespace-nowrap focus-ring">Tất cả</Link>
-                <Link href="/campaigns?category=Công nghệ" className="px-5 py-2 bg-white text-gray-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-gray-200 hover:border-blue-600 hover:text-blue-600 transition whitespace-nowrap focus-ring">Công nghệ</Link>
-                <Link href="/campaigns?category=Môi trường" className="px-5 py-2 bg-white text-gray-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-gray-200 hover:border-blue-600 hover:text-blue-600 transition whitespace-nowrap focus-ring">Môi trường</Link>
-                <Link href="/campaigns?category=Giáo dục" className="px-5 py-2 bg-white text-gray-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-gray-200 hover:border-blue-600 hover:text-blue-600 transition whitespace-nowrap focus-ring">Giáo dục</Link>
-             </div>
+          <div className="max-w-2xl mx-auto space-y-4">
+            <div className="relative group">
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-pgreen transition" size={24} />
+              <input 
+                type="text" 
+                placeholder="Tìm tên dự án, chủ đề..." 
+                className="w-full h-16 pl-16 pr-8 glass border border-white/70 rounded-2xl focus:ring-2 focus:ring-pgreen focus:border-transparent font-medium text-gray-900 placeholder:text-gray-400 transition-all shadow-soft"
+              />
+            </div>
+            <div className="flex gap-3 justify-center flex-wrap">
+              <Link href="/campaigns" className="px-5 py-2 gradient-green text-white text-xs font-bold uppercase tracking-wider rounded-full whitespace-nowrap shadow-md hover:shadow-lg transition">Tất cả</Link>
+              <Link href="/campaigns?category=Công nghệ" className="px-5 py-2 glass border border-white/70 text-gray-700 text-xs font-bold uppercase tracking-wider rounded-full hover:border-pgreen hover:text-pgreen transition whitespace-nowrap">Công nghệ</Link>
+              <Link href="/campaigns?category=Môi trường" className="px-5 py-2 glass border border-white/70 text-gray-700 text-xs font-bold uppercase tracking-wider rounded-full hover:border-pgreen hover:text-pgreen transition whitespace-nowrap">Môi trường</Link>
+              <Link href="/campaigns?category=Giáo dục" className="px-5 py-2 glass border border-white/70 text-gray-700 text-xs font-bold uppercase tracking-wider rounded-full hover:border-pgreen hover:text-pgreen transition whitespace-nowrap">Giáo dục</Link>
+            </div>
           </div>
         </div>
       </section>
 
       <div className="max-w-7xl mx-auto py-16 px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {campaigns.length > 0 ? (
             campaigns.map((campaign: any) => {
-               const progress = Math.min(100, Math.round((Number(campaign.currentAmount) / Number(campaign.goalAmount)) * 100));
-               return (
-                <div key={campaign.id} className="card-premium group">
+              const progress = Math.min(100, Math.round((Number(campaign.currentAmount) / Number(campaign.goalAmount)) * 100));
+              const daysLeft = campaign.endDate 
+                ? Math.max(0, Math.ceil((new Date(campaign.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+                : null;
+
+              return (
+                <Link 
+                  key={campaign.id}
+                  href={`/campaigns/${campaign.slug}`}
+                  className="rounded-3xl overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer bg-white group"
+                >
                   {campaign.imageUrl && (
-                    <div className="relative h-64 overflow-hidden">
-                      <img src={campaign.imageUrl} alt={campaign.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <div className="relative h-48 overflow-hidden">
+                      <img 
+                        src={campaign.imageUrl} 
+                        alt={campaign.title} 
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                      />
                       <div className="absolute top-4 left-4">
-                         <span className="px-3 py-1 bg-white/90 backdrop-blur text-[10px] font-black text-gray-900 uppercase tracking-widest rounded-lg border border-white/20">
-                           {campaign.category || "HÀNH ĐỘNG"}
-                         </span>
+                        <span className="px-3 py-1.5 bg-white/90 backdrop-blur text-xs font-bold text-gray-900 uppercase tracking-wider rounded-lg border border-white/20">
+                          {campaign.category || "Cộng đồng"}
+                        </span>
                       </div>
                     </div>
                   )}
-                  <div className="p-8 flex flex-col h-full">
-                    <h3 className="text-xl font-black text-gray-900 mb-2 line-clamp-1 group-hover:text-blue-600 transition tracking-tight">
+                  
+                  <div className="p-6">
+                    <h3 className="font-display font-bold text-dblue text-lg mb-2 line-clamp-2 group-hover:text-pgreen transition">
                       {campaign.title}
                     </h3>
-                    <p className="text-gray-400 text-sm font-medium mb-6 line-clamp-2 leading-relaxed">
+                    <p className="text-gray-500 text-sm mb-4 line-clamp-2">
                       {campaign.description}
                     </p>
-                    
-                    <div className="mt-auto space-y-6">
-                      <div className="space-y-3">
-                         <div className="flex justify-between items-end text-sm font-black text-gray-900">
-                            <span>{progress}% <span className="text-[10px] text-gray-400 uppercase tracking-widest ml-1 font-bold">đã đạt được</span></span>
-                            <span>{formatVND(Number(campaign.currentAmount))}</span>
-                         </div>
-                         <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
-                            <div 
-                              className="bg-blue-600 h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(37,99,235,0.4)]" 
-                              style={{ width: `${progress}%` }}
+
+                    <div className="space-y-3">
+                      <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                        <div 
+                          className="progress-bar h-full"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                      
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="font-bold text-pgreen">
+                          {formatVND(Number(campaign.currentAmount))}
+                        </span>
+                        <span className="text-gray-400">
+                          {progress}% đạt được
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-full bg-pgreen/10 flex items-center justify-center text-pgreen text-xs font-bold">
+                            {campaign.creator?.name?.charAt(0) || "C"}
+                          </div>
+                          <span className="text-xs font-semibold text-gray-600">
+                            {campaign.creator?.name || "Anonymous"}
+                          </span>
+                        </div>
+                        {daysLeft !== null && (
+                          <span className="text-xs text-gray-400">
+                            {daysLeft > 0 ? `${daysLeft} ngày` : "Kết thúc"}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })
+          ) : (
+            <div className="col-span-full py-24 text-center glass rounded-3xl">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Rocket className="text-gray-300" size={32} />
+              </div>
+              <h3 className="text-xl font-black text-gray-900 mb-2">Đang chờ dự án mới...</h3>
+              <p className="text-gray-400 text-sm font-medium">
+                Hiện tại không có dự án nào đang hoạt động. Hãy là người đầu tiên!
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
                             />
                          </div>
                       </div>

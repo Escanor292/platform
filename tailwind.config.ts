@@ -12,6 +12,14 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        // TửTế Fund Color Palette
+        pgreen: '#2E8B57',
+        fgreen: '#6BCB77',
+        tblue: '#2F80ED',
+        dblue: '#1F4E79',
+        ebrown: '#8B6B4A',
+        cream: '#F8F7F2',
+        warmw: 'rgba(255,255,255,0.7)',
         // Thay thế toàn bộ viền/text Đen/Xám thô cứng thành Tông Xanh Than (Slate/Navy) mềm mại
         gray: {
           ...colors.slate,
@@ -37,6 +45,11 @@ const config: Config = {
           700: "#1d4ed8",
         },
         momo: "#a50064",
+      },
+      fontFamily: {
+        display: ['var(--font-playfair)', 'Playfair Display', 'Georgia', 'serif'],
+        body: ['var(--font-source-sans)', 'Source Sans 3', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-source-sans)', 'Source Sans 3', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         '3xl': '1.5rem',

@@ -1,8 +1,7 @@
 import prisma from "@/lib/prisma";
 import { formatVND } from "@/lib/utils";
 import Link from "next/link";
-import { Metadata } from "next";
-import { Rocket, ArrowRight } from "lucide-react";
+import { Zap, Sparkles, Rocket, ArrowRight } from "lucide-react";
 import HeroSection from "@/components/shared/HeroSection";
 import StatsSection from "@/components/shared/StatsSection";
 import WhyUsSection from "@/components/shared/WhyUsSection";
@@ -10,13 +9,7 @@ import ThreeStepsSection from "@/components/shared/ThreeStepsSection";
 import TestimonialsSection from "@/components/shared/TestimonialsSection";
 import CTASection from "@/components/shared/CTASection";
 
-export const metadata: Metadata = {
-  title: "TửTế Fund - Lấy sự tử tế trồng tương lai | Nền tảng gây quỹ cộng đồng #1 Việt Nam",
-  description:
-    "Lấy sự tử tế trồng tương lai. Nền tảng gây quỹ cộng đồng minh bạch #1 Việt Nam. Kết nối yêu thương, gieo mầm hy vọng.",
-};
-
-export default async function MarketingHomePage() {
+export default async function DemoPage() {
   const campaigns = await prisma.campaign.findMany({
     where: { status: "ACTIVE" },
     include: {
