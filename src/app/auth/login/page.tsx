@@ -5,8 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Globe, Lock, Mail, Rocket, AlertCircle, Loader2 } from "lucide-react";
+import { Globe, Lock, Mail, AlertCircle, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,92 +40,128 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50/50 px-4 relative overflow-hidden">
+    <div 
+      className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
+      style={{
+        background: 'linear-gradient(180deg, #F8F7F2 0%, #f0f8f4 50%, #F8F7F2 100%)'
+      }}
+    >
       {/* Decorative background */}
-      <div className="absolute top-0 left-0 w-64 h-64 bg-blue-600/5 rounded-full blur-[80px]" />
-      <div className="absolute bottom-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px]" />
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div 
+          className="absolute top-10 left-[5%] w-96 h-96 bg-gradient-to-br from-fgreen/20 via-fgreen/8 to-transparent rounded-full blur-3xl opacity-70"
+          style={{ animation: 'pulse 8s ease-in-out infinite' }}
+        />
+        <div 
+          className="absolute top-32 right-[8%] w-80 h-80 bg-gradient-to-tl from-tblue/15 via-transparent to-transparent rounded-full blur-3xl opacity-60"
+          style={{ animation: 'pulse 10s ease-in-out 2s infinite' }}
+        />
+      </div>
 
-      <Card className="w-full max-w-md card-premium animate-fade-in-up border-0 shadow-xl">
-        <CardHeader className="text-center pb-8 pt-12">
-          <div className="mx-auto w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white mb-6 animate-float">
-             <Rocket size={24} />
+      <div className="w-full max-w-md relative z-10">
+        {/* Logo & Title */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 mx-auto rounded-2xl gradient-green flex items-center justify-center mb-4 shadow-lg">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+              <path d="M12 22V8" />
+              <path d="C12 8 7 2 3 7c-2 2.5 0 6 4 7" />
+              <path d="C12 8 17 2 21 7c2 2.5 0 6-4 7" />
+            </svg>
           </div>
-          <CardTitle className="text-3xl font-black text-gray-900 tracking-tight">Chào mừng trở lại</CardTitle>
-          <CardDescription className="text-gray-400 font-medium">
-            Đăng nhập để tiếp tục hành trình sáng tạo của bạn
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="px-10 pb-12 space-y-8">
-          
-          <form onSubmit={handleEmailLogin} className="space-y-6">
+          <h1 className="font-display font-extrabold text-3xl text-dblue mb-2">Chào mừng trở lại</h1>
+          <p className="text-gray-500 text-sm">Đăng nhập để tiếp tục hành trình tử tế</p>
+        </div>
+
+        {/* Form Card */}
+        <div className="glass rounded-3xl p-8 shadow-xl">
+          <form onSubmit={handleEmailLogin} className="space-y-5">
             {error && (
-              <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 text-sm font-bold animate-in fade-in slide-in-from-top-2">
+              <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 text-sm font-semibold slide-up">
                 <AlertCircle size={18} />
                 {error}
               </div>
             )}
             
             <div className="space-y-4">
-               <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition" size={18} />
+              <div>
+                <label htmlFor="email" className="block text-sm font-semibold text-dblue mb-1.5">
+                  Email
+                </label>
+                <div className="relative group">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-pgreen transition" size={18} />
                   <Input 
+                    id="email"
                     type="email" 
-                    placeholder="Email của bạn"
-                    className="pl-12 h-14 bg-gray-50 border-gray-100 rounded-2xl focus:bg-white focus:ring-blue-600 focus:border-blue-600 transition-all font-medium"
+                    placeholder="email@example.com"
+                    className="pl-12 h-12 glass border border-gray-200 rounded-2xl focus:ring-2 focus:ring-pgreen focus:border-transparent transition-all font-medium"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
-               </div>
+                </div>
+              </div>
                
-               <div className="relative group">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition" size={18} />
+              <div>
+                <label htmlFor="password" className="block text-sm font-semibold text-dblue mb-1.5">
+                  Mật khẩu
+                </label>
+                <div className="relative group">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-pgreen transition" size={18} />
                   <Input 
+                    id="password"
                     type="password" 
-                    placeholder="Mật khẩu"
-                    className="pl-12 h-14 bg-gray-50 border-gray-100 rounded-2xl focus:bg-white focus:ring-blue-600 focus:border-blue-600 transition-all font-medium"
+                    placeholder="••••••••"
+                    className="pl-12 h-12 glass border border-gray-200 rounded-2xl focus:ring-2 focus:ring-pgreen focus:border-transparent transition-all font-medium"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
-               </div>
+                </div>
+              </div>
             </div>
 
             <Button 
-               type="submit" 
-               className="w-full h-14 bg-gray-900 text-white font-black rounded-2xl hover:bg-blue-600 hover:shadow-premium transition-all active:scale-95"
-               disabled={loading}
+              type="submit" 
+              className="w-full h-12 gradient-green text-white font-bold rounded-2xl hover:shadow-xl hover:shadow-green-200 transition-all active:scale-95"
+              disabled={loading}
             >
-              {loading ? <Loader2 className="animate-spin mr-2" /> : "Đăng nhập ngay"}
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin mr-2" size={18} />
+                  Đang đăng nhập...
+                </>
+              ) : (
+                "Đăng nhập"
+              )}
             </Button>
           </form>
 
-          <div className="relative">
+          <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-gray-100" />
+              <span className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-4 text-gray-400 font-bold tracking-widest leading-none">Hoặc</span>
+              <span className="bg-white px-4 text-gray-400 font-semibold tracking-wider">Hoặc</span>
             </div>
           </div>
 
           <Button 
             variant="outline" 
-            className="w-full h-14 flex items-center justify-center gap-3 border-gray-100 rounded-2xl font-black text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-all"
+            className="w-full h-12 flex items-center justify-center gap-3 glass border border-gray-200 rounded-2xl font-semibold text-gray-700 hover:border-pgreen hover:text-pgreen transition-all"
             onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
           >
             <Globe className="h-5 w-5" />
             Tiếp tục với Google
           </Button>
           
-          <p className="text-center text-sm font-bold text-gray-400 pt-4">
+          <p className="text-center text-sm text-gray-500 mt-6">
             Bạn chưa có tài khoản?{" "}
-            <a href="/auth/register" className="text-blue-600 hover:underline">
+            <a href="/auth/register" className="text-pgreen font-semibold hover:underline">
               Đăng ký miễn phí
             </a>
           </p>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

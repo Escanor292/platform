@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { Search, Loader2, CheckCircle2, XCircle, FileSearch, ShieldCheck, Clock } from "lucide-react";
 
 type LookupResult = {
   transactionId: string;
@@ -53,120 +53,190 @@ export default function LookupPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "SUCCESS":
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"><CheckCircle2 className="w-4 h-4" /> Thành công</span>;
+        return <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-100"><CheckCircle2 size={16} /> Thành công</span>;
       case "PENDING":
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><Loader2 className="w-4 h-4 animate-spin" /> Đang xử lý</span>;
+        return <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest bg-orange-50 text-orange-600 border border-orange-100"><Clock size={16} /> Đang xử lý</span>;
       case "FAILED":
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"><XCircle className="w-4 h-4" /> Thất bại</span>;
+        return <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest bg-red-50 text-red-600 border border-red-100"><XCircle size={16} /> Thất bại</span>;
       case "REFUNDED":
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Đã hoàn tiền</span>;
+        return <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest bg-gray-100 text-gray-600 border border-gray-200">Đã hoàn tiền</span>;
       default:
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{status}</span>;
+        return <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest bg-gray-100 text-gray-600 border border-gray-200">{status}</span>;
     }
   };
 
   return (
-    <div className="container max-w-3xl py-12 mx-auto">
-      <div className="text-center mb-10">
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Tra cứu giao dịch</h1>
-        <p className="mt-4 text-lg leading-6 text-gray-500">
-          Nhập mã giao dịch của bạn để kiểm tra trạng thái và thông tin chi tiết.
-        </p>
-      </div>
-
-      <div className="bg-white p-6 shadow sm:rounded-lg">
-        <form onSubmit={handleSearch} className="flex gap-4">
-          <div className="relative flex-grow">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <Search className="h-5 w-5 text-gray-400" aria-hidden="true" />
-            </div>
-            <input
-              type="text"
-              name="transactionId"
-              id="transactionId"
-              className="block w-full rounded-md border-gray-300 pl-10 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 border"
-              placeholder="Ví dụ: CF2026-ABC123XYZ"
-              value={transactionId}
-              onChange={(e) => setTransactionId(e.target.value)}
-            />
+    <div className="min-h-screen bg-gradient-to-br from-cream via-white to-fgreen/5 py-24 px-6">
+      <div className="max-w-4xl mx-auto space-y-12">
+        
+        {/* Header */}
+        <div className="text-center space-y-6 animate-fade-in-up">
+          <div className="w-20 h-20 bg-gradient-to-br from-tblue to-pgreen rounded-3xl flex items-center justify-center mx-auto shadow-lg">
+            <FileSearch size={40} className="text-white" />
           </div>
-          <button
-            type="submit"
-            disabled={loading || !transactionId}
-            className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
-          >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Tra cứu'}
-          </button>
-        </form>
+          <h1 className="font-display text-5xl md:text-6xl font-black text-gray-900 tracking-tight leading-[1.2]">
+            Tra cứu giao dịch
+          </h1>
+          <p className="text-xl text-gray-600 font-medium max-w-2xl mx-auto leading-relaxed">
+            Nhập mã giao dịch của bạn để kiểm tra trạng thái và thông tin chi tiết một cách minh bạch.
+          </p>
+        </div>
 
-        {error && (
-          <div className="mt-6 rounded-md bg-red-50 p-4">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <XCircle className="h-5 w-5 text-red-400" aria-hidden="true" />
+        {/* Search Form */}
+        <div className="glass-morphism p-8 md:p-10 rounded-[3rem] border border-white/20 shadow-premium animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
+            <div className="relative flex-grow">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-5 pointer-events-none">
+                <Search size={20} className="text-gray-400" />
               </div>
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">Lỗi tra cứu</h3>
-                <div className="mt-2 text-sm text-red-700">
-                  <p>{error}</p>
-                </div>
+              <input
+                type="text"
+                name="transactionId"
+                id="transactionId"
+                className="block w-full h-16 rounded-2xl border-2 border-gray-200 pl-14 pr-4 focus:border-pgreen focus:ring-4 focus:ring-pgreen/10 text-base font-bold text-gray-900 placeholder:text-gray-400 transition-all"
+                placeholder="Ví dụ: CF2026-ABC123XYZ"
+                value={transactionId}
+                onChange={(e) => setTransactionId(e.target.value)}
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading || !transactionId}
+              className="h-16 px-10 bg-gradient-to-r from-pgreen to-fgreen text-white font-black rounded-2xl hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 uppercase tracking-tight"
+            >
+              {loading ? (
+                <>
+                  <Loader2 size={20} className="animate-spin" />
+                  Đang tìm...
+                </>
+              ) : (
+                <>
+                  <Search size={20} />
+                  Tra cứu
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Trust Badge */}
+          <div className="flex items-center justify-center gap-2 mt-6 text-xs text-gray-500 font-bold">
+            <ShieldCheck size={16} className="text-pgreen" />
+            Thông tin được mã hóa và bảo mật tuyệt đối
+          </div>
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="glass-morphism p-8 rounded-[2.5rem] border-2 border-red-200 bg-red-50/50 animate-fade-in-up">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                <XCircle size={24} className="text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-red-900 mb-1">Không tìm thấy giao dịch</h3>
+                <p className="text-sm text-red-700 font-medium">{error}</p>
               </div>
             </div>
           </div>
         )}
 
+        {/* Result Card */}
         {result && (
-          <div className="mt-8 border-t border-gray-200 pt-8">
-            <dl className="divide-y divide-gray-200">
-              <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 flex items-center">
-                <dt className="text-sm font-medium text-gray-500">Mã giao dịch</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0 font-mono font-medium">{result.transactionId}</dd>
+          <div className="glass-morphism p-10 rounded-[3rem] border border-white/20 shadow-premium animate-fade-in-up">
+            <div className="flex items-center gap-3 mb-8 pb-6 border-b border-gray-100">
+              <div className="w-12 h-12 bg-pgreen/10 rounded-2xl flex items-center justify-center">
+                <CheckCircle2 size={24} className="text-pgreen" />
               </div>
-              <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 flex items-center">
-                <dt className="text-sm font-medium text-gray-500">Người ủng hộ</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{result.displayName}</dd>
-              </div>
-              <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 flex items-center">
-                <dt className="text-sm font-medium text-gray-500">Dự án</dt>
-                <dd className="mt-1 text-sm text-indigo-600 sm:col-span-2 sm:mt-0 hover:underline cursor-pointer">
-                  <a href={`/campaigns/${result.campaign.slug}`}>{result.campaign.title}</a>
-                </dd>
-              </div>
-              <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 flex items-center">
-                <dt className="text-sm font-medium text-gray-500">Số tiền ủng hộ</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0 font-semibold">{Number(result.amount).toLocaleString('vi-VN')} ₫</dd>
-              </div>
-              {Number(result.tipAmount) > 0 && (
-                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 flex items-center">
-                  <dt className="text-sm font-medium text-gray-500">Tip cho nền tảng (Bao gồm VAT)</dt>
-                  <dd className="mt-1 text-sm text-gray-600 sm:col-span-2 sm:mt-0">
-                    {Number(result.tipAmount).toLocaleString('vi-VN')} ₫ 
-                    <span className="text-xs text-gray-400 ml-1">(VAT: {Number(result.vatAmount).toLocaleString('vi-VN')} ₫)</span>
-                  </dd>
+              <h2 className="text-2xl font-black text-gray-900">Thông tin giao dịch</h2>
+            </div>
+
+            <div className="space-y-6">
+              {/* Transaction ID */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-gray-50 rounded-2xl">
+                <div>
+                  <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Mã giao dịch</div>
+                  <div className="font-mono text-lg font-bold text-gray-900">{result.transactionId}</div>
                 </div>
-              )}
-              <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 flex items-center bg-gray-50 -mx-6 px-6">
-                <dt className="text-sm font-medium text-gray-900">Tổng thanh toán</dt>
-                <dd className="mt-1 text-base font-bold text-indigo-600 sm:col-span-2 sm:mt-0">
-                  {Number(result.totalAmount).toLocaleString('vi-VN')} ₫
-                  <span className="text-xs font-normal text-gray-500 ml-2">qua {result.paymentProvider}</span>
-                </dd>
               </div>
-              <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 flex items-center">
-                <dt className="text-sm font-medium text-gray-500">Trạng thái Giao dịch</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{getStatusBadge(result.status)}</dd>
+
+              {/* Supporter Name */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white rounded-2xl border border-gray-100">
+                <div className="flex-grow">
+                  <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Người ủng hộ</div>
+                  <div className="text-base font-bold text-gray-900">{result.displayName}</div>
+                </div>
               </div>
-              <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 flex items-center">
-                <dt className="text-sm font-medium text-gray-500">Trạng thái Hoàn tiền</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{getStatusBadge(result.refundStatus)}</dd>
+
+              {/* Campaign */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white rounded-2xl border border-gray-100">
+                <div className="flex-grow">
+                  <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Dự án</div>
+                  <a 
+                    href={`/campaigns/${result.campaign.slug}`}
+                    className="text-base font-bold text-pgreen hover:text-fgreen hover:underline transition"
+                  >
+                    {result.campaign.title}
+                  </a>
+                </div>
               </div>
-              <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 flex items-center">
-                <dt className="text-sm font-medium text-gray-500">Thời gian tạo</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                  {new Date(result.createdAt).toLocaleString('vi-VN')}
-                </dd>
+
+              {/* Amount Details */}
+              <div className="space-y-4 p-6 bg-gradient-to-br from-pgreen/5 to-fgreen/5 rounded-2xl border border-pgreen/10">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-bold text-gray-600">Số tiền ủng hộ</span>
+                  <span className="text-lg font-black text-gray-900">{Number(result.amount).toLocaleString('vi-VN')} ₫</span>
+                </div>
+                
+                {Number(result.tipAmount) > 0 && (
+                  <>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-bold text-gray-600">Tip cho nền tảng</span>
+                      <span className="font-bold text-gray-700">{Number(result.tipAmount).toLocaleString('vi-VN')} ₫</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-medium text-gray-500">Trong đó VAT (10%)</span>
+                      <span className="font-medium text-gray-500">{Number(result.vatAmount).toLocaleString('vi-VN')} ₫</span>
+                    </div>
+                  </>
+                )}
+                
+                <div className="pt-4 border-t-2 border-pgreen/20 flex justify-between items-center">
+                  <span className="text-base font-black text-gray-900 uppercase tracking-tight">Tổng thanh toán</span>
+                  <span className="text-2xl font-black text-pgreen">{Number(result.totalAmount).toLocaleString('vi-VN')} ₫</span>
+                </div>
+                
+                <div className="text-xs text-gray-500 font-medium text-center pt-2">
+                  Thanh toán qua {result.paymentProvider}
+                </div>
               </div>
-            </dl>
+
+              {/* Status */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="p-6 bg-white rounded-2xl border border-gray-100">
+                  <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Trạng thái giao dịch</div>
+                  {getStatusBadge(result.status)}
+                </div>
+                
+                <div className="p-6 bg-white rounded-2xl border border-gray-100">
+                  <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Trạng thái hoàn tiền</div>
+                  {getStatusBadge(result.refundStatus)}
+                </div>
+              </div>
+
+              {/* Timestamp */}
+              <div className="p-6 bg-white rounded-2xl border border-gray-100">
+                <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Thời gian tạo</div>
+                <div className="text-base font-bold text-gray-900">
+                  {new Date(result.createdAt).toLocaleString('vi-VN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
