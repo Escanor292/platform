@@ -21,6 +21,8 @@ export async function GET(request: NextRequest) {
           select: {
             title: true,
             slug: true,
+            campaignCode: true,
+            imageUrl: true,
           },
         },
       },
@@ -48,6 +50,8 @@ export async function GET(request: NextRequest) {
       campaign: {
         title: pledge.campaign.title,
         slug: pledge.campaign.slug,
+        campaignCode: pledge.campaign.campaignCode,
+        imageUrl: pledge.campaign.imageUrl,
       },
     };
 

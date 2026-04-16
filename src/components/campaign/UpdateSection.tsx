@@ -6,7 +6,7 @@ import { PlusCircle, User, Loader2, Sparkles, Send } from "lucide-react";
 import { formatFullDateTime } from "@/lib/utils";
 import { ImageUpload } from "@/components/shared/ImageUpload";
 import { Button } from "@/components/ui/button";
-import RichTextEditor from "@/components/shared/RichTextEditor";
+import RichTextEditor from "@/components/editor/RichTextEditor";
 import RichTextRenderer from "@/components/shared/RichTextRenderer";
 
 interface UpdateSectionProps {

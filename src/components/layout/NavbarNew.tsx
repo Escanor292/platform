@@ -58,10 +58,10 @@ export default function NavbarNew() {
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-pgreen group-hover:w-full transition-all duration-300" />
           </Link>
           <Link 
-            href="/campaigns" 
+            href="/projects" 
             className="text-sm font-medium text-gray-600 hover:text-pgreen transition relative group"
           >
-            Chiến dịch
+            Khám phá
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-pgreen group-hover:w-full transition-all duration-300" />
           </Link>
           <Link 
@@ -162,8 +162,8 @@ export default function NavbarNew() {
           <Link href="/about" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
             Giới thiệu
           </Link>
-          <Link href="/campaigns" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
-            Chiến dịch
+          <Link href="/projects" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
+            Khám phá
           </Link>
           <Link href="/dashboard" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
             Dashboard

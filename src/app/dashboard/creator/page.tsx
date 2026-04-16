@@ -94,7 +94,14 @@ export default async function CreatorDashboard() {
                     
                     <div className="p-8 space-y-6">
                        <div>
-                          <h3 className="text-xl font-black text-gray-900 leading-tight mb-2 truncate group-hover:text-blue-600 transition">{campaign.title}</h3>
+                          <div className="flex items-center gap-2 mb-2">
+                             <h3 className="text-xl font-black text-gray-900 leading-tight truncate group-hover:text-blue-600 transition">{campaign.title}</h3>
+                          </div>
+                          <div className="flex items-center gap-2 mb-2">
+                             <span className="text-[10px] font-mono font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded border border-gray-200">
+                                {campaign.campaignCode}
+                             </span>
+                          </div>
                           <p className="text-xs text-gray-400 font-medium line-clamp-2">{campaign.description}</p>
                        </div>
                        

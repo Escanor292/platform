@@ -1,27 +1,36 @@
-"use client";
+/**
+ * Simplified Enhanced Rich Text Editor - Without BubbleMenu to avoid React 19 issues
+ */
 
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
-import Link from "@tiptap/extension-link";
-import TextAlign from "@tiptap/extension-text-align";
-import Youtube from "@tiptap/extension-youtube";
-import TextStyle from "@tiptap/extension-text-style";
-import Highlight from "@tiptap/extension-highlight";
-import TaskList from "@tiptap/extension-task-list";
-import TaskItem from "@tiptap/extension-task-item";
-import Placeholder from "@tiptap/extension-placeholder";
-import CharacterCount from "@tiptap/extension-character-count";
-import React, { useCallback, useState } from "react";
+'use client';
+
+import React, { useEffect, useCallback, useState } from 'react';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Link from '@tiptap/extension-link';
+import Placeholder from '@tiptap/extension-placeholder';
+import Underline from '@tiptap/extension-underline';
+import TextAlign from '@tiptap/extension-text-align';
+import Youtube from '@tiptap/extension-youtube';
+import TextStyle from '@tiptap/extension-text-style';
+import Highlight from '@tiptap/extension-highlight';
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
+import CharacterCount from '@tiptap/extension-character-count';
+
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
   Link as LinkIcon, Heading1, Heading2, Quote, Code,
   Minus, Undo, Redo, Youtube as YoutubeIcon,
   Highlighter, CheckSquare
-} from "lucide-react";
+} from 'lucide-react';
 
-interface RichTextEditorProps {
+import { normalizeUrl, getUrlError } from './utils/urlValidation';
+import { hasSelection, isLinkActive, getLinkAtCursor, applyLinkToSelection, insertLinkAtCaret, removeLink } from './utils/linkHelpers';
+import './editor.css';
+
+interface SimplifiedEnhancedEditorProps {
   content: string;
   onChange: (content: string) => void;
   placeholder?: string;
@@ -57,7 +66,11 @@ function ToolbarDivider() {
   return <div className="w-px h-5 bg-gray-200 mx-1 flex-shrink-0" />;
 }
 
-export default function RichTextEditor({ content, onChange, placeholder }: RichTextEditorProps) {
+export default function SimplifiedEnhancedEditor({ 
+  content, 
+  onChange, 
+  placeholder 
+}: SimplifiedEnhancedEditorProps) {
   const [saveStatus, setSaveStatus] = useState("Đã lưu");
 
   const editor = useEditor({
@@ -69,13 +82,20 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
       Underline,
       TextStyle,
       Highlight.configure({ multicolor: true }),
-      Link.configure({ openOnClick: false, HTMLAttributes: { class: "text-blue-600 underline cursor-pointer" } }),
+      Link.configure({ 
+        openOnClick: false, 
+        HTMLAttributes: { 
+          class: "text-blue-600 underline cursor-pointer hover:text-blue-700" 
+        } 
+      }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Youtube.configure({ controls: false, nocookie: true }),
       TaskList,
       TaskItem.configure({ nested: true }),
-      Placeholder.configure({ placeholder: placeholder ?? "Viết nội dung chiến dịch của bạn ở đây..." }),
-      CharacterCount.configure({ limit: 50000 }), // Giới hạn (nếu cần), hiện để 50k
+      Placeholder.configure({ 
+        placeholder: placeholder ?? "Viết nội dung chiến dịch của bạn ở đây..." 
+      }),
+      CharacterCount.configure({ limit: 50000 }),
     ],
     content: content || "",
     editorProps: {
@@ -93,13 +113,38 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
     },
   });
 
-  const setLink = useCallback(() => {
+  // Simple link insertion with modern prompt
+  const handleLinkClick = useCallback(() => {
     if (!editor) return;
-    const prev = editor.getAttributes("link").href || "";
-    const url = window.prompt("Nhập URL:", prev);
-    if (url === null) return;
-    if (url === "") { editor.chain().focus().extendMarkRange("link").unsetLink().run(); return; }
-    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+
+    const previousUrl = getLinkAtCursor(editor);
+    const url = window.prompt('Nhập URL:', previousUrl || '');
+    
+    if (url === null) return; // Cancelled
+    
+    if (url === '') {
+      // Remove link
+      removeLink(editor);
+      return;
+    }
+
+    // Validate
+    const error = getUrlError(url);
+    if (error) {
+      alert(error);
+      return;
+    }
+
+    const normalizedUrl = normalizeUrl(url);
+
+    if (hasSelection(editor)) {
+      applyLinkToSelection(editor, normalizedUrl);
+    } else {
+      const text = window.prompt('Nhập text hiển thị:');
+      if (text) {
+        insertLinkAtCaret(editor, text, normalizedUrl);
+      }
+    }
   }, [editor]);
 
   const addYoutube = useCallback(() => {
@@ -127,71 +172,138 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
         <ToolbarDivider />
 
         {/* Headings */}
-        <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} isActive={editor.isActive("heading", { level: 1 })} title="Tiêu đề 1">
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} 
+          isActive={editor.isActive("heading", { level: 1 })} 
+          title="Tiêu đề 1"
+        >
           <Heading1 size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} isActive={editor.isActive("heading", { level: 2 })} title="Tiêu đề 2">
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} 
+          isActive={editor.isActive("heading", { level: 2 })} 
+          title="Tiêu đề 2"
+        >
           <Heading2 size={15} />
         </ToolbarButton>
 
         <ToolbarDivider />
 
         {/* Text formatting */}
-        <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} isActive={editor.isActive("bold")} title="In đậm (Ctrl+B)">
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleBold().run()} 
+          isActive={editor.isActive("bold")} 
+          title="In đậm (Ctrl+B)"
+        >
           <Bold size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} isActive={editor.isActive("italic")} title="In nghiêng (Ctrl+I)">
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleItalic().run()} 
+          isActive={editor.isActive("italic")} 
+          title="In nghiêng (Ctrl+I)"
+        >
           <Italic size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleUnderline().run()} isActive={editor.isActive("underline")} title="Gạch chân (Ctrl+U)">
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleUnderline().run()} 
+          isActive={editor.isActive("underline")} 
+          title="Gạch chân (Ctrl+U)"
+        >
           <UnderlineIcon size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleStrike().run()} isActive={editor.isActive("strike")} title="Gạch ngang">
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleStrike().run()} 
+          isActive={editor.isActive("strike")} 
+          title="Gạch ngang"
+        >
           <Strikethrough size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleHighlight().run()} isActive={editor.isActive("highlight")} title="Tô sáng (Highlight)">
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleHighlight().run()} 
+          isActive={editor.isActive("highlight")} 
+          title="Tô sáng (Highlight)"
+        >
           <Highlighter size={15} />
         </ToolbarButton>
 
         <ToolbarDivider />
 
         {/* Lists & Blocks */}
-        <ToolbarButton onClick={() => editor.chain().focus().toggleBulletList().run()} isActive={editor.isActive("bulletList")} title="Danh sách dấu chấm">
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleBulletList().run()} 
+          isActive={editor.isActive("bulletList")} 
+          title="Danh sách dấu chấm"
+        >
           <List size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleOrderedList().run()} isActive={editor.isActive("orderedList")} title="Danh sách đánh số">
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleOrderedList().run()} 
+          isActive={editor.isActive("orderedList")} 
+          title="Danh sách đánh số"
+        >
           <ListOrdered size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleTaskList().run()} isActive={editor.isActive("taskList")} title="Checklist công việc">
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleTaskList().run()} 
+          isActive={editor.isActive("taskList")} 
+          title="Checklist công việc"
+        >
           <CheckSquare size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleBlockquote().run()} isActive={editor.isActive("blockquote")} title="Trích dẫn">
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleBlockquote().run()} 
+          isActive={editor.isActive("blockquote")} 
+          title="Trích dẫn"
+        >
           <Quote size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleCode().run()} isActive={editor.isActive("code")} title="Code">
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleCode().run()} 
+          isActive={editor.isActive("code")} 
+          title="Code"
+        >
           <Code size={15} />
         </ToolbarButton>
 
         <ToolbarDivider />
 
         {/* Alignment */}
-        <ToolbarButton onClick={() => editor.chain().focus().setTextAlign("left").run()} isActive={editor.isActive({ textAlign: "left" })} title="Căn trái">
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().setTextAlign("left").run()} 
+          isActive={editor.isActive({ textAlign: "left" })} 
+          title="Căn trái"
+        >
           <AlignLeft size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().setTextAlign("center").run()} isActive={editor.isActive({ textAlign: "center" })} title="Căn giữa">
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().setTextAlign("center").run()} 
+          isActive={editor.isActive({ textAlign: "center" })} 
+          title="Căn giữa"
+        >
           <AlignCenter size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().setTextAlign("right").run()} isActive={editor.isActive({ textAlign: "right" })} title="Căn phải">
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().setTextAlign("right").run()} 
+          isActive={editor.isActive({ textAlign: "right" })} 
+          title="Căn phải"
+        >
           <AlignRight size={15} />
         </ToolbarButton>
 
         <ToolbarDivider />
 
-        {/* Insert */}
-        <ToolbarButton onClick={setLink} isActive={editor.isActive("link")} title="Chèn liên kết">
+        {/* Insert - Improved Link with validation */}
+        <ToolbarButton 
+          onClick={handleLinkClick} 
+          isActive={editor.isActive("link")} 
+          title="Chèn liên kết (Ctrl+K)"
+        >
           <LinkIcon size={15} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Đường kẻ ngang">
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().setHorizontalRule().run()} 
+          title="Đường kẻ ngang"
+        >
           <Minus size={15} />
         </ToolbarButton>
         <ToolbarButton onClick={addYoutube} title="Chèn video YouTube">
@@ -201,25 +313,27 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
 
       {/* ── EDITOR AREA ── */}
       <div className="cursor-text bg-white" onClick={() => editor.commands.focus()}>
-         <EditorContent editor={editor} />
+        <EditorContent editor={editor} />
       </div>
 
       {/* ── FOOTER ── */}
       <div className="px-6 py-3 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
         {/* Left Side: Status */}
         <div className="flex items-center gap-2 text-xs font-medium text-gray-500">
-           <div className={`w-2 h-2 rounded-full transition-colors duration-300 ${saveStatus === "Đã lưu" ? "bg-emerald-500" : "bg-amber-500 animate-pulse"}`} />
-           <span>{saveStatus}</span>
+          <div className={`w-2 h-2 rounded-full transition-colors duration-300 ${
+            saveStatus === "Đã lưu" ? "bg-emerald-500" : "bg-amber-500 animate-pulse"
+          }`} />
+          <span>{saveStatus}</span>
         </div>
 
         {/* Right Side: Counters */}
         <div className="flex items-center gap-4">
-            <span className="text-xs font-semibold text-gray-400">
+          <span className="text-xs font-semibold text-gray-400">
             {editor.storage.characterCount.words()} từ
-            </span>
-            <span className="text-xs font-semibold text-gray-400">
+          </span>
+          <span className="text-xs font-semibold text-gray-400">
             {editor.storage.characterCount.characters()} ký tự
-            </span>
+          </span>
         </div>
       </div>
 
@@ -264,8 +378,20 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
           font-size: 0.875em;
           font-family: monospace;
         }
-        .ProseMirror a { color: #2563eb; text-decoration: underline; }
-        .ProseMirror iframe { max-width: 100%; border-radius: 8px; margin: 1rem auto; display: block; }
+        .ProseMirror a { 
+          color: #2563eb; 
+          text-decoration: underline;
+          cursor: pointer;
+        }
+        .ProseMirror a:hover {
+          color: #1d4ed8;
+        }
+        .ProseMirror iframe { 
+          max-width: 100%; 
+          border-radius: 8px; 
+          margin: 1rem auto; 
+          display: block; 
+        }
         
         /* Task List Styles */
         ul[data-type="taskList"] {

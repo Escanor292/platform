@@ -87,7 +87,9 @@ export default async function AdminRevenuePage() {
                        <td className="p-6 font-black text-gray-900">{formatVND(Number(p.amount))}</td>
                        <td className="p-6">
                           <div className="text-xs font-bold text-gray-900 line-clamp-1">{p.campaign.title}</div>
-                          <div className="text-[10px] text-gray-400 font-medium">Bởi {p.user?.name || p.displayName || "Khách"}</div>
+                          <div className="text-[10px] text-gray-400 font-medium">
+                             <span className="font-mono">{p.campaign.campaignCode}</span> • Bởi {p.user?.name || p.displayName || "Khách"}
+                          </div>
                        </td>
                        <td className="p-6 text-xs text-gray-500 font-medium text-right">
                           {new Date(p.createdAt).toLocaleDateString("vi-VN")}

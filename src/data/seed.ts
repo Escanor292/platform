@@ -64,11 +64,12 @@ async function main() {
   });
 
   // 3. Tạo Campaign mẫu cho Creator
+  const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD
   const campaign = await prisma.campaign.upsert({
     where: { slug: "sach-giao-duc-vung-cao" },
     update: {},
     create: {
-      campaignCode: "CF" + Date.now().toString().slice(-6),
+      campaignCode: `CF-${dateStr}-SEED1`,
       slug: "sach-giao-duc-vung-cao",
       title: "Phát triển bộ sách giáo dục di động cho trẻ em vùng cao",
       description: "Giúp hàng nghìn trẻ em tiếp cận kiến thức qua thiết bị di động.",

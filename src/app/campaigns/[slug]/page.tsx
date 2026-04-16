@@ -65,6 +65,12 @@ export default async function CampaignDetailPage({ params }: Params) {
               {campaign.description}
            </p>
            
+           {/* Campaign Code */}
+           <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-600 rounded-xl text-xs font-mono border border-gray-200">
+              <span className="font-black text-gray-400">ID:</span>
+              <span className="font-bold">{campaign.campaignCode}</span>
+           </div>
+           
            <div className="flex items-center gap-4 pt-4">
               <div className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center text-gray-400 font-black text-lg border border-gray-200 shadow-sm">
                  {campaign.creator?.name?.slice(0,1) || "C"}

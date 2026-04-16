@@ -5,9 +5,13 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ImageUpload } from "@/components/shared/ImageUpload";
-import RichTextEditor from "@/components/shared/RichTextEditor";
+import RichTextEditor from "@/components/editor/RichTextEditor";
 import { toast } from "sonner";
-import { Rocket, Target, AlignLeft, Image as ImageIcon, Calendar } from "lucide-react";
+import { Rocket, Target, AlignLeft, Image as ImageIcon, Calendar, Tags } from "lucide-react";
+import { CategorySelector } from "@/components/create-campaign/category-selector";
+import { StarterTagsSelector } from "@/components/create-campaign/starter-tags-selector";
+import type { MainCategory } from "@/types/taxonomy";
+import { validateTaxonomySelection, sanitizeSelectedTags, getInvalidTagsForNewCategory, getTagsByIds } from "@/lib/taxonomy-helpers";
 
 export default function CreateCampaignPage() {
   const router = useRouter();
@@ -17,10 +21,14 @@ export default function CreateCampaignPage() {
     tagline: "",
     description: "",
     goalAmount: 1000000,
-    category: "Phát triển",
+    mainCategory: null as MainCategory | null,
+    starterTags: [] as string[],
     imageUrl: "",
     endDate: "",
   });
+  
+  const [showCategoryChangeWarning, setShowCategoryChangeWarning] = useState(false);
+  const [pendingCategory, setPendingCategory] = useState<MainCategory | null>(null);
 
   const [displayAmount, setDisplayAmount] = useState("1.000.000");
 
@@ -28,6 +36,60 @@ export default function CreateCampaignPage() {
     const numericValue = value.replace(/\D/g, "");
     if (!numericValue) return "";
     return new Intl.NumberFormat("vi-VN").format(Number(numericValue));
+  };
+
+  const handleCategoryChange = (newCategory: MainCategory) => {
+    // If there are selected tags, check if they're valid for the new category
+    if (formData.starterTags.length > 0) {
+      const invalidTags = getInvalidTagsForNewCategory(
+        formData.starterTags,
+        newCategory
+      );
+      
+      if (invalidTags.length > 0) {
+        // Show warning
+        setPendingCategory(newCategory);
+        setShowCategoryChangeWarning(true);
+        return;
+      }
+    }
+    
+    // No conflicts, change category directly
+    setFormData({
+      ...formData,
+      mainCategory: newCategory,
+    });
+  };
+  
+  const handleConfirmCategoryChange = () => {
+    if (!pendingCategory) return;
+    
+    // Sanitize tags for new category
+    const sanitizedTags = sanitizeSelectedTags(
+      formData.starterTags,
+      pendingCategory
+    );
+    
+    setFormData({
+      ...formData,
+      mainCategory: pendingCategory,
+      starterTags: sanitizedTags,
+    });
+    
+    setShowCategoryChangeWarning(false);
+    setPendingCategory(null);
+  };
+  
+  const handleCancelCategoryChange = () => {
+    setShowCategoryChangeWarning(false);
+    setPendingCategory(null);
+  };
+  
+  const handleTagsChange = (tags: string[]) => {
+    setFormData({
+      ...formData,
+      starterTags: tags,
+    });
   };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,6 +103,18 @@ export default function CreateCampaignPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate taxonomy
+    const taxonomyValidation = validateTaxonomySelection({
+      mainCategory: formData.mainCategory,
+      starterTags: formData.starterTags,
+    });
+    
+    if (!taxonomyValidation.isValid) {
+      toast.error(taxonomyValidation.errors[0]);
+      return;
+    }
+    
     if (!formData.title || !formData.tagline || !formData.description || !formData.endDate || !formData.imageUrl) {
       toast.error("Vui lòng điền đầy đủ các thông tin bắt buộc!");
       return;
@@ -70,6 +144,12 @@ export default function CreateCampaignPage() {
     
     promise.finally(() => setLoading(false));
   };
+  
+  const invalidTagsForPendingCategory = pendingCategory
+    ? getInvalidTagsForNewCategory(formData.starterTags, pendingCategory)
+    : [];
+  
+  const invalidTagObjects = getTagsByIds(invalidTagsForPendingCategory);
 
   return (
     <div className="min-h-screen bg-slate-50 py-12 px-6">
@@ -87,6 +167,51 @@ export default function CreateCampaignPage() {
 
         {/* Main Form */}
         <form onSubmit={handleSubmit} className="space-y-8 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          
+          {/* Category Change Warning Modal */}
+          {showCategoryChangeWarning && pendingCategory && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
+                <h3 className="text-lg font-bold text-gray-900">
+                  Xác nhận thay đổi danh mục
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Bạn đang thay đổi danh mục từ{" "}
+                  <span className="font-semibold">{formData.mainCategory}</span> sang{" "}
+                  <span className="font-semibold">{pendingCategory}</span>.
+                </p>
+                <p className="text-sm text-gray-600">
+                  Các thẻ sau sẽ bị xóa vì không phù hợp với danh mục mới:
+                </p>
+                <div className="flex flex-wrap gap-2 p-3 bg-red-50 rounded-lg">
+                  {invalidTagObjects.map((tag) => (
+                    <span
+                      key={tag.id}
+                      className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700"
+                    >
+                      {tag.label}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={handleCancelCategoryChange}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleConfirmCategoryChange}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+                  >
+                    Xác nhận
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* Block 1: Thông tin cơ bản */}
           <div className="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-soft">
@@ -201,6 +326,34 @@ export default function CreateCampaignPage() {
                    />
                 </div>
                 <p className="text-xs text-gray-500 font-medium">Thời gian tối đa thường là 30 - 60 ngày.</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Block 4: Phân loại & Tags */}
+          <div className="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-soft">
+            <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
+               <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                  <Tags size={20} />
+               </div>
+               <div>
+                 <h2 className="text-2xl font-bold text-gray-900">Phân loại dự án</h2>
+                 <p className="text-sm text-gray-500 font-medium">Giúp người ủng hộ dễ dàng tìm thấy dự án của bạn</p>
+               </div>
+            </div>
+
+            <div className="space-y-8">
+              <CategorySelector
+                selectedCategory={formData.mainCategory}
+                onCategoryChange={handleCategoryChange}
+              />
+              
+              <div className="border-t border-gray-100 pt-8">
+                <StarterTagsSelector
+                  mainCategory={formData.mainCategory}
+                  selectedTags={formData.starterTags}
+                  onTagsChange={handleTagsChange}
+                />
               </div>
             </div>
           </div>

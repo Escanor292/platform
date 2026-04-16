@@ -1,0 +1,204 @@
+{
+  "exampleCampaigns": [
+    {
+      "id": "1",
+      "title": "App học tiếng Anh cho trẻ em",
+      "mainCategory": "Giáo dục",
+      "starterTags": ["mobile-app", "khoa-hoc", "edtech", "tre-em", "online"],
+      "description": "Ứng dụng học tiếng Anh tương tác với AI cho trẻ 6-12 tuổi"
+    },
+    {
+      "id": "2",
+      "title": "Indie RPG Game - Fantasy World",
+      "mainCategory": "Giải trí",
+      "starterTags": ["video-game", "indie", "unity", "prototype", "gamers"],
+      "description": "Game nhập vai thế giới mở với đồ họa pixel art"
+    },
+    {
+      "id": "3",
+      "title": "Webtoon: Hành trình của Ánh Sáng",
+      "mainCategory": "Nghệ thuật",
+      "starterTags": ["webtoon", "digital", "storytelling", "series", "indie"],
+      "description": "Truyện tranh fantasy về cuộc phiêu lưu tìm kiếm ánh sáng"
+    },
+    {
+      "id": "4",
+      "title": "Hệ thống tưới thông minh IoT",
+      "mainCategory": "Nông nghiệp",
+      "starterTags": ["agritech", "iot", "sensor", "prototype", "nong-dan"],
+      "description": "Giải pháp tưới tự động dựa trên cảm biến độ ẩm đất"
+    },
+    {
+      "id": "5",
+      "title": "Thiết bị theo dõi sức khỏe người cao tuổi",
+      "mainCategory": "Y tế",
+      "starterTags": ["thiet-bi", "wearable", "healthtech", "iot", "nguoi-cao-tuoi"],
+      "description": "Vòng đeo tay thông minh giám sát nhịp tim, huyết áp"
+    },
+    {
+      "id": "6",
+      "title": "Quỹ cứu trợ lũ lụt miền Trung",
+      "mainCategory": "Khẩn cấp & Từ thiện",
+      "starterTags": ["donation", "urgent", "nan-nhan-thien-tai", "regional", "short-term"],
+      "description": "Hỗ trợ khẩn cấp cho người dân vùng lũ"
+    },
+    {
+      "id": "7",
+      "title": "Marketplace nông sản sạch",
+      "mainCategory": "Nông nghiệp",
+      "starterTags": ["marketplace", "nong-san", "web-app", "nong-dan", "local"],
+      "description": "Nền tảng kết nối nông dân và người tiêu dùng"
+    },
+    {
+      "id": "8",
+      "title": "Sản phẩm tái chế từ nhựa đại dương",
+      "mainCategory": "Môi trường",
+      "starterTags": ["san-pham-vat-ly", "cleantech", "bao-ton", "handmade", "social-impact"],
+      "description": "Túi xách và phụ kiện từ nhựa tái chế"
+    },
+    {
+      "id": "9",
+      "title": "Workshop kỹ năng mềm cho thanh niên",
+      "mainCategory": "Cộng đồng",
+      "starterTags": ["workshop", "chuong-trinh", "community-driven", "sinh-vien", "local"],
+      "description": "Chương trình đào tạo kỹ năng giao tiếp và làm việc nhóm"
+    },
+    {
+      "id": "10",
+      "title": "Local Coffee Brand - Cà phê Việt",
+      "mainCategory": "Kinh doanh",
+      "starterTags": ["thuc-pham", "startup", "handmade", "local", "pre-sale"],
+      "description": "Thương hiệu cà phê rang xay thủ công từ Đà Lạt"
+    },
+    {
+      "id": "11",
+      "title": "AI Chatbot cho doanh nghiệp",
+      "mainCategory": "Công nghệ",
+      "starterTags": ["ai", "saas", "b2b-solution", "mvp", "cloud"],
+      "description": "Giải pháp chatbot AI tự động hóa chăm sóc khách hàng"
+    },
+    {
+      "id": "12",
+      "title": "Album nhạc indie - Những ngày mưa",
+      "mainCategory": "Nghệ thuật",
+      "starterTags": ["album", "am-nhac", "indie", "digital", "streaming"],
+      "description": "Album 10 bài hát về tình yêu và nỗi nhớ"
+    },
+    {
+      "id": "13",
+      "title": "Board game chiến thuật Việt Nam",
+      "mainCategory": "Giải trí",
+      "starterTags": ["board-game", "indie", "physical", "pre-order", "limited-edition"],
+      "description": "Game bàn về lịch sử Việt Nam với cơ chế chiến thuật"
+    },
+    {
+      "id": "14",
+      "title": "Platform học lập trình cho trẻ em",
+      "mainCategory": "Giáo dục",
+      "starterTags": ["platform", "khoa-hoc", "edtech", "tre-em", "online"],
+      "description": "Nền tảng dạy lập trình qua game và hoạt động tương tác"
+    },
+    {
+      "id": "15",
+      "title": "Drone giám sát nông trại",
+      "mainCategory": "Nông nghiệp",
+      "starterTags": ["drone", "agritech", "hardware", "prototype", "nong-dan"],
+      "description": "Drone tự động giám sát sức khỏe cây trồng"
+    }
+  ],
+  "apiShapes": {
+    "getCampaigns": {
+      "endpoint": "GET /api/campaigns",
+      "queryParams": {
+        "mainCategory": "string (optional)",
+        "starterTags": "string[] (optional)",
+        "page": "number",
+        "limit": "number"
+      },
+      "response": {
+        "campaigns": [
+          {
+            "id": "string",
+            "title": "string",
+            "slug": "string",
+            "mainCategory": "string",
+            "starterTags": ["string"],
+            "description": "string",
+            "goalAmount": "number",
+            "currentAmount": "number",
+            "createdAt": "string (ISO date)"
+          }
+        ],
+        "pagination": {
+          "total": "number",
+          "page": "number",
+          "limit": "number",
+          "totalPages": "number"
+        }
+      }
+    },
+    "createCampaign": {
+      "endpoint": "POST /api/campaigns",
+      "body": {
+        "title": "string (required)",
+        "description": "string (required)",
+        "mainCategory": "string (required)",
+        "starterTags": ["string (max 5)"],
+        "goalAmount": "number (required)",
+        "endDate": "string (ISO date, required)"
+      },
+      "response": {
+        "success": "boolean",
+        "campaign": {
+          "id": "string",
+          "slug": "string",
+          "mainCategory": "string",
+          "starterTags": ["string"]
+        }
+      }
+    },
+    "getTaxonomy": {
+      "endpoint": "GET /api/taxonomy",
+      "response": {
+        "mainCategories": ["string"],
+        "tagGroups": ["string"],
+        "totalTags": "number"
+      }
+    },
+    "getTaxonomyByCategory": {
+      "endpoint": "GET /api/taxonomy/:category",
+      "response": {
+        "category": "string",
+        "allowedTagGroups": ["string"],
+        "recommendedStarterTags": ["string"],
+        "tagGroups": {
+          "groupName": [
+            {
+              "id": "string",
+              "label": "string",
+              "group": "string",
+              "description": "string"
+            }
+          ]
+        }
+      }
+    },
+    "searchTags": {
+      "endpoint": "GET /api/taxonomy/search",
+      "queryParams": {
+        "q": "string (required)",
+        "category": "string (optional)"
+      },
+      "response": {
+        "tags": [
+          {
+            "id": "string",
+            "label": "string",
+            "group": "string",
+            "description": "string"
+          }
+        ]
+      }
+    }
+  }
+}

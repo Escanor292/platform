@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { generateUniqueCampaignCode } from "@/lib/campaign-utils";
 
 /**
  * GET /api/campaigns
@@ -47,10 +48,27 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { title, tagline, description, goalAmount, category, imageUrl, endDate } = body;
+    const { title, tagline, description, goalAmount, mainCategory, starterTags, imageUrl, endDate } = body;
+
+    // Validate taxonomy
+    if (!mainCategory) {
+      return NextResponse.json({ error: "Vui lòng chọn danh mục chính" }, { status: 400 });
+    }
+    
+    if (!starterTags || !Array.isArray(starterTags)) {
+      return NextResponse.json({ error: "Thẻ phụ không hợp lệ" }, { status: 400 });
+    }
+    
+    // Không giới hạn số lượng tags nữa
+    // if (starterTags.length > 5) {
+    //   return NextResponse.json({ error: "Chỉ được chọn tối đa 5 thẻ phụ" }, { status: 400 });
+    // }
 
     // Tạo slug từ title đơn giản
     const slug = title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '') + '-' + Date.now().toString().slice(-4);
+
+    // Tạo campaign ID duy nhất
+    const campaignCode = await generateUniqueCampaignCode();
 
     const campaign = await prisma.campaign.create({
       data: {
@@ -58,14 +76,15 @@ export async function POST(req: NextRequest) {
         description: tagline,
         longDescription: description,
         goalAmount,
-        category,
+        category: mainCategory, // Store mainCategory in category field
+        tags: starterTags, // Store starterTags in tags field (assuming it's a String[] field)
         imageUrl,
         endDate: new Date(endDate),
         slug,
         creatorId: (session.user as any).id,
         currentAmount: 0,
         status: "DRAFT",
-        campaignCode: "CF" + Math.random().toString(36).substring(2, 7).toUpperCase()
+        campaignCode
       }
     });
 

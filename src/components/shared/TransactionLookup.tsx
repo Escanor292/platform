@@ -161,9 +161,14 @@ export default function TransactionLookup() {
                       className="w-12 h-12 rounded-lg object-cover"
                     />
                   )}
-                  <p className="font-medium text-indigo-700 group-hover:underline text-sm">
-                    {result.campaign.title} →
-                  </p>
+                  <div className="flex-1">
+                    <p className="font-medium text-indigo-700 group-hover:underline text-sm">
+                      {result.campaign.title} →
+                    </p>
+                    <p className="text-[10px] text-gray-400 font-mono mt-1">
+                      {result.campaign.campaignCode}
+                    </p>
+                  </div>
                 </Link>
               </div>
             )}
