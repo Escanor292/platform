@@ -1,10 +1,75 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { Globe, Sparkles, Heart, Users } from "lucide-react";
+import { Globe, Sparkles, Heart, Users, Building2, User as UserIcon } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [accountType, setAccountType] = useState<"individual" | "organization">("individual");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Mật khẩu xác nhận không khớp");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError("Mật khẩu phải có ít nhất 6 ký tự");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          isOrganization: accountType === "organization",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Đăng ký thất bại");
+      }
+
+      // Auto login after registration
+      const result = await signIn("credentials", {
+        email: formData.email,
+        password: formData.password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError("Đăng ký thành công nhưng đăng nhập thất bại. Vui lòng đăng nhập thủ công.");
+        setTimeout(() => router.push("/auth/login"), 2000);
+      } else {
+        router.push("/dashboard");
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream via-white to-fgreen/5 flex items-center justify-center px-4 py-24">
       <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -62,13 +127,97 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-6">
-              <button
-                onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-                className="w-full h-16 bg-white hover:bg-gray-50 border-2 border-gray-200 rounded-2xl font-bold text-gray-900 flex items-center justify-center gap-3 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-95"
-              >
-                <Globe size={24} className="text-blue-600" />
-                Đăng ký với Google
-              </button>
+              {/* Account Type Selection */}
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setAccountType("individual")}
+                  className={`p-4 rounded-2xl border-2 transition-all ${
+                    accountType === "individual"
+                      ? "border-pgreen bg-pgreen/5"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <UserIcon size={24} className={`mx-auto mb-2 ${accountType === "individual" ? "text-pgreen" : "text-gray-400"}`} />
+                  <div className={`text-sm font-bold ${accountType === "individual" ? "text-pgreen" : "text-gray-600"}`}>
+                    Cá nhân
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAccountType("organization")}
+                  className={`p-4 rounded-2xl border-2 transition-all ${
+                    accountType === "organization"
+                      ? "border-pgreen bg-pgreen/5"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <Building2 size={24} className={`mx-auto mb-2 ${accountType === "organization" ? "text-pgreen" : "text-gray-400"}`} />
+                  <div className={`text-sm font-bold ${accountType === "organization" ? "text-pgreen" : "text-gray-600"}`}>
+                    Tổ chức
+                  </div>
+                </button>
+              </div>
+
+              {/* Registration Form */}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <input
+                    type="text"
+                    placeholder={accountType === "organization" ? "Tên tổ chức" : "Họ và tên"}
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                    className="w-full h-14 px-4 rounded-2xl border-2 border-gray-200 focus:border-pgreen focus:outline-none transition-colors"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                    className="w-full h-14 px-4 rounded-2xl border-2 border-gray-200 focus:border-pgreen focus:outline-none transition-colors"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="password"
+                    placeholder="Mật khẩu"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    required
+                    minLength={6}
+                    className="w-full h-14 px-4 rounded-2xl border-2 border-gray-200 focus:border-pgreen focus:outline-none transition-colors"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="password"
+                    placeholder="Xác nhận mật khẩu"
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                    required
+                    minLength={6}
+                    className="w-full h-14 px-4 rounded-2xl border-2 border-gray-200 focus:border-pgreen focus:outline-none transition-colors"
+                  />
+                </div>
+
+                {error && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm font-medium">
+                    {error}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-14 bg-gradient-to-r from-pgreen to-fgreen hover:from-pgreen/90 hover:to-fgreen/90 text-white rounded-2xl font-bold transition-all hover:shadow-lg hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? "Đang xử lý..." : "Tạo tài khoản"}
+                </button>
+              </form>
 
               <div className="relative my-8">
                 <div className="absolute inset-0 flex items-center">
@@ -80,6 +229,14 @@ export default function RegisterPage() {
                   </span>
                 </div>
               </div>
+
+              <button
+                onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+                className="w-full h-14 bg-white hover:bg-gray-50 border-2 border-gray-200 rounded-2xl font-bold text-gray-900 flex items-center justify-center gap-3 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-95"
+              >
+                <Globe size={20} className="text-blue-600" />
+                Đăng ký với Google
+              </button>
 
               <div className="text-center">
                 <p className="text-sm text-gray-600 font-medium">

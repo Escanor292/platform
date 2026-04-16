@@ -197,7 +197,7 @@ export default function PledgeForm({
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             Tip hỗ trợ nền tảng (tùy chọn)
           </label>
-          <div className="flex gap-2">
+          <div className="flex gap-2 mb-3">
             {PLATFORM_TIP_OPTIONS.map((pct) => (
               <button
                 key={pct}
@@ -212,6 +212,39 @@ export default function PledgeForm({
                 {pct === 0 ? "Không" : `${pct}%`}
               </button>
             ))}
+          </div>
+          
+          {/* Slider và Input */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={Math.min(tipPercent, 100)}
+                onChange={(e) => setTipPercent(Number(e.target.value))}
+                className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                style={{
+                  background: `linear-gradient(to right, rgb(79 70 229) 0%, rgb(79 70 229) ${Math.min(tipPercent, 100)}%, rgb(229 231 235) ${Math.min(tipPercent, 100)}%, rgb(229 231 235) 100%)`
+                }}
+              />
+              <div className="flex items-center gap-1">
+                <input
+                  type="number"
+                  min="0"
+                  max="1000"
+                  value={tipPercent}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    if (val >= 0 && val <= 1000) {
+                      setTipPercent(val);
+                    }
+                  }}
+                  className="w-16 px-2 py-1 text-center text-sm font-bold text-indigo-600 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                />
+                <span className="text-sm font-medium text-gray-500">%</span>
+              </div>
+            </div>
           </div>
         </div>
 

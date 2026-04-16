@@ -17,13 +17,13 @@ async function main() {
        password: adminHashedPassword,
        isAdmin: true,
        name: "Admin",
-       role: "BACKER"
+       role: "ADMIN"
     },
     create: {
       email: "admin@crowdfunding.vn",
       name: "Admin",
       isAdmin: true,
-      role: "BACKER", 
+      role: "ADMIN", 
       password: adminHashedPassword,
     },
   });

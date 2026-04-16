@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { 
-  Rocket, User, LogOut, LayoutDashboard, PlusCircle, Menu, X, ChevronDown 
+  Rocket, User, LogOut, UserCircle, PlusCircle, Menu, X, ChevronDown, Settings, ShieldCheck 
 } from "lucide-react";
 import { useState } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
@@ -14,6 +14,9 @@ export default function Navbar() {
   const { data: session } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
+
+  const user = session?.user as any;
+  const isAdmin = user?.role === "ADMIN" || user?.isAdmin === true;
 
   const handleLogout = async () => {
     toast.promise(signOut({ redirect: false }), {
@@ -41,6 +44,7 @@ export default function Navbar() {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
           <Link href="/campaigns" className="text-sm font-bold text-gray-500 hover:text-blue-600 transition focus-ring rounded-md px-2 py-1">Khám phá</Link>
+          <Link href="/users/search" className="text-sm font-bold text-gray-500 hover:text-blue-600 transition focus-ring rounded-md px-2 py-1">Cộng đồng</Link>
           <Link href="/lookup" className="text-sm font-bold text-gray-500 hover:text-blue-600 transition focus-ring rounded-md px-2 py-1">Tra cứu GD</Link>
         </div>
 
@@ -80,10 +84,26 @@ export default function Navbar() {
 
                       <DropdownMenu.Item asChild>
                          <Link href="/dashboard" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-blue-600 transition cursor-pointer outline-none focus:bg-slate-50">
-                            <LayoutDashboard size={16} />
-                            Bảng điều khiển
+                            <UserCircle size={16} />
+                            Trang cá nhân
                          </Link>
                       </DropdownMenu.Item>
+
+                      <DropdownMenu.Item asChild>
+                         <Link href="/profile/edit" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-blue-600 transition cursor-pointer outline-none focus:bg-slate-50">
+                            <Settings size={16} />
+                            Cài đặt
+                         </Link>
+                      </DropdownMenu.Item>
+
+                      {isAdmin && (
+                        <DropdownMenu.Item asChild>
+                          <Link href="/dashboard/admin" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition cursor-pointer outline-none focus:bg-red-50">
+                            <ShieldCheck size={16} />
+                            Quản trị
+                          </Link>
+                        </DropdownMenu.Item>
+                      )}
                       
                       <DropdownMenu.Item asChild>
                          <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition outline-none focus:bg-red-50 mt-1 cursor-pointer">
@@ -112,6 +132,7 @@ export default function Navbar() {
       {isMenuOpen && (
         <div className="md:hidden absolute top-18 left-0 w-full bg-white border-b border-gray-100 px-6 py-8 flex flex-col gap-6 shadow-2xl animate-in slide-in-from-top-4 duration-300">
           <Link href="/campaigns" className="text-lg font-bold text-gray-900" onClick={() => setIsMenuOpen(false)}>Khám phá</Link>
+          <Link href="/users/search" className="text-lg font-bold text-gray-900" onClick={() => setIsMenuOpen(false)}>Cộng đồng</Link>
           <Link href="/lookup" className="text-lg font-bold text-gray-900" onClick={() => setIsMenuOpen(false)}>Tra cứu GD</Link>
           <Link href="/campaigns/create" className="w-full py-4 bg-gray-900 text-white rounded-xl text-center font-bold" onClick={() => setIsMenuOpen(false)}>Tạo dự án mới</Link>
           <div className="h-px bg-gray-100 my-2" />
@@ -131,7 +152,7 @@ export default function Navbar() {
                    </div>
                 </div>
                 <Link href="/dashboard" className="flex items-center gap-2 text-lg font-bold text-gray-900" onClick={() => setIsMenuOpen(false)}>
-                   <LayoutDashboard size={20} /> Dashboard
+                   <UserCircle size={20} /> Trang cá nhân
                 </Link>
                 <button onClick={handleLogout} className="flex items-center gap-2 text-lg font-bold text-red-500 text-left">
                    <LogOut size={20} /> Đăng xuất

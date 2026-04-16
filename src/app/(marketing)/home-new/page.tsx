@@ -7,12 +7,13 @@ import StatsSection from "@/components/shared/StatsSection";
 import WhyUsSection from "@/components/shared/WhyUsSection";
 import ThreeStepsSection from "@/components/shared/ThreeStepsSection";
 import TestimonialsSection from "@/components/shared/TestimonialsSection";
+import CreatorLink from "@/components/campaign/CreatorLink";
 
 export default async function HomeNew() {
   const campaigns = await prisma.campaign.findMany({
     where: { status: "ACTIVE" },
     include: {
-      creator: { select: { name: true, avatar: true, isPro: true } },
+      creator: { select: { id: true, name: true, avatar: true, isPro: true } },
     },
     take: 6,
     orderBy: { createdAt: "desc" },
@@ -103,14 +104,11 @@ export default async function HomeNew() {
                         </div>
 
                         <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                          <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-full bg-pgreen/10 flex items-center justify-center text-pgreen text-xs font-bold">
-                              {campaign.creator?.name?.charAt(0) || "C"}
-                            </div>
-                            <span className="text-xs font-semibold text-gray-600">
-                              {campaign.creator?.name || "Anonymous"}
-                            </span>
-                          </div>
+                          <CreatorLink 
+                            creatorId={campaign.creator?.id || ""}
+                            creatorName={campaign.creator?.name || "Anonymous"}
+                            creatorAvatar={campaign.creator?.avatar}
+                          />
                           {daysLeft !== null && (
                             <span className="text-xs text-gray-400">
                               {daysLeft > 0 ? `${daysLeft} ngày` : "Kết thúc"}

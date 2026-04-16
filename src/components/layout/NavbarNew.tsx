@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { 
-  Rocket, User, LogOut, LayoutDashboard, PlusCircle, Menu, X, ChevronDown 
+  Rocket, User, LogOut, UserCircle, PlusCircle, Menu, X, ChevronDown, Settings, ShieldCheck 
 } from "lucide-react";
 import { useState } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
@@ -15,6 +15,9 @@ export default function NavbarNew() {
   const { data: session } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
+
+  const user = session?.user as any;
+  const isAdmin = user?.role === "ADMIN" || user?.isAdmin === true;
 
   const handleLogout = async () => {
     toast.promise(signOut({ redirect: false }), {
@@ -65,10 +68,10 @@ export default function NavbarNew() {
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-pgreen group-hover:w-full transition-all duration-300" />
           </Link>
           <Link 
-            href="/dashboard" 
+            href="/users/search" 
             className="text-sm font-medium text-gray-600 hover:text-pgreen transition relative group"
           >
-            Dashboard
+            Cộng đồng
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-pgreen group-hover:w-full transition-all duration-300" />
           </Link>
         </div>
@@ -111,10 +114,26 @@ export default function NavbarNew() {
 
                     <DropdownMenu.Item asChild>
                       <Link href="/dashboard" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50">
-                        <LayoutDashboard size={16} />
-                        Bảng điều khiển
+                        <UserCircle size={16} />
+                        Trang cá nhân
                       </Link>
                     </DropdownMenu.Item>
+
+                    <DropdownMenu.Item asChild>
+                      <Link href="/profile/edit" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50">
+                        <Settings size={16} />
+                        Cài đặt
+                      </Link>
+                    </DropdownMenu.Item>
+
+                    {isAdmin && (
+                      <DropdownMenu.Item asChild>
+                        <Link href="/dashboard/admin" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition cursor-pointer outline-none focus:bg-red-50">
+                          <ShieldCheck size={16} />
+                          Quản trị
+                        </Link>
+                      </DropdownMenu.Item>
+                    )}
                     
                     <DropdownMenu.Item asChild>
                       <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition outline-none focus:bg-red-50 mt-1 cursor-pointer">
@@ -165,8 +184,8 @@ export default function NavbarNew() {
           <Link href="/projects" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
             Khám phá
           </Link>
-          <Link href="/dashboard" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
-            Dashboard
+          <Link href="/users/search" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
+            Cộng đồng
           </Link>
           
           {session ? (

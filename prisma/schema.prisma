@@ -14,12 +14,17 @@ model User {
   name            String
   displayName     String?
   avatar          String?
+  image           String?           // Avatar URL (for OAuth)
+  coverImage      String?           // Ảnh bìa profile
   phone           String?
+  shippingAddress String?           // Địa chỉ nhận hàng
   role            UserRole          @default(BACKER)
   isPro           Boolean           @default(false)
   isOrganization  Boolean           @default(false)
   isAdmin         Boolean           @default(false)
   bio             String?
+  location        String?           // Địa điểm
+  website         String?           // Website cá nhân
   idCard          String?
   businessLicense String?
   bankAccount     String?
@@ -173,6 +178,7 @@ model PlatformInvoice {
 }
 
 enum UserRole {
+  ADMIN
   BACKER
   CREATOR_PENDING
   CREATOR

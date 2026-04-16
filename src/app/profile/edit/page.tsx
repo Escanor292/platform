@@ -2,18 +2,16 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
-export default async function DashboardPage() {
+export default async function ProfileEditRedirect() {
   const session = await auth();
 
   if (!session?.user) {
     redirect("/auth/login");
   }
 
-  const user = session.user as any;
-
-  // Lấy user từ database để đảm bảo có ID
+  // Lấy user từ database để có ID
   const dbUser = await prisma.user.findUnique({
-    where: { email: user.email },
+    where: { email: session.user.email! },
     select: { id: true }
   });
 
@@ -21,6 +19,6 @@ export default async function DashboardPage() {
     redirect("/auth/login");
   }
 
-  // Redirect đến trang profile của chính user
-  redirect(`/profile/${dbUser.id}`);
+  // Redirect đến trang edit của user
+  redirect(`/profile/${dbUser.id}/edit`);
 }
