@@ -30,25 +30,27 @@ export default async function EditProfilePage({ params }: EditProfilePageProps) 
 
   // Lấy thông tin user để edit
   const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      image: true,
-      coverImage: true,
-      bio: true,
-      location: true,
-      website: true,
-      phone: true,
-      shippingAddress: true,
-      socialLinks: true
-    }
+    where: { id: userId }
   });
 
   if (!user) {
     notFound();
   }
+
+  // Extract only needed fields for the form
+  const userData = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    image: user.image,
+    coverImage: user.coverImage,
+    bio: user.bio,
+    location: user.location,
+    website: user.website,
+    phone: user.phone,
+    shippingAddress: user.shippingAddress,
+    socialLinks: user.socialLinks
+  };
 
   return (
     <div className="min-h-screen bg-slate-50/50 py-24 px-6">
@@ -58,7 +60,7 @@ export default async function EditProfilePage({ params }: EditProfilePageProps) 
           <p className="text-gray-400">Cập nhật thông tin của bạn</p>
         </div>
 
-        <ProfileEditForm user={user} />
+        <ProfileEditForm user={userData} />
       </div>
     </div>
   );
