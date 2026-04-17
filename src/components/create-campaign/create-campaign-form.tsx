@@ -24,8 +24,10 @@ export function CreateCampaignForm() {
   // Validate on change
   useEffect(() => {
     const result = validateTaxonomySelection(selection);
-    setValidationErrors(result.errors);
-  }, [selection]);
+    if (JSON.stringify(result.errors) !== JSON.stringify(validationErrors)) {
+      setValidationErrors(result.errors);
+    }
+  }, [selection, validationErrors]);
   
   const handleCategoryChange = (newCategory: MainCategory) => {
     // If there are selected tags, check if they're valid for the new category

@@ -1,6 +1,0 @@
-@echo off
-echo Running NPM Install...
-cmd /c "npm install --legacy-peer-deps"
-echo Running Prisma Generate...
-cmd /c "npx prisma generate"
-echo Ready.
