@@ -119,7 +119,51 @@ export default async function CampaignDetailPage({ params }: Params) {
                   <UpdateSection campaignId={campaign.id} slug={slug} isCreator={!!isCreator} />
                </section>
 
-               {/* 3. Comment Section */}
+               {/* 3. Backers Section */}
+               <section id="backers" className="space-y-8">
+                  <div className="flex items-center gap-4 border-b border-gray-100 pb-6">
+                     <Users className="text-purple-600" size={32} />
+                     <h2 className="text-3xl font-black text-gray-900 tracking-tight">
+                        Người ủng hộ ({(campaign as any)._count?.pledges || 0})
+                     </h2>
+                  </div>
+                  {campaign.pledges.length > 0 ? (
+                     <div className="space-y-4">
+                        {campaign.pledges.map((pledge) => (
+                           <div key={pledge.id} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
+                              <div className="flex items-center gap-4">
+                                 <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
+                                    {pledge.isAnonymous ? "🎭" : (pledge.user?.name?.slice(0, 1) || pledge.displayName?.slice(0, 1) || "?")}
+                                 </div>
+                                 <div className="flex-1">
+                                    <div className="font-bold text-gray-900">
+                                       {pledge.isAnonymous ? "Người ủng hộ ẩn danh" : (pledge.user?.name || pledge.displayName || "Người ủng hộ")}
+                                    </div>
+                                    <div className="text-sm text-gray-500">
+                                       Ủng hộ {formatVND(pledge.amount)} • {formatDate(pledge.createdAt)}
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        ))}
+                        {(campaign as any)._count?.pledges > 5 && (
+                           <div className="text-center py-4">
+                              <p className="text-sm text-gray-500 font-medium">
+                                 Và {(campaign as any)._count.pledges - 5} người ủng hộ khác...
+                              </p>
+                           </div>
+                        )}
+                     </div>
+                  ) : (
+                     <div className="text-center py-12 bg-gray-50 rounded-2xl border border-gray-100">
+                        <Users className="mx-auto text-gray-300 mb-4" size={48} />
+                        <p className="text-gray-500 font-medium">Chưa có người ủng hộ</p>
+                        <p className="text-sm text-gray-400 mt-2">Hãy là người đầu tiên ủng hộ dự án này!</p>
+                     </div>
+                  )}
+               </section>
+
+               {/* 4. Comment Section */}
                <section id="comments" className="space-y-8">
                   <div className="flex items-center gap-4 border-b border-gray-100 pb-6">
                      <MessageSquare className="text-blue-600" size={32} />

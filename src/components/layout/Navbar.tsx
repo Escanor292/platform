@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { 
-  Rocket, User, LogOut, UserCircle, PlusCircle, Menu, X, ChevronDown, Settings, ShieldCheck 
+  Rocket, User, LogOut, UserCircle, PlusCircle, Menu, X, ChevronDown, Settings, ShieldCheck, FolderKanban 
 } from "lucide-react";
 import { useState } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
@@ -86,6 +86,13 @@ export default function Navbar() {
                          <Link href="/dashboard" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-blue-600 transition cursor-pointer outline-none focus:bg-slate-50">
                             <UserCircle size={16} />
                             Trang cá nhân
+                         </Link>
+                      </DropdownMenu.Item>
+
+                      <DropdownMenu.Item asChild>
+                         <Link href="/dashboard/creator" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-blue-600 transition cursor-pointer outline-none focus:bg-slate-50">
+                            <FolderKanban size={16} />
+                            Quản lý dự án
                          </Link>
                       </DropdownMenu.Item>
 

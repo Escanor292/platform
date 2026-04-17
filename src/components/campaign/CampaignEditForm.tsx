@@ -2,11 +2,19 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { Save, X, Upload, Image as ImageIcon } from "lucide-react";
-import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { MultipleImageUpload } from "@/components/shared/MultipleImageUpload";
+import { DateInput } from "@/components/shared/DateInput";
 import { ProductionEditor } from "@/components/editor";
 import { EDITOR_PLACEHOLDERS } from "@/lib/editor/constants";
+import { toast } from "sonner";
+import { Save, Target, AlignLeft, Image as ImageIcon, Calendar, Tags, X } from "lucide-react";
+import { CategorySelector } from "@/components/create-campaign/category-selector";
+import { StarterTagsSelector } from "@/components/create-campaign/starter-tags-selector";
+import type { MainCategory } from "@/types/taxonomy";
+import { validateTaxonomySelection, sanitizeSelectedTags, getInvalidTagsForNewCategory, getTagsByIds } from "@/lib/taxonomy-helpers";
+import Link from "next/link";
 
 interface Reward {
   id: string;
@@ -38,298 +46,398 @@ interface CampaignEditFormProps {
 
 export default function CampaignEditForm({ campaign }: CampaignEditFormProps) {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
-  
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: campaign.title,
-    description: campaign.description,
-    longDescription: campaign.longDescription || "",
+    tagline: campaign.description,
+    description: campaign.longDescription || "",
+    goalAmount: campaign.goalAmount,
+    mainCategory: campaign.category as MainCategory | null,
+    starterTags: [] as string[], // TODO: Load from campaign if stored
     imageUrl: campaign.imageUrl || "",
     images: campaign.images || [],
-    videoUrl: campaign.videoUrl || "",
-    category: campaign.category,
-    goalAmount: campaign.goalAmount,
     endDate: campaign.endDate ? new Date(campaign.endDate).toISOString().split('T')[0] : "",
   });
+  
+  const [showCategoryChangeWarning, setShowCategoryChangeWarning] = useState(false);
+  const [pendingCategory, setPendingCategory] = useState<MainCategory | null>(null);
 
-  const handleImageUpload = async (file: File) => {
-    if (!file.type.startsWith("image/")) {
-      toast.error("Vui lòng chọn file ảnh");
-      return;
-    }
+  const [displayAmount, setDisplayAmount] = useState(
+    new Intl.NumberFormat("vi-VN").format(campaign.goalAmount)
+  );
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Kích thước ảnh không được vượt quá 5MB");
-      return;
-    }
-
-    setUploadingImage(true);
-
-    try {
-      const formDataUpload = new FormData();
-      formDataUpload.append("file", file);
-
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formDataUpload,
-      });
-
-      if (!response.ok) {
-        throw new Error("Upload thất bại");
-      }
-
-      const data = await response.json();
-      
-      // Thêm ảnh vào mảng images
-      setFormData(prev => ({ 
-        ...prev, 
-        images: [...prev.images, data.secure_url],
-        // Set ảnh đầu tiên làm imageUrl chính nếu chưa có
-        imageUrl: prev.imageUrl || data.secure_url
-      }));
-      toast.success("Upload ảnh thành công!");
-    } catch (error) {
-      toast.error("Có lỗi xảy ra khi upload ảnh");
-      console.error("Upload error:", error);
-    } finally {
-      setUploadingImage(false);
-    }
+  const formatVNDInput = (value: string) => {
+    const numericValue = value.replace(/\D/g, "");
+    if (!numericValue) return "";
+    return new Intl.NumberFormat("vi-VN").format(Number(numericValue));
   };
 
-  const removeImage = (index: number) => {
-    setFormData(prev => {
-      const newImages = prev.images.filter((_, i) => i !== index);
-      return {
-        ...prev,
-        images: newImages,
-        // Nếu xóa ảnh chính, set ảnh đầu tiên còn lại làm ảnh chính
-        imageUrl: prev.imageUrl === prev.images[index] 
-          ? (newImages[0] || "") 
-          : prev.imageUrl
-      };
+  const handleCategoryChange = (newCategory: MainCategory) => {
+    // If there are selected tags, check if they're valid for the new category
+    if (formData.starterTags.length > 0) {
+      const invalidTags = getInvalidTagsForNewCategory(
+        formData.starterTags,
+        newCategory
+      );
+      
+      if (invalidTags.length > 0) {
+        // Show warning
+        setPendingCategory(newCategory);
+        setShowCategoryChangeWarning(true);
+        return;
+      }
+    }
+    
+    // No conflicts, change category directly
+    setFormData({
+      ...formData,
+      mainCategory: newCategory,
+    });
+  };
+  
+  const handleConfirmCategoryChange = () => {
+    if (!pendingCategory) return;
+    
+    // Sanitize tags for new category
+    const sanitizedTags = sanitizeSelectedTags(
+      formData.starterTags,
+      pendingCategory
+    );
+    
+    setFormData({
+      ...formData,
+      mainCategory: pendingCategory,
+      starterTags: sanitizedTags,
+    });
+    
+    setShowCategoryChangeWarning(false);
+    setPendingCategory(null);
+  };
+  
+  const handleCancelCategoryChange = () => {
+    setShowCategoryChangeWarning(false);
+    setPendingCategory(null);
+  };
+  
+  const handleTagsChange = (tags: string[]) => {
+    setFormData({
+      ...formData,
+      starterTags: tags,
     });
   };
 
-  const setMainImage = (imageUrl: string) => {
-    setFormData(prev => ({ ...prev, imageUrl }));
-    toast.success("Đã đặt làm ảnh chính");
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+    const formatted = formatVNDInput(rawValue);
+    const numeric = Number(rawValue.replace(/\D/g, ""));
+
+    setDisplayAmount(formatted);
+    setFormData({ ...formData, goalAmount: numeric });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const response = await fetch(`/api/campaigns/${campaign.slug}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Cập nhật thất bại");
-      }
-
-      toast.success("Cập nhật dự án thành công!");
-      router.push("/dashboard/creator");
-      router.refresh();
-    } catch (error) {
-      toast.error("Có lỗi xảy ra. Vui lòng thử lại.");
-    } finally {
-      setIsLoading(false);
+    
+    // Validate taxonomy
+    const taxonomyValidation = validateTaxonomySelection({
+      mainCategory: formData.mainCategory,
+      starterTags: formData.starterTags,
+    });
+    
+    if (!taxonomyValidation.isValid) {
+      toast.error(taxonomyValidation.errors[0]);
+      return;
     }
+    
+    // Validate required fields with specific messages
+    const missingFields: string[] = [];
+    if (!formData.title) missingFields.push("Tên dự án");
+    if (!formData.tagline) missingFields.push("Mô tả ngắn");
+    if (!formData.description) missingFields.push("Nội dung chi tiết");
+    if (!formData.imageUrl) missingFields.push("Ảnh bìa");
+    if (!formData.goalAmount || formData.goalAmount <= 0) missingFields.push("Số vốn mục tiêu");
+    if (!formData.endDate) missingFields.push("Hạn chót chiến dịch");
+    
+    if (missingFields.length > 0) {
+      toast.error(`Vui lòng điền: ${missingFields.join(", ")}`);
+      return;
+    }
+    
+    setLoading(true);
+    const promise = fetch(`/api/campaigns/${campaign.slug}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    }).then(async (res) => {
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Lỗi khi cập nhật dự án");
+      }
+      return res.json();
+    });
+
+    toast.promise(promise, {
+      loading: 'Đang cập nhật dự án...',
+      success: () => {
+        router.push("/dashboard/creator");
+        router.refresh();
+        return '✅ Cập nhật dự án thành công!';
+      },
+      error: (err) => err.message,
+    });
+    
+    promise.finally(() => setLoading(false));
   };
+  
+  const invalidTagsForPendingCategory = pendingCategory
+    ? getInvalidTagsForNewCategory(formData.starterTags, pendingCategory)
+    : [];
+  
+  const invalidTagObjects = getTagsByIds(invalidTagsForPendingCategory);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 space-y-6">
+    <div className="max-w-4xl mx-auto">
+      <form onSubmit={handleSubmit} className="space-y-8">
         
-        {/* Ảnh dự án */}
-        <div>
-          <label className="block text-sm font-bold text-gray-900 mb-3">
-            Ảnh dự án
-          </label>
-          
-          {/* Gallery hiển thị các ảnh */}
-          {formData.images.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
-              {formData.images.map((img, index) => (
-                <div key={index} className="relative group">
-                  <img 
-                    src={img} 
-                    alt={`Image ${index + 1}`} 
-                    className="w-full h-32 object-cover rounded-xl border-2 border-gray-100"
-                  />
-                  {/* Badge ảnh chính */}
-                  {img === formData.imageUrl && (
-                    <div className="absolute top-2 left-2 px-2 py-1 bg-blue-600 text-white text-xs font-bold rounded-lg">
-                      Ảnh chính
-                    </div>
-                  )}
-                  {/* Actions */}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-2">
-                    {img !== formData.imageUrl && (
-                      <button
-                        type="button"
-                        onClick={() => setMainImage(img)}
-                        className="px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700"
-                      >
-                        Đặt làm chính
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      className="px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-lg hover:bg-red-700"
-                    >
-                      Xóa
-                    </button>
-                  </div>
-                </div>
-              ))}
+        {/* Category Change Warning Modal */}
+        {showCategoryChangeWarning && pendingCategory && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
+              <h3 className="text-lg font-bold text-gray-900">
+                Xác nhận thay đổi danh mục
+              </h3>
+              <p className="text-sm text-gray-600">
+                Bạn đang thay đổi danh mục từ{" "}
+                <span className="font-semibold">{formData.mainCategory}</span> sang{" "}
+                <span className="font-semibold">{pendingCategory}</span>.
+              </p>
+              <p className="text-sm text-gray-600">
+                Các thẻ sau sẽ bị xóa vì không phù hợp với danh mục mới:
+              </p>
+              <div className="flex flex-wrap gap-2 p-3 bg-red-50 rounded-lg">
+                {invalidTagObjects.map((tag) => (
+                  <span
+                    key={tag.id}
+                    className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700"
+                  >
+                    {tag.label}
+                  </span>
+                ))}
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={handleCancelCategoryChange}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmCategoryChange}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+                >
+                  Xác nhận
+                </button>
+              </div>
             </div>
-          )}
+          </div>
+        )}
+        
+        {/* Block 1: Thông tin cơ bản */}
+        <div className="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-soft">
+          <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
+             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                <AlignLeft size={20} />
+             </div>
+             <h2 className="text-2xl font-bold text-gray-900">Thông tin cơ bản</h2>
+          </div>
 
-          <div className="space-y-3">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) handleImageUpload(file);
-              }}
-              className="hidden"
-              id="image-upload"
+          <div className="space-y-8">
+             <div className="space-y-3">
+               <label className="text-sm font-bold text-gray-900 flex justify-between">
+                  <span>Tên dự án <span className="text-red-500">*</span></span>
+                  <span className="text-gray-400 font-normal">Tối đa 60 ký tự</span>
+               </label>
+               <Input 
+                 required 
+                 className="text-lg py-6 focus-ring rounded-xl bg-slate-50 border-gray-200"
+                 placeholder="Ví dụ: Năng lượng xanh cho bản vùng cao..." 
+                 value={formData.title}
+                 maxLength={60}
+                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+               />
+             </div>
+
+             <div className="space-y-3">
+               <label className="text-sm font-bold text-gray-900">
+                 Mô tả ngắn (Tagline) <span className="text-red-500">*</span>
+               </label>
+               <Input 
+                 required 
+                 className="py-5 focus-ring rounded-xl bg-slate-50 border-gray-200"
+                 placeholder="Câu tóm tắt ngắn gọn và cuốn hút nhất về dự án của bạn..." 
+                 value={formData.tagline}
+                 onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
+               />
+             </div>
+          </div>
+        </div>
+
+        {/* Block 2: Nội dung & Hình ảnh */}
+        <div className="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-soft">
+           <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
+             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <ImageIcon size={20} />
+             </div>
+             <div>
+               <h2 className="text-2xl font-bold text-gray-900">Câu chuyện & Media</h2>
+               <p className="text-sm text-gray-500 font-medium">Một câu chuyện hay cùng hình ảnh đẹp sẽ thu hút nhiều sự chú ý hơn.</p>
+             </div>
+          </div>
+
+          <div className="space-y-10">
+             <div className="space-y-3">
+                <label className="text-sm font-bold text-gray-900">
+                  Ảnh chiến dịch <span className="text-red-500">*</span>
+                </label>
+                <div className="bg-slate-50 p-6 rounded-2xl border border-dashed border-gray-300">
+                   <MultipleImageUpload 
+                      label="Tải ảnh lên (Tỉ lệ khuyến nghị 16:9)"
+                      images={formData.images}
+                      onChange={(images) => {
+                        console.log("[EditCampaign] Images updated:", images);
+                        setFormData(prev => ({ ...prev, images }));
+                      }}
+                      mainImage={formData.imageUrl}
+                      onMainImageChange={(url) => {
+                        console.log("[EditCampaign] Main image updated:", url);
+                        setFormData(prev => ({ ...prev, imageUrl: url }));
+                      }}
+                      maxImages={10}
+                   />
+                </div>
+             </div>
+
+             <div className="space-y-3">
+               <label className="text-sm font-bold text-gray-900">
+                 Nội dung chi tiết <span className="text-red-500">*</span>
+               </label>
+               <ProductionEditor
+                 content={formData.description}
+                 onChange={(content) => setFormData({ ...formData, description: content })}
+                 config={{
+                   placeholder: EDITOR_PLACEHOLDERS.CAMPAIGN_DESCRIPTION,
+                   autosave: false,
+                   enableBubbleMenu: true,
+                 }}
+               />
+             </div>
+          </div>
+        </div>
+
+        {/* Block 3: Mục tiêu & Thời gian */}
+        <div className="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-soft">
+          <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
+             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                <Target size={20} />
+             </div>
+             <h2 className="text-2xl font-bold text-gray-900">Mục tiêu & Lịch trình</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-3">
+              <label className="text-sm font-bold text-gray-900">
+                Số vốn mục tiêu (VNĐ) <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">₫</span>
+                 <Input 
+                   type="text" 
+                   className="pl-10 text-lg font-black text-gray-900 py-6 focus-ring rounded-xl bg-slate-50 border-gray-200"
+                   required 
+                   placeholder="1.000.000"
+                   value={displayAmount}
+                   onChange={handleAmountChange}
+                 />
+              </div>
+              <p className="text-xs text-gray-500 font-medium">Đặt mục tiêu có thể đạt được để tạo động lực cho cộng đồng.</p>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-sm font-bold text-gray-900">
+                Hạn chót chiến dịch <span className="text-red-500">*</span>
+              </label>
+              <DateInput
+                value={formData.endDate}
+                onChange={(value) => setFormData({ ...formData, endDate: value })}
+                placeholder="dd/mm/yyyy"
+                required
+                min={new Date().toISOString().split('T')[0]} // Không cho chọn ngày quá khứ
+              />
+              <p className="text-xs text-gray-500 font-medium">Thời gian tối đa thường là 30 - 60 ngày.</p>
+            </div>
+          </div>
+        </div>
+        
+        {/* Block 4: Phân loại & Tags */}
+        <div className="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-soft">
+          <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
+             <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                <Tags size={20} />
+             </div>
+             <div>
+               <h2 className="text-2xl font-bold text-gray-900">Phân loại dự án</h2>
+               <p className="text-sm text-gray-500 font-medium">Giúp người ủng hộ dễ dàng tìm thấy dự án của bạn</p>
+             </div>
+          </div>
+
+          <div className="space-y-8">
+            <CategorySelector
+              selectedCategory={formData.mainCategory}
+              onCategoryChange={handleCategoryChange}
             />
             
-            <label
-              htmlFor="image-upload"
-              className="w-full px-4 py-3 bg-blue-50 text-blue-600 rounded-xl font-bold hover:bg-blue-100 transition cursor-pointer flex items-center justify-center gap-2"
-            >
-              <ImageIcon size={18} />
-              {uploadingImage ? "Đang upload..." : "Thêm ảnh"}
-            </label>
+            <div className="border-t border-gray-100 pt-8">
+              <StarterTagsSelector
+                mainCategory={formData.mainCategory}
+                selectedTags={formData.starterTags}
+                onTagsChange={handleTagsChange}
+              />
+            </div>
           </div>
-          <p className="text-xs text-gray-400 mt-2">
-            Kích thước đề xuất: 1200x600px, tối đa 5MB. Ảnh đầu tiên sẽ là ảnh chính.
-          </p>
         </div>
 
-        {/* Tiêu đề */}
-        <div>
-          <label className="block text-sm font-bold text-gray-900 mb-2">
-            Tiêu đề dự án
-          </label>
-          <input
-            type="text"
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            required
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition"
-            placeholder="Nhập tiêu đề dự án"
-          />
-        </div>
-
-        {/* Mô tả ngắn */}
-        <div>
-          <label className="block text-sm font-bold text-gray-900 mb-2">
-            Mô tả ngắn
-          </label>
-          <textarea
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            required
-            rows={3}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition resize-none"
-            placeholder="Mô tả ngắn gọn về dự án"
-          />
-        </div>
-
-        {/* Mô tả chi tiết */}
-        <div>
-          <label className="block text-sm font-bold text-gray-900 mb-2">
-            Mô tả chi tiết
-          </label>
-          <ProductionEditor
-            content={formData.longDescription}
-            onChange={(content) => setFormData({ ...formData, longDescription: content })}
-            config={{
-              placeholder: EDITOR_PLACEHOLDERS.CAMPAIGN_DESCRIPTION,
-              autosave: false,
-              enableBubbleMenu: true,
-            }}
-          />
-        </div>
-
-        {/* Danh mục */}
-        <div>
-          <label className="block text-sm font-bold text-gray-900 mb-2">
-            Danh mục
-          </label>
-          <select
-            value={formData.category}
-            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-            required
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition"
+        <div className="pt-4 flex gap-4">
+          <button 
+             type="submit" 
+             disabled={loading} 
+             className={`
+                flex-1 btn-primary px-12 py-5 text-lg shadow-[0_8px_30px_rgb(37,99,235,0.3)]
+                ${loading ? "opacity-70 cursor-not-allowed" : ""}
+             `}
           >
-            <option value="technology">Công nghệ</option>
-            <option value="art">Nghệ thuật</option>
-            <option value="education">Giáo dục</option>
-            <option value="health">Sức khỏe</option>
-            <option value="environment">Môi trường</option>
-            <option value="community">Cộng đồng</option>
-          </select>
-        </div>
-
-        {/* Mục tiêu */}
-        <div>
-          <label className="block text-sm font-bold text-gray-900 mb-2">
-            Mục tiêu huy động (VNĐ)
-          </label>
-          <input
-            type="number"
-            value={formData.goalAmount}
-            onChange={(e) => setFormData({ ...formData, goalAmount: Number(e.target.value) })}
-            required
-            min={1000000}
-            step={100000}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition"
-          />
-        </div>
-
-        {/* Ngày kết thúc */}
-        <div>
-          <label className="block text-sm font-bold text-gray-900 mb-2">
-            Ngày kết thúc
-          </label>
-          <input
-            type="date"
-            value={formData.endDate}
-            onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition"
-          />
-        </div>
-
-        {/* Actions */}
-        <div className="flex gap-4 pt-4">
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            <Save size={20} />
-            {isLoading ? "Đang lưu..." : "Lưu thay đổi"}
+             {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                   <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                   Đang cập nhật...
+                </span>
+             ) : (
+                <span className="flex items-center justify-center gap-2">
+                   <Save size={20} />
+                   Lưu thay đổi
+                </span>
+             )}
           </button>
           <Link
             href="/dashboard/creator"
-            className="px-6 py-3 bg-gray-100 text-gray-900 rounded-xl font-bold hover:bg-gray-200 transition flex items-center justify-center gap-2"
+            className="px-8 py-5 bg-gray-100 text-gray-900 rounded-xl font-bold hover:bg-gray-200 transition flex items-center justify-center gap-2"
           >
             <X size={20} />
             Hủy
           </Link>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }

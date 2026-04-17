@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { formatVND, formatDate } from "@/lib/utils";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Plus, Rocket, Users, Target, Activity, Zap, ArrowRight, Settings } from "lucide-react";
+import { Plus, Rocket, Users, Target, Activity, Zap, ArrowRight, Settings, FileText } from "lucide-react";
 
 export default async function CreatorDashboard() {
   const session = await auth();
@@ -127,7 +127,10 @@ export default async function CreatorDashboard() {
                              Xem dự án
                              <ArrowRight size={16} />
                           </Link>
-                          <Link href={`/dashboard/creator/edit/${campaign.slug}`} className="w-14 h-14 bg-gray-50 text-gray-400 rounded-2xl flex items-center justify-center hover:bg-gray-900 hover:text-white transition active:scale-95">
+                          <Link href={`/dashboard/creator/statement/${campaign.id}`} className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center hover:bg-emerald-600 hover:text-white transition active:scale-95" title="Xem sao kê">
+                             <FileText size={20} />
+                          </Link>
+                          <Link href={`/dashboard/creator/edit/${campaign.slug}`} className="w-14 h-14 bg-gray-50 text-gray-400 rounded-2xl flex items-center justify-center hover:bg-gray-900 hover:text-white transition active:scale-95" title="Chỉnh sửa">
                              <Settings size={20} />
                           </Link>
                        </div>
