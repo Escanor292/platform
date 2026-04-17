@@ -1,0 +1,34 @@
+{
+  "timestamp": 1759134682,
+  "notification_type": "ORDER_PAID",
+  "order": {
+    "id": "e2c195be-c721-47eb-b323-99ab24e52d85",
+    "order_id": "NQD-68DA43D73C1A5",
+    "order_status": "CAPTURED",
+    "order_currency": "VND",
+    "order_amount": "100000.00",
+    "order_invoice_number": "INV-cm5abc12-1759134677",
+    "custom_data": [],
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "ip_address": "14.186.39.212",
+    "order_description": "Ủng hộ chiến dịch cm5abc12"
+  },
+  "transaction": {
+    "id": "384c66dd-41e6-4316-a544-b4141682595c",
+    "payment_method": "BANK_TRANSFER",
+    "transaction_id": "68da43da2d9de",
+    "transaction_type": "PAYMENT",
+    "transaction_date": "2025-09-29 15:31:22",
+    "transaction_status": "APPROVED",
+    "transaction_amount": "100000",
+    "transaction_currency": "VND",
+    "authentication_status": "AUTHENTICATION_SUCCESSFUL",
+    "card_number": null,
+    "card_holder_name": null,
+    "card_expiry": null,
+    "card_funding_method": null,
+    "card_brand": null
+  },
+  "customer": null,
+  "agreement": null
+}

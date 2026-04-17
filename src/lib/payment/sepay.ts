@@ -1,132 +1,200 @@
 import crypto from "crypto";
 
+/**
+ * SePay Payment Gateway Helper
+ * Docs: https://docs.sepay.vn
+ */
+
 interface SePayConfig {
-  apiKey: string;
-  accountNumber: string;
-  accountName: string;
-  bankCode: string;
-  template?: string;
+  merchantId: string;
+  secretKey: string;
+  env: "sandbox" | "production";
 }
 
-interface CreatePaymentParams {
-  amount: number;
-  content: string;
-  orderId: string;
+interface CheckoutFields {
+  merchant: string;
+  currency: string;
+  order_amount: string;
+  operation: "PURCHASE" | "AUTHORIZATION";
+  order_description: string;
+  order_invoice_number: string;
+  customer_id?: string;
+  success_url: string;
+  error_url: string;
+  cancel_url: string;
+  payment_method?: "BANK_TRANSFER" | "NAPAS_QR" | "CARD";
 }
 
-interface SePayQRResponse {
-  qrDataURL: string;
-  qrContent: string;
-  accountNumber: string;
-  accountName: string;
-  bankCode: string;
-  amount: number;
-  content: string;
-}
-
-class SePay {
+class SePayClient {
   private config: SePayConfig;
+  private checkoutUrl: string;
 
   constructor(config: SePayConfig) {
-    this.config = {
-      ...config,
-      template: config.template || "compact2",
-    };
+    this.config = config;
+    this.checkoutUrl =
+      config.env === "sandbox"
+        ? "https://pay-sandbox.sepay.vn/v1/checkout/init"
+        : "https://pay.sepay.vn/v1/checkout/init";
   }
 
   /**
-   * Tạo QR code thanh toán SePay
+   * Tạo chữ ký HMAC SHA256 cho các fields
    */
-  createPaymentQR(params: CreatePaymentParams): SePayQRResponse {
-    const { amount, content, orderId } = params;
-    
-    // Format nội dung chuyển khoản
-    const transferContent = `CFVN ${orderId} ${content}`.trim();
-    
-    // Tạo QR code URL theo chuẩn VietQR
-    const qrContent = this.generateVietQRContent({
-      accountNumber: this.config.accountNumber,
-      bankCode: this.config.bankCode,
-      amount,
-      content: transferContent,
-    });
+  private generateSignature(fields: CheckoutFields): string {
+    const signedFields = [
+      "merchant",
+      "operation",
+      "payment_method",
+      "order_amount",
+      "currency",
+      "order_invoice_number",
+      "order_description",
+      "customer_id",
+      "success_url",
+      "error_url",
+      "cancel_url",
+    ];
 
-    // URL QR code từ API VietQR (miễn phí)
-    const qrDataURL = `https://img.vietqr.io/image/${this.config.bankCode}-${this.config.accountNumber}-${this.config.template}.png?amount=${amount}&addInfo=${encodeURIComponent(transferContent)}&accountName=${encodeURIComponent(this.config.accountName)}`;
+    const signed: string[] = [];
+    for (const field of signedFields) {
+      if (fields[field as keyof CheckoutFields]) {
+        signed.push(`${field}=${fields[field as keyof CheckoutFields] || ""}`);
+      }
+    }
+
+    const signData = signed.join(",");
+    const hmac = crypto.createHmac("sha256", this.config.secretKey);
+    return hmac.update(signData).digest("base64");
+  }
+
+  /**
+   * Verify signature từ IPN callback
+   */
+  verifyIPNSignature(data: any, receivedSignature: string): boolean {
+    try {
+      const signedFields = [
+        "timestamp",
+        "notification_type",
+        "order.id",
+        "order.order_status",
+        "transaction.id",
+        "transaction.transaction_status",
+      ];
+
+      const signed: string[] = [];
+      for (const field of signedFields) {
+        const value = this.getNestedValue(data, field);
+        if (value !== undefined && value !== null) {
+          signed.push(`${field}=${value}`);
+        }
+      }
+
+      const signData = signed.join(",");
+      const hmac = crypto.createHmac("sha256", this.config.secretKey);
+      const expectedSignature = hmac.update(signData).digest("base64");
+
+      return expectedSignature === receivedSignature;
+    } catch (error) {
+      console.error("[SEPAY] Signature verification error:", error);
+      return false;
+    }
+  }
+
+  /**
+   * Helper để lấy nested value từ object
+   */
+  private getNestedValue(obj: any, path: string): any {
+    return path.split(".").reduce((current, key) => current?.[key], obj);
+  }
+
+  /**
+   * Tạo checkout form fields
+   */
+  createCheckoutFields(params: {
+    orderInvoiceNumber: string;
+    orderAmount: number;
+    orderDescription: string;
+    customerId?: string;
+    successUrl: string;
+    errorUrl: string;
+    cancelUrl: string;
+    paymentMethod?: "BANK_TRANSFER" | "NAPAS_QR" | "CARD";
+  }): CheckoutFields & { signature: string } {
+    const fields: CheckoutFields = {
+      merchant: this.config.merchantId,
+      currency: "VND",
+      order_amount: params.orderAmount.toString(),
+      operation: "PURCHASE",
+      order_description: params.orderDescription,
+      order_invoice_number: params.orderInvoiceNumber,
+      customer_id: params.customerId,
+      success_url: params.successUrl,
+      error_url: params.errorUrl,
+      cancel_url: params.cancelUrl,
+      payment_method: params.paymentMethod || "BANK_TRANSFER",
+    };
+
+    const signature = this.generateSignature(fields);
 
     return {
-      qrDataURL,
-      qrContent,
-      accountNumber: this.config.accountNumber,
-      accountName: this.config.accountName,
-      bankCode: this.config.bankCode,
-      amount,
-      content: transferContent,
+      ...fields,
+      signature,
     };
   }
 
   /**
-   * Tạo nội dung QR theo chuẩn VietQR
+   * Lấy checkout URL
    */
-  private generateVietQRContent(params: {
-    accountNumber: string;
-    bankCode: string;
-    amount: number;
-    content: string;
-  }): string {
-    const { accountNumber, bankCode, amount, content } = params;
-    
-    // Format theo chuẩn VietQR
-    return `${bankCode}|${accountNumber}|${amount}|${content}`;
+  getCheckoutUrl(): string {
+    return this.checkoutUrl;
   }
 
   /**
-   * Verify webhook từ SePay
+   * Generate HTML form (optional - for direct form submission)
    */
-  verifyWebhook(signature: string, data: any): boolean {
-    if (!this.config.apiKey) return false;
+  generateFormHtml(fields: CheckoutFields & { signature: string }): string {
+    const inputs = Object.entries(fields)
+      .map(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          return `<input type="hidden" name="${key}" value="${value}" />`;
+        }
+        return "";
+      })
+      .join("\n");
 
-    const dataString = JSON.stringify(data);
-    const expectedSignature = crypto
-      .createHmac("sha256", this.config.apiKey)
-      .update(dataString)
-      .digest("hex");
-
-    return signature === expectedSignature;
-  }
-
-  /**
-   * Parse transaction từ SePay webhook
-   */
-  parseTransaction(data: any) {
-    return {
-      transactionId: data.transaction_id || data.id,
-      amount: parseFloat(data.amount || 0),
-      content: data.content || data.description || "",
-      bankCode: data.bank_code || this.config.bankCode,
-      accountNumber: data.account_number || this.config.accountNumber,
-      transactionDate: data.transaction_date || new Date().toISOString(),
-      status: data.status || "SUCCESS",
-    };
-  }
-
-  /**
-   * Extract order ID từ nội dung chuyển khoản
-   * VD: "CFVN abc123 Ung ho du an" -> "abc123"
-   */
-  extractOrderId(content: string): string | null {
-    const match = content.match(/CFVN\s+([a-zA-Z0-9-]+)/i);
-    return match ? match[1] : null;
+    return `
+      <form method="POST" action="${this.checkoutUrl}" id="sepay-checkout-form">
+        ${inputs}
+        <button type="submit">Thanh toán với SePay</button>
+      </form>
+    `;
   }
 }
 
 // Export singleton instance
-export const sepay = new SePay({
-  apiKey: process.env.SEPAY_API_KEY || "",
-  accountNumber: process.env.SEPAY_ACCOUNT_NUMBER || "",
-  accountName: process.env.SEPAY_ACCOUNT_NAME || "",
-  bankCode: process.env.SEPAY_BANK_CODE || "",
-  template: process.env.SEPAY_TEMPLATE || "compact2",
-});
+let sepayInstance: SePayClient | null = null;
 
-export default sepay;
+export function getSePay(): SePayClient {
+  if (!sepayInstance) {
+    const merchantId = process.env.SEPAY_MERCHANT_ID;
+    const secretKey = process.env.SEPAY_SECRET_KEY;
+    const env = (process.env.SEPAY_ENV || "sandbox") as "sandbox" | "production";
+
+    if (!merchantId || !secretKey) {
+      throw new Error(
+        "SePay credentials not configured. Please set SEPAY_MERCHANT_ID and SEPAY_SECRET_KEY in .env"
+      );
+    }
+
+    sepayInstance = new SePayClient({
+      merchantId,
+      secretKey,
+      env,
+    });
+  }
+
+  return sepayInstance;
+}
+
+export { SePayClient };
+export type { SePayConfig, CheckoutFields };

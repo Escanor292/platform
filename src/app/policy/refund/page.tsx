@@ -96,7 +96,7 @@ export default function RefundPolicy() {
                   <div className="text-2xl font-black text-green-500 opacity-50">03</div>
                   <div>
                      <h4 className="font-bold mb-2">Khởi tạo lệnh hoàn trả</h4>
-                     <p className="text-xs text-gray-400 leading-relaxed">Yêu cầu hoàn tiền được gửi tới Cổng thanh toán (MoMo/VNPAY/PayOS). Tiền sẽ về tài khoản của bạn sau 3–7 ngày làm việc.</p>
+                     <p className="text-xs text-gray-400 leading-relaxed">Yêu cầu hoàn tiền được gửi tới Cổng thanh toán (MoMo/VNPay/PayOS/SePay). Tiền sẽ về tài khoản của bạn sau 3–7 ngày làm việc.</p>
                   </div>
                </div>
             </div>

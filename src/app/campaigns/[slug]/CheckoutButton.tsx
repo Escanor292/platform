@@ -72,7 +72,24 @@ export default function CheckoutButton({
       });
 
       const data = await res.json();
-      if (data.checkoutUrl) {
+      
+      // SePay trả về checkoutFields, cần submit form
+      if (data.checkoutFields && data.checkoutUrl) {
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = data.checkoutUrl;
+        
+        Object.entries(data.checkoutFields).forEach(([key, value]) => {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = key;
+          input.value = String(value);
+          form.appendChild(input);
+        });
+        
+        document.body.appendChild(form);
+        form.submit();
+      } else if (data.checkoutUrl) {
         window.location.href = data.checkoutUrl; // Direct redirect
       } else {
         alert("Lỗi: " + (data.error || "Không thể tạo link thanh toán"));
@@ -290,6 +307,25 @@ export default function CheckoutButton({
                     </div>
                     <div className="w-8 h-8 rounded-full bg-indigo-600/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
                        <ArrowRight size={18} className="text-indigo-600" />
+                    </div>
+                  </button>
+
+                  <button 
+                    onClick={() => handleCreatePayment("SePay")}
+                    disabled={loading}
+                    className="flex items-center justify-between p-5 rounded-2xl bg-emerald-50 border-2 border-emerald-100 hover:border-emerald-600 transition-all btn-click-scale group disabled:opacity-50"
+                  >
+                    <div className="flex items-center gap-4">
+                       <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                          <QrCode className="text-emerald-600" size={24} />
+                       </div>
+                       <div className="text-left">
+                          <div className="font-black text-emerald-900">SePay (QR Banking)</div>
+                          <div className="text-[10px] text-emerald-400 font-bold uppercase">Chuyển khoản nhanh</div>
+                       </div>
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-emerald-600/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                       <ArrowRight size={18} className="text-emerald-600" />
                     </div>
                   </button>
                 </div>
