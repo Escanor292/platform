@@ -25,6 +25,7 @@ model User {
   bio             String?
   location        String?           // Địa điểm
   website         String?           // Website cá nhân
+  socialLinks     Json?             // Social media links array
   idCard          String?
   businessLicense String?
   bankAccount     String?

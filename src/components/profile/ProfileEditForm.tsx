@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Save, X, Upload, Camera, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
+import SocialLinksEditor from "./SocialLinksEditor";
+import { SocialLink } from "@/types/social";
 
 interface ProfileEditFormProps {
   user: {
@@ -18,6 +20,7 @@ interface ProfileEditFormProps {
     website: string | null;
     phone: string | null;
     shippingAddress: string | null;
+    socialLinks?: any;
   };
 }
 
@@ -37,7 +40,8 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
     phone: user.phone || "",
     shippingAddress: user.shippingAddress || "",
     image: user.image || "",
-    coverImage: user.coverImage || ""
+    coverImage: user.coverImage || "",
+    socialLinks: (user.socialLinks as SocialLink[]) || []
   });
 
   const handleFileUpload = async (file: File, type: "avatar" | "cover") => {
@@ -214,6 +218,14 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
           placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố"
         />
         <p className="text-xs text-gray-400 mt-1">Địa chỉ để nhận phần thưởng từ các dự án bạn ủng hộ</p>
+      </div>
+
+      {/* Social Links */}
+      <div>
+        <SocialLinksEditor
+          value={formData.socialLinks}
+          onChange={(links) => setFormData({ ...formData, socialLinks: links })}
+        />
       </div>
 
       {/* Avatar */}

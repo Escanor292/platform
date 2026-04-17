@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { name, bio, location, website, phone, shippingAddress, image, coverImage } = await req.json();
+    const { name, bio, location, website, phone, shippingAddress, image, coverImage, socialLinks } = await req.json();
 
     // Lấy user từ database
     const dbUser = await prisma.user.findUnique({
@@ -33,7 +33,8 @@ export async function POST(req: Request) {
         phone: phone || null,
         shippingAddress: shippingAddress || null,
         image: image || null,
-        coverImage: coverImage || null
+        coverImage: coverImage || null,
+        socialLinks: socialLinks || null
       }
     });
 

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { MapPin, Calendar, Heart, Rocket, Award, TrendingUp, Settings, ShieldCheck, Globe } from "lucide-react";
 import { auth } from "@/lib/auth";
 import UserIdDisplay from "@/components/profile/UserIdDisplay";
+import SocialLinks from "@/components/profile/SocialLinks";
+import { SocialLink } from "@/types/social";
 
 interface ProfilePageProps {
   params: Promise<{ userId: string }>;
@@ -180,6 +182,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               {/* Bio */}
               {user.bio && (
                 <p className="text-gray-600 max-w-3xl leading-relaxed">{user.bio}</p>
+              )}
+
+              {/* Social Links */}
+              {user.socialLinks && Array.isArray(user.socialLinks) && (user.socialLinks as SocialLink[]).length > 0 && (
+                <div className="pt-2">
+                  <SocialLinks links={user.socialLinks as SocialLink[]} size="md" />
+                </div>
               )}
 
               {/* Stats */}

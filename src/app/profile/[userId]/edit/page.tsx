@@ -41,7 +41,8 @@ export default async function EditProfilePage({ params }: EditProfilePageProps) 
       location: true,
       website: true,
       phone: true,
-      shippingAddress: true
+      shippingAddress: true,
+      socialLinks: true
     }
   });
 
