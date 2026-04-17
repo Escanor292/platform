@@ -13,7 +13,7 @@ import { EditorToolbar } from './EditorToolbar';
 import { EditorBubbleMenu } from './EditorBubbleMenu';
 import { LinkPopover } from './LinkPopover';
 import { VideoPopover } from './VideoPopover';
-import { getLinkAtCursor, isSelectionInsideLink } from '@/lib/editor/link-commands';
+import { getLinkAtCursor, isSelectionInsideLink, saveSelection, type SavedSelection } from '@/lib/editor/link-commands';
 import { sanitizeHtml } from '@/lib/editor/sanitize';
 import { getUrlError, normalizeUrl, isValidVideoUrl, getVideoProvider } from '@/lib/editor/validation';
 import { EDITOR_LIMITS, ERROR_MESSAGES } from '@/lib/editor/constants';
@@ -37,11 +37,14 @@ export function ProductionEditor({
   const [isLinkPopoverOpen, setIsLinkPopoverOpen] = useState(false);
   const [linkPopoverInitialUrl, setLinkPopoverInitialUrl] = useState('');
   const [isLinkEditMode, setIsLinkEditMode] = useState(false);
+  const [linkSavedSelection, setLinkSavedSelection] = useState<SavedSelection | null>(null);
   const [isVideoPopoverOpen, setIsVideoPopoverOpen] = useState(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout>();
   const editorRef = useRef<Editor | null>(null);
   const isMountedRef = useRef(true);
   const onChangeDebounceRef = useRef<NodeJS.Timeout>();
+  const isLinkPopoverOpenRef = useRef(false); // Track popover state
+  const isVideoPopoverOpenRef = useRef(false); // Track video popover state
 
   // Editor configuration
   const {
@@ -56,6 +59,7 @@ export function ProductionEditor({
 
   // Initialize editor
   const editor = useEditor({
+    immediatelyRender: false, // Fix SSR hydration warning
     extensions: getEditorExtensions({
       placeholder,
       maxLength,
@@ -69,6 +73,10 @@ export function ProductionEditor({
       handlePaste: (view, event, slice) => {
         // Let Tiptap handle paste, it will sanitize through extensions
         return false;
+      },
+      handleDOMEvents: {
+        // Simplified - no special handling needed
+        // LinkPopover handles its own click outside
       },
     },
     onUpdate: ({ editor }) => {
@@ -99,10 +107,12 @@ export function ProductionEditor({
         }
       }
     },
-    onFocus: () => {
+    onFocus: ({ editor, event }) => {
+      console.log('[ProductionEditor] Editor focused');
       callbacks.onFocus?.();
     },
-    onBlur: () => {
+    onBlur: ({ editor, event }) => {
+      console.log('[ProductionEditor] Editor blurred');
       callbacks.onBlur?.();
     },
   });
@@ -230,30 +240,76 @@ export function ProductionEditor({
 
   // Video embed handler with modern popover
   const handleVideoEmbed = useCallback(() => {
-    if (!editor) return;
+    if (!editorRef.current) return;
+
+    // CRITICAL: Prevent reopen if already open
+    if (isVideoPopoverOpenRef.current) {
+      console.log('[ProductionEditor] Video popover already open - ignoring');
+      return;
+    }
+
+    console.log('[ProductionEditor] handleVideoEmbed called');
+
+    // Set ref BEFORE state
+    isVideoPopoverOpenRef.current = true;
+    
+    // Open popover
+    console.log('[ProductionEditor] Opening video popover');
     setIsVideoPopoverOpen(true);
-  }, [editor]);
+  }, []);
+  
+  // Close video popover handler
+  const handleVideoPopoverClose = useCallback(() => {
+    console.log('[ProductionEditor] Closing video popover');
+    isVideoPopoverOpenRef.current = false;
+    setIsVideoPopoverOpen(false);
+  }, []);
 
   // Link insert handler with modern popover
   const handleLinkInsert = useCallback(() => {
     const currentEditor = editorRef.current;
     if (!currentEditor) return;
 
-    // Check if cursor is in an existing link
+    // CRITICAL: Prevent reopen if already open
+    if (isLinkPopoverOpenRef.current) {
+      console.log('[ProductionEditor] Popover already open - ignoring');
+      return;
+    }
+
+    console.log('[ProductionEditor] handleLinkInsert called');
+
+    // Save selection
+    const selection = saveSelection(currentEditor);
+    console.log('[ProductionEditor] Saved selection:', selection);
+    setLinkSavedSelection(selection);
+
+    // Check for existing link
     const previousUrl = getLinkAtCursor(currentEditor);
     
     if (previousUrl) {
-      // Edit mode - show existing URL
+      console.log('[ProductionEditor] Edit mode');
       setLinkPopoverInitialUrl(previousUrl);
       setIsLinkEditMode(true);
     } else {
-      // Insert mode
+      console.log('[ProductionEditor] Insert mode');
       setLinkPopoverInitialUrl('');
       setIsLinkEditMode(false);
     }
 
+    // Set ref BEFORE state
+    isLinkPopoverOpenRef.current = true;
+    
+    // Open popover
+    console.log('[ProductionEditor] Opening popover');
     setIsLinkPopoverOpen(true);
-  }, []); // Stable reference using editorRef
+  }, []); // Stable reference
+  
+  // Close popover handler
+  const handleLinkPopoverClose = useCallback(() => {
+    console.log('[ProductionEditor] Closing popover');
+    isLinkPopoverOpenRef.current = false;
+    setIsLinkPopoverOpen(false);
+  }, []);
 
   // Keyboard shortcuts (fixed - use stable callback)
   useEffect(() => {
@@ -307,14 +363,37 @@ export function ProductionEditor({
       >
         <EditorContent editor={editor} />
         
+        {/* Keep selection visible when link popover is open */}
+        {isLinkPopoverOpen && (
+          <style>{`
+            /* Keep selection visible even when editor loses focus */
+            .ProseMirror-selectednode {
+              outline: 2px solid rgba(59, 130, 246, 0.4);
+            }
+            
+            /* Fake selection highlight when popover is open */
+            .ProseMirror::selection,
+            .ProseMirror ::selection {
+              background-color: rgba(59, 130, 246, 0.3) !important;
+            }
+            
+            /* Even when not focused */
+            .ProseMirror:not(:focus)::selection,
+            .ProseMirror:not(:focus) ::selection {
+              background-color: rgba(59, 130, 246, 0.25) !important;
+            }
+          `}</style>
+        )}
+        
         {/* Link Popover */}
         {isLinkPopoverOpen && (
           <LinkPopover
             editor={editor}
             isOpen={isLinkPopoverOpen}
-            onClose={() => setIsLinkPopoverOpen(false)}
+            onClose={handleLinkPopoverClose}
             initialUrl={linkPopoverInitialUrl}
             isEditMode={isLinkEditMode}
+            savedSelection={linkSavedSelection}
           />
         )}
         
@@ -323,7 +402,7 @@ export function ProductionEditor({
           <VideoPopover
             editor={editor}
             isOpen={isVideoPopoverOpen}
-            onClose={() => setIsVideoPopoverOpen(false)}
+            onClose={handleVideoPopoverClose}
           />
         )}
         

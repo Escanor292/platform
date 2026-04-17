@@ -18,6 +18,7 @@ import {
 import CommentSection from "@/components/campaign/CommentSection";
 import UpdateSection from "@/components/campaign/UpdateSection";
 import RichTextRenderer from "@/components/shared/RichTextRenderer";
+import ImageCarousel from "@/components/campaign/ImageCarousel";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -49,6 +50,13 @@ export default async function CampaignDetailPage({ params }: Params) {
   const isCreator = session?.user && (session.user as any).id === campaign.creatorId;
   const percentRaised = Math.round((Number(campaign.currentAmount) / Number(campaign.goalAmount)) * 100);
   const daysLeft = campaign.endDate ? Math.max(0, Math.ceil((new Date(campaign.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : "Vô thời hạn";
+
+  // Prepare images array: use images field if available, fallback to imageUrl
+  const campaignImages = campaign.images && campaign.images.length > 0 
+    ? campaign.images 
+    : campaign.imageUrl 
+      ? [campaign.imageUrl] 
+      : [];
 
   return (
     <div className="min-h-screen bg-slate-50/30 pb-24">
@@ -89,13 +97,7 @@ export default async function CampaignDetailPage({ params }: Params) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
           {/* Main Content Area */}
           <div className="lg:col-span-2 space-y-16">
-            <div className="aspect-video w-full rounded-[3rem] overflow-hidden bg-gray-100 shadow-premium border-8 border-white p-2">
-               <img 
-                 src={campaign.imageUrl || "/placeholder.jpg"} 
-                 alt={campaign.title} 
-                 className="w-full h-full object-cover rounded-[2.5rem]" 
-               />
-            </div>
+            <ImageCarousel images={campaignImages} alt={campaign.title} />
 
             {/* Content Sections with Modern Styling */}
             <div className="space-y-24">

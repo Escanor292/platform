@@ -12,13 +12,13 @@ export default function TestEditorPage() {
         <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <h1 className="text-2xl font-bold mb-2">Test Rich Text Editor</h1>
           <p className="text-sm text-gray-600">
-            <strong>Để test floating link popover:</strong>
+            <strong>Để test các tính năng:</strong>
           </p>
           <ol className="text-sm text-gray-600 list-decimal ml-5 mt-2">
             <li>Bôi đen text bên dưới</li>
             <li>Nhấn <kbd className="px-2 py-1 bg-white border rounded">Ctrl+K</kbd> hoặc click nút Link (🔗)</li>
-            <li>Nếu thấy floating box đẹp → Editor MỚI ✅</li>
-            <li>Nếu thấy window prompt → Editor CŨ ❌</li>
+            <li>Click nút Image (🖼️) để upload ảnh từ máy tính</li>
+            <li>Thử các nút format khác: Bold, Italic, Heading, List, v.v.</li>
           </ol>
         </div>
 

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, X, Loader2, Image as ImageIcon } from "lucide-react";
+import { Upload, X, Loader2, Image as ImageIcon, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface ImageUploadProps {
   value?: string;
@@ -13,11 +14,33 @@ interface ImageUploadProps {
 
 export function ImageUpload({ value, onChange, className, label }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Reset error
+    setError("");
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      const errorMsg = "Chỉ chấp nhận file ảnh (JPG, PNG, WEBP, GIF)";
+      setError(errorMsg);
+      toast.error(errorMsg);
+      return;
+    }
+
+    // Validate file size (5MB)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      const errorMsg = "Kích thước file tối đa 5MB";
+      setError(errorMsg);
+      toast.error(errorMsg);
+      return;
+    }
 
     setIsUploading(true);
     const formData = new FormData();
@@ -29,15 +52,31 @@ export function ImageUpload({ value, onChange, className, label }: ImageUploadPr
         body: formData,
       });
 
-      if (!res.ok) throw new Error("Upload failed");
-
       const data = await res.json();
-      onChange(data.secure_url);
-    } catch (error) {
+
+      if (!res.ok) {
+        throw new Error(data.error || "Upload failed");
+      }
+
+      // Handle both 'secure_url' and 'url' response formats
+      const imageUrl = data.secure_url || data.url;
+      if (!imageUrl) {
+        throw new Error("No image URL returned from server");
+      }
+
+      onChange(imageUrl);
+      toast.success("Tải ảnh lên thành công!");
+    } catch (error: any) {
       console.error("Upload Error:", error);
-      alert("Tải ảnh lên thất bại. Vui lòng thử lại.");
+      const errorMsg = error.message || "Tải ảnh lên thất bại. Vui lòng thử lại.";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setIsUploading(false);
+      // Reset input để có thể upload lại cùng file
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -46,11 +85,12 @@ export function ImageUpload({ value, onChange, className, label }: ImageUploadPr
       {label && <label className="text-sm font-black text-gray-900 uppercase tracking-widest">{label}</label>}
       
       <div 
-        onClick={() => !value && fileInputRef.current?.click()}
+        onClick={() => !value && !isUploading && fileInputRef.current?.click()}
         className={cn(
           "relative min-h-[150px] border-2 border-dashed border-gray-200 rounded-[2rem] flex flex-col items-center justify-center transition-all group overflow-hidden",
-          !value && "hover:border-blue-600 hover:bg-blue-50/50 cursor-pointer",
-          value && "border-solid border-gray-100"
+          !value && !isUploading && "hover:border-blue-600 hover:bg-blue-50/50 cursor-pointer",
+          value && "border-solid border-gray-100",
+          error && "border-red-300 bg-red-50/30"
         )}
       >
         <input 
@@ -59,6 +99,7 @@ export function ImageUpload({ value, onChange, className, label }: ImageUploadPr
           ref={fileInputRef} 
           onChange={handleUpload}
           accept="image/*"
+          disabled={isUploading}
         />
 
         {isUploading ? (
@@ -73,6 +114,7 @@ export function ImageUpload({ value, onChange, className, label }: ImageUploadPr
               onClick={(e) => {
                 e.stopPropagation();
                 onChange("");
+                setError("");
               }}
               className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded-full shadow-lg hover:scale-110 active:scale-95 transition"
             >
@@ -81,8 +123,11 @@ export function ImageUpload({ value, onChange, className, label }: ImageUploadPr
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3 text-gray-400 group-hover:text-blue-600 transition">
-             <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center group-hover:bg-blue-100 transition">
-                <ImageIcon size={28} />
+             <div className={cn(
+               "w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center group-hover:bg-blue-100 transition",
+               error && "bg-red-50"
+             )}>
+                <ImageIcon size={28} className={error ? "text-red-400" : ""} />
              </div>
              <div className="text-center">
                 <p className="text-sm font-black uppercase tracking-tighter">Bấm để tải ảnh</p>
@@ -91,6 +136,14 @@ export function ImageUpload({ value, onChange, className, label }: ImageUploadPr
           </div>
         )}
       </div>
+
+      {/* Error message */}
+      {error && (
+        <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl">
+          <AlertCircle size={16} className="text-red-500 flex-shrink-0" />
+          <p className="text-sm text-red-700 font-medium">{error}</p>
+        </div>
+      )}
     </div>
   );
 }

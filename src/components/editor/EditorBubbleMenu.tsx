@@ -34,6 +34,10 @@ function BubbleButton({ onClick, isActive, title, children }: BubbleButtonProps)
     <button
       type="button"
       onClick={onClick}
+      onMouseDown={(e) => {
+        // Prevent default to avoid focus issues
+        e.preventDefault();
+      }}
       title={title}
       className={`
         flex items-center justify-center w-8 h-8 rounded transition-all
@@ -60,7 +64,7 @@ export function EditorBubbleMenu({ editor, onLinkInsert }: EditorBubbleMenuProps
         placement: 'top',
         animation: 'shift-toward-subtle',
       }}
-      shouldShow={({ editor, state }) => {
+      shouldShow={({ editor, state, view }) => {
         const { selection } = state;
         const { empty } = selection;
         
@@ -69,6 +73,13 @@ export function EditorBubbleMenu({ editor, onLinkInsert }: EditorBubbleMenuProps
         
         // Don't show if selection is in code block
         if (editor.isActive('codeBlock')) return false;
+        
+        // CRITICAL: Don't show if LinkPopover is open
+        const linkPopover = document.querySelector('[data-link-popover="true"]');
+        if (linkPopover) {
+          console.log('[BubbleMenu] Hidden because LinkPopover is open');
+          return false;
+        }
         
         return true;
       }}

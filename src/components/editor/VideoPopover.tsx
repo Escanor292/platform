@@ -100,23 +100,50 @@ export function VideoPopover({
     }
   }, [isOpen, calculatePosition]);
 
-  // Handle click outside
+  // Click outside handler - ROBUST with pointerdown
   useEffect(() => {
     if (!isOpen) return;
 
-    const handleClickOutside = (event: MouseEvent) => {
-      if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
-        onClose();
+    const handlePointerDown = (event: PointerEvent) => {
+      // Use composedPath for accurate detection
+      const path = event.composedPath();
+      
+      // Check if event originated from inside popover
+      const isInsidePopover = path.some(el => 
+        el === popoverRef.current || 
+        (el as HTMLElement).closest?.('[data-video-popover]')
+      );
+      
+      if (isInsidePopover) {
+        console.log('[VideoPopover] Pointer down inside - keeping open');
+        return;
       }
+
+      // Check if event is from toolbar button
+      const isToolbarButton = path.some(el =>
+        (el as HTMLElement).closest?.('[data-video-button]')
+      );
+      
+      if (isToolbarButton) {
+        console.log('[VideoPopover] Pointer down on toolbar button - ignoring');
+        return;
+      }
+
+      // Truly outside - close
+      console.log('[VideoPopover] Pointer down outside - closing');
+      onClose();
     };
 
-    const timeoutId = setTimeout(() => {
-      document.addEventListener('mousedown', handleClickOutside);
-    }, 100);
+    // Add listener after delay, use capture phase
+    const timer = setTimeout(() => {
+      document.addEventListener('pointerdown', handlePointerDown, true);
+      console.log('[VideoPopover] Pointer down listener added');
+    }, 200);
 
     return () => {
-      clearTimeout(timeoutId);
-      document.removeEventListener('mousedown', handleClickOutside);
+      clearTimeout(timer);
+      document.removeEventListener('pointerdown', handlePointerDown, true);
+      console.log('[VideoPopover] Pointer down listener removed');
     };
   }, [isOpen, onClose]);
 
@@ -175,9 +202,20 @@ export function VideoPopover({
 
   const provider = url.trim() ? getVideoProvider(url.trim()) : null;
 
+  // CRITICAL: Stop all mouse events from bubbling
+  const stopMouseEvents = (e: React.MouseEvent | React.PointerEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <div
       ref={popoverRef}
+      data-video-popover="true"
+      onPointerDown={stopMouseEvents}
+      onPointerUp={stopMouseEvents}
+      onMouseDown={stopMouseEvents}
+      onMouseUp={stopMouseEvents}
+      onClick={stopMouseEvents}
       className="absolute z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-3 min-w-[320px] max-w-[400px]"
       style={{
         top: `${position.top}px`,

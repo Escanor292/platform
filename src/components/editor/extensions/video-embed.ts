@@ -90,12 +90,36 @@ export const VideoEmbed = Node.create<VideoEmbedOptions>({
     return [
       {
         tag: 'div[data-type="video-embed"]',
+        getAttrs: (node) => {
+          if (typeof node === 'string') return false;
+          
+          const element = node as HTMLElement;
+          const iframe = element.querySelector('iframe');
+          
+          // Extract src from iframe if exists
+          const src = iframe?.getAttribute('src') || element.getAttribute('data-src');
+          
+          // If no valid src, don't parse this node
+          if (!src) return false;
+          
+          return {
+            src,
+            provider: element.getAttribute('data-provider') || 'youtube',
+            width: element.getAttribute('data-width') || this.options.width,
+            height: element.getAttribute('data-height') || this.options.height,
+          };
+        },
       },
     ];
   },
 
   renderHTML({ HTMLAttributes }) {
     const { src, provider, width, height } = HTMLAttributes;
+    
+    // Safety check: if no src, return empty div
+    if (!src) {
+      return ['div', { class: 'video-embed-error' }, 'Video URL is missing'];
+    }
     
     let embedUrl = src;
     
@@ -172,13 +196,17 @@ export const VideoEmbed = Node.create<VideoEmbedOptions>({
 });
 
 // Helper functions
-function extractYouTubeId(url: string): string | null {
+function extractYouTubeId(url: string | null | undefined): string | null {
+  if (!url || typeof url !== 'string') return null;
+  
   const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
   const match = url.match(regex);
   return match ? match[1] : null;
 }
 
-function extractVimeoId(url: string): string | null {
+function extractVimeoId(url: string | null | undefined): string | null {
+  if (!url || typeof url !== 'string') return null;
+  
   const regex = /(?:vimeo\.com\/)(\d+)/;
   const match = url.match(regex);
   return match ? match[1] : null;

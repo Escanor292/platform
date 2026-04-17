@@ -127,7 +127,7 @@ export default async function CreatorDashboard() {
                              Xem dự án
                              <ArrowRight size={16} />
                           </Link>
-                          <Link href={`/dashboard/creator/campaigns/${campaign.id}/edit`} className="w-14 h-14 bg-gray-50 text-gray-400 rounded-2xl flex items-center justify-center hover:bg-gray-900 hover:text-white transition active:scale-95">
+                          <Link href={`/dashboard/creator/edit/${campaign.slug}`} className="w-14 h-14 bg-gray-50 text-gray-400 rounded-2xl flex items-center justify-center hover:bg-gray-900 hover:text-white transition active:scale-95">
                              <Settings size={20} />
                           </Link>
                        </div>

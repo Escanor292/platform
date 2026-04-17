@@ -4,7 +4,7 @@
 
 'use client';
 
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
@@ -27,7 +27,7 @@ import {
   Highlighter, CheckSquare, ImageIcon
 } from 'lucide-react';
 
-import { getLinkAtCursor, isSelectionInsideLink } from '@/lib/editor/link-commands';
+import { getLinkAtCursor, isSelectionInsideLink, saveSelection, type SavedSelection } from '@/lib/editor/link-commands';
 import { LinkPopover } from './LinkPopover';
 import { VideoPopover } from './VideoPopover';
 import './editor.css';
@@ -77,7 +77,9 @@ export default function SimplifiedEnhancedEditor({
   const [isLinkPopoverOpen, setIsLinkPopoverOpen] = useState(false);
   const [linkPopoverInitialUrl, setLinkPopoverInitialUrl] = useState('');
   const [isLinkEditMode, setIsLinkEditMode] = useState(false);
+  const [linkSavedSelection, setLinkSavedSelection] = useState<SavedSelection | null>(null);
   const [isVideoPopoverOpen, setIsVideoPopoverOpen] = useState(false);
+  const isVideoPopoverOpenRef = useRef(false); // Track video popover state
 
   const editor = useEditor({
     extensions: [
@@ -130,6 +132,10 @@ export default function SimplifiedEnhancedEditor({
   const handleLinkClick = useCallback(() => {
     if (!editor) return;
 
+    // CRITICAL: Save selection FIRST, before any state changes
+    const selection = saveSelection(editor);
+    setLinkSavedSelection(selection);
+
     // Check if cursor is in an existing link
     const existingUrl = getLinkAtCursor(editor);
     
@@ -143,6 +149,7 @@ export default function SimplifiedEnhancedEditor({
       setIsLinkEditMode(false);
     }
 
+    // Open popover AFTER saving selection
     setIsLinkPopoverOpen(true);
   }, [editor]);
 
@@ -168,8 +175,29 @@ export default function SimplifiedEnhancedEditor({
 
   const addYoutube = useCallback(() => {
     if (!editor) return;
+
+    // CRITICAL: Prevent reopen if already open
+    if (isVideoPopoverOpenRef.current) {
+      console.log('[RichTextEditor] Video popover already open - ignoring');
+      return;
+    }
+
+    console.log('[RichTextEditor] addYoutube called');
+
+    // Set ref BEFORE state
+    isVideoPopoverOpenRef.current = true;
+    
+    // Open popover
+    console.log('[RichTextEditor] Opening video popover');
     setIsVideoPopoverOpen(true);
   }, [editor]);
+  
+  // Close video popover handler
+  const handleVideoPopoverClose = useCallback(() => {
+    console.log('[RichTextEditor] Closing video popover');
+    isVideoPopoverOpenRef.current = false;
+    setIsVideoPopoverOpen(false);
+  }, []);
 
   const addImage = useCallback(() => {
     if (!editor) return;
@@ -391,6 +419,7 @@ export default function SimplifiedEnhancedEditor({
             onClose={() => setIsLinkPopoverOpen(false)}
             initialUrl={linkPopoverInitialUrl}
             isEditMode={isLinkEditMode}
+            savedSelection={linkSavedSelection}
           />
         )}
         
@@ -399,7 +428,7 @@ export default function SimplifiedEnhancedEditor({
           <VideoPopover
             editor={editor}
             isOpen={isVideoPopoverOpen}
-            onClose={() => setIsVideoPopoverOpen(false)}
+            onClose={handleVideoPopoverClose}
           />
         )}
       </div>

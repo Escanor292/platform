@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ImageUpload } from "@/components/shared/ImageUpload";
-import RichTextEditor from "@/components/editor/RichTextEditor";
+import { MultipleImageUpload } from "@/components/shared/MultipleImageUpload";
+import { DateInput } from "@/components/shared/DateInput";
+import { ProductionEditor } from "@/components/editor";
+import { EDITOR_PLACEHOLDERS } from "@/lib/editor/constants";
 import { toast } from "sonner";
 import { Rocket, Target, AlignLeft, Image as ImageIcon, Calendar, Tags } from "lucide-react";
 import { CategorySelector } from "@/components/create-campaign/category-selector";
@@ -24,6 +27,7 @@ export default function CreateCampaignPage() {
     mainCategory: null as MainCategory | null,
     starterTags: [] as string[],
     imageUrl: "",
+    images: [] as string[], // Multiple images array
     endDate: "",
   });
   
@@ -115,8 +119,17 @@ export default function CreateCampaignPage() {
       return;
     }
     
-    if (!formData.title || !formData.tagline || !formData.description || !formData.endDate || !formData.imageUrl) {
-      toast.error("Vui lòng điền đầy đủ các thông tin bắt buộc!");
+    // Validate required fields with specific messages
+    const missingFields: string[] = [];
+    if (!formData.title) missingFields.push("Tên dự án");
+    if (!formData.tagline) missingFields.push("Mô tả ngắn");
+    if (!formData.description) missingFields.push("Nội dung chi tiết");
+    if (!formData.imageUrl) missingFields.push("Ảnh bìa");
+    if (!formData.goalAmount || formData.goalAmount <= 0) missingFields.push("Số vốn mục tiêu");
+    if (!formData.endDate) missingFields.push("Hạn chót chiến dịch");
+    
+    if (missingFields.length > 0) {
+      toast.error(`Vui lòng điền: ${missingFields.join(", ")}`);
       return;
     }
     
@@ -163,6 +176,10 @@ export default function CreateCampaignPage() {
           <p className="text-gray-500 font-medium max-w-xl mx-auto">
             Hãy chia sẻ câu chuyện của bạn với thế giới. Chúng tôi sẽ giúp bạn kết nối với cộng đồng để biến ý tưởng thành hiện thực hiện hữu.
           </p>
+          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+            <span className="text-red-500">*</span>
+            <span>Các trường có dấu sao là bắt buộc</span>
+          </div>
         </div>
 
         {/* Main Form */}
@@ -225,7 +242,8 @@ export default function CreateCampaignPage() {
             <div className="space-y-8">
                <div className="space-y-3">
                  <label className="text-sm font-bold text-gray-900 flex justify-between">
-                    Tên dự án <span className="text-gray-400 font-normal">Tối đa 60 ký tự</span>
+                    <span>Tên dự án <span className="text-red-500">*</span></span>
+                    <span className="text-gray-400 font-normal">Tối đa 60 ký tự</span>
                  </label>
                  <Input 
                    required 
@@ -238,7 +256,9 @@ export default function CreateCampaignPage() {
                </div>
 
                <div className="space-y-3">
-                 <label className="text-sm font-bold text-gray-900">Mô tả ngắn (Tagline)</label>
+                 <label className="text-sm font-bold text-gray-900">
+                   Mô tả ngắn (Tagline) <span className="text-red-500">*</span>
+                 </label>
                  <Input 
                    required 
                    className="py-5 focus-ring rounded-xl bg-slate-50 border-gray-200"
@@ -264,22 +284,39 @@ export default function CreateCampaignPage() {
 
             <div className="space-y-10">
                <div className="space-y-3">
-                  <label className="text-sm font-bold text-gray-900">Ảnh bìa chiến dịch</label>
+                  <label className="text-sm font-bold text-gray-900">
+                    Ảnh chiến dịch <span className="text-red-500">*</span>
+                  </label>
                   <div className="bg-slate-50 p-6 rounded-2xl border border-dashed border-gray-300">
-                     <ImageUpload 
+                     <MultipleImageUpload 
                         label="Tải ảnh lên (Tỉ lệ khuyến nghị 16:9)"
-                        value={formData.imageUrl}
-                        onChange={(url: string) => setFormData({ ...formData, imageUrl: url })}
+                        images={formData.images}
+                        onChange={(images) => {
+                          console.log("[CreateCampaign] Images updated:", images);
+                          setFormData(prev => ({ ...prev, images }));
+                        }}
+                        mainImage={formData.imageUrl}
+                        onMainImageChange={(url) => {
+                          console.log("[CreateCampaign] Main image updated:", url);
+                          setFormData(prev => ({ ...prev, imageUrl: url }));
+                        }}
+                        maxImages={10}
                      />
                   </div>
                </div>
 
                <div className="space-y-3">
-                 <label className="text-sm font-bold text-gray-900">Nội dung chi tiết</label>
-                 <RichTextEditor 
+                 <label className="text-sm font-bold text-gray-900">
+                   Nội dung chi tiết <span className="text-red-500">*</span>
+                 </label>
+                 <ProductionEditor
                    content={formData.description}
                    onChange={(content) => setFormData({ ...formData, description: content })}
-                   placeholder="Hãy kể một câu chuyện thật chân thành..."
+                   config={{
+                     placeholder: EDITOR_PLACEHOLDERS.CAMPAIGN_DESCRIPTION,
+                     autosave: false,
+                     enableBubbleMenu: true,
+                   }}
                  />
                </div>
             </div>
@@ -296,7 +333,9 @@ export default function CreateCampaignPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-3">
-                <label className="text-sm font-bold text-gray-900">Số vốn mục tiêu (VNĐ)</label>
+                <label className="text-sm font-bold text-gray-900">
+                  Số vốn mục tiêu (VNĐ) <span className="text-red-500">*</span>
+                </label>
                 <div className="relative">
                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">₫</span>
                    <Input 
@@ -312,19 +351,16 @@ export default function CreateCampaignPage() {
               </div>
 
               <div className="space-y-3">
-                <label className="text-sm font-bold text-gray-900">Hạn chót chiến dịch</label>
-                <div className="relative">
-                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                      <Calendar size={18} />
-                   </span>
-                   <Input 
-                     type="date" 
-                     className="pl-12 py-6 text-gray-900 font-bold focus-ring rounded-xl bg-slate-50 border-gray-200"
-                     required 
-                     value={formData.endDate}
-                     onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                   />
-                </div>
+                <label className="text-sm font-bold text-gray-900">
+                  Hạn chót chiến dịch <span className="text-red-500">*</span>
+                </label>
+                <DateInput
+                  value={formData.endDate}
+                  onChange={(value) => setFormData({ ...formData, endDate: value })}
+                  placeholder="dd/mm/yyyy"
+                  required
+                  min={new Date().toISOString().split('T')[0]} // Không cho chọn ngày quá khứ
+                />
                 <p className="text-xs text-gray-500 font-medium">Thời gian tối đa thường là 30 - 60 ngày.</p>
               </div>
             </div>

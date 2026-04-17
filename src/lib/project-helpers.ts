@@ -142,3 +142,56 @@ export function formatDaysRemaining(endDate: Date | string | null): string {
   if (days === 1) return "Còn 1 ngày";
   return `Còn ${days} ngày`;
 }
+
+/**
+ * Format date to Vietnamese format (dd/mm/yyyy)
+ */
+export function formatDateVN(date: Date | string | null): string {
+  if (!date) return "";
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  
+  // Check if valid date
+  if (isNaN(dateObj.getTime())) return "";
+  
+  const day = dateObj.getDate().toString().padStart(2, '0');
+  const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+  const year = dateObj.getFullYear();
+  
+  return `${day}/${month}/${year}`;
+}
+
+/**
+ * Format date to Vietnamese long format (Ngày dd tháng mm năm yyyy)
+ */
+export function formatDateVNLong(date: Date | string | null): string {
+  if (!date) return "";
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  
+  // Check if valid date
+  if (isNaN(dateObj.getTime())) return "";
+  
+  const day = dateObj.getDate();
+  const month = dateObj.getMonth() + 1;
+  const year = dateObj.getFullYear();
+  
+  return `Ngày ${day} tháng ${month} năm ${year}`;
+}
+
+/**
+ * Format date with time (dd/mm/yyyy HH:mm)
+ */
+export function formatDateTimeVN(date: Date | string | null): string {
+  if (!date) return "";
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  
+  // Check if valid date
+  if (isNaN(dateObj.getTime())) return "";
+  
+  const day = dateObj.getDate().toString().padStart(2, '0');
+  const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+  const year = dateObj.getFullYear();
+  const hours = dateObj.getHours().toString().padStart(2, '0');
+  const minutes = dateObj.getMinutes().toString().padStart(2, '0');
+  
+  return `${day}/${month}/${year} ${hours}:${minutes}`;
+}

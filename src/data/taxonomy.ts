@@ -182,7 +182,7 @@ const ALL_STARTER_TAGS_RAW: StarterTag[] = [
   { id: "long-term", label: "Long-term", group: "Thời gian" },
   { id: "ongoing", label: "Ongoing", group: "Thời gian" },
   { id: "seasonal", label: "Seasonal", group: "Thời gian" },
-  { id: "one-time", label: "One-time", group: "Thời gian" },
+  { id: "one-time-event", label: "One-time", group: "Thời gian" },
 ];
 
 // ============================================
@@ -376,7 +376,7 @@ const CONG_DONG_TAXONOMY: CategoryTaxonomy = {
     "Phạm vi": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       ["local", "regional", "national", "urban", "rural"].includes(t.id))),
     "Thời gian": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["short-term", "long-term", "ongoing", "seasonal", "one-time"].includes(t.id))),
+      ["short-term", "long-term", "ongoing", "seasonal", "one-time-event"].includes(t.id))),
     "Loại sản phẩm": [],
     "Công nghệ / Kỹ thuật": [],
   },
@@ -794,7 +794,7 @@ const KHAN_CAP_TU_THIEN_TAXONOMY: CategoryTaxonomy = {
     "Phạm vi": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       ["local", "regional", "national", "global", "urban", "rural"].includes(t.id))),
     "Thời gian": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["urgent", "short-term", "long-term", "ongoing", "one-time"].includes(t.id))),
+      ["urgent", "short-term", "long-term", "ongoing", "one-time-event"].includes(t.id))),
     "Định dạng phát hành": [],
     "Loại sản phẩm": [],
     "Công nghệ / Kỹ thuật": [],

@@ -50,15 +50,18 @@ interface ToolbarButtonProps {
   disabled?: boolean;
   title: string;
   children: React.ReactNode;
+  'data-link-button'?: string;
+  'data-video-button'?: string;
 }
 
-function ToolbarButton({ onClick, isActive, disabled, title, children }: ToolbarButtonProps) {
+function ToolbarButton({ onClick, isActive, disabled, title, children, ...props }: ToolbarButtonProps) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
       title={title}
+      {...props}
       className={`
         flex items-center justify-center w-9 h-9 rounded-md transition-all duration-150
         disabled:opacity-30 disabled:cursor-not-allowed
@@ -268,6 +271,7 @@ export function EditorToolbar({ editor, onImageUpload, onVideoEmbed, onLinkInser
       <ToolbarGroup>
         <ToolbarButton
           onClick={onLinkInsert || (() => {})}
+          data-link-button="true"
           isActive={editor.isActive('link')}
           title="Chèn liên kết (Ctrl+K)"
         >
@@ -281,6 +285,7 @@ export function EditorToolbar({ editor, onImageUpload, onVideoEmbed, onLinkInser
         </ToolbarButton>
         <ToolbarButton
           onClick={onVideoEmbed || (() => {})}
+          data-video-button="true"
           title="Chèn video"
         >
           <Video size={16} />

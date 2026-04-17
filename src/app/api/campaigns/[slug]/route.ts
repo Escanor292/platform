@@ -46,7 +46,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 }
 
 /**
- * PUT /api/campaigns/[id]
+ * PUT /api/campaigns/[slug]
  * Cập nhật campaign (chỉ creator hoặc admin)
  */
 export async function PUT(req: NextRequest, { params }: Params) {
@@ -54,7 +54,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
     const { slug } = await params;
     const body = await req.json();
 
-    const campaign = await prisma.campaign.findUnique({ where: { id: slug } });
+    const campaign = await prisma.campaign.findUnique({ where: { slug } });
     if (!campaign) {
       return NextResponse.json(
         { error: "Không tìm thấy campaign" },
@@ -63,22 +63,23 @@ export async function PUT(req: NextRequest, { params }: Params) {
     }
 
     const updated = await prisma.campaign.update({
-      where: { id: slug },
+      where: { slug },
       data: {
         title: body.title,
-        description: body.tagline,
-        longDescription: body.description,
+        description: body.description,
+        longDescription: body.longDescription || null,
         goalAmount: body.goalAmount,
         category: body.category,
-        imageUrl: body.imageUrl,
-        endDate: body.endDate ? new Date(body.endDate) : undefined,
-        status: body.status,
+        imageUrl: body.imageUrl || null,
+        images: body.images || [],
+        videoUrl: body.videoUrl || null,
+        endDate: body.endDate ? new Date(body.endDate) : null,
       },
     });
 
     return NextResponse.json(updated);
   } catch (error) {
-    console.error("[PUT /api/campaigns/[id]]", error);
+    console.error("[PUT /api/campaigns/[slug]]", error);
     return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
   }
 }

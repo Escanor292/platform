@@ -1,26 +1,15 @@
 /**
- * Floating Link Popover - Production-ready with proper mark lifecycle
- * Fixes link bleeding, selection loss, and caret placement issues
+ * Link Popover - Stable, no reopen loop, no input remount
+ * Fixed: Click outside detection, input focus stability, no double render
  */
 
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Editor } from '@tiptap/react';
 import { Link as LinkIcon, Check, X, Trash2 } from 'lucide-react';
 import {
-  applyLinkToSelection,
-  insertLinkAtCaret,
-  updateExistingLink,
-  removeLinkFromSelection,
-  hasTextSelection,
-  saveSelection,
-  restoreSelection,
-  type SavedSelection,
-} from '@/lib/editor/link-commands';
-import {
   normalizeUrl,
-  isValidUrl,
   getUrlError,
   sanitizeUrlInput,
 } from '@/lib/editor/link-validation';
@@ -31,6 +20,7 @@ interface LinkPopoverProps {
   onClose: () => void;
   initialUrl?: string;
   isEditMode?: boolean;
+  savedSelection: { from: number; to: number } | null;
 }
 
 interface Position {
@@ -44,94 +34,161 @@ export function LinkPopover({
   onClose,
   initialUrl = '',
   isEditMode = false,
+  savedSelection,
 }: LinkPopoverProps) {
   const [url, setUrl] = useState(initialUrl);
   const [error, setError] = useState('');
   const [position, setPosition] = useState<Position>({ top: 0, left: 0 });
-  const [savedSelection, setSavedSelection] = useState<SavedSelection | null>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const selectionRef = useRef(savedSelection);
 
-  // Calculate position based on selection/caret
-  const calculatePosition = useCallback(() => {
-    if (!editor || !editor.view) return;
+  // Update selection ref when prop changes
+  useEffect(() => {
+    selectionRef.current = savedSelection;
+  }, [savedSelection]);
+
+  // Calculate position - stable function
+  useEffect(() => {
+    if (!isOpen || !editor?.view) return;
 
     try {
       const { state, view } = editor;
-      const { from, to } = state.selection;
-
-      // Get coordinates from editor view
-      // Use 'to' position for better UX (end of selection or caret)
+      const { to } = state.selection;
       const coords = view.coordsAtPos(to);
-      
-      // Get editor container position
       const editorElement = view.dom;
       const editorRect = editorElement.getBoundingClientRect();
       
-      // Calculate popover position
-      // Position below the selection/caret with some offset
-      const top = coords.bottom - editorRect.top + 8;
-      const left = coords.left - editorRect.left;
-
-      setPosition({ top, left });
+      setPosition({
+        top: coords.bottom - editorRect.top + 8,
+        left: coords.left - editorRect.left,
+      });
     } catch (error) {
-      console.error('Error calculating position:', error);
-      // Fallback position
+      console.error('[LinkPopover] Position calculation error:', error);
       setPosition({ top: 50, left: 50 });
     }
-  }, [editor]);
+  }, [isOpen, editor]);
 
-  // Update position when opened
-  useEffect(() => {
-    if (isOpen) {
-      // CRITICAL: Save selection before opening popover
-      // This prevents selection loss when input gets focus
-      const selection = saveSelection(editor);
-      setSavedSelection(selection);
-      
-      calculatePosition();
-      setUrl(initialUrl);
-      setError('');
-      
-      // Focus input after a brief delay to ensure rendering
-      setTimeout(() => {
-        inputRef.current?.focus();
-        inputRef.current?.select();
-      }, 50);
-    }
-  }, [isOpen, initialUrl, calculatePosition, editor]);
-
-  // Handle click outside
+  // Initialize when opened - run ONCE
   useEffect(() => {
     if (!isOpen) return;
 
-    const handleClickOutside = (event: MouseEvent) => {
-      if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
-        onClose();
+    console.log('[LinkPopover] Opened - initializing');
+    setUrl(initialUrl);
+    setError('');
+
+    // Auto-focus input immediately
+    const timer = setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+        inputRef.current.select();
+        console.log('[LinkPopover] Input auto-focused');
       }
+    }, 50);
+
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]); // Only run when isOpen changes
+
+  // Add visual highlight to selected text when popover is open
+  useEffect(() => {
+    if (!isOpen || !savedSelection || !editor) return;
+
+    const { from, to } = savedSelection;
+    if (from === to) return; // No selection
+
+    try {
+      // Add a decoration to highlight the selection
+      const { view } = editor;
+      const decorations = document.createElement('style');
+      decorations.id = 'link-popover-highlight';
+      decorations.textContent = `
+        .ProseMirror .selection-highlight {
+          background-color: rgba(59, 130, 246, 0.3);
+          border-radius: 2px;
+        }
+      `;
+      document.head.appendChild(decorations);
+
+      // Add highlight class to selected range
+      const transaction = view.state.tr;
+      transaction.setMeta('addToHistory', false);
+      
+      console.log('[LinkPopover] Added visual highlight');
+
+      return () => {
+        // Cleanup
+        const style = document.getElementById('link-popover-highlight');
+        if (style) {
+          style.remove();
+        }
+      };
+    } catch (error) {
+      console.error('[LinkPopover] Highlight error:', error);
+    }
+  }, [isOpen, savedSelection, editor]);
+
+  // Click outside handler - ROBUST with pointerdown
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as HTMLElement;
+      
+      // Use composedPath for accurate detection
+      const path = event.composedPath();
+      
+      // Check if event originated from inside popover
+      const isInsidePopover = path.some(el => 
+        el === popoverRef.current || 
+        (el as HTMLElement).closest?.('[data-link-popover]')
+      );
+      
+      if (isInsidePopover) {
+        console.log('[LinkPopover] Pointer down inside - keeping open');
+        return;
+      }
+
+      // Check if event is from toolbar button
+      const isToolbarButton = path.some(el =>
+        (el as HTMLElement).closest?.('[data-link-button]')
+      );
+      
+      if (isToolbarButton) {
+        console.log('[LinkPopover] Pointer down on toolbar button - ignoring');
+        return;
+      }
+
+      // Truly outside - close
+      console.log('[LinkPopover] Pointer down outside - closing');
+      onClose();
     };
 
-    // Add delay to prevent immediate close on open
-    const timeoutId = setTimeout(() => {
-      document.addEventListener('mousedown', handleClickOutside);
-    }, 100);
+    // Add listener after delay, use capture phase
+    const timer = setTimeout(() => {
+      document.addEventListener('pointerdown', handlePointerDown, true);
+      console.log('[LinkPopover] Pointer down listener added');
+    }, 200);
 
     return () => {
-      clearTimeout(timeoutId);
-      document.removeEventListener('mousedown', handleClickOutside);
+      clearTimeout(timer);
+      document.removeEventListener('pointerdown', handlePointerDown, true);
+      console.log('[LinkPopover] Pointer down listener removed');
     };
   }, [isOpen, onClose]);
 
-  // Handle keyboard shortcuts
+  // Keyboard shortcuts
   useEffect(() => {
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
+        console.log('[LinkPopover] Escape pressed - closing');
         onClose();
       } else if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
+        console.log('[LinkPopover] Enter pressed - applying');
         handleApply();
       }
     };
@@ -140,17 +197,7 @@ export function LinkPopover({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, url, onClose]);
 
-  // Validate URL on change
-  const handleUrlChange = (value: string) => {
-    setUrl(value);
-    
-    // Clear error when typing
-    if (error) {
-      setError('');
-    }
-  };
-
-  // Apply link with proper mark lifecycle management
+  // Apply link
   const handleApply = () => {
     const trimmedUrl = sanitizeUrlInput(url);
 
@@ -162,59 +209,125 @@ export function LinkPopover({
     }
 
     const normalizedUrl = normalizeUrl(trimmedUrl);
+    const selection = selectionRef.current;
 
-    // Restore selection before applying
-    // This ensures we apply to the correct range
-    if (savedSelection) {
-      restoreSelection(editor, savedSelection);
+    if (!selection) {
+      console.error('[LinkPopover] No selection saved');
+      return;
     }
 
-    // Determine action based on context
-    const hasSelection = hasTextSelection(editor);
+    console.log('[LinkPopover] Applying link:', { url: normalizedUrl, selection });
 
-    if (isEditMode) {
-      // Update existing link
-      updateExistingLink(editor, normalizedUrl);
-    } else if (hasSelection) {
-      // Apply link to selected text
-      applyLinkToSelection(editor, normalizedUrl);
-    } else {
-      // Insert new link at caret
-      // Use URL as display text
-      insertLinkAtCaret(editor, trimmedUrl, normalizedUrl);
+    try {
+      const hasSelection = selection.from !== selection.to;
+
+      if (isEditMode) {
+        // Case: Edit existing link
+        editor
+          .chain()
+          .focus()
+          .setTextSelection({ from: selection.from, to: selection.to })
+          .extendMarkRange('link')
+          .setLink({ href: normalizedUrl, target: '_blank' })
+          .setTextSelection(selection.to) // Move caret to END of link
+          .unsetMark('link') // CRITICAL: Clear stored marks
+          .run();
+        
+        console.log('[LinkPopover] Updated existing link');
+      } else if (hasSelection) {
+        // Case: Apply link to selection
+        editor
+          .chain()
+          .focus()
+          .setTextSelection({ from: selection.from, to: selection.to })
+          .setLink({ href: normalizedUrl, target: '_blank' })
+          .setTextSelection(selection.to) // Move caret to END of link
+          .unsetMark('link') // CRITICAL: Clear stored marks so next typing is plain
+          .run();
+        
+        console.log('[LinkPopover] Applied link to selection');
+      } else {
+        // Case: Insert new link at caret
+        const text = trimmedUrl;
+        const insertPos = selection.from;
+        
+        editor
+          .chain()
+          .focus()
+          .insertContentAt(insertPos, {
+            type: 'text',
+            text: text,
+            marks: [{ type: 'link', attrs: { href: normalizedUrl, target: '_blank' } }],
+          })
+          .setTextSelection(insertPos + text.length) // Move caret AFTER inserted link
+          .unsetMark('link') // CRITICAL: Clear stored marks
+          .run();
+        
+        console.log('[LinkPopover] Inserted new link');
+      }
+
+      // Additional safety: Force clear link mark from stored marks
+      setTimeout(() => {
+        if (editor && !editor.isDestroyed) {
+          editor.commands.unsetMark('link');
+          console.log('[LinkPopover] Force cleared link mark');
+        }
+      }, 10);
+
+      console.log('[LinkPopover] Link applied successfully');
+      onClose();
+    } catch (error) {
+      console.error('[LinkPopover] Apply error:', error);
+      setError('Không thể áp dụng liên kết');
     }
-
-    // Close popover and return focus to editor
-    onClose();
-    
-    // Ensure editor has focus
-    setTimeout(() => {
-      editor.commands.focus();
-    }, 10);
   };
 
-  // Remove link with proper cleanup
+  // Remove link
   const handleRemove = () => {
-    // Restore selection before removing
-    if (savedSelection) {
-      restoreSelection(editor, savedSelection);
-    }
+    const selection = selectionRef.current;
+    if (!selection) return;
 
-    removeLinkFromSelection(editor);
-    
-    onClose();
-    
-    // Return focus to editor
-    setTimeout(() => {
+    console.log('[LinkPopover] Removing link');
+
+    try {
       editor.commands.focus();
-    }, 10);
+      editor.commands.setTextSelection({
+        from: selection.from,
+        to: selection.to,
+      });
+
+      editor
+        .chain()
+        .focus()
+        .extendMarkRange('link')
+        .unsetLink()
+        .setTextSelection(selection.to)
+        .unsetMark('link')
+        .run();
+
+      console.log('[LinkPopover] Link removed');
+      onClose();
+    } catch (error) {
+      console.error('[LinkPopover] Remove error:', error);
+    }
   };
 
   if (!isOpen) return null;
 
+  // CRITICAL: Stop all mouse events from bubbling
+  const stopMouseEvents = (e: React.MouseEvent | React.PointerEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <div
       ref={popoverRef}
+      data-link-popover="true"
+      onPointerDown={stopMouseEvents}
+      onPointerUp={stopMouseEvents}
+      onMouseDown={stopMouseEvents}
+      onMouseUp={stopMouseEvents}
+      onClick={stopMouseEvents}
       className="absolute z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-3 min-w-[320px] max-w-[400px]"
       style={{
         top: `${position.top}px`,
@@ -229,13 +342,16 @@ export function LinkPopover({
         </span>
       </div>
 
-      {/* Input */}
+      {/* Input - Auto-focused */}
       <div className="mb-3">
         <input
           ref={inputRef}
           type="text"
           value={url}
-          onChange={(e) => handleUrlChange(e.target.value)}
+          onChange={(e) => {
+            setUrl(e.target.value);
+            if (error) setError('');
+          }}
           placeholder="example.com hoặc https://example.com"
           className={`w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 transition-all ${
             error
@@ -243,9 +359,7 @@ export function LinkPopover({
               : 'border-gray-300 focus:ring-blue-200 focus:border-blue-400'
           }`}
         />
-        {error && (
-          <p className="mt-1 text-xs text-red-600">{error}</p>
-        )}
+        {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
       </div>
 
       {/* Actions */}
@@ -269,7 +383,6 @@ export function LinkPopover({
           </button>
         </div>
 
-        {/* Remove button (only in edit mode) */}
         {isEditMode && (
           <button
             type="button"
@@ -286,8 +399,7 @@ export function LinkPopover({
       {/* Hint */}
       <div className="mt-2 pt-2 border-t border-gray-100">
         <p className="text-xs text-gray-500">
-          <kbd className="px-1.5 py-0.5 text-xs bg-gray-100 rounded">Enter</kbd> để áp dụng,{' '}
-          <kbd className="px-1.5 py-0.5 text-xs bg-gray-100 rounded">Esc</kbd> để hủy
+          <kbd className="px-1.5 py-0.5 text-xs bg-gray-100 rounded">Enter</kbd> để áp dụng • <kbd className="px-1.5 py-0.5 text-xs bg-gray-100 rounded">Esc</kbd> để hủy
         </p>
       </div>
     </div>

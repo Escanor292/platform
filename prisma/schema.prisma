@@ -51,6 +51,7 @@ model Campaign {
   longDescription String?
   videoUrl        String?
   imageUrl        String?
+  images          String[]          @default([]) // Multiple images for campaign
   type            CampaignType      @default(REWARD)
   category        String
   tags            String[]          @default([]) // Starter tags for taxonomy

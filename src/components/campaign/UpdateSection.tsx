@@ -6,7 +6,8 @@ import { PlusCircle, User, Loader2, Sparkles, Send } from "lucide-react";
 import { formatFullDateTime } from "@/lib/utils";
 import { ImageUpload } from "@/components/shared/ImageUpload";
 import { Button } from "@/components/ui/button";
-import RichTextEditor from "@/components/editor/RichTextEditor";
+import { ProductionEditor } from "@/components/editor";
+import { EDITOR_PLACEHOLDERS } from "@/lib/editor/constants";
 import RichTextRenderer from "@/components/shared/RichTextRenderer";
 
 interface UpdateSectionProps {
@@ -112,10 +113,14 @@ export default function UpdateSection({ campaignId, slug, isCreator }: UpdateSec
             
             <div className="space-y-4">
                <label className="text-xs font-black text-gray-900 uppercase tracking-widest">Nội dung chi tiết</label>
-               <RichTextEditor
+               <ProductionEditor
                  content={content}
                  onChange={setContent}
-                 placeholder="Viết chi tiết những gì đang diễn ra để cộng đồng cùng biết..."
+                 config={{
+                   placeholder: EDITOR_PLACEHOLDERS.UPDATE_POST,
+                   autosave: false,
+                   enableBubbleMenu: true,
+                 }}
                />
             </div>
 
