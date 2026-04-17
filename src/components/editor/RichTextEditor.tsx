@@ -17,17 +17,19 @@ import Highlight from '@tiptap/extension-highlight';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import CharacterCount from '@tiptap/extension-character-count';
+import Image from '@tiptap/extension-image';
 
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
   Link as LinkIcon, Heading1, Heading2, Quote, Code,
   Minus, Undo, Redo, Youtube as YoutubeIcon,
-  Highlighter, CheckSquare
+  Highlighter, CheckSquare, ImageIcon
 } from 'lucide-react';
 
-import { normalizeUrl, getUrlError } from './utils/urlValidation';
-import { hasSelection, isLinkActive, getLinkAtCursor, applyLinkToSelection, insertLinkAtCaret, removeLink } from './utils/linkHelpers';
+import { getLinkAtCursor, isSelectionInsideLink } from '@/lib/editor/link-commands';
+import { LinkPopover } from './LinkPopover';
+import { VideoPopover } from './VideoPopover';
 import './editor.css';
 
 interface SimplifiedEnhancedEditorProps {
@@ -72,6 +74,10 @@ export default function SimplifiedEnhancedEditor({
   placeholder 
 }: SimplifiedEnhancedEditorProps) {
   const [saveStatus, setSaveStatus] = useState("Đã lưu");
+  const [isLinkPopoverOpen, setIsLinkPopoverOpen] = useState(false);
+  const [linkPopoverInitialUrl, setLinkPopoverInitialUrl] = useState('');
+  const [isLinkEditMode, setIsLinkEditMode] = useState(false);
+  const [isVideoPopoverOpen, setIsVideoPopoverOpen] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -90,6 +96,13 @@ export default function SimplifiedEnhancedEditor({
       }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Youtube.configure({ controls: false, nocookie: true }),
+      Image.configure({
+        inline: true,
+        allowBase64: true,
+        HTMLAttributes: {
+          class: "rounded-lg max-w-full h-auto my-4",
+        },
+      }),
       TaskList,
       TaskItem.configure({ nested: true }),
       Placeholder.configure({ 
@@ -113,44 +126,96 @@ export default function SimplifiedEnhancedEditor({
     },
   });
 
-  // Simple link insertion with modern prompt
+  // Modern link insertion with floating popover
   const handleLinkClick = useCallback(() => {
     if (!editor) return;
 
-    const previousUrl = getLinkAtCursor(editor);
-    const url = window.prompt('Nhập URL:', previousUrl || '');
+    // Check if cursor is in an existing link
+    const existingUrl = getLinkAtCursor(editor);
     
-    if (url === null) return; // Cancelled
-    
-    if (url === '') {
-      // Remove link
-      removeLink(editor);
-      return;
-    }
-
-    // Validate
-    const error = getUrlError(url);
-    if (error) {
-      alert(error);
-      return;
-    }
-
-    const normalizedUrl = normalizeUrl(url);
-
-    if (hasSelection(editor)) {
-      applyLinkToSelection(editor, normalizedUrl);
+    if (existingUrl) {
+      // Edit mode - show existing URL
+      setLinkPopoverInitialUrl(existingUrl);
+      setIsLinkEditMode(true);
     } else {
-      const text = window.prompt('Nhập text hiển thị:');
-      if (text) {
-        insertLinkAtCaret(editor, text, normalizedUrl);
-      }
+      // Insert mode
+      setLinkPopoverInitialUrl('');
+      setIsLinkEditMode(false);
     }
+
+    setIsLinkPopoverOpen(true);
   }, [editor]);
+
+  // Keyboard shortcut for link (Ctrl/Cmd + K)
+  useEffect(() => {
+    if (!editor) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle if editor is focused
+      if (!editor.isFocused) return;
+      
+      // Ctrl/Cmd + K for link
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        e.stopPropagation();
+        handleLinkClick();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown, true);
+    return () => document.removeEventListener('keydown', handleKeyDown, true);
+  }, [editor, handleLinkClick]);
 
   const addYoutube = useCallback(() => {
     if (!editor) return;
-    const url = window.prompt("Nhập URL YouTube:");
-    if (url) editor.chain().focus().setYoutubeVideo({ src: url }).run();
+    setIsVideoPopoverOpen(true);
+  }, [editor]);
+
+  const addImage = useCallback(() => {
+    if (!editor) return;
+    
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Kích thước ảnh không được vượt quá 5MB');
+        return;
+      }
+
+      // Show loading state
+      setSaveStatus("Đang tải ảnh...");
+
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error('Upload failed');
+        }
+
+        const data = await response.json();
+        
+        // Insert image into editor
+        editor.chain().focus().setImage({ src: data.url }).run();
+        setSaveStatus("Đã lưu");
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        alert('Lỗi khi tải ảnh lên. Vui lòng thử lại.');
+        setSaveStatus("Đã lưu");
+      }
+    };
+    
+    input.click();
   }, [editor]);
 
   if (!editor) return null;
@@ -295,7 +360,7 @@ export default function SimplifiedEnhancedEditor({
         {/* Insert - Improved Link with validation */}
         <ToolbarButton 
           onClick={handleLinkClick} 
-          isActive={editor.isActive("link")} 
+          isActive={isSelectionInsideLink(editor)} 
           title="Chèn liên kết (Ctrl+K)"
         >
           <LinkIcon size={15} />
@@ -309,11 +374,34 @@ export default function SimplifiedEnhancedEditor({
         <ToolbarButton onClick={addYoutube} title="Chèn video YouTube">
           <YoutubeIcon size={15} />
         </ToolbarButton>
+        <ToolbarButton onClick={addImage} title="Chèn ảnh">
+          <ImageIcon size={15} />
+        </ToolbarButton>
       </div>
 
       {/* ── EDITOR AREA ── */}
-      <div className="cursor-text bg-white" onClick={() => editor.commands.focus()}>
+      <div className="cursor-text bg-white relative" onClick={() => editor.commands.focus()}>
         <EditorContent editor={editor} />
+        
+        {/* Link Popover */}
+        {isLinkPopoverOpen && (
+          <LinkPopover
+            editor={editor}
+            isOpen={isLinkPopoverOpen}
+            onClose={() => setIsLinkPopoverOpen(false)}
+            initialUrl={linkPopoverInitialUrl}
+            isEditMode={isLinkEditMode}
+          />
+        )}
+        
+        {/* Video Popover */}
+        {isVideoPopoverOpen && (
+          <VideoPopover
+            editor={editor}
+            isOpen={isVideoPopoverOpen}
+            onClose={() => setIsVideoPopoverOpen(false)}
+          />
+        )}
       </div>
 
       {/* ── FOOTER ── */}
@@ -391,6 +479,13 @@ export default function SimplifiedEnhancedEditor({
           border-radius: 8px; 
           margin: 1rem auto; 
           display: block; 
+        }
+        .ProseMirror img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 8px;
+          margin: 1rem 0;
+          display: block;
         }
         
         /* Task List Styles */
