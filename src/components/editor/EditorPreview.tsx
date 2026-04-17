@@ -8,7 +8,7 @@
 import React, { useMemo } from 'react';
 import { sanitizeForPreview } from '@/lib/editor/sanitize';
 import { RichTextPreviewProps } from '@/types/editor';
-import './editor-styles.css';
+import './editor.css';
 
 export function EditorPreview({ content, className = '' }: RichTextPreviewProps) {
   // Sanitize content

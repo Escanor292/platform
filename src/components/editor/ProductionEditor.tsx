@@ -19,7 +19,7 @@ import { getUrlError, normalizeUrl, isValidVideoUrl, getVideoProvider } from '@/
 import { EDITOR_LIMITS, ERROR_MESSAGES } from '@/lib/editor/constants';
 import { RichTextEditorProps, SaveStatus, UploadProgress } from '@/types/editor';
 import { toast } from 'sonner';
-import './editor-styles.css';
+import './editor.css';
 
 export function ProductionEditor({
   content,
