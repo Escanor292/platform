@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { formatVND, formatDate } from "@/lib/utils";
-import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PledgeForm from "@/components/campaign/PledgeForm";
+import CampaignGrowthProgress from "@/components/campaign/CampaignGrowthProgress";
 import { auth } from "@/lib/auth";
 import { 
   Rocket, 
@@ -19,6 +19,8 @@ import CommentSection from "@/components/campaign/CommentSection";
 import UpdateSection from "@/components/campaign/UpdateSection";
 import RichTextRenderer from "@/components/shared/RichTextRenderer";
 import ImageCarousel from "@/components/campaign/ImageCarousel";
+import CreatorLink from "@/components/campaign/CreatorLink";
+import BackerLink from "@/components/campaign/BackerLink";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -35,7 +37,7 @@ export default async function CampaignDetailPage({ params }: Params) {
         where: { status: "SUCCESS" },
         orderBy: { createdAt: "desc" },
         take: 5,
-        include: { user: { select: { name: true, avatar: true } } }
+        include: { user: { select: { id: true, name: true, avatar: true } } }
       },
       _count: {
         select: { pledges: { where: { status: "SUCCESS" } } },
@@ -80,23 +82,25 @@ export default async function CampaignDetailPage({ params }: Params) {
            </div>
            
            <div className="flex items-center gap-4 pt-4">
-              <div className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center text-gray-400 font-black text-lg border border-gray-200 shadow-sm">
-                 {campaign.creator?.name?.slice(0,1) || "C"}
-              </div>
-              <div className="text-left">
-                 <div className="text-sm font-black text-gray-900 uppercase tracking-tight">
-                    {campaign.creator?.name} {campaign.creator?.isPro && <Zap size={10} className="inline text-emerald-500 fill-emerald-500" />}
-                 </div>
-                 <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Chiến dịch chính chủ</div>
-              </div>
+              <CreatorLink 
+                creatorId={campaign.creator?.id || ""}
+                creatorName={campaign.creator?.name || "Anonymous"}
+                creatorAvatar={campaign.creator?.avatar}
+              />
+              {campaign.creator?.isPro && (
+                <div className="flex items-center gap-1 px-2 py-1 bg-emerald-50 rounded-lg">
+                  <Zap size={12} className="text-emerald-500 fill-emerald-500" />
+                  <span className="text-[9px] font-black text-emerald-700 uppercase tracking-wider">Pro</span>
+                </div>
+              )}
            </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto py-16 px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-16">
           {/* Main Content Area */}
-          <div className="lg:col-span-2 space-y-16">
+          <div className="lg:col-span-3 space-y-16">
             <ImageCarousel images={campaignImages} alt={campaign.title} />
 
             {/* Content Sections with Modern Styling */}
@@ -131,18 +135,15 @@ export default async function CampaignDetailPage({ params }: Params) {
                      <div className="space-y-4">
                         {campaign.pledges.map((pledge) => (
                            <div key={pledge.id} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
-                              <div className="flex items-center gap-4">
-                                 <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
-                                    {pledge.isAnonymous ? "🎭" : (pledge.user?.name?.slice(0, 1) || pledge.displayName?.slice(0, 1) || "?")}
-                                 </div>
-                                 <div className="flex-1">
-                                    <div className="font-bold text-gray-900">
-                                       {pledge.isAnonymous ? "Người ủng hộ ẩn danh" : (pledge.user?.name || pledge.displayName || "Người ủng hộ")}
-                                    </div>
-                                    <div className="text-sm text-gray-500">
-                                       Ủng hộ {formatVND(pledge.amount)} • {formatDate(pledge.createdAt)}
-                                    </div>
-                                 </div>
+                              <BackerLink
+                                userId={pledge.userId}
+                                userName={pledge.user?.name}
+                                displayName={pledge.displayName}
+                                isAnonymous={pledge.isAnonymous}
+                                userAvatar={pledge.user?.avatar}
+                              />
+                              <div className="mt-2 ml-16 text-sm text-gray-500">
+                                 Ủng hộ {formatVND(pledge.amount)} • {formatDate(pledge.createdAt)}
                               </div>
                            </div>
                         ))}
@@ -175,24 +176,18 @@ export default async function CampaignDetailPage({ params }: Params) {
           </div>
 
           {/* Sticky Sidebar */}
-          <div className="lg:sticky lg:top-32 h-fit space-y-8">
+          <div className="lg:col-span-2 lg:sticky lg:top-32 h-fit space-y-8">
             <div className="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-premium space-y-8">
-                <div className="space-y-2">
-                  <div className="text-4xl font-black text-gray-900 tracking-tighter">{formatVND(campaign.currentAmount)}</div>
-                  <div className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] ml-1">đã đạt được mục tiêu {formatVND(campaign.goalAmount)}</div>
-                </div>
-
-                <div className="space-y-4">
-                   <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden shadow-inner">
-                      <div 
-                        className="bg-blue-600 h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(37,99,235,0.4)]" 
-                        style={{ width: `${percentRaised}%` }}
-                      />
-                   </div>
-                   <div className="flex justify-between text-xs font-black text-gray-900 uppercase tracking-widest">
-                      <span>{percentRaised}% hoàn thành</span>
-                      <span>{(campaign as any)._count?.pledges || 0} Backers</span>
-                   </div>
+                <CampaignGrowthProgress
+                  currentAmount={Number(campaign.currentAmount)}
+                  goalAmount={Number(campaign.goalAmount)}
+                  size="lg"
+                  showTree={true}
+                  showAnimatedHead={true}
+                />
+                
+                <div className="flex justify-center text-xs font-black text-gray-900 uppercase tracking-widest">
+                  <span>{(campaign as any)._count?.pledges || 0} Backers</span>
                 </div>
                 
                 <div className="flex items-center gap-2 p-6 bg-slate-50 rounded-[1.8rem] border border-slate-100 group">

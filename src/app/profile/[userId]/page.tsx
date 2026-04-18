@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { formatVND, formatDate } from "@/lib/utils";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { MapPin, Calendar, Heart, Rocket, Award, TrendingUp, Settings, ShieldCheck, Globe } from "lucide-react";
+import { MapPin, Calendar, Heart, Rocket, Award, TrendingUp, Settings, ShieldCheck } from "lucide-react";
 import { auth } from "@/lib/auth";
 import UserIdDisplay from "@/components/profile/UserIdDisplay";
 import SocialLinks from "@/components/profile/SocialLinks";
@@ -160,17 +160,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     <MapPin size={16} />
                     {user.location}
                   </div>
-                )}
-                {user.website && (
-                  <a 
-                    href={user.website} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 hover:text-blue-600 transition"
-                  >
-                    <Globe size={16} />
-                    Website
-                  </a>
                 )}
               </div>
 

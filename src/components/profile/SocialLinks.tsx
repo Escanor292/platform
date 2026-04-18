@@ -48,7 +48,7 @@ export default function SocialLinks({ links, size = 'md' }: SocialLinksProps) {
   return (
     <div className="flex flex-wrap gap-3">
       {links.map((link, index) => {
-        const config = getPlatformConfig(link.platform);
+        const config = getPlatformConfig(link.platform) || getPlatformConfig('website');
         const IconComponent = ICON_MAP[config.iconName as keyof typeof ICON_MAP] || Globe;
         
         return (

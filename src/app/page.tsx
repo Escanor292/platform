@@ -9,6 +9,7 @@ import ThreeStepsSection from "@/components/shared/ThreeStepsSection";
 import TestimonialsSection from "@/components/shared/TestimonialsSection";
 import CTASection from "@/components/shared/CTASection";
 import CreatorLink from "@/components/campaign/CreatorLink";
+import CampaignGrowthProgress from "@/components/campaign/CampaignGrowthProgress";
 
 export default async function Home() {
   const campaigns = await prisma.campaign.findMany({
@@ -53,7 +54,6 @@ export default async function Home() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {campaigns.length > 0 ? (
               campaigns.map((campaign: any) => {
-                const progress = Math.min(100, Math.round((Number(campaign.currentAmount) / Number(campaign.goalAmount)) * 100));
                 const daysLeft = campaign.endDate 
                   ? Math.max(0, Math.ceil((new Date(campaign.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
                   : null;
@@ -88,21 +88,13 @@ export default async function Home() {
                       </p>
 
                       <div className="space-y-3">
-                        <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
-                          <div 
-                            className="progress-bar h-full"
-                            style={{ width: `${progress}%` }}
-                          />
-                        </div>
-                        
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="font-bold text-pgreen">
-                            {formatVND(Number(campaign.currentAmount))}
-                          </span>
-                          <span className="text-gray-400">
-                            {progress}% đạt được
-                          </span>
-                        </div>
+                        <CampaignGrowthProgress
+                          currentAmount={Number(campaign.currentAmount)}
+                          goalAmount={Number(campaign.goalAmount)}
+                          variant="compact"
+                          size="sm"
+                          showTree={false}
+                        />
 
                         <div className="flex justify-between items-center pt-3 border-t border-gray-100">
                           <CreatorLink 

@@ -5,6 +5,7 @@ import { ProjectListItem } from "@/types/project";
 import { formatVND } from "@/lib/utils";
 import { Eye, Users, Star, Calendar } from "lucide-react";
 import { getCompletionStateLabel, getCompletionStateColor, getCampaignTypeLabel, formatDaysRemaining } from "@/lib/project-helpers";
+import CampaignGrowthProgress from "@/components/campaign/CampaignGrowthProgress";
 
 interface ProjectCardProps {
   project: ProjectListItem;
@@ -69,23 +70,14 @@ export function ProjectCard({ project }: ProjectCardProps) {
           {project.description}
         </p>
 
-        {/* Progress Bar */}
-        <div className="space-y-2">
-          <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-            <div
-              className="bg-blue-600 h-full rounded-full transition-all duration-1000"
-              style={{ width: `${Math.min(project.progressPercent, 100)}%` }}
-            />
-          </div>
-          <div className="flex justify-between items-center text-xs">
-            <span className="font-bold text-gray-900">
-              {project.progressPercent}%
-            </span>
-            <span className="text-gray-500">
-              {formatVND(project.currentAmount)} / {formatVND(project.goalAmount)}
-            </span>
-          </div>
-        </div>
+        {/* Progress */}
+        <CampaignGrowthProgress
+          currentAmount={project.currentAmount}
+          goalAmount={project.goalAmount}
+          variant="compact"
+          size="sm"
+          showTree={false}
+        />
 
         {/* Stats */}
         <div className="flex items-center justify-between pt-2 border-t border-gray-100">

@@ -2,6 +2,8 @@ import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { formatVND } from "@/lib/utils";
 import { Search, Rocket, ArrowRight } from "lucide-react";
+import CampaignGrowthProgress from "@/components/campaign/CampaignGrowthProgress";
+import CreatorLink from "@/components/campaign/CreatorLink";
 
 export default async function CampaignsPage() {
   const campaigns = await prisma.campaign.findMany({
@@ -66,7 +68,6 @@ export default async function CampaignsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {campaigns.length > 0 ? (
             campaigns.map((campaign: any) => {
-              const progress = Math.min(100, Math.round((Number(campaign.currentAmount) / Number(campaign.goalAmount)) * 100));
               const daysLeft = campaign.endDate 
                 ? Math.max(0, Math.ceil((new Date(campaign.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
                 : null;
@@ -101,31 +102,20 @@ export default async function CampaignsPage() {
                     </p>
 
                     <div className="space-y-3">
-                      <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
-                        <div 
-                          className="progress-bar h-full"
-                          style={{ width: `${progress}%` }}
-                        />
-                      </div>
-                      
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="font-bold text-pgreen">
-                          {formatVND(Number(campaign.currentAmount))}
-                        </span>
-                        <span className="text-gray-400">
-                          {progress}% đạt được
-                        </span>
-                      </div>
+                      <CampaignGrowthProgress
+                        currentAmount={Number(campaign.currentAmount)}
+                        goalAmount={Number(campaign.goalAmount)}
+                        variant="compact"
+                        size="sm"
+                        showTree={false}
+                      />
 
                       <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-full bg-pgreen/10 flex items-center justify-center text-pgreen text-xs font-bold">
-                            {campaign.creator?.name?.charAt(0) || "C"}
-                          </div>
-                          <span className="text-xs font-semibold text-gray-600">
-                            {campaign.creator?.name || "Anonymous"}
-                          </span>
-                        </div>
+                        <CreatorLink 
+                          creatorId={campaign.creator?.id || ""}
+                          creatorName={campaign.creator?.name || "Anonymous"}
+                          creatorAvatar={campaign.creator?.avatar}
+                        />
                         {daysLeft !== null && (
                           <span className="text-xs text-gray-400">
                             {daysLeft > 0 ? `${daysLeft} ngày` : "Kết thúc"}
