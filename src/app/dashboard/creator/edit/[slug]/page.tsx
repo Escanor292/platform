@@ -40,11 +40,19 @@ export default async function EditCampaignPage({ params }: EditCampaignPageProps
     goalAmount: Number(campaign.goalAmount),
     currentAmount: Number(campaign.currentAmount),
     feeRate: Number(campaign.feeRate),
+    images: campaign.images || [], // Ensure images is always an array
+    tags: campaign.tags || [], // Ensure tags is always an array
     rewards: campaign.rewards.map(reward => ({
       ...reward,
       amount: Number(reward.amount),
     })),
   };
+
+  console.log("[EditCampaignPage] Campaign data:", {
+    imageUrl: campaignData.imageUrl,
+    images: campaignData.images,
+    tags: campaignData.tags
+  });
 
   return (
     <div className="min-h-screen bg-slate-50/50 py-24 px-6">

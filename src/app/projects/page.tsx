@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ProjectFilters, ProjectListResponse, SortOption } from "@/types/project";
 import { parseProjectFilters, filtersToSearchParams } from "@/lib/project-query-params";
 import { projectCache } from "@/lib/project-cache";
+import { useDebounce } from "@/hooks/useDebounce";
 import { ProjectSearchBar } from "@/components/projects/ProjectSearchBar";
 import { ProjectSortSelect } from "@/components/projects/ProjectSortSelect";
 import { ProjectFilterChips } from "@/components/projects/ProjectFilterChips";
@@ -23,9 +24,17 @@ export default function ProjectsPage() {
   const [data, setData] = useState<ProjectListResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+  
+  // Debounce search query để giảm số lần fetch
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
   
   // Memoize filters to prevent unnecessary re-renders
-  const filters = useMemo(() => parseProjectFilters(searchParams), [searchParams]);
+  const filters = useMemo(() => {
+    const parsed = parseProjectFilters(searchParams);
+    // Override với debounced search query
+    return { ...parsed, q: debouncedSearchQuery || undefined };
+  }, [searchParams, debouncedSearchQuery]);
   
   // Create stable query string
   const queryString = useMemo(() => {
@@ -93,10 +102,18 @@ export default function ProjectsPage() {
     router.push(`/projects?${params.toString()}`);
   }, [filters, router]);
 
-  // Handle search
+  // Handle search với debounce
   const handleSearch = useCallback((query: string) => {
-    updateFilters({ q: query || undefined });
-  }, [updateFilters]);
+    setSearchQuery(query);
+    // URL sẽ được update khi debouncedSearchQuery thay đổi
+  }, []);
+
+  // Update URL khi debounced search query thay đổi
+  useEffect(() => {
+    if (debouncedSearchQuery !== (searchParams.get('q') || '')) {
+      updateFilters({ q: debouncedSearchQuery || undefined });
+    }
+  }, [debouncedSearchQuery]);
 
   // Handle sort
   const handleSort = useCallback((sort: SortOption) => {
@@ -151,7 +168,7 @@ export default function ProjectsPage() {
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
               <ProjectSearchBar
-                value={filters.q || ""}
+                value={searchQuery}
                 onChange={handleSearch}
                 onClear={() => handleSearch("")}
               />

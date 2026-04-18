@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { memo } from "react";
 import { ProjectListItem } from "@/types/project";
 import { formatVND } from "@/lib/utils";
 import { Eye, Users, Star, Calendar } from "lucide-react";
@@ -11,7 +12,7 @@ interface ProjectCardProps {
   project: ProjectListItem;
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardProps) {
   return (
     <Link
       href={`/campaigns/${project.slug}`}
@@ -23,6 +24,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
           <img
             src={project.imageUrl}
             alt={project.title}
+            loading="lazy"
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           />
         )}
@@ -121,4 +123,4 @@ export function ProjectCard({ project }: ProjectCardProps) {
       </div>
     </Link>
   );
-}
+});

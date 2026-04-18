@@ -33,11 +33,14 @@ export default function SePayQRModal({
   const [status, setStatus] = useState<"pending" | "success" | "failed">("pending");
   const [countdown, setCountdown] = useState(600); // 10 phút
 
-  // Polling để check trạng thái thanh toán
+  // Polling để check trạng thái thanh toán - tối ưu với interval tăng dần
   useEffect(() => {
     if (!isOpen || status !== "pending") return;
 
-    const interval = setInterval(async () => {
+    let pollInterval = 3000; // Bắt đầu với 3 giây
+    let pollCount = 0;
+    
+    const checkPayment = async () => {
       try {
         const res = await fetch(`/api/payment/sepay/status/${pledgeId}`);
         const data = await res.json();
@@ -47,13 +50,33 @@ export default function SePayQRModal({
           setTimeout(() => {
             onSuccess?.();
           }, 2000);
+          return true;
         }
+        return false;
       } catch (error) {
         console.error("Failed to check payment status:", error);
+        return false;
       }
-    }, 3000); // Check mỗi 3 giây
+    };
 
-    return () => clearInterval(interval);
+    const schedulePoll = () => {
+      pollCount++;
+      // Tăng interval sau mỗi 5 lần poll (3s -> 5s -> 10s)
+      if (pollCount === 5) pollInterval = 5000;
+      if (pollCount === 10) pollInterval = 10000;
+      
+      checkPayment().then((success) => {
+        if (!success && status === "pending") {
+          setTimeout(schedulePoll, pollInterval);
+        }
+      });
+    };
+
+    schedulePoll();
+
+    return () => {
+      pollCount = 999; // Stop polling on cleanup
+    };
   }, [isOpen, pledgeId, status, onSuccess]);
 
   // Countdown timer

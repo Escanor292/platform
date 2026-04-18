@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useMemo, memo } from "react";
 import { useRouter } from "next/navigation";
 import { formatVND } from "@/lib/utils";
 import SePayQRModal from "@/components/payment/SePayQRModal";
@@ -22,7 +22,7 @@ interface PledgeFormProps {
 
 const PLATFORM_TIP_OPTIONS = [0, 5, 10, 15];
 
-export default function PledgeForm({
+const PledgeForm = memo(function PledgeForm({
   campaignId,
   campaignSlug,
   rewards = [],
@@ -46,12 +46,19 @@ export default function PledgeForm({
   const [guestEmail, setGuestEmail] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"VNPAY" | "MOMO" | "PAYOS" | "SEPAY" | "BANK">("PAYOS");
 
-  const selectedReward = rewards.find((r) => r.id === selectedRewardId);
+  const selectedReward = useMemo(
+    () => rewards.find((r) => r.id === selectedRewardId),
+    [rewards, selectedRewardId]
+  );
+  
   const baseAmount = selectedReward ? selectedReward.amount : customAmount;
-  const tipAmount = Math.round((baseAmount * tipPercent) / 100);
+  const tipAmount = useMemo(
+    () => Math.round((baseAmount * tipPercent) / 100),
+    [baseAmount, tipPercent]
+  );
   const totalAmount = baseAmount + tipAmount;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -93,7 +100,7 @@ export default function PledgeForm({
     } finally {
       setLoading(false);
     }
-  };
+  }, [campaignId, selectedRewardId, baseAmount, tipPercent, isAnonymous, displayName, guestEmail, paymentMethod, router]);
 
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
@@ -368,4 +375,6 @@ export default function PledgeForm({
       )}
     </div>
   );
-}
+});
+
+export default PledgeForm;

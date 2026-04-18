@@ -14,7 +14,9 @@ import { MAX_STARTER_TAGS } from "@/types/taxonomy";
  */
 export function getAllowedTagGroups(mainCategory: MainCategory | null): TagGroup[] {
   if (!mainCategory) return [];
-  return TAXONOMY_DATA.starterTagsByCategory[mainCategory].allowedTagGroups;
+  const categoryTaxonomy = TAXONOMY_DATA.starterTagsByCategory[mainCategory];
+  if (!categoryTaxonomy) return [];
+  return categoryTaxonomy.allowedTagGroups;
 }
 
 /**
@@ -22,17 +24,19 @@ export function getAllowedTagGroups(mainCategory: MainCategory | null): TagGroup
  */
 export function getStarterTagsForCategory(mainCategory: MainCategory | null): StarterTag[] {
   if (!mainCategory) return [];
-  
+
   const categoryTaxonomy = TAXONOMY_DATA.starterTagsByCategory[mainCategory];
+  if (!categoryTaxonomy) return [];
+
   const allowedGroups = categoryTaxonomy.allowedTagGroups;
-  
+
   // Collect all tags from allowed groups
   const allTags: StarterTag[] = [];
   allowedGroups.forEach((group) => {
     const groupTags = categoryTaxonomy.tagGroups[group] || [];
     allTags.push(...groupTags);
   });
-  
+
   return allTags;
 }
 
@@ -44,14 +48,15 @@ export function getStarterTagsByGroup(
   tagGroup: TagGroup
 ): StarterTag[] {
   if (!mainCategory) return [];
-  
+
   const categoryTaxonomy = TAXONOMY_DATA.starterTagsByCategory[mainCategory];
-  
+  if (!categoryTaxonomy) return [];
+
   // Check if this tag group is allowed for this category
   if (!categoryTaxonomy.allowedTagGroups.includes(tagGroup)) {
     return [];
   }
-  
+
   return categoryTaxonomy.tagGroups[tagGroup] || [];
 }
 
@@ -60,10 +65,12 @@ export function getStarterTagsByGroup(
  */
 export function getRecommendedStarterTags(mainCategory: MainCategory | null): StarterTag[] {
   if (!mainCategory) return [];
-  
+
   const categoryTaxonomy = TAXONOMY_DATA.starterTagsByCategory[mainCategory];
+  if (!categoryTaxonomy) return [];
+
   const recommendedIds = categoryTaxonomy.recommendedStarterTags;
-  
+
   return TAXONOMY_DATA.allStarterTags.filter((tag) => recommendedIds.includes(tag.id));
 }
 
@@ -75,14 +82,15 @@ export function isTagAllowedForCategory(
   mainCategory: MainCategory | null
 ): boolean {
   if (!mainCategory) return false;
-  
+
   const categoryTaxonomy = TAXONOMY_DATA.starterTagsByCategory[mainCategory];
-  
+  if (!categoryTaxonomy) return false;
+
   // Check if tag is in disallowed list
   if (categoryTaxonomy.disallowedStarterTags.includes(tagId)) {
     return false;
   }
-  
+
   // Check if tag exists in any allowed tag group
   const allowedTags = getStarterTagsForCategory(mainCategory);
   return allowedTags.some((tag) => tag.id === tagId);
@@ -96,7 +104,7 @@ export function sanitizeSelectedTags(
   mainCategory: MainCategory | null
 ): string[] {
   if (!mainCategory) return [];
-  
+
   return selectedTags.filter((tagId) => isTagAllowedForCategory(tagId, mainCategory));
 }
 
@@ -107,30 +115,30 @@ export function validateTaxonomySelection(
   selection: CampaignTaxonomySelection
 ): ValidationResult {
   const errors: string[] = [];
-  
+
   // Main category is required
   if (!selection.mainCategory) {
     errors.push("Vui lòng chọn danh mục chính cho chiến dịch");
   }
-  
+
   // Không giới hạn số lượng tags nữa
   // if (selection.starterTags.length > MAX_STARTER_TAGS) {
   //   errors.push(`Chỉ được chọn tối đa ${MAX_STARTER_TAGS} thẻ phụ`);
   // }
-  
+
   // Check if all selected tags are allowed for the main category
   if (selection.mainCategory) {
     const invalidTags = selection.starterTags.filter(
       (tagId) => !isTagAllowedForCategory(tagId, selection.mainCategory)
     );
-    
+
     if (invalidTags.length > 0) {
       errors.push(
         `Các thẻ sau không phù hợp với danh mục "${selection.mainCategory}": ${invalidTags.join(", ")}`
       );
     }
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors,
@@ -161,10 +169,10 @@ export function searchTagsInCategory(
   mainCategory: MainCategory | null
 ): StarterTag[] {
   if (!mainCategory || !query.trim()) return [];
-  
+
   const allowedTags = getStarterTagsForCategory(mainCategory);
   const lowerQuery = query.toLowerCase().trim();
-  
+
   return allowedTags.filter(
     (tag) =>
       tag.label.toLowerCase().includes(lowerQuery) ||
@@ -179,14 +187,21 @@ export function getTagGroupsWithTags(
   mainCategory: MainCategory | null
 ): Record<TagGroup, StarterTag[]> {
   if (!mainCategory) return {} as Record<TagGroup, StarterTag[]>;
-  
+
   const categoryTaxonomy = TAXONOMY_DATA.starterTagsByCategory[mainCategory];
+
+  // Check if categoryTaxonomy exists
+  if (!categoryTaxonomy) {
+    console.warn(`[taxonomy-helpers] No taxonomy data found for category: ${mainCategory}`);
+    return {} as Record<TagGroup, StarterTag[]>;
+  }
+
   const result: Partial<Record<TagGroup, StarterTag[]>> = {};
-  
+
   categoryTaxonomy.allowedTagGroups.forEach((group) => {
     result[group] = categoryTaxonomy.tagGroups[group] || [];
   });
-  
+
   return result as Record<TagGroup, StarterTag[]>;
 }
 
@@ -210,13 +225,13 @@ export function getTaxonomyStats() {
     tagsByCategory: {} as Record<MainCategory, number>,
     tagsByGroup: {} as Record<TagGroup, number>,
   };
-  
+
   // Count tags by category
   TAXONOMY_DATA.mainCategories.forEach((category) => {
     const tags = getStarterTagsForCategory(category);
     stats.tagsByCategory[category] = tags.length;
   });
-  
+
   // Count tags by group
   TAXONOMY_DATA.allStarterTags.forEach((tag) => {
     if (!stats.tagsByGroup[tag.group]) {
@@ -224,6 +239,6 @@ export function getTaxonomyStats() {
     }
     stats.tagsByGroup[tag.group]++;
   });
-  
+
   return stats;
 }
