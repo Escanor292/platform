@@ -72,7 +72,7 @@ export function getEditorExtensions(config: EditorExtensionsConfig = {}) {
         color: '#3b82f6',
         width: 2,
       },
-      gapcursor: true,
+      gapcursor: false,
     }),
 
     // Text formatting

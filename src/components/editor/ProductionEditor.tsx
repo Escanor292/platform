@@ -39,10 +39,10 @@ export function ProductionEditor({
   const [isLinkEditMode, setIsLinkEditMode] = useState(false);
   const [linkSavedSelection, setLinkSavedSelection] = useState<SavedSelection | null>(null);
   const [isVideoPopoverOpen, setIsVideoPopoverOpen] = useState(false);
-  const saveTimeoutRef = useRef<NodeJS.Timeout>();
+  const saveTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const editorRef = useRef<Editor | null>(null);
   const isMountedRef = useRef(true);
-  const onChangeDebounceRef = useRef<NodeJS.Timeout>();
+  const onChangeDebounceRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const isLinkPopoverOpenRef = useRef(false); // Track popover state
   const isVideoPopoverOpenRef = useRef(false); // Track video popover state
 
@@ -81,12 +81,12 @@ export function ProductionEditor({
     },
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
-      
+
       // Update counts (debounced for performance)
       if (onChangeDebounceRef.current) {
         clearTimeout(onChangeDebounceRef.current);
       }
-      
+
       onChangeDebounceRef.current = setTimeout(() => {
         if (isMountedRef.current) {
           const text = editor.getText();
@@ -94,10 +94,10 @@ export function ProductionEditor({
           setCharCount(text.length);
         }
       }, 300);
-      
+
       // Call onChange callback immediately
       onChange(html);
-      
+
       // Handle autosave
       if (autosave && callbacks.onSave) {
         handleAutosave(html);
@@ -189,7 +189,7 @@ export function ProductionEditor({
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    
+
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
@@ -217,7 +217,7 @@ export function ProductionEditor({
         }
 
         const data = await response.json();
-        
+
         // Insert image
         editor.chain().focus().setImage({
           src: data.url,
@@ -252,12 +252,12 @@ export function ProductionEditor({
 
     // Set ref BEFORE state
     isVideoPopoverOpenRef.current = true;
-    
+
     // Open popover
     console.log('[ProductionEditor] Opening video popover');
     setIsVideoPopoverOpen(true);
   }, []);
-  
+
   // Close video popover handler
   const handleVideoPopoverClose = useCallback(() => {
     console.log('[ProductionEditor] Closing video popover');
@@ -285,7 +285,7 @@ export function ProductionEditor({
 
     // Check for existing link
     const previousUrl = getLinkAtCursor(currentEditor);
-    
+
     if (previousUrl) {
       console.log('[ProductionEditor] Edit mode');
       setLinkPopoverInitialUrl(previousUrl);
@@ -298,12 +298,12 @@ export function ProductionEditor({
 
     // Set ref BEFORE state
     isLinkPopoverOpenRef.current = true;
-    
+
     // Open popover
     console.log('[ProductionEditor] Opening popover');
     setIsLinkPopoverOpen(true);
   }, []); // Stable reference
-  
+
   // Close popover handler
   const handleLinkPopoverClose = useCallback(() => {
     console.log('[ProductionEditor] Closing popover');
@@ -316,7 +316,7 @@ export function ProductionEditor({
     const handleKeyDown = (e: KeyboardEvent) => {
       // Only handle if editor is focused
       if (!editorRef.current?.isFocused) return;
-      
+
       // Ctrl/Cmd + K for link
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
@@ -362,7 +362,7 @@ export function ProductionEditor({
         onClick={() => editor.commands.focus()}
       >
         <EditorContent editor={editor} />
-        
+
         {/* Keep selection visible when link popover is open */}
         {isLinkPopoverOpen && (
           <style>{`
@@ -384,7 +384,7 @@ export function ProductionEditor({
             }
           `}</style>
         )}
-        
+
         {/* Link Popover */}
         {isLinkPopoverOpen && (
           <LinkPopover
@@ -396,7 +396,7 @@ export function ProductionEditor({
             savedSelection={linkSavedSelection}
           />
         )}
-        
+
         {/* Video Popover */}
         {isVideoPopoverOpen && (
           <VideoPopover
@@ -405,7 +405,7 @@ export function ProductionEditor({
             onClose={handleVideoPopoverClose}
           />
         )}
-        
+
         {/* Upload overlay */}
         {isUploading && (
           <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-20">
@@ -422,24 +422,23 @@ export function ProductionEditor({
         {/* Save Status */}
         <div className="flex items-center gap-2 text-xs font-medium text-gray-500">
           <div
-            className={`w-2 h-2 rounded-full transition-colors duration-300 ${
-              saveStatus === 'saved'
-                ? 'bg-emerald-500'
-                : saveStatus === 'saving'
+            className={`w-2 h-2 rounded-full transition-colors duration-300 ${saveStatus === 'saved'
+              ? 'bg-emerald-500'
+              : saveStatus === 'saving'
                 ? 'bg-amber-500 animate-pulse'
                 : saveStatus === 'error'
-                ? 'bg-red-500'
-                : 'bg-gray-300'
-            }`}
+                  ? 'bg-red-500'
+                  : 'bg-gray-300'
+              }`}
           />
           <span>
             {saveStatus === 'saved' && lastSaved
               ? `Đã lưu ${formatRelativeTime(lastSaved)}`
               : saveStatus === 'saving'
-              ? 'Đang lưu...'
-              : saveStatus === 'error'
-              ? 'Lỗi khi lưu'
-              : 'Chưa lưu'}
+                ? 'Đang lưu...'
+                : saveStatus === 'error'
+                  ? 'Lỗi khi lưu'
+                  : 'Chưa lưu'}
           </span>
         </div>
 
@@ -460,15 +459,15 @@ export function ProductionEditor({
 // Helper function
 function formatRelativeTime(date: Date): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-  
+
   if (seconds < 10) return 'vừa xong';
   if (seconds < 60) return `${seconds} giây trước`;
-  
+
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes} phút trước`;
-  
+
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours} giờ trước`;
-  
+
   return date.toLocaleDateString('vi-VN');
 }

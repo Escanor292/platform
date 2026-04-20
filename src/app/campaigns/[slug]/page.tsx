@@ -1,233 +1,218 @@
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { formatVND, formatDate } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PledgeForm from "@/components/campaign/PledgeForm";
 import CampaignGrowthProgress from "@/components/campaign/CampaignGrowthProgress";
 import { auth } from "@/lib/auth";
-import { 
-  Rocket, 
-  Users, 
-  Calendar, 
-  ShieldCheck, 
-  MessageSquare, 
-  Zap, 
-  Info,
-  Clock
-} from "lucide-react";
-import CommentSection from "@/components/campaign/CommentSection";
-import UpdateSection from "@/components/campaign/UpdateSection";
-import RichTextRenderer from "@/components/shared/RichTextRenderer";
+import { Zap, Clock, ShieldCheck } from "lucide-react";
 import ImageCarousel from "@/components/campaign/ImageCarousel";
 import CreatorLink from "@/components/campaign/CreatorLink";
-import BackerLink from "@/components/campaign/BackerLink";
+import CampaignTabsWrapper from "@/components/campaign/CampaignTabsWrapper";
+import CampaignHeader from "@/components/campaign/CampaignHeader";
+import CampaignActions from "@/components/campaign/CampaignActions";
+import FavoriteCount from "@/components/campaign/FavoriteCount";
 
 type Params = { params: Promise<{ slug: string }> };
 
 export default async function CampaignDetailPage({ params }: Params) {
-  const { slug } = await params;
-  const session = await auth();
+   const { slug } = await params;
+   const session = await auth();
 
-  const campaign = await prisma.campaign.findFirst({
-    where: { OR: [{ slug }, { id: slug }] },
-    include: {
-      creator: { select: { id: true, name: true, avatar: true, isPro: true } },
-      rewards: { orderBy: { amount: "asc" } },
-      pledges: {
-        where: { status: "SUCCESS" },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-        include: { user: { select: { id: true, name: true, avatar: true } } }
+   const campaign = await prisma.campaign.findFirst({
+      where: { OR: [{ slug }, { id: slug }] },
+      include: {
+         creator: { select: { id: true, name: true, avatar: true, status: true } },
+         rewards: { orderBy: { amount: "asc" } },
+         pledges: {
+            where: { status: "SUCCESS" },
+            orderBy: { createdAt: "desc" },
+            take: 5,
+            include: { user: { select: { id: true, name: true, avatar: true } } }
+         },
+         _count: {
+            select: { pledges: { where: { status: "SUCCESS" } } },
+         },
       },
-      _count: {
-        select: { pledges: { where: { status: "SUCCESS" } } },
-      },
-    },
-  });
+   });
 
-  if (!campaign) {
-    return notFound();
-  }
+   if (!campaign) {
+      return notFound();
+   }
 
-  const isCreator = session?.user && (session.user as any).id === campaign.creatorId;
-  const percentRaised = Math.round((Number(campaign.currentAmount) / Number(campaign.goalAmount)) * 100);
-  const daysLeft = campaign.endDate ? Math.max(0, Math.ceil((new Date(campaign.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : "Vô thời hạn";
+   const isCreator = session?.user && (session.user as any).id === campaign.creatorId;
+   const percentRaised = Math.round((Number(campaign.currentAmount) / Number(campaign.goalAmount)) * 100);
+   const daysLeft = campaign.endDate ? Math.max(0, Math.ceil((new Date(campaign.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : "Vô thời hạn";
 
-  // Prepare images array: use images field if available, fallback to imageUrl
-  const campaignImages = campaign.images && campaign.images.length > 0 
-    ? campaign.images 
-    : campaign.imageUrl 
-      ? [campaign.imageUrl] 
-      : [];
+   const campaignImages = campaign.images && campaign.images.length > 0
+      ? campaign.images
+      : campaign.imageUrl
+         ? [campaign.imageUrl]
+         : [];
 
-  return (
-    <div className="min-h-screen bg-slate-50/30 pb-24">
-      {/* Header Banner - Premium Looking */}
-      <div className="bg-white border-b border-gray-100 pt-32 pb-16 px-6">
-        <div className="max-w-7xl mx-auto flex flex-col items-center text-center space-y-8 animate-fade-in-up">
-           <div className="inline-flex items-center gap-2 px-4 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest">
-              Dự án nổi bật • {campaign.category}
-           </div>
-           <h1 className="text-5xl md:text-7xl font-black text-gray-900 tracking-tighter leading-none max-w-4xl">
-              {campaign.title}
-           </h1>
-           <p className="text-xl text-gray-500 font-medium max-w-2xl leading-relaxed">
-              {campaign.description}
-           </p>
-           
-           {/* Campaign Code */}
-           <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-600 rounded-xl text-xs font-mono border border-gray-200">
-              <span className="font-black text-gray-400">ID:</span>
-              <span className="font-bold">{campaign.campaignCode}</span>
-           </div>
-           
-           <div className="flex items-center gap-4 pt-4">
-              <CreatorLink 
-                creatorId={campaign.creator?.id || ""}
-                creatorName={campaign.creator?.name || "Anonymous"}
-                creatorAvatar={campaign.creator?.avatar}
-              />
-              {campaign.creator?.isPro && (
-                <div className="flex items-center gap-1 px-2 py-1 bg-emerald-50 rounded-lg">
-                  <Zap size={12} className="text-emerald-500 fill-emerald-500" />
-                  <span className="text-[9px] font-black text-emerald-700 uppercase tracking-wider">Pro</span>
-                </div>
-              )}
-           </div>
-        </div>
-      </div>
+   // Serialize campaign data for client component
+   const serializedCampaign = {
+      ...campaign,
+      goalAmount: Number(campaign.goalAmount),
+      currentAmount: Number(campaign.currentAmount),
+      feeRate: Number(campaign.feeRate),
+      createdAt: campaign.createdAt.toISOString(),
+      updatedAt: campaign.updatedAt.toISOString(),
+      startDate: campaign.startDate?.toISOString() || null,
+      endDate: campaign.endDate?.toISOString() || null,
+      rewards: campaign.rewards?.map(reward => ({
+         ...reward,
+         amount: Number(reward.amount),
+         createdAt: reward.createdAt.toISOString(),
+         updatedAt: reward.updatedAt.toISOString(),
+      })),
+      pledges: campaign.pledges?.map(pledge => ({
+         ...pledge,
+         amount: Number(pledge.amount),
+         tipAmount: Number(pledge.tipAmount),
+         platformFee: Number(pledge.platformFee),
+         vatAmount: Number(pledge.vatAmount),
+         totalAmount: Number(pledge.totalAmount),
+         createdAt: pledge.createdAt.toISOString(),
+         updatedAt: pledge.updatedAt.toISOString(),
+         refundedAt: pledge.refundedAt?.toISOString() || null,
+      })),
+   };
 
-      <div className="max-w-7xl mx-auto py-16 px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-16">
-          {/* Main Content Area */}
-          <div className="lg:col-span-3 space-y-16">
-            <ImageCarousel images={campaignImages} alt={campaign.title} />
+   return (
+      <div className="min-h-screen bg-gray-50">
+         {/* Header with breadcrumb */}
+         <div className="border-b border-gray-200 bg-white pt-20">
+            <div className="max-w-7xl mx-auto px-6 py-4">
+               <div className="flex items-center gap-2 text-sm">
+                  <span className="text-gray-500">Chiến dịch</span>
+                  <span className="text-gray-300">•</span>
+                  <span className="text-gray-900 font-semibold">{campaign.category}</span>
+               </div>
+            </div>
+         </div>
 
-            {/* Content Sections with Modern Styling */}
-            <div className="space-y-24">
-               {/* 1. Project Description */}
-               <section id="about" className="space-y-8">
-                  <div className="flex items-center gap-4 border-b border-gray-100 pb-6">
-                     <Info className="text-blue-600" size={32} />
-                     <h2 className="text-3xl font-black text-gray-900 tracking-tight">Chi tiết dự án</h2>
-                  </div>
-                  <RichTextRenderer content={campaign.longDescription || campaign.description} />
-               </section>
+         {/* Main Content - Single Card */}
+         <div className="max-w-7xl mx-auto px-6 py-8">
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm p-6">
+               {/* Top Section - 2 Columns */}
+               <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 mb-8">
 
-               {/* 2. Updates Section */}
-               <section id="updates" className="space-y-8">
-                  <div className="flex items-center gap-4 border-b border-gray-100 pb-6">
-                     <Zap className="text-emerald-500" size={32} />
-                     <h2 className="text-3xl font-black text-gray-900 tracking-tight">Cập nhật tin tức</h2>
-                  </div>
-                  <UpdateSection campaignId={campaign.id} slug={slug} isCreator={!!isCreator} />
-               </section>
+                  {/* Main Content - Campaign Info */}
+                  <div>
+                     {/* Title & Campaign Code */}
+                     <CampaignHeader
+                        title={campaign.title}
+                        description={campaign.description}
+                        campaignCode={campaign.campaignCode}
+                     />
 
-               {/* 3. Backers Section */}
-               <section id="backers" className="space-y-8">
-                  <div className="flex items-center gap-4 border-b border-gray-100 pb-6">
-                     <Users className="text-purple-600" size={32} />
-                     <h2 className="text-3xl font-black text-gray-900 tracking-tight">
-                        Người ủng hộ ({(campaign as any)._count?.pledges || 0})
-                     </h2>
-                  </div>
-                  {campaign.pledges.length > 0 ? (
-                     <div className="space-y-4">
-                        {campaign.pledges.map((pledge) => (
-                           <div key={pledge.id} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
-                              <BackerLink
-                                userId={pledge.userId}
-                                userName={pledge.user?.name}
-                                displayName={pledge.displayName}
-                                isAnonymous={pledge.isAnonymous}
-                                userAvatar={pledge.user?.avatar}
-                              />
-                              <div className="mt-2 ml-16 text-sm text-gray-500">
-                                 Ủng hộ {formatVND(pledge.amount)} • {formatDate(pledge.createdAt)}
+                     {/* Media */}
+                     <div className="mb-6">
+                        <div className="aspect-video w-full overflow-hidden rounded-lg border border-gray-200">
+                           <ImageCarousel images={campaignImages} alt={campaign.title} />
+                        </div>
+                     </div>
+
+                     {/* Creator Info */}
+                     <div className="flex items-center gap-4 py-4 border-t border-gray-100 mb-4">
+                        <div className="flex items-center gap-2">
+                           <span className="text-xs text-gray-500 font-semibold">By</span>
+                           <CreatorLink
+                              creatorId={campaign.creator?.id || ""}
+                              creatorName={campaign.creator?.name || "Anonymous"}
+                              creatorAvatar={campaign.creator?.avatar}
+                           />
+                        </div>
+
+                        <span className="text-gray-300">•</span>
+                        <span className="text-sm text-gray-600">{campaign.category}</span>
+
+                        {campaign.creator?.status === "PRO" && (
+                           <>
+                              <span className="text-gray-300">•</span>
+                              <div className="flex items-center gap-1 px-2 py-1 bg-emerald-50 rounded">
+                                 <Zap size={12} className="text-emerald-500 fill-emerald-500" />
+                                 <span className="text-xs font-semibold text-emerald-700">Pro Creator</span>
                               </div>
-                           </div>
-                        ))}
-                        {(campaign as any)._count?.pledges > 5 && (
-                           <div className="text-center py-4">
-                              <p className="text-sm text-gray-500 font-medium">
-                                 Và {(campaign as any)._count.pledges - 5} người ủng hộ khác...
-                              </p>
-                           </div>
+                           </>
                         )}
                      </div>
-                  ) : (
-                     <div className="text-center py-12 bg-gray-50 rounded-2xl border border-gray-100">
-                        <Users className="mx-auto text-gray-300 mb-4" size={48} />
-                        <p className="text-gray-500 font-medium">Chưa có người ủng hộ</p>
-                        <p className="text-sm text-gray-400 mt-2">Hãy là người đầu tiên ủng hộ dự án này!</p>
+                  </div>
+
+                  {/* Sidebar - Funding Info (Sticky) */}
+                  <div>
+                     <div className="lg:sticky lg:top-24 space-y-6">
+                        {/* Funding Stats */}
+                        <CampaignGrowthProgress
+                           currentAmount={Number(campaign.currentAmount)}
+                           goalAmount={Number(campaign.goalAmount)}
+                           showTree={true}
+                           showAnimatedHead={true}
+                           size="lg"
+                           variant="default"
+                        />
+
+                        {/* Backers & Days */}
+                        <div className="grid grid-cols-2 gap-4">
+                           <div className="flex items-center gap-3 text-gray-600">
+                              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                              </svg>
+                              <div>
+                                 <div className="text-2xl font-bold text-gray-900">{campaign._count.pledges.toLocaleString()}</div>
+                                 <div className="text-sm text-gray-500">người ủng hộ</div>
+                              </div>
+                           </div>
+
+                           <FavoriteCount campaignId={campaign.id} />
+
+                           <div className="flex items-center gap-3 text-gray-600 col-span-2">
+                              <Clock className="w-5 h-5 text-gray-400" />
+                              <div>
+                                 <div className="text-2xl font-bold text-gray-900">
+                                    {typeof daysLeft === "number" ? daysLeft : daysLeft}
+                                 </div>
+                                 <div className="text-sm text-gray-500">
+                                    {typeof daysLeft === "number" ? "ngày còn lại" : ""}
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+
+                        {/* Back Button */}
+                        <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-sm">
+                           Ủng hộ
+                        </button>
+
+                        {/* All or Nothing Notice */}
+                        {campaign.endDate && (
+                           <div className="text-xs text-gray-500 pt-4 border-t border-gray-200 leading-relaxed">
+                              <span className="font-semibold">All or nothing.</span> This project will only be funded if it reaches its goal by {formatDate(campaign.endDate)}.
+                           </div>
+                        )}
+
+                        {/* Social Share */}
+                        <CampaignActions
+                           campaignTitle={campaign.title}
+                           campaignSlug={slug}
+                           campaignId={campaign.id}
+                        />
                      </div>
-                  )}
-               </section>
-
-               {/* 4. Comment Section */}
-               <section id="comments" className="space-y-8">
-                  <div className="flex items-center gap-4 border-b border-gray-100 pb-6">
-                     <MessageSquare className="text-blue-600" size={32} />
-                     <h2 className="text-3xl font-black text-gray-900 tracking-tight">Thảo luận cộng đồng</h2>
                   </div>
-                  <CommentSection campaignId={campaign.id} slug={slug} />
-               </section>
+               </div>
+
+               {/* Tabs Content - Full Width */}
+               <div className="border-t border-gray-100 pt-6">
+                  <CampaignTabsWrapper
+                     campaign={serializedCampaign}
+                     isCreator={!!isCreator}
+                     slug={slug}
+                     daysLeft={daysLeft}
+                     percentRaised={percentRaised}
+                  />
+               </div>
             </div>
-          </div>
-
-          {/* Sticky Sidebar */}
-          <div className="lg:col-span-2 lg:sticky lg:top-32 h-fit space-y-8">
-            <div className="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-premium space-y-8">
-                <CampaignGrowthProgress
-                  currentAmount={Number(campaign.currentAmount)}
-                  goalAmount={Number(campaign.goalAmount)}
-                  size="lg"
-                  showTree={true}
-                  showAnimatedHead={true}
-                />
-                
-                <div className="flex justify-center text-xs font-black text-gray-900 uppercase tracking-widest">
-                  <span>{(campaign as any)._count?.pledges || 0} Backers</span>
-                </div>
-                
-                <div className="flex items-center gap-2 p-6 bg-slate-50 rounded-[1.8rem] border border-slate-100 group">
-                   <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-soft group-hover:rotate-12 transition-transform">
-                      <Clock size={24} />
-                   </div>
-                   <div className="flex flex-col">
-                      <span className="text-lg font-black text-gray-900 leading-none">{daysLeft}</span>
-                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1">Ngày còn lại</span>
-                   </div>
-                </div>
-
-                <div className="pt-2">
-                   <PledgeForm campaignId={campaign.id} />
-                </div>
-
-                <div className="flex items-center gap-3 p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-                   <ShieldCheck className="text-emerald-500" size={20} />
-                   <span className="text-[10px] font-black text-emerald-800 uppercase tracking-tighter">Cam kết minh bạch và an toàn giao dịch</span>
-                </div>
-            </div>
-
-            {/* Rewards Section */}
-            <div className="space-y-6">
-              <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2 ml-4">
-                 <Rocket size={14} className="text-blue-600" /> Cột mốc phần thưởng
-              </h3>
-              <div className="space-y-6">
-                {(campaign as any).rewards?.map((reward: any) => (
-                  <div key={reward.id} className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-soft hover:shadow-premium hover:-translate-y-1 transition-all group">
-                    <div className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2">Hỗ trợ từ {formatVND(reward.amount)}</div>
-                    <div className="text-lg font-black text-gray-900 mb-2 truncate group-hover:text-blue-600 transition">{reward.title}</div>
-                    <p className="text-gray-400 text-[11px] font-medium leading-relaxed line-clamp-2">{reward.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
+         </div>
       </div>
-    </div>
-  );
+   );
 }

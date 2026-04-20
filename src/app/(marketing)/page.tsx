@@ -22,7 +22,7 @@ export default async function MarketingHomePage() {
   const campaigns = await prisma.campaign.findMany({
     where: { status: "ACTIVE" },
     include: {
-      creator: { select: { id: true, name: true, avatar: true, isPro: true } },
+      creator: { select: { id: true, name: true, avatar: true, status: true } },
     },
     take: 6,
     orderBy: { createdAt: "desc" },
@@ -49,7 +49,7 @@ export default async function MarketingHomePage() {
               </h2>
               <p className="text-gray-500">Những câu chuyện đang chờ sự đồng hành của bạn</p>
             </div>
-            <Link 
+            <Link
               href="/campaigns"
               className="hidden md:flex text-pgreen font-bold text-sm hover:underline items-center gap-2 group"
             >
@@ -61,22 +61,22 @@ export default async function MarketingHomePage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {campaigns.length > 0 ? (
               campaigns.map((campaign: any) => {
-                const daysLeft = campaign.endDate 
+                const daysLeft = campaign.endDate
                   ? Math.max(0, Math.ceil((new Date(campaign.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
                   : null;
 
                 return (
-                  <Link 
+                  <Link
                     key={campaign.id}
                     href={`/campaigns/${campaign.slug}`}
                     className="rounded-3xl overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer bg-white group"
                   >
                     {campaign.imageUrl && (
                       <div className="relative h-48 overflow-hidden">
-                        <img 
-                          src={campaign.imageUrl} 
-                          alt={campaign.title} 
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                        <img
+                          src={campaign.imageUrl}
+                          alt={campaign.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                         />
                         <div className="absolute top-4 left-4">
                           <span className="px-3 py-1.5 bg-white/90 backdrop-blur text-xs font-bold text-gray-900 uppercase tracking-wider rounded-lg border border-white/20">
@@ -85,7 +85,7 @@ export default async function MarketingHomePage() {
                         </div>
                       </div>
                     )}
-                    
+
                     <div className="p-6">
                       <h3 className="font-display font-bold text-dblue text-lg mb-2 line-clamp-2 group-hover:text-pgreen transition">
                         {campaign.title}
@@ -104,7 +104,7 @@ export default async function MarketingHomePage() {
                         />
 
                         <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                          <CreatorLink 
+                          <CreatorLink
                             creatorId={campaign.creator?.id || ""}
                             creatorName={campaign.creator?.name || "Anonymous"}
                             creatorAvatar={campaign.creator?.avatar}

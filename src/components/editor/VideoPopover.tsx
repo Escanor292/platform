@@ -37,16 +37,16 @@ function getVideoProvider(url: string): 'youtube' | 'vimeo' | null {
 
 function getVideoError(url: string): string | null {
   const trimmed = url.trim();
-  
+
   if (!trimmed) {
     return 'URL video không được để trống';
   }
-  
+
   const provider = getVideoProvider(trimmed);
   if (!provider) {
     return 'URL không hợp lệ. Vui lòng nhập URL YouTube hoặc Vimeo.';
   }
-  
+
   return null;
 }
 
@@ -71,11 +71,11 @@ export function VideoPopover({
 
       // Get coordinates from editor view
       const coords = view.coordsAtPos(from);
-      
+
       // Get editor container position
       const editorElement = view.dom;
       const editorRect = editorElement.getBoundingClientRect();
-      
+
       // Calculate popover position
       const top = coords.bottom - editorRect.top + 8;
       const left = coords.left - editorRect.left;
@@ -93,7 +93,7 @@ export function VideoPopover({
       calculatePosition();
       setUrl('');
       setError('');
-      
+
       setTimeout(() => {
         inputRef.current?.focus();
       }, 50);
@@ -107,13 +107,13 @@ export function VideoPopover({
     const handlePointerDown = (event: PointerEvent) => {
       // Use composedPath for accurate detection
       const path = event.composedPath();
-      
+
       // Check if event originated from inside popover
-      const isInsidePopover = path.some(el => 
-        el === popoverRef.current || 
+      const isInsidePopover = path.some(el =>
+        el === popoverRef.current ||
         (el as HTMLElement).closest?.('[data-video-popover]')
       );
-      
+
       if (isInsidePopover) {
         console.log('[VideoPopover] Pointer down inside - keeping open');
         return;
@@ -123,7 +123,7 @@ export function VideoPopover({
       const isToolbarButton = path.some(el =>
         (el as HTMLElement).closest?.('[data-video-button]')
       );
-      
+
       if (isToolbarButton) {
         console.log('[VideoPopover] Pointer down on toolbar button - ignoring');
         return;
@@ -147,35 +147,17 @@ export function VideoPopover({
     };
   }, [isOpen, onClose]);
 
-  // Handle keyboard shortcuts
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onClose();
-      } else if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        handleApply();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, url, onClose]);
-
   // Validate URL on change
   const handleUrlChange = (value: string) => {
     setUrl(value);
-    
+
     if (error) {
       setError('');
     }
   };
 
   // Apply video embed
-  const handleApply = () => {
+  const handleApply = useCallback(() => {
     const trimmedUrl = url.trim();
 
     // Validate
@@ -196,7 +178,25 @@ export function VideoPopover({
     }
 
     onClose();
-  };
+  }, [url, editor, onClose]);
+
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      } else if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleApply();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, handleApply, onClose]);
 
   if (!isOpen) return null;
 
@@ -238,11 +238,10 @@ export function VideoPopover({
           value={url}
           onChange={(e) => handleUrlChange(e.target.value)}
           placeholder="https://youtube.com/watch?v=... hoặc https://vimeo.com/..."
-          className={`w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 transition-all ${
-            error
+          className={`w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 transition-all ${error
               ? 'border-red-300 focus:ring-red-200'
               : 'border-gray-300 focus:ring-blue-200 focus:border-blue-400'
-          }`}
+            }`}
         />
         {error && (
           <p className="mt-1 text-xs text-red-600">{error}</p>

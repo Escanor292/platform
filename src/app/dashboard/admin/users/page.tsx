@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Users, Shield, Star, User } from "lucide-react";
+import UserStatusToggle from "@/components/admin/UserStatusToggle";
 
 export default async function AdminUsersPage() {
   const session = await auth();
@@ -41,7 +42,7 @@ export default async function AdminUsersPage() {
   return (
     <div className="min-h-screen bg-slate-50/50 py-24 px-6">
       <div className="max-w-7xl mx-auto space-y-8">
-        
+
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link href="/dashboard/admin" className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center hover:bg-gray-100 transition border border-gray-200">
@@ -68,7 +69,10 @@ export default async function AdminUsersPage() {
           <div className="bg-white p-6 rounded-3xl border border-gray-100">
             <div className="text-sm text-gray-400 font-bold mb-1">Creator</div>
             <div className="text-3xl font-black text-blue-600">
-              {users.filter(u => u.role === "CREATOR" || u.role === "CREATOR_PRO").length}
+              {users.filter(u => u.role === "CREATOR").length}
+            </div>
+            <div className="text-xs text-gray-400 mt-1">
+              {users.filter(u => u.role === "CREATOR" && u.status === "PRO").length} Pro
             </div>
           </div>
           <div className="bg-white p-6 rounded-3xl border border-gray-100">
@@ -93,6 +97,9 @@ export default async function AdminUsersPage() {
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
                     Vai trò
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
+                    Status
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
                     Chiến dịch
@@ -128,6 +135,14 @@ export default async function AdminUsersPage() {
                           <RoleIcon size={12} />
                           {user.role}
                         </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <UserStatusToggle
+                          userId={user.id}
+                          userName={user.name || user.email}
+                          userRole={user.role}
+                          status={user.status}
+                        />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                         {user._count.campaigns}

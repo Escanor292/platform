@@ -9,7 +9,7 @@ export default async function CampaignsPage() {
   const campaigns = await prisma.campaign.findMany({
     where: { status: "ACTIVE" },
     include: {
-      creator: { select: { name: true, avatar: true, isPro: true } },
+      creator: { select: { name: true, avatar: true, status: true } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -17,7 +17,7 @@ export default async function CampaignsPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Search Header */}
-      <section 
+      <section
         className="pt-32 pb-16 px-6 relative overflow-hidden"
         style={{
           background: 'linear-gradient(180deg, #F8F7F2 0%, #f0f8f4 50%, #F8F7F2 100%)'
@@ -25,11 +25,11 @@ export default async function CampaignsPage() {
       >
         {/* Background elements */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-          <div 
+          <div
             className="absolute top-10 left-[5%] w-96 h-96 bg-gradient-to-br from-fgreen/20 via-fgreen/8 to-transparent rounded-full blur-3xl opacity-70"
             style={{ animation: 'pulse 8s ease-in-out infinite' }}
           />
-          <div 
+          <div
             className="absolute top-32 right-[8%] w-80 h-80 bg-gradient-to-tl from-tblue/15 via-transparent to-transparent rounded-full blur-3xl opacity-60"
             style={{ animation: 'pulse 10s ease-in-out 2s infinite' }}
           />
@@ -44,13 +44,13 @@ export default async function CampaignsPage() {
               Tìm kiếm những dự án thay đổi tương lai và bắt đầu hành trình hỗ trợ của bạn
             </p>
           </div>
-          
+
           <div className="max-w-2xl mx-auto space-y-4">
             <div className="relative group">
               <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-pgreen transition" size={24} />
-              <input 
-                type="text" 
-                placeholder="Tìm tên dự án, chủ đề..." 
+              <input
+                type="text"
+                placeholder="Tìm tên dự án, chủ đề..."
                 className="w-full h-16 pl-16 pr-8 glass border border-white/70 rounded-2xl focus:ring-2 focus:ring-pgreen focus:border-transparent font-medium text-gray-900 placeholder:text-gray-400 transition-all shadow-soft"
               />
             </div>
@@ -68,22 +68,22 @@ export default async function CampaignsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {campaigns.length > 0 ? (
             campaigns.map((campaign: any) => {
-              const daysLeft = campaign.endDate 
+              const daysLeft = campaign.endDate
                 ? Math.max(0, Math.ceil((new Date(campaign.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
                 : null;
 
               return (
-                <Link 
+                <Link
                   key={campaign.id}
                   href={`/campaigns/${campaign.slug}`}
                   className="rounded-3xl overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer bg-white group"
                 >
                   {campaign.imageUrl && (
                     <div className="relative h-48 overflow-hidden">
-                      <img 
-                        src={campaign.imageUrl} 
-                        alt={campaign.title} 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                      <img
+                        src={campaign.imageUrl}
+                        alt={campaign.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
                       <div className="absolute top-4 left-4">
                         <span className="px-3 py-1.5 bg-white/90 backdrop-blur text-xs font-bold text-gray-900 uppercase tracking-wider rounded-lg border border-white/20">
@@ -92,7 +92,7 @@ export default async function CampaignsPage() {
                       </div>
                     </div>
                   )}
-                  
+
                   <div className="p-6">
                     <h3 className="font-display font-bold text-dblue text-lg mb-2 line-clamp-2 group-hover:text-pgreen transition">
                       {campaign.title}
@@ -111,7 +111,7 @@ export default async function CampaignsPage() {
                       />
 
                       <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                        <CreatorLink 
+                        <CreatorLink
                           creatorId={campaign.creator?.id || ""}
                           creatorName={campaign.creator?.name || "Anonymous"}
                           creatorAvatar={campaign.creator?.avatar}

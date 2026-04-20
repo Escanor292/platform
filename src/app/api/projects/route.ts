@@ -11,13 +11,13 @@ import { calculateCompletionState } from "@/lib/project-helpers";
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    
+
     // Parse filters from query params
     const filters = parseProjectFilters(searchParams);
-    
+
     // Build Prisma where clause
     const where: any = {};
-    
+
     // Search filter
     if (filters.q) {
       const query = filters.q.trim().toLowerCase();
@@ -27,38 +27,38 @@ export async function GET(req: NextRequest) {
         { description: { contains: query, mode: 'insensitive' } },
       ];
     }
-    
+
     // Category filter
     if (filters.category) {
       where.category = filters.category;
     }
-    
+
     // Campaign type filter
     if (filters.campaignType) {
       where.type = filters.campaignType;
     }
-    
+
     // Status filter
     if (filters.status) {
       where.status = filters.status;
     }
-    
+
     // Created within filter
     if (filters.createdWithin) {
       const now = new Date();
       let daysAgo = 30;
-      
+
       switch (filters.createdWithin) {
         case '7d': daysAgo = 7; break;
         case '30d': daysAgo = 30; break;
         case '90d': daysAgo = 90; break;
         case '365d': daysAgo = 365; break;
       }
-      
+
       const cutoffDate = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
       where.createdAt = { gte: cutoffDate };
     }
-    
+
     // Fetch campaigns from database
     const campaigns = await prisma.campaign.findMany({
       where,
@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
             id: true,
             name: true,
             avatar: true,
-            isPro: true,
+            status: true,
           }
         },
         _count: {
@@ -81,20 +81,20 @@ export async function GET(req: NextRequest) {
       },
       orderBy: getSortOrder(filters.sort || 'newest'),
     });
-    
+
     // Transform to ProjectListItem format
     const items: ProjectListItem[] = campaigns.map((campaign) => {
-      const progressPercent = campaign.goalAmount > 0 
+      const progressPercent = Number(campaign.goalAmount) > 0
         ? Math.round((Number(campaign.currentAmount) / Number(campaign.goalAmount)) * 100)
         : 0;
-      
+
       const completionState = calculateCompletionState(
         campaign.status as any,
         campaign.startDate,
         campaign.endDate,
         progressPercent
       );
-      
+
       return {
         id: campaign.id,
         campaignCode: campaign.campaignCode,
@@ -102,44 +102,44 @@ export async function GET(req: NextRequest) {
         title: campaign.title,
         description: campaign.description,
         imageUrl: campaign.imageUrl,
-        
+
         creatorId: campaign.creatorId,
         creatorName: campaign.creator.name,
         creatorAvatar: campaign.creator.avatar,
-        creatorIsPro: campaign.creator.isPro,
-        
+        creatorIsPro: campaign.creator.status === "PRO",
+
         category: campaign.category,
         tags: campaign.tags,
         campaignType: campaign.type as any,
-        
+
         goalAmount: Number(campaign.goalAmount),
         currentAmount: Number(campaign.currentAmount),
         progressPercent,
-        
+
         totalBackers: campaign._count.pledges,
         totalViews: 0, // TODO: Implement view tracking
         ratingAverage: 0, // TODO: Calculate from reviews
         ratingCount: 0, // TODO: Count reviews
-        
+
         createdAt: campaign.createdAt,
         updatedAt: campaign.updatedAt,
         startDate: campaign.startDate,
         endDate: campaign.endDate,
-        
+
         status: campaign.status as any,
         completionState,
         isFeatured: false, // TODO: Add featured flag to schema
       };
     });
-    
+
     // Apply client-side filters that can't be done in Prisma
     let filteredItems = items;
-    
+
     // Rating filter
     if (filters.ratingMin) {
       filteredItems = filteredItems.filter(item => item.ratingAverage >= filters.ratingMin!);
     }
-    
+
     // Progress filter
     if (filters.progressMin !== undefined) {
       filteredItems = filteredItems.filter(item => item.progressPercent >= filters.progressMin!);
@@ -147,17 +147,17 @@ export async function GET(req: NextRequest) {
     if (filters.progressMax !== undefined) {
       filteredItems = filteredItems.filter(item => item.progressPercent <= filters.progressMax!);
     }
-    
+
     // Completion state filter
     if (filters.completionState) {
       filteredItems = filteredItems.filter(item => item.completionState === filters.completionState);
     }
-    
+
     // Featured filter
     if (filters.isFeatured) {
       filteredItems = filteredItems.filter(item => item.isFeatured);
     }
-    
+
     // Pagination
     const page = filters.page || 1;
     const limit = filters.limit || 12;
@@ -166,7 +166,7 @@ export async function GET(req: NextRequest) {
     const start = (page - 1) * limit;
     const end = start + limit;
     const paginatedItems = filteredItems.slice(start, end);
-    
+
     // Build response
     const response: ProjectListResponse = {
       items: paginatedItems,
@@ -176,7 +176,7 @@ export async function GET(req: NextRequest) {
       totalPages,
       appliedFilters: filters,
     };
-    
+
     return NextResponse.json(response);
   } catch (error) {
     console.error("[GET /api/projects]", error);

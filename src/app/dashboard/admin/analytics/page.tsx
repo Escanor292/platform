@@ -25,22 +25,22 @@ export default async function AdminAnalyticsPage() {
     topBackers
   ] = await Promise.all([
     prisma.user.count({ where: { createdAt: { gte: currentMonth } } }),
-    prisma.user.count({ 
-      where: { 
-        createdAt: { 
+    prisma.user.count({
+      where: {
+        createdAt: {
           gte: lastMonth,
           lt: currentMonth
-        } 
-      } 
+        }
+      }
     }),
     prisma.campaign.count({ where: { createdAt: { gte: currentMonth } } }),
-    prisma.campaign.count({ 
-      where: { 
-        createdAt: { 
+    prisma.campaign.count({
+      where: {
+        createdAt: {
           gte: lastMonth,
           lt: currentMonth
-        } 
-      } 
+        }
+      }
     }),
     prisma.pledge.aggregate({
       _sum: { amount: true },
@@ -48,8 +48,8 @@ export default async function AdminAnalyticsPage() {
     }),
     prisma.pledge.aggregate({
       _sum: { amount: true },
-      where: { 
-        createdAt: { 
+      where: {
+        createdAt: {
           gte: lastMonth,
           lt: currentMonth
         },
@@ -87,14 +87,14 @@ export default async function AdminAnalyticsPage() {
   const userGrowth = calculateGrowth(currentMonthUsers, lastMonthUsers);
   const campaignGrowth = calculateGrowth(currentMonthCampaigns, lastMonthCampaigns);
   const pledgeGrowth = calculateGrowth(
-    currentMonthPledges._sum.amount || 0,
-    lastMonthPledges._sum.amount || 0
+    Number(currentMonthPledges._sum.amount || 0),
+    Number(lastMonthPledges._sum.amount || 0)
   );
 
   return (
     <div className="min-h-screen bg-slate-50/50 py-24 px-6">
       <div className="max-w-7xl mx-auto space-y-8">
-        
+
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link href="/dashboard/admin" className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center hover:bg-gray-100 transition border border-gray-200">

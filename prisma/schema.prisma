@@ -19,7 +19,7 @@ model User {
   phone           String?
   shippingAddress String?           // Địa chỉ nhận hàng
   role            UserRole          @default(BACKER)
-  isPro           Boolean           @default(false)
+  status          UserStatus        @default(NORMAL)
   isOrganization  Boolean           @default(false)
   isAdmin         Boolean           @default(false)
   bio             String?
@@ -128,9 +128,14 @@ model CampaignUpdate {
   title      String
   content    String
   imageUrl   String?
+  tags       String[] @default([]) // Tags cho update
+  isPinned   Boolean  @default(false) // Ghim update quan trọng
   createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
   campaign   Campaign @relation(fields: [campaignId], references: [id])
 
+  @@index([campaignId, isPinned])
+  @@index([tags])
   @@map("campaign_updates")
 }
 
@@ -184,7 +189,12 @@ enum UserRole {
   BACKER
   CREATOR_PENDING
   CREATOR
-  CREATOR_PRO
+}
+
+enum UserStatus {
+  NORMAL
+  PRO
+  BANNED
 }
 
 enum CampaignType {

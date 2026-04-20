@@ -166,7 +166,7 @@ export default function TransactionLookup() {
                       {result.campaign.title} →
                     </p>
                     <p className="text-[10px] text-gray-400 font-mono mt-1">
-                      {result.campaign.campaignCode}
+                      {(result.campaign as any).campaignCode}
                     </p>
                   </div>
                 </Link>

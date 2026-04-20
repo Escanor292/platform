@@ -31,7 +31,22 @@ export const VIETNAMESE_LABELS: Record<string, string> = {
   "documentary": "Documentary",
   "podcast": "Podcast",
   "animation": "Animation",
-  
+  "chuong-trinh-cuu-ho": "Chương trình cứu hộ",
+  "chien-dich-cong-dong": "Chiến dịch cộng đồng",
+  "su-kien-gay-quy": "Sự kiện gây quỹ",
+  "dich-vu-ho-tro": "Dịch vụ hỗ trợ",
+  "triet-san": "Triệt sản",
+  "dieu-tri-thu-y": "Điều trị thú y",
+  "nhan-nuoi": "Nhận nuôi",
+  "thuc-an-cho-dong-vat": "Thức ăn cho động vật",
+  "cuu-ho-khan-cap": "Cứu hộ khẩn cấp",
+  "cham-soc-sau-cuu-ho": "Chăm sóc sau cứu hộ",
+  "trong-cay": "Trồng cây",
+  "lam-sach-moi-truong": "Làm sạch môi trường",
+  "nuoc-sach": "Nước sạch",
+  "cuu-tro-moi-truong": "Cứu trợ môi trường",
+  "giao-duc-moi-truong": "Giáo dục môi trường",
+
   // Định dạng phát hành
   "sach-in": "Sách in",
   "ebook": "Ebook",
@@ -52,7 +67,7 @@ export const VIETNAMESE_LABELS: Record<string, string> = {
   "download": "Download",
   "subscription": "Subscription",
   "one-time": "One-time",
-  
+
   // Mục đích / Phong cách
   "indie": "Indie",
   "sang-tao": "Sáng tạo",
@@ -71,7 +86,21 @@ export const VIETNAMESE_LABELS: Record<string, string> = {
   "hien-dai": "Hiện đại",
   "experimental": "Experimental",
   "mainstream": "Mainstream",
-  
+  "phuc-loi-dong-vat": "Phúc lợi động vật",
+  "bao-ve-moi-truong": "Bảo vệ môi trường",
+  "bao-ton-thien-nhien": "Bảo tồn thiên nhiên",
+  "tac-dong-xa-hoi": "Tác động xã hội",
+  "cuu-ho-dong-vat": "Cứu hộ động vật",
+  "bao-ve-dong-vat": "Bảo vệ động vật",
+  "chong-nguoc-dai-dong-vat": "Chống ngược đãi động vật",
+  "giam-rac-thai": "Giảm rác thải",
+  "tai-che": "Tái chế",
+  "bien-doi-khi-hau": "Biến đổi khí hậu",
+  "phuc-hoi-he-sinh-thai": "Phục hồi hệ sinh thái",
+  "chong-o-nhiem": "Chống ô nhiễm",
+  "bao-ve-nguon-nuoc": "Bảo vệ nguồn nước",
+  "song-xanh": "Sống xanh",
+
   // Loại sản phẩm
   "hardware": "Hardware",
   "software": "Software",
@@ -86,7 +115,7 @@ export const VIETNAMESE_LABELS: Record<string, string> = {
   "mass-production": "Sản xuất hàng loạt",
   "limited-edition": "Limited Edition",
   "custom": "Custom",
-  
+
   // Công nghệ / Kỹ thuật
   "ai": "AI",
   "machine-learning": "Machine Learning",
@@ -112,7 +141,8 @@ export const VIETNAMESE_LABELS: Record<string, string> = {
   "edtech": "Edtech",
   "fintech": "Fintech",
   "cleantech": "Cleantech",
-  
+  "nang-luong-sach": "Năng lượng sạch",
+
   // Giai đoạn phát triển
   "idea": "Ý tưởng",
   "concept": "Concept",
@@ -129,7 +159,7 @@ export const VIETNAMESE_LABELS: Record<string, string> = {
   "trial": "Trial",
   "draft": "Bản nháp",
   "phat-hanh": "Phát hành",
-  
+
   // Mô hình / Vận hành
   "startup": "Startup",
   "small-business": "Doanh nghiệp nhỏ",
@@ -142,7 +172,12 @@ export const VIETNAMESE_LABELS: Record<string, string> = {
   "pre-sale": "Pre-sale",
   "franchise": "Franchise",
   "licensing": "Licensing",
-  
+  "phi-loi-nhuan": "Phi lợi nhuận",
+  "tinh-nguyen-vien": "Tình nguyện viên",
+  "shelter": "Shelter",
+  "doanh-nghiep-xa-hoi": "Doanh nghiệp xã hội",
+  "tinh-nguyen-cuu-ho": "Tình nguyện cứu hộ",
+
   // Đối tượng hưởng lợi
   "tre-em": "Trẻ em",
   "hoc-sinh": "Học sinh",
@@ -161,7 +196,12 @@ export const VIETNAMESE_LABELS: Record<string, string> = {
   "creators": "Creators",
   "developers": "Developers",
   "doanh-nghiep": "Doanh nghiệp",
-  
+  "dong-vat-bi-bo-roi": "Động vật bị bỏ rơi",
+  "cho-meo": "Chó mèo",
+  "dong-vat-hoang-da": "Động vật hoang dã",
+  "khu-vuc-bi-o-nhiem": "Khu vực bị ô nhiễm",
+  "tre-em-vung-anh-huong-moi-truong": "Trẻ em vùng ảnh hưởng môi trường",
+
   // Phạm vi
   "local": "Local",
   "national": "National",
@@ -169,7 +209,9 @@ export const VIETNAMESE_LABELS: Record<string, string> = {
   "global": "Global",
   "urban": "Thành thị",
   "rural": "Nông thôn",
-  
+  "thanh-thi": "Thành thị",
+  "nong-thon": "Nông thôn",
+
   // Thời gian
   "urgent": "Urgent",
   "short-term": "Ngắn hạn",
@@ -177,6 +219,8 @@ export const VIETNAMESE_LABELS: Record<string, string> = {
   "ongoing": "Ongoing",
   "seasonal": "Theo mùa",
   "one-time-event": "One-time",
+  "ngan-han": "Ngắn hạn",
+  "dai-han": "Dài hạn",
 };
 
 // Function to apply Vietnamese labels to tags

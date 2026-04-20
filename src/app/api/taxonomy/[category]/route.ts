@@ -14,11 +14,12 @@ import {
  */
 export async function GET(
   request: Request,
-  { params }: { params: { category: string } }
+  { params }: { params: Promise<{ category: string }> }
 ) {
   try {
-    const category = decodeURIComponent(params.category) as MainCategory;
-    
+    const { category: rawCategory } = await params;
+    const category = decodeURIComponent(rawCategory) as MainCategory;
+
     // Validate category
     if (!TAXONOMY_DATA.mainCategories.includes(category)) {
       return NextResponse.json(
@@ -30,13 +31,13 @@ export async function GET(
         { status: 400 }
       );
     }
-    
+
     const categoryTaxonomy = TAXONOMY_DATA.starterTagsByCategory[category];
     const allowedTagGroups = getAllowedTagGroups(category);
     const allTags = getStarterTagsForCategory(category);
     const recommendedTags = getRecommendedStarterTags(category);
     const tagGroupsWithTags = getTagGroupsWithTags(category);
-    
+
     return NextResponse.json({
       success: true,
       data: {

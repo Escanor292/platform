@@ -11,7 +11,13 @@ export async function GET(req: Request) {
       return NextResponse.json({ users: [] });
     }
 
-    let users;
+    let users: Array<{
+      id: string;
+      name: string | null;
+      email: string | null;
+      role: string;
+      image: string | null;
+    }> = [];
 
     switch (type) {
       case "id":

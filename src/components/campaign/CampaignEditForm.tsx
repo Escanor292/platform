@@ -56,7 +56,7 @@ export default function CampaignEditForm({ campaign }: CampaignEditFormProps) {
     mainCategory: (campaign.category && MAIN_CATEGORIES.includes(campaign.category as any))
       ? (campaign.category as MainCategory)
       : null,
-    starterTags: (campaign.tags || []) as string[], // Load tags from campaign
+    starterTags: ((campaign as any).tags || []) as string[], // Load tags from campaign
     imageUrl: campaign.imageUrl || "",
     images: Array.isArray(campaign.images) ? campaign.images : [],
     endDate: campaign.endDate ? new Date(campaign.endDate).toISOString().split('T')[0] : "",
@@ -75,13 +75,13 @@ export default function CampaignEditForm({ campaign }: CampaignEditFormProps) {
   const [pendingCategory, setPendingCategory] = useState<MainCategory | null>(null);
 
   const [displayAmount, setDisplayAmount] = useState(
-    new Intl.NumberFormat("vi-VN").format(campaign.goalAmount)
+    Number(campaign.goalAmount).toLocaleString("de-DE")
   );
 
   const formatVNDInput = (value: string) => {
     const numericValue = value.replace(/\D/g, "");
     if (!numericValue) return "";
-    return new Intl.NumberFormat("vi-VN").format(Number(numericValue));
+    return Number(numericValue).toLocaleString("de-DE");
   };
 
   const handleCategoryChange = (newCategory: MainCategory) => {

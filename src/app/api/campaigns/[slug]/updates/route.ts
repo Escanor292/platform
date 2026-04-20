@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 
 /**
  * GET /api/campaigns/[slug]/updates
- * Lấy lịch sử cập nhật của dự án
+ * Lấy lịch sử cập nhật của dự án với tìm kiếm và filter
  */
 export async function GET(
   req: NextRequest,
@@ -12,6 +12,9 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
+    const { searchParams } = new URL(req.url);
+    const search = searchParams.get("search") || "";
+    const tag = searchParams.get("tag") || "";
 
     const campaign = await prisma.campaign.findFirst({
       where: { OR: [{ slug }, { id: slug }] },
@@ -22,9 +25,26 @@ export async function GET(
       return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
     }
 
+    // Build where clause
+    const where: any = { campaignId: campaign.id };
+
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: "insensitive" } },
+        { content: { contains: search, mode: "insensitive" } }
+      ];
+    }
+
+    if (tag) {
+      where.tags = { has: tag };
+    }
+
     const updates = await prisma.campaignUpdate.findMany({
-      where: { campaignId: campaign.id },
-      orderBy: { createdAt: "desc" }
+      where,
+      orderBy: [
+        { isPinned: "desc" }, // Ghim lên đầu
+        { createdAt: "desc" }  // Mới nhất
+      ]
     });
 
     return NextResponse.json(updates);
@@ -49,7 +69,7 @@ export async function POST(
     }
 
     const { slug } = await params;
-    const { title, content, imageUrl } = await req.json();
+    const { title, content, imageUrl, tags, isPinned } = await req.json();
 
     const campaign = await prisma.campaign.findFirst({
       where: { OR: [{ slug }, { id: slug }] },
@@ -62,7 +82,7 @@ export async function POST(
 
     // Kiểm tra quyền (phải là chủ dự án)
     if (campaign.creatorId !== (session.user as any).id) {
-       return NextResponse.json({ error: "Bạn không có quyền đăng cập nhật cho dự án này" }, { status: 403 });
+      return NextResponse.json({ error: "Bạn không có quyền đăng cập nhật cho dự án này" }, { status: 403 });
     }
 
     const update = await prisma.campaignUpdate.create({
@@ -71,6 +91,8 @@ export async function POST(
         title,
         content,
         imageUrl,
+        tags: tags || [],
+        isPinned: isPinned || false,
       }
     });
 

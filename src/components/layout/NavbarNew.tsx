@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { 
-  Rocket, User, LogOut, UserCircle, PlusCircle, Menu, X, ChevronDown, Settings, ShieldCheck, FolderKanban 
+import {
+  Rocket, User, LogOut, UserCircle, PlusCircle, Menu, X, ChevronDown, Settings, ShieldCheck, FolderKanban, Star
 } from "lucide-react";
 import { useState } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
@@ -46,29 +46,29 @@ export default function NavbarNew() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6">
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="text-sm font-medium text-gray-600 hover:text-pgreen transition relative group"
           >
             Trang chủ
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-pgreen group-hover:w-full transition-all duration-300" />
           </Link>
-          <Link 
-            href="/about" 
+          <Link
+            href="/about"
             className="text-sm font-medium text-gray-600 hover:text-pgreen transition relative group"
           >
             Giới thiệu
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-pgreen group-hover:w-full transition-all duration-300" />
           </Link>
-          <Link 
-            href="/projects" 
+          <Link
+            href="/projects"
             className="text-sm font-medium text-gray-600 hover:text-pgreen transition relative group"
           >
             Khám phá
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-pgreen group-hover:w-full transition-all duration-300" />
           </Link>
-          <Link 
-            href="/users/search" 
+          <Link
+            href="/users/search"
             className="text-sm font-medium text-gray-600 hover:text-pgreen transition relative group"
           >
             Cộng đồng
@@ -80,13 +80,13 @@ export default function NavbarNew() {
         <div className="hidden md:flex items-center gap-3">
           {session ? (
             <>
-              <Link 
+              <Link
                 href="/campaigns/create"
                 className="text-sm font-semibold px-5 py-2.5 rounded-full gradient-green text-white hover:shadow-lg hover:shadow-green-200 transition-all"
               >
                 Gây quỹ ngay
               </Link>
-              
+
               <DropdownMenu.Root>
                 <DropdownMenu.Trigger asChild>
                   <button className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded-xl transition focus-ring">
@@ -100,9 +100,9 @@ export default function NavbarNew() {
                     <ChevronDown size={16} className="text-gray-400" />
                   </button>
                 </DropdownMenu.Trigger>
-                
+
                 <DropdownMenu.Portal>
-                  <DropdownMenu.Content 
+                  <DropdownMenu.Content
                     align="end"
                     sideOffset={8}
                     className="w-56 bg-white rounded-2xl shadow-premium border border-gray-100 p-2 z-50 animate-in fade-in zoom-in-95 duration-200"
@@ -127,6 +127,13 @@ export default function NavbarNew() {
                     </DropdownMenu.Item>
 
                     <DropdownMenu.Item asChild>
+                      <Link href="/dashboard/favorites" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50">
+                        <Star size={16} />
+                        Dự án quan tâm
+                      </Link>
+                    </DropdownMenu.Item>
+
+                    <DropdownMenu.Item asChild>
                       <Link href="/profile/edit" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50">
                         <Settings size={16} />
                         Cài đặt
@@ -141,7 +148,7 @@ export default function NavbarNew() {
                         </Link>
                       </DropdownMenu.Item>
                     )}
-                    
+
                     <DropdownMenu.Item asChild>
                       <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition outline-none focus:bg-red-50 mt-1 cursor-pointer">
                         <LogOut size={16} />
@@ -154,13 +161,13 @@ export default function NavbarNew() {
             </>
           ) : (
             <>
-              <Link 
+              <Link
                 href="/auth/login"
                 className="text-sm font-semibold text-pgreen hover:text-dblue transition"
               >
                 Đăng nhập
               </Link>
-              <Link 
+              <Link
                 href="/campaigns/create"
                 className="text-sm font-semibold px-5 py-2.5 rounded-full gradient-green text-white hover:shadow-lg hover:shadow-green-200 transition-all"
               >
@@ -171,8 +178,8 @@ export default function NavbarNew() {
         </div>
 
         {/* Mobile Toggle */}
-        <button 
-          className="md:hidden p-2 text-gray-900 focus-ring rounded-lg" 
+        <button
+          className="md:hidden p-2 text-gray-900 focus-ring rounded-lg"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
           {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -194,17 +201,17 @@ export default function NavbarNew() {
           <Link href="/users/search" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
             Cộng đồng
           </Link>
-          
+
           {session ? (
             <>
-              <Link 
+              <Link
                 href="/campaigns/create"
                 className="mt-2 py-3 text-center rounded-xl gradient-green text-white font-semibold"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Gây quỹ ngay
               </Link>
-              <button 
+              <button
                 onClick={handleLogout}
                 className="py-2 text-sm font-medium text-red-600 text-left"
               >
@@ -213,14 +220,14 @@ export default function NavbarNew() {
             </>
           ) : (
             <>
-              <Link 
+              <Link
                 href="/auth/login"
                 className="py-2 text-sm font-medium text-pgreen"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Đăng nhập
               </Link>
-              <Link 
+              <Link
                 href="/campaigns/create"
                 className="mt-2 py-3 text-center rounded-xl gradient-green text-white font-semibold"
                 onClick={() => setIsMenuOpen(false)}

@@ -30,7 +30,7 @@ export default function CreateCampaignPage() {
     images: [] as string[], // Multiple images array
     endDate: "",
   });
-  
+
   const [showCategoryChangeWarning, setShowCategoryChangeWarning] = useState(false);
   const [pendingCategory, setPendingCategory] = useState<MainCategory | null>(null);
 
@@ -39,7 +39,7 @@ export default function CreateCampaignPage() {
   const formatVNDInput = (value: string) => {
     const numericValue = value.replace(/\D/g, "");
     if (!numericValue) return "";
-    return new Intl.NumberFormat("vi-VN").format(Number(numericValue));
+    return Number(numericValue).toLocaleString("de-DE");
   };
 
   const handleCategoryChange = (newCategory: MainCategory) => {
@@ -49,7 +49,7 @@ export default function CreateCampaignPage() {
         formData.starterTags,
         newCategory
       );
-      
+
       if (invalidTags.length > 0) {
         // Show warning
         setPendingCategory(newCategory);
@@ -57,38 +57,38 @@ export default function CreateCampaignPage() {
         return;
       }
     }
-    
+
     // No conflicts, change category directly
     setFormData({
       ...formData,
       mainCategory: newCategory,
     });
   };
-  
+
   const handleConfirmCategoryChange = () => {
     if (!pendingCategory) return;
-    
+
     // Sanitize tags for new category
     const sanitizedTags = sanitizeSelectedTags(
       formData.starterTags,
       pendingCategory
     );
-    
+
     setFormData({
       ...formData,
       mainCategory: pendingCategory,
       starterTags: sanitizedTags,
     });
-    
+
     setShowCategoryChangeWarning(false);
     setPendingCategory(null);
   };
-  
+
   const handleCancelCategoryChange = () => {
     setShowCategoryChangeWarning(false);
     setPendingCategory(null);
   };
-  
+
   const handleTagsChange = (tags: string[]) => {
     setFormData({
       ...formData,
@@ -107,18 +107,18 @@ export default function CreateCampaignPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate taxonomy
     const taxonomyValidation = validateTaxonomySelection({
       mainCategory: formData.mainCategory,
       starterTags: formData.starterTags,
     });
-    
+
     if (!taxonomyValidation.isValid) {
       toast.error(taxonomyValidation.errors[0]);
       return;
     }
-    
+
     // Validate required fields with specific messages
     const missingFields: string[] = [];
     if (!formData.title) missingFields.push("Tên dự án");
@@ -127,12 +127,12 @@ export default function CreateCampaignPage() {
     if (!formData.imageUrl) missingFields.push("Ảnh bìa");
     if (!formData.goalAmount || formData.goalAmount <= 0) missingFields.push("Số vốn mục tiêu");
     if (!formData.endDate) missingFields.push("Hạn chót chiến dịch");
-    
+
     if (missingFields.length > 0) {
       toast.error(`Vui lòng điền: ${missingFields.join(", ")}`);
       return;
     }
-    
+
     setLoading(true);
     const promise = fetch("/api/campaigns", {
       method: "POST",
@@ -154,14 +154,14 @@ export default function CreateCampaignPage() {
       },
       error: (err) => err.message,
     });
-    
+
     promise.finally(() => setLoading(false));
   };
-  
+
   const invalidTagsForPendingCategory = pendingCategory
     ? getInvalidTagsForNewCategory(formData.starterTags, pendingCategory)
     : [];
-  
+
   const invalidTagObjects = getTagsByIds(invalidTagsForPendingCategory);
 
   return (
@@ -170,7 +170,7 @@ export default function CreateCampaignPage() {
         {/* Header Section */}
         <div className="mb-10 text-center animate-fade-in-up">
           <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
-             <Rocket size={32} />
+            <Rocket size={32} />
           </div>
           <h1 className="text-4xl font-black text-gray-900 mb-4 tracking-tighter">Bắt đầu mạch cảm hứng mới</h1>
           <p className="text-gray-500 font-medium max-w-xl mx-auto">
@@ -184,7 +184,7 @@ export default function CreateCampaignPage() {
 
         {/* Main Form */}
         <form onSubmit={handleSubmit} className="space-y-8 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          
+
           {/* Category Change Warning Modal */}
           {showCategoryChangeWarning && pendingCategory && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -229,106 +229,106 @@ export default function CreateCampaignPage() {
               </div>
             </div>
           )}
-          
+
           {/* Block 1: Thông tin cơ bản */}
           <div className="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-soft">
             <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
-               <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                  <AlignLeft size={20} />
-               </div>
-               <h2 className="text-2xl font-bold text-gray-900">Thông tin cơ bản</h2>
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                <AlignLeft size={20} />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Thông tin cơ bản</h2>
             </div>
 
             <div className="space-y-8">
-               <div className="space-y-3">
-                 <label className="text-sm font-bold text-gray-900 flex justify-between">
-                    <span>Tên dự án <span className="text-red-500">*</span></span>
-                    <span className="text-gray-400 font-normal">Tối đa 60 ký tự</span>
-                 </label>
-                 <Input 
-                   required 
-                   className="text-lg py-6 focus-ring rounded-xl bg-slate-50 border-gray-200"
-                   placeholder="Ví dụ: Năng lượng xanh cho bản vùng cao..." 
-                   value={formData.title}
-                   maxLength={60}
-                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                 />
-               </div>
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-gray-900 flex justify-between">
+                  <span>Tên dự án <span className="text-red-500">*</span></span>
+                  <span className="text-gray-400 font-normal">Tối đa 60 ký tự</span>
+                </label>
+                <Input
+                  required
+                  className="text-lg py-6 focus-ring rounded-xl bg-slate-50 border-gray-200"
+                  placeholder="Ví dụ: Năng lượng xanh cho bản vùng cao..."
+                  value={formData.title}
+                  maxLength={60}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                />
+              </div>
 
-               <div className="space-y-3">
-                 <label className="text-sm font-bold text-gray-900">
-                   Mô tả ngắn (Tagline) <span className="text-red-500">*</span>
-                 </label>
-                 <Input 
-                   required 
-                   className="py-5 focus-ring rounded-xl bg-slate-50 border-gray-200"
-                   placeholder="Câu tóm tắt ngắn gọn và cuốn hút nhất về dự án của bạn..." 
-                   value={formData.tagline}
-                   onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
-                 />
-               </div>
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-gray-900">
+                  Mô tả ngắn (Tagline) <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  required
+                  className="py-5 focus-ring rounded-xl bg-slate-50 border-gray-200"
+                  placeholder="Câu tóm tắt ngắn gọn và cuốn hút nhất về dự án của bạn..."
+                  value={formData.tagline}
+                  onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
+                />
+              </div>
             </div>
           </div>
 
           {/* Block 2: Nội dung & Hình ảnh */}
           <div className="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-soft">
-             <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
-               <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                  <ImageIcon size={20} />
-               </div>
-               <div>
-                 <h2 className="text-2xl font-bold text-gray-900">Câu chuyện & Media</h2>
-                 <p className="text-sm text-gray-500 font-medium">Một câu chuyện hay cùng hình ảnh đẹp sẽ thu hút nhiều sự chú ý hơn.</p>
-               </div>
+            <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <ImageIcon size={20} />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Câu chuyện & Media</h2>
+                <p className="text-sm text-gray-500 font-medium">Một câu chuyện hay cùng hình ảnh đẹp sẽ thu hút nhiều sự chú ý hơn.</p>
+              </div>
             </div>
 
             <div className="space-y-10">
-               <div className="space-y-3">
-                  <label className="text-sm font-bold text-gray-900">
-                    Ảnh chiến dịch <span className="text-red-500">*</span>
-                  </label>
-                  <div className="bg-slate-50 p-6 rounded-2xl border border-dashed border-gray-300">
-                     <MultipleImageUpload 
-                        label="Tải ảnh lên (Tỉ lệ khuyến nghị 16:9)"
-                        images={formData.images}
-                        onChange={(images) => {
-                          console.log("[CreateCampaign] Images updated:", images);
-                          setFormData(prev => ({ ...prev, images }));
-                        }}
-                        mainImage={formData.imageUrl}
-                        onMainImageChange={(url) => {
-                          console.log("[CreateCampaign] Main image updated:", url);
-                          setFormData(prev => ({ ...prev, imageUrl: url }));
-                        }}
-                        maxImages={10}
-                     />
-                  </div>
-               </div>
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-gray-900">
+                  Ảnh chiến dịch <span className="text-red-500">*</span>
+                </label>
+                <div className="bg-slate-50 p-6 rounded-2xl border border-dashed border-gray-300">
+                  <MultipleImageUpload
+                    label="Tải ảnh lên (Tỉ lệ khuyến nghị 16:9)"
+                    images={formData.images}
+                    onChange={(images) => {
+                      console.log("[CreateCampaign] Images updated:", images);
+                      setFormData(prev => ({ ...prev, images }));
+                    }}
+                    mainImage={formData.imageUrl}
+                    onMainImageChange={(url) => {
+                      console.log("[CreateCampaign] Main image updated:", url);
+                      setFormData(prev => ({ ...prev, imageUrl: url }));
+                    }}
+                    maxImages={10}
+                  />
+                </div>
+              </div>
 
-               <div className="space-y-3">
-                 <label className="text-sm font-bold text-gray-900">
-                   Nội dung chi tiết <span className="text-red-500">*</span>
-                 </label>
-                 <ProductionEditor
-                   content={formData.description}
-                   onChange={(content) => setFormData({ ...formData, description: content })}
-                   config={{
-                     placeholder: EDITOR_PLACEHOLDERS.CAMPAIGN_DESCRIPTION,
-                     autosave: false,
-                     enableBubbleMenu: true,
-                   }}
-                 />
-               </div>
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-gray-900">
+                  Nội dung chi tiết <span className="text-red-500">*</span>
+                </label>
+                <ProductionEditor
+                  content={formData.description}
+                  onChange={(content) => setFormData({ ...formData, description: content })}
+                  config={{
+                    placeholder: EDITOR_PLACEHOLDERS.CAMPAIGN_DESCRIPTION,
+                    autosave: false,
+                    enableBubbleMenu: true,
+                  }}
+                />
+              </div>
             </div>
           </div>
 
           {/* Block 3: Mục tiêu & Thời gian */}
           <div className="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-soft">
             <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
-               <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                  <Target size={20} />
-               </div>
-               <h2 className="text-2xl font-bold text-gray-900">Mục tiêu & Lịch trình</h2>
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                <Target size={20} />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Mục tiêu & Lịch trình</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -337,15 +337,15 @@ export default function CreateCampaignPage() {
                   Số vốn mục tiêu (VNĐ) <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">₫</span>
-                   <Input 
-                     type="text" 
-                     className="pl-10 text-lg font-black text-gray-900 py-6 focus-ring rounded-xl bg-slate-50 border-gray-200"
-                     required 
-                     placeholder="1.000.000"
-                     value={displayAmount}
-                     onChange={handleAmountChange}
-                   />
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">₫</span>
+                  <Input
+                    type="text"
+                    className="pl-10 text-lg font-black text-gray-900 py-6 focus-ring rounded-xl bg-slate-50 border-gray-200"
+                    required
+                    placeholder="1.000.000"
+                    value={displayAmount}
+                    onChange={handleAmountChange}
+                  />
                 </div>
                 <p className="text-xs text-gray-500 font-medium">Đặt mục tiêu có thể đạt được để tạo động lực cho cộng đồng.</p>
               </div>
@@ -365,17 +365,17 @@ export default function CreateCampaignPage() {
               </div>
             </div>
           </div>
-          
+
           {/* Block 4: Phân loại & Tags */}
           <div className="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-soft">
             <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
-               <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
-                  <Tags size={20} />
-               </div>
-               <div>
-                 <h2 className="text-2xl font-bold text-gray-900">Phân loại dự án</h2>
-                 <p className="text-sm text-gray-500 font-medium">Giúp người ủng hộ dễ dàng tìm thấy dự án của bạn</p>
-               </div>
+              <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                <Tags size={20} />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Phân loại dự án</h2>
+                <p className="text-sm text-gray-500 font-medium">Giúp người ủng hộ dễ dàng tìm thấy dự án của bạn</p>
+              </div>
             </div>
 
             <div className="space-y-8">
@@ -383,7 +383,7 @@ export default function CreateCampaignPage() {
                 selectedCategory={formData.mainCategory}
                 onCategoryChange={handleCategoryChange}
               />
-              
+
               <div className="border-t border-gray-100 pt-8">
                 <StarterTagsSelector
                   mainCategory={formData.mainCategory}
@@ -395,24 +395,24 @@ export default function CreateCampaignPage() {
           </div>
 
           <div className="pt-4 flex justify-end">
-            <button 
-               type="submit" 
-               disabled={loading} 
-               className={`
+            <button
+              type="submit"
+              disabled={loading}
+              className={`
                   btn-primary w-full md:w-auto px-12 py-5 text-lg shadow-[0_8px_30px_rgb(37,99,235,0.3)]
                   ${loading ? "opacity-70 cursor-not-allowed" : ""}
                `}
             >
-               {loading ? (
-                  <span className="flex items-center gap-2">
-                     <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                     Đang khởi tạo...
-                  </span>
-               ) : (
-                  <span className="flex items-center gap-2">
-                     Khởi tạo chiến dịch ngay <Rocket size={20} className="ml-2"/>
-                  </span>
-               )}
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Đang khởi tạo...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  Khởi tạo chiến dịch ngay <Rocket size={20} className="ml-2" />
+                </span>
+              )}
             </button>
           </div>
         </form>

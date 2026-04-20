@@ -37,7 +37,11 @@ const ALL_STARTER_TAGS_RAW: StarterTag[] = [
   { id: "documentary", label: "Documentary", group: "Loại nội dung" },
   { id: "podcast", label: "Podcast", group: "Loại nội dung" },
   { id: "animation", label: "Animation", group: "Loại nội dung" },
-  
+  { id: "chuong-trinh-cuu-ho", label: "Chương trình cứu hộ", group: "Loại nội dung" },
+  { id: "chien-dich-cong-dong", label: "Chiến dịch cộng đồng", group: "Loại nội dung" },
+  { id: "su-kien-gay-quy", label: "Sự kiện gây quỹ", group: "Loại nội dung" },
+  { id: "dich-vu-ho-tro", label: "Dịch vụ hỗ trợ", group: "Loại nội dung" },
+
   // Định dạng phát hành
   { id: "sach-in", label: "Sách in", group: "Định dạng phát hành" },
   { id: "ebook", label: "Ebook", group: "Định dạng phát hành" },
@@ -58,7 +62,7 @@ const ALL_STARTER_TAGS_RAW: StarterTag[] = [
   { id: "download", label: "Download", group: "Định dạng phát hành" },
   { id: "subscription", label: "Subscription", group: "Định dạng phát hành" },
   { id: "one-time", label: "One-time", group: "Định dạng phát hành" },
-  
+
   // Mục đích / Phong cách
   { id: "indie", label: "Indie", group: "Mục đích / Phong cách" },
   { id: "sang-tao", label: "Sáng tạo", group: "Mục đích / Phong cách" },
@@ -77,7 +81,11 @@ const ALL_STARTER_TAGS_RAW: StarterTag[] = [
   { id: "hien-dai", label: "Hiện đại", group: "Mục đích / Phong cách" },
   { id: "experimental", label: "Experimental", group: "Mục đích / Phong cách" },
   { id: "mainstream", label: "Mainstream", group: "Mục đích / Phong cách" },
-  
+  { id: "phuc-loi-dong-vat", label: "Phúc lợi động vật", group: "Mục đích / Phong cách" },
+  { id: "bao-ve-moi-truong", label: "Bảo vệ môi trường", group: "Mục đích / Phong cách" },
+  { id: "bao-ton-thien-nhien", label: "Bảo tồn thiên nhiên", group: "Mục đích / Phong cách" },
+  { id: "tac-dong-xa-hoi", label: "Tác động xã hội", group: "Mục đích / Phong cách" },
+
   // Loại sản phẩm
   { id: "hardware", label: "Hardware", group: "Loại sản phẩm" },
   { id: "software", label: "Software", group: "Loại sản phẩm" },
@@ -92,7 +100,7 @@ const ALL_STARTER_TAGS_RAW: StarterTag[] = [
   { id: "mass-production", label: "Mass production", group: "Loại sản phẩm" },
   { id: "limited-edition", label: "Limited edition", group: "Loại sản phẩm" },
   { id: "custom", label: "Custom", group: "Loại sản phẩm" },
-  
+
   // Công nghệ / Kỹ thuật
   { id: "ai", label: "AI", group: "Công nghệ / Kỹ thuật" },
   { id: "machine-learning", label: "Machine Learning", group: "Công nghệ / Kỹ thuật" },
@@ -118,7 +126,7 @@ const ALL_STARTER_TAGS_RAW: StarterTag[] = [
   { id: "edtech", label: "Edtech", group: "Công nghệ / Kỹ thuật" },
   { id: "fintech", label: "Fintech", group: "Công nghệ / Kỹ thuật" },
   { id: "cleantech", label: "Cleantech", group: "Công nghệ / Kỹ thuật" },
-  
+
   // Giai đoạn phát triển
   { id: "idea", label: "Idea", group: "Giai đoạn phát triển" },
   { id: "concept", label: "Concept", group: "Giai đoạn phát triển" },
@@ -135,7 +143,7 @@ const ALL_STARTER_TAGS_RAW: StarterTag[] = [
   { id: "trial", label: "Trial", group: "Giai đoạn phát triển" },
   { id: "draft", label: "Draft", group: "Giai đoạn phát triển" },
   { id: "phat-hanh", label: "Phát hành", group: "Giai đoạn phát triển" },
-  
+
   // Mô hình / Vận hành
   { id: "startup", label: "Startup", group: "Mô hình / Vận hành" },
   { id: "small-business", label: "Small business", group: "Mô hình / Vận hành" },
@@ -148,7 +156,11 @@ const ALL_STARTER_TAGS_RAW: StarterTag[] = [
   { id: "pre-sale", label: "Pre-sale", group: "Mô hình / Vận hành" },
   { id: "franchise", label: "Franchise", group: "Mô hình / Vận hành" },
   { id: "licensing", label: "Licensing", group: "Mô hình / Vận hành" },
-  
+  { id: "phi-loi-nhuan", label: "Phi lợi nhuận", group: "Mô hình / Vận hành" },
+  { id: "tinh-nguyen-vien", label: "Tình nguyện viên", group: "Mô hình / Vận hành" },
+  { id: "shelter", label: "Shelter", group: "Mô hình / Vận hành" },
+  { id: "doanh-nghiep-xa-hoi", label: "Doanh nghiệp xã hội", group: "Mô hình / Vận hành" },
+
   // Đối tượng hưởng lợi
   { id: "tre-em", label: "Trẻ em", group: "Đối tượng hưởng lợi" },
   { id: "hoc-sinh", label: "Học sinh", group: "Đối tượng hưởng lợi" },
@@ -167,7 +179,12 @@ const ALL_STARTER_TAGS_RAW: StarterTag[] = [
   { id: "creators", label: "Creators", group: "Đối tượng hưởng lợi" },
   { id: "developers", label: "Developers", group: "Đối tượng hưởng lợi" },
   { id: "doanh-nghiep", label: "Doanh nghiệp", group: "Đối tượng hưởng lợi" },
-  
+  { id: "dong-vat-bi-bo-roi", label: "Động vật bị bỏ rơi", group: "Đối tượng hưởng lợi" },
+  { id: "cho-meo", label: "Chó mèo", group: "Đối tượng hưởng lợi" },
+  { id: "dong-vat-hoang-da", label: "Động vật hoang dã", group: "Đối tượng hưởng lợi" },
+  { id: "khu-vuc-bi-o-nhiem", label: "Khu vực bị ô nhiễm", group: "Đối tượng hưởng lợi" },
+  { id: "tre-em-vung-anh-huong-moi-truong", label: "Trẻ em vùng ảnh hưởng môi trường", group: "Đối tượng hưởng lợi" },
+
   // Phạm vi
   { id: "local", label: "Local", group: "Phạm vi" },
   { id: "national", label: "National", group: "Phạm vi" },
@@ -175,7 +192,9 @@ const ALL_STARTER_TAGS_RAW: StarterTag[] = [
   { id: "global", label: "Global", group: "Phạm vi" },
   { id: "urban", label: "Urban", group: "Phạm vi" },
   { id: "rural", label: "Rural", group: "Phạm vi" },
-  
+  { id: "thanh-thi", label: "Thành thị", group: "Phạm vi" },
+  { id: "nong-thon", label: "Nông thôn", group: "Phạm vi" },
+
   // Thời gian
   { id: "urgent", label: "Urgent", group: "Thời gian" },
   { id: "short-term", label: "Short-term", group: "Thời gian" },
@@ -183,6 +202,35 @@ const ALL_STARTER_TAGS_RAW: StarterTag[] = [
   { id: "ongoing", label: "Ongoing", group: "Thời gian" },
   { id: "seasonal", label: "Seasonal", group: "Thời gian" },
   { id: "one-time-event", label: "One-time", group: "Thời gian" },
+  { id: "ngan-han", label: "Ngắn hạn", group: "Thời gian" },
+  { id: "dai-han", label: "Dài hạn", group: "Thời gian" },
+
+  // Tags động vật
+  { id: "cuu-ho-dong-vat", label: "Cứu hộ động vật", group: "Mục đích / Phong cách" },
+  { id: "triet-san", label: "Triệt sản", group: "Loại nội dung" },
+  { id: "dieu-tri-thu-y", label: "Điều trị thú y", group: "Loại nội dung" },
+  { id: "nhan-nuoi", label: "Nhận nuôi", group: "Loại nội dung" },
+  { id: "thuc-an-cho-dong-vat", label: "Thức ăn cho động vật", group: "Loại nội dung" },
+  { id: "cuu-ho-khan-cap", label: "Cứu hộ khẩn cấp", group: "Loại nội dung" },
+  { id: "bao-ve-dong-vat", label: "Bảo vệ động vật", group: "Mục đích / Phong cách" },
+  { id: "chong-nguoc-dai-dong-vat", label: "Chống ngược đãi động vật", group: "Mục đích / Phong cách" },
+  { id: "cham-soc-sau-cuu-ho", label: "Chăm sóc sau cứu hộ", group: "Loại nội dung" },
+  { id: "tinh-nguyen-cuu-ho", label: "Tình nguyện cứu hộ", group: "Mô hình / Vận hành" },
+
+  // Tags môi trường
+  { id: "trong-cay", label: "Trồng cây", group: "Loại nội dung" },
+  { id: "lam-sach-moi-truong", label: "Làm sạch môi trường", group: "Loại nội dung" },
+  { id: "giam-rac-thai", label: "Giảm rác thải", group: "Mục đích / Phong cách" },
+  { id: "tai-che", label: "Tái chế", group: "Mục đích / Phong cách" },
+  { id: "nuoc-sach", label: "Nước sạch", group: "Loại nội dung" },
+  { id: "bien-doi-khi-hau", label: "Biến đổi khí hậu", group: "Mục đích / Phong cách" },
+  { id: "nang-luong-sach", label: "Năng lượng sạch", group: "Công nghệ / Kỹ thuật" },
+  { id: "cuu-tro-moi-truong", label: "Cứu trợ môi trường", group: "Loại nội dung" },
+  { id: "phuc-hoi-he-sinh-thai", label: "Phục hồi hệ sinh thái", group: "Mục đích / Phong cách" },
+  { id: "chong-o-nhiem", label: "Chống ô nhiễm", group: "Mục đích / Phong cách" },
+  { id: "bao-ve-nguon-nuoc", label: "Bảo vệ nguồn nước", group: "Mục đích / Phong cách" },
+  { id: "song-xanh", label: "Sống xanh", group: "Mục đích / Phong cách" },
+  { id: "giao-duc-moi-truong", label: "Giáo dục môi trường", group: "Loại nội dung" },
 ];
 
 // ============================================
@@ -507,6 +555,7 @@ const MOI_TRUONG_TAXONOMY: CategoryTaxonomy = {
     "Mô hình / Vận hành",
     "Đối tượng hưởng lợi",
     "Phạm vi",
+    "Thời gian",
   ],
   recommendedStarterTags: [
     "san-pham-vat-ly",
@@ -514,9 +563,9 @@ const MOI_TRUONG_TAXONOMY: CategoryTaxonomy = {
     "renewable-energy",
     "social-impact",
     "bao-ton",
-    "prototype",
-    "cong-dong-dia-phuong",
-    "local",
+    "bao-ve-moi-truong",
+    "trong-cay",
+    "lam-sach-moi-truong",
   ],
   disallowedStarterTags: [
     "manga",
@@ -536,24 +585,35 @@ const MOI_TRUONG_TAXONOMY: CategoryTaxonomy = {
   ],
   tagGroups: {
     "Loại nội dung": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["san-pham-vat-ly", "thiet-bi", "dich-vu", "chuong-trinh", "su-kien"].includes(t.id))),
+      [
+        "san-pham-vat-ly", "thiet-bi", "dich-vu", "chuong-trinh", "su-kien",
+        "trong-cay", "lam-sach-moi-truong", "nuoc-sach", "cuu-tro-moi-truong", "giao-duc-moi-truong"
+      ].includes(t.id))),
     "Định dạng phát hành": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       ["physical", "platform", "marketplace", "online", "offline", "hybrid"].includes(t.id))),
     "Mục đích / Phong cách": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["social-impact", "non-profit", "bao-ton", "doi-moi", "community-driven"].includes(t.id))),
+      [
+        "social-impact", "non-profit", "bao-ton", "doi-moi", "community-driven",
+        "bao-ve-moi-truong", "bao-ton-thien-nhien", "giam-rac-thai", "tai-che",
+        "bien-doi-khi-hau", "phuc-hoi-he-sinh-thai", "chong-o-nhiem", "bao-ve-nguon-nuoc", "song-xanh"
+      ].includes(t.id))),
     "Loại sản phẩm": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       ["consumer-product", "b2b-solution", "b2c-product", "handmade"].includes(t.id))),
     "Công nghệ / Kỹ thuật": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["cleantech", "renewable-energy", "solar", "iot", "sensor", "3d-printing", "biotech"].includes(t.id))),
+      ["cleantech", "renewable-energy", "solar", "iot", "sensor", "3d-printing", "biotech", "nang-luong-sach"].includes(t.id))),
     "Giai đoạn phát triển": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       ["idea", "concept", "prototype", "pilot", "mvp", "production", "scale-up"].includes(t.id))),
     "Mô hình / Vận hành": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["social-enterprise", "ngo", "cooperative", "startup", "small-business"].includes(t.id))),
+      ["social-enterprise", "ngo", "cooperative", "startup", "small-business", "tinh-nguyen-vien"].includes(t.id))),
     "Đối tượng hưởng lợi": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["cong-dong-dia-phuong", "nong-dan", "nguoi-ngheo", "dan-toc-thieu-so"].includes(t.id))),
+      [
+        "cong-dong-dia-phuong", "nong-dan", "nguoi-ngheo", "dan-toc-thieu-so",
+        "khu-vuc-bi-o-nhiem", "tre-em-vung-anh-huong-moi-truong"
+      ].includes(t.id))),
     "Phạm vi": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       ["local", "regional", "national", "global", "urban", "rural"].includes(t.id))),
-    "Thời gian": [],
+    "Thời gian": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
+      ["short-term", "long-term", "ongoing"].includes(t.id))),
   },
 };
 
@@ -746,16 +806,19 @@ const KHAN_CAP_TU_THIEN_TAXONOMY: CategoryTaxonomy = {
     "Đối tượng hưởng lợi",
     "Phạm vi",
     "Thời gian",
+    "Công nghệ / Kỹ thuật",
   ],
   recommendedStarterTags: [
     "donation",
     "urgent",
     "non-profit",
     "social-impact",
-    "nan-nhan-thien-tai",
-    "benh-nhan",
-    "nguoi-ngheo",
-    "ongoing",
+    "cuu-ho-dong-vat",
+    "phuc-loi-dong-vat",
+    "bao-ve-moi-truong",
+    "cho-meo",
+    "dong-vat-bi-bo-roi",
+    "trong-cay",
   ],
   disallowedStarterTags: [
     "manga",
@@ -784,20 +847,41 @@ const KHAN_CAP_TU_THIEN_TAXONOMY: CategoryTaxonomy = {
   ],
   tagGroups: {
     "Loại nội dung": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["chuong-trinh", "su-kien", "dich-vu"].includes(t.id))),
+      [
+        "chuong-trinh", "su-kien", "dich-vu",
+        "chuong-trinh-cuu-ho", "chien-dich-cong-dong", "su-kien-gay-quy", "dich-vu-ho-tro",
+        "triet-san", "dieu-tri-thu-y", "nhan-nuoi", "thuc-an-cho-dong-vat", "cuu-ho-khan-cap",
+        "cham-soc-sau-cuu-ho", "trong-cay", "lam-sach-moi-truong", "nuoc-sach",
+        "cuu-tro-moi-truong", "giao-duc-moi-truong"
+      ].includes(t.id))),
     "Mục đích / Phong cách": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["non-profit", "social-impact", "community-driven"].includes(t.id))),
+      [
+        "non-profit", "social-impact", "community-driven",
+        "phuc-loi-dong-vat", "bao-ve-moi-truong", "bao-ton-thien-nhien", "tac-dong-xa-hoi",
+        "cuu-ho-dong-vat", "bao-ve-dong-vat", "chong-nguoc-dai-dong-vat",
+        "giam-rac-thai", "tai-che", "bien-doi-khi-hau", "phuc-hoi-he-sinh-thai",
+        "chong-o-nhiem", "bao-ve-nguon-nuoc", "song-xanh"
+      ].includes(t.id))),
     "Mô hình / Vận hành": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["donation", "ngo", "social-enterprise"].includes(t.id))),
+      [
+        "donation", "ngo", "social-enterprise", "phi-loi-nhuan", "tinh-nguyen-vien",
+        "shelter", "doanh-nghiep-xa-hoi", "tinh-nguyen-cuu-ho"
+      ].includes(t.id))),
     "Đối tượng hưởng lợi": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["nan-nhan-thien-tai", "benh-nhan", "nguoi-ngheo", "tre-em", "nguoi-cao-tuoi", "nguoi-khuyet-tat", "phu-nu", "dan-toc-thieu-so", "cong-dong-dia-phuong"].includes(t.id))),
+      [
+        "nan-nhan-thien-tai", "benh-nhan", "nguoi-ngheo", "tre-em", "nguoi-cao-tuoi",
+        "nguoi-khuyet-tat", "phu-nu", "dan-toc-thieu-so", "cong-dong-dia-phuong",
+        "dong-vat-bi-bo-roi", "cho-meo", "dong-vat-hoang-da",
+        "khu-vuc-bi-o-nhiem", "tre-em-vung-anh-huong-moi-truong"
+      ].includes(t.id))),
     "Phạm vi": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["local", "regional", "national", "global", "urban", "rural"].includes(t.id))),
+      ["local", "regional", "national", "global", "urban", "rural", "thanh-thi", "nong-thon"].includes(t.id))),
     "Thời gian": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["urgent", "short-term", "long-term", "ongoing", "one-time-event"].includes(t.id))),
+      ["urgent", "short-term", "long-term", "ongoing", "one-time-event", "ngan-han", "dai-han"].includes(t.id))),
+    "Công nghệ / Kỹ thuật": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
+      ["cleantech", "renewable-energy", "solar", "nang-luong-sach"].includes(t.id))),
     "Định dạng phát hành": [],
     "Loại sản phẩm": [],
-    "Công nghệ / Kỹ thuật": [],
     "Giai đoạn phát triển": [],
   },
 };

@@ -35,15 +35,15 @@ export default async function AdminRevenuePage() {
     })
   ]);
 
-  const totalAmount = totalPledges._sum.amount || 0;
-  const totalWithFees = totalPledges._sum.totalAmount || 0;
-  const platformFees = platformRevenue._sum.platformFee || 0;
+  const totalAmount = Number(totalPledges._sum.amount || 0);
+  const totalWithFees = Number(totalPledges._sum.totalAmount || 0);
+  const platformFees = Number(platformRevenue._sum.platformFee || 0);
   const avgTransactionValue = successfulPledges > 0 ? totalAmount / successfulPledges : 0;
 
   return (
     <div className="min-h-screen bg-slate-50/50 py-24 px-6">
       <div className="max-w-7xl mx-auto space-y-8">
-        
+
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link href="/dashboard/admin" className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center hover:bg-gray-100 transition border border-gray-200">
@@ -107,7 +107,7 @@ export default async function AdminRevenuePage() {
               </div>
               <div className="text-xl font-black text-gray-900">{formatVND(totalAmount)}</div>
             </div>
-            
+
             <div className="flex justify-between items-center p-4 bg-purple-50 rounded-2xl">
               <div>
                 <div className="font-bold text-purple-900">Phí dịch vụ (Platform Fee)</div>
@@ -115,7 +115,7 @@ export default async function AdminRevenuePage() {
               </div>
               <div className="text-xl font-black text-purple-600">{formatVND(platformFees)}</div>
             </div>
-            
+
             <div className="flex justify-between items-center p-4 bg-blue-50 rounded-2xl">
               <div>
                 <div className="font-bold text-blue-900">Tổng thanh toán</div>
@@ -177,10 +177,10 @@ export default async function AdminRevenuePage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-bold text-gray-900">
-                        {tx.user.name || "Ẩn danh"}
+                        {tx.user?.name || "Ẩn danh"}
                       </div>
                       <div className="text-xs text-gray-400">
-                        {tx.user.email}
+                        {tx.user?.email}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">

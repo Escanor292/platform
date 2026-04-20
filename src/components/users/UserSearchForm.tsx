@@ -52,11 +52,10 @@ export default function UserSearchForm() {
               <button
                 type="button"
                 onClick={() => setSearchType("id")}
-                className={`flex-1 px-4 py-2 rounded-xl font-bold transition ${
-                  searchType === "id"
+                className={`flex-1 px-4 py-2 rounded-xl font-bold transition ${searchType === "id"
                     ? "bg-blue-600 text-white"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 <Hash size={16} className="inline mr-1" />
                 ID
@@ -64,11 +63,10 @@ export default function UserSearchForm() {
               <button
                 type="button"
                 onClick={() => setSearchType("email")}
-                className={`flex-1 px-4 py-2 rounded-xl font-bold transition ${
-                  searchType === "email"
+                className={`flex-1 px-4 py-2 rounded-xl font-bold transition ${searchType === "email"
                     ? "bg-blue-600 text-white"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 <Mail size={16} className="inline mr-1" />
                 Email
@@ -76,11 +74,10 @@ export default function UserSearchForm() {
               <button
                 type="button"
                 onClick={() => setSearchType("name")}
-                className={`flex-1 px-4 py-2 rounded-xl font-bold transition ${
-                  searchType === "name"
+                className={`flex-1 px-4 py-2 rounded-xl font-bold transition ${searchType === "name"
                     ? "bg-blue-600 text-white"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 <User size={16} className="inline mr-1" />
                 Tên
@@ -102,8 +99,8 @@ export default function UserSearchForm() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={
                   searchType === "id" ? "cmo0vy9pf0000et1in40h2kfw" :
-                  searchType === "email" ? "user@example.com" :
-                  "Tên người dùng"
+                    searchType === "email" ? "user@example.com" :
+                      "Tên người dùng"
                 }
                 className="w-full px-4 py-3 pl-12 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition"
               />
@@ -151,11 +148,10 @@ export default function UserSearchForm() {
                     <div className="text-sm text-gray-400">{user.email}</div>
                     <div className="text-xs text-gray-400 font-mono mt-1">ID: {user.id}</div>
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-xs font-black ${
-                    user.role === "ADMIN" ? "bg-red-100 text-red-600" :
-                    user.role === "CREATOR" || user.role === "CREATOR_PRO" ? "bg-blue-100 text-blue-600" :
-                    "bg-gray-100 text-gray-600"
-                  }`}>
+                  <div className={`px-3 py-1 rounded-full text-xs font-black ${user.role === "ADMIN" ? "bg-red-100 text-red-600" :
+                      user.role === "CREATOR" ? "bg-blue-100 text-blue-600" :
+                        "bg-gray-100 text-gray-600"
+                    }`}>
                     {user.role}
                   </div>
                 </Link>

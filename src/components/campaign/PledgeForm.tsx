@@ -31,7 +31,7 @@ const PledgeForm = memo(function PledgeForm({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  
+
   // SePay modal state
   const [showSePayModal, setShowSePayModal] = useState(false);
   const [sePayData, setSePayData] = useState<any>(null);
@@ -40,17 +40,33 @@ const PledgeForm = memo(function PledgeForm({
     preselectedRewardId ?? null
   );
   const [customAmount, setCustomAmount] = useState(100000);
+  const [displayCustomAmount, setDisplayCustomAmount] = useState("100.000");
   const [tipPercent, setTipPercent] = useState(5);
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"VNPAY" | "MOMO" | "PAYOS" | "SEPAY" | "BANK">("PAYOS");
 
+  const formatAmountInput = (value: string) => {
+    const numericValue = value.replace(/\D/g, "");
+    if (!numericValue) return "";
+    return Number(numericValue).toLocaleString("de-DE");
+  };
+
+  const handleCustomAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+    const formatted = formatAmountInput(rawValue);
+    const numeric = Number(rawValue.replace(/\D/g, ""));
+
+    setDisplayCustomAmount(formatted);
+    setCustomAmount(numeric);
+  };
+
   const selectedReward = useMemo(
     () => rewards.find((r) => r.id === selectedRewardId),
     [rewards, selectedRewardId]
   );
-  
+
   const baseAmount = selectedReward ? selectedReward.amount : customAmount;
   const tipAmount = useMemo(
     () => Math.round((baseAmount * tipPercent) / 100),
@@ -140,11 +156,10 @@ const PledgeForm = memo(function PledgeForm({
               {rewards.map((r) => (
                 <label
                   key={r.id}
-                  className={`flex items-start gap-3 p-3 border rounded-xl cursor-pointer transition ${
-                    selectedRewardId === r.id
-                      ? "border-indigo-500 bg-indigo-50"
-                      : "hover:bg-gray-50"
-                  }`}
+                  className={`flex items-start gap-3 p-3 border rounded-xl cursor-pointer transition ${selectedRewardId === r.id
+                    ? "border-indigo-500 bg-indigo-50"
+                    : "hover:bg-gray-50"
+                    }`}
                 >
                   <input
                     type="radio"
@@ -177,11 +192,10 @@ const PledgeForm = memo(function PledgeForm({
               Số tiền ủng hộ (VNĐ)
             </label>
             <input
-              type="number"
-              value={customAmount}
-              onChange={(e) => setCustomAmount(Number(e.target.value))}
-              min={50000}
-              step={50000}
+              type="text"
+              value={displayCustomAmount}
+              onChange={handleCustomAmountChange}
+              placeholder="100.000"
               className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
             />
             <div className="flex gap-2 mt-2">
@@ -189,7 +203,10 @@ const PledgeForm = memo(function PledgeForm({
                 <button
                   key={amt}
                   type="button"
-                  onClick={() => setCustomAmount(amt)}
+                  onClick={() => {
+                    setCustomAmount(amt);
+                    setDisplayCustomAmount(amt.toLocaleString("de-DE"));
+                  }}
                   className="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 hover:bg-indigo-50 hover:border-indigo-300 transition"
                 >
                   {formatVND(amt)}
@@ -210,17 +227,16 @@ const PledgeForm = memo(function PledgeForm({
                 key={pct}
                 type="button"
                 onClick={() => setTipPercent(pct)}
-                className={`flex-1 text-sm py-2 rounded-lg border transition ${
-                  tipPercent === pct
-                    ? "bg-indigo-600 text-white border-indigo-600"
-                    : "border-gray-200 hover:bg-gray-50"
-                }`}
+                className={`flex-1 text-sm py-2 rounded-lg border transition ${tipPercent === pct
+                  ? "bg-indigo-600 text-white border-indigo-600"
+                  : "border-gray-200 hover:bg-gray-50"
+                  }`}
               >
                 {pct === 0 ? "Không" : `${pct}%`}
               </button>
             ))}
           </div>
-          
+
           {/* Slider và Input */}
           <div className="space-y-2">
             <div className="flex items-center gap-3">
@@ -300,11 +316,10 @@ const PledgeForm = memo(function PledgeForm({
             {(["PAYOS", "SEPAY", "VNPAY", "MOMO"] as const).map((method) => (
               <label
                 key={method}
-                className={`flex items-center justify-center gap-2 p-3 border rounded-xl cursor-pointer text-sm transition ${
-                  paymentMethod === method
-                    ? "border-indigo-500 bg-indigo-50 text-indigo-700 font-medium"
-                    : "border-gray-200 hover:bg-gray-50"
-                }`}
+                className={`flex items-center justify-center gap-2 p-3 border rounded-xl cursor-pointer text-sm transition ${paymentMethod === method
+                  ? "border-indigo-500 bg-indigo-50 text-indigo-700 font-medium"
+                  : "border-gray-200 hover:bg-gray-50"
+                  }`}
               >
                 <input
                   type="radio"

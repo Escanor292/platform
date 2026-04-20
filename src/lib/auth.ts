@@ -46,6 +46,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // Since we use JWT strategy, session.user is populated by jwt callback
         (session.user as any).id = token.id as string;
         (session.user as any).role = token.role as string;
+        (session.user as any).status = token.status as string;
         (session.user as any).isAdmin = !!token.isAdmin;
       }
       return session;
@@ -54,6 +55,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.id = user.id;
         token.role = (user as any).role;
+        token.status = (user as any).status;
         token.isAdmin = (user as any).isAdmin;
       }
       return token;

@@ -63,21 +63,21 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const totalSupported = user.pledges.reduce((sum, p) => sum + Number(p.amount), 0);
   const successfulCampaigns = user.campaigns.filter(c => c.status === "SUCCESS").length;
 
-  const isCreator = user.role === "CREATOR" || user.role === "CREATOR_PRO";
+  const isCreator = user.role === "CREATOR";
   const isBacker = user._count.pledges > 0;
 
   return (
     <div className="min-h-screen bg-slate-50/50 py-24 px-6">
       <div className="max-w-6xl mx-auto space-y-8">
-        
+
         {/* Profile Header */}
         <div className="bg-white rounded-[3rem] border border-gray-100 shadow-sm overflow-hidden">
           {/* Cover Image */}
           <div className="h-64 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 relative">
             {user.coverImage ? (
-              <img 
-                src={user.coverImage} 
-                alt="Cover" 
+              <img
+                src={user.coverImage}
+                alt="Cover"
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -117,7 +117,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     Quản trị
                   </Link>
                 )}
-                {(user.role === "CREATOR" || user.role === "CREATOR_PRO") && (
+                {(user.role === "CREATOR") && (
                   <Link
                     href="/dashboard/creator"
                     className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition flex items-center gap-2"
@@ -136,7 +136,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 <h1 className="text-3xl font-black text-gray-900">
                   {user.name || "Người dùng ẩn danh"}
                 </h1>
-                {user.role === "CREATOR_PRO" && (
+                {user.status === "PRO" && (
                   <div className="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-xs font-black uppercase flex items-center gap-1">
                     <Award size={12} />
                     Pro
@@ -230,22 +230,21 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   {user.campaigns.map((campaign) => {
                     const progress = Math.min(100, Math.round((Number(campaign.currentAmount) / Number(campaign.goalAmount)) * 100));
                     return (
-                      <Link 
-                        key={campaign.id} 
+                      <Link
+                        key={campaign.id}
                         href={`/campaigns/${campaign.slug}`}
                         className="group"
                       >
                         <div className="bg-gray-50 rounded-2xl overflow-hidden hover:shadow-lg transition-all">
                           <div className="relative h-40 overflow-hidden">
-                            <img 
-                              src={campaign.imageUrl || "/placeholder.jpg"} 
+                            <img
+                              src={campaign.imageUrl || "/placeholder.jpg"}
                               alt={campaign.title}
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             />
                             <div className="absolute top-3 left-3">
-                              <span className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase ${
-                                campaign.status === "ACTIVE" ? "bg-green-500 text-white" : "bg-blue-500 text-white"
-                              }`}>
+                              <span className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase ${campaign.status === "ACTIVE" ? "bg-green-500 text-white" : "bg-blue-500 text-white"
+                                }`}>
                                 {campaign.status}
                               </span>
                             </div>
@@ -260,8 +259,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                 <span className="text-gray-900">{formatVND(Number(campaign.currentAmount))}</span>
                               </div>
                               <div className="w-full bg-gray-200 rounded-full h-1.5">
-                                <div 
-                                  className="bg-blue-600 h-full rounded-full transition-all" 
+                                <div
+                                  className="bg-blue-600 h-full rounded-full transition-all"
                                   style={{ width: `${progress}%` }}
                                 />
                               </div>
@@ -287,13 +286,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 </h2>
                 <div className="space-y-4">
                   {user.pledges.map((pledge) => (
-                    <Link 
+                    <Link
                       key={pledge.id}
                       href={`/campaigns/${pledge.campaign.slug}`}
                       className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition group"
                     >
-                      <img 
-                        src={pledge.campaign.imageUrl || "/placeholder.jpg"} 
+                      <img
+                        src={pledge.campaign.imageUrl || "/placeholder.jpg"}
                         alt={pledge.campaign.title}
                         className="w-16 h-16 rounded-xl object-cover"
                       />

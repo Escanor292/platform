@@ -43,28 +43,29 @@ export function sanitizeHtml(
   options: SanitizeOptions = {}
 ): string {
   if (!html || typeof html !== 'string') return '';
-  
+
   const config: DOMPurify.Config = {
     ...DEFAULT_SANITIZE_CONFIG,
     ...(options.allowedTags && { ALLOWED_TAGS: options.allowedTags }),
     ...(options.allowedAttributes && { ALLOWED_ATTR: Object.values(options.allowedAttributes).flat() }),
   };
-  
+
   // Add hooks for iframe validation
   DOMPurify.addHook('uponSanitizeElement', (node, data) => {
     if (data.tagName === 'iframe') {
-      const src = node.getAttribute('src');
+      const element = node as Element;
+      const src = element.getAttribute('src');
       if (src && !isAllowedIframeSrc(src, options.allowedIframeDomains)) {
-        node.remove();
+        element.remove();
       }
     }
   });
-  
-  const clean = DOMPurify.sanitize(html, config);
-  
+
+  const clean = DOMPurify.sanitize(html, config as any);
+
   // Remove hooks after sanitization
   DOMPurify.removeAllHooks();
-  
+
   return clean;
 }
 
@@ -74,10 +75,10 @@ export function sanitizeHtmlWithTracking(
 ): SanitizeResult {
   const original = html;
   const clean = sanitizeHtml(html, options);
-  
+
   const removed: string[] = [];
   const modified = original !== clean;
-  
+
   // Track what was removed (simplified)
   if (modified) {
     if (/<script/i.test(original) && !/<script/i.test(clean)) {
@@ -90,7 +91,7 @@ export function sanitizeHtmlWithTracking(
       removed.push('unsafe iframes');
     }
   }
-  
+
   return {
     clean,
     removed,
@@ -105,12 +106,12 @@ export function sanitizeHtmlWithTracking(
 function isAllowedIframeSrc(src: string, allowedDomains?: string[]): boolean {
   try {
     const url = new URL(src);
-    
+
     // Check protocol
     if (!['https:', 'http:'].includes(url.protocol)) {
       return false;
     }
-    
+
     // Check against allowed domains
     const domains = allowedDomains || ALLOWED_VIDEO_DOMAINS;
     return domains.some(domain => url.hostname === domain || url.hostname.endsWith(`.${domain}`));
@@ -136,7 +137,7 @@ export function sanitizeForPreview(html: string): string {
 export function sanitizeForStorage(html: string): string {
   // More strict sanitization for storage
   const clean = sanitizeHtml(html);
-  
+
   // Additional cleanup
   return clean
     .replace(/\s+/g, ' ') // Normalize whitespace
@@ -150,7 +151,7 @@ export function sanitizeForStorage(html: string): string {
 
 export function sanitizePlainText(text: string): string {
   if (!text || typeof text !== 'string') return '';
-  
+
   return text
     .replace(/[<>]/g, '') // Remove angle brackets
     .replace(/javascript:/gi, '') // Remove javascript: protocol
@@ -164,20 +165,20 @@ export function sanitizePlainText(text: string): string {
 
 export function sanitizeUrl(url: string): string {
   if (!url || typeof url !== 'string') return '';
-  
+
   try {
     const urlObj = new URL(url);
-    
+
     // Only allow http and https
     if (!['http:', 'https:'].includes(urlObj.protocol)) {
       return '';
     }
-    
+
     // Remove javascript: and data: protocols
     if (url.toLowerCase().includes('javascript:') || url.toLowerCase().includes('data:')) {
       return '';
     }
-    
+
     return urlObj.toString();
   } catch {
     return '';
@@ -204,16 +205,16 @@ export function sanitizeLinkAttributes(attrs: Record<string, any>): Record<strin
   const sanitized: Record<string, any> = {
     href: sanitizeUrl(attrs.href || ''),
   };
-  
+
   if (attrs.title) {
     sanitized.title = sanitizePlainText(attrs.title);
   }
-  
+
   if (attrs.target === '_blank') {
     sanitized.target = '_blank';
     sanitized.rel = 'noopener noreferrer'; // Security best practice
   }
-  
+
   return sanitized;
 }
 
@@ -224,24 +225,24 @@ export function sanitizeLinkAttributes(attrs: Record<string, any>): Record<strin
 export function sanitizePastedContent(html: string): string {
   // Remove common junk from Word/Google Docs
   let clean = html;
-  
+
   // Remove Word-specific tags
   clean = clean.replace(/<\/?o:p>/gi, '');
   clean = clean.replace(/<\/?w:[^>]*>/gi, '');
   clean = clean.replace(/<\/?m:[^>]*>/gi, '');
-  
+
   // Remove style attributes (keep only allowed ones)
   clean = clean.replace(/style="[^"]*"/gi, '');
-  
+
   // Remove class attributes (except allowed ones)
   clean = clean.replace(/class="[^"]*"/gi, '');
-  
+
   // Remove empty paragraphs
   clean = clean.replace(/<p[^>]*>\s*<\/p>/gi, '');
-  
+
   // Remove comments
   clean = clean.replace(/<!--[\s\S]*?-->/g, '');
-  
+
   // Final sanitization
   return sanitizeHtml(clean);
 }
