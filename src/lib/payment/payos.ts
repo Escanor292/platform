@@ -34,14 +34,20 @@ export async function createPayOSPaymentLink(params: {
 }) {
     try {
         const payos = getPayosClient();
-        const response = await payos.paymentRequests.create({
+        const requestData: any = {
             orderCode: params.orderCode,
             amount: params.amount,
             description: params.description,
             returnUrl: params.returnUrl,
             cancelUrl: params.cancelUrl,
-            metadata: params.metadata,
-        });
+        };
+        
+        if (params.metadata !== undefined) {
+             console.log("[PAYOS] Metadata is passed but API might return error 20 if unsupported.");
+             // We omit sending metadata to avoid 'property metadata should not exist' error.
+        }
+
+        const response = await payos.paymentRequests.create(requestData);
 
         return response;
     } catch (error: any) {

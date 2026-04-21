@@ -13,9 +13,15 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Tra cứu Pledge theo transactionId
-    const pledge = await prisma.pledge.findUnique({
-      where: { transactionId },
+    // Tra cứu Pledge theo nhiều trường ID khả thi
+    const pledge = await prisma.pledge.findFirst({
+      where: {
+        OR: [
+          { transactionId: transactionId },
+          { id: transactionId },
+          { payosOrderCode: transactionId }
+        ]
+      },
       include: {
         campaign: {
           select: {

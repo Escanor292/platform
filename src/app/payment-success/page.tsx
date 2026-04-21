@@ -9,21 +9,25 @@ import { formatVND } from "@/lib/utils";
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const paymentId = searchParams.get("code");
+  // Lấy mã giao dịch từ các biến có thể có trên URL
+  const paymentId = searchParams.get("ref") || searchParams.get("transactionId") || searchParams.get("orderCode") || searchParams.get("code");
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (paymentId) {
-      // Gọi API tra cứu để lấy thông tin vừa thanh toán
-      fetch(`/api/lookup?code=${paymentId}`)
+      // Gọi API tra cứu để lấy thông tin vừa thanh toán, dùng đúng tham số transactionId
+      fetch(`/api/lookup?transactionId=${paymentId}`)
         .then(res => res.json())
         .then(resData => {
-          setData(resData.transaction || resData.payment);
+          setData(resData.transaction || resData.payment || resData);
           setLoading(false);
         })
         .catch(() => setLoading(false));
+    } else {
+      // Nếu không có ID nào trên URL, ngưng xoay
+      setLoading(false);
     }
   }, [paymentId]);
 

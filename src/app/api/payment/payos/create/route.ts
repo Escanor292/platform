@@ -60,17 +60,22 @@ export async function POST(request: Request) {
       amount: totalAmount
     });
 
-    const paymentLinkRes = await createPayOSPaymentLink({
-      orderCode,
-      amount: Math.round(totalAmount),
-      description: `Ủng hộ dự án ${campaignId.slice(0, 8)}`,
-      cancelUrl: `${process.env.NEXTAUTH_URL}/campaigns`,
-      returnUrl: `${process.env.NEXTAUTH_URL}/payment-success?status=success&ref=${pledge.id}`,
-      metadata: {
-        pledgeId: pledge.id,
-        campaignId: campaignId,
-      }
-    });
+    let paymentLinkRes;
+    
+    if (process.env.NODE_ENV === 'development') {
+        console.log("[PAYOS CREATE] Development mode: Using local mock checkout.");
+        paymentLinkRes = {
+            checkoutUrl: `${process.env.NEXTAUTH_URL}/api/payment/payos/mock-checkout?orderCode=${orderCode}&amount=${totalAmount}&pledgeId=${pledge.id}`
+        };
+    } else {
+        paymentLinkRes = await createPayOSPaymentLink({
+          orderCode,
+          amount: Math.round(totalAmount),
+          description: `Ung ho du an ${campaignId.slice(0, 8)}`,
+          cancelUrl: `${process.env.NEXTAUTH_URL}/campaigns`,
+          returnUrl: `${process.env.NEXTAUTH_URL}/payment-success?status=success&ref=${pledge.id}`,
+        });
+    }
 
     // 3. Cập nhật pledge với orderCode từ PayOS
     await prisma.pledge.update({
