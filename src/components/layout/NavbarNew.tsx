@@ -3,10 +3,9 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import {
-  Rocket, User, LogOut, UserCircle, PlusCircle, Menu, X, ChevronDown, Settings, ShieldCheck, FolderKanban, Star
+  Rocket, User, LogOut, UserCircle, PlusCircle, Menu, X, ChevronDown, Settings, ShieldCheck, FolderKanban, HeartHandshake
 } from "lucide-react";
-import { useState } from "react";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import LeafIcon from "../shared/LeafIcon";
@@ -14,12 +13,80 @@ import LeafIcon from "../shared/LeafIcon";
 export default function NavbarNew() {
   const { data: session } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
 
   const user = session?.user as any;
   const isAdmin = user?.role === "ADMIN" || user?.isAdmin === true;
 
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        triggerRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        !triggerRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isDropdownOpen]);
+
+  const clearCloseTimeout = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  };
+
+  const setCloseTimeout = () => {
+    clearCloseTimeout();
+    timeoutRef.current = setTimeout(() => {
+      setIsDropdownOpen(false);
+    }, 100);
+  };
+
+  const handleTriggerMouseEnter = () => {
+    clearCloseTimeout();
+    setIsDropdownOpen(true);
+  };
+
+  const handleTriggerMouseLeave = () => {
+    setCloseTimeout();
+  };
+
+  const handleDropdownMouseEnter = () => {
+    clearCloseTimeout();
+  };
+
+  const handleDropdownMouseLeave = () => {
+    setCloseTimeout();
+  };
+
+  const handleTriggerClick = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
   const handleLogout = async () => {
+    setIsDropdownOpen(false);
     toast.promise(signOut({ redirect: false }), {
       loading: 'Đang xử lý...',
       success: () => {
@@ -87,77 +154,101 @@ export default function NavbarNew() {
                 Gây quỹ ngay
               </Link>
 
-              <DropdownMenu.Root>
-                <DropdownMenu.Trigger asChild>
-                  <button className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded-xl transition focus-ring">
-                    <div className="w-9 h-9 rounded-full bg-pgreen/10 border border-pgreen/20 flex items-center justify-center text-pgreen font-bold overflow-hidden">
-                      {session.user?.image ? (
-                        <img src={session.user.image} alt="Avatar" className="w-full h-full object-cover" />
-                      ) : (
-                        session.user?.name?.charAt(0) || "U"
-                      )}
-                    </div>
-                    <ChevronDown size={16} className="text-gray-400" />
-                  </button>
-                </DropdownMenu.Trigger>
+              {/* Profile Dropdown */}
+              <div className="relative">
+                <button
+                  ref={triggerRef}
+                  onClick={handleTriggerClick}
+                  onMouseEnter={handleTriggerMouseEnter}
+                  onMouseLeave={handleTriggerMouseLeave}
+                  className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded-xl transition focus-ring"
+                >
+                  <div className="w-9 h-9 rounded-full bg-pgreen/10 border border-pgreen/20 flex items-center justify-center text-pgreen font-bold overflow-hidden">
+                    {session.user?.image ? (
+                      <img src={session.user.image} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      session.user?.name?.charAt(0) || "U"
+                    )}
+                  </div>
+                  <ChevronDown
+                    size={16}
+                    className={`text-gray-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''
+                      }`}
+                  />
+                </button>
 
-                <DropdownMenu.Portal>
-                  <DropdownMenu.Content
-                    align="end"
-                    sideOffset={8}
-                    className="w-56 bg-white rounded-2xl shadow-premium border border-gray-100 p-2 z-50 animate-in fade-in zoom-in-95 duration-200"
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                  <div
+                    ref={dropdownRef}
+                    onMouseEnter={handleDropdownMouseEnter}
+                    onMouseLeave={handleDropdownMouseLeave}
+                    className="absolute right-0 top-full mt-1 w-56 bg-white rounded-2xl shadow-premium border border-gray-100 p-2 z-50 animate-in fade-in zoom-in-95 duration-200"
                   >
+                    {/* User Info */}
                     <div className="px-3 py-2 border-b border-gray-50 mb-2">
                       <p className="text-sm font-bold text-gray-900 truncate">{session.user?.name}</p>
                       <p className="text-xs text-gray-400 truncate">{session.user?.email}</p>
                     </div>
 
-                    <DropdownMenu.Item asChild>
-                      <Link href="/dashboard" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50">
-                        <UserCircle size={16} />
-                        Trang cá nhân
-                      </Link>
-                    </DropdownMenu.Item>
+                    {/* Menu Items */}
+                    <Link
+                      href="/dashboard"
+                      className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      <UserCircle size={16} />
+                      Trang cá nhân
+                    </Link>
 
-                    <DropdownMenu.Item asChild>
-                      <Link href="/dashboard/creator" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50">
-                        <FolderKanban size={16} />
-                        Quản lý dự án
-                      </Link>
-                    </DropdownMenu.Item>
+                    <Link
+                      href="/dashboard/creator"
+                      className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      <FolderKanban size={16} />
+                      Quản lý dự án
+                    </Link>
 
-                    <DropdownMenu.Item asChild>
-                      <Link href="/dashboard/favorites" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50">
-                        <Star size={16} />
-                        Dự án quan tâm
-                      </Link>
-                    </DropdownMenu.Item>
+                    <Link
+                      href="/dashboard/favorites"
+                      className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      <HeartHandshake size={16} />
+                      Dự án quan tâm
+                    </Link>
 
-                    <DropdownMenu.Item asChild>
-                      <Link href="/profile/edit" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50">
-                        <Settings size={16} />
-                        Cài đặt
-                      </Link>
-                    </DropdownMenu.Item>
+                    <Link
+                      href="/profile/edit"
+                      className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      <Settings size={16} />
+                      Cài đặt
+                    </Link>
 
                     {isAdmin && (
-                      <DropdownMenu.Item asChild>
-                        <Link href="/dashboard/admin" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition cursor-pointer outline-none focus:bg-red-50">
-                          <ShieldCheck size={16} />
-                          Quản trị
-                        </Link>
-                      </DropdownMenu.Item>
+                      <Link
+                        href="/dashboard/admin"
+                        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition cursor-pointer outline-none focus:bg-red-50"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        <ShieldCheck size={16} />
+                        Quản trị
+                      </Link>
                     )}
 
-                    <DropdownMenu.Item asChild>
-                      <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition outline-none focus:bg-red-50 mt-1 cursor-pointer">
-                        <LogOut size={16} />
-                        Đăng xuất
-                      </button>
-                    </DropdownMenu.Item>
-                  </DropdownMenu.Content>
-                </DropdownMenu.Portal>
-              </DropdownMenu.Root>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition outline-none focus:bg-red-50 mt-1 cursor-pointer"
+                    >
+                      <LogOut size={16} />
+                      Đăng xuất
+                    </button>
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             <>

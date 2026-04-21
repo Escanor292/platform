@@ -9,7 +9,7 @@ async function checkUserPro() {
             id: true,
             name: true,
             email: true,
-            isPro: true,
+            status: true,
             role: true,
         }
     });
@@ -22,7 +22,7 @@ async function checkUserPro() {
         console.log(`   Name: ${user.name}`);
         console.log(`   Email: ${user.email}`);
         console.log(`   Role: ${user.role}`);
-        console.log(`   isPro: ${user.isPro ? '✅ CÓ' : '❌ KHÔNG'}`);
+        console.log(`   Status: ${user.status === 'PRO' ? '✅ PRO' : '❌ NORMAL'}`);
     }
 
     await prisma.$disconnect();

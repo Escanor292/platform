@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Star, ArrowLeft } from "lucide-react";
+import { HeartHandshake, ArrowLeft } from "lucide-react";
 import FavoritesList from "@/components/dashboard/FavoritesList";
 
 export default async function FavoritesPage() {
@@ -25,8 +25,8 @@ export default async function FavoritesPage() {
                     </Link>
 
                     <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center">
-                            <Star size={24} className="text-yellow-600" />
+                        <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
+                            <HeartHandshake size={24} className="text-red-600" />
                         </div>
                         <div>
                             <h1 className="text-3xl font-bold text-gray-900">Dự án quan tâm</h1>

@@ -54,13 +54,13 @@ export function DateInput({
 
   const handleDisplayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let input = e.target.value;
-    
+
     // Remove non-numeric characters except /
     input = input.replace(/[^\d/]/g, "");
-    
+
     // Parse current input
     const parts = input.split("/");
-    
+
     // Validate and limit each part
     if (parts.length >= 1) {
       // Day: 01-31
@@ -79,7 +79,7 @@ export function DateInput({
         input = parts.join("/");
       }
     }
-    
+
     if (parts.length >= 2) {
       // Month: 01-12
       let month = parts[1];
@@ -98,7 +98,7 @@ export function DateInput({
         input = parts.join("/");
       }
     }
-    
+
     if (parts.length >= 3) {
       // Year: 1900-2100
       let year = parts[2];
@@ -113,35 +113,35 @@ export function DateInput({
         input = parts.join("/");
       }
     }
-    
+
     // Auto-add slashes
     if (input.length === 2 && !input.includes("/")) {
       input = input + "/";
     } else if (input.length === 5 && input.split("/").length === 2) {
       input = input + "/";
     }
-    
+
     // Limit total length
     if (input.length > 10) {
       input = input.slice(0, 10);
     }
-    
+
     setDisplayValue(input);
-    
+
     // Reset invalid state when typing
     if (isInvalid) {
       setIsInvalid(false);
     }
-    
+
     // If complete date, validate and convert to ISO
     if (input.length === 10 && input.split("/").length === 3) {
       const [day, month, year] = input.split("/");
-      
+
       // Additional validation for days in month
       const dayNum = parseInt(day);
       const monthNum = parseInt(month);
       const yearNum = parseInt(year);
-      
+
       // Check if date is valid
       if (isValidDateParts(dayNum, monthNum, yearNum)) {
         const isoDate = formatISO(input);
@@ -161,21 +161,21 @@ export function DateInput({
     if (day < 1 || day > 31) return false;
     if (month < 1 || month > 12) return false;
     if (year < 1900 || year > 2100) return false;
-    
+
     // Check days in month
     const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    
+
     // Leap year check
     const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
     if (isLeapYear) {
       daysInMonth[1] = 29;
     }
-    
+
     // Check if day is valid for the month
     if (day > daysInMonth[month - 1]) {
       return false;
     }
-    
+
     return true;
   };
 
@@ -205,17 +205,20 @@ export function DateInput({
           onBlur={() => setIsFocused(false)}
           placeholder={placeholder}
           className={cn(
-            "w-full pl-4 pr-12 py-3 text-sm text-gray-900 font-medium rounded-xl bg-slate-50 border",
+            "w-full pl-12 pr-12 py-3 text-sm text-gray-900 font-medium rounded-2xl bg-white border",
             "focus:outline-none focus:ring-2 transition-all",
             "placeholder:text-gray-400",
-            isInvalid 
-              ? "border-red-300 focus:ring-red-200 focus:border-red-400" 
-              : "border-gray-200 focus:ring-blue-200 focus:border-blue-400",
+            isInvalid
+              ? "border-red-300 focus:ring-red-200 focus:border-red-400"
+              : "border-gray-200 focus:ring-orange-500 focus:border-orange-500",
             className
           )}
           required={required}
         />
-        
+
+        {/* Calendar Icon */}
+        <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+
         {/* Calendar button to open native picker */}
         <button
           type="button"
@@ -239,7 +242,7 @@ export function DateInput({
         className="absolute opacity-0 pointer-events-none"
         tabIndex={-1}
       />
-      
+
       {/* Error message */}
       {isInvalid && (
         <p className="mt-1.5 text-xs text-red-600 font-medium">

@@ -65,7 +65,7 @@ export default function TransactionStatement({ campaign, pledges }: TransactionS
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
           <FileText size={24} className="text-blue-600" />
-          Sao kê giao dịch
+          Báo cáo giao dịch
         </h2>
         <div className="flex gap-2 print:hidden">
           <Button onClick={handleExport} variant="outline" size="sm">
@@ -74,7 +74,7 @@ export default function TransactionStatement({ campaign, pledges }: TransactionS
           </Button>
           <Button onClick={handlePrint} variant="outline" size="sm">
             <FileText size={16} className="mr-2" />
-            In sao kê
+            In báo cáo
           </Button>
         </div>
       </div>
@@ -83,7 +83,7 @@ export default function TransactionStatement({ campaign, pledges }: TransactionS
       <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8 space-y-8">
         {/* Header */}
         <div className="text-center border-b border-gray-200 pb-6">
-          <h1 className="text-3xl font-black text-gray-900 mb-2">SAO KÊ GIAO DỊCH</h1>
+          <h1 className="text-3xl font-black text-gray-900 mb-2">BÁO CÁO GIAO DỊCH</h1>
           <p className="text-sm text-gray-500 font-medium">Báo cáo chi tiết các khoản ủng hộ dự án</p>
         </div>
 
@@ -191,8 +191,8 @@ export default function TransactionStatement({ campaign, pledges }: TransactionS
 
         {/* Footer */}
         <div className="text-center text-xs text-gray-400 pt-6 border-t border-gray-200">
-          <p>Sao kê được tạo tự động bởi hệ thống CrowdFund VN</p>
-          <p className="mt-1">Mọi thông tin trong sao kê này là chính xác tại thời điểm xuất</p>
+          <p>Báo cáo được tạo tự động bởi hệ thống CrowdFund VN</p>
+          <p className="mt-1">Mọi thông tin trong báo cáo này là chính xác tại thời điểm xuất</p>
         </div>
       </div>
     </div>

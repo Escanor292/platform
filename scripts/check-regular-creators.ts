@@ -4,13 +4,13 @@ async function checkRegularCreators() {
     const creators = await prisma.user.findMany({
         where: {
             role: 'CREATOR',
-            isPro: false,
+            status: 'NORMAL',
         },
         select: {
             id: true,
             name: true,
             email: true,
-            isPro: true,
+            status: true,
             role: true,
         }
     });
@@ -24,7 +24,7 @@ async function checkRegularCreators() {
             console.log(`${index + 1}. ${creator.name || 'N/A'}`);
             console.log(`   Email: ${creator.email}`);
             console.log(`   ID: ${creator.id}`);
-            console.log(`   isPro: ${creator.isPro ? '✅ Pro' : '❌ Thường'}\n`);
+            console.log(`   Status: ${creator.status === 'PRO' ? '✅ Pro' : '❌ Thường'}\n`);
         });
     }
 

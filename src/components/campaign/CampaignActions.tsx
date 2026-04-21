@@ -1,7 +1,9 @@
 "use client";
 
-import { Star, Share2 } from "lucide-react";
+import { HeartHandshake, Share2, Flag } from "lucide-react";
 import { useState, useEffect } from "react";
+import { getFollowButtonClass, getFollowIconClass } from "@/lib/button-styles";
+import CampaignReportModal from "./CampaignReportModal";
 
 interface CampaignActionsProps {
     campaignTitle: string;
@@ -11,6 +13,7 @@ interface CampaignActionsProps {
 
 export default function CampaignActions({ campaignTitle, campaignSlug, campaignId }: CampaignActionsProps) {
     const [isFavorited, setIsFavorited] = useState(false);
+    const [showReportModal, setShowReportModal] = useState(false);
 
     useEffect(() => {
         // Check if campaign is already favorited
@@ -74,29 +77,43 @@ export default function CampaignActions({ campaignTitle, campaignSlug, campaignI
     };
 
     return (
-        <div className="flex items-center gap-3">
-            <button
-                onClick={handleFavorite}
-                className={`flex-1 border ${isFavorited
-                    ? "border-yellow-400 bg-yellow-50 text-yellow-700"
-                    : "border-gray-300 bg-white text-gray-700"
-                    } hover:bg-gray-50 font-semibold py-3 px-4 rounded-lg text-sm transition-colors flex items-center justify-center gap-2`}
-                title={isFavorited ? "Đã quan tâm" : "Quan tâm"}
-            >
-                <Star
-                    size={16}
-                    className={isFavorited ? "fill-yellow-400 text-yellow-400" : "text-gray-600"}
-                />
-                {isFavorited ? "Đã quan tâm" : "Quan tâm"}
-            </button>
+        <>
+            <div className="flex items-center gap-3">
+                <button
+                    onClick={handleFavorite}
+                    className={getFollowButtonClass(isFavorited, "flex-1 py-3 px-4")}
+                    title={isFavorited ? "Đã quan tâm" : "Quan tâm"}
+                >
+                    <HeartHandshake
+                        size={16}
+                        className={getFollowIconClass(isFavorited)}
+                    />
+                    {isFavorited ? "Đã quan tâm" : "Quan tâm"}
+                </button>
 
-            <button
-                onClick={handleShare}
-                className="border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold p-3 rounded-lg transition-colors"
-                title="Chia sẻ"
-            >
-                <Share2 size={18} className="text-gray-600" />
-            </button>
-        </div>
+                <button
+                    onClick={handleShare}
+                    className="border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold p-3 rounded-lg transition-colors"
+                    title="Chia sẻ"
+                >
+                    <Share2 size={18} className="text-gray-600" />
+                </button>
+
+                <button
+                    onClick={() => setShowReportModal(true)}
+                    className="border border-gray-300 hover:bg-red-50 text-gray-700 hover:text-red-600 font-semibold p-3 rounded-lg transition-colors"
+                    title="Báo cáo chiến dịch"
+                >
+                    <Flag size={18} className="text-gray-600 hover:text-red-600" />
+                </button>
+            </div>
+
+            <CampaignReportModal
+                campaignSlug={campaignSlug}
+                campaignTitle={campaignTitle}
+                isOpen={showReportModal}
+                onClose={() => setShowReportModal(false)}
+            />
+        </>
     );
 }

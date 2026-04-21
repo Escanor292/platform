@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Star, Calendar, TrendingUp, X } from "lucide-react";
+import { HeartHandshake, Calendar, TrendingUp, X } from "lucide-react";
 import CampaignGrowthProgress from "@/components/campaign/CampaignGrowthProgress";
 
 interface FavoriteCampaign {
@@ -73,8 +73,8 @@ export default function FavoritesList() {
     if (favorites.length === 0) {
         return (
             <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
-                <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                    <Star size={32} className="text-gray-400" />
+                <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                    <HeartHandshake size={32} className="text-red-600" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Chưa có dự án quan tâm</h3>
                 <p className="text-gray-600 mb-6">

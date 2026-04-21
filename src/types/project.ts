@@ -2,23 +2,23 @@
  * Project/Campaign Types for Discovery Page
  */
 
-export type CampaignStatus = 
-  | "DRAFT" 
-  | "PENDING_REVIEW" 
-  | "ACTIVE" 
-  | "PAUSED" 
-  | "COMPLETED" 
-  | "FAILED" 
+export type CampaignStatus =
+  | "DRAFT"
+  | "PENDING_REVIEW"
+  | "ACTIVE"
+  | "PAUSED"
+  | "COMPLETED"
+  | "FAILED"
   | "CANCELED";
 
-export type CampaignType = 
-  | "REWARD" 
-  | "DONATION" 
-  | "EQUITY" 
-  | "SUBSCRIPTION" 
+export type CampaignType =
+  | "REWARD"
+  | "DONATION"
+  | "EQUITY"
+  | "SUBSCRIPTION"
   | "PREORDER";
 
-export type CompletionState = 
+export type CompletionState =
   | "NOT_STARTED"      // Chưa bắt đầu
   | "ONGOING"          // Đang gây quỹ
   | "GOAL_REACHED"     // Đã đạt mục tiêu
@@ -26,7 +26,7 @@ export type CompletionState =
   | "FAILED"           // Kết thúc không đạt mục tiêu
   | "PAUSED";          // Tạm dừng
 
-export type SortOption = 
+export type SortOption =
   | "newest"           // Mới nhất
   | "oldest"           // Cũ nhất
   | "most_viewed"      // Nhiều lượt xem nhất
@@ -36,7 +36,7 @@ export type SortOption =
   | "ending_soon"      // Sắp kết thúc
   | "recently_updated"; // Mới cập nhật
 
-export type MainCategory = 
+export type MainCategory =
   | "Giáo dục"
   | "Y tế"
   | "Cộng đồng"
@@ -55,35 +55,36 @@ export interface ProjectListItem {
   title: string;
   description: string;          // Short description
   imageUrl: string | null;
-  
+
   // Creator info
   creatorId: string;
   creatorName: string;
   creatorAvatar: string | null;
   creatorIsPro: boolean;
-  
+
   // Taxonomy
   category: string;             // Main category
   tags: string[];               // Starter tags
   campaignType: CampaignType;
-  
+
   // Funding
   goalAmount: number;
   currentAmount: number;
   progressPercent: number;
-  
+
   // Engagement
   totalBackers: number;
+  totalFollowers: number;
   totalViews: number;
   ratingAverage: number;
   ratingCount: number;
-  
+
   // Dates - can be Date or string (from API)
   createdAt: Date | string;
   updatedAt: Date | string;
   startDate: Date | string | null;
   endDate: Date | string | null;
-  
+
   // Status
   status: CampaignStatus;
   completionState: CompletionState;

@@ -44,7 +44,7 @@ export default async function EditCampaignPage({ params }: EditCampaignPageProps
     tags: campaign.tags || [], // Ensure tags is always an array
     rewards: campaign.rewards.map(reward => ({
       ...reward,
-      amount: Number(reward.amount),
+      minAmount: Number(reward.minAmount),
     })),
   };
 

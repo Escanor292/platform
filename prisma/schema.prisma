@@ -39,6 +39,8 @@ model User {
   reviews         Review[]
   kycInfo         KYCInfo?
   auditLogs       AuditLog[]
+  followedCampaigns CampaignFollower[]
+  reports         CampaignReport[]
 
   @@map("users")
 }
@@ -71,6 +73,8 @@ model Campaign {
   pledges         Pledge[]
   Review          Review[]
   rewards         Reward[]
+  followers       CampaignFollower[]
+  reports         CampaignReport[]
 
   @@index([category])
   @@index([tags])
@@ -78,16 +82,20 @@ model Campaign {
 }
 
 model Reward {
-  id          String   @id @default(cuid())
-  campaignId  String
-  title       String
-  description String
-  amount      Decimal
-  quantity    Int?
-  remaining   Int?
-  createdAt   DateTime @default(now())
-  campaign    Campaign @relation(fields: [campaignId], references: [id])
+  id           String    @id @default(cuid())
+  campaignId   String
+  title        String
+  description  String?
+  minAmount    Decimal   // Mức ủng hộ tối thiểu để nhận reward
+  maxQuantity  Int?      // Số lượng giới hạn (null = không giới hạn)
+  deliveryDate DateTime? // Ngày giao hàng dự kiến
+  isActive     Boolean   @default(true) // Trạng thái hoạt động
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  campaign     Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  pledges      Pledge[]  // Các pledge chọn reward này
 
+  @@index([campaignId])
   @@map("rewards")
 }
 
@@ -95,10 +103,12 @@ model Pledge {
   id               String          @id @default(cuid())
   campaignId       String
   userId           String?
+  rewardId         String?         // ID của reward được chọn
   displayName      String
   isAnonymous      Boolean         @default(false)
   email            String?
   phoneNumber      String?
+  shippingAddress  String?         // Địa chỉ nhận hàng cho reward
   amount           Decimal
   tipAmount        Decimal         @default(0)
   platformFee      Decimal         @default(0)
@@ -106,16 +116,19 @@ model Pledge {
   totalAmount      Decimal
   paymentProvider  String
   transactionId    String          @unique
+  payosOrderCode   String?         @unique // OrderCode từ PayOS webhook
   ipAddress        String?
   deviceInfo       Json?
   status           PledgeStatus    @default(PENDING)
   refundStatus     RefundStatus    @default(NO_REFUND)
   refundedAt       DateTime?
   invoiceGroupDate DateTime?
+  webhookProcessedAt DateTime?     // Thời gian webhook được xử lý (để check idempotency)
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
   campaign         Campaign        @relation(fields: [campaignId], references: [id])
   user             User?           @relation(fields: [userId], references: [id])
+  reward           Reward?         @relation(fields: [rewardId], references: [id])
   backerInvoice    BackerInvoice?
   auditLogs        AuditLog[]
 
@@ -151,6 +164,51 @@ model Review {
   user       User      @relation(fields: [userId], references: [id])
 
   @@map("reviews")
+}
+
+// ============================================================
+// Campaign Report - Báo cáo chiến dịch (chỉ cho logged-in users)
+// ============================================================
+model CampaignReport {
+  id          String              @id @default(cuid())
+  campaignId  String
+  userId      String              // Bắt buộc - chỉ logged-in users
+  reason      CampaignReportReason
+  description String              // Mô tả chi tiết
+  status      ReportStatus        @default(PENDING)
+  resolvedAt  DateTime?
+  resolvedBy  String?             // Admin ID
+  resolution  String?             // Kết luận
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  campaign    Campaign            @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, userId]) // Chỉ 1 report/user/campaign
+  @@index([campaignId])
+  @@index([userId])
+  @@index([status])
+  @@map("campaign_reports")
+}
+
+// ============================================================
+// Campaign Followers - Người quan tâm dự án
+// ============================================================
+model CampaignFollower {
+  id         String   @id @default(cuid())
+  campaignId String
+  userId     String?  // null nếu anonymous
+  email      String?  // Email cho anonymous users
+  createdAt  DateTime @default(now())
+  
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([campaignId, userId])
+  @@unique([campaignId, email])
+  @@index([campaignId])
+  @@index([userId])
+  @@map("campaign_followers")
 }
 
 model DailyTipInvoice {
@@ -404,4 +462,20 @@ enum BlacklistType {
   PHONE
   BANK_ACCOUNT
   DEVICE_ID
+}
+
+enum CampaignReportReason {
+  FRAUD              // Gian lận
+  INAPPROPRIATE      // Nội dung không phù hợp
+  MISLEADING         // Thông tin sai lệch
+  SCAM               // Lừa đảo
+  INTELLECTUAL_PROPERTY // Vi phạm bản quyền
+  OTHER              // Khác
+}
+
+enum ReportStatus {
+  PENDING    // Chờ xử lý
+  REVIEWING  // Đang xem xét
+  RESOLVED   // Đã giải quyết
+  DISMISSED  // Bị bác bỏ
 }

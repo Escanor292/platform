@@ -1,0 +1,236 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Gift, Package, Calendar, FileText, Eye, EyeOff } from "lucide-react";
+import { DateInput } from "@/components/shared/DateInput";
+import { CurrencyInput } from "@/components/shared/CurrencyInput";
+
+interface Campaign {
+    id: string;
+    slug: string;
+    title: string;
+    campaignCode: string;
+    status: string;
+}
+
+interface CreateRewardFormProps {
+    campaign: Campaign;
+}
+
+export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
+    const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        title: "",
+        description: "",
+        minAmount: "",
+        maxQuantity: "",
+        deliveryDate: "",
+        isActive: true,
+    });
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        try {
+            const response = await fetch("/api/rewards", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    campaignId: campaign.id,
+                    title: formData.title,
+                    description: formData.description || null,
+                    minAmount: parseFloat(formData.minAmount),
+                    maxQuantity: formData.maxQuantity ? parseInt(formData.maxQuantity) : null,
+                    deliveryDate: formData.deliveryDate ? new Date(formData.deliveryDate) : null,
+                    isActive: formData.isActive,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to create reward");
+            }
+
+            toast.success("Tạo quà tặng thành công!");
+            router.push(`/dashboard/creator/rewards/${campaign.slug}`);
+        } catch (error) {
+            toast.error("Lỗi tạo quà tặng");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const toggleActive = () => {
+        setFormData(prev => ({ ...prev, isActive: !prev.isActive }));
+    };
+
+    return (
+        <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden">
+            <div className="px-8 py-6 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center">
+                        <Gift className="text-orange-600" size={24} />
+                    </div>
+                    <div>
+                        <h2 className="text-xl font-bold text-gray-900">Thông tin quà tặng</h2>
+                        <p className="text-gray-500 text-sm">Tạo gói quà tặng hấp dẫn cho người ủng hộ</p>
+                    </div>
+                </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                {/* Title */}
+                <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                        Tên quà tặng *
+                    </label>
+                    <input
+                        type="text"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="VD: Gói ủng hộ cơ bản, Sản phẩm đầu tiên..."
+                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                    />
+                </div>
+
+                {/* Description */}
+                <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                        Mô tả chi tiết
+                    </label>
+                    <textarea
+                        name="description"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        rows={4}
+                        placeholder="Mô tả chi tiết về quà tặng, quyền lợi, điều kiện..."
+                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition resize-none"
+                    />
+                </div>
+
+                {/* Min Amount */}
+                <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                        Mức ủng hộ tối thiểu *
+                    </label>
+                    <CurrencyInput
+                        name="minAmount"
+                        value={formData.minAmount}
+                        onChange={(value) => setFormData(prev => ({ ...prev, minAmount: value }))}
+                        placeholder="50.000"
+                        required
+                        min="1000"
+                        step="1000"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                        Số tiền tối thiểu để nhận được quà tặng này (VNĐ)
+                    </p>
+                </div>
+
+                {/* Max Quantity */}
+                <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                        Số lượng giới hạn
+                    </label>
+                    <div className="relative">
+                        <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                        <input
+                            type="number"
+                            name="maxQuantity"
+                            value={formData.maxQuantity}
+                            onChange={handleInputChange}
+                            min="1"
+                            placeholder="Để trống nếu không giới hạn"
+                            className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                        />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                        Số lượng tối đa có thể phát hành (để trống nếu không giới hạn)
+                    </p>
+                </div>
+
+                {/* Delivery Date */}
+                <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                        Ngày giao hàng dự kiến
+                    </label>
+                    <DateInput
+                        value={formData.deliveryDate}
+                        onChange={(value) => setFormData(prev => ({ ...prev, deliveryDate: value }))}
+                        placeholder="dd/mm/yyyy"
+                        min={new Date().toISOString().split('T')[0]}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                        Ngày dự kiến giao quà tặng cho người ủng hộ
+                    </p>
+                </div>
+
+                {/* Status Toggle */}
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+                    <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${formData.isActive ? 'bg-green-100' : 'bg-gray-100'
+                            }`}>
+                            {formData.isActive ? (
+                                <Eye className="text-green-600" size={20} />
+                            ) : (
+                                <EyeOff className="text-gray-600" size={20} />
+                            )}
+                        </div>
+                        <div>
+                            <div className="font-semibold text-gray-900">
+                                {formData.isActive ? 'Kích hoạt ngay' : 'Tạm dừng'}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                                {formData.isActive
+                                    ? 'Quà tặng sẽ hiển thị cho người ủng hộ'
+                                    : 'Quà tặng sẽ được ẩn khỏi danh sách'
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={toggleActive}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData.isActive ? 'bg-green-600' : 'bg-gray-200'
+                            }`}
+                    >
+                        <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.isActive ? 'translate-x-6' : 'translate-x-1'
+                                }`}
+                        />
+                    </button>
+                </div>
+
+                {/* Submit Buttons */}
+                <div className="flex gap-4 pt-6">
+                    <button
+                        type="button"
+                        onClick={() => router.back()}
+                        className="flex-1 px-6 py-3 border border-gray-200 text-gray-600 rounded-2xl font-semibold hover:bg-gray-50 transition"
+                    >
+                        Hủy bỏ
+                    </button>
+                    <button
+                        type="submit"
+                        disabled={isLoading || !formData.title || !formData.minAmount}
+                        className="flex-1 px-6 py-3 bg-orange-600 text-white rounded-2xl font-semibold hover:bg-orange-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {isLoading ? 'Đang tạo...' : 'Tạo quà tặng'}
+                    </button>
+                </div>
+            </form>
+        </div>
+    );
+}

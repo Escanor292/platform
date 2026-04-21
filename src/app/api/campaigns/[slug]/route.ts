@@ -15,7 +15,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
       where: { OR: [{ id: slug }, { slug }] },
       include: {
         creator: { select: { id: true, name: true, avatar: true } },
-        rewards: { orderBy: { amount: "asc" } },
+        rewards: { orderBy: { minAmount: "asc" } },
         pledges: {
           where: { isAnonymous: false },
           select: {
@@ -27,7 +27,12 @@ export async function GET(_req: NextRequest, { params }: Params) {
           orderBy: { createdAt: "desc" },
           take: 10,
         },
-        _count: { select: { pledges: true } },
+        _count: {
+          select: {
+            pledges: true,
+            followers: true
+          }
+        },
       },
     });
 

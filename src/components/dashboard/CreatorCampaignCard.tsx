@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { formatVND, formatDate } from "@/lib/utils";
-import { FileText, Settings } from "lucide-react";
+import { FileText, Settings, Gift } from "lucide-react";
 
 interface CreatorCampaignCardProps {
     campaign: {
@@ -77,14 +77,22 @@ export function CreatorCampaignCard({ campaign }: CreatorCampaignCardProps) {
             </Link>
 
             {/* Action buttons - positioned absolutely to stay on top */}
-            <div className="px-8 pb-8 flex gap-3 relative z-10">
+            <div className="px-8 pb-8 flex gap-2 relative z-10">
                 <Link
                     href={`/dashboard/creator/statement/${campaign.id}`}
                     className="flex-1 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center hover:bg-emerald-600 hover:text-white transition active:scale-95 gap-2 font-black text-sm"
                     onClick={(e) => e.stopPropagation()}
                 >
                     <FileText size={18} />
-                    Sao kê
+                    Báo cáo
+                </Link>
+                <Link
+                    href={`/dashboard/creator/rewards/${campaign.slug}`}
+                    className="flex-1 h-14 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center hover:bg-orange-600 hover:text-white transition active:scale-95 gap-2 font-black text-sm"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <Gift size={18} />
+                    Quà tặng
                 </Link>
                 <Link
                     href={`/dashboard/creator/edit/${campaign.slug}`}

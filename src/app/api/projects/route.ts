@@ -75,7 +75,8 @@ export async function GET(req: NextRequest) {
           select: {
             pledges: {
               where: { status: 'SUCCESS' }
-            }
+            },
+            followers: true
           }
         }
       },
@@ -117,6 +118,7 @@ export async function GET(req: NextRequest) {
         progressPercent,
 
         totalBackers: campaign._count.pledges,
+        totalFollowers: campaign._count.followers,
         totalViews: 0, // TODO: Implement view tracking
         ratingAverage: 0, // TODO: Calculate from reviews
         ratingCount: 0, // TODO: Count reviews

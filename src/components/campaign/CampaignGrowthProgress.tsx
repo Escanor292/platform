@@ -170,9 +170,9 @@ function TreeZone({
             reducedMotion
               ? undefined
               : {
-                  y: [0, -1.5, 0],
-                  rotate: [0, -0.4, 0.4, 0],
-                }
+                y: [0, -1.5, 0],
+                rotate: [0, -0.4, 0.4, 0],
+              }
           }
           transition={{
             duration: 3.5,
@@ -226,7 +226,7 @@ function ProgressHead({
             ease: 'easeInOut',
           }}
         />
-        
+
         {/* Secondary glow ring */}
         <motion.div
           className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/20 rounded-full blur-lg"
@@ -254,7 +254,7 @@ function ProgressHead({
             ease: 'easeInOut',
           }}
         />
-        
+
         {/* Sharp edge highlight */}
         <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-3/4 bg-gradient-to-l from-white/70 to-transparent rounded-r-full" />
 
@@ -415,7 +415,7 @@ function CompactProgress({
           >
             {/* Top highlight */}
             <div className="absolute inset-0 rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.3),rgba(255,255,255,0)_50%)]" />
-            
+
             {/* Soft glow along the edges - makes bar feel alive */}
             <motion.div
               className="absolute inset-x-0 top-0 h-full bg-gradient-to-b from-white/15 to-transparent rounded-full"
@@ -440,7 +440,7 @@ function CompactProgress({
                 delay: 0.5,
               }}
             />
-            
+
             {/* Pulsing veins/energy flow inside bar */}
             {!reducedMotion && visualProgress > 5 && (
               <>
@@ -473,7 +473,7 @@ function CompactProgress({
                 />
               </>
             )}
-            
+
             {/* Shimmer effect 1 - fast */}
             {!reducedMotion && visualProgress > 5 && (
               <motion.div
@@ -487,7 +487,7 @@ function CompactProgress({
                 }}
               />
             )}
-            
+
             {/* Shimmer effect 2 - slow */}
             {!reducedMotion && visualProgress > 10 && (
               <motion.div
@@ -507,7 +507,7 @@ function CompactProgress({
               <>
                 <motion.div
                   className="absolute top-[20%] w-1 h-1 rounded-full bg-white/50"
-                  animate={{ 
+                  animate={{
                     x: ['-10%', '110%'],
                     opacity: [0, 0.8, 0.8, 0],
                     scale: [0.5, 1, 1, 0.5],
@@ -521,7 +521,7 @@ function CompactProgress({
                 />
                 <motion.div
                   className="absolute top-[60%] w-1 h-1 rounded-full bg-white/50"
-                  animate={{ 
+                  animate={{
                     x: ['-10%', '110%'],
                     opacity: [0, 0.8, 0.8, 0],
                     scale: [0.5, 1, 1, 0.5],
@@ -535,7 +535,7 @@ function CompactProgress({
                 />
                 <motion.div
                   className="absolute top-[40%] w-1 h-1 rounded-full bg-white/40"
-                  animate={{ 
+                  animate={{
                     x: ['-10%', '110%'],
                     opacity: [0, 0.7, 0.7, 0],
                     scale: [0.5, 1, 1, 0.5],
@@ -554,7 +554,7 @@ function CompactProgress({
             {!reducedMotion && visualProgress > 0 && (
               <motion.div
                 className={`absolute inset-0 rounded-full bg-gradient-to-r ${stage.fillGradient} opacity-0`}
-                animate={{ 
+                animate={{
                   opacity: [0, 0.2, 0],
                   scale: [1, 1.01, 1],
                 }}
@@ -687,7 +687,7 @@ export const CampaignGrowthProgress: React.FC<CampaignGrowthProgressProps> = ({
               >
                 {/* Top highlight */}
                 <div className="absolute inset-0 rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.3),rgba(255,255,255,0)_50%)]" />
-                
+
                 {/* Soft glow along the edges - makes bar feel alive */}
                 <motion.div
                   className="absolute inset-x-0 top-0 h-full bg-gradient-to-b from-white/15 to-transparent rounded-full"
@@ -712,7 +712,7 @@ export const CampaignGrowthProgress: React.FC<CampaignGrowthProgressProps> = ({
                     delay: 0.5,
                   }}
                 />
-                
+
                 {/* Pulsing veins/energy flow inside bar */}
                 {!reducedMotion && visualProgress > 5 && (
                   <>
@@ -759,7 +759,7 @@ export const CampaignGrowthProgress: React.FC<CampaignGrowthProgressProps> = ({
                     }}
                   />
                 )}
-                
+
                 {/* Shimmer effect 2 - slow */}
                 {!reducedMotion && visualProgress > 10 && (
                   <motion.div
@@ -779,7 +779,7 @@ export const CampaignGrowthProgress: React.FC<CampaignGrowthProgressProps> = ({
                   <>
                     <motion.div
                       className="absolute top-[25%] w-1.5 h-1.5 rounded-full bg-white/50"
-                      animate={{ 
+                      animate={{
                         x: ['-10%', '110%'],
                         opacity: [0, 0.8, 0.8, 0],
                         scale: [0.5, 1, 1, 0.5],
@@ -793,7 +793,7 @@ export const CampaignGrowthProgress: React.FC<CampaignGrowthProgressProps> = ({
                     />
                     <motion.div
                       className="absolute top-[65%] w-1.5 h-1.5 rounded-full bg-white/50"
-                      animate={{ 
+                      animate={{
                         x: ['-10%', '110%'],
                         opacity: [0, 0.8, 0.8, 0],
                         scale: [0.5, 1, 1, 0.5],
@@ -807,7 +807,7 @@ export const CampaignGrowthProgress: React.FC<CampaignGrowthProgressProps> = ({
                     />
                     <motion.div
                       className="absolute top-[45%] w-1 h-1 rounded-full bg-white/40"
-                      animate={{ 
+                      animate={{
                         x: ['-10%', '110%'],
                         opacity: [0, 0.7, 0.7, 0],
                         scale: [0.5, 1, 1, 0.5],
@@ -826,7 +826,7 @@ export const CampaignGrowthProgress: React.FC<CampaignGrowthProgressProps> = ({
                 {!reducedMotion && visualProgress > 0 && (
                   <motion.div
                     className={`absolute inset-0 rounded-full bg-gradient-to-r ${stage.fillGradient} opacity-0`}
-                    animate={{ 
+                    animate={{
                       opacity: [0, 0.2, 0],
                       scale: [1, 1.01, 1],
                     }}

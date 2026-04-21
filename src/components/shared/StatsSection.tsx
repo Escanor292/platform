@@ -1,10 +1,111 @@
+'use client';
+
+import { useEffect, useState, useRef } from 'react';
+
+interface PlatformStats {
+  totalFunds: string;
+  totalFundsRaw: number;
+  successfulCampaigns: number;
+  activeCampaigns: number;
+  totalBackers: number;
+  transparencyRate: string;
+  transparencyRateRaw: number;
+}
+
 export default function StatsSection() {
-  const stats = [
-    { value: '52.8 tỷ', label: 'Tổng tiền gây quỹ', trend: '↑ 28% so năm trước', colorClass: 'text-pgreen', bgClass: 'from-pgreen/5' },
-    { value: '1,247', label: 'Chiến dịch thành công', trend: '↑ 42% tăng mỗi tháng', colorClass: 'text-tblue', bgClass: 'from-tblue/5' },
-    { value: '89,520', label: 'Người ủng hộ', trend: '↑ 156% năm nay', colorClass: 'text-dblue', bgClass: 'from-dblue/5' },
-    { value: '98.5%', label: 'Tỷ lệ minh bạch', trend: 'Zero hidden fees', colorClass: 'text-ebrown', bgClass: 'from-ebrown/5' },
-  ];
+  const [stats, setStats] = useState([
+    { value: '...', label: 'Tổng tiền gây quỹ', trend: 'Đang tải...', colorClass: 'text-pgreen', bgClass: 'from-pgreen/5' },
+    { value: '...', label: 'Chiến dịch thành công', trend: 'Đang tải...', colorClass: 'text-tblue', bgClass: 'from-tblue/5' },
+    { value: '...', label: 'Người ủng hộ', trend: 'Đang tải...', colorClass: 'text-dblue', bgClass: 'from-dblue/5' },
+    { value: '...', label: 'Tỷ lệ minh bạch', trend: 'Zero hidden fees', colorClass: 'text-ebrown', bgClass: 'from-ebrown/5' },
+  ]);
+
+  const [isLoading, setIsLoading] = useState(true);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const hasFetchedRef = useRef(false);
+
+  useEffect(() => {
+    // Prevent double fetching in React Strict Mode
+    if (hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
+
+    // Cleanup previous request if exists
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Create new abort controller
+    abortControllerRef.current = new AbortController();
+
+    async function fetchStats() {
+      try {
+        setIsLoading(true);
+
+        const response = await fetch('/api/stats', {
+          signal: abortControllerRef.current?.signal,
+          cache: 'no-store', // Prevent caching issues
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch stats');
+
+        const data: PlatformStats = await response.json();
+
+        // Only update if component is still mounted
+        if (!abortControllerRef.current?.signal.aborted) {
+          setStats([
+            {
+              value: data.totalFunds,
+              label: 'Tổng tiền gây quỹ',
+              trend: `${data.activeCampaigns} chiến dịch đang hoạt động`,
+              colorClass: 'text-pgreen',
+              bgClass: 'from-pgreen/5'
+            },
+            {
+              value: data.successfulCampaigns.toLocaleString('vi-VN'),
+              label: 'Chiến dịch thành công',
+              trend: 'Đã hoàn thành mục tiêu',
+              colorClass: 'text-tblue',
+              bgClass: 'from-tblue/5'
+            },
+            {
+              value: data.totalBackers.toLocaleString('vi-VN'),
+              label: 'Người ủng hộ',
+              trend: 'Cộng đồng đang phát triển',
+              colorClass: 'text-dblue',
+              bgClass: 'from-dblue/5'
+            },
+            {
+              value: data.transparencyRate,
+              label: 'Tỷ lệ minh bạch',
+              trend: 'Zero hidden fees',
+              colorClass: 'text-ebrown',
+              bgClass: 'from-ebrown/5'
+            },
+          ]);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') {
+          // Request was aborted, ignore
+          return;
+        }
+        console.error('Error fetching stats:', error);
+        setIsLoading(false);
+      }
+    }
+
+    fetchStats();
+
+    // Cleanup function
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []); // Empty dependency array - only run once
 
   return (
     <section className="py-20 px-6 bg-cream relative">
@@ -17,11 +118,11 @@ export default function StatsSection() {
             Những thống kê thực tế từ hành trình của chúng tôi
           </p>
         </div>
-        
+
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((stat, index) => (
-            <div 
-              key={index}
+            <div
+              key={`${stat.label}-${index}`}
               className="stat-card glass rounded-3xl p-8 text-center card-hover overflow-hidden relative group"
             >
               <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgClass} to-transparent opacity-0 group-hover:opacity-100 transition duration-500`} />

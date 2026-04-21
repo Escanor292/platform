@@ -1,17 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import crypto from "crypto";
+import { prisma } from "@/lib/prisma";
+import { Decimal } from "@prisma/client/runtime/library";
+import { createPayOSPaymentLink } from "@/lib/payment/payos";
 
 export async function POST(request: NextRequest) {
+  console.log("[PAYMENTS_API] Request received");
+
   try {
+    // Import auth dynamically để tránh lỗi
+    const { auth } = await import("@/lib/auth");
+    const session = await auth();
+
+    console.log("[PAYMENTS_API] Session:", session?.user?.id || "guest");
+
     const body = await request.json();
+    console.log("[PAYMENTS_API] Body:", JSON.stringify(body, null, 2));
     const {
       campaignId,
+      rewardId,
       amount,
       platformTipPercent,
       isAnonymous,
       displayName,
       guestEmail,
+      shippingAddress,
       paymentMethod,
     } = body;
 
@@ -22,96 +34,156 @@ export async function POST(request: NextRequest) {
 
     // 2. Thu thập metadata
     const ipAddress = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
-    const userAgent = request.headers.get("user-agent") || "unknown";
-    
+
     // 3. Tính toán số tiền
     const tipAmount = Math.round((amount * (platformTipPercent || 0)) / 100);
-    const vatAmount = Math.round(tipAmount * 0.1); 
+    const vatAmount = Math.round(tipAmount * 0.1);
     const totalAmount = amount + tipAmount + vatAmount;
 
-    const userId = null; // Mock cho đến khi ổn định Auth
-
-    // 4. Sinh mã giao dịch duy nhất
-    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-    const randomHex = crypto.randomBytes(3).toString("hex").toUpperCase();
-    const transactionId = `CF${dateStr}-${randomHex}`;
-
-    // 5. Tính toán Tên hiển thị public
+    // 4. Tên hiển thị
     const finalDisplayName = isAnonymous ? "Người dùng ẩn danh" : (displayName || "Khách");
 
-    // 6. Lưu vào DB (Pledge model)
-    const pledge = await prisma.pledge.create({
-      data: {
-        campaignId,
-        userId: userId,
-        displayName: finalDisplayName,
-        isAnonymous: isAnonymous || false,
-        email: guestEmail || null,
-        amount: amount,
-        tipAmount: tipAmount,
-        vatAmount: vatAmount,
-        totalAmount: totalAmount,
-        paymentProvider: paymentMethod,
-        transactionId: transactionId,
-        ipAddress: ipAddress,
-        deviceInfo: { userAgent },
-        status: "PENDING",
-      },
-    });
-
-    // 7. Sinh URL qua bên thứ 3 (Mock cho demo)
-    let paymentUrl = "";
+    // 5. Xử lý payment methods
     if (paymentMethod === "PAYOS") {
-      paymentUrl = `${process.env.NEXTAUTH_URL}/api/payment/payos/create?pledgeId=${pledge.id}`;
-    } else if (paymentMethod === "VNPAY") {
-      paymentUrl = `${process.env.NEXTAUTH_URL}/api/payment/vnpay/create?pledgeId=${pledge.id}`;
-    } else if (paymentMethod === "SEPAY") {
-      // SePay sẽ trả về QR code thay vì redirect URL
-      const sepayResponse = await fetch(`${process.env.NEXTAUTH_URL}/api/payment/sepay/create`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount,
+      // Tạo transaction ID
+      const transactionId = `PAYOS-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      // Tạo pledge
+      const pledge = await prisma.pledge.create({
+        data: {
+          userId: session?.user?.id || null,
           campaignId,
-          tipAmount,
-          vatAmount,
-          guestEmail,
+          rewardId: rewardId || null,
+          amount: new Decimal(amount),
+          tipAmount: new Decimal(tipAmount),
+          vatAmount: new Decimal(vatAmount),
+          totalAmount: new Decimal(totalAmount),
+          email: guestEmail,
           displayName: finalDisplayName,
+          shippingAddress: shippingAddress,
           isAnonymous,
           ipAddress,
-        }),
+          paymentProvider: "PAYOS",
+          transactionId: transactionId,
+          status: "PENDING",
+        }
       });
-      
-      const sepayData = await sepayResponse.json();
-      if (!sepayResponse.ok) {
-        throw new Error(sepayData.error || "SePay payment failed");
-      }
-      
-      return NextResponse.json({
-        message: "SePay QR generated",
-        pledgeId: sepayData.pledgeId,
-        paymentMethod: "SEPAY",
-        qrCode: sepayData.qrCode,
-        bankInfo: sepayData.bankInfo,
-        returnUrl: sepayData.returnUrl,
-      });
-    } else if (paymentMethod === "BANK") {
-      return NextResponse.json({
-        message: "Pledge created",
+
+      // Tạo orderCode
+      const orderCode = Number(Date.now());
+
+      console.log("[PAYOS CREATE] Creating payment link:", {
+        orderCode,
         pledgeId: pledge.id,
-        transactionId: pledge.transactionId,
+        amount: totalAmount
       });
+
+      // Gọi PayOS API
+      let paymentLinkRes;
+      try {
+        paymentLinkRes = await createPayOSPaymentLink({
+          orderCode,
+          amount: Math.round(totalAmount),
+          description: `Ủng hộ dự án ${campaignId.slice(0, 8)}`,
+          cancelUrl: `${process.env.NEXTAUTH_URL}/campaigns`,
+          returnUrl: `${process.env.NEXTAUTH_URL}/payment-success?status=success&ref=${pledge.id}`,
+          metadata: {
+            pledgeId: pledge.id,
+            campaignId: campaignId,
+          }
+        });
+      } catch (payosError: any) {
+        console.error("[PAYOS CREATE] PayOS API Error:", payosError);
+        throw new Error(`PayOS API failed: ${payosError.message}`);
+      }
+
+      // Cập nhật pledge với orderCode
+      await prisma.pledge.update({
+        where: { id: pledge.id },
+        data: {
+          payosOrderCode: orderCode.toString(),
+        }
+      });
+
+      console.log("[PAYOS CREATE] ✓ Payment link created:", {
+        pledgeId: pledge.id,
+        orderCode,
+        checkoutUrl: paymentLinkRes.checkoutUrl
+      });
+
+      return NextResponse.json({
+        message: "PayOS payment link created",
+        pledgeId: pledge.id,
+        paymentUrl: paymentLinkRes.checkoutUrl,
+        orderCode: orderCode,
+      });
+    } else if (paymentMethod === "VNPAY") {
+      // TODO: Implement VNPay
+      return NextResponse.json({ error: "VNPay chưa được triển khai" }, { status: 501 });
+    } else if (paymentMethod === "SEPAY") {
+      // Tạo transaction ID
+      const transactionId = `SEPAY-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      // Tạo pledge
+      const pledge = await prisma.pledge.create({
+        data: {
+          userId: session?.user?.id || null,
+          campaignId,
+          rewardId: rewardId || null,
+          amount: new Decimal(amount),
+          tipAmount: new Decimal(tipAmount),
+          vatAmount: new Decimal(vatAmount),
+          totalAmount: new Decimal(totalAmount),
+          email: guestEmail,
+          displayName: finalDisplayName,
+          shippingAddress: shippingAddress,
+          isAnonymous,
+          ipAddress,
+          paymentProvider: "SEPAY",
+          transactionId: transactionId,
+          status: "PENDING",
+        },
+      });
+
+      // Import SePay helper
+      const { getSePay } = await import("@/lib/payment/sepay");
+      const sepay = getSePay();
+
+      // Tạo checkout fields
+      const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL;
+      const checkoutFields = sepay.createCheckoutFields({
+        orderInvoiceNumber: `INV-${pledge.id.slice(0, 8)}-${Date.now()}`,
+        orderAmount: totalAmount,
+        orderDescription: `Ủng hộ chiến dịch ${campaignId.slice(0, 8)}`,
+        customerId: session?.user?.id || pledge.id,
+        successUrl: `${baseUrl}/payment-success?status=success&ref=${pledge.id}`,
+        errorUrl: `${baseUrl}/payment-success?status=error&ref=${pledge.id}`,
+        cancelUrl: `${baseUrl}/campaigns`,
+        paymentMethod: "BANK_TRANSFER",
+      });
+
+      return NextResponse.json({
+        message: "SePay checkout created",
+        pledgeId: pledge.id,
+        paymentMethod: "SEPAY",
+        checkoutUrl: sepay.getCheckoutUrl(),
+        checkoutFields,
+      });
+    } else if (paymentMethod === "MOMO") {
+      // TODO: Implement MoMo
+      return NextResponse.json({ error: "MoMo chưa được triển khai" }, { status: 501 });
+    } else {
+      return NextResponse.json({ error: "Phương thức thanh toán không hợp lệ" }, { status: 400 });
     }
 
-    return NextResponse.json({
-      message: "Processing payment",
-      pledgeId: pledge.id,
-      transactionId: pledge.transactionId,
-      paymentUrl: paymentUrl,
-    });
-
   } catch (error: any) {
-    console.error("[PAYMENTS_API]", error);
-    return NextResponse.json({ error: "Lỗi hệ thống khi tạo giao dịch" }, { status: 500 });
+    console.error("[PAYMENTS_API] ERROR:", error);
+    console.error("[PAYMENTS_API] Stack:", error.stack);
+    console.error("[PAYMENTS_API] Message:", error.message);
+
+    return NextResponse.json({
+      error: error.message || "Lỗi hệ thống khi tạo giao dịch",
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    }, { status: 500 });
   }
 }

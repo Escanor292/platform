@@ -4,8 +4,23 @@ import prisma from "@/lib/prisma";
 import TransactionStatement from "@/components/campaign/TransactionStatement";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { Metadata } from "next";
 
 type Params = { params: Promise<{ campaignId: string }> };
+
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { campaignId } = await params;
+
+  const campaign = await prisma.campaign.findUnique({
+    where: { id: campaignId },
+    select: { title: true, campaignCode: true }
+  });
+
+  return {
+    title: `Báo cáo giao dịch - ${campaign?.title || 'Dự án'}`,
+    description: `Báo cáo chi tiết các giao dịch ủng hộ cho dự án ${campaign?.title || ''}`
+  };
+}
 
 export default async function StatementPage({ params }: Params) {
   const { campaignId } = await params;
@@ -43,7 +58,7 @@ export default async function StatementPage({ params }: Params) {
     <div className="min-h-screen bg-gray-50 py-12 px-6">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Back Button */}
-        <Link 
+        <Link
           href="/dashboard/creator"
           className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 font-medium transition print:hidden"
         >
@@ -52,7 +67,7 @@ export default async function StatementPage({ params }: Params) {
         </Link>
 
         {/* Statement Component */}
-        <TransactionStatement 
+        <TransactionStatement
           campaign={{
             id: campaign.id,
             title: campaign.title,

@@ -4,77 +4,113 @@ import { createAuditLog } from "@/lib/audit";
 import crypto from "crypto";
 
 /**
- * PayOS Webhook
- * PayOS gọi webhook này sau khi thanh toán thành công
+ * PayOS Webhook Handler
+ * PayOS gọi webhook này sau khi thanh toán thành công/thất bại
+ * 
+ * Webhook payload:
+ * {
+ *   orderCode: number,
+ *   amount: number,
+ *   description: string,
+ *   accountNumber: string,
+ *   reference: string,
+ *   transactionDateTime: string,
+ *   code: string ("00" = success),
+ *   desc: string
+ * }
  */
 export async function POST(request: NextRequest) {
+  const requestId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
   try {
     const body = await request.json();
+    const { orderCode, amount, code, desc, reference, transactionDateTime } = body;
 
-    console.log("[PAYOS WEBHOOK] Received:", body);
+    console.log(`[PAYOS WEBHOOK ${requestId}] Received:`, { orderCode, amount, code });
 
-    // 1. Verify signature (nếu PayOS có)
+    // ============================================================
+    // 1. VERIFY SIGNATURE
+    // ============================================================
     const signature = request.headers.get("x-payos-signature");
-    if (signature && process.env.PAYOS_CHECKSUM_KEY) {
+    if (process.env.PAYOS_CHECKSUM_KEY) {
+      if (!signature) {
+        console.error(`[PAYOS WEBHOOK ${requestId}] Missing signature header`);
+        return NextResponse.json(
+          { error: "Missing signature" },
+          { status: 400 }
+        );
+      }
+
       const dataString = JSON.stringify(body);
       const hmac = crypto.createHmac("sha256", process.env.PAYOS_CHECKSUM_KEY);
       const expectedSignature = hmac.update(dataString).digest("hex");
 
       if (signature !== expectedSignature) {
-        console.error("[PAYOS WEBHOOK] Invalid signature");
+        console.error(`[PAYOS WEBHOOK ${requestId}] Invalid signature`, {
+          received: signature,
+          expected: expectedSignature
+        });
         return NextResponse.json(
           { error: "Invalid signature" },
-          { status: 400 }
+          { status: 401 }
         );
       }
+      console.log(`[PAYOS WEBHOOK ${requestId}] Signature verified ✓`);
     }
 
-    // 2. Parse data
-    const {
-      orderCode,
-      amount,
-      description,
-      accountNumber,
-      reference,
-      transactionDateTime,
-      code, // PayOS status code
-      desc, // PayOS status description
-    } = body;
-
-    // 3. Tìm pledge bằng orderCode
-    // orderCode là số, cần tìm pledge có transactionId chứa orderCode
-    const pledge = await prisma.pledge.findFirst({
-      where: {
-        OR: [
-          { transactionId: { contains: orderCode.toString() } },
-          { id: orderCode.toString() },
-        ],
-      },
-      include: { campaign: true },
-    });
-
-    if (!pledge) {
-      console.error("[PAYOS WEBHOOK] Pledge not found for orderCode:", orderCode);
+    // ============================================================
+    // 2. VALIDATE INPUT
+    // ============================================================
+    if (!orderCode || !amount) {
+      console.error(`[PAYOS WEBHOOK ${requestId}] Missing required fields`);
       return NextResponse.json(
-        { error: "Pledge not found" },
-        { status: 404 }
+        { error: "Missing orderCode or amount" },
+        { status: 400 }
       );
     }
 
-    // 4. Kiểm tra đã xử lý chưa
-    if (pledge.status === "SUCCESS") {
-      console.log("[PAYOS WEBHOOK] Already processed:", pledge.id);
+    // ============================================================
+    // 3. FIND PLEDGE BY ORDER CODE
+    // ============================================================
+    const pledge = await prisma.pledge.findFirst({
+      where: {
+        payosOrderCode: orderCode.toString(),
+        paymentProvider: "PAYOS",
+      },
+      include: { campaign: true, user: true },
+    });
+
+    if (!pledge) {
+      console.error(`[PAYOS WEBHOOK ${requestId}] Pledge not found for orderCode: ${orderCode}`);
+      // Vẫn return 200 để PayOS không retry
+      return NextResponse.json({
+        success: false,
+        message: "Pledge not found",
+      });
+    }
+
+    console.log(`[PAYOS WEBHOOK ${requestId}] Found pledge: ${pledge.id}`);
+
+    // ============================================================
+    // 4. IDEMPOTENCY CHECK - Tránh xử lý 2 lần
+    // ============================================================
+    if (pledge.status === "SUCCESS" && pledge.webhookProcessedAt) {
+      console.log(`[PAYOS WEBHOOK ${requestId}] Already processed at ${pledge.webhookProcessedAt}`);
       return NextResponse.json({
         success: true,
         message: "Already processed",
       });
     }
 
-    // 5. Kiểm tra số tiền
-    if (Math.abs(Number(pledge.totalAmount) - amount) > 1) {
-      console.error("[PAYOS WEBHOOK] Amount mismatch:", {
-        expected: Number(pledge.totalAmount),
+    // ============================================================
+    // 5. VERIFY AMOUNT
+    // ============================================================
+    const pledgeTotalAmount = Number(pledge.totalAmount);
+    if (Math.abs(pledgeTotalAmount - amount) > 100) { // Cho phép sai lệch 100 VND
+      console.error(`[PAYOS WEBHOOK ${requestId}] Amount mismatch`, {
+        expected: pledgeTotalAmount,
         received: amount,
+        difference: Math.abs(pledgeTotalAmount - amount)
       });
       return NextResponse.json(
         { error: "Amount mismatch" },
@@ -82,20 +118,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 6. Xử lý theo status code
-    // PayOS: code = "00" hoặc "000" = success
-    if (code === "00" || code === "000" || code === 0) {
-      // Thanh toán thành công
+    console.log(`[PAYOS WEBHOOK ${requestId}] Amount verified ✓`);
+
+    // ============================================================
+    // 6. PROCESS PAYMENT STATUS
+    // ============================================================
+    const isSuccess = code === "00" || code === "000" || code === 0;
+
+    if (isSuccess) {
+      // ========== PAYMENT SUCCESS ==========
+      console.log(`[PAYOS WEBHOOK ${requestId}] Processing successful payment`);
+
+      // Update pledge
       await prisma.pledge.update({
         where: { id: pledge.id },
         data: {
           status: "SUCCESS",
           transactionId: reference || pledge.transactionId,
+          webhookProcessedAt: new Date(),
           updatedAt: new Date(),
         },
       });
 
-      // Cộng tiền vào campaign
+      // Update campaign amount
       await prisma.campaign.update({
         where: { id: pledge.campaignId },
         data: {
@@ -105,7 +150,7 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // Kiểm tra campaign đạt mục tiêu
+      // Check if campaign reached goal
       const updatedCampaign = await prisma.campaign.findUnique({
         where: { id: pledge.campaignId },
       });
@@ -119,6 +164,7 @@ export async function POST(request: NextRequest) {
           where: { id: pledge.campaignId },
           data: { status: "SUCCESS" },
         });
+        console.log(`[PAYOS WEBHOOK ${requestId}] Campaign ${pledge.campaignId} reached goal!`);
       }
 
       // Audit log
@@ -130,20 +176,31 @@ export async function POST(request: NextRequest) {
         oldValue: { status: "PENDING" },
         newValue: { status: "SUCCESS", transactionId: reference },
         reason: "PayOS payment successful",
+        metadata: {
+          orderCode,
+          reference,
+          transactionDateTime,
+          webhookRequestId: requestId,
+        }
       });
 
-      console.log("[PAYOS WEBHOOK] Payment successful:", pledge.id);
+      console.log(`[PAYOS WEBHOOK ${requestId}] ✓ Payment successful for pledge ${pledge.id}`);
 
       return NextResponse.json({
         success: true,
         message: "Payment processed successfully",
+        pledgeId: pledge.id,
       });
+
     } else {
-      // Thanh toán thất bại
+      // ========== PAYMENT FAILED ==========
+      console.log(`[PAYOS WEBHOOK ${requestId}] Processing failed payment: ${code} - ${desc}`);
+
       await prisma.pledge.update({
         where: { id: pledge.id },
         data: {
           status: "FAILED",
+          webhookProcessedAt: new Date(),
           updatedAt: new Date(),
         },
       });
@@ -157,19 +214,30 @@ export async function POST(request: NextRequest) {
         oldValue: { status: "PENDING" },
         newValue: { status: "FAILED" },
         reason: `PayOS payment failed: ${code} - ${desc}`,
+        metadata: {
+          orderCode,
+          errorCode: code,
+          errorDesc: desc,
+          webhookRequestId: requestId,
+        }
       });
 
-      console.log("[PAYOS WEBHOOK] Payment failed:", pledge.id, code);
+      console.log(`[PAYOS WEBHOOK ${requestId}] ✗ Payment failed for pledge ${pledge.id}`);
 
       return NextResponse.json({
         success: true,
         message: "Payment status updated",
+        pledgeId: pledge.id,
       });
     }
+
   } catch (error: any) {
-    console.error("[PAYOS WEBHOOK ERROR]", error);
+    console.error(`[PAYOS WEBHOOK ${requestId}] ERROR:`, error);
     return NextResponse.json(
-      { error: error.message || "System error" },
+      {
+        error: error.message || "System error",
+        requestId: requestId
+      },
       { status: 500 }
     );
   }
@@ -183,7 +251,17 @@ export async function GET() {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-payos-signature": "optional_signature",
+      "x-payos-signature": "required_for_production",
     },
+    testPayload: {
+      orderCode: 1234567890,
+      amount: 100000,
+      description: "Test payment",
+      accountNumber: "1234567890",
+      reference: "TEST-REF-001",
+      transactionDateTime: new Date().toISOString(),
+      code: "00",
+      desc: "Success"
+    }
   });
 }

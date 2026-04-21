@@ -28,7 +28,7 @@ export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardPro
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           />
         )}
-        
+
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-wrap gap-2">
           <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${getCompletionStateColor(project.completionState)}`}>
@@ -89,17 +89,15 @@ export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardPro
               <span className="font-medium">{project.totalBackers}</span>
             </div>
             <div className="flex items-center gap-1">
+              <Star size={14} className="fill-yellow-400 text-yellow-400" />
+              <span className="font-medium">{project.totalFollowers || 0}</span>
+            </div>
+            <div className="flex items-center gap-1">
               <Eye size={14} />
               <span className="font-medium">{project.totalViews}</span>
             </div>
-            {project.ratingCount > 0 && (
-              <div className="flex items-center gap-1">
-                <Star size={14} className="fill-yellow-400 text-yellow-400" />
-                <span className="font-medium">{project.ratingAverage.toFixed(1)}</span>
-              </div>
-            )}
           </div>
-          
+
           {project.endDate && (
             <div className="flex items-center gap-1 text-xs text-gray-500">
               <Calendar size={14} />

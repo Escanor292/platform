@@ -11,7 +11,11 @@
     "postinstall": "prisma generate",
     "vercel-build": "prisma generate && prisma migrate deploy && next build",
     "seed:test2": "tsx scripts/seed-test2-creator.ts",
-    "clear:campaigns": "tsx scripts/clear-all-campaigns.ts"
+    "clear:campaigns": "tsx scripts/clear-all-campaigns.ts",
+    "clear:campaigns:seed": "tsx scripts/clear-campaigns-for-seed.ts",
+    "seed:campaigns": "node seed-campaigns-comprehensive.js",
+    "seed:campaigns:fresh": "npm run clear:campaigns:seed && npm run seed:campaigns",
+    "seed:campaigns:reset": "prisma db push --skip-generate && node seed-campaigns-comprehensive.js"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",

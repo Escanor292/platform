@@ -21,9 +21,10 @@ interface Reward {
   id: string;
   title: string;
   description: string | null;
-  amount: number;
-  quantity: number | null;
-  remaining: number | null;
+  minAmount: number;
+  maxQuantity: number | null;
+  deliveryDate: Date | null;
+  isActive: boolean;
 }
 
 interface Campaign {

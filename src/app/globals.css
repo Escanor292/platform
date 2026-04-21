@@ -5,28 +5,37 @@
 /* Campaign Growth Progress Animations */
 @layer utilities {
   @keyframes sway {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: rotate(0deg);
     }
+
     50% {
       transform: rotate(2deg);
     }
   }
 
   @keyframes float {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: translateY(0px);
     }
+
     50% {
       transform: translateY(-3px);
     }
   }
 
   @keyframes breathe {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: scale(1);
       opacity: 1;
     }
+
     50% {
       transform: scale(1.05);
       opacity: 0.9;
@@ -34,10 +43,13 @@
   }
 
   @keyframes twinkle {
-    0%, 100% {
+
+    0%,
+    100% {
       opacity: 0.3;
       transform: scale(0.8);
     }
+
     50% {
       opacity: 1;
       transform: scale(1.2);
@@ -49,6 +61,7 @@
       opacity: 1;
       transform: translateX(0);
     }
+
     100% {
       opacity: 0;
       transform: translateX(-8px);
@@ -59,16 +72,20 @@
     0% {
       transform: translateX(-100%);
     }
+
     100% {
       transform: translateX(100%);
     }
   }
 
   @keyframes sparkle {
-    0%, 100% {
+
+    0%,
+    100% {
       opacity: 0;
       transform: scale(0);
     }
+
     50% {
       opacity: 1;
       transform: scale(1);
@@ -76,10 +93,13 @@
   }
 
   @keyframes glowPulse {
-    0%, 100% {
+
+    0%,
+    100% {
       opacity: 0.3;
       transform: scale(1);
     }
+
     50% {
       opacity: 0.6;
       transform: scale(1.05);
@@ -88,6 +108,7 @@
 
   /* Accessibility: Respect reduced motion preference */
   @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
@@ -103,79 +124,86 @@
     --background: 0 0% 100%;
     --foreground: 224 71.4% 4.1%;
   }
+
   body {
     @apply text-slate-900 bg-white selection:bg-blue-100 selection:text-blue-900 antialiased;
     font-family: var(--font-source-sans), system-ui, sans-serif;
   }
-  
+
   * {
     box-sizing: border-box;
   }
 }
 
 @layer components {
+
   /* Glass Morphism Effects */
   .glass {
     @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-soft;
   }
-  
+
   .glass-dark {
     @apply bg-slate-900/90 backdrop-blur-xl border border-white/10;
   }
-  
+
   .glass-morphism {
     @apply bg-white/60 backdrop-blur-2xl border border-white/50 shadow-soft transition-all duration-300;
   }
-  
+
   .glass-morphism:hover {
     @apply shadow-premium border-white/80 bg-white/80;
   }
-  
+
   /* Gradient Backgrounds */
   .gradient-green {
     background: linear-gradient(135deg, #2E8B57 0%, #6BCB77 100%);
   }
-  
+
   .gradient-blue {
     background: linear-gradient(135deg, #2F80ED 0%, #1F4E79 100%);
   }
-  
+
   .gradient-warm {
     background: linear-gradient(135deg, #F8F7F2 0%, #fef9f0 50%, #fff8e1 100%);
   }
-  
+
   /* Buttons */
   .btn-primary {
-    @apply px-6 py-3 bg-gradient-to-br from-blue-500 to-blue-700 text-white font-bold rounded-xl shadow-[0_8px_20px_rgb(37,99,235,0.3)] border border-blue-400/50 hover:shadow-[0_10px_25px_rgb(37,99,235,0.4)] hover:brightness-110 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
+    @apply px-6 py-3 bg-gradient-to-br from-blue-500 to-blue-700 text-white font-bold rounded-xl border border-blue-400/50 hover:brightness-110 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
+    box-shadow: 0 8px 20px rgb(37 99 235 / 0.3);
   }
-  
+
+  .btn-primary:hover {
+    box-shadow: 0 10px 25px rgb(37 99 235 / 0.4);
+  }
+
   .btn-green {
     @apply px-8 py-4 rounded-2xl text-white font-bold text-base hover:shadow-2xl hover:shadow-green-400/50 hover:-translate-y-1 transition-all duration-300 flex items-center gap-2.5 transform;
     background: linear-gradient(135deg, #2E8B57 0%, #6BCB77 100%);
   }
-  
+
   .btn-outline {
     @apply px-6 py-3 bg-white/70 backdrop-blur-md text-gray-900 border border-gray-200 shadow-sm font-bold rounded-xl hover:border-blue-400 hover:text-blue-600 hover:shadow-premium transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
   }
-  
+
   /* Cards */
   .card-premium {
     @apply bg-white rounded-3xl border border-gray-100 shadow-soft hover:shadow-premium hover:-translate-y-1 transition-all duration-500 overflow-hidden;
   }
-  
+
   .card-hover {
     transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
   }
-  
+
   .card-hover:hover {
     transform: translateY(-8px);
-    box-shadow: 0 24px 64px rgba(46,139,87,0.14), 0 8px 24px rgba(46,139,87,0.08);
+    box-shadow: 0 24px 64px rgba(46, 139, 87, 0.14), 0 8px 24px rgba(46, 139, 87, 0.08);
   }
-  
+
   .stat-card {
     @apply relative overflow-hidden transition-all duration-300;
   }
-  
+
   .stat-card::before {
     content: '';
     position: absolute;
@@ -183,11 +211,11 @@
     right: -50%;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle, rgba(107,203,119,0.12) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(107, 203, 119, 0.12) 0%, transparent 70%);
     opacity: 0;
     transition: opacity 0.3s;
   }
-  
+
   .stat-card:hover::before {
     opacity: 1;
   }
@@ -198,17 +226,18 @@
     border-radius: 999px;
     transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  
+
   /* Pills & Badges */
   .pill {
     @apply transition-all duration-300 rounded-full;
   }
-  
-  .pill:hover, .pill.active {
+
+  .pill:hover,
+  .pill.active {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(46,139,87,0.15);
+    box-shadow: 0 8px 20px rgba(46, 139, 87, 0.15);
   }
-  
+
   .badge {
     @apply text-xs px-3 py-1.5 rounded-full font-bold uppercase tracking-wider inline-flex items-center gap-1.5;
   }
@@ -217,13 +246,14 @@
   .focus-ring {
     @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2;
   }
-  
+
   /* Sidebar Links */
   .sidebar-link {
     @apply transition-all duration-200 border-l-4 border-transparent rounded-xl;
   }
-  
-  .sidebar-link:hover, .sidebar-link.active {
+
+  .sidebar-link:hover,
+  .sidebar-link.active {
     @apply bg-green-50/60 border-l-green-600 text-green-700;
     padding-left: calc(12px - 0.5px);
   }
@@ -259,13 +289,15 @@
 }
 
 @keyframes fadeIn {
-  to { opacity: 1; }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -274,6 +306,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -281,37 +314,54 @@
 }
 
 @keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { 
-    opacity: 0.6; 
-    transform: scale(1); 
+
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
   }
-  50% { 
-    opacity: 0.3; 
-    transform: scale(1.1); 
+
+  50% {
+    opacity: 0.3;
+    transform: scale(1.1);
   }
 }
 
 @keyframes glow-pulse {
-  0%, 100% { 
-    box-shadow: 0 0 40px rgba(46,139,87,0.15); 
+
+  0%,
+  100% {
+    box-shadow: 0 0 40px rgba(46, 139, 87, 0.15);
   }
-  50% { 
-    box-shadow: 0 0 60px rgba(46,139,87,0.25); 
+
+  50% {
+    box-shadow: 0 0 60px rgba(46, 139, 87, 0.25);
   }
 }
 
 @keyframes leafFloat {
-  0%, 100% { 
-    transform: translateY(0) rotate(0deg); 
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
   }
-  50% { 
-    transform: translateY(-15px) rotate(5deg); 
+
+  50% {
+    transform: translateY(-15px) rotate(5deg);
   }
 }
 
@@ -327,7 +377,7 @@
 }
 
 .glow-subtle {
-  box-shadow: 0 4px 20px rgba(46,139,87,0.08);
+  box-shadow: 0 4px 20px rgba(46, 139, 87, 0.08);
 }
 
 .prose h1 {
@@ -374,8 +424,10 @@
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .hide-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 /* Print Styles for Statement */
@@ -384,31 +436,122 @@
     size: A4;
     margin: 1.5cm;
   }
-  
+
   body {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
-  
+
   .print\\:hidden {
     display: none !important;
   }
-  
+
   /* Ensure proper page breaks */
   table {
     page-break-inside: auto;
   }
-  
+
   tr {
     page-break-inside: avoid;
     page-break-after: auto;
   }
-  
+
   thead {
     display: table-header-group;
   }
-  
+
   tfoot {
     display: table-footer-group;
   }
+}
+
+/* Modal Z-Index Management */
+body.modal-open {
+  overflow: hidden !important;
+}
+
+/* Ensure all page content is behind modal */
+body.modal-open>*:not([data-modal-portal]) {
+  position: relative;
+  z-index: 0 !important;
+}
+
+/* Reset any high z-index elements when modal is open, except navbar */
+body.modal-open [class*="sticky"]:not(nav):not(.navbar),
+body.modal-open [class*="fixed"]:not(nav):not(.navbar),
+body.modal-open [style*="z-index"]:not(nav):not(.navbar) {
+  z-index: 0 !important;
+}
+
+/* Ensure navbar stays functional but behind modal */
+body.modal-open nav,
+body.modal-open .navbar {
+  z-index: 50 !important;
+}
+
+/* Modal portal container should be on top */
+[data-modal-portal] {
+  z-index: 9999 !important;
+}
+
+/* Ensure modal is always properly positioned */
+.modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  /* Dynamic viewport height for mobile */
+}
+
+.modal-backdrop {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 9999 !important;
+}
+
+.modal-content {
+  position: relative !important;
+  z-index: 10000 !important;
+  max-height: 90vh !important;
+  max-height: 90dvh !important;
+  /* Dynamic viewport height for mobile */
+  width: 100% !important;
+  margin: 0 auto !important;
+}
+
+/* Prevent any parent containers from affecting modal positioning */
+[data-modal-portal] {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 9999 !important;
+  pointer-events: none !important;
+}
+
+[data-modal-portal]>* {
+  pointer-events: auto !important;
+}
+
+/* Ensure modal overlay has proper padding */
+.modal-overlay {
+  padding: 1rem !important;
+}
+
+/* Reset any transforms or positioning that might affect modal */
+body.modal-open .modal-overlay,
+body.modal-open .modal-backdrop,
+body.modal-open .modal-content {
+  transform: none !important;
 }

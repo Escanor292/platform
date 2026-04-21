@@ -83,8 +83,8 @@ async function main() {
       endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       rewards: {
         create: [
-          { title: "Gói Lời cảm ơn", amount: 50000, description: "Tên bạn sẽ xuất hiện trong danh sách cảm ơn của dự án." },
-          { title: "Gói Sách Giấy", amount: 250000, description: "Nhận 1 bộ sách in phiên bản giới hạn." },
+          { title: "Gói Lời cảm ơn", minAmount: 50000, description: "Tên bạn sẽ xuất hiện trong danh sách cảm ơn của dự án." },
+          { title: "Gói Sách Giấy", minAmount: 250000, description: "Nhận 1 bộ sách in phiên bản giới hạn." },
         ]
       }
     }

@@ -66,7 +66,7 @@ export function sanitizeHtml(
   // Remove hooks after sanitization
   DOMPurify.removeAllHooks();
 
-  return clean;
+  return clean as unknown as string;
 }
 
 export function sanitizeHtmlWithTracking(
