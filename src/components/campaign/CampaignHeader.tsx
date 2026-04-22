@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { Tag, Layers } from "lucide-react";
+import { getCampaignTypeLabel } from "@/lib/project-helpers";
+import { CampaignType } from "@/types/project";
 
 interface CampaignHeaderProps {
     title: string;
@@ -20,7 +23,7 @@ export default function CampaignHeader({ title, description, campaignCode }: Cam
     return (
         <div className="mb-6">
             <div className="flex items-center gap-3 mb-3 flex-wrap">
-                <h1 className="text-4xl font-bold text-gray-900">
+                <h1 className="text-4xl font-bold text-gray-900 leading-tight">
                     {title}
                 </h1>
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 text-gray-600 rounded-lg text-xs font-mono border border-gray-200">

@@ -13,7 +13,9 @@ export async function middleware(request: NextRequest) {
       pathname.startsWith("/lookup") ||
       pathname.startsWith("/policy") ||
       pathname.startsWith("/about") ||
-      pathname.startsWith("/projects");
+      pathname.startsWith("/projects") ||
+      (pathname.startsWith("/profile/") && !pathname.startsWith("/profile/edit")) ||
+      pathname.startsWith("/users/search");
 
     // API routes that are public
     const isPublicApiRoute =
@@ -21,7 +23,9 @@ export async function middleware(request: NextRequest) {
       pathname.startsWith("/api/stats") ||
       pathname.startsWith("/api/projects") ||
       pathname.startsWith("/api/campaigns") ||
-      pathname.startsWith("/api/lookup");
+      pathname.startsWith("/api/lookup") ||
+      pathname.startsWith("/api/users/search") ||
+      pathname.startsWith("/api/stats/users");
 
     // Auth routes
     const isAuthRoute =

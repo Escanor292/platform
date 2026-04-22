@@ -71,10 +71,11 @@ export async function PUT(req: NextRequest, { params }: Params) {
       where: { slug },
       data: {
         title: body.title,
-        description: body.description,
-        longDescription: body.longDescription || null,
+        description: body.tagline || body.description, // Map tagline to description
+        longDescription: body.description || body.longDescription || null, // Map frontend description to longDescription
         goalAmount: body.goalAmount,
-        category: body.category,
+        category: body.mainCategory || body.category, // Map mainCategory to category
+        tags: body.starterTags || body.tags || [], // Save starterTags to tags
         imageUrl: body.imageUrl || null,
         images: body.images || [],
         videoUrl: body.videoUrl || null,

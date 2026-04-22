@@ -4,7 +4,7 @@ import Link from "next/link";
 import { memo } from "react";
 import { ProjectListItem } from "@/types/project";
 import { formatVND } from "@/lib/utils";
-import { Eye, Users, Star, Calendar } from "lucide-react";
+import { Eye, Users, Star, Calendar, Tag, Layers } from "lucide-react";
 import { getCompletionStateLabel, getCompletionStateColor, getCampaignTypeLabel, formatDaysRemaining } from "@/lib/project-helpers";
 import CampaignGrowthProgress from "@/components/campaign/CampaignGrowthProgress";
 
@@ -52,12 +52,16 @@ export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardPro
       {/* Content */}
       <div className="p-5 space-y-4">
         {/* Category & Type */}
-        <div className="flex items-center gap-2 text-xs">
-          <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded font-medium">
+        <div className="flex flex-wrap gap-2">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-600 rounded-md text-[9px] font-black uppercase tracking-wider border border-blue-100 italic">
+            <Tag size={10} />
             {project.category}
           </span>
-          <span className="text-gray-400">•</span>
-          <span className="text-gray-500 font-medium">
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider border italic ${project.campaignType === 'REWARD'
+              ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+              : 'bg-orange-50 text-orange-600 border-orange-100'
+            }`}>
+            <Layers size={10} />
             {getCampaignTypeLabel(project.campaignType)}
           </span>
         </div>

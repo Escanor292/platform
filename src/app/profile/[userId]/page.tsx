@@ -2,11 +2,13 @@ import { prisma } from "@/lib/prisma";
 import { formatVND, formatDate } from "@/lib/utils";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { MapPin, Calendar, Heart, Rocket, Award, TrendingUp, Settings, ShieldCheck } from "lucide-react";
+import { MapPin, Calendar, Heart, Rocket, Award, TrendingUp, Settings, ShieldCheck, Tag, Layers } from "lucide-react";
 import { auth } from "@/lib/auth";
 import UserIdDisplay from "@/components/profile/UserIdDisplay";
 import SocialLinks from "@/components/profile/SocialLinks";
 import { SocialLink } from "@/types/social";
+import { CampaignGrowthProgress } from "@/components/campaign/CampaignGrowthProgress";
+import { getCampaignTypeLabel } from "@/lib/project-helpers";
 
 interface ProfilePageProps {
   params: Promise<{ userId: string }>;
@@ -37,7 +39,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               id: true,
               title: true,
               slug: true,
-              imageUrl: true
+              category: true,
+              type: true
             }
           }
         },
@@ -237,15 +240,18 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                       >
                         <div className="bg-gray-50 rounded-2xl overflow-hidden hover:shadow-lg transition-all">
                           <div className="relative h-40 overflow-hidden">
-                            <img
-                              src={campaign.imageUrl || "/placeholder.jpg"}
-                              alt={campaign.title}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            />
-                            <div className="absolute top-3 left-3">
-                              <span className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase ${campaign.status === "ACTIVE" ? "bg-green-500 text-white" : "bg-blue-500 text-white"
+                            <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+                              <span className={`px-2 py-1 rounded-lg text-[8px] font-black uppercase ${campaign.status === "ACTIVE" ? "bg-green-500 text-white" : "bg-blue-500 text-white"
                                 }`}>
                                 {campaign.status}
+                              </span>
+                              <span className="px-2 py-1 bg-white/90 backdrop-blur rounded-lg text-[8px] font-black uppercase border border-white/20 text-blue-600 flex items-center gap-1">
+                                <Tag size={8} />
+                                {campaign.category}
+                              </span>
+                              <span className={`px-2 py-1 bg-white/90 backdrop-blur rounded-lg text-[8px] font-black uppercase border border-white/20 flex items-center gap-1 ${campaign.type === 'REWARD' ? 'text-emerald-600' : 'text-orange-600'}`}>
+                                <Layers size={8} />
+                                {getCampaignTypeLabel(campaign.type as any)}
                               </span>
                             </div>
                           </div>
@@ -253,18 +259,15 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                             <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition">
                               {campaign.title}
                             </h3>
-                            <div className="space-y-2">
-                              <div className="flex justify-between text-xs font-bold">
-                                <span className="text-blue-600">{progress}%</span>
-                                <span className="text-gray-900">{formatVND(Number(campaign.currentAmount))}</span>
-                              </div>
-                              <div className="w-full bg-gray-200 rounded-full h-1.5">
-                                <div
-                                  className="bg-blue-600 h-full rounded-full transition-all"
-                                  style={{ width: `${progress}%` }}
-                                />
-                              </div>
-                              <div className="text-[10px] text-gray-400 font-bold">
+                            <div className="space-y-4">
+                              <CampaignGrowthProgress
+                                currentAmount={Number(campaign.currentAmount)}
+                                goalAmount={Number(campaign.goalAmount)}
+                                variant="compact"
+                                size="sm"
+                                showTree={false}
+                              />
+                              <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                                 {campaign._count.pledges} người ủng hộ
                               </div>
                             </div>

@@ -60,34 +60,27 @@ export default function AboutPage() {
           {/* Team */}
           <div className="glass rounded-3xl p-8">
             <h3 className="font-display font-bold text-xl text-dblue mb-6 text-center">Đội ngũ sáng lập</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               <div className="text-center">
                 <div className="w-20 h-20 mx-auto rounded-full gradient-green flex items-center justify-center text-white font-bold text-xl mb-3">
-                  LT
+                  PT
                 </div>
-                <div className="font-bold text-dblue text-sm">Lê Thanh</div>
+                <div className="font-bold text-dblue text-sm">Nguyễn Quách Phú Tài</div>
                 <div className="text-xs text-gray-400">CEO & Co-founder</div>
               </div>
               <div className="text-center">
                 <div className="w-20 h-20 mx-auto rounded-full gradient-blue flex items-center justify-center text-white font-bold text-xl mb-3">
-                  PH
+                  KH
                 </div>
-                <div className="font-bold text-dblue text-sm">Phạm Hà</div>
+                <div className="font-bold text-dblue text-sm">Bùi Đặng Quốc Khánh</div>
                 <div className="text-xs text-gray-400">CTO</div>
               </div>
               <div className="text-center">
                 <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-ebrown to-amber-500 flex items-center justify-center text-white font-bold text-xl mb-3">
-                  NA
+                  AN
                 </div>
-                <div className="font-bold text-dblue text-sm">Ngọc Anh</div>
-                <div className="text-xs text-gray-400">Head of Community</div>
-              </div>
-              <div className="text-center">
-                <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-dblue to-tblue flex items-center justify-center text-white font-bold text-xl mb-3">
-                  VD
-                </div>
-                <div className="font-bold text-dblue text-sm">Văn Đức</div>
-                <div className="text-xs text-gray-400">Head of Trust & Safety</div>
+                <div className="font-bold text-dblue text-sm">Trần Xuân Ân</div>
+                <div className="text-xs text-gray-400">Leader Creator</div>
               </div>
             </div>
           </div>

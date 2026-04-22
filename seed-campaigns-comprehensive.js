@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const { Decimal } = require('@prisma/client/runtime/library');
+const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
 
@@ -237,12 +238,15 @@ async function main() {
         for (let i = 1; i <= 3; i++) {
             const email = `creator${i}@example.com`;
             let creator = await prisma.user.findUnique({ where: { email } });
+            
+            // Dùng mật khẩu '123' đã được hash để có thể đăng nhập được
+            const hashedPassword = await bcrypt.hash('123', 10);
 
             if (!creator) {
                 creator = await prisma.user.create({
                     data: {
                         email,
-                        password: 'hashed_password_' + i,
+                        password: hashedPassword,
                         name: `Người Tạo ${i}`,
                         displayName: `Creator ${i}`,
                         role: 'CREATOR',

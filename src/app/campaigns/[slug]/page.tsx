@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { formatVND, formatDate } from "@/lib/utils";
 import CampaignGrowthProgress from "@/components/campaign/CampaignGrowthProgress";
 import { auth } from "@/lib/auth";
-import { Zap, Clock, ShieldCheck } from "lucide-react";
+import { Zap, Clock, ShieldCheck, Tag, Layers } from "lucide-react";
 import ImageCarousel from "@/components/campaign/ImageCarousel";
 import CreatorLink from "@/components/campaign/CreatorLink";
 import CampaignTabsWrapper from "@/components/campaign/CampaignTabsWrapper";
@@ -12,6 +12,7 @@ import CampaignActions from "@/components/campaign/CampaignActions";
 import FavoriteCount from "@/components/campaign/FavoriteCount";
 import CampaignPageClient from "./CampaignPageClient";
 import { CampaignProvider } from "@/contexts/CampaignContext";
+import { getCampaignTypeLabel } from "@/lib/project-helpers";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -96,51 +97,77 @@ export default async function CampaignDetailPage({ params }: Params) {
                </div>
             </div>
 
-            {/* Main Content - Single Card */}
-            <div className="max-w-7xl mx-auto px-6 py-8">
-               <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm p-6">
-                  {/* Top Section - 2 Columns */}
-                  <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 mb-8">
+             {/* Main Content - Single Card */}
+             <div className="max-w-7xl mx-auto px-6 py-8">
+                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm p-8">
+                   {/* Title & Campaign Code - Now Full Width */}
+                   <CampaignHeader
+                      title={campaign.title}
+                      description={campaign.description}
+                      campaignCode={campaign.campaignCode}
+                   />
 
-                     {/* Main Content - Campaign Info */}
-                     <div>
-                        {/* Title & Campaign Code */}
-                        <CampaignHeader
-                           title={campaign.title}
-                           description={campaign.description}
-                           campaignCode={campaign.campaignCode}
-                        />
+                   <div className="mt-8">
+                      {/* Top Section - 2 Columns (Media & Progress) */}
+                      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10">
 
-                        {/* Media */}
+                         {/* Main Content - Media & Tags */}
+                         <div>
+                            {/* Media */}
                         <div className="mb-6">
                            <div className="aspect-video w-full overflow-hidden rounded-lg border border-gray-200">
                               <ImageCarousel images={campaignImages} alt={campaign.title} />
                            </div>
                         </div>
 
-                        {/* Creator Info */}
-                        <div className="flex items-center gap-4 py-4 border-t border-gray-100 mb-4">
-                           <div className="flex items-center gap-2">
-                              <span className="text-xs text-gray-500 font-semibold">By</span>
-                              <CreatorLink
-                                 creatorId={campaign.creator?.id || ""}
-                                 creatorName={campaign.creator?.name || "Anonymous"}
-                                 creatorAvatar={campaign.creator?.avatar}
-                              />
+                        {/* Creator Info & Tags Block */}
+                        <div className="py-6 border-t border-gray-100 space-y-5">
+                           <div className="space-y-3">
+                              {/* Main Classification Badges */}
+                              <div className="flex flex-wrap gap-2">
+                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shadow-sm">
+                                    <Tag size={12} />
+                                    {campaign.category}
+                                 </span>
+                                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${campaign.type === 'REWARD'
+                                       ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                       : 'bg-orange-50 text-orange-600 border-orange-100'
+                                    }`}>
+                                    <Layers size={12} />
+                                    {getCampaignTypeLabel(campaign.type as any)}
+                                 </span>
+                              </div>
+
+                              {/* Secondary Tags */}
+                              {campaign.tags && campaign.tags.length > 0 && (
+                                 <div className="flex flex-wrap gap-2">
+                                    {campaign.tags.map((tag: string, index: number) => (
+                                       <span key={index} className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-50 text-gray-500 rounded-md border border-gray-100 text-[11px] font-semibold hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer">
+                                          <span className="text-gray-400 font-bold">#</span>
+                                          {tag}
+                                       </span>
+                                    ))}
+                                 </div>
+                              )}
                            </div>
 
-                           <span className="text-gray-300">•</span>
-                           <span className="text-sm text-gray-600">{campaign.category}</span>
+                           <div className="flex items-center gap-4 pt-1">
+                              <div className="flex items-center gap-2">
+                                 <span className="text-xs text-gray-500 font-semibold">By</span>
+                                 <CreatorLink
+                                    creatorId={campaign.creator?.id || ""}
+                                    creatorName={campaign.creator?.name || "Anonymous"}
+                                    creatorAvatar={campaign.creator?.avatar}
+                                 />
+                              </div>
 
-                           {campaign.creator?.status === "PRO" && (
-                              <>
-                                 <span className="text-gray-300">•</span>
-                                 <div className="flex items-center gap-1 px-2 py-1 bg-emerald-50 rounded">
-                                    <Zap size={12} className="text-emerald-500 fill-emerald-500" />
-                                    <span className="text-xs font-semibold text-emerald-700">Pro Creator</span>
+                              {campaign.creator?.status === "PRO" && (
+                                 <div className="flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-100">
+                                    <Zap size={12} className="fill-emerald-500 text-emerald-500" />
+                                    <span className="text-[10px] font-black uppercase tracking-wider">Pro Creator</span>
                                  </div>
-                              </>
-                           )}
+                              )}
+                           </div>
                         </div>
                      </div>
 
@@ -212,8 +239,9 @@ export default async function CampaignDetailPage({ params }: Params) {
                         </div>
                      </div>
                   </div>
+               </div>
 
-                  {/* Campaign Stats Summary - REMOVED */}
+               {/* Campaign Stats Summary - REMOVED */}
 
                   {/* Tabs Content - Full Width */}
                   <div className="border-t border-gray-100 pt-6">

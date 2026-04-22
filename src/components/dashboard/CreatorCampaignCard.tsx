@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { formatVND, formatDate } from "@/lib/utils";
-import { FileText, Settings, Gift } from "lucide-react";
+import { FileText, Settings, Gift, Tag, Layers } from "lucide-react";
+import { CampaignGrowthProgress } from "@/components/campaign/CampaignGrowthProgress";
+import { getCampaignTypeLabel } from "@/lib/project-helpers";
 
 interface CreatorCampaignCardProps {
     campaign: {
@@ -44,6 +46,19 @@ export function CreatorCampaignCard({ campaign }: CreatorCampaignCardProps) {
 
                 <div className="p-8 space-y-6">
                     <div>
+                        <div className="flex flex-wrap gap-2 mb-4">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-blue-100">
+                                <Tag size={10} />
+                                {campaign.category}
+                            </span>
+                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${campaign.type === 'REWARD'
+                                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                    : 'bg-orange-50 text-orange-600 border-orange-100'
+                                }`}>
+                                <Layers size={10} />
+                                {getCampaignTypeLabel(campaign.type as any)}
+                            </span>
+                        </div>
                         <div className="flex items-center gap-2 mb-2">
                             <h3 className="text-xl font-black text-gray-900 leading-tight truncate group-hover:text-blue-600 transition">
                                 {campaign.title}
@@ -58,16 +73,13 @@ export function CreatorCampaignCard({ campaign }: CreatorCampaignCardProps) {
                     </div>
 
                     <div className="space-y-4">
-                        <div className="flex justify-between items-end text-sm font-black">
-                            <span className="text-blue-600">{progress}%</span>
-                            <span className="text-gray-900">{formatVND(campaign.currentAmount)}</span>
-                        </div>
-                        <div className="w-full bg-gray-50 rounded-full h-2 overflow-hidden border border-gray-100">
-                            <div
-                                className="bg-blue-600 h-full rounded-full transition-all duration-1000"
-                                style={{ width: `${progress}%` }}
-                            />
-                        </div>
+                        <CampaignGrowthProgress
+                            currentAmount={campaign.currentAmount}
+                            goalAmount={campaign.goalAmount}
+                            variant="compact"
+                            size="sm"
+                            showTree={false}
+                        />
                         <div className="flex justify-between text-[10px] font-black text-gray-400 uppercase tracking-widest">
                             <span>{campaign._count.pledges} Người ủng hộ</span>
                             <span>Kết thúc: {campaign.endDate ? formatDate(campaign.endDate) : "Vô thời hạn"}</span>

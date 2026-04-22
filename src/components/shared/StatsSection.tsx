@@ -21,40 +21,23 @@ export default function StatsSection() {
   ]);
 
   const [isLoading, setIsLoading] = useState(true);
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const hasFetchedRef = useRef(false);
-
   useEffect(() => {
-    // Prevent double fetching in React Strict Mode
-    if (hasFetchedRef.current) return;
-    hasFetchedRef.current = true;
-
-    // Cleanup previous request if exists
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    // Create new abort controller
-    abortControllerRef.current = new AbortController();
+    let isMounted = true;
+    const abortController = new AbortController();
 
     async function fetchStats() {
       try {
         setIsLoading(true);
-
         const response = await fetch('/api/stats', {
-          signal: abortControllerRef.current?.signal,
-          cache: 'no-store', // Prevent caching issues
-          headers: {
-            'Cache-Control': 'no-cache'
-          }
+          signal: abortController.signal,
+          cache: 'no-store'
         });
 
         if (!response.ok) throw new Error('Failed to fetch stats');
 
         const data: PlatformStats = await response.json();
 
-        // Only update if component is still mounted
-        if (!abortControllerRef.current?.signal.aborted) {
+        if (isMounted) {
           setStats([
             {
               value: data.totalFunds,
@@ -87,25 +70,20 @@ export default function StatsSection() {
           ]);
           setIsLoading(false);
         }
-      } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') {
-          // Request was aborted, ignore
-          return;
-        }
+      } catch (error: any) {
+        if (error.name === 'AbortError') return;
         console.error('Error fetching stats:', error);
-        setIsLoading(false);
+        if (isMounted) setIsLoading(false);
       }
     }
 
     fetchStats();
 
-    // Cleanup function
     return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
+      isMounted = false;
+      abortController.abort();
     };
-  }, []); // Empty dependency array - only run once
+  }, []);
 
   return (
     <section className="py-20 px-6 bg-cream relative">

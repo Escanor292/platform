@@ -2,6 +2,7 @@
 
 import { signIn } from "next-auth/react";
 import { Globe, Sparkles, Heart, Users, Building2, User as UserIcon } from "lucide-react";
+import LeafIcon from "@/components/shared/LeafIcon";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -71,7 +72,19 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream via-white to-fgreen/5 flex items-center justify-center px-4 py-24">
+    <div className="min-h-screen bg-gradient-to-br from-cream via-white to-fgreen/5 flex items-center justify-center px-4 py-24 relative overflow-hidden">
+      {/* Enhanced Blurry Background */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div 
+          className="absolute -top-20 -left-20 w-[40rem] h-[40rem] bg-pgreen/10 rounded-full blur-[120px] opacity-60"
+          style={{ animation: 'pulse 15s ease-in-out infinite' }}
+        />
+        <div 
+          className="absolute -bottom-40 -right-20 w-[50rem] h-[50rem] bg-tblue/10 rounded-full blur-[150px] opacity-40"
+          style={{ animation: 'pulse 20s ease-in-out 2s infinite' }}
+        />
+      </div>
+
       <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         
         {/* Left Side - Branding */}
@@ -115,9 +128,6 @@ export default function RegisterPage() {
         <div className="w-full max-w-md mx-auto lg:mx-0 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
           <div className="glass-morphism p-10 rounded-[3rem] border border-white/20 shadow-premium">
             <div className="text-center mb-10">
-              <div className="w-16 h-16 bg-gradient-to-br from-pgreen to-fgreen rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Sparkles size={32} className="text-white" />
-              </div>
               <h2 className="font-display text-4xl font-black text-gray-900 mb-3 tracking-tight leading-[1.3]">
                 Tạo tài khoản
               </h2>

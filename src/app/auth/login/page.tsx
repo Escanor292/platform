@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Globe, Lock, Mail, AlertCircle, Loader2 } from "lucide-react";
+import LeafIcon from "@/components/shared/LeafIcon";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -56,20 +58,17 @@ export default function LoginPage() {
           className="absolute top-32 right-[8%] w-80 h-80 bg-gradient-to-tl from-tblue/15 via-transparent to-transparent rounded-full blur-3xl opacity-60"
           style={{ animation: 'pulse 10s ease-in-out 2s infinite' }}
         />
+        <div 
+          className="absolute bottom-10 left-[20%] w-[30rem] h-[30rem] bg-gradient-to-tr from-pgreen/10 to-transparent rounded-full blur-[100px] opacity-40"
+          style={{ animation: 'pulse 12s ease-in-out 1s infinite' }}
+        />
       </div>
 
       <div className="w-full max-w-md relative z-10">
-        {/* Logo & Title */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto rounded-2xl gradient-green flex items-center justify-center mb-4 shadow-lg">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-              <path d="M12 22V8" />
-              <path d="C12 8 7 2 3 7c-2 2.5 0 6 4 7" />
-              <path d="C12 8 17 2 21 7c2 2.5 0 6-4 7" />
-            </svg>
-          </div>
-          <h1 className="font-display font-extrabold text-3xl text-dblue mb-2">Chào mừng trở lại</h1>
-          <p className="text-gray-500 text-sm">Đăng nhập để tiếp tục hành trình tử tế</p>
+        {/* Title Only */}
+        <div className="text-center mb-10">
+          <h1 className="font-display font-extrabold text-4xl text-dblue mb-3 tracking-tight">Chào mừng trở lại</h1>
+          <p className="text-gray-500 font-medium">Đăng nhập để tiếp tục hành trình tử tế</p>
         </div>
 
         {/* Form Card */}

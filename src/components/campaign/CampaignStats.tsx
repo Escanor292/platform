@@ -1,6 +1,7 @@
 'use client';
 
 import { Users, Star, Clock, TrendingUp } from 'lucide-react';
+import CampaignGrowthProgress from './CampaignGrowthProgress';
 
 interface CampaignStatsProps {
     totalBackers: number;
@@ -35,26 +36,12 @@ export default function CampaignStats({
         <div className={`space-y-6 ${className}`}>
             {/* Progress Bar */}
             <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                    <span className="text-2xl font-bold text-gray-900">
-                        {formatAmount(currentAmount)} đ
-                    </span>
-                    <span className="text-lg font-semibold text-green-600">
-                        {progressPercent.toFixed(1)}%
-                    </span>
-                </div>
-
-                <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                    <div
-                        className="h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full transition-all duration-500 ease-out"
-                        style={{ width: `${Math.min(progressPercent, 100)}%` }}
-                    />
-                </div>
-
-                <div className="flex justify-between text-sm text-gray-600">
-                    <span>Đã huy động</span>
-                    <span>Mục tiêu: {formatAmount(goalAmount)} đ</span>
-                </div>
+                <CampaignGrowthProgress
+                    currentAmount={currentAmount}
+                    goalAmount={goalAmount}
+                    size="lg"
+                    showTree={true}
+                />
             </div>
 
             {/* Stats Grid */}

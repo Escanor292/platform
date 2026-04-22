@@ -4,6 +4,8 @@ import { formatVND } from "@/lib/utils";
 import { Search, Rocket, ArrowRight } from "lucide-react";
 import CampaignGrowthProgress from "@/components/campaign/CampaignGrowthProgress";
 import CreatorLink from "@/components/campaign/CreatorLink";
+import { Tag, Layers } from "lucide-react";
+import { getCampaignTypeLabel } from "@/lib/project-helpers";
 
 export default async function CampaignsPage() {
   const campaigns = await prisma.campaign.findMany({
@@ -85,9 +87,14 @@ export default async function CampaignsPage() {
                         alt={campaign.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
-                      <div className="absolute top-4 left-4">
-                        <span className="px-3 py-1.5 bg-white/90 backdrop-blur text-xs font-bold text-gray-900 uppercase tracking-wider rounded-lg border border-white/20">
+                      <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                        <span className="px-2 py-1 bg-white/90 backdrop-blur text-[9px] font-black uppercase tracking-wider rounded-lg border border-white/20 text-blue-600 flex items-center gap-1">
+                          <Tag size={10} />
                           {campaign.category || "Cộng đồng"}
+                        </span>
+                        <span className={`px-2 py-1 bg-white/90 backdrop-blur text-[9px] font-black uppercase tracking-wider rounded-lg border border-white/20 flex items-center gap-1 ${campaign.type === 'REWARD' ? 'text-emerald-600' : 'text-orange-600'}`}>
+                          <Layers size={10} />
+                          {getCampaignTypeLabel(campaign.type)}
                         </span>
                       </div>
                     </div>

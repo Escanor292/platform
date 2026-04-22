@@ -16,6 +16,7 @@ import {
     TrendingUp,
     Gift
 } from 'lucide-react';
+import { CampaignGrowthProgress } from '@/components/campaign/CampaignGrowthProgress';
 
 interface Campaign {
     id: string;
@@ -175,24 +176,15 @@ export default function CampaignListView({ campaigns }: CampaignListViewProps) {
 
                                 {/* Progress */}
                                 <div className="col-span-2">
-                                    <div className="space-y-2">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm font-semibold text-gray-900">
-                                                {progress.toFixed(1)}%
-                                            </span>
-                                            <span className="text-xs text-gray-500">
-                                                {formatVND(campaign.goalAmount)}
-                                            </span>
-                                        </div>
-                                        <div className="w-full bg-gray-200 rounded-full h-2">
-                                            <div
-                                                className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-2 rounded-full transition-all duration-300"
-                                                style={{ width: `${Math.min(progress, 100)}%` }}
-                                            />
-                                        </div>
-                                        <div className="text-xs text-gray-600">
-                                            {formatVND(campaign.currentAmount)} đã huy động
-                                        </div>
+                                    <CampaignGrowthProgress
+                                        currentAmount={campaign.currentAmount}
+                                        goalAmount={campaign.goalAmount}
+                                        variant="compact"
+                                        size="sm"
+                                        showTree={false}
+                                    />
+                                    <div className="text-[10px] text-gray-500 mt-1 uppercase font-black tracking-widest">
+                                        Mục tiêu: {formatVND(campaign.goalAmount)}
                                     </div>
                                 </div>
 
