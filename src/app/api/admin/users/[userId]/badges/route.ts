@@ -4,18 +4,18 @@ import { requireAdmin } from '@/lib/badge/badge.policy';
 import { getUserBadges } from '@/lib/badge/badge.service';
 
 /**
- * GET /api/admin/users/:id/badges
+ * GET /api/admin/users/:userId/badges
  * Get all badges for a user (including revoked and expired)
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { userId: string } }
 ) {
   try {
     const session = await auth();
     requireAdmin(session?.user);
 
-    const badges = await getUserBadges(params.id, {
+    const badges = await getUserBadges(params.userId, {
       includeRevoked: true,
       includeExpired: true,
       includeInactive: true,
