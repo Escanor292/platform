@@ -9,6 +9,7 @@ import SocialLinks from "@/components/profile/SocialLinks";
 import { SocialLink } from "@/types/social";
 import { CampaignGrowthProgress } from "@/components/campaign/CampaignGrowthProgress";
 import { getCampaignTypeLabel } from "@/lib/project-helpers";
+import { UserBadgeList } from "@/components/badge/UserBadgeList";
 
 interface ProfilePageProps {
   params: Promise<{ userId: string }>;
@@ -182,6 +183,12 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   <SocialLinks links={user.socialLinks as SocialLink[]} size="md" />
                 </div>
               )}
+
+              {/* Badges */}
+              <div className="pt-2">
+                <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">Huy hiệu</h3>
+                <UserBadgeList userId={userId} maxDisplay={8} />
+              </div>
 
               {/* Stats */}
               <div className="flex flex-wrap gap-8 pt-4">

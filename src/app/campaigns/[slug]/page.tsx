@@ -221,6 +221,9 @@ export default async function CampaignDetailPage({ params }: Params) {
                               campaignId={campaign.id}
                               campaignSlug={slug}
                               rewards={serializedCampaign.rewards || []}
+                              creatorId={campaign.creatorId}
+                              creatorName={campaign.creator.name}
+                              campaignStatus={campaign.status}
                            />
 
                            {/* All or Nothing Notice */}

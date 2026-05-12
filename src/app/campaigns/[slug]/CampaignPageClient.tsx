@@ -4,6 +4,8 @@ import { Heart, Gift } from "lucide-react";
 import PledgeFormContent from "@/components/campaign/PledgeFormContent";
 import Modal from "@/components/ui/Modal";
 import { useCampaignContext } from "@/contexts/CampaignContext";
+import { StartChatButton } from "@/components/chat/StartChatButton";
+import { useSession } from "next-auth/react";
 
 interface Reward {
     id: string;
@@ -17,9 +19,20 @@ interface CampaignPageClientProps {
     campaignId: string;
     campaignSlug: string;
     rewards: Reward[];
+    creatorId: string;
+    creatorName: string;
+    campaignStatus: string;
 }
 
-export default function CampaignPageClient({ campaignId, campaignSlug, rewards }: CampaignPageClientProps) {
+export default function CampaignPageClient({ 
+    campaignId, 
+    campaignSlug, 
+    rewards,
+    creatorId,
+    creatorName,
+    campaignStatus
+}: CampaignPageClientProps) {
+    const { data: session } = useSession();
     const {
         showPaymentModal,
         donationType,
@@ -29,6 +42,8 @@ export default function CampaignPageClient({ campaignId, campaignSlug, rewards }
     } = useCampaignContext();
 
     const hasRewards = rewards && rewards.length > 0;
+    const isCreator = session?.user?.id === creatorId;
+    const canChat = !isCreator && campaignStatus === 'ACTIVE';
 
     return (
         <>
@@ -51,6 +66,17 @@ export default function CampaignPageClient({ campaignId, campaignSlug, rewards }
                         {hasRewards ? 'Ủng hộ không quà' : 'Ủng hộ'}
                     </span>
                 </button>
+
+                {/* Chat Button */}
+                {canChat && (
+                    <StartChatButton
+                        campaignId={campaignId}
+                        campaignOwnerId={creatorId}
+                        campaignOwnerName={creatorName}
+                        variant="outline"
+                        className="w-full"
+                    />
+                )}
 
                 {/* Reward Support Info */}
                 {hasRewards && (

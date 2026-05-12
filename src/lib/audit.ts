@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { AuditAction } from "@prisma/client";
-
+import { auditLogMongoService } from "@/services/mongodb/audit-log.service";
+import { activityLogService } from "@/services/mongodb/activity-log.service";
 interface CreateAuditLogParams {
   userId?: string | null;
   action: AuditAction;
@@ -34,6 +35,37 @@ export async function createAuditLog(params: CreateAuditLogParams) {
         reason: params.reason || null,
         metadata: params.metadata || null,
       },
+    });
+
+    // Parallel logging to MongoDB (non-blocking)
+    // 1. Audit Log (lưu trữ lâu dài, chi tiết nguyên bản như PG)
+    auditLogMongoService.log({
+      userId: params.userId || undefined,
+      action: params.action,
+      entityType: params.entityType,
+      entityId: params.entityId,
+      oldValue: params.oldValue,
+      newValue: params.newValue,
+      changes: params.changes,
+      ipAddress: params.ipAddress || undefined,
+      userAgent: params.userAgent || undefined,
+      reason: params.reason || undefined,
+      metadata: params.metadata,
+      pgAuditLogId: auditLog.id,
+    });
+
+    // 2. Activity Log (cho frontend hiển thị timeline nếu cần)
+    activityLogService.log({
+      userId: params.userId || undefined,
+      action: params.action as any,
+      entityType: params.entityType,
+      entityId: params.entityId,
+      details: params.changes || params.newValue,
+      metadata: {
+        ...(params.metadata || {}),
+        ipAddress: params.ipAddress || undefined,
+        userAgent: params.userAgent || undefined,
+      }
     });
 
     console.log(`[AUDIT] ${params.action} ${params.entityType}:${params.entityId} by ${params.userId || "SYSTEM"}`);

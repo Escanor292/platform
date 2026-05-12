@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { generateUniqueCampaignCode } from "@/lib/campaign-utils";
+import { analyticsService } from "@/services/mongodb/analytics.service";
 
 /**
  * GET /api/campaigns
@@ -85,6 +86,17 @@ export async function POST(req: NextRequest) {
         currentAmount: 0,
         status: "DRAFT",
         campaignCode
+      }
+    });
+    
+    // Track analytics (non-blocking)
+    analyticsService.track({
+      eventName: "CAMPAIGN_CREATED",
+      userId: (session.user as any).id,
+      campaignId: campaign.id,
+      payload: {
+        category: mainCategory,
+        goalAmount,
       }
     });
 

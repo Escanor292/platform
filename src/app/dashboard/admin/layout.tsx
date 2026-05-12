@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Home, Users, BarChart3, ShieldCheck, DollarSign } from "lucide-react";
+import { Home, Users, BarChart3, ShieldCheck, DollarSign, Award } from "lucide-react";
 import AdminUserMenu from "@/components/admin/AdminUserMenu";
 
 export default async function AdminLayout({
@@ -19,6 +19,7 @@ export default async function AdminLayout({
     { href: "/dashboard/admin", label: "Tổng quan", icon: Home },
     { href: "/dashboard/admin/users", label: "Người dùng", icon: Users },
     { href: "/dashboard/admin/campaigns", label: "Chiến dịch", icon: ShieldCheck },
+    { href: "/dashboard/admin/badges", label: "Huy hiệu", icon: Award },
     { href: "/dashboard/admin/revenue", label: "Doanh thu", icon: DollarSign },
   ];
 

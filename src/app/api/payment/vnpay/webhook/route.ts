@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog } from "@/lib/audit";
+import { notificationService } from "@/services/mongodb/notification.service";
 import crypto from "crypto";
 
 /**
@@ -122,6 +123,34 @@ export async function GET(request: NextRequest) {
         newValue: { status: "SUCCESS", transactionId: transactionNo },
         reason: "VNPay payment successful",
       });
+
+      // Send notifications (non-blocking)
+      // 1. Notify Creator
+      notificationService.send({
+        userId: pledge.campaign.creatorId,
+        type: "PLEDGE_RECEIVED",
+        title: "Bạn có lượt ủng hộ mới!",
+        message: `Chiến dịch "${pledge.campaign.title}" vừa nhận được ${Number(pledge.amount).toLocaleString('vi-VN')} VNĐ từ ${pledge.displayName}.`,
+        payload: {
+          campaignId: pledge.campaignId,
+          pledgeId: pledge.id,
+          amount: Number(pledge.amount)
+        }
+      });
+
+      // 2. Notify Backer (if logged in)
+      if (pledge.userId) {
+        notificationService.send({
+          userId: pledge.userId,
+          type: "PAYMENT_SUCCESS",
+          title: "Ủng hộ thành công!",
+          message: `Bạn đã ủng hộ thành công ${Number(pledge.amount).toLocaleString('vi-VN')} VNĐ cho chiến dịch "${pledge.campaign.title}".`,
+          payload: {
+            campaignId: pledge.campaignId,
+            pledgeId: pledge.id
+          }
+        });
+      }
 
       console.log("[VNPAY WEBHOOK] Payment successful:", pledgeId);
 

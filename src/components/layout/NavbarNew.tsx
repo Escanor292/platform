@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import {
-  Rocket, User, LogOut, UserCircle, PlusCircle, Menu, X, ChevronDown, Settings, ShieldCheck, FolderKanban, HeartHandshake
+  Rocket, User, LogOut, UserCircle, PlusCircle, Menu, X, ChevronDown, Settings, ShieldCheck, FolderKanban, HeartHandshake, MessageCircle
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import LeafIcon from "../shared/LeafIcon";
+import { ChatNotificationBadge } from "@/components/chat/ChatNotificationBadge";
 
 export default function NavbarNew() {
   const { data: session } = useSession();
@@ -147,6 +148,16 @@ export default function NavbarNew() {
         <div className="hidden md:flex items-center gap-3">
           {session ? (
             <>
+              {/* Chat Link */}
+              <Link
+                href="/chat"
+                className="relative p-2 text-gray-600 hover:text-pgreen hover:bg-gray-50 rounded-xl transition"
+                title="Tin nhắn"
+              >
+                <MessageCircle size={20} />
+                <ChatNotificationBadge />
+              </Link>
+
               <Link
                 href="/campaigns/create"
                 className="text-sm font-semibold px-5 py-2.5 rounded-full gradient-green text-white hover:shadow-lg hover:shadow-green-200 transition-all"
@@ -217,6 +228,16 @@ export default function NavbarNew() {
                     >
                       <HeartHandshake size={16} />
                       Dự án quan tâm
+                    </Link>
+
+                    <Link
+                      href="/chat"
+                      className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50 relative"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      <MessageCircle size={16} />
+                      Tin nhắn
+                      <ChatNotificationBadge />
                     </Link>
 
                     <Link
@@ -295,6 +316,16 @@ export default function NavbarNew() {
 
           {session ? (
             <>
+              <Link
+                href="/chat"
+                className="py-2 text-sm font-medium text-gray-600 flex items-center gap-2 relative"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <MessageCircle size={16} />
+                Tin nhắn
+                <ChatNotificationBadge />
+              </Link>
+
               <Link
                 href="/campaigns/create"
                 className="mt-2 py-3 text-center rounded-xl gradient-green text-white font-semibold"
