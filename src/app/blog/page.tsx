@@ -5,28 +5,22 @@
 import { Suspense } from 'react';
 import { BlogCard } from '@/components/blog/BlogCard';
 import { BlogPostResponse } from '@/types/blog.types';
+import { getBlogPostList } from '@/lib/blog/blog.service';
 
 async function getBlogPosts(searchParams: any) {
   try {
-    const params = new URLSearchParams();
-    if (searchParams.page) params.set('page', searchParams.page);
-    if (searchParams.search) params.set('search', searchParams.search);
-    if (searchParams.category) params.set('category', searchParams.category);
-    if (searchParams.type) params.set('type', searchParams.type);
-    if (searchParams.sort) params.set('sort', searchParams.sort);
+    const query = {
+      page: parseInt(searchParams.page || '1'),
+      limit: parseInt(searchParams.limit || '10'),
+      search: searchParams.search || undefined,
+      category: searchParams.category || undefined,
+      tag: searchParams.tag || undefined,
+      type: searchParams.type || undefined,
+      sort: searchParams.sort || 'latest',
+    };
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const res = await fetch(`${baseUrl}/api/blog/posts?${params.toString()}`, {
-      cache: 'no-store',
-    });
-
-    if (!res.ok) {
-      console.error('Failed to fetch blog posts:', await res.text());
-      // Return empty result instead of throwing
-      return { posts: [], total: 0, page: 1, limit: 10 };
-    }
-
-    return res.json();
+    const result = await getBlogPostList(query);
+    return result;
   } catch (error) {
     console.error('Error fetching blog posts:', error);
     // Return empty result on error
