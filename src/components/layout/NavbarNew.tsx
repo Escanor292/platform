@@ -136,6 +136,13 @@ export default function NavbarNew() {
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-pgreen group-hover:w-full transition-all duration-300" />
           </Link>
           <Link
+            href="/blog"
+            className="text-sm font-medium text-gray-600 hover:text-pgreen transition relative group"
+          >
+            Blog
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-pgreen group-hover:w-full transition-all duration-300" />
+          </Link>
+          <Link
             href="/users/search"
             className="text-sm font-medium text-gray-600 hover:text-pgreen transition relative group"
           >
@@ -309,6 +316,9 @@ export default function NavbarNew() {
           </Link>
           <Link href="/projects" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
             Khám phá
+          </Link>
+          <Link href="/blog" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
+            Blog
           </Link>
           <Link href="/users/search" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
             Người dùng
