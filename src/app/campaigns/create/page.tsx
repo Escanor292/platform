@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ImageUpload } from "@/components/shared/ImageUpload";
@@ -10,7 +11,7 @@ import { DateInput } from "@/components/shared/DateInput";
 import { ProductionEditor } from "@/components/editor";
 import { EDITOR_PLACEHOLDERS } from "@/lib/editor/constants";
 import { toast } from "sonner";
-import { Rocket, Target, AlignLeft, Image as ImageIcon, Calendar, Tags } from "lucide-react";
+import { Rocket, Target, AlignLeft, Image as ImageIcon, Calendar, Tags, AlertCircle } from "lucide-react";
 import { CategorySelector } from "@/components/create-campaign/category-selector";
 import { StarterTagsSelector } from "@/components/create-campaign/starter-tags-selector";
 import type { MainCategory } from "@/types/taxonomy";
@@ -18,6 +19,7 @@ import { validateTaxonomySelection, sanitizeSelectedTags, getInvalidTagsForNewCa
 
 export default function CreateCampaignPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -35,6 +37,52 @@ export default function CreateCampaignPage() {
   const [pendingCategory, setPendingCategory] = useState<MainCategory | null>(null);
 
   const [displayAmount, setDisplayAmount] = useState("1.000.000");
+
+  // Kiểm tra quyền truy cập
+  useEffect(() => {
+    if (status === "loading") return;
+    
+    if (!session) {
+      toast.error("Vui lòng đăng nhập để tạo dự án");
+      router.push("/auth/login?callbackUrl=/campaigns/create");
+      return;
+    }
+
+    const user = session.user as any;
+    const userRole = user?.role;
+    const isAdmin = user?.isAdmin === true || userRole === "ADMIN";
+
+    // Chỉ cho phép CREATOR và ADMIN tạo dự án
+    if (userRole !== "CREATOR" && !isAdmin) {
+      toast.error("Bạn cần nâng cấp lên tài khoản Creator để tạo dự án");
+      router.push("/");
+    }
+  }, [session, status, router]);
+
+  // Hiển thị loading khi đang kiểm tra session
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Đang kiểm tra quyền truy cập...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Không hiển thị form nếu chưa đăng nhập hoặc không có quyền
+  if (!session) {
+    return null;
+  }
+
+  const user = session.user as any;
+  const userRole = user?.role;
+  const isAdmin = user?.isAdmin === true || userRole === "ADMIN";
+
+  if (userRole !== "CREATOR" && !isAdmin) {
+    return null;
+  }
 
   const formatVNDInput = (value: string) => {
     const numericValue = value.replace(/\D/g, "");

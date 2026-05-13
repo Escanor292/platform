@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { formatVND, formatDate } from "@/lib/utils";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { MapPin, Calendar, Heart, Rocket, Award, TrendingUp, Settings, ShieldCheck, Tag, Layers } from "lucide-react";
+import { MapPin, Calendar, Heart, Rocket, Award, TrendingUp, Settings, ShieldCheck, Tag, Layers, MessageCircle } from "lucide-react";
 import { auth } from "@/lib/auth";
 import UserIdDisplay from "@/components/profile/UserIdDisplay";
 import SocialLinks from "@/components/profile/SocialLinks";
@@ -130,6 +130,19 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     Quản lý dự án
                   </Link>
                 )}
+              </div>
+            )}
+
+            {/* Message Button - For other users */}
+            {!isOwnProfile && currentUserId && (
+              <div className="absolute top-6 right-8">
+                <Link
+                  href={`/chat?userId=${userId}`}
+                  className="px-4 py-2 bg-gradient-to-r from-pgreen to-fgreen text-white rounded-xl text-sm font-bold hover:shadow-lg transition flex items-center gap-2"
+                >
+                  <MessageCircle size={16} />
+                  Nhắn tin
+                </Link>
               </div>
             )}
 

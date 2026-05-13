@@ -165,12 +165,15 @@ export default function NavbarNew() {
                 <ChatNotificationBadge />
               </Link>
 
-              <Link
-                href="/campaigns/create"
-                className="text-sm font-semibold px-5 py-2.5 rounded-full gradient-green text-white hover:shadow-lg hover:shadow-green-200 transition-all"
-              >
-                Gây quỹ ngay
-              </Link>
+              {/* Chỉ hiển thị nút "Gây quỹ ngay" cho CREATOR và ADMIN */}
+              {(user?.role === "CREATOR" || user?.role === "ADMIN" || isAdmin) && (
+                <Link
+                  href="/campaigns/create"
+                  className="text-sm font-semibold px-5 py-2.5 rounded-full gradient-green text-white hover:shadow-lg hover:shadow-green-200 transition-all"
+                >
+                  Gây quỹ ngay
+                </Link>
+              )}
 
               {/* Profile Dropdown */}
               <div className="relative">
@@ -219,14 +222,29 @@ export default function NavbarNew() {
                       Trang cá nhân
                     </Link>
 
-                    <Link
-                      href="/dashboard/creator"
-                      className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50"
-                      onClick={() => setIsDropdownOpen(false)}
-                    >
-                      <FolderKanban size={16} />
-                      Quản lý dự án
-                    </Link>
+                    {/* Hiển thị nút "Nâng cấp" cho BACKER */}
+                    {user?.role === "BACKER" && (
+                      <Link
+                        href={user?.isOrganization ? "/upgrade/organization" : "/upgrade/individual"}
+                        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-gradient-to-r from-pgreen to-fgreen rounded-xl hover:shadow-lg transition cursor-pointer outline-none"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        <Rocket size={16} />
+                        Nâng cấp Creator
+                      </Link>
+                    )}
+
+                    {/* Chỉ hiển thị "Quản lý dự án" cho CREATOR và ADMIN */}
+                    {(user?.role === "CREATOR" || user?.role === "ADMIN" || isAdmin) && (
+                      <Link
+                        href="/dashboard/creator"
+                        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        <FolderKanban size={16} />
+                        Quản lý dự án
+                      </Link>
+                    )}
 
                     <Link
                       href="/dashboard/favorites"
@@ -336,13 +354,16 @@ export default function NavbarNew() {
                 <ChatNotificationBadge />
               </Link>
 
-              <Link
-                href="/campaigns/create"
-                className="mt-2 py-3 text-center rounded-xl gradient-green text-white font-semibold"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Gây quỹ ngay
-              </Link>
+              {/* Chỉ hiển thị nút "Gây quỹ ngay" cho CREATOR và ADMIN */}
+              {(user?.role === "CREATOR" || user?.role === "ADMIN" || isAdmin) && (
+                <Link
+                  href="/campaigns/create"
+                  className="mt-2 py-3 text-center rounded-xl gradient-green text-white font-semibold"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Gây quỹ ngay
+                </Link>
+              )}
               <button
                 onClick={handleLogout}
                 className="py-2 text-sm font-medium text-red-600 text-left"
