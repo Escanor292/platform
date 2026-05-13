@@ -7,23 +7,31 @@ import { BlogCard } from '@/components/blog/BlogCard';
 import { BlogPostResponse } from '@/types/blog.types';
 
 async function getBlogPosts(searchParams: any) {
-  const params = new URLSearchParams();
-  if (searchParams.page) params.set('page', searchParams.page);
-  if (searchParams.search) params.set('search', searchParams.search);
-  if (searchParams.category) params.set('category', searchParams.category);
-  if (searchParams.type) params.set('type', searchParams.type);
-  if (searchParams.sort) params.set('sort', searchParams.sort);
+  try {
+    const params = new URLSearchParams();
+    if (searchParams.page) params.set('page', searchParams.page);
+    if (searchParams.search) params.set('search', searchParams.search);
+    if (searchParams.category) params.set('category', searchParams.category);
+    if (searchParams.type) params.set('type', searchParams.type);
+    if (searchParams.sort) params.set('sort', searchParams.sort);
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  const res = await fetch(`${baseUrl}/api/blog/posts?${params.toString()}`, {
-    cache: 'no-store',
-  });
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/blog/posts?${params.toString()}`, {
+      cache: 'no-store',
+    });
 
-  if (!res.ok) {
-    throw new Error('Failed to fetch blog posts');
+    if (!res.ok) {
+      console.error('Failed to fetch blog posts:', await res.text());
+      // Return empty result instead of throwing
+      return { posts: [], total: 0, page: 1, limit: 10 };
+    }
+
+    return res.json();
+  } catch (error) {
+    console.error('Error fetching blog posts:', error);
+    // Return empty result on error
+    return { posts: [], total: 0, page: 1, limit: 10 };
   }
-
-  return res.json();
 }
 
 export default async function BlogPage({
@@ -66,11 +74,37 @@ export default async function BlogPage({
 
         {/* Blog Grid */}
         <Suspense fallback={<BlogGridSkeleton />}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data.posts.map((post: BlogPostResponse) => (
-              <BlogCard key={post.id} post={post} />
-            ))}
-          </div>
+          {data.posts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {data.posts.map((post: BlogPostResponse) => (
+                <BlogCard key={post.id} post={post} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="text-gray-400 mb-4">
+                <svg
+                  className="w-16 h-16 mx-auto"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Chưa có bài viết nào
+              </h3>
+              <p className="text-gray-600">
+                Hãy quay lại sau để đọc những câu chuyện thú vị từ cộng đồng
+              </p>
+            </div>
+          )}
         </Suspense>
 
         {/* Pagination */}
