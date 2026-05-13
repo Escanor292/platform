@@ -139,7 +139,7 @@ export default function NavbarNew() {
             href="/users/search"
             className="text-sm font-medium text-gray-600 hover:text-pgreen transition relative group"
           >
-            Cộng đồng
+            Người dùng
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-pgreen group-hover:w-full transition-all duration-300" />
           </Link>
         </div>
@@ -311,7 +311,7 @@ export default function NavbarNew() {
             Khám phá
           </Link>
           <Link href="/users/search" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
-            Cộng đồng
+            Người dùng
           </Link>
 
           {session ? (
