@@ -9,7 +9,7 @@ import { markAsRead } from '@/services/mongodb/chat.service';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ conversationId: string }> }
+  context: { params: Promise<Promise<{ conversationId: string> }> }
 ) {
   try {
     // Check authentication

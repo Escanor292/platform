@@ -14,7 +14,7 @@ import {
  */
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ category: string }> }
+  context: { params: Promise<Promise<{ category: string> }> }
 ) {
   try {
     const { category: rawCategory } = await params;

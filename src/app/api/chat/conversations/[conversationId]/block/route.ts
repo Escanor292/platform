@@ -12,7 +12,7 @@ import { blockConversation, unblockConversation } from '@/services/mongodb/chat.
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ conversationId: string }> }
+  context: { params: Promise<Promise<{ conversationId: string> }> }
 ) {
   try {
     // Check authentication
@@ -44,7 +44,7 @@ export async function POST(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ conversationId: string }> }
+  context: { params: Promise<Promise<{ conversationId: string> }> }
 ) {
   try {
     // Check authentication

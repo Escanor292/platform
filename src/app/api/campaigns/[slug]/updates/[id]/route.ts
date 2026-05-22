@@ -8,7 +8,7 @@ import { auth } from "@/lib/auth";
  */
 export async function PUT(
     req: NextRequest,
-    { params }: { params: Promise<{ slug: string; id: string }> }
+    context: { params: Promise<Promise<{ slug: string; id: string> }> }
 ) {
     try {
         const session = await auth();
@@ -67,7 +67,7 @@ export async function PUT(
  */
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: Promise<{ slug: string; id: string }> }
+    context: { params: Promise<Promise<{ slug: string; id: string> }> }
 ) {
     try {
         const session = await auth();

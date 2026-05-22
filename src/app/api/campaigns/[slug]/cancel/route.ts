@@ -8,7 +8,7 @@ import { getUser } from "@/lib/auth";
  */
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ slug: string }> }
+  context: { params: Promise<Promise<{ slug: string> }> }
 ) {
   try {
     const user = await getUser();
