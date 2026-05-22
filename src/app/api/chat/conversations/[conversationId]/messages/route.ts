@@ -39,6 +39,15 @@ export async function GET(
     return NextResponse.json(result);
   } catch (error: any) {
     console.error('[API] Get messages error:', error);
+    
+    if (error.message === 'Invalid conversation ID') {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    
+    if (error.message === 'Conversation not found') {
+      return NextResponse.json({ error: error.message }, { status: 404 });
+    }
+
     return NextResponse.json(
       { error: error.message || 'Failed to get messages' },
       { status: 500 }
@@ -83,6 +92,14 @@ export async function POST(
     });
   } catch (error: any) {
     console.error('[API] Send message error:', error);
+    
+    if (error.message === 'Invalid conversation ID') {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    
+    if (error.message === 'Conversation not found') {
+      return NextResponse.json({ error: error.message }, { status: 404 });
+    }
     
     // Handle specific errors
     if (error.message.includes('blocked')) {

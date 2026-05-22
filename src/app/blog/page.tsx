@@ -6,6 +6,9 @@ import { Suspense } from 'react';
 import { BlogCard } from '@/components/blog/BlogCard';
 import { BlogPostResponse } from '@/types/blog.types';
 import { getBlogPostList } from '@/lib/blog/blog.service';
+import { auth } from '@/lib/auth';
+import Link from 'next/link';
+import { Plus } from 'lucide-react';
 
 async function getBlogPosts(searchParams: any) {
   try {
@@ -34,16 +37,29 @@ export default async function BlogPage({
   searchParams: { [key: string]: string | undefined };
 }) {
   const data = await getBlogPosts(searchParams);
+  const session = await auth();
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Blog</h1>
-          <p className="text-gray-600">
-            Tin tức, câu chuyện và cập nhật từ cộng đồng crowdfunding
-          </p>
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Blog</h1>
+            <p className="text-gray-600">
+              Tin tức, câu chuyện và cập nhật từ cộng đồng crowdfunding
+            </p>
+          </div>
+          
+          {session?.user && (
+            <Link
+              href="/blog/editor"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors shadow-sm font-medium"
+            >
+              <Plus className="w-5 h-5" />
+              Viết bài mới
+            </Link>
+          )}
         </div>
 
         {/* Filters */}

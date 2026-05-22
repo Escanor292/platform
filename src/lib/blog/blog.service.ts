@@ -21,7 +21,7 @@ import {
   BlogPostListQuery,
   BlogPostResponse,
 } from '@/types/blog.types';
-import { generateSlug } from './blog.utils';
+import { generateUniqueSlug } from './blog.utils';
 
 // ============================================================
 // Create Blog Post
@@ -31,8 +31,25 @@ export async function createBlogPost(
   currentUserId: string,
   data: CreateBlogPostRequest
 ): Promise<BlogPostResponse> {
+  // Determine if user is admin
+  const user = await prisma.user.findUnique({
+    where: { id: currentUserId },
+    select: { isAdmin: true },
+  });
+
+  // Role-based type validation
+  if (!user?.isAdmin) {
+    if (data.type === 'PLATFORM' || data.type === 'ANNOUNCEMENT') {
+      throw new Error('Only administrators can create platform announcements');
+    }
+  }
+
   // Validate campaign ownership if campaign_update
-  if (data.type === 'CAMPAIGN_UPDATE' && data.campaignId) {
+  if (data.type === 'CAMPAIGN_UPDATE') {
+    if (!data.campaignId) {
+      throw new Error('Campaign ID is required for campaign updates');
+    }
+
     const campaign = await prisma.campaign.findUnique({
       where: { id: data.campaignId },
       select: { creatorId: true },
@@ -41,11 +58,6 @@ export async function createBlogPost(
     if (!campaign) {
       throw new Error('Campaign not found');
     }
-
-    const user = await prisma.user.findUnique({
-      where: { id: currentUserId },
-      select: { isAdmin: true },
-    });
 
     if (campaign.creatorId !== currentUserId && !user?.isAdmin) {
       throw new Error('You can only create updates for your own campaigns');
@@ -58,12 +70,6 @@ export async function createBlogPost(
   // Calculate word count and reading time
   const wordCount = calculateWordCount(data.content, data.richContent);
   const readingTimeMinutes = calculateReadingTime(wordCount);
-
-  // Determine initial status
-  const user = await prisma.user.findUnique({
-    where: { id: currentUserId },
-    select: { isAdmin: true },
-  });
 
   let status = data.status || 'DRAFT';
   if (status === 'PUBLISHED' && !user?.isAdmin) {

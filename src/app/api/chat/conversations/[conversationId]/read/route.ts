@@ -32,6 +32,15 @@ export async function PATCH(
     });
   } catch (error: any) {
     console.error('[API] Mark as read error:', error);
+    
+    if (error.message === 'Invalid conversation ID') {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    
+    if (error.message === 'Conversation not found') {
+      return NextResponse.json({ error: error.message }, { status: 404 });
+    }
+
     return NextResponse.json(
       { error: error.message || 'Failed to mark as read' },
       { status: 500 }

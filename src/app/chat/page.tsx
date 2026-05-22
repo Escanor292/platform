@@ -30,7 +30,7 @@ export default async function ChatPage({ searchParams }: ChatPageProps) {
 
   // Nếu không có userId, hiển thị danh sách cuộc trò chuyện
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto px-4 pt-24 pb-8 max-w-4xl">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Tin nhắn</h1>
         <p className="text-gray-600 mt-1">

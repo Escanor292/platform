@@ -12,6 +12,10 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        primary: {
+          DEFAULT: "#2563eb", // blue-600
+          foreground: "#ffffff",
+        },
         // TửTế Fund Color Palette
         pgreen: '#2E8B57',
         fgreen: '#6BCB77',

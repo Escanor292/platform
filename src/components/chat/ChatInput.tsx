@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, KeyboardEvent } from "react";
+import { useState, KeyboardEvent, useRef, useEffect } from "react";
 import { Send } from "lucide-react";
 
 interface ChatInputProps {
@@ -10,11 +10,24 @@ interface ChatInputProps {
 
 export function ChatInput({ onSend, disabled }: ChatInputProps) {
   const [text, setText] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-resize textarea
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+    }
+  }, [text]);
 
   const handleSend = () => {
     if (!text.trim() || disabled) return;
     onSend(text);
     setText("");
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "40px";
+    }
   };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -25,21 +38,22 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
   };
 
   return (
-    <div className="flex gap-2">
+    <div className="flex items-end gap-2 bg-white p-2 rounded-xl border border-gray-200 focus-within:border-primary transition-colors shadow-sm">
       <textarea
+        ref={textareaRef}
         value={text}
         onChange={(e) => setText(e.target.value)}
-        onKeyPress={handleKeyPress}
+        onKeyDown={handleKeyPress}
         placeholder="Nhập tin nhắn..."
         disabled={disabled}
         rows={1}
-        className="flex-1 resize-none rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:bg-gray-100 disabled:cursor-not-allowed"
+        className="flex-1 resize-none bg-transparent px-2 py-2 text-sm focus:outline-none disabled:cursor-not-allowed"
         style={{ minHeight: "40px", maxHeight: "120px" }}
       />
       <button
         onClick={handleSend}
         disabled={!text.trim() || disabled}
-        className="flex-shrink-0 rounded-lg bg-primary px-4 py-2 text-white transition-colors hover:bg-primary/90 disabled:bg-gray-300 disabled:cursor-not-allowed"
+        className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-lg bg-primary text-white transition-all hover:bg-primary/90 hover:scale-105 active:scale-95 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed disabled:scale-100"
       >
         <Send className="h-5 w-5" />
       </button>

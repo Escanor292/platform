@@ -220,6 +220,7 @@ export default async function CampaignDetailPage({ params }: Params) {
                            <CampaignPageClient
                               campaignId={campaign.id}
                               campaignSlug={slug}
+                              campaignTitle={campaign.title}
                               rewards={serializedCampaign.rewards || []}
                               creatorId={campaign.creatorId}
                               creatorName={campaign.creator.name}

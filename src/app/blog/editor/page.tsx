@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
+import { ProductionEditor } from '@/components/editor/ProductionEditor';
+import { ImageUpload } from '@/components/shared/ImageUpload';
 
 export default function BlogEditorPage() {
   const router = useRouter();
@@ -17,7 +19,7 @@ export default function BlogEditorPage() {
     excerpt: '',
     content: '',
     coverImage: '',
-    type: campaignId ? 'CAMPAIGN_UPDATE' : 'PLATFORM',
+    type: campaignId ? 'CAMPAIGN_UPDATE' : 'STORY',
     visibility: 'PUBLIC',
     categoryIds: [] as string[],
     tags: [] as string[],
@@ -127,31 +129,28 @@ export default function BlogEditorPage() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Nội dung <span className="text-red-500">*</span>
             </label>
-            <textarea
-              required
-              value={formData.content}
-              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-              rows={15}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono"
-              placeholder="Viết nội dung bài viết (hỗ trợ Markdown)..."
+            <ProductionEditor
+              content={formData.content}
+              onChange={(content) => setFormData({ ...formData, content })}
+              config={{
+                placeholder: 'Viết nội dung bài viết...',
+                maxLength: 10000,
+              }}
             />
-            <p className="mt-1 text-sm text-gray-500">
-              Hỗ trợ Markdown: **bold**, *italic*, [link](url), ![image](url)
-            </p>
           </div>
 
           {/* Cover Image */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ảnh bìa (URL)
+              Ảnh bìa
             </label>
-            <input
-              type="url"
+            <ImageUpload
               value={formData.coverImage}
-              onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="https://example.com/image.jpg"
+              onChange={(url) => setFormData({ ...formData, coverImage: url })}
             />
+            <p className="mt-1 text-xs text-gray-500">
+              Chọn một tấm ảnh thật ấn tượng để thu hút người đọc.
+            </p>
           </div>
 
           {/* Type */}
@@ -165,9 +164,13 @@ export default function BlogEditorPage() {
                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="PLATFORM">Tin tức nền tảng</option>
-                <option value="ANNOUNCEMENT">Thông báo</option>
-                <option value="STORY">Câu chuyện</option>
+                {session?.user?.isAdmin && (
+                  <>
+                    <option value="PLATFORM">Tin tức nền tảng</option>
+                    <option value="ANNOUNCEMENT">Thông báo</option>
+                  </>
+                )}
+                <option value="STORY">Câu chuyện cá nhân</option>
                 <option value="IMPACT_REPORT">Báo cáo tác động</option>
               </select>
             </div>

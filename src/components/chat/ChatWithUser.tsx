@@ -29,23 +29,26 @@ export function ChatWithUser({ targetUserId }: ChatWithUserProps) {
         const userData = await userRes.json();
         setTargetUser(userData);
 
-        // Tìm hoặc tạo conversation với user này
-        const convRes = await fetch("/api/chat/conversations/find-or-create", {
+        // Tìm hoặc tạo conversation với user này (dùng API chuẩn)
+        const convRes = await fetch("/api/chat/conversations/start", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            participantId: targetUserId,
+            targetUserId: targetUserId,
           }),
         });
 
         if (!convRes.ok) {
-          throw new Error("Không thể tạo cuộc trò chuyện");
+          const errorData = await convRes.json();
+          throw new Error(errorData.error || "Không thể tạo cuộc trò chuyện");
         }
 
-        const conversation = await convRes.json();
+        const data = await convRes.json();
+        // _id từ MongoDB có thể là ObjectId object, cần convert sang string
+        const conversationId = data.conversation._id?.toString() || data.conversation._id;
 
         // Chuyển đến trang chat với conversation đó
-        router.push(`/chat/${conversation._id}`);
+        router.push(`/chat/${conversationId}`);
       } catch (error: any) {
         console.error("Error initializing chat:", error);
         toast.error(error.message || "Có lỗi xảy ra");

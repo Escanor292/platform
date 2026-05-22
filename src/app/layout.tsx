@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import NavbarNew from "@/components/layout/NavbarNew";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import FooterNew from "@/components/shared/FooterNew";
 import { Providers } from "@/components/shared/Providers";
 import { Toaster } from "sonner";
@@ -20,9 +21,24 @@ const sourceSans = Source_Sans_3({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#10b981",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+};
+
 export const metadata: Metadata = {
   title: "TửTế Fund - Lấy sự tử tế trồng tương lai | Nền tảng gây quỹ cộng đồng #1 Việt Nam",
   description: "Lấy sự tử tế trồng tương lai. Nền tảng gây quỹ cộng đồng minh bạch #1 Việt Nam.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "TửTế Fund",
+  },
 };
 
 export default function RootLayout({
@@ -35,12 +51,13 @@ export default function RootLayout({
       <body className={`${playfair.variable} ${sourceSans.variable}`}>
         <Providers>
           <Toaster position="top-center" richColors theme="light" />
-          <div className="flex flex-col min-h-screen">
+          <div className="flex flex-col min-h-screen pb-16 md:pb-0">
             <NavbarNew />
             <main className="flex-grow">
               {children}
             </main>
             <FooterNew />
+            <MobileBottomNav />
           </div>
         </Providers>
       </body>

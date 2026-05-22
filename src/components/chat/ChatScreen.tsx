@@ -15,7 +15,7 @@ interface ChatScreenProps {
 
 export function ChatScreen({ conversationId }: ChatScreenProps) {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
   const currentUserId = session?.user?.id;
 
   const [conversation, setConversation] = useState<MongoConversation | null>(null);
@@ -29,12 +29,12 @@ export function ChatScreen({ conversationId }: ChatScreenProps) {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (conversationId) {
+    if (conversationId && currentUserId) {
       loadConversation();
       loadMessages();
       markAsRead();
     }
-  }, [conversationId]);
+  }, [conversationId, currentUserId]);
 
   useEffect(() => {
     scrollToBottom();
@@ -47,7 +47,12 @@ export function ChatScreen({ conversationId }: ChatScreenProps) {
   const loadConversation = async () => {
     try {
       const response = await fetch("/api/chat/conversations");
-      if (!response.ok) throw new Error("Failed to load conversation");
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Vui lòng đăng nhập");
+        }
+        throw new Error("Không thể tải thông tin cuộc trò chuyện");
+      }
 
       const data = await response.json();
       const conv = data.conversations.find(
@@ -72,7 +77,17 @@ export function ChatScreen({ conversationId }: ChatScreenProps) {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to load messages");
+        if (response.status === 401) {
+          throw new Error("Vui lòng đăng nhập để xem tin nhắn");
+        } else if (response.status === 404) {
+          throw new Error("Cuộc trò chuyện không tồn tại");
+        } else if (response.status === 403) {
+          throw new Error("Bạn không có quyền truy cập cuộc trò chuyện này");
+        } else if (response.status === 400) {
+          throw new Error("ID cuộc trò chuyện không hợp lệ");
+        } else {
+          throw new Error("Không thể tải tin nhắn");
+        }
       }
 
       const data = await response.json();
@@ -80,7 +95,7 @@ export function ChatScreen({ conversationId }: ChatScreenProps) {
       setHasMore(data.hasMore);
     } catch (err: any) {
       console.error("Load messages error:", err);
-      setError(err.message || "Failed to load messages");
+      setError(err.message || "Không thể tải tin nhắn");
     } finally {
       setLoading(false);
     }
@@ -131,10 +146,39 @@ export function ChatScreen({ conversationId }: ChatScreenProps) {
     (p) => p.userId !== currentUserId
   );
 
+  if (sessionStatus === "loading") {
+    return (
+      <div className="flex h-[600px] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2">Đang tải phiên đăng nhập...</span>
+      </div>
+    );
+  }
+
+  if (sessionStatus === "unauthenticated") {
+    return (
+      <div className="flex h-[600px] flex-col items-center justify-center rounded-lg border border-gray-200 bg-white p-8">
+        <div className="text-center">
+          <h3 className="text-lg font-semibold text-gray-900">Chưa đăng nhập</h3>
+          <p className="mt-2 text-sm text-gray-600">
+            Vui lòng đăng nhập để sử dụng tính năng chat
+          </p>
+          <button
+            onClick={() => router.push("/auth/login")}
+            className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
+          >
+            Đăng nhập
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex h-[600px] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2">Đang tải tin nhắn...</span>
       </div>
     );
   }

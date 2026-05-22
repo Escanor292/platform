@@ -10,6 +10,7 @@ import { SocialLink } from "@/types/social";
 import { CampaignGrowthProgress } from "@/components/campaign/CampaignGrowthProgress";
 import { getCampaignTypeLabel } from "@/lib/project-helpers";
 import { UserBadgeList } from "@/components/badge/UserBadgeList";
+import { StartChatButton } from "@/components/chat/StartChatButton";
 
 interface ProfilePageProps {
   params: Promise<{ userId: string }>;
@@ -136,13 +137,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             {/* Message Button - For other users */}
             {!isOwnProfile && currentUserId && (
               <div className="absolute top-6 right-8">
-                <Link
-                  href={`/chat?userId=${userId}`}
-                  className="px-4 py-2 bg-gradient-to-r from-pgreen to-fgreen text-white rounded-xl text-sm font-bold hover:shadow-lg transition flex items-center gap-2"
-                >
-                  <MessageCircle size={16} />
-                  Nhắn tin
-                </Link>
+                <StartChatButton
+                  campaignOwnerId={userId}
+                  campaignOwnerName={user.name || "Người dùng"}
+                  variant="none"
+                  label="Nhắn tin"
+                  className="bg-gradient-to-r from-pgreen to-fgreen text-white rounded-xl text-sm font-bold hover:shadow-lg transition"
+                />
               </div>
             )}
 

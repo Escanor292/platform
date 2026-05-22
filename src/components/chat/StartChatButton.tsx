@@ -6,19 +6,25 @@ import { useRouter } from "next/navigation";
 import { MessageCircle, Loader2 } from "lucide-react";
 
 interface StartChatButtonProps {
-  campaignId: string;
+  campaignId?: string;
   campaignOwnerId: string;
   campaignOwnerName: string;
-  variant?: "default" | "outline";
+  campaignTitle?: string;
+  campaignSlug?: string;
+  variant?: "default" | "outline" | "none";
   className?: string;
+  label?: string;
 }
 
 export function StartChatButton({
   campaignId,
   campaignOwnerId,
   campaignOwnerName,
+  campaignTitle,
+  campaignSlug,
   variant = "default",
   className = "",
+  label,
 }: StartChatButtonProps) {
   const router = useRouter();
   const { data: session } = useSession();
@@ -27,7 +33,12 @@ export function StartChatButton({
   const handleStartChat = async () => {
     // Check if user is logged in
     if (!session?.user) {
-      router.push(`/auth/login?callbackUrl=/campaigns/${campaignId}`);
+      const callbackUrl = campaignSlug 
+        ? `/campaigns/${campaignSlug}` 
+        : campaignId 
+          ? `/campaigns/${campaignId}` 
+          : `/profile/${campaignOwnerId}`;
+      router.push(`/auth/login?callbackUrl=${callbackUrl}`);
       return;
     }
 
@@ -56,7 +67,33 @@ export function StartChatButton({
       }
 
       const data = await response.json();
-      const conversationId = data.conversation._id;
+      const conversationId = data.conversation._id?.toString() || data.conversation._id;
+
+      // Nếu có thông tin dự án, gửi tin nhắn giới thiệu tự động
+      if (campaignTitle) {
+        const campaignUrl = campaignSlug
+          ? `${window.location.origin}/campaigns/${campaignSlug}`
+          : `${window.location.origin}/campaigns/${campaignId}`;
+
+        const introMessage =
+          `👋 Xin chào ${campaignOwnerName}!\n\n` +
+          `Tôi muốn thảo luận về dự án của bạn:\n` +
+          `📋 ${campaignTitle}\n` +
+          `🔗 ${campaignUrl}\n\n` +
+          `Bạn có thể giúp tôi tìm hiểu thêm về dự án này không?`;
+
+        // Gửi tin nhắn giới thiệu (bỏ qua lỗi nếu có, vẫn chuyển trang)
+        try {
+          await fetch(`/api/chat/conversations/${conversationId}/messages`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: introMessage }),
+          });
+        } catch {
+          // Không block user nếu gửi tin nhắn tự động thất bại
+          console.warn("Could not send intro message, continuing to chat...");
+        }
+      }
 
       // Navigate to chat screen
       router.push(`/chat/${conversationId}`);
@@ -72,20 +109,21 @@ export function StartChatButton({
   const variantClasses = {
     default: "bg-primary text-white hover:bg-primary/90",
     outline: "border border-primary text-primary hover:bg-primary/5",
+    none: "",
   };
 
   return (
     <button
       onClick={handleStartChat}
       disabled={loading}
-      className={`${baseClasses} ${variantClasses[variant]} ${className} disabled:opacity-50 disabled:cursor-not-allowed`}
+      className={`${baseClasses} ${variantClasses[variant as keyof typeof variantClasses]} ${className} disabled:opacity-50 disabled:cursor-not-allowed`}
     >
       {loading ? (
         <Loader2 className="h-5 w-5 animate-spin" />
       ) : (
         <MessageCircle className="h-5 w-5" />
       )}
-      <span>Nhắn tin với {campaignOwnerName}</span>
+      <span>{label || `Nhắn tin với ${campaignOwnerName}`}</span>
     </button>
   );
 }

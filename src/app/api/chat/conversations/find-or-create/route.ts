@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { connectMongoDB } from "@/lib/mongodb";
+import { auth } from "@/lib/auth";
+import { getDb } from "@/lib/mongodb";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await auth();
 
     if (!session?.user?.email) {
       return NextResponse.json(
@@ -56,7 +56,17 @@ export async function POST(req: NextRequest) {
     }
 
     // Kết nối MongoDB
-    const { db } = await connectMongoDB();
+    let db;
+    try {
+      db = await getDb();
+    } catch (mongoError) {
+      console.error("[MongoDB Connection Error]", mongoError);
+      return NextResponse.json(
+        { error: "Không thể kết nối database" },
+        { status: 500 }
+      );
+    }
+
     const conversationsCollection = db.collection("conversations");
 
     // Tìm conversation đã tồn tại giữa 2 user
@@ -100,10 +110,15 @@ export async function POST(req: NextRequest) {
       _id: result.insertedId.toString(),
       ...newConversation,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("[POST /api/chat/conversations/find-or-create]", error);
+    console.error("Error details:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+    });
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: error.message || "Internal server error" },
       { status: 500 }
     );
   }

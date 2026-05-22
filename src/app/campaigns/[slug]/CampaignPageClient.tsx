@@ -18,6 +18,7 @@ interface Reward {
 interface CampaignPageClientProps {
     campaignId: string;
     campaignSlug: string;
+    campaignTitle: string;
     rewards: Reward[];
     creatorId: string;
     creatorName: string;
@@ -26,7 +27,8 @@ interface CampaignPageClientProps {
 
 export default function CampaignPageClient({ 
     campaignId, 
-    campaignSlug, 
+    campaignSlug,
+    campaignTitle,
     rewards,
     creatorId,
     creatorName,
@@ -73,6 +75,8 @@ export default function CampaignPageClient({
                         campaignId={campaignId}
                         campaignOwnerId={creatorId}
                         campaignOwnerName={creatorName}
+                        campaignTitle={campaignTitle}
+                        campaignSlug={campaignSlug}
                         variant="outline"
                         className="w-full"
                     />

@@ -100,7 +100,7 @@ export default function NavbarNew() {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/30">
+    <nav className="sticky top-0 z-50 glass border-b border-white/30">
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 cursor-pointer group">
@@ -326,14 +326,8 @@ export default function NavbarNew() {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden px-6 pb-4 flex flex-col gap-2 bg-white border-t border-gray-100">
-          <Link href="/" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
-            Trang chủ
-          </Link>
           <Link href="/about" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
             Giới thiệu
-          </Link>
-          <Link href="/projects" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
-            Khám phá
           </Link>
           <Link href="/blog" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
             Blog
@@ -344,15 +338,6 @@ export default function NavbarNew() {
 
           {session ? (
             <>
-              <Link
-                href="/chat"
-                className="py-2 text-sm font-medium text-gray-600 flex items-center gap-2 relative"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <MessageCircle size={16} />
-                Tin nhắn
-                <ChatNotificationBadge />
-              </Link>
 
               {/* Chỉ hiển thị nút "Gây quỹ ngay" cho CREATOR và ADMIN */}
               {(user?.role === "CREATOR" || user?.role === "ADMIN" || isAdmin) && (

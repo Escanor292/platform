@@ -39,10 +39,7 @@ export function generateConversationKey(
   // Sort user IDs alphabetically to ensure consistency
   const sortedUserIds = [userId1, userId2].sort();
   
-  if (campaignId) {
-    return `campaign_${campaignId}_${sortedUserIds[0]}_${sortedUserIds[1]}`;
-  }
-  
+  // All chats between two users are merged into a single "direct" thread
   return `direct_${sortedUserIds[0]}_${sortedUserIds[1]}`;
 }
 
@@ -154,6 +151,24 @@ export async function startConversation(
   const existingConversation = await conversationsCollection.findOne({ conversationKey });
 
   if (existingConversation) {
+    // If a campaign context is provided, update the conversation's campaign info
+    // This allows the shared thread to show the context of the project being discussed
+    if (campaignId && existingConversation.campaignId !== campaignId) {
+      const campaignInfo = await getCampaignInfo(campaignId);
+      if (campaignInfo) {
+        await conversationsCollection.updateOne(
+          { _id: existingConversation._id },
+          { 
+            $set: { 
+              campaign: campaignInfo,
+              type: 'campaign'
+            } 
+          }
+        );
+        existingConversation.campaign = campaignInfo;
+        existingConversation.type = 'campaign';
+      }
+    }
     return { conversation: existingConversation, isNew: false };
   }
 
@@ -204,6 +219,10 @@ export async function getConversationById(
   conversationId: string,
   userId: string
 ): Promise<MongoConversation | null> {
+  if (!ObjectId.isValid(conversationId)) {
+    throw new Error('Invalid conversation ID');
+  }
+
   const db = await getDb();
   const conversationsCollection = db.collection<MongoConversation>(CONVERSATIONS_COLLECTION);
 
@@ -227,6 +246,10 @@ export async function sendMessage(
   senderId: string,
   text: string
 ): Promise<MongoMessage> {
+  if (!ObjectId.isValid(conversationId)) {
+    throw new Error('Invalid conversation ID');
+  }
+
   const db = await getDb();
   const conversationsCollection = db.collection<MongoConversation>(CONVERSATIONS_COLLECTION);
   const messagesCollection = db.collection<MongoMessage>(MESSAGES_COLLECTION);
@@ -238,7 +261,7 @@ export async function sendMessage(
   });
 
   if (!conversation) {
-    throw new Error('Conversation not found or user is not a participant');
+    throw new Error('Conversation not found');
   }
 
   // Check if conversation is blocked
@@ -322,6 +345,10 @@ export async function getMessages(
   limit: number = 30,
   before?: string
 ): Promise<{ messages: MongoMessage[]; hasMore: boolean }> {
+  if (!ObjectId.isValid(conversationId)) {
+    throw new Error('Invalid conversation ID');
+  }
+
   const db = await getDb();
   const conversationsCollection = db.collection<MongoConversation>(CONVERSATIONS_COLLECTION);
   const messagesCollection = db.collection<MongoMessage>(MESSAGES_COLLECTION);
@@ -333,7 +360,7 @@ export async function getMessages(
   });
 
   if (!conversation) {
-    throw new Error('Conversation not found or user is not a participant');
+    throw new Error('Conversation not found');
   }
 
   // Build query
@@ -370,6 +397,10 @@ export async function getMessages(
  * Mark conversation as read
  */
 export async function markAsRead(conversationId: string, userId: string): Promise<void> {
+  if (!ObjectId.isValid(conversationId)) {
+    throw new Error('Invalid conversation ID');
+  }
+
   const db = await getDb();
   const conversationsCollection = db.collection<MongoConversation>(CONVERSATIONS_COLLECTION);
   const messagesCollection = db.collection<MongoMessage>(MESSAGES_COLLECTION);
@@ -381,7 +412,7 @@ export async function markAsRead(conversationId: string, userId: string): Promis
   });
 
   if (!conversation) {
-    throw new Error('Conversation not found or user is not a participant');
+    throw new Error('Conversation not found');
   }
 
   // Reset unread count
@@ -453,6 +484,10 @@ export async function reportConversation(
   description: string,
   messageId?: string
 ): Promise<MongoChatReport> {
+  if (!ObjectId.isValid(conversationId)) {
+    throw new Error('Invalid conversation ID');
+  }
+
   const db = await getDb();
   const conversationsCollection = db.collection<MongoConversation>(CONVERSATIONS_COLLECTION);
   const chatReportsCollection = db.collection<MongoChatReport>(CHAT_REPORTS_COLLECTION);
@@ -464,7 +499,7 @@ export async function reportConversation(
   });
 
   if (!conversation) {
-    throw new Error('Conversation not found or user is not a participant');
+    throw new Error('Conversation not found');
   }
 
   // Create report

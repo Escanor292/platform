@@ -32,25 +32,25 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
       )}
 
       {/* Message Content */}
-      <div className={`flex flex-col ${isOwn ? "items-end" : "items-start"}`}>
+      <div className="flex-1 min-w-0">
         {/* Sender Name (only for other's messages) */}
         {!isOwn && (
-          <span className="text-xs text-gray-500 mb-1">{message.senderName}</span>
+          <span className="text-xs text-gray-500 mb-1 block">{message.senderName}</span>
         )}
 
         {/* Message Bubble */}
         <div
-          className={`max-w-[70%] rounded-lg px-4 py-2 ${
+          className={`w-fit max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm ${
             isOwn
-              ? "bg-primary text-white"
-              : "bg-gray-100 text-gray-900"
+              ? "bg-primary text-white rounded-tr-none ml-auto"
+              : "bg-white border border-gray-100 text-gray-900 rounded-tl-none mr-auto"
           }`}
         >
-          <p className="text-sm whitespace-pre-wrap break-words">{message.text}</p>
+          <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">{message.text}</p>
         </div>
 
         {/* Timestamp */}
-        <span className="text-xs text-gray-400 mt-1">
+        <span className={`text-[10px] text-gray-400 mt-1 block ${isOwn ? "text-right" : "text-left"}`}>
           {formatTime(new Date(message.createdAt))}
         </span>
       </div>

@@ -2,15 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPublicUserBadges } from '@/lib/badge/badge.service';
 
 /**
- * GET /api/users/:id/badges
+ * GET /api/users/:userId/badges
  * Get public active badges for a user
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const badges = await getPublicUserBadges(params.id);
+    const { userId } = await params;
+    const badges = await getPublicUserBadges(userId);
     return NextResponse.json(badges);
   } catch (error: any) {
     console.error('Error fetching user badges:', error);
