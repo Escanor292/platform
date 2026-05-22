@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validated = createBadgeSchema.parse(body);
 
-    const badge = await createBadge(session!.user!.id, validated);
+    const badge = await createBadge(session!.user!.id as string, validated);
 
     return NextResponse.json(badge, { status: 201 });
   } catch (error: any) {
