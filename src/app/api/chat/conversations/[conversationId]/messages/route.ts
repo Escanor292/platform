@@ -57,7 +57,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  context: { params: Promise<{ conversationId: string } }>
+  context: { params: Promise<{ conversationId: string }> }
 ) {
   try {
     // Check authentication
