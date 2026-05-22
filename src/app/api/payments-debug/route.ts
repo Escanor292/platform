@@ -34,38 +34,18 @@ export async function POST(request: NextRequest) {
         const { PayOS } = await import("@payos/node");
         console.log("[PAYMENTS DEBUG] PayOS imported successfully");
 
-        // Step 4: Test PayOS instance
-        console.log("[PAYMENTS DEBUG] Creating PayOS instance...");
-        const payos = new PayOS(
-            process.env.PAYOS_CLIENT_ID!,
-            process.env.PAYOS_API_KEY!,
-            process.env.PAYOS_CHECKSUM_KEY!
-        );
-        console.log("[PAYMENTS DEBUG] PayOS instance created");
-
-        // Step 5: Test payment creation
-        console.log("[PAYMENTS DEBUG] Creating payment...");
-        const orderCode = Number(Date.now());
-        const testData = {
-            orderCode,
-            amount: Number(amount),
-            description: `Test payment for ${campaignId}`,
-            returnUrl: "http://localhost:3000/payment-success",
-            cancelUrl: "http://localhost:3000/campaigns",
-        };
-
-        console.log("[PAYMENTS DEBUG] Payment data:", testData);
-
-        const response = await payos.paymentRequests.create(testData);
-        console.log("[PAYMENTS DEBUG] PayOS response:", response);
+        // Step 4: Test PayOS instance (commented out due to SDK version change)
+        console.log("[PAYMENTS DEBUG] PayOS initialization skipped - SDK version mismatch");
+        // const payos = new PayOS(
+        //     process.env.PAYOS_CLIENT_ID!,
+        //     process.env.PAYOS_API_KEY!,
+        //     process.env.PAYOS_CHECKSUM_KEY!
+        // );
 
         return NextResponse.json({
             success: true,
-            message: "PayOS payment created successfully",
-            orderCode,
-            checkoutUrl: response.checkoutUrl,
-            paymentLinkId: response.paymentLinkId,
-            qrCode: response.qrCode || null
+            message: "PayOS debug endpoint - SDK version requires update",
+            note: "This is a debug endpoint. Use /api/payments/create for actual payments"
         });
 
     } catch (error: any) {
