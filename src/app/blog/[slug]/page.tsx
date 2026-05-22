@@ -30,9 +30,10 @@ async function getBlogPost(slug: string) {
 export default async function BlogDetailPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const post: BlogPostResponse = await getBlogPost(params.slug);
+  const { slug } = await params;
+  const post: BlogPostResponse = await getBlogPost(slug);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -74,9 +75,9 @@ export default async function BlogDetailPage({
                 <span>
                   {post.publishedAt
                     ? formatDistanceToNow(new Date(post.publishedAt), {
-                        addSuffix: true,
-                        locale: vi,
-                      })
+                      addSuffix: true,
+                      locale: vi,
+                    })
                     : 'Chưa xuất bản'}
                 </span>
                 <span>•</span>
