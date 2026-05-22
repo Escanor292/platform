@@ -188,7 +188,7 @@ function RenderBlock({ block }: { block: any }) {
     case 'paragraph':
       return <p>{block.data.text}</p>;
     case 'heading':
-      const HeadingTag = `h${block.data.level}` as keyof JSX.IntrinsicElements;
+      const HeadingTag = `h${block.data.level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
       return <HeadingTag>{block.data.text}</HeadingTag>;
     case 'image':
       return (
