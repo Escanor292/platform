@@ -8,10 +8,10 @@ import { auth } from "@/lib/auth";
  */
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ slug: string} }>
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = await params;
+    const { slug } = await context.params;
 
     const campaign = await prisma.campaign.findFirst({
       where: { OR: [{ slug }, { id: slug }] },
@@ -43,7 +43,7 @@ export async function GET(
  */
 export async function POST(
   req: NextRequest,
-  context: { params: Promise<{ slug: string} }>
+  context: { params: Promise<{ slug: string } }>
 ) {
   try {
     const session = await auth();

@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
-type Params = { params: Promise<{ userId: string }>;
-
 /**
  * POST /api/admin/users/[userId]/update-status
  * Cập nhật status của user (chỉ Admin)
@@ -16,7 +14,6 @@ export async function POST(req: NextRequest, context: { params: Promise<{ userId
             return NextResponse.json({ error: "Access denied" }, { status: 403 });
         }
 
-        const { userId } = await params;
         const body = await req.json();
         const { status } = body;
 
