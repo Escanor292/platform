@@ -20,7 +20,7 @@ export async function POST(
     const validated = assignBadgeSchema.parse(body);
 
     const params = await context.params;
-    const userBadge = await assignBadge(session!.user.id, params.id, validated);
+    const userBadge = await assignBadge(session!.user!.id, params.id, validated);
 
     return NextResponse.json(userBadge, { status: 201 });
   } catch (error: any) {
