@@ -55,3 +55,9 @@ prisma_*.txt
 page_history.txt
 final_*.txt
 project_structure.txt
+
+# Documentation files (keep local only)
+*.md
+
+# Documentation files
+*.md
