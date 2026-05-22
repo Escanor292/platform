@@ -9,7 +9,7 @@ import { getUserBadges } from '@/lib/badge/badge.service';
  */
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ userId: string }> }
+  context: { params: Promise<{ userId: string }>
 ) {
   try {
     const session = await auth();

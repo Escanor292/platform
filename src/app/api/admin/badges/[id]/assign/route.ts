@@ -10,7 +10,7 @@ import { assignBadgeSchema } from '@/lib/badge/badge.validation';
  */
 export async function POST(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }>
 ) {
   try {
     const session = await auth();

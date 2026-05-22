@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-type Params = { params: Promise<{ txId: string }> };
+type Params = { params: Promise<{ txId: string }>;
 
 /**
  * GET /api/transactions/[txId]

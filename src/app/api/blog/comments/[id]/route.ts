@@ -8,7 +8,7 @@ import { deleteComment } from '@/lib/blog/comment.service';
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }>
 ) {
   
   const params = await context.params;

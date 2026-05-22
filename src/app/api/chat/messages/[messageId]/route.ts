@@ -9,7 +9,7 @@ import { deleteMessage } from '@/services/mongodb/chat.service';
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: Promise<{ messageId: string} }> }
+  context: { params: Promise<{ messageId: string} }>
 ) {
   try {
     // Check authentication

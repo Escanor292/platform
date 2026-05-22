@@ -8,7 +8,7 @@ import { getBlogPostsByCampaign } from '@/lib/blog/blog.service';
 
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ slug: string }> }
+  context: { params: Promise<{ slug: string }>
 ) {
   try {
     const params = await context.params;

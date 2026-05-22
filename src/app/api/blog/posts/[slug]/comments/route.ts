@@ -13,7 +13,7 @@ import { prisma } from '@/lib/prisma';
  */
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ slug: string }> }
+  context: { params: Promise<{ slug: string }>
 ) {
   try {
     const params = await context.params;
@@ -46,7 +46,7 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  context: { params: Promise<{ slug: string }> }
+  context: { params: Promise<{ slug: string }>
 ) {
   try {
     const params = await context.params;
