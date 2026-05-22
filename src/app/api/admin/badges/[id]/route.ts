@@ -14,12 +14,13 @@ import { updateBadgeSchema } from '@/lib/badge/badge.validation';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
     requireAdmin(session?.user);
 
+    const params = await context.params;
     const badge = await getBadgeById(params.id);
 
     if (!badge) {
@@ -42,7 +43,7 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -51,6 +52,7 @@ export async function PATCH(
     const body = await request.json();
     const validated = updateBadgeSchema.parse(body);
 
+    const params = await context.params;
     const badge = await updateBadge(params.id, validated);
 
     return NextResponse.json(badge);
@@ -77,12 +79,13 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
     requireAdmin(session?.user);
 
+    const params = await context.params;
     await deleteBadge(params.id);
 
     return NextResponse.json({ success: true });

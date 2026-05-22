@@ -10,7 +10,7 @@ import { assignBadgeSchema } from '@/lib/badge/badge.validation';
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -19,6 +19,7 @@ export async function POST(
     const body = await request.json();
     const validated = assignBadgeSchema.parse(body);
 
+    const params = await context.params;
     const userBadge = await assignBadge(session!.user.id, params.id, validated);
 
     return NextResponse.json(userBadge, { status: 201 });
@@ -40,10 +41,10 @@ export async function POST(
             ? 403
             : error.message === 'User not found' ||
               error.message === 'Badge not found'
-            ? 404
-            : error.message === 'User already has this active badge'
-            ? 409
-            : 500,
+              ? 404
+              : error.message === 'User already has this active badge'
+                ? 409
+                : 500,
       }
     );
   }
