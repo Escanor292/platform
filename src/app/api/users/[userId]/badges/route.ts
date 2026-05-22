@@ -7,7 +7,7 @@ import { getPublicUserBadges } from '@/lib/badge/badge.service';
  */
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<Promise<{ userId: string> }> }
+  context: { params: Promise<{ userId: string} }> }
 ) {
   try {
     const { userId } = await params;
