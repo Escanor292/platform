@@ -9,12 +9,13 @@ import { getUserBadges } from '@/lib/badge/badge.service';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  context: { params: Promise<{ userId: string }> }
 ) {
   try {
     const session = await auth();
     requireAdmin(session?.user);
 
+    const params = await context.params;
     const badges = await getUserBadges(params.userId, {
       includeRevoked: true,
       includeExpired: true,
