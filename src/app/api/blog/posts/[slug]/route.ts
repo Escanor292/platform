@@ -22,7 +22,7 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ slug: string }> }
 ) {
-  
+
   const params = await context.params;
   try {
     const session = await auth();
@@ -59,6 +59,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const params = await context.params;
     const { slug } = params;
 
     // Get post ID from slug
@@ -100,6 +101,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const params = await context.params;
     const { slug } = params;
 
     // Get post ID from slug
