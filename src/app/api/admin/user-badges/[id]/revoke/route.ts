@@ -10,7 +10,7 @@ import { revokeBadgeSchema } from '@/lib/badge/badge.validation';
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -19,6 +19,7 @@ export async function POST(
     const body = await request.json();
     const validated = revokeBadgeSchema.parse(body);
 
+    const params = await context.params;
     const userBadge = await revokeUserBadge(
       session!.user.id,
       params.id,
