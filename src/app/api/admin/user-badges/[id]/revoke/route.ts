@@ -21,7 +21,7 @@ export async function POST(
 
     const params = await context.params;
     const userBadge = await revokeUserBadge(
-      session!.user.id,
+      session!.user!.id as string,
       params.id,
       validated.reason
     );
