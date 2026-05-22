@@ -34,9 +34,10 @@ async function getBlogPosts(searchParams: any) {
 export default async function BlogPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | undefined };
+  searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
-  const data = await getBlogPosts(searchParams);
+  const params = await searchParams;
+  const data = await getBlogPosts(params);
   const session = await auth();
 
   return (
@@ -50,7 +51,7 @@ export default async function BlogPage({
               Tin tức, câu chuyện và cập nhật từ cộng đồng crowdfunding
             </p>
           </div>
-          
+
           {session?.user && (
             <Link
               href="/blog/editor"
@@ -125,11 +126,10 @@ export default async function BlogPage({
                 <a
                   key={page}
                   href={`/blog?page=${page}${searchParams.type ? `&type=${searchParams.type}` : ''}`}
-                  className={`px-4 py-2 rounded ${
-                    page === data.page
+                  className={`px-4 py-2 rounded ${page === data.page
                       ? 'bg-blue-600 text-white'
                       : 'bg-white text-gray-700 hover:bg-gray-100'
-                  }`}
+                    }`}
                 >
                   {page}
                 </a>
@@ -154,11 +154,10 @@ function FilterButton({
   return (
     <a
       href={href}
-      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-        active
+      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${active
           ? 'bg-blue-600 text-white'
           : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
-      }`}
+        }`}
     >
       {label}
     </a>
