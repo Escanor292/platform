@@ -18,7 +18,7 @@ export async function GET(
 ) {
   try {
     const session = await auth();
-    requireAdmin(session?.user);
+    requireAdmin(session?.user as any);
 
     const params = await context.params;
     const badge = await getBadgeById(params.id);
