@@ -44,7 +44,7 @@ export async function POST(
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: Promise<{ conversationId: string } }>
+  context: { params: Promise<{ conversationId: string }> }
 ) {
   try {
     // Check authentication

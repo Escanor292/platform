@@ -105,8 +105,6 @@ export async function GET(req: NextRequest, context: { params: Promise<{ slug: s
             );
         }
 
-        const { slug } = await context.params;
-
         const campaign = await prisma.campaign.findFirst({
             where: { OR: [{ slug }, { id: slug }] },
             select: { id: true }

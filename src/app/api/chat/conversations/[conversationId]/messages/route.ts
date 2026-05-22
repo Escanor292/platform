@@ -13,7 +13,7 @@ import { SendMessageRequest } from '@/types/chat.types';
 
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ conversationId: string} }>
+  context: { params: Promise<{ conversationId: string }> }
 ) {
   try {
     // Check authentication
@@ -39,11 +39,11 @@ export async function GET(
     return NextResponse.json(result);
   } catch (error: any) {
     console.error('[API] Get messages error:', error);
-    
+
     if (error.message === 'Invalid conversation ID') {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
-    
+
     if (error.message === 'Conversation not found') {
       return NextResponse.json({ error: error.message }, { status: 404 });
     }
@@ -57,7 +57,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  context: { params: Promise<{ conversationId: string} }>
+  context: { params: Promise<{ conversationId: string } }>
 ) {
   try {
     // Check authentication
@@ -92,15 +92,15 @@ export async function POST(
     });
   } catch (error: any) {
     console.error('[API] Send message error:', error);
-    
+
     if (error.message === 'Invalid conversation ID') {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
-    
+
     if (error.message === 'Conversation not found') {
       return NextResponse.json({ error: error.message }, { status: 404 });
     }
-    
+
     // Handle specific errors
     if (error.message.includes('blocked')) {
       return NextResponse.json(
@@ -108,7 +108,7 @@ export async function POST(
         { status: 403 }
       );
     }
-    
+
     return NextResponse.json(
       { error: error.message || 'Failed to send message' },
       { status: 500 }
