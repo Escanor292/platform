@@ -11,9 +11,9 @@ export default function BlogEditorPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
-  
+
   const campaignId = searchParams.get('campaignId');
-  
+
   const [formData, setFormData] = useState({
     title: '',
     excerpt: '',
@@ -25,7 +25,7 @@ export default function BlogEditorPage() {
     tags: [] as string[],
     status: 'DRAFT',
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
 
@@ -164,7 +164,7 @@ export default function BlogEditorPage() {
                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                {session?.user?.isAdmin && (
+                {(session?.user as any)?.isAdmin && (
                   <>
                     <option value="PLATFORM">Tin tức nền tảng</option>
                     <option value="ANNOUNCEMENT">Thông báo</option>
@@ -200,9 +200,9 @@ export default function BlogEditorPage() {
             <input
               type="text"
               value={formData.tags.join(', ')}
-              onChange={(e) => setFormData({ 
-                ...formData, 
-                tags: e.target.value.split(',').map(t => t.trim()).filter(t => t) 
+              onChange={(e) => setFormData({
+                ...formData,
+                tags: e.target.value.split(',').map(t => t.trim()).filter(t => t)
               })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="tag1, tag2, tag3"
