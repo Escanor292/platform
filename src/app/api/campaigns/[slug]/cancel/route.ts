@@ -14,7 +14,7 @@ export async function POST(
     const user = await getUser();
     if (!user) return NextResponse.json({ error: "Chưa đăng nhập" }, { status: 401 });
 
-    const { slug: campaignId } = await params;
+    const { slug: campaignId } = await context.params;
     const { reason } = await request.json().catch(() => ({ reason: "Creator hủy dự án" }));
 
     // Tìm dự án theo ID (do dashboard ID)

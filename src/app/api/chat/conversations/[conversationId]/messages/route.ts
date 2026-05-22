@@ -26,7 +26,7 @@ export async function GET(
     }
 
     const userId = session.user.id;
-    const { conversationId } = await params;
+    const { conversationId } = await context.params;
 
     // Get query parameters
     const searchParams = request.nextUrl.searchParams;
@@ -70,7 +70,7 @@ export async function POST(
     }
 
     const userId = session.user.id;
-    const { conversationId } = await params;
+    const { conversationId } = await context.params;
 
     // Parse request body
     const body: SendMessageRequest = await request.json();

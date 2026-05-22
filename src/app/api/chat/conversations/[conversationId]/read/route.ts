@@ -22,7 +22,7 @@ export async function PATCH(
     }
 
     const userId = session.user.id;
-    const { conversationId } = await params;
+    const { conversationId } = await context.params;
 
     // Mark as read
     await markAsRead(conversationId, userId);

@@ -8,7 +8,7 @@ import { auth } from "@/lib/auth";
  */
 export async function PUT(
     req: NextRequest,
-    context: { params: Promise<{ slug: string; id: string} }>
+    context: { params: Promise<{ slug: string; id: string }> }
 ) {
     try {
         const session = await auth();
@@ -16,7 +16,7 @@ export async function PUT(
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { slug, id } = await params;
+        const { slug, id } = await context.params;
         const { title, content, imageUrl, tags, isPinned } = await req.json();
 
         // Kiểm tra update có tồn tại và thuộc campaign này không
@@ -67,7 +67,7 @@ export async function PUT(
  */
 export async function DELETE(
     req: NextRequest,
-    context: { params: Promise<{ slug: string; id: string} }>
+    context: { params: Promise<{ slug: string; id: string } }>
 ) {
     try {
         const session = await auth();
@@ -75,7 +75,7 @@ export async function DELETE(
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { slug, id } = await params;
+        const { slug, id } = await context.params;
 
         // Kiểm tra update có tồn tại và thuộc campaign này không
         const update = await prisma.campaignUpdate.findUnique({

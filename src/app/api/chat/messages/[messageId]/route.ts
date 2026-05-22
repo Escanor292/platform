@@ -22,7 +22,7 @@ export async function DELETE(
     }
 
     const userId = session.user.id;
-    const { messageId } = await params;
+    const { messageId } = await context.params;
 
     // Delete message
     await deleteMessage(messageId, userId);

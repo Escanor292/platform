@@ -43,7 +43,7 @@ export async function GET(
  */
 export async function POST(
   req: NextRequest,
-  context: { params: Promise<{ slug: string } }>
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
     const session = await auth();
@@ -51,7 +51,7 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { slug } = await params;
+    const { slug } = await context.params;
     const { comment, imageUrl, rating } = await req.json();
 
     const campaign = await prisma.campaign.findFirst({

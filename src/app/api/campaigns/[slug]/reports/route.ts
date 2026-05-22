@@ -19,7 +19,6 @@ export async function POST(req: NextRequest, context: { params: Promise<{ slug: 
         }
 
         const userId = (session.user as any).id;
-        const { slug } = await params;
         const { reason, description } = await req.json();
 
         // 2. Validate input
@@ -106,7 +105,7 @@ export async function GET(req: NextRequest, context: { params: Promise<{ slug: s
             );
         }
 
-        const { slug } = await params;
+        const { slug } = await context.params;
 
         const campaign = await prisma.campaign.findFirst({
             where: { OR: [{ slug }, { id: slug }] },

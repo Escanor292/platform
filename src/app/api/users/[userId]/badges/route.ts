@@ -10,7 +10,7 @@ export async function GET(
   context: { params: Promise<{ userId: string} }>
 ) {
   try {
-    const { userId } = await params;
+    const { userId } = await context.params;
     const badges = await getPublicUserBadges(userId);
     return NextResponse.json(badges);
   } catch (error: any) {

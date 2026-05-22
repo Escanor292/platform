@@ -8,10 +8,10 @@ import { auth } from "@/lib/auth";
  */
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ slug: string} }>
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = await params;
+    const { slug } = await context.params;
     const { searchParams } = new URL(req.url);
     const search = searchParams.get("search") || "";
     const tag = searchParams.get("tag") || "";
@@ -60,7 +60,7 @@ export async function GET(
  */
 export async function POST(
   req: NextRequest,
-  context: { params: Promise<{ slug: string} }>
+  context: { params: Promise<{ slug: string } }>
 ) {
   try {
     const session = await auth();
@@ -68,7 +68,7 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { slug } = await params;
+    const { slug } = await context.params;
     const { title, content, imageUrl, tags, isPinned } = await req.json();
 
     const campaign = await prisma.campaign.findFirst({

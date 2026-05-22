@@ -17,7 +17,7 @@ export async function GET(
   context: { params: Promise<{ category: string} }>
 ) {
   try {
-    const { category: rawCategory } = await params;
+    const { category: rawCategory } = await context.params;
     const category = decodeURIComponent(rawCategory) as MainCategory;
 
     // Validate category

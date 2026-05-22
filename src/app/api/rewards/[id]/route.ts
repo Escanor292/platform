@@ -7,7 +7,7 @@ export async function GET(
     context: { params: Promise<{ id: string} }>
 ) {
     try {
-        const { id } = await params;
+        const { id } = await context.params;
 
         const reward = await prisma.reward.findUnique({
             where: { id },
@@ -51,7 +51,7 @@ export async function PUT(
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { id } = await params;
+        const { id } = await context.params;
         const body = await req.json();
         const {
             title,
@@ -115,7 +115,7 @@ export async function DELETE(
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { id } = await params;
+        const { id } = await context.params;
 
         // Check if user owns the reward's campaign
         const reward = await prisma.reward.findUnique({

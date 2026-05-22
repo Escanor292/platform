@@ -12,7 +12,7 @@ import { blockConversation, unblockConversation } from '@/services/mongodb/chat.
 
 export async function POST(
   request: NextRequest,
-  context: { params: Promise<{ conversationId: string} }>
+  context: { params: Promise<{ conversationId: string }> }
 ) {
   try {
     // Check authentication
@@ -25,7 +25,7 @@ export async function POST(
     }
 
     const userId = session.user.id;
-    const { conversationId } = await params;
+    const { conversationId } = await context.params;
 
     // Block conversation
     await blockConversation(conversationId, userId);
@@ -44,7 +44,7 @@ export async function POST(
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: Promise<{ conversationId: string} }>
+  context: { params: Promise<{ conversationId: string } }>
 ) {
   try {
     // Check authentication
@@ -57,7 +57,7 @@ export async function DELETE(
     }
 
     const userId = session.user.id;
-    const { conversationId } = await params;
+    const { conversationId } = await context.params;
 
     // Unblock conversation
     await unblockConversation(conversationId, userId);
