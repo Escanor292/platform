@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getBlogPostsByCampaign } from '@/lib/blog/blog.service';
+import { getBlogPostList } from '@/lib/blog/blog.service';
 
 // ============================================================
 // API: GET /api/campaigns/[slug]/blog-posts
@@ -17,10 +17,22 @@ export async function GET(
     const limit = parseInt(searchParams.get('limit') || '10');
     const status = searchParams.get('status') || undefined;
 
-    const result = await getBlogPostsByCampaign(params.slug, {
+    // Get campaign by slug first
+    const { prisma } = await import('@/lib/prisma');
+    const campaign = await prisma.campaign.findUnique({
+      where: { slug: params.slug },
+      select: { id: true },
+    });
+
+    if (!campaign) {
+      return NextResponse.json({ error: 'Campaign not found' }, { status: 404 });
+    }
+
+    const result = await getBlogPostList({
       page,
       limit,
-      status: status as any,
+      campaignId: campaign.id,
+      type: 'CAMPAIGN_UPDATE',
     });
 
     return NextResponse.json(result);
