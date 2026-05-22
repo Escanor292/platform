@@ -8,9 +8,9 @@ type Params = { params: Promise<{ slug: string }>;
  * POST /api/campaigns/[slug]/follow
  * Follow a campaign (quan tâm dự án)
  */
-export async function POST(req: NextRequest, { params }: Params) {
+export async function POST(req: NextRequest, context: { params: Promise<{ slug: string }> }) {
     try {
-        const { slug } = await params;
+        const { slug } = await context.params;
         const session = await auth();
         const { email } = await req.json();
 
@@ -71,9 +71,9 @@ export async function POST(req: NextRequest, { params }: Params) {
  * DELETE /api/campaigns/[slug]/follow
  * Unfollow a campaign (bỏ quan tâm)
  */
-export async function DELETE(req: NextRequest, { params }: Params) {
+export async function DELETE(req: NextRequest, context: { params: Promise<{ slug: string }> }) {
     try {
-        const { slug } = await params;
+        const { slug } = await context.params;
         const session = await auth();
         const { searchParams } = new URL(req.url);
         const email = searchParams.get("email");
@@ -119,9 +119,9 @@ export async function DELETE(req: NextRequest, { params }: Params) {
  * GET /api/campaigns/[slug]/follow
  * Check if user is following this campaign
  */
-export async function GET(req: NextRequest, { params }: Params) {
+export async function GET(req: NextRequest, context: { params: Promise<{ slug: string }> }) {
     try {
-        const { slug } = await params;
+        const { slug } = await context.params;
         const session = await auth();
         const { searchParams } = new URL(req.url);
         const email = searchParams.get("email");

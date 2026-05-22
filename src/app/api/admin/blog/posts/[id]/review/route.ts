@@ -8,7 +8,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function PATCH(
   request: NextRequest,
-  context: { params: Promise<{ id: string }>
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();

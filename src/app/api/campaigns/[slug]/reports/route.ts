@@ -8,8 +8,9 @@ type Params = { params: Promise<{ slug: string }>;
  * POST /api/campaigns/[slug]/reports
  * Submit a campaign report (chỉ cho logged-in users)
  */
-export async function POST(req: NextRequest, { params }: Params) {
+export async function POST(req: NextRequest, context: { params: Promise<{ slug: string }> }) {
     try {
+        const { slug } = await context.params;
         // 1. Check authentication - REQUIRED
         const session = await auth();
         if (!session?.user) {
@@ -94,8 +95,9 @@ export async function POST(req: NextRequest, { params }: Params) {
  * GET /api/campaigns/[slug]/reports
  * Get reports for a campaign (admin only)
  */
-export async function GET(req: NextRequest, { params }: Params) {
+export async function GET(req: NextRequest, context: { params: Promise<{ slug: string }> }) {
     try {
+        const { slug } = await context.params;
         const session = await auth();
 
         // Only admins can view reports

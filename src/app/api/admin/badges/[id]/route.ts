@@ -14,7 +14,7 @@ import { updateBadgeSchema } from '@/lib/badge/badge.validation';
  */
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ id: string }>
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -43,7 +43,7 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  context: { params: Promise<{ id: string }>
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -79,7 +79,7 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  context: { params: Promise<{ id: string }>
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();

@@ -7,9 +7,9 @@ interface Params {
   }>;
 }
 
-export async function GET(request: NextRequest, { params }: Params) {
+export async function GET(request: NextRequest, context: { params: Promise<{ pledgeId: string }> }) {
   try {
-    const { pledgeId } = await params;
+    const { pledgeId } = await context.params;
 
     if (!pledgeId) {
       return NextResponse.json(

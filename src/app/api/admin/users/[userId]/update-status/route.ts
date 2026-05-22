@@ -8,8 +8,9 @@ type Params = { params: Promise<{ userId: string }>;
  * POST /api/admin/users/[userId]/update-status
  * Cập nhật status của user (chỉ Admin)
  */
-export async function POST(req: NextRequest, { params }: Params) {
+export async function POST(req: NextRequest, context: { params: Promise<{ userId: string }> }) {
     try {
+        const { userId } = await context.params;
         const session = await auth();
         if (!session?.user || (session.user as any).role !== "ADMIN") {
             return NextResponse.json({ error: "Access denied" }, { status: 403 });

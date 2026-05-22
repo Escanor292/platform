@@ -9,7 +9,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(
   request: NextRequest,
-  context: { params: Promise<{ slug: string }>
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
     const params = await context.params;

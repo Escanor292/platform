@@ -7,9 +7,9 @@ type Params = { params: Promise<{ slug: string }>;
  * GET /api/campaigns/[slug]
  * Lấy chi tiết campaign theo ID hoặc slug
  */
-export async function GET(_req: NextRequest, { params }: Params) {
+export async function GET(_req: NextRequest, context: { params: Promise<{ slug: string }> }) {
   try {
-    const { slug } = await params;
+    const { slug } = await context.params;
 
     const campaign = await prisma.campaign.findFirst({
       where: { OR: [{ id: slug }, { slug }] },
@@ -54,9 +54,9 @@ export async function GET(_req: NextRequest, { params }: Params) {
  * PUT /api/campaigns/[slug]
  * Cập nhật campaign (chỉ creator hoặc admin)
  */
-export async function PUT(req: NextRequest, { params }: Params) {
+export async function PUT(req: NextRequest, context: { params: Promise<{ slug: string }> }) {
   try {
-    const { slug } = await params;
+    const { slug } = await context.params;
     const body = await req.json();
 
     const campaign = await prisma.campaign.findUnique({ where: { slug } });
@@ -94,9 +94,9 @@ export async function PUT(req: NextRequest, { params }: Params) {
  * DELETE /api/campaigns/[id]
  * Xóa campaign (chỉ cho phép nếu DRAFT, không có pledge)
  */
-export async function DELETE(_req: NextRequest, { params }: Params) {
+export async function DELETE(_req: NextRequest, context: { params: Promise<{ slug: string }> }) {
   try {
-    const { slug } = await params;
+    const { slug } = await context.params;
 
     const campaign = await prisma.campaign.findUnique({
       where: { id: slug },

@@ -7,9 +7,9 @@ type Params = { params: Promise<{ txId: string }>;
  * GET /api/transactions/[txId]
  * Tra cứu thông tin giao dịch công khai bằng mã tham chiếu (transactionId hoặc ID)
  */
-export async function GET(_req: NextRequest, { params }: Params) {
+export async function GET(_req: NextRequest, context: { params: Promise<{ txId: string }> }) {
   try {
-    const { txId } = await params;
+    const { txId } = await context.params;
 
     if (!txId || txId.length < 4) {
       return NextResponse.json(
