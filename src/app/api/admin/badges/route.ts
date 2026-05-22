@@ -14,7 +14,7 @@ import {
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
-    requireAdmin(session?.user);
+    requireAdmin(session?.user as any);
 
     const { searchParams } = new URL(request.url);
     const query = {
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
-    requireAdmin(session?.user);
+    requireAdmin(session?.user as any);
 
     const body = await request.json();
     const validated = createBadgeSchema.parse(body);
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(badge, { status: 201 });
   } catch (error: any) {
     console.error('Error creating badge:', error);
-    
+
     if (error.name === 'ZodError') {
       return NextResponse.json(
         { error: 'Validation error', details: error.errors },

@@ -14,7 +14,7 @@ export async function POST(
 ) {
   try {
     const session = await auth();
-    requireAdmin(session?.user);
+    requireAdmin(session?.user as any);
 
     const body = await request.json();
     const validated = assignBadgeSchema.parse(body);

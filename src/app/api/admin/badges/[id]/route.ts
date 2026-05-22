@@ -47,7 +47,7 @@ export async function PATCH(
 ) {
   try {
     const session = await auth();
-    requireAdmin(session?.user);
+    requireAdmin(session?.user as any);
 
     const body = await request.json();
     const validated = updateBadgeSchema.parse(body);
@@ -83,7 +83,7 @@ export async function DELETE(
 ) {
   try {
     const session = await auth();
-    requireAdmin(session?.user);
+    requireAdmin(session?.user as any);
 
     const params = await context.params;
     await deleteBadge(params.id);
