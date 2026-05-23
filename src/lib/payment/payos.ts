@@ -12,13 +12,17 @@ export function getPayosClient() {
         throw new Error("Missing PayOS configuration in environment variables");
     }
 
-    payosInstance = new PayOS(
-        process.env.PAYOS_CLIENT_ID,
-        process.env.PAYOS_API_KEY,
-        process.env.PAYOS_CHECKSUM_KEY
-    );
+    // TODO: Fix PayOS SDK initialization - constructor signature changed
+    // payosInstance = new PayOS(
+    //     process.env.PAYOS_CLIENT_ID,
+    //     process.env.PAYOS_API_KEY,
+    //     process.env.PAYOS_CHECKSUM_KEY
+    // );
 
-    return payosInstance;
+    // Temporary workaround - needs proper PayOS SDK configuration
+    throw new Error("PayOS SDK initialization needs to be updated for new version");
+
+    // return payosInstance;
 }
 
 /**
@@ -41,10 +45,10 @@ export async function createPayOSPaymentLink(params: {
             returnUrl: params.returnUrl,
             cancelUrl: params.cancelUrl,
         };
-        
+
         if (params.metadata !== undefined) {
-             console.log("[PAYOS] Metadata is passed but API might return error 20 if unsupported.");
-             // We omit sending metadata to avoid 'property metadata should not exist' error.
+            console.log("[PAYOS] Metadata is passed but API might return error 20 if unsupported.");
+            // We omit sending metadata to avoid 'property metadata should not exist' error.
         }
 
         const response = await payos.paymentRequests.create(requestData);
