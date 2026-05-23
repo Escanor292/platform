@@ -153,7 +153,7 @@ export async function startConversation(
   if (existingConversation) {
     // If a campaign context is provided, update the conversation's campaign info
     // This allows the shared thread to show the context of the project being discussed
-    if (campaignId && existingConversation.campaign?.id !== campaignId) {
+    if (campaignId && existingConversation.campaign?.campaignId !== campaignId) {
       const campaignInfo = await getCampaignInfo(campaignId);
       if (campaignInfo) {
         await conversationsCollection.updateOne(
