@@ -38,7 +38,7 @@ export function generateConversationKey(
 ): string {
   // Sort user IDs alphabetically to ensure consistency
   const sortedUserIds = [userId1, userId2].sort();
-  
+
   // All chats between two users are merged into a single "direct" thread
   return `direct_${sortedUserIds[0]}_${sortedUserIds[1]}`;
 }
@@ -153,16 +153,16 @@ export async function startConversation(
   if (existingConversation) {
     // If a campaign context is provided, update the conversation's campaign info
     // This allows the shared thread to show the context of the project being discussed
-    if (campaignId && existingConversation.campaignId !== campaignId) {
+    if (campaignId && existingConversation.campaign?.id !== campaignId) {
       const campaignInfo = await getCampaignInfo(campaignId);
       if (campaignInfo) {
         await conversationsCollection.updateOne(
           { _id: existingConversation._id },
-          { 
-            $set: { 
+          {
+            $set: {
               campaign: campaignInfo,
               type: 'campaign'
-            } 
+            }
           }
         );
         existingConversation.campaign = campaignInfo;
