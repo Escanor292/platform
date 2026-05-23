@@ -65,21 +65,21 @@ export default async function BlogPage({
 
         {/* Filters */}
         <div className="mb-6 flex flex-wrap gap-2">
-          <FilterButton href="/blog" label="Tất cả" active={!searchParams.type} />
+          <FilterButton href="/blog" label="Tất cả" active={!params.type} />
           <FilterButton
             href="/blog?type=PLATFORM"
             label="Tin tức"
-            active={searchParams.type === 'PLATFORM'}
+            active={params.type === 'PLATFORM'}
           />
           <FilterButton
             href="/blog?type=CAMPAIGN_UPDATE"
             label="Cập nhật dự án"
-            active={searchParams.type === 'CAMPAIGN_UPDATE'}
+            active={params.type === 'CAMPAIGN_UPDATE'}
           />
           <FilterButton
             href="/blog?type=STORY"
             label="Câu chuyện"
-            active={searchParams.type === 'STORY'}
+            active={params.type === 'STORY'}
           />
         </div>
 
@@ -125,10 +125,10 @@ export default async function BlogPage({
               (page) => (
                 <a
                   key={page}
-                  href={`/blog?page=${page}${searchParams.type ? `&type=${searchParams.type}` : ''}`}
+                  href={`/blog?page=${page}${params.type ? `&type=${params.type}` : ''}`}
                   className={`px-4 py-2 rounded ${page === data.page
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white text-gray-700 hover:bg-gray-100'
                     }`}
                 >
                   {page}
@@ -155,8 +155,8 @@ function FilterButton({
     <a
       href={href}
       className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${active
-          ? 'bg-blue-600 text-white'
-          : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+        ? 'bg-blue-600 text-white'
+        : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
         }`}
     >
       {label}
