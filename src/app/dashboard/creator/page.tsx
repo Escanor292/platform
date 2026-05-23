@@ -21,6 +21,8 @@ export default async function CreatorDashboard() {
       description: campaign.description,
       campaignCode: campaign.campaignCode,
       imageUrl: campaign.imageUrl,
+      category: campaign.category,
+      type: campaign.type,
       status: campaign.status,
       currentAmount: Number(campaign.currentAmount),
       goalAmount: Number(campaign.goalAmount),

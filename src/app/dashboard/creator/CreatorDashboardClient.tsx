@@ -15,6 +15,8 @@ interface Campaign {
     description: string;
     campaignCode: string;
     imageUrl: string | null;
+    category: string;
+    type: string;
     status: string;
     currentAmount: number;
     goalAmount: number;

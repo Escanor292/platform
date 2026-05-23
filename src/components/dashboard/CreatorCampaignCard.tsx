@@ -14,6 +14,8 @@ interface CreatorCampaignCardProps {
         description: string;
         campaignCode: string;
         imageUrl: string | null;
+        category: string;
+        type: string;
         status: string;
         currentAmount: number;
         goalAmount: number;
@@ -52,8 +54,8 @@ export function CreatorCampaignCard({ campaign }: CreatorCampaignCardProps) {
                                 {campaign.category}
                             </span>
                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${campaign.type === 'REWARD'
-                                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                                    : 'bg-orange-50 text-orange-600 border-orange-100'
+                                ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                : 'bg-orange-50 text-orange-600 border-orange-100'
                                 }`}>
                                 <Layers size={10} />
                                 {getCampaignTypeLabel(campaign.type as any)}
