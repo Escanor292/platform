@@ -8,10 +8,11 @@ import { formatDistanceToNow } from "@/lib/utils";
 
 interface ConversationItemProps {
   conversation: MongoConversation;
+  isActive?: boolean;
   onClick: () => void;
 }
 
-export function ConversationItem({ conversation, onClick }: ConversationItemProps) {
+export function ConversationItem({ conversation, isActive, onClick }: ConversationItemProps) {
   const { data: session } = useSession();
   const currentUserId = session?.user?.id;
 
@@ -28,7 +29,11 @@ export function ConversationItem({ conversation, onClick }: ConversationItemProp
   return (
     <div
       onClick={onClick}
-      className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:bg-gray-50"
+      className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors ${
+        isActive
+          ? "border-primary/40 bg-blue-50/50 hover:bg-blue-50"
+          : "border-gray-200 bg-white hover:bg-gray-50"
+      }`}
     >
       {/* Avatar */}
       <UserAvatar

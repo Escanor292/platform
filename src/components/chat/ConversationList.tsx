@@ -6,7 +6,11 @@ import { MongoConversation } from "@/types/chat.types";
 import { ConversationItem } from "./ConversationItem";
 import { Loader2 } from "lucide-react";
 
-export function ConversationList() {
+interface ConversationListProps {
+  activeConversationId?: string;
+}
+
+export function ConversationList({ activeConversationId }: ConversationListProps) {
   const router = useRouter();
   const [conversations, setConversations] = useState<MongoConversation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,6 +84,7 @@ export function ConversationList() {
         <ConversationItem
           key={conversation._id?.toString()}
           conversation={conversation}
+          isActive={conversation._id?.toString() === activeConversationId}
           onClick={() => handleConversationClick(conversation._id!.toString())}
         />
       ))}
