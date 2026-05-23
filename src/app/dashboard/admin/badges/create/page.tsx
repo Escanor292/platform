@@ -25,7 +25,7 @@ export default function CreateBadgePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       setLoading(true);
       await adminCreateBadge(formData);
@@ -43,6 +43,7 @@ export default function CreateBadgePage() {
     id: 'preview',
     slug: 'preview',
     ...formData,
+    rarity: formData.rarity || 'common' as BadgeRarity,
     createdBy: '',
     createdAt: new Date(),
     updatedAt: new Date(),
