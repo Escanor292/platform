@@ -93,20 +93,20 @@ export async function createBlogPost(
       readingTimeMinutes,
       categories: data.categoryIds
         ? {
-            create: data.categoryIds.map((categoryId) => ({
-              categoryId,
-            })),
-          }
+          create: data.categoryIds.map((categoryId) => ({
+            categoryId,
+          })),
+        }
         : undefined,
       tags: data.tags
         ? {
-            create: await Promise.all(
-              data.tags.map(async (tagName) => {
-                const tag = await getOrCreateTag(tagName);
-                return { tagId: tag.id };
-              })
-            ),
-          }
+          create: await Promise.all(
+            data.tags.map(async (tagName) => {
+              const tag = await getOrCreateTag(tagName);
+              return { tagId: tag.id };
+            })
+          ),
+        }
         : undefined,
     },
     include: {
@@ -421,22 +421,22 @@ export async function updateBlogPost(
       readingTimeMinutes,
       categories: data.categoryIds
         ? {
-            deleteMany: {},
-            create: data.categoryIds.map((categoryId) => ({
-              categoryId,
-            })),
-          }
+          deleteMany: {},
+          create: data.categoryIds.map((categoryId) => ({
+            categoryId,
+          })),
+        }
         : undefined,
       tags: data.tags
         ? {
-            deleteMany: {},
-            create: await Promise.all(
-              data.tags.map(async (tagName) => {
-                const tag = await getOrCreateTag(tagName);
-                return { tagId: tag.id };
-              })
-            ),
-          }
+          deleteMany: {},
+          create: await Promise.all(
+            data.tags.map(async (tagName) => {
+              const tag = await getOrCreateTag(tagName);
+              return { tagId: tag.id };
+            })
+          ),
+        }
         : undefined,
     },
     include: {
@@ -665,7 +665,7 @@ async function canReadPost(post: any, currentUserId?: string): Promise<boolean> 
       select: { isAdmin: true },
     });
 
-    return post.authorId === currentUserId || user?.isAdmin;
+    return post.authorId === currentUserId || (user?.isAdmin ?? false);
   }
 
   if (post.visibility === 'BACKERS_ONLY') {
@@ -676,7 +676,7 @@ async function canReadPost(post: any, currentUserId?: string): Promise<boolean> 
       select: { isAdmin: true },
     });
 
-    if (post.authorId === currentUserId || user?.isAdmin) {
+    if (post.authorId === currentUserId || (user?.isAdmin ?? false)) {
       return true;
     }
 
