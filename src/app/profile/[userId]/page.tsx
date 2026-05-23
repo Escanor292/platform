@@ -42,7 +42,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               title: true,
               slug: true,
               category: true,
-              type: true
+              type: true,
+              imageUrl: true
             }
           }
         },
