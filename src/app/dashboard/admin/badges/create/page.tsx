@@ -44,6 +44,7 @@ export default function CreateBadgePage() {
     slug: 'preview',
     ...formData,
     rarity: formData.rarity || 'common' as BadgeRarity,
+    isActive: formData.isActive ?? true,
     createdBy: '',
     createdAt: new Date(),
     updatedAt: new Date(),
