@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { formatVND, formatDate } from "@/lib/utils";
+import { formatVND, formatDate, extractTextFromDescription } from "@/lib/utils";
 import { FileText, Settings, Gift, Tag, Layers } from "lucide-react";
 import { CampaignGrowthProgress } from "@/components/campaign/CampaignGrowthProgress";
 import { getCampaignTypeLabel } from "@/lib/project-helpers";
@@ -71,7 +71,7 @@ export function CreatorCampaignCard({ campaign }: CreatorCampaignCardProps) {
                                 {campaign.campaignCode}
                             </span>
                         </div>
-                        <p className="text-xs text-gray-400 font-medium line-clamp-2">{campaign.description}</p>
+                        <p className="text-xs text-gray-400 font-medium line-clamp-2">{extractTextFromDescription(campaign.description)}</p>
                     </div>
 
                     <div className="space-y-4">

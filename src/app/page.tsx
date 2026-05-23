@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { formatVND } from "@/lib/utils";
+import { formatVND, extractTextFromDescription } from "@/lib/utils";
 import Link from "next/link";
 import { Metadata } from "next";
 import { Rocket, ArrowRight } from "lucide-react";
@@ -91,7 +91,7 @@ export default async function Home() {
                         {campaign.title}
                       </h3>
                       <p className="text-gray-500 text-sm mb-4 line-clamp-2">
-                        {campaign.description}
+                        {extractTextFromDescription(campaign.description)}
                       </p>
 
                       <div className="space-y-3">

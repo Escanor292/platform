@@ -1,6 +1,6 @@
 import Link from "next/link";
 import prisma from "@/lib/prisma";
-import { formatVND } from "@/lib/utils";
+import { formatVND, extractTextFromDescription } from "@/lib/utils";
 import { Search, Rocket, ArrowRight } from "lucide-react";
 import CampaignGrowthProgress from "@/components/campaign/CampaignGrowthProgress";
 import CreatorLink from "@/components/campaign/CreatorLink";
@@ -105,7 +105,7 @@ export default async function CampaignsPage() {
                       {campaign.title}
                     </h3>
                     <p className="text-gray-500 text-sm mb-4 line-clamp-2">
-                      {campaign.description}
+                      {extractTextFromDescription(campaign.description)}
                     </p>
 
                     <div className="space-y-3">

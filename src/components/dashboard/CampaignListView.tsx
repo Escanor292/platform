@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { formatVND, formatDate } from '@/lib/utils';
+import { formatVND, formatDate, extractTextFromDescription } from '@/lib/utils';
 import {
     Calendar,
     Users,
@@ -148,7 +148,7 @@ export default function CampaignListView({ campaigns }: CampaignListViewProps) {
                                                 {campaign.title}
                                             </Link>
                                             <p className="text-sm text-gray-500 line-clamp-1 mt-1">
-                                                {campaign.description}
+                                                {extractTextFromDescription(campaign.description)}
                                             </p>
                                             <div className="flex items-center gap-2 mt-2">
                                                 <span className="text-xs text-gray-400 font-mono">

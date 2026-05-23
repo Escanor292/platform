@@ -501,6 +501,7 @@ model BlogPost {
   title             String            @db.VarChar(255)
   slug              String            @unique @db.VarChar(255)
   excerpt           String?           @db.Text
+  content           String?           @db.Text // HTML content của bài viết
   coverImage        String?
   status            BlogPostStatus    @default(DRAFT)
   type              BlogPostType      @default(PLATFORM)

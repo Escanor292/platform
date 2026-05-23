@@ -46,9 +46,48 @@ export default function CampaignHeader({ title, description, campaignCode }: Cam
                     </button>
                 </div>
             </div>
-            <p className="text-lg text-gray-600">
-                {description}
-            </p>
+            <CampaignSubtitle description={description} />
         </div>
+    );
+}
+
+/**
+ * Renders a short subtitle from the description.
+ * - If it's TipTap JSON → extract the first plain-text paragraph as subtitle
+ * - If it's plain text / HTML → render directly
+ */
+function CampaignSubtitle({ description }: { description: string }) {
+    if (!description) return null;
+
+    // Detect TipTap JSON
+    try {
+        const parsed = JSON.parse(description);
+        if (parsed?.type === "doc" && Array.isArray(parsed.content)) {
+            // Extract first paragraph text as subtitle
+            const firstPara = parsed.content.find(
+                (node: any) => node.type === "paragraph" && node.content?.length > 0
+            );
+            if (firstPara) {
+                const text = firstPara.content
+                    .map((n: any) => n.text || "")
+                    .join("");
+                if (text) {
+                    return (
+                        <p className="text-lg text-gray-600 leading-relaxed line-clamp-3">
+                            {text}
+                        </p>
+                    );
+                }
+            }
+            return null;
+        }
+    } catch {
+        // Not JSON, fall through to plain text
+    }
+
+    return (
+        <p className="text-lg text-gray-600 leading-relaxed line-clamp-3">
+            {description}
+        </p>
     );
 }

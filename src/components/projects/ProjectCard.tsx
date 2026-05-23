@@ -12,6 +12,32 @@ interface ProjectCardProps {
   project: ProjectListItem;
 }
 
+/**
+ * Extracts plain text from TipTap JSON for the preview description.
+ */
+function extractTextFromDescription(description: string): string {
+  if (!description) return "";
+
+  try {
+    const parsed = JSON.parse(description);
+    if (parsed?.type === "doc" && Array.isArray(parsed.content)) {
+      // Find the first paragraph
+      const firstPara = parsed.content.find(
+        (node: any) => node.type === "paragraph" && node.content?.length > 0
+      );
+      if (firstPara) {
+        return firstPara.content.map((n: any) => n.text || "").join("");
+      }
+      return "";
+    }
+  } catch {
+    // Not JSON, fall through
+  }
+
+  return description;
+}
+
+
 export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardProps) {
   return (
     <Link
@@ -73,7 +99,7 @@ export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardPro
 
         {/* Description */}
         <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
-          {project.description}
+          {extractTextFromDescription(project.description)}
         </p>
 
         {/* Progress */}
