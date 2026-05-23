@@ -1,6 +1,6 @@
 import { PayOS } from "@payos/node";
 
-let payosInstance: any = null;
+const payosInstance: any = null;
 
 /**
  * Khởi tạo PayOS instance
