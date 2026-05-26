@@ -1,40 +1,40 @@
 # 🚀 Hướng dẫn Deploy lên Vercel
 
-## ✅ Đã hoàn thành:
-- [x] Push code lên GitHub
-- [x] Commit: `feat: Add blog post about tax, update schema with content field, fix image config`
+## ⚠️ QUAN TRỌNG: Chạy Migration trên Production
 
-## 📋 Các bước tiếp theo:
+Trước khi deploy, bạn PHẢI chạy migration trên production database để tạo bảng `campaign_blog_links`.
 
-### 1. Chờ Vercel Auto-Deploy
-Vercel sẽ tự động phát hiện commit mới và bắt đầu build. Kiểm tra tại:
-- Dashboard: https://vercel.com/dashboard
-- Project: https://platform-seven-navy-44.vercel.app
+### Cách 1: Sử dụng Vercel CLI (Khuyến nghị)
 
-### 2. Chạy Database Migration trên Production
-
-**Quan trọng**: Migration mới đã thêm trường `content` vào bảng `blog_posts`.
-
-#### Cách 1: Sử dụng Vercel CLI (Khuyến nghị)
 ```bash
-# Cài đặt Vercel CLI (nếu chưa có)
+# 1. Cài đặt Vercel CLI (nếu chưa có)
 npm i -g vercel
 
-# Login
+# 2. Login vào Vercel
 vercel login
 
-# Link project
+# 3. Link project
 vercel link
 
-# Chạy migration
+# 4. Pull environment variables
 vercel env pull .env.production
+
+# 5. Chạy migration với production database URL
 npx prisma migrate deploy
 ```
 
-#### Cách 2: Chạy trực tiếp với Production DATABASE_URL
+### Cách 2: Sử dụng Prisma Data Platform
+
+1. Truy cập: https://cloud.prisma.io/
+2. Chọn project của bạn
+3. Vào tab "Migrations"
+4. Click "Deploy pending migrations"
+
+### Cách 3: Chạy trực tiếp với DATABASE_URL
+
 ```bash
-# Set DATABASE_URL từ Vercel Environment Variables
-$env:DATABASE_URL="postgresql://neondb_owner:npg_v9Q4oKsHObqT@ep-weathered-sky-ao6ep9en.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
+# Set DATABASE_URL từ Vercel
+$env:DATABASE_URL="postgresql://..."
 
 # Chạy migration
 npx prisma migrate deploy
@@ -43,129 +43,67 @@ npx prisma migrate deploy
 npx prisma generate
 ```
 
-### 3. Seed dữ liệu blog (Nếu cần)
+## 📋 Checklist Deploy
 
-Sau khi migration thành công, chạy script để thêm bài blog:
+- [ ] Code đã được push lên GitHub
+- [ ] Migration đã chạy trên production database
+- [ ] Vercel đã tự động trigger build
+- [ ] Kiểm tra build logs trên Vercel dashboard
+- [ ] Test tính năng trên production URL
 
-```bash
-# Với production DATABASE_URL
-node create-blog-thue-tncn.js
-node update-blog-content.js
-```
+## 🔍 Kiểm tra sau khi Deploy
 
-### 4. Kiểm tra Vercel Environment Variables
+1. **Vào trang tạo campaign**
+   - Kiểm tra phần "Bài viết blog liên quan" có hiển thị không
+   - Thử chọn blog posts
 
-Đảm bảo các biến môi trường sau đã được set:
+2. **Vào trang chỉnh sửa campaign**
+   - Kiểm tra blog posts đã gắn có load không
+   - Thử thêm/xóa blog posts
 
-#### ✅ Database
-- `DATABASE_URL` - Neon PostgreSQL connection string
-
-#### ✅ NextAuth
-- `NEXTAUTH_URL` = `https://platform-seven-navy-44.vercel.app`
-- `NEXTAUTH_SECRET` - Secret key cho NextAuth
-
-#### ✅ Cloudinary
-- `CLOUDINARY_CLOUD_NAME`
-- `CLOUDINARY_API_KEY`
-- `CLOUDINARY_API_SECRET`
-
-#### ✅ PayOS
-- `PAYOS_CLIENT_ID`
-- `PAYOS_API_KEY`
-- `PAYOS_CHECKSUM_KEY`
-
-#### ✅ MongoDB (Optional)
-- `MONGODB_URI`
-- `MONGODB_DB_NAME`
-- Feature flags: `ENABLE_MONGO_*`
-
-### 5. Kiểm tra Build Log
-
-Truy cập Vercel Dashboard để xem build log:
-1. Vào project: https://vercel.com/dashboard
-2. Click vào deployment mới nhất
-3. Xem tab "Building" và "Logs"
-
-### 6. Test Production
-
-Sau khi deploy thành công, test các tính năng:
-
-#### ✅ Blog Post
-- URL: https://platform-seven-navy-44.vercel.app/blog/thue-thu-nhap-ca-nhan-tncn-ke-khai-thue-va-quyet-toan-thue
-- Kiểm tra:
-  - [ ] Ảnh cover hiển thị (Unsplash)
-  - [ ] Nội dung HTML render đúng
-  - [ ] Tags và category hiển thị
-  - [ ] Responsive trên mobile
-
-#### ✅ Images
-- [ ] Ảnh từ Cloudinary load được
-- [ ] Ảnh từ Unsplash load được
-- [ ] Next/Image optimization hoạt động
-
-#### ✅ Database
-- [ ] Kết nối Neon PostgreSQL thành công
-- [ ] Migration đã chạy
-- [ ] Dữ liệu blog hiển thị
-
-### 7. Rollback (Nếu có lỗi)
-
-Nếu deployment gặp lỗi:
-
-```bash
-# Rollback về commit trước
-git revert HEAD
-git push origin main
-
-# Hoặc rollback trên Vercel Dashboard
-# Deployments > Previous Deployment > Promote to Production
-```
-
-## 📊 Monitoring
-
-### Kiểm tra logs:
-```bash
-vercel logs https://platform-seven-navy-44.vercel.app
-```
-
-### Kiểm tra database:
-```bash
-npx prisma studio
-```
+3. **Vào trang chi tiết campaign**
+   - Kiểm tra tab "Blog" có hiển thị không
+   - Click vào tab Blog
+   - Kiểm tra blog posts có hiển thị đúng không
 
 ## 🐛 Troubleshooting
 
-### Lỗi: Migration failed
-**Nguyên nhân**: DATABASE_URL không đúng hoặc không có quyền
-**Giải pháp**: 
-1. Kiểm tra DATABASE_URL trong Vercel Environment Variables
-2. Test connection: `npx prisma db pull`
+### Lỗi: "Table campaign_blog_links does not exist"
+**Nguyên nhân:** Migration chưa chạy trên production database
+**Giải pháp:** Chạy `npx prisma migrate deploy` với production DATABASE_URL
 
-### Lỗi: Image optimization failed
-**Nguyên nhân**: Hostname chưa được config
-**Giải pháp**: Đã fix trong `next.config.ts`, rebuild là xong
+### Lỗi: "Cannot find module"
+**Nguyên nhân:** Build cache bị lỗi
+**Giải pháp:** 
+1. Vào Vercel Dashboard
+2. Settings → General → Clear Build Cache
+3. Redeploy
 
-### Lỗi: Blog post không hiển thị
-**Nguyên nhân**: Migration chưa chạy hoặc seed chưa chạy
-**Giải pháp**: 
-1. Chạy migration: `npx prisma migrate deploy`
-2. Chạy seed: `node create-blog-thue-tncn.js`
+### Tab Blog không hiển thị
+**Nguyên nhân:** 
+- Migration chưa chạy
+- linkedBlogs không được load trong query
+**Giải pháp:** 
+1. Kiểm tra migration đã chạy chưa
+2. Kiểm tra console logs
+3. Kiểm tra Vercel function logs
+
+## 📊 Database Migration Status
+
+Để kiểm tra migration status:
+
+```bash
+npx prisma migrate status
+```
+
+## 🔗 Links hữu ích
+
+- Vercel Dashboard: https://vercel.com/dashboard
+- Prisma Cloud: https://cloud.prisma.io/
+- GitHub Repository: https://github.com/Escanor292/platform.git
 
 ## 📝 Notes
 
-- **Auto-deployment**: Vercel tự động deploy khi có push lên `main`
-- **Preview deployments**: Mỗi PR sẽ có preview URL riêng
-- **Environment**: Production sử dụng biến môi trường từ Vercel Dashboard
-- **Database**: Neon PostgreSQL serverless, auto-scale
-
-## 🔗 Links
-
-- **Production**: https://platform-seven-navy-44.vercel.app
-- **Vercel Dashboard**: https://vercel.com/dashboard
-- **GitHub Repo**: https://github.com/Escanor292/platform.git
-- **Neon Dashboard**: https://console.neon.tech
-
----
-
-**Last Updated**: 2026-05-23
-**Deployment Status**: ✅ Code pushed, waiting for Vercel build
+- Migration file: `prisma/migrations/20260524015114_add_campaign_blog_links/migration.sql`
+- Bảng mới: `campaign_blog_links`
+- Relations mới: Campaign ↔ BlogPost (many-to-many)
