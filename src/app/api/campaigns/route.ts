@@ -49,17 +49,17 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { title, tagline, description, goalAmount, mainCategory, starterTags, imageUrl, endDate } = body;
+    const { title, tagline, description, goalAmount, mainCategory, starterTags, imageUrl, endDate, images, linkedBlogIds } = body;
 
     // Validate taxonomy
     if (!mainCategory) {
       return NextResponse.json({ error: "Vui lòng chọn danh mục chính" }, { status: 400 });
     }
-    
+
     if (!starterTags || !Array.isArray(starterTags)) {
       return NextResponse.json({ error: "Thẻ phụ không hợp lệ" }, { status: 400 });
     }
-    
+
     // Không giới hạn số lượng tags nữa
     // if (starterTags.length > 5) {
     //   return NextResponse.json({ error: "Chỉ được chọn tối đa 5 thẻ phụ" }, { status: 400 });
@@ -80,6 +80,7 @@ export async function POST(req: NextRequest) {
         category: mainCategory, // Store mainCategory in category field
         tags: starterTags, // Store starterTags in tags field (assuming it's a String[] field)
         imageUrl,
+        images: images || [],
         endDate: new Date(endDate),
         slug,
         creatorId: (session.user as any).id,
@@ -88,7 +89,18 @@ export async function POST(req: NextRequest) {
         campaignCode
       }
     });
-    
+
+    // Create blog links if provided
+    if (linkedBlogIds && Array.isArray(linkedBlogIds) && linkedBlogIds.length > 0) {
+      await prisma.campaignBlogLink.createMany({
+        data: linkedBlogIds.map((blogId: string, index: number) => ({
+          campaignId: campaign.id,
+          blogPostId: blogId,
+          order: index,
+        })),
+      });
+    }
+
     // Track analytics (non-blocking)
     analyticsService.track({
       eventName: "CAMPAIGN_CREATED",

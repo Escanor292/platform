@@ -17,11 +17,17 @@ export function CampaignChatHeader({ participant, campaign }: CampaignChatHeader
           src={participant.avatarUrl}
           name={participant.name}
           size="md"
+          userId={participant.userId}
+          clickable={true}
         />
         <div className="flex-1 min-w-0">
-          <h2 className="font-semibold text-gray-900 truncate">
+          <Link
+            href={`/profile/${participant.userId}`}
+            onClick={(e) => e.stopPropagation()}
+            className="font-semibold text-gray-900 truncate hover:text-primary hover:underline transition-colors block"
+          >
             {participant.name}
-          </h2>
+          </Link>
           <p className="text-sm text-gray-500 capitalize">{participant.role}</p>
         </div>
       </div>

@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Rocket, Target, AlignLeft, Image as ImageIcon, Calendar, Tags, AlertCircle } from "lucide-react";
 import { CategorySelector } from "@/components/create-campaign/category-selector";
 import { StarterTagsSelector } from "@/components/create-campaign/starter-tags-selector";
+import { BlogSelector } from "@/components/create-campaign/blog-selector";
 import type { MainCategory } from "@/types/taxonomy";
 import { validateTaxonomySelection, sanitizeSelectedTags, getInvalidTagsForNewCategory, getTagsByIds } from "@/lib/taxonomy-helpers";
 
@@ -31,6 +32,7 @@ export default function CreateCampaignPage() {
     imageUrl: "",
     images: [] as string[], // Multiple images array
     endDate: "",
+    linkedBlogIds: [] as string[], // Blog posts linked to campaign
   });
 
   const [showCategoryChangeWarning, setShowCategoryChangeWarning] = useState(false);
@@ -41,7 +43,7 @@ export default function CreateCampaignPage() {
   // Kiểm tra quyền truy cập
   useEffect(() => {
     if (status === "loading") return;
-    
+
     if (!session) {
       toast.error("Vui lòng đăng nhập để tạo dự án");
       router.push("/auth/login?callbackUrl=/campaigns/create");
@@ -437,6 +439,13 @@ export default function CreateCampaignPage() {
                   mainCategory={formData.mainCategory}
                   selectedTags={formData.starterTags}
                   onTagsChange={handleTagsChange}
+                />
+              </div>
+
+              <div className="border-t border-gray-100 pt-8">
+                <BlogSelector
+                  selectedBlogIds={formData.linkedBlogIds}
+                  onBlogsChange={(blogIds) => setFormData({ ...formData, linkedBlogIds: blogIds })}
                 />
               </div>
             </div>

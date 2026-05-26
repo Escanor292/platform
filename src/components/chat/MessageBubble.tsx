@@ -3,6 +3,7 @@
 import { MongoMessage } from "@/types/chat.types";
 import { UserAvatar } from "./UserAvatar";
 import { formatTime } from "@/lib/utils";
+import Link from "next/link";
 
 interface MessageBubbleProps {
   message: MongoMessage;
@@ -28,23 +29,30 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
           src={message.senderAvatar}
           name={message.senderName}
           size="sm"
+          userId={message.senderId}
+          clickable={true}
         />
       )}
 
       {/* Message Content */}
       <div className="flex-1 min-w-0">
-        {/* Sender Name (only for other's messages) */}
+        {/* Sender Name (only for other's messages) - clickable */}
         {!isOwn && (
-          <span className="text-xs text-gray-500 mb-1 block">{message.senderName}</span>
+          <Link
+            href={`/profile/${message.senderId}`}
+            onClick={(e) => e.stopPropagation()}
+            className="text-xs text-gray-500 mb-1 block hover:text-primary hover:underline transition-colors w-fit"
+          >
+            {message.senderName}
+          </Link>
         )}
 
         {/* Message Bubble */}
         <div
-          className={`w-fit max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm ${
-            isOwn
+          className={`w-fit max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm ${isOwn
               ? "bg-primary text-white rounded-tr-none ml-auto"
               : "bg-white border border-gray-100 text-gray-900 rounded-tl-none mr-auto"
-          }`}
+            }`}
         >
           <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">{message.text}</p>
         </div>

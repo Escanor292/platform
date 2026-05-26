@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Save, Target, AlignLeft, Image as ImageIcon, Calendar, Tags, X } from "lucide-react";
 import { CategorySelector } from "@/components/create-campaign/category-selector";
 import { StarterTagsSelector } from "@/components/create-campaign/starter-tags-selector";
+import { BlogSelector } from "@/components/create-campaign/blog-selector";
 import type { MainCategory } from "@/types/taxonomy";
 import { MAIN_CATEGORIES } from "@/types/taxonomy";
 import { validateTaxonomySelection, sanitizeSelectedTags, getInvalidTagsForNewCategory, getTagsByIds } from "@/lib/taxonomy-helpers";
@@ -61,6 +62,7 @@ export default function CampaignEditForm({ campaign }: CampaignEditFormProps) {
     imageUrl: campaign.imageUrl || "",
     images: Array.isArray(campaign.images) ? campaign.images : [],
     endDate: campaign.endDate ? new Date(campaign.endDate).toISOString().split('T')[0] : "",
+    linkedBlogIds: ((campaign as any).linkedBlogIds || []) as string[], // Load linked blogs
   });
 
   console.log("[CampaignEditForm] Initial data:", {
@@ -416,6 +418,13 @@ export default function CampaignEditForm({ campaign }: CampaignEditFormProps) {
                 mainCategory={formData.mainCategory}
                 selectedTags={formData.starterTags}
                 onTagsChange={handleTagsChange}
+              />
+            </div>
+
+            <div className="border-t border-gray-100 pt-8">
+              <BlogSelector
+                selectedBlogIds={formData.linkedBlogIds}
+                onBlogsChange={(blogIds) => setFormData({ ...formData, linkedBlogIds: blogIds })}
               />
             </div>
           </div>

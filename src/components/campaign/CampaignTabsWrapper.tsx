@@ -2,12 +2,13 @@
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { formatVND, formatDate } from "@/lib/utils";
-import { Clock, ShieldCheck } from "lucide-react";
+import { Clock, ShieldCheck, BookOpen } from "lucide-react";
 import CommentSection from "@/components/campaign/CommentSection";
 import UpdateSection from "@/components/campaign/UpdateSection";
 import RichTextRenderer from "@/components/shared/RichTextRenderer";
 import BackerLink from "@/components/campaign/BackerLink";
 import CampaignRewards from "@/components/campaign/CampaignRewards";
+import LinkedBlogsSection from "@/components/campaign/LinkedBlogsSection";
 
 interface CampaignTabsWrapperProps {
     campaign: any;
@@ -43,6 +44,18 @@ export default function CampaignTabsWrapper({
                             Cập nhật tin tức
                         </TabsTrigger>
                         <TabsTrigger
+                            value="blogs"
+                            className="relative py-4 px-0 rounded-none border-b-2 border-transparent data-[state=active]:border-gray-900 data-[state=active]:bg-transparent data-[state=active]:shadow-none bg-transparent flex items-center gap-2"
+                        >
+                            <BookOpen className="h-4 w-4" />
+                            Blog
+                            {campaign.linkedBlogs && campaign.linkedBlogs.length > 0 && (
+                                <span className="ml-1 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                                    {campaign.linkedBlogs.length}
+                                </span>
+                            )}
+                        </TabsTrigger>
+                        <TabsTrigger
                             value="backers"
                             className="relative py-4 px-0 rounded-none border-b-2 border-transparent data-[state=active]:border-gray-900 data-[state=active]:bg-transparent data-[state=active]:shadow-none bg-transparent"
                         >
@@ -70,6 +83,10 @@ export default function CampaignTabsWrapper({
 
                             <TabsContent value="updates" className="mt-0">
                                 <UpdateSection campaignId={campaign.id} slug={slug} isCreator={isCreator} />
+                            </TabsContent>
+
+                            <TabsContent value="blogs" className="mt-0">
+                                <LinkedBlogsSection linkedBlogs={campaign.linkedBlogs || []} />
                             </TabsContent>
 
                             <TabsContent value="backers" className="mt-0">

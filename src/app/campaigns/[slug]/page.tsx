@@ -31,6 +31,31 @@ export default async function CampaignDetailPage({ params }: Params) {
             take: 5,
             include: { user: { select: { id: true, name: true, avatar: true } } }
          },
+         linkedBlogs: {
+            include: {
+               blogPost: {
+                  select: {
+                     id: true,
+                     title: true,
+                     slug: true,
+                     excerpt: true,
+                     coverImage: true,
+                     publishedAt: true,
+                     viewCount: true,
+                     likeCount: true,
+                     commentCount: true,
+                     author: {
+                        select: {
+                           id: true,
+                           name: true,
+                           avatar: true,
+                        },
+                     },
+                  },
+               },
+            },
+            orderBy: { order: "asc" },
+         },
          _count: {
             select: {
                pledges: { where: { status: "SUCCESS" } },
@@ -81,6 +106,14 @@ export default async function CampaignDetailPage({ params }: Params) {
          updatedAt: pledge.updatedAt.toISOString(),
          refundedAt: pledge.refundedAt?.toISOString() || null,
       })),
+      linkedBlogs: campaign.linkedBlogs?.map(link => ({
+         ...link,
+         createdAt: link.createdAt.toISOString(),
+         blogPost: {
+            ...link.blogPost,
+            publishedAt: link.blogPost.publishedAt?.toISOString() || null,
+         },
+      })) || [],
    };
 
    return (
@@ -97,155 +130,155 @@ export default async function CampaignDetailPage({ params }: Params) {
                </div>
             </div>
 
-             {/* Main Content - Single Card */}
-             <div className="max-w-7xl mx-auto px-6 py-8">
-                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm p-8">
-                   {/* Title & Campaign Code - Now Full Width */}
-                   <CampaignHeader
-                      title={campaign.title}
-                      description={campaign.description}
-                      campaignCode={campaign.campaignCode}
-                   />
+            {/* Main Content - Single Card */}
+            <div className="max-w-7xl mx-auto px-6 py-8">
+               <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm p-8">
+                  {/* Title & Campaign Code - Now Full Width */}
+                  <CampaignHeader
+                     title={campaign.title}
+                     description={campaign.description}
+                     campaignCode={campaign.campaignCode}
+                  />
 
-                   <div className="mt-8">
-                      {/* Top Section - 2 Columns (Media & Progress) */}
-                      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10">
+                  <div className="mt-8">
+                     {/* Top Section - 2 Columns (Media & Progress) */}
+                     <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10">
 
-                         {/* Main Content - Media & Tags */}
-                         <div>
-                            {/* Media */}
-                        <div className="mb-6">
-                           <div className="aspect-video w-full overflow-hidden rounded-lg border border-gray-200">
-                              <ImageCarousel images={campaignImages} alt={campaign.title} />
+                        {/* Main Content - Media & Tags */}
+                        <div>
+                           {/* Media */}
+                           <div className="mb-6">
+                              <div className="aspect-video w-full overflow-hidden rounded-lg border border-gray-200">
+                                 <ImageCarousel images={campaignImages} alt={campaign.title} />
+                              </div>
                            </div>
-                        </div>
 
-                        {/* Creator Info & Tags Block */}
-                        <div className="py-6 border-t border-gray-100 space-y-5">
-                           <div className="space-y-3">
-                              {/* Main Classification Badges */}
-                              <div className="flex flex-wrap gap-2">
-                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shadow-sm">
-                                    <Tag size={12} />
-                                    {campaign.category}
-                                 </span>
-                                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${campaign.type === 'REWARD'
+                           {/* Creator Info & Tags Block */}
+                           <div className="py-6 border-t border-gray-100 space-y-5">
+                              <div className="space-y-3">
+                                 {/* Main Classification Badges */}
+                                 <div className="flex flex-wrap gap-2">
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shadow-sm">
+                                       <Tag size={12} />
+                                       {campaign.category}
+                                    </span>
+                                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${campaign.type === 'REWARD'
                                        ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
                                        : 'bg-orange-50 text-orange-600 border-orange-100'
-                                    }`}>
-                                    <Layers size={12} />
-                                    {getCampaignTypeLabel(campaign.type as any)}
-                                 </span>
+                                       }`}>
+                                       <Layers size={12} />
+                                       {getCampaignTypeLabel(campaign.type as any)}
+                                    </span>
+                                 </div>
+
+                                 {/* Secondary Tags */}
+                                 {campaign.tags && campaign.tags.length > 0 && (
+                                    <div className="flex flex-wrap gap-2">
+                                       {campaign.tags.map((tag: string, index: number) => (
+                                          <span key={index} className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-50 text-gray-500 rounded-md border border-gray-100 text-[11px] font-semibold hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer">
+                                             <span className="text-gray-400 font-bold">#</span>
+                                             {tag}
+                                          </span>
+                                       ))}
+                                    </div>
+                                 )}
                               </div>
 
-                              {/* Secondary Tags */}
-                              {campaign.tags && campaign.tags.length > 0 && (
-                                 <div className="flex flex-wrap gap-2">
-                                    {campaign.tags.map((tag: string, index: number) => (
-                                       <span key={index} className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-50 text-gray-500 rounded-md border border-gray-100 text-[11px] font-semibold hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer">
-                                          <span className="text-gray-400 font-bold">#</span>
-                                          {tag}
-                                       </span>
-                                    ))}
+                              <div className="flex items-center gap-4 pt-1">
+                                 <div className="flex items-center gap-2">
+                                    <span className="text-xs text-gray-500 font-semibold">By</span>
+                                    <CreatorLink
+                                       creatorId={campaign.creator?.id || ""}
+                                       creatorName={campaign.creator?.name || "Anonymous"}
+                                       creatorAvatar={campaign.creator?.avatar}
+                                    />
                                  </div>
-                              )}
-                           </div>
 
-                           <div className="flex items-center gap-4 pt-1">
-                              <div className="flex items-center gap-2">
-                                 <span className="text-xs text-gray-500 font-semibold">By</span>
-                                 <CreatorLink
-                                    creatorId={campaign.creator?.id || ""}
-                                    creatorName={campaign.creator?.name || "Anonymous"}
-                                    creatorAvatar={campaign.creator?.avatar}
-                                 />
+                                 {campaign.creator?.status === "PRO" && (
+                                    <div className="flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-100">
+                                       <Zap size={12} className="fill-emerald-500 text-emerald-500" />
+                                       <span className="text-[10px] font-black uppercase tracking-wider">Pro Creator</span>
+                                    </div>
+                                 )}
                               </div>
-
-                              {campaign.creator?.status === "PRO" && (
-                                 <div className="flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-100">
-                                    <Zap size={12} className="fill-emerald-500 text-emerald-500" />
-                                    <span className="text-[10px] font-black uppercase tracking-wider">Pro Creator</span>
-                                 </div>
-                              )}
                            </div>
                         </div>
-                     </div>
 
-                     {/* Sidebar - Funding Info (Sticky) */}
-                     <div>
-                        <div className="lg:sticky lg:top-24 space-y-6">
-                           {/* Funding Stats */}
-                           <CampaignGrowthProgress
-                              currentAmount={Number(campaign.currentAmount)}
-                              goalAmount={Number(campaign.goalAmount)}
-                              showTree={true}
-                              showAnimatedHead={true}
-                              size="lg"
-                              variant="default"
-                           />
-
-                           {/* Backers & Days */}
-                           <div className="grid grid-cols-2 gap-4">
-                              <div className="flex items-center gap-3 text-gray-600">
-                                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                 </svg>
-                                 <div>
-                                    <div className="text-2xl font-bold text-gray-900">{campaign._count.pledges.toLocaleString()}</div>
-                                    <div className="text-sm text-gray-500">người ủng hộ</div>
-                                 </div>
-                              </div>
-
-                              <FavoriteCount
-                                 campaignId={campaign.id}
-                                 campaignSlug={campaign.slug}
+                        {/* Sidebar - Funding Info (Sticky) */}
+                        <div>
+                           <div className="lg:sticky lg:top-24 space-y-6">
+                              {/* Funding Stats */}
+                              <CampaignGrowthProgress
+                                 currentAmount={Number(campaign.currentAmount)}
+                                 goalAmount={Number(campaign.goalAmount)}
+                                 showTree={true}
+                                 showAnimatedHead={true}
+                                 size="lg"
+                                 variant="default"
                               />
 
-                              <div className="flex items-center gap-3 text-gray-600 col-span-2">
-                                 <Clock className="w-5 h-5 text-gray-400" />
-                                 <div>
-                                    <div className="text-2xl font-bold text-gray-900">
-                                       {typeof daysLeft === "number" ? daysLeft : daysLeft}
+                              {/* Backers & Days */}
+                              <div className="grid grid-cols-2 gap-4">
+                                 <div className="flex items-center gap-3 text-gray-600">
+                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                    <div>
+                                       <div className="text-2xl font-bold text-gray-900">{campaign._count.pledges.toLocaleString()}</div>
+                                       <div className="text-sm text-gray-500">người ủng hộ</div>
                                     </div>
-                                    <div className="text-sm text-gray-500">
-                                       {typeof daysLeft === "number" ? "ngày còn lại" : ""}
+                                 </div>
+
+                                 <FavoriteCount
+                                    campaignId={campaign.id}
+                                    campaignSlug={campaign.slug}
+                                 />
+
+                                 <div className="flex items-center gap-3 text-gray-600 col-span-2">
+                                    <Clock className="w-5 h-5 text-gray-400" />
+                                    <div>
+                                       <div className="text-2xl font-bold text-gray-900">
+                                          {typeof daysLeft === "number" ? daysLeft : daysLeft}
+                                       </div>
+                                       <div className="text-sm text-gray-500">
+                                          {typeof daysLeft === "number" ? "ngày còn lại" : ""}
+                                       </div>
                                     </div>
                                  </div>
                               </div>
+
+
+
+                              {/* Support Button & Payment Section */}
+                              <CampaignPageClient
+                                 campaignId={campaign.id}
+                                 campaignSlug={slug}
+                                 campaignTitle={campaign.title}
+                                 rewards={serializedCampaign.rewards || []}
+                                 creatorId={campaign.creatorId}
+                                 creatorName={campaign.creator.name}
+                                 campaignStatus={campaign.status}
+                              />
+
+                              {/* All or Nothing Notice */}
+                              {campaign.endDate && (
+                                 <div className="text-xs text-gray-500 pt-4 border-t border-gray-200 leading-relaxed">
+                                    <span className="font-semibold">All or nothing.</span> This project will only be funded if it reaches its goal by {formatDate(campaign.endDate)}.
+                                 </div>
+                              )}
+
+                              {/* Social Share */}
+                              <CampaignActions
+                                 campaignTitle={campaign.title}
+                                 campaignSlug={slug}
+                                 campaignId={campaign.id}
+                              />
                            </div>
-
-
-
-                           {/* Support Button & Payment Section */}
-                           <CampaignPageClient
-                              campaignId={campaign.id}
-                              campaignSlug={slug}
-                              campaignTitle={campaign.title}
-                              rewards={serializedCampaign.rewards || []}
-                              creatorId={campaign.creatorId}
-                              creatorName={campaign.creator.name}
-                              campaignStatus={campaign.status}
-                           />
-
-                           {/* All or Nothing Notice */}
-                           {campaign.endDate && (
-                              <div className="text-xs text-gray-500 pt-4 border-t border-gray-200 leading-relaxed">
-                                 <span className="font-semibold">All or nothing.</span> This project will only be funded if it reaches its goal by {formatDate(campaign.endDate)}.
-                              </div>
-                           )}
-
-                           {/* Social Share */}
-                           <CampaignActions
-                              campaignTitle={campaign.title}
-                              campaignSlug={slug}
-                              campaignId={campaign.id}
-                           />
                         </div>
                      </div>
                   </div>
-               </div>
 
-               {/* Campaign Stats Summary - REMOVED */}
+                  {/* Campaign Stats Summary - REMOVED */}
 
                   {/* Tabs Content - Full Width */}
                   <div className="border-t border-gray-100 pt-6">

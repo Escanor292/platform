@@ -5,6 +5,7 @@ import { MongoConversation } from "@/types/chat.types";
 import { UserAvatar } from "./UserAvatar";
 import { UnreadBadge } from "./UnreadBadge";
 import { formatDistanceToNow } from "@/lib/utils";
+import Link from "next/link";
 
 interface ConversationItemProps {
   conversation: MongoConversation;
@@ -29,26 +30,31 @@ export function ConversationItem({ conversation, isActive, onClick }: Conversati
   return (
     <div
       onClick={onClick}
-      className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors ${
-        isActive
+      className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors ${isActive
           ? "border-primary/40 bg-blue-50/50 hover:bg-blue-50"
           : "border-gray-200 bg-white hover:bg-gray-50"
-      }`}
+        }`}
     >
-      {/* Avatar */}
+      {/* Avatar - clickable */}
       <UserAvatar
         src={otherParticipant.avatarUrl}
         name={otherParticipant.name}
         size="md"
+        userId={otherParticipant.userId}
+        clickable={true}
       />
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        {/* Name and Role */}
+        {/* Name and Role - name is clickable */}
         <div className="flex items-center gap-2">
-          <h3 className={`font-medium truncate ${hasUnread ? "font-semibold" : ""}`}>
+          <Link
+            href={`/profile/${otherParticipant.userId}`}
+            onClick={(e) => e.stopPropagation()}
+            className={`font-medium truncate hover:text-primary hover:underline transition-colors ${hasUnread ? "font-semibold" : ""}`}
+          >
             {otherParticipant.name}
-          </h3>
+          </Link>
           <span className="text-xs text-gray-500 capitalize">
             {otherParticipant.role}
           </span>

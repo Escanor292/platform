@@ -25,6 +25,31 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug: 
           orderBy: { createdAt: "desc" },
           take: 10,
         },
+        linkedBlogs: {
+          include: {
+            blogPost: {
+              select: {
+                id: true,
+                title: true,
+                slug: true,
+                excerpt: true,
+                coverImage: true,
+                publishedAt: true,
+                viewCount: true,
+                likeCount: true,
+                commentCount: true,
+                author: {
+                  select: {
+                    id: true,
+                    name: true,
+                    avatar: true,
+                  },
+                },
+              },
+            },
+          },
+          orderBy: { order: "asc" },
+        },
         _count: {
           select: {
             pledges: true,
@@ -65,6 +90,7 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ slug: s
       );
     }
 
+    // Update campaign data
     const updated = await prisma.campaign.update({
       where: { slug },
       data: {
@@ -80,6 +106,25 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ slug: s
         endDate: body.endDate ? new Date(body.endDate) : null,
       },
     });
+
+    // Update blog links if provided
+    if (body.linkedBlogIds !== undefined) {
+      // Delete existing links
+      await prisma.campaignBlogLink.deleteMany({
+        where: { campaignId: campaign.id },
+      });
+
+      // Create new links
+      if (Array.isArray(body.linkedBlogIds) && body.linkedBlogIds.length > 0) {
+        await prisma.campaignBlogLink.createMany({
+          data: body.linkedBlogIds.map((blogId: string, index: number) => ({
+            campaignId: campaign.id,
+            blogPostId: blogId,
+            order: index,
+          })),
+        });
+      }
+    }
 
     return NextResponse.json(updated);
   } catch (error) {

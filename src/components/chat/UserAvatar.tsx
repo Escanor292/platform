@@ -1,15 +1,18 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { User } from "lucide-react";
 
 interface UserAvatarProps {
   src?: string;
   name: string;
   size?: "sm" | "md" | "lg";
+  userId?: string;
+  clickable?: boolean;
 }
 
-export function UserAvatar({ src, name, size = "md" }: UserAvatarProps) {
+export function UserAvatar({ src, name, size = "md", userId, clickable = false }: UserAvatarProps) {
   const sizeClasses = {
     sm: "h-8 w-8",
     md: "h-10 w-10",
@@ -30,9 +33,10 @@ export function UserAvatar({ src, name, size = "md" }: UserAvatarProps) {
     return name.slice(0, 2).toUpperCase();
   };
 
-  return (
+  const avatarContent = (
     <div
-      className={`${sizeClasses[size]} flex-shrink-0 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center overflow-hidden`}
+      className={`${sizeClasses[size]} flex-shrink-0 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center overflow-hidden ${clickable && userId ? "cursor-pointer hover:opacity-80 transition-opacity" : ""
+        }`}
     >
       {src ? (
         <Image
@@ -49,4 +53,14 @@ export function UserAvatar({ src, name, size = "md" }: UserAvatarProps) {
       )}
     </div>
   );
+
+  if (clickable && userId) {
+    return (
+      <Link href={`/profile/${userId}`} onClick={(e) => e.stopPropagation()}>
+        {avatarContent}
+      </Link>
+    );
+  }
+
+  return avatarContent;
 }
