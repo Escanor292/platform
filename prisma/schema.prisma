@@ -7,234 +7,381 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id              String            @id @default(cuid())
-  email           String            @unique
-  password        String?
-  name            String
-  displayName     String?
-  avatar          String?
-  image           String?           // Avatar URL (for OAuth)
-  coverImage      String?           // Ảnh bìa profile
-  phone           String?
-  shippingAddress String?           // Địa chỉ nhận hàng
-  role            UserRole          @default(BACKER)
-  status          UserStatus        @default(NORMAL)
-  isOrganization  Boolean           @default(false)
-  isAdmin         Boolean           @default(false)
-  bio             String?
-  location        String?           // Địa điểm
-  website         String?           // Website cá nhân
-  socialLinks     Json?             // Social media links array
-  idCard          String?
-  businessLicense String?
-  bankAccount     String?
-  bankName        String?
-  approvedAt      DateTime?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  campaigns       Campaign[]
-  invoices        PlatformInvoice[]
-  pledges         Pledge[]
-  reviews         Review[]
-  kycInfo         KYCInfo?
-  auditLogs       AuditLog[]
-  followedCampaigns CampaignFollower[]
-  reports         CampaignReport[]
-  blogPosts       BlogPost[]
-  blogLikes       BlogLike[]
-  blogBookmarks   BlogBookmark[]
-  blogComments    BlogComment[]
-  blogReports     BlogReport[]
-  badgesCreated   Badge[]       @relation("BadgeCreator")
-  userBadges      UserBadge[]   @relation("UserBadges")
-  badgesAssigned  UserBadge[]   @relation("BadgeAssigner")
-  badgesRevoked   UserBadge[]   @relation("BadgeRevoker")
+model audit_logs {
+  id         String      @id
+  userId     String?
+  action     AuditAction
+  entityType String
+  entityId   String
+  oldValue   Json?
+  newValue   Json?
+  changes    Json?
+  ipAddress  String?
+  userAgent  String?
+  reason     String?
+  metadata   Json?
+  createdAt  DateTime    @default(now())
+  pledges    pledges     @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  users      users?      @relation(fields: [userId], references: [id])
 
-  @@map("users")
+  @@index([createdAt])
+  @@index([entityType, entityId])
+  @@index([userId])
 }
 
-model Campaign {
-  id              String            @id @default(cuid())
-  campaignCode    String            @unique
-  slug            String            @unique
-  title           String
-  description     String
-  longDescription String?
-  videoUrl        String?
-  imageUrl        String?
-  images          String[]          @default([]) // Multiple images for campaign
-  type            CampaignType      @default(REWARD)
-  category        String
-  tags            String[]          @default([]) // Starter tags for taxonomy
-  goalAmount      Decimal
-  currentAmount   Decimal           @default(0)
-  status          CampaignStatus    @default(DRAFT)
-  startDate       DateTime?
-  endDate         DateTime?
-  creatorId       String
-  feeRate         Float             @default(0.08)
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  updates         CampaignUpdate[]
-  creator         User              @relation(fields: [creatorId], references: [id])
-  invoices        PlatformInvoice[]
-  pledges         Pledge[]
-  Review          Review[]
-  rewards         Reward[]
-  followers       CampaignFollower[]
-  reports         CampaignReport[]
-  blogPosts       BlogPost[]
-  linkedBlogs     CampaignBlogLink[]
-
-  @@index([category])
-  @@index([tags])
-  @@map("campaigns")
+model backer_invoices {
+  id            String        @id
+  invoiceNumber String        @unique
+  pledgeId      String        @unique
+  backerName    String
+  backerEmail   String?
+  backerPhone   String?
+  backerAddress String?
+  backerTaxCode String?
+  companyName   String?
+  amount        Decimal
+  tipAmount     Decimal
+  platformFee   Decimal
+  vatAmount     Decimal
+  totalAmount   Decimal
+  campaignTitle String
+  paymentMethod String
+  transactionId String
+  status        InvoiceStatus @default(PENDING)
+  issuedAt      DateTime      @default(now())
+  pdfUrl        String?
+  sentAt        DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime
+  pledges       pledges       @relation(fields: [pledgeId], references: [id], onDelete: Cascade)
 }
 
-model Reward {
-  id           String    @id @default(cuid())
-  campaignId   String
-  title        String
-  description  String?
-  minAmount    Decimal   // Mức ủng hộ tối thiểu để nhận reward
-  maxQuantity  Int?      // Số lượng giới hạn (null = không giới hạn)
-  deliveryDate DateTime? // Ngày giao hàng dự kiến
-  isActive     Boolean   @default(true) // Trạng thái hoạt động
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  campaign     Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  pledges      Pledge[]  // Các pledge chọn reward này
+model badges {
+  id               String        @id
+  name             String        @db.VarChar(100)
+  slug             String        @unique @db.VarChar(120)
+  description      String?
+  icon_url         String?
+  icon_name        String?       @db.VarChar(100)
+  color            String?       @db.VarChar(30)
+  background_color String?       @db.VarChar(30)
+  type             BadgeType
+  rarity           BadgeRarity   @default(common)
+  is_active        Boolean       @default(true)
+  created_by       String
+  created_at       DateTime      @default(now())
+  updated_at       DateTime
+  deleted_at       DateTime?
+  users            users         @relation(fields: [created_by], references: [id])
+  user_badges      user_badges[]
 
+  @@index([deleted_at])
+  @@index([is_active])
+  @@index([slug])
+  @@index([type])
+}
+
+model blacklist {
+  id        String        @id
+  type      BlacklistType
+  value     String
+  reason    String
+  addedBy   String?
+  isActive  Boolean       @default(true)
+  expiresAt DateTime?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime
+
+  @@unique([type, value])
+  @@index([type, value, isActive])
+}
+
+model blog_bookmarks {
+  id         String     @id
+  postId     String
+  userId     String
+  createdAt  DateTime   @default(now())
+  blog_posts blog_posts @relation(fields: [postId], references: [id], onDelete: Cascade)
+  users      users      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+}
+
+model blog_categories {
+  id                   String                 @id
+  name                 String                 @db.VarChar(100)
+  slug                 String                 @unique @db.VarChar(100)
+  description          String?
+  createdAt            DateTime               @default(now())
+  blog_post_categories blog_post_categories[]
+}
+
+model blog_comments {
+  id                  String            @id
+  postId              String
+  userId              String
+  parentId            String?
+  content             String
+  status              BlogCommentStatus @default(VISIBLE)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime
+  deletedAt           DateTime?
+  blog_comments       blog_comments?    @relation("blog_commentsToblog_comments", fields: [parentId], references: [id], onDelete: Cascade)
+  other_blog_comments blog_comments[]   @relation("blog_commentsToblog_comments")
+  blog_posts          blog_posts        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  users               users             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([parentId])
+  @@index([postId])
+  @@index([userId])
+}
+
+model blog_likes {
+  id         String     @id
+  postId     String
+  userId     String
+  createdAt  DateTime   @default(now())
+  blog_posts blog_posts @relation(fields: [postId], references: [id], onDelete: Cascade)
+  users      users      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+}
+
+model blog_post_categories {
+  postId          String
+  categoryId      String
+  blog_categories blog_categories @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  blog_posts      blog_posts      @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([postId, categoryId])
+}
+
+model blog_post_tags {
+  postId     String
+  tagId      String
+  blog_posts blog_posts @relation(fields: [postId], references: [id], onDelete: Cascade)
+  blog_tags  blog_tags  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+}
+
+model blog_posts {
+  id                   String                 @id
+  authorId             String
+  campaignId           String?
+  mongoContentId       String?
+  title                String                 @db.VarChar(255)
+  slug                 String                 @unique @db.VarChar(255)
+  excerpt              String?
+  coverImage           String?
+  status               BlogPostStatus         @default(DRAFT)
+  type                 BlogPostType           @default(PLATFORM)
+  visibility           BlogVisibility         @default(PUBLIC)
+  publishedAt          DateTime?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime
+  deletedAt            DateTime?
+  viewCount            Int                    @default(0)
+  likeCount            Int                    @default(0)
+  commentCount         Int                    @default(0)
+  bookmarkCount        Int                    @default(0)
+  isFeatured           Boolean                @default(false)
+  wordCount            Int                    @default(0)
+  readingTimeMinutes   Int                    @default(0)
+  content              String?
+  blog_bookmarks       blog_bookmarks[]
+  blog_comments        blog_comments[]
+  blog_likes           blog_likes[]
+  blog_post_categories blog_post_categories[]
+  blog_post_tags       blog_post_tags[]
+  users                users                  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  campaigns            campaigns?             @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  blog_reports         blog_reports[]
+  campaign_blog_links  campaign_blog_links[]
+
+  @@index([authorId])
   @@index([campaignId])
-  @@map("rewards")
+  @@index([deletedAt])
+  @@index([isFeatured])
+  @@index([publishedAt])
+  @@index([slug])
+  @@index([status])
+  @@index([type])
+  @@index([visibility])
 }
 
-model Pledge {
-  id               String          @id @default(cuid())
-  campaignId       String
-  userId           String?
-  rewardId         String?         // ID của reward được chọn
-  displayName      String
-  isAnonymous      Boolean         @default(false)
-  email            String?
-  phoneNumber      String?
-  shippingAddress  String?         // Địa chỉ nhận hàng cho reward
-  amount           Decimal
-  tipAmount        Decimal         @default(0)
-  platformFee      Decimal         @default(0)
-  vatAmount        Decimal         @default(0)
-  totalAmount      Decimal
-  paymentProvider  String
-  transactionId    String          @unique
-  payosOrderCode   String?         @unique // OrderCode từ PayOS webhook
-  ipAddress        String?
-  deviceInfo       Json?
-  status           PledgeStatus    @default(PENDING)
-  refundStatus     RefundStatus    @default(NO_REFUND)
-  refundedAt       DateTime?
-  invoiceGroupDate DateTime?
-  webhookProcessedAt DateTime?     // Thời gian webhook được xử lý (để check idempotency)
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  campaign         Campaign        @relation(fields: [campaignId], references: [id])
-  user             User?           @relation(fields: [userId], references: [id])
-  reward           Reward?         @relation(fields: [rewardId], references: [id])
-  backerInvoice    BackerInvoice?
-  auditLogs        AuditLog[]
+model blog_reports {
+  id          String           @id
+  postId      String?
+  commentId   String?
+  reporterId  String
+  reason      BlogReportReason
+  description String?
+  status      ReportStatus     @default(PENDING)
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  createdAt   DateTime         @default(now())
+  blog_posts  blog_posts?      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  users       users            @relation(fields: [reporterId], references: [id], onDelete: Cascade)
 
-  @@map("pledges")
+  @@index([commentId])
+  @@index([postId])
+  @@index([reporterId])
+  @@index([status])
 }
 
-model CampaignUpdate {
-  id         String   @id @default(cuid())
+model blog_tags {
+  id             String           @id
+  name           String           @db.VarChar(100)
+  slug           String           @unique @db.VarChar(100)
+  blog_post_tags blog_post_tags[]
+}
+
+model campaign_blog_links {
+  id         String     @id
+  campaignId String
+  blogPostId String
+  order      Int        @default(0)
+  createdAt  DateTime   @default(now())
+  blog_posts blog_posts @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  campaigns  campaigns  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, blogPostId])
+  @@index([blogPostId])
+  @@index([campaignId])
+}
+
+model campaign_followers {
+  id         String    @id
+  campaignId String
+  userId     String?
+  email      String?
+  createdAt  DateTime  @default(now())
+  campaigns  campaigns @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  users      users?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, email])
+  @@unique([campaignId, userId])
+  @@index([campaignId])
+  @@index([userId])
+}
+
+model campaign_reports {
+  id          String               @id
+  campaignId  String
+  userId      String
+  reason      CampaignReportReason
+  description String
+  status      ReportStatus         @default(PENDING)
+  resolvedAt  DateTime?
+  resolvedBy  String?
+  resolution  String?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime
+  campaigns   campaigns            @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  users       users                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, userId])
+  @@index([campaignId])
+  @@index([status])
+  @@index([userId])
+}
+
+model campaign_updates {
+  id         String    @id
   campaignId String
   title      String
   content    String
   imageUrl   String?
-  tags       String[] @default([]) // Tags cho update
-  isPinned   Boolean  @default(false) // Ghim update quan trọng
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now()) @updatedAt
-  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  createdAt  DateTime  @default(now())
+  isPinned   Boolean   @default(false)
+  tags       String[]  @default([])
+  updatedAt  DateTime  @default(now())
+  campaigns  campaigns @relation(fields: [campaignId], references: [id])
 
   @@index([campaignId, isPinned])
   @@index([tags])
-  @@map("campaign_updates")
 }
 
-model Review {
-  id         String    @id @default(cuid())
-  userId     String
-  campaignId String?
-  rating     Int
-  comment    String
-  imageUrl   String?
-  createdAt  DateTime  @default(now())
-  campaign   Campaign? @relation(fields: [campaignId], references: [id])
-  user       User      @relation(fields: [userId], references: [id])
+model campaigns {
+  id                  String                @id
+  campaignCode        String                @unique
+  slug                String                @unique
+  title               String
+  description         String
+  longDescription     String?
+  videoUrl            String?
+  imageUrl            String?
+  type                CampaignType          @default(REWARD)
+  category            String
+  tags                String[]              @default([])
+  goalAmount          Decimal
+  currentAmount       Decimal               @default(0)
+  status              CampaignStatus        @default(DRAFT)
+  startDate           DateTime?
+  endDate             DateTime?
+  creatorId           String
+  feeRate             Float                 @default(0.08)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime
+  images              String[]              @default([])
+  blog_posts          blog_posts[]
+  campaign_blog_links campaign_blog_links[]
+  campaign_followers  campaign_followers[]
+  campaign_reports    campaign_reports[]
+  campaign_updates    campaign_updates[]
+  users               users                 @relation(fields: [creatorId], references: [id])
+  platform_invoices   platform_invoices[]
+  pledges             pledges[]
+  reviews             reviews[]
+  rewards             rewards[]
 
-  @@map("reviews")
+  @@index([category])
+  @@index([tags])
 }
 
-// ============================================================
-// Campaign Report - Báo cáo chiến dịch (chỉ cho logged-in users)
-// ============================================================
-model CampaignReport {
-  id          String              @id @default(cuid())
-  campaignId  String
-  userId      String              // Bắt buộc - chỉ logged-in users
-  reason      CampaignReportReason
-  description String              // Mô tả chi tiết
-  status      ReportStatus        @default(PENDING)
-  resolvedAt  DateTime?
-  resolvedBy  String?             // Admin ID
-  resolution  String?             // Kết luận
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  campaign    Campaign            @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([campaignId, userId]) // Chỉ 1 report/user/campaign
-  @@index([campaignId])
-  @@index([userId])
-  @@index([status])
-  @@map("campaign_reports")
-}
-
-// ============================================================
-// Campaign Followers - Người quan tâm dự án
-// ============================================================
-model CampaignFollower {
-  id         String   @id @default(cuid())
-  campaignId String
-  userId     String?  // null nếu anonymous
-  email      String?  // Email cho anonymous users
-  createdAt  DateTime @default(now())
-  
-  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@unique([campaignId, userId])
-  @@unique([campaignId, email])
-  @@index([campaignId])
-  @@index([userId])
-  @@map("campaign_followers")
-}
-
-model DailyTipInvoice {
-  id          String   @id @default(cuid())
+model daily_tip_invoices {
+  id          String   @id
   invoiceDate DateTime @unique
   totalTip    Decimal
   totalVat    Decimal
   status      String   @default("PENDING")
   createdAt   DateTime @default(now())
-
-  @@map("daily_tip_invoices")
 }
 
-model PlatformInvoice {
-  id            String        @id @default(cuid())
+model kyc_info {
+  id                 String     @id
+  userId             String     @unique
+  fullName           String
+  idCardNumber       String     @unique
+  idCardType         IDCardType
+  idCardFrontImage   String?
+  idCardBackImage    String?
+  idCardIssueDate    DateTime?
+  idCardIssuePlace   String?
+  dateOfBirth        DateTime?
+  placeOfBirth       String?
+  nationality        String     @default("VN")
+  permanentAddress   String?
+  currentAddress     String?
+  occupation         String?
+  monthlyIncome      String?
+  verificationStatus KYCStatus  @default(PENDING)
+  verifiedAt         DateTime?
+  verifiedBy         String?
+  rejectedReason     String?
+  riskLevel          RiskLevel  @default(LOW)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime
+  users              users      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model platform_invoices {
+  id            String        @id
   invoiceNumber String        @unique
   campaignId    String
   creatorId     String
@@ -246,210 +393,154 @@ model PlatformInvoice {
   paidAt        DateTime?
   paymentMethod String?
   createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  campaign      Campaign      @relation(fields: [campaignId], references: [id])
-  creator       User          @relation(fields: [creatorId], references: [id])
-
-  @@map("platform_invoices")
+  updatedAt     DateTime
+  campaigns     campaigns     @relation(fields: [campaignId], references: [id])
+  users         users         @relation(fields: [creatorId], references: [id])
 }
 
-enum UserRole {
-  ADMIN
-  BACKER
-  CREATOR_PENDING
-  CREATOR
+model pledges {
+  id                 String           @id
+  campaignId         String
+  userId             String?
+  displayName        String
+  isAnonymous        Boolean          @default(false)
+  email              String?
+  phoneNumber        String?
+  amount             Decimal
+  tipAmount          Decimal          @default(0)
+  platformFee        Decimal          @default(0)
+  vatAmount          Decimal          @default(0)
+  totalAmount        Decimal
+  paymentProvider    String
+  transactionId      String           @unique
+  ipAddress          String?
+  deviceInfo         Json?
+  status             PledgeStatus     @default(PENDING)
+  refundStatus       RefundStatus     @default(NO_REFUND)
+  refundedAt         DateTime?
+  invoiceGroupDate   DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime
+  rewardId           String?
+  shippingAddress    String?
+  payosOrderCode     String?          @unique
+  webhookProcessedAt DateTime?
+  audit_logs         audit_logs[]
+  backer_invoices    backer_invoices?
+  campaigns          campaigns        @relation(fields: [campaignId], references: [id])
+  rewards            rewards?         @relation(fields: [rewardId], references: [id])
+  users              users?           @relation(fields: [userId], references: [id])
 }
 
-enum UserStatus {
-  NORMAL
-  PRO
-  BANNED
+model reviews {
+  id         String     @id
+  userId     String
+  campaignId String?
+  rating     Int
+  comment    String
+  imageUrl   String?
+  createdAt  DateTime   @default(now())
+  campaigns  campaigns? @relation(fields: [campaignId], references: [id])
+  users      users      @relation(fields: [userId], references: [id])
 }
 
-enum CampaignType {
-  REWARD
-  DONATION
+model rewards {
+  id           String    @id
+  campaignId   String
+  title        String
+  description  String?
+  createdAt    DateTime  @default(now())
+  deliveryDate DateTime?
+  isActive     Boolean   @default(true)
+  maxQuantity  Int?
+  minAmount    Decimal
+  updatedAt    DateTime
+  pledges      pledges[]
+  campaigns    campaigns @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
 }
 
-enum CampaignStatus {
-  DRAFT
-  PENDING_REVIEW
-  ACTIVE
-  SUCCESS
-  FAILED
-  CANCELED
+model transaction_limits {
+  id                    String     @id
+  userId                String?    @unique
+  kycStatus             KYCStatus?
+  maxPerTransaction     Decimal
+  maxPerDay             Decimal
+  maxPerMonth           Decimal
+  maxTransactionsPerDay Int
+  isActive              Boolean    @default(true)
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime
 }
 
-enum PledgeStatus {
-  PENDING
-  SUCCESS
-  FAILED
-  REFUNDED
+model user_badges {
+  id                                   String    @id
+  user_id                              String
+  badge_id                             String
+  assigned_by                          String
+  reason                               String?
+  note                                 String?
+  assigned_at                          DateTime  @default(now())
+  expires_at                           DateTime?
+  revoked_at                           DateTime?
+  revoked_by                           String?
+  revoke_reason                        String?
+  is_visible                           Boolean   @default(true)
+  users_user_badges_assigned_byTousers users     @relation("user_badges_assigned_byTousers", fields: [assigned_by], references: [id])
+  badges                               badges    @relation(fields: [badge_id], references: [id], onDelete: Cascade)
+  users_user_badges_revoked_byTousers  users?    @relation("user_badges_revoked_byTousers", fields: [revoked_by], references: [id])
+  users_user_badges_user_idTousers     users     @relation("user_badges_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([assigned_by])
+  @@index([badge_id])
+  @@index([revoked_at])
+  @@index([user_id])
 }
 
-enum RefundStatus {
-  NO_REFUND
-  REQUESTED
-  PROCESSING
-  COMPLETED
-  FAILED
-}
-
-enum InvoiceStatus {
-  PENDING
-  PAID
-  OVERDUE
-  CANCELLED
-}
-
-// ============================================================
-// KYC (Know Your Customer) - Xác minh danh tính
-// ============================================================
-model KYCInfo {
-  id                String        @id @default(cuid())
-  userId            String        @unique
-  fullName          String        // Họ tên đầy đủ
-  idCardNumber      String        @unique // Số CMND/CCCD/Passport
-  idCardType        IDCardType    // Loại giấy tờ
-  idCardFrontImage  String?       // Ảnh mặt trước
-  idCardBackImage   String?       // Ảnh mặt sau
-  idCardIssueDate   DateTime?     // Ngày cấp
-  idCardIssuePlace  String?       // Nơi cấp
-  dateOfBirth       DateTime?     // Ngày sinh
-  placeOfBirth      String?       // Nơi sinh
-  nationality       String        @default("VN") // Quốc tịch
-  permanentAddress  String?       // Địa chỉ thường trú
-  currentAddress    String?       // Địa chỉ hiện tại
-  occupation        String?       // Nghề nghiệp
-  monthlyIncome     String?       // Thu nhập hàng tháng
-  verificationStatus KYCStatus    @default(PENDING)
-  verifiedAt        DateTime?     // Thời gian xác minh
-  verifiedBy        String?       // Người xác minh (admin ID)
-  rejectedReason    String?       // Lý do từ chối
-  riskLevel         RiskLevel     @default(LOW) // Mức độ rủi ro
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("kyc_info")
-}
-
-// ============================================================
-// Hóa đơn cho Backer (Người ủng hộ)
-// ============================================================
-model BackerInvoice {
-  id              String        @id @default(cuid())
-  invoiceNumber   String        @unique // Số hóa đơn: INV-YYYYMMDD-XXXXX
-  pledgeId        String        @unique
-  backerName      String        // Tên người ủng hộ
-  backerEmail     String?       // Email
-  backerPhone     String?       // Số điện thoại
-  backerAddress   String?       // Địa chỉ (nếu yêu cầu)
-  backerTaxCode   String?       // Mã số thuế (nếu là công ty)
-  companyName     String?       // Tên công ty (nếu có)
-  amount          Decimal       // Số tiền ủng hộ
-  tipAmount       Decimal       // Tiền tip
-  platformFee     Decimal       // Phí nền tảng
-  vatAmount       Decimal       // VAT
-  totalAmount     Decimal       // Tổng cộng
-  campaignTitle   String        // Tên chiến dịch
-  paymentMethod   String        // Phương thức thanh toán
-  transactionId   String        // Mã giao dịch
-  status          InvoiceStatus @default(PENDING)
-  issuedAt        DateTime      @default(now()) // Ngày xuất hóa đơn
-  pdfUrl          String?       // Link file PDF
-  sentAt          DateTime?     // Thời gian gửi email
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  pledge          Pledge        @relation(fields: [pledgeId], references: [id], onDelete: Cascade)
-
-  @@map("backer_invoices")
-}
-
-// ============================================================
-// Audit Log - Lịch sử thay đổi
-// ============================================================
-model AuditLog {
-  id          String    @id @default(cuid())
-  userId      String?   // Người thực hiện (null nếu system)
-  action      AuditAction // Hành động
-  entityType  String    // Loại entity: USER, CAMPAIGN, PLEDGE, INVOICE
-  entityId    String    // ID của entity
-  oldValue    Json?     // Giá trị cũ
-  newValue    Json?     // Giá trị mới
-  changes     Json?     // Chi tiết thay đổi
-  ipAddress   String?   // IP address
-  userAgent   String?   // User agent
-  reason      String?   // Lý do thay đổi
-  metadata    Json?     // Thông tin bổ sung
-  createdAt   DateTime  @default(now())
-  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  pledge      Pledge?   @relation(fields: [entityId], references: [id], onDelete: Cascade)
-
-  @@index([entityType, entityId])
-  @@index([userId])
-  @@index([createdAt])
-  @@map("audit_logs")
-}
-
-// ============================================================
-// Transaction Limit - Giới hạn giao dịch
-// ============================================================
-model TransactionLimit {
-  id              String   @id @default(cuid())
-  userId          String?  @unique // null = áp dụng cho tất cả
-  kycStatus       KYCStatus? // Áp dụng cho KYC status nào
-  maxPerTransaction Decimal // Giới hạn mỗi giao dịch
-  maxPerDay       Decimal  // Giới hạn mỗi ngày
-  maxPerMonth     Decimal  // Giới hạn mỗi tháng
-  maxTransactionsPerDay Int // Số lần giao dịch tối đa/ngày
-  isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@map("transaction_limits")
-}
-
-// ============================================================
-// Blacklist - Danh sách đen
-// ============================================================
-model Blacklist {
-  id          String        @id @default(cuid())
-  type        BlacklistType // Loại: IP, EMAIL, PHONE, BANK_ACCOUNT
-  value       String        // Giá trị bị chặn
-  reason      String        // Lý do
-  addedBy     String?       // Admin thêm vào
-  isActive    Boolean       @default(true)
-  expiresAt   DateTime?     // Thời gian hết hạn (null = vĩnh viễn)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  @@unique([type, value])
-  @@index([type, value, isActive])
-  @@map("blacklist")
-}
-
-// ============================================================
-// Enums mới
-// ============================================================
-enum IDCardType {
-  CMND      // Chứng minh nhân dân
-  CCCD      // Căn cước công dân
-  PASSPORT  // Hộ chiếu
-}
-
-enum KYCStatus {
-  PENDING   // Chờ xác minh
-  VERIFIED  // Đã xác minh
-  REJECTED  // Bị từ chối
-  EXPIRED   // Hết hạn
-}
-
-enum RiskLevel {
-  LOW       // Thấp
-  MEDIUM    // Trung bình
-  HIGH      // Cao
-  CRITICAL  // Nghiêm trọng
+model users {
+  id                                         String               @id
+  email                                      String               @unique
+  password                                   String?
+  name                                       String
+  displayName                                String?
+  avatar                                     String?
+  phone                                      String?
+  role                                       UserRole             @default(BACKER)
+  isOrganization                             Boolean              @default(false)
+  isAdmin                                    Boolean              @default(false)
+  bio                                        String?
+  idCard                                     String?
+  businessLicense                            String?
+  bankAccount                                String?
+  bankName                                   String?
+  approvedAt                                 DateTime?
+  createdAt                                  DateTime             @default(now())
+  updatedAt                                  DateTime
+  image                                      String?
+  location                                   String?
+  website                                    String?
+  coverImage                                 String?
+  shippingAddress                            String?
+  socialLinks                                Json?
+  status                                     UserStatus           @default(NORMAL)
+  audit_logs                                 audit_logs[]
+  badges                                     badges[]
+  blog_bookmarks                             blog_bookmarks[]
+  blog_comments                              blog_comments[]
+  blog_likes                                 blog_likes[]
+  blog_posts                                 blog_posts[]
+  blog_reports                               blog_reports[]
+  campaign_followers                         campaign_followers[]
+  campaign_reports                           campaign_reports[]
+  campaigns                                  campaigns[]
+  kyc_info                                   kyc_info?
+  platform_invoices                          platform_invoices[]
+  pledges                                    pledges[]
+  reviews                                    reviews[]
+  user_badges_user_badges_assigned_byTousers user_badges[]        @relation("user_badges_assigned_byTousers")
+  user_badges_user_badges_revoked_byTousers  user_badges[]        @relation("user_badges_revoked_byTousers")
+  user_badges_user_badges_user_idTousers     user_badges[]        @relation("user_badges_user_idTousers")
 }
 
 enum AuditAction {
@@ -467,6 +558,18 @@ enum AuditAction {
   KYC_REJECT
 }
 
+enum BadgeRarity {
+  common
+  rare
+  epic
+  legendary
+}
+
+enum BadgeType {
+  custom
+  achievement
+}
+
 enum BlacklistType {
   IP
   EMAIL
@@ -475,204 +578,13 @@ enum BlacklistType {
   DEVICE_ID
 }
 
-enum CampaignReportReason {
-  FRAUD              // Gian lận
-  INAPPROPRIATE      // Nội dung không phù hợp
-  MISLEADING         // Thông tin sai lệch
-  SCAM               // Lừa đảo
-  INTELLECTUAL_PROPERTY // Vi phạm bản quyền
-  OTHER              // Khác
+enum BlogCommentStatus {
+  VISIBLE
+  HIDDEN
+  DELETED
+  PENDING_REVIEW
 }
 
-enum ReportStatus {
-  PENDING    // Chờ xử lý
-  REVIEWING  // Đang xem xét
-  RESOLVED   // Đã giải quyết
-  DISMISSED  // Bị bác bỏ
-}
-
-// ============================================================
-// BLOG SYSTEM - Metadata in PostgreSQL
-// ============================================================
-model BlogPost {
-  id                String            @id @default(cuid())
-  authorId          String
-  campaignId        String?           // Nullable - chỉ có nếu là campaign update
-  mongoContentId    String?           // Reference to MongoDB blog_contents
-  title             String            @db.VarChar(255)
-  slug              String            @unique @db.VarChar(255)
-  excerpt           String?           @db.Text
-  content           String?           @db.Text // HTML content của bài viết
-  coverImage        String?
-  status            BlogPostStatus    @default(DRAFT)
-  type              BlogPostType      @default(PLATFORM)
-  visibility        BlogVisibility    @default(PUBLIC)
-  publishedAt       DateTime?
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  deletedAt         DateTime?
-  viewCount         Int               @default(0)
-  likeCount         Int               @default(0)
-  commentCount      Int               @default(0)
-  bookmarkCount     Int               @default(0)
-  isFeatured        Boolean           @default(false)
-  wordCount         Int               @default(0)
-  readingTimeMinutes Int             @default(0)
-  
-  author            User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  campaign          Campaign?         @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  categories        BlogPostCategory[]
-  tags              BlogPostTag[]
-  likes             BlogLike[]
-  bookmarks         BlogBookmark[]
-  comments          BlogComment[]
-  reports           BlogReport[]
-  linkedCampaigns   CampaignBlogLink[]
-
-  @@index([slug])
-  @@index([authorId])
-  @@index([campaignId])
-  @@index([status])
-  @@index([type])
-  @@index([visibility])
-  @@index([publishedAt])
-  @@index([isFeatured])
-  @@index([deletedAt])
-  @@map("blog_posts")
-}
-
-model BlogCategory {
-  id          String             @id @default(cuid())
-  name        String             @db.VarChar(100)
-  slug        String             @unique @db.VarChar(100)
-  description String?            @db.Text
-  createdAt   DateTime           @default(now())
-  posts       BlogPostCategory[]
-
-  @@map("blog_categories")
-}
-
-model BlogPostCategory {
-  postId     String
-  categoryId String
-  post       BlogPost     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  category   BlogCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  @@id([postId, categoryId])
-  @@map("blog_post_categories")
-}
-
-model BlogTag {
-  id    String        @id @default(cuid())
-  name  String        @db.VarChar(100)
-  slug  String        @unique @db.VarChar(100)
-  posts BlogPostTag[]
-
-  @@map("blog_tags")
-}
-
-model BlogPostTag {
-  postId String
-  tagId  String
-  post   BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  tag    BlogTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
-
-  @@id([postId, tagId])
-  @@map("blog_post_tags")
-}
-
-model BlogLike {
-  id        String   @id @default(cuid())
-  postId    String
-  userId    String
-  createdAt DateTime @default(now())
-  post      BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([postId, userId])
-  @@index([postId])
-  @@index([userId])
-  @@map("blog_likes")
-}
-
-model BlogBookmark {
-  id        String   @id @default(cuid())
-  postId    String
-  userId    String
-  createdAt DateTime @default(now())
-  post      BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([postId, userId])
-  @@index([postId])
-  @@index([userId])
-  @@map("blog_bookmarks")
-}
-
-model BlogComment {
-  id        String              @id @default(cuid())
-  postId    String
-  userId    String
-  parentId  String?
-  content   String              @db.Text
-  status    BlogCommentStatus   @default(VISIBLE)
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
-  deletedAt DateTime?
-  post      BlogPost            @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parent    BlogComment?        @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies   BlogComment[]       @relation("CommentReplies")
-
-  @@index([postId])
-  @@index([userId])
-  @@index([parentId])
-  @@map("blog_comments")
-}
-
-model BlogReport {
-  id          String           @id @default(cuid())
-  postId      String?
-  commentId   String?
-  reporterId  String
-  reason      BlogReportReason
-  description String?          @db.Text
-  status      ReportStatus     @default(PENDING)
-  reviewedBy  String?
-  reviewedAt  DateTime?
-  createdAt   DateTime         @default(now())
-  post        BlogPost?        @relation(fields: [postId], references: [id], onDelete: Cascade)
-  reporter    User             @relation(fields: [reporterId], references: [id], onDelete: Cascade)
-
-  @@index([postId])
-  @@index([commentId])
-  @@index([reporterId])
-  @@index([status])
-  @@map("blog_reports")
-}
-
-// ============================================================
-// CAMPAIGN BLOG LINK - Liên kết blog với campaign
-// ============================================================
-model CampaignBlogLink {
-  id          String    @id @default(cuid())
-  campaignId  String
-  blogPostId  String
-  order       Int       @default(0) // Thứ tự hiển thị
-  createdAt   DateTime  @default(now())
-  
-  campaign    Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  blogPost    BlogPost  @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
-
-  @@unique([campaignId, blogPostId])
-  @@index([campaignId])
-  @@index([blogPostId])
-  @@map("campaign_blog_links")
-}
-
-// ============================================================
-// BLOG ENUMS
-// ============================================================
 enum BlogPostStatus {
   DRAFT
   PENDING_REVIEW
@@ -689,20 +601,6 @@ enum BlogPostType {
   IMPACT_REPORT
 }
 
-enum BlogVisibility {
-  PUBLIC
-  BACKERS_ONLY
-  OWNER_ONLY
-  PRIVATE
-}
-
-enum BlogCommentStatus {
-  VISIBLE
-  HIDDEN
-  DELETED
-  PENDING_REVIEW
-}
-
 enum BlogReportReason {
   SPAM
   ABUSE
@@ -712,73 +610,94 @@ enum BlogReportReason {
   OTHER
 }
 
-// ============================================================
-// BADGE SYSTEM - Hệ thống huy hiệu
-// ============================================================
-model Badge {
-  id              String        @id @default(cuid())
-  name            String        @db.VarChar(100)
-  slug            String        @unique @db.VarChar(120)
-  description     String?       @db.Text
-  iconUrl         String?       @map("icon_url")
-  iconName        String?       @db.VarChar(100) @map("icon_name")
-  color           String?       @db.VarChar(30)
-  backgroundColor String?       @db.VarChar(30) @map("background_color")
-  type            BadgeType
-  rarity          BadgeRarity   @default(common)
-  isActive        Boolean       @default(true) @map("is_active")
-  createdBy       String        @map("created_by")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
-  deletedAt       DateTime?     @map("deleted_at")
-  
-  creator         User          @relation("BadgeCreator", fields: [createdBy], references: [id])
-  userBadges      UserBadge[]
-
-  @@index([slug])
-  @@index([type])
-  @@index([isActive])
-  @@index([deletedAt])
-  @@map("badges")
+enum BlogVisibility {
+  PUBLIC
+  BACKERS_ONLY
+  OWNER_ONLY
+  PRIVATE
 }
 
-model UserBadge {
-  id           String    @id @default(cuid())
-  userId       String    @map("user_id")
-  badgeId      String    @map("badge_id")
-  assignedBy   String    @map("assigned_by")
-  reason       String?   @db.Text
-  note         String?   @db.Text
-  assignedAt   DateTime  @default(now()) @map("assigned_at")
-  expiresAt    DateTime? @map("expires_at")
-  revokedAt    DateTime? @map("revoked_at")
-  revokedBy    String?   @map("revoked_by")
-  revokeReason String?   @db.Text @map("revoke_reason")
-  isVisible    Boolean   @default(true) @map("is_visible")
-  
-  user         User      @relation("UserBadges", fields: [userId], references: [id], onDelete: Cascade)
-  badge        Badge     @relation(fields: [badgeId], references: [id], onDelete: Cascade)
-  assigner     User      @relation("BadgeAssigner", fields: [assignedBy], references: [id])
-  revoker      User?     @relation("BadgeRevoker", fields: [revokedBy], references: [id])
-
-  @@index([userId])
-  @@index([badgeId])
-  @@index([assignedBy])
-  @@index([revokedAt])
-  @@map("user_badges")
+enum CampaignReportReason {
+  FRAUD
+  INAPPROPRIATE
+  MISLEADING
+  SCAM
+  INTELLECTUAL_PROPERTY
+  OTHER
 }
 
-// ============================================================
-// BADGE ENUMS
-// ============================================================
-enum BadgeType {
-  custom
-  achievement
+enum CampaignStatus {
+  DRAFT
+  PENDING_REVIEW
+  ACTIVE
+  SUCCESS
+  FAILED
+  CANCELED
 }
 
-enum BadgeRarity {
-  common
-  rare
-  epic
-  legendary
+enum CampaignType {
+  REWARD
+  DONATION
+}
+
+enum IDCardType {
+  CMND
+  CCCD
+  PASSPORT
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum KYCStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
+
+enum PledgeStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum RefundStatus {
+  NO_REFUND
+  REQUESTED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWING
+  RESOLVED
+  DISMISSED
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum UserRole {
+  ADMIN
+  BACKER
+  CREATOR_PENDING
+  CREATOR
+}
+
+enum UserStatus {
+  NORMAL
+  PRO
+  BANNED
 }
