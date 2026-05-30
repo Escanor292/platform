@@ -326,7 +326,7 @@ export default function NavbarNew() {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden px-6 pb-4 flex flex-col gap-2 bg-white border-t border-gray-100">
-          <Link href="/about" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
+          <Link href="/gioi-thieu" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
             Giới thiệu
           </Link>
           <Link href="/blog" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
