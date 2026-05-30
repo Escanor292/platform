@@ -5,8 +5,8 @@ async function main() {
   const campaignId = 'cmp3zyrw30001mfm0h7czfoqd';
   const goalAmount = 500000000;
   const targetAmount = goalAmount * 0.7; // 350,000,000
-  
-  const users = await prisma.user.findMany({
+
+  const users = await prisma.users.findMany({
     take: 5
   });
 
@@ -34,8 +34,8 @@ async function main() {
   for (let i = 0; i < pledgeAmounts.length; i++) {
     const user = users[i % users.length];
     const amount = pledgeAmounts[i];
-    
-    await prisma.pledge.create({
+
+    await prisma.pledges.create({
       data: {
         amount: amount,
         totalAmount: amount, // Assuming no tips/fees for sample data
@@ -49,6 +49,8 @@ async function main() {
         paymentProvider: 'VNPAY',
         transactionId: `MOCK_TXN_${Date.now()}_${i}`,
         isAnonymous: false,
+        id: crypto.randomUUID(),
+        updatedAt: new Date(),
       }
     });
     createdAmount += amount;
@@ -56,7 +58,7 @@ async function main() {
 
   // Update campaign currentAmount
   // Note: currentAmount in DB is Decimal, so we use string or number
-  await prisma.campaign.update({
+  await prisma.campaigns.update({
     where: { id: campaignId },
     data: {
       currentAmount: createdAmount,
@@ -64,7 +66,7 @@ async function main() {
   });
 
   console.log(`✅ Successfully created ${pledgeAmounts.length} pledges.`);
-  console.log(`📊 New current amount: ${createdAmount} (${(createdAmount/goalAmount*100).toFixed(2)}%)`);
+  console.log(`📊 New current amount: ${createdAmount} (${(createdAmount / goalAmount * 100).toFixed(2)}%)`);
 }
 
 main()

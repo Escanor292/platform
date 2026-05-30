@@ -21,8 +21,9 @@ interface CreateAuditLogParams {
  */
 export async function createAuditLog(params: CreateAuditLogParams) {
   try {
-    const auditLog = await prisma.auditLog.create({
+    const auditLog = await prisma.audit_logs.create({
       data: {
+        id: crypto.randomUUID(),
         userId: params.userId || null,
         action: params.action,
         entityType: params.entityType,
@@ -69,7 +70,7 @@ export async function createAuditLog(params: CreateAuditLogParams) {
     });
 
     console.log(`[AUDIT] ${params.action} ${params.entityType}:${params.entityId} by ${params.userId || "SYSTEM"}`);
-    
+
     return auditLog;
   } catch (error) {
     console.error("[AUDIT ERROR]", error);
@@ -82,13 +83,13 @@ export async function createAuditLog(params: CreateAuditLogParams) {
  * Lấy audit logs của một entity
  */
 export async function getAuditLogs(entityType: string, entityId: string) {
-  return await prisma.auditLog.findMany({
+  return await prisma.audit_logs.findMany({
     where: {
       entityType,
       entityId,
     },
     include: {
-      user: {
+      users: {
         select: {
           id: true,
           name: true,

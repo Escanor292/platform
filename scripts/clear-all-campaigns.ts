@@ -4,33 +4,33 @@ const prisma = new PrismaClient();
 
 async function main() {
   console.log('🗑️  Clearing all campaigns and related data...');
-  
+
   try {
     // Xóa theo thứ tự để tránh foreign key constraint
     console.log('  Deleting backer invoices...');
-    await prisma.backerInvoice.deleteMany({});
-    
+    await prisma.backer_invoices.deleteMany({});
+
     console.log('  Deleting audit logs...');
-    await prisma.auditLog.deleteMany({});
-    
+    await prisma.audit_logs.deleteMany({});
+
     console.log('  Deleting pledges...');
-    await prisma.pledge.deleteMany({});
-    
+    await prisma.pledges.deleteMany({});
+
     console.log('  Deleting campaign updates...');
-    await prisma.campaignUpdate.deleteMany({});
-    
+    await prisma.campaign_updates.deleteMany({});
+
     console.log('  Deleting reviews...');
-    await prisma.review.deleteMany({});
-    
+    await prisma.reviews.deleteMany({});
+
     console.log('  Deleting rewards...');
-    await prisma.reward.deleteMany({});
-    
+    await prisma.rewards.deleteMany({});
+
     console.log('  Deleting platform invoices...');
-    await prisma.platformInvoice.deleteMany({});
-    
+    await prisma.platform_invoices.deleteMany({});
+
     console.log('  Deleting campaigns...');
-    const deletedCampaigns = await prisma.campaign.deleteMany({});
-    
+    const deletedCampaigns = await prisma.campaigns.deleteMany({});
+
     console.log('\n✅ All campaigns cleared successfully!');
     console.log(`   Total campaigns deleted: ${deletedCampaigns.count}`);
   } catch (error) {

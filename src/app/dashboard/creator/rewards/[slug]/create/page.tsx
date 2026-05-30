@@ -17,7 +17,7 @@ export default async function CreateRewardPage({ params }: PageProps) {
 
     const { slug } = await params;
 
-    const campaign = await prisma.campaign.findFirst({
+    const campaign = await prisma.campaigns.findFirst({
         where: {
             slug,
             creatorId: (session.user as any).id,

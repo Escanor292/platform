@@ -19,7 +19,7 @@ export async function GET(
 
     // Get campaign by slug first
     const { prisma } = await import('@/lib/prisma');
-    const campaign = await prisma.campaign.findUnique({
+    const campaign = await prisma.campaigns.findUnique({
       where: { slug: params.slug },
       select: { id: true },
     });

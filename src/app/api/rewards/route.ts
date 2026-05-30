@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Check if user owns the campaign
-        const campaign = await prisma.campaign.findFirst({
+        const campaign = await prisma.campaigns.findFirst({
             where: {
                 id: campaignId,
                 creatorId: (session.user as any).id,
@@ -44,8 +44,9 @@ export async function POST(req: NextRequest) {
         }
 
         // Create reward
-        const reward = await prisma.reward.create({
+        const reward = await prisma.rewards.create({
             data: {
+                id: crypto.randomUUID(),
                 campaignId,
                 title,
                 description,
@@ -53,6 +54,12 @@ export async function POST(req: NextRequest) {
                 maxQuantity: maxQuantity ? parseInt(maxQuantity) : null,
                 deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
                 isActive: Boolean(isActive),
+                updatedAt: new Date(),
+                campaigns: {
+                    connect: {
+                        id: campaignId,
+                    },
+                },
             },
         });
 

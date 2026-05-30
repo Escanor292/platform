@@ -32,7 +32,7 @@ export async function createBlogPost(
   data: CreateBlogPostRequest
 ): Promise<BlogPostResponse> {
   // Determine if user is admin
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id: currentUserId },
     select: { isAdmin: true },
   });
@@ -50,7 +50,7 @@ export async function createBlogPost(
       throw new Error('Campaign ID is required for campaign updates');
     }
 
-    const campaign = await prisma.campaign.findUnique({
+    const campaign = await prisma.campaigns.findUnique({
       where: { id: data.campaignId },
       select: { creatorId: true },
     });
@@ -77,8 +77,9 @@ export async function createBlogPost(
   }
 
   // Create metadata in PostgreSQL
-  const post = await prisma.blogPost.create({
+  const post = await prisma.blog_posts.create({
     data: {
+      id: crypto.randomUUID(),
       authorId: currentUserId,
       campaignId: data.campaignId,
       title: data.title,
@@ -91,14 +92,14 @@ export async function createBlogPost(
       publishedAt: status === 'PUBLISHED' ? new Date() : null,
       wordCount,
       readingTimeMinutes,
-      categories: data.categoryIds
+      blog_post_categories: data.categoryIds
         ? {
           create: data.categoryIds.map((categoryId) => ({
             categoryId,
           })),
         }
         : undefined,
-      tags: data.tags
+      blog_post_tags: data.tags
         ? {
           create: await Promise.all(
             data.tags.map(async (tagName) => {
@@ -108,19 +109,20 @@ export async function createBlogPost(
           ),
         }
         : undefined,
+      updatedAt: new Date(),
     },
     include: {
-      author: {
+      users: {
         select: { id: true, name: true, avatar: true },
       },
-      campaign: {
+      campaigns: {
         select: { id: true, title: true, slug: true },
       },
-      categories: {
-        include: { category: true },
+      blog_post_categories: {
+        include: { blog_categories: true },
       },
-      tags: {
-        include: { tag: true },
+      blog_post_tags: {
+        include: { blog_tags: true },
       },
     },
   });
@@ -137,13 +139,13 @@ export async function createBlogPost(
     });
 
     // Update PostgreSQL with MongoDB reference
-    await prisma.blogPost.update({
+    await prisma.blog_posts.update({
       where: { id: post.id },
       data: { mongoContentId },
     });
   } catch (error) {
     // Rollback: delete PostgreSQL record if MongoDB fails
-    await prisma.blogPost.delete({ where: { id: post.id } });
+    await prisma.blog_posts.delete({ where: { id: post.id } });
     throw new Error('Failed to create blog content in MongoDB');
   }
 
@@ -231,27 +233,27 @@ export async function getBlogPostList(
   }
 
   const [posts, total] = await Promise.all([
-    prisma.blogPost.findMany({
+    prisma.blog_posts.findMany({
       where,
       skip,
       take: limit,
       orderBy,
       include: {
-        author: {
+        users: {
           select: { id: true, name: true, avatar: true },
         },
-        campaign: {
+        campaigns: {
           select: { id: true, title: true, slug: true },
         },
-        categories: {
-          include: { category: true },
+        blog_post_categories: {
+          include: { blog_categories: true },
         },
-        tags: {
-          include: { tag: true },
+        blog_post_tags: {
+          include: { blog_tags: true },
         },
       },
     }),
-    prisma.blogPost.count({ where }),
+    prisma.blog_posts.count({ where }),
   ]);
 
   return {
@@ -270,20 +272,20 @@ export async function getBlogPostBySlug(
   slug: string,
   currentUserId?: string
 ): Promise<BlogPostResponse | null> {
-  const post = await prisma.blogPost.findUnique({
+  const post = await prisma.blog_posts.findUnique({
     where: { slug, deletedAt: null },
     include: {
-      author: {
+      users: {
         select: { id: true, name: true, avatar: true },
       },
-      campaign: {
+      campaigns: {
         select: { id: true, title: true, slug: true },
       },
-      categories: {
-        include: { category: true },
+      blog_post_categories: {
+        include: { blog_categories: true },
       },
-      tags: {
-        include: { tag: true },
+      blog_post_tags: {
+        include: { blog_tags: true },
       },
     },
   });
@@ -300,7 +302,7 @@ export async function getBlogPostBySlug(
   const content = await getBlogContent(post.id);
 
   // Increment view count
-  await prisma.blogPost.update({
+  await prisma.blog_posts.update({
     where: { id: post.id },
     data: { viewCount: { increment: 1 } },
   });
@@ -311,7 +313,7 @@ export async function getBlogPostBySlug(
 
   if (currentUserId) {
     const [like, bookmark] = await Promise.all([
-      prisma.blogLike.findUnique({
+      prisma.blog_likes.findUnique({
         where: {
           postId_userId: {
             postId: post.id,
@@ -319,7 +321,7 @@ export async function getBlogPostBySlug(
           },
         },
       }),
-      prisma.blogBookmark.findUnique({
+      prisma.blog_bookmarks.findUnique({
         where: {
           postId_userId: {
             postId: post.id,
@@ -352,7 +354,7 @@ export async function updateBlogPost(
   currentUserId: string,
   data: UpdateBlogPostRequest
 ): Promise<BlogPostResponse> {
-  const post = await prisma.blogPost.findUnique({
+  const post = await prisma.blog_posts.findUnique({
     where: { id: postId },
     select: { authorId: true, title: true, excerpt: true },
   });
@@ -361,7 +363,7 @@ export async function updateBlogPost(
     throw new Error('Post not found');
   }
 
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id: currentUserId },
     select: { isAdmin: true },
   });
@@ -408,7 +410,7 @@ export async function updateBlogPost(
   }
 
   // Update PostgreSQL metadata
-  const updatedPost = await prisma.blogPost.update({
+  const updatedPost = await prisma.blog_posts.update({
     where: { id: postId },
     data: {
       title: data.title,
@@ -419,7 +421,7 @@ export async function updateBlogPost(
       visibility: data.visibility as any,
       wordCount,
       readingTimeMinutes,
-      categories: data.categoryIds
+      blog_post_categories: data.categoryIds
         ? {
           deleteMany: {},
           create: data.categoryIds.map((categoryId) => ({
@@ -427,7 +429,7 @@ export async function updateBlogPost(
           })),
         }
         : undefined,
-      tags: data.tags
+      blog_post_tags: data.tags
         ? {
           deleteMany: {},
           create: await Promise.all(
@@ -440,17 +442,17 @@ export async function updateBlogPost(
         : undefined,
     },
     include: {
-      author: {
+      users: {
         select: { id: true, name: true, avatar: true },
       },
-      campaign: {
+      campaigns: {
         select: { id: true, title: true, slug: true },
       },
-      categories: {
-        include: { category: true },
+      blog_post_categories: {
+        include: { blog_categories: true },
       },
-      tags: {
-        include: { tag: true },
+      blog_post_tags: {
+        include: { blog_tags: true },
       },
     },
   });
@@ -463,7 +465,7 @@ export async function updateBlogPost(
 // ============================================================
 
 export async function deleteBlogPost(postId: string, currentUserId: string): Promise<void> {
-  const post = await prisma.blogPost.findUnique({
+  const post = await prisma.blog_posts.findUnique({
     where: { id: postId },
     select: { authorId: true },
   });
@@ -472,7 +474,7 @@ export async function deleteBlogPost(postId: string, currentUserId: string): Pro
     throw new Error('Post not found');
   }
 
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id: currentUserId },
     select: { isAdmin: true },
   });
@@ -482,7 +484,7 @@ export async function deleteBlogPost(postId: string, currentUserId: string): Pro
   }
 
   // Soft delete in PostgreSQL
-  await prisma.blogPost.update({
+  await prisma.blog_posts.update({
     where: { id: postId },
     data: { deletedAt: new Date() },
   });
@@ -496,7 +498,7 @@ export async function deleteBlogPost(postId: string, currentUserId: string): Pro
 // ============================================================
 
 export async function publishBlogPost(postId: string, currentUserId: string): Promise<void> {
-  const post = await prisma.blogPost.findUnique({
+  const post = await prisma.blog_posts.findUnique({
     where: { id: postId },
     select: { authorId: true, status: true },
   });
@@ -505,7 +507,7 @@ export async function publishBlogPost(postId: string, currentUserId: string): Pr
     throw new Error('Post not found');
   }
 
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id: currentUserId },
     select: { isAdmin: true },
   });
@@ -515,7 +517,7 @@ export async function publishBlogPost(postId: string, currentUserId: string): Pr
     throw new Error('You do not have permission to publish this post');
   }
 
-  await prisma.blogPost.update({
+  await prisma.blog_posts.update({
     where: { id: postId },
     data: {
       status: 'PUBLISHED',
@@ -529,7 +531,7 @@ export async function publishBlogPost(postId: string, currentUserId: string): Pr
 // ============================================================
 
 export async function archiveBlogPost(postId: string, currentUserId: string): Promise<void> {
-  const post = await prisma.blogPost.findUnique({
+  const post = await prisma.blog_posts.findUnique({
     where: { id: postId },
     select: { authorId: true },
   });
@@ -538,7 +540,7 @@ export async function archiveBlogPost(postId: string, currentUserId: string): Pr
     throw new Error('Post not found');
   }
 
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id: currentUserId },
     select: { isAdmin: true },
   });
@@ -547,7 +549,7 @@ export async function archiveBlogPost(postId: string, currentUserId: string): Pr
     throw new Error('You can only archive your own posts');
   }
 
-  await prisma.blogPost.update({
+  await prisma.blog_posts.update({
     where: { id: postId },
     data: { status: 'ARCHIVED' },
   });
@@ -558,7 +560,7 @@ export async function archiveBlogPost(postId: string, currentUserId: string): Pr
 // ============================================================
 
 export async function toggleLike(postId: string, userId: string): Promise<{ liked: boolean }> {
-  const existing = await prisma.blogLike.findUnique({
+  const existing = await prisma.blog_likes.findUnique({
     where: {
       postId_userId: {
         postId,
@@ -570,10 +572,10 @@ export async function toggleLike(postId: string, userId: string): Promise<{ like
   if (existing) {
     // Unlike
     await prisma.$transaction([
-      prisma.blogLike.delete({
+      prisma.blog_likes.delete({
         where: { id: existing.id },
       }),
-      prisma.blogPost.update({
+      prisma.blog_posts.update({
         where: { id: postId },
         data: { likeCount: { decrement: 1 } },
       }),
@@ -582,10 +584,10 @@ export async function toggleLike(postId: string, userId: string): Promise<{ like
   } else {
     // Like
     await prisma.$transaction([
-      prisma.blogLike.create({
-        data: { postId, userId },
+      prisma.blog_likes.create({
+        data: { id: crypto.randomUUID(), postId, userId },
       }),
-      prisma.blogPost.update({
+      prisma.blog_posts.update({
         where: { id: postId },
         data: { likeCount: { increment: 1 } },
       }),
@@ -599,7 +601,7 @@ export async function toggleLike(postId: string, userId: string): Promise<{ like
 // ============================================================
 
 export async function toggleBookmark(postId: string, userId: string): Promise<{ bookmarked: boolean }> {
-  const existing = await prisma.blogBookmark.findUnique({
+  const existing = await prisma.blog_bookmarks.findUnique({
     where: {
       postId_userId: {
         postId,
@@ -611,10 +613,10 @@ export async function toggleBookmark(postId: string, userId: string): Promise<{ 
   if (existing) {
     // Remove bookmark
     await prisma.$transaction([
-      prisma.blogBookmark.delete({
+      prisma.blog_bookmarks.delete({
         where: { id: existing.id },
       }),
-      prisma.blogPost.update({
+      prisma.blog_posts.update({
         where: { id: postId },
         data: { bookmarkCount: { decrement: 1 } },
       }),
@@ -623,10 +625,10 @@ export async function toggleBookmark(postId: string, userId: string): Promise<{ 
   } else {
     // Add bookmark
     await prisma.$transaction([
-      prisma.blogBookmark.create({
-        data: { postId, userId },
+      prisma.blog_bookmarks.create({
+        data: { id: crypto.randomUUID(), postId, userId },
       }),
-      prisma.blogPost.update({
+      prisma.blog_posts.update({
         where: { id: postId },
         data: { bookmarkCount: { increment: 1 } },
       }),
@@ -644,7 +646,7 @@ async function canReadPost(post: any, currentUserId?: string): Promise<boolean> 
     // Only author and admin can read unpublished posts
     if (!currentUserId) return false;
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: currentUserId },
       select: { isAdmin: true },
     });
@@ -660,7 +662,7 @@ async function canReadPost(post: any, currentUserId?: string): Promise<boolean> 
   if (post.visibility === 'PRIVATE' || post.visibility === 'OWNER_ONLY') {
     if (!currentUserId) return false;
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: currentUserId },
       select: { isAdmin: true },
     });
@@ -671,7 +673,7 @@ async function canReadPost(post: any, currentUserId?: string): Promise<boolean> 
   if (post.visibility === 'BACKERS_ONLY') {
     if (!currentUserId) return false;
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: currentUserId },
       select: { isAdmin: true },
     });
@@ -682,7 +684,7 @@ async function canReadPost(post: any, currentUserId?: string): Promise<boolean> 
 
     // Check if user is a backer of the campaign
     if (post.campaignId) {
-      const pledge = await prisma.pledge.findFirst({
+      const pledge = await prisma.pledges.findFirst({
         where: {
           campaignId: post.campaignId,
           userId: currentUserId,
@@ -701,13 +703,13 @@ async function canReadPost(post: any, currentUserId?: string): Promise<boolean> 
 async function getOrCreateTag(name: string) {
   const slug = name.toLowerCase().replace(/\s+/g, '-');
 
-  let tag = await prisma.blogTag.findUnique({
+  let tag = await prisma.blog_tags.findUnique({
     where: { slug },
   });
 
   if (!tag) {
-    tag = await prisma.blogTag.create({
-      data: { name, slug },
+    tag = await prisma.blog_tags.create({
+      data: { id: crypto.randomUUID(), name, slug },
     });
   }
 

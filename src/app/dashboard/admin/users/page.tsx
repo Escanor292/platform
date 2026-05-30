@@ -9,7 +9,7 @@ export default async function AdminUsersPage() {
   const session = await auth();
   if (!session?.user || (session.user as any).role !== "ADMIN") redirect("/");
 
-  const users = await prisma.user.findMany({
+  const users = await prisma.users.findMany({
     orderBy: { createdAt: "desc" },
     include: {
       _count: {

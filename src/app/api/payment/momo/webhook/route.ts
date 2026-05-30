@@ -57,9 +57,9 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Tìm pledge
-    const pledge = await prisma.pledge.findUnique({
+    const pledge = await prisma.pledges.findUnique({
       where: { id: pledgeId },
-      include: { campaign: true },
+      include: { campaigns: true },
     });
 
     if (!pledge) {
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     // 6. Xử lý theo result code
     if (resultCode === 0) {
       // Thanh toán thành công
-      await prisma.pledge.update({
+      await prisma.pledges.update({
         where: { id: pledgeId },
         data: {
           status: "SUCCESS",
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
       });
 
       // Cộng tiền vào campaign
-      await prisma.campaign.update({
+      await prisma.campaigns.update({
         where: { id: pledge.campaignId },
         data: {
           currentAmount: {
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
       });
 
       // Kiểm tra campaign đạt mục tiêu
-      const updatedCampaign = await prisma.campaign.findUnique({
+      const updatedCampaign = await prisma.campaigns.findUnique({
         where: { id: pledge.campaignId },
       });
 
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
         Number(updatedCampaign.currentAmount) >= Number(updatedCampaign.goalAmount) &&
         updatedCampaign.status === "ACTIVE"
       ) {
-        await prisma.campaign.update({
+        await prisma.campaigns.update({
           where: { id: pledge.campaignId },
           data: { status: "SUCCESS" },
         });
@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
       });
     } else {
       // Thanh toán thất bại
-      await prisma.pledge.update({
+      await prisma.pledges.update({
         where: { id: pledgeId },
         data: {
           status: "FAILED",

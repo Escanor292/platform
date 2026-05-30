@@ -19,10 +19,10 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const campaigns = await prisma.campaign.findMany({
+  const campaigns = await prisma.campaigns.findMany({
     where: { status: "ACTIVE" },
     include: {
-      creator: { select: { id: true, name: true, avatar: true, status: true } },
+      users: { select: { id: true, name: true, avatar: true, status: true } },
     },
     take: 6,
     orderBy: { createdAt: "desc" },

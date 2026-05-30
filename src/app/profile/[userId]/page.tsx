@@ -23,7 +23,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const isOwnProfile = currentUserId === userId;
 
   // Lấy thông tin user
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id: userId },
     include: {
       campaigns: {
@@ -36,7 +36,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       pledges: {
         where: { status: "SUCCESS" },
         include: {
-          campaign: {
+          campaigns: {
             select: {
               id: true,
               title: true,
@@ -313,17 +313,17 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   {user.pledges.map((pledge) => (
                     <Link
                       key={pledge.id}
-                      href={`/campaigns/${pledge.campaign.slug}`}
+                      href={`/campaigns/${pledge.campaigns.slug}`}
                       className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition group"
                     >
                       <img
-                        src={pledge.campaign.imageUrl || "/placeholder.jpg"}
-                        alt={pledge.campaign.title}
+                        src={pledge.campaigns.imageUrl || "/placeholder.jpg"}
+                        alt={pledge.campaigns.title}
                         className="w-16 h-16 rounded-xl object-cover"
                       />
                       <div className="flex-1 min-w-0">
                         <h3 className="font-bold text-gray-900 truncate group-hover:text-blue-600 transition">
-                          {pledge.campaign.title}
+                          {pledge.campaigns.title}
                         </h3>
                         <div className="text-xs text-gray-400">
                           {new Date(pledge.createdAt).toLocaleDateString("vi-VN")}

@@ -47,7 +47,7 @@ export function generateConversationKey(
  * Get user info from PostgreSQL
  */
 async function getUserInfo(userId: string): Promise<ConversationParticipant | null> {
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id: userId },
     select: {
       id: true,
@@ -74,7 +74,7 @@ async function getUserInfo(userId: string): Promise<ConversationParticipant | nu
  * Get campaign info from PostgreSQL
  */
 async function getCampaignInfo(campaignId: string): Promise<ConversationCampaign | null> {
-  const campaign = await prisma.campaign.findUnique({
+  const campaign = await prisma.campaigns.findUnique({
     where: { id: campaignId },
     select: {
       id: true,

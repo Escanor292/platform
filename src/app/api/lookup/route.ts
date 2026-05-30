@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Tra cứu Pledge theo nhiều trường ID khả thi
-    const pledge = await prisma.pledge.findFirst({
+    const pledge = await prisma.pledges.findFirst({
       where: {
         OR: [
           { transactionId: transactionId },
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
         ]
       },
       include: {
-        campaign: {
+        campaigns: {
           select: {
             title: true,
             slug: true,
@@ -54,10 +54,10 @@ export async function GET(request: NextRequest) {
       refundStatus: pledge.refundStatus,
       createdAt: pledge.createdAt,
       campaign: {
-        title: pledge.campaign.title,
-        slug: pledge.campaign.slug,
-        campaignCode: pledge.campaign.campaignCode,
-        imageUrl: pledge.campaign.imageUrl,
+        title: pledge.campaigns.title,
+        slug: pledge.campaigns.slug,
+        campaignCode: pledge.campaigns.campaignCode,
+        imageUrl: pledge.campaigns.imageUrl,
       },
     };
 

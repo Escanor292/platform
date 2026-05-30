@@ -29,8 +29,9 @@ export async function POST(request: Request) {
     const transactionId = `PAYOS-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
     // 1. Tạo bản ghi Pledge (Trạng thái PENDING)
-    const pledge = await prisma.pledge.create({
+    const pledge = await prisma.pledges.create({
       data: {
+        id: crypto.randomUUID(),
         userId: session?.user?.id || null,
         campaignId,
         rewardId: rewardId || null,
@@ -48,6 +49,7 @@ export async function POST(request: Request) {
         paymentProvider: "PAYOS",
         transactionId: transactionId,
         status: "PENDING",
+        updatedAt: new Date(),
       }
     });
 
@@ -61,24 +63,24 @@ export async function POST(request: Request) {
     });
 
     let paymentLinkRes;
-    
+
     if (process.env.NODE_ENV === 'development') {
-        console.log("[PAYOS CREATE] Development mode: Using local mock checkout.");
-        paymentLinkRes = {
-            checkoutUrl: `${process.env.NEXTAUTH_URL}/api/payment/payos/mock-checkout?orderCode=${orderCode}&amount=${totalAmount}&pledgeId=${pledge.id}`
-        };
+      console.log("[PAYOS CREATE] Development mode: Using local mock checkout.");
+      paymentLinkRes = {
+        checkoutUrl: `${process.env.NEXTAUTH_URL}/api/payment/payos/mock-checkout?orderCode=${orderCode}&amount=${totalAmount}&pledgeId=${pledge.id}`
+      };
     } else {
-        paymentLinkRes = await createPayOSPaymentLink({
-          orderCode,
-          amount: Math.round(totalAmount),
-          description: `Ung ho du an ${campaignId.slice(0, 8)}`,
-          cancelUrl: `${process.env.NEXTAUTH_URL}/campaigns`,
-          returnUrl: `${process.env.NEXTAUTH_URL}/payment-success?status=success&ref=${pledge.id}`,
-        });
+      paymentLinkRes = await createPayOSPaymentLink({
+        orderCode,
+        amount: Math.round(totalAmount),
+        description: `Ung ho du an ${campaignId.slice(0, 8)}`,
+        cancelUrl: `${process.env.NEXTAUTH_URL}/campaigns`,
+        returnUrl: `${process.env.NEXTAUTH_URL}/payment-success?status=success&ref=${pledge.id}`,
+      });
     }
 
     // 3. Cập nhật pledge với orderCode từ PayOS
-    await prisma.pledge.update({
+    await prisma.pledges.update({
       where: { id: pledge.id },
       data: {
         payosOrderCode: orderCode.toString(),

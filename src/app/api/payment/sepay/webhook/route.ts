@@ -17,11 +17,11 @@ export async function POST(request: NextRequest) {
 
     // 1. Verify signature (nếu SePay gửi signature trong header hoặc body)
     const signature = request.headers.get("x-sepay-signature") || body.signature;
-    
+
     if (signature) {
       const sepay = getSePay();
       const isValid = sepay.verifyIPNSignature(body, signature);
-      
+
       if (!isValid) {
         console.error("[SEPAY WEBHOOK] Invalid signature");
         return NextResponse.json(
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     // Format: INV-{pledgeId}-{timestamp}
     const invoiceNumber = order.order_invoice_number;
     const pledgeIdMatch = invoiceNumber.match(/INV-([a-z0-9]+)-/i);
-    
+
     if (!pledgeIdMatch) {
       console.error("[SEPAY WEBHOOK] Cannot extract pledge ID from invoice:", invoiceNumber);
       return NextResponse.json(
@@ -65,14 +65,14 @@ export async function POST(request: NextRequest) {
     const pledgeIdPrefix = pledgeIdMatch[1];
 
     // Tìm pledge có ID bắt đầu với prefix
-    const pledge = await prisma.pledge.findFirst({
+    const pledge = await prisma.pledges.findFirst({
       where: {
         id: {
           startsWith: pledgeIdPrefix,
         },
         paymentProvider: "SEPAY",
       },
-      include: { campaign: true },
+      include: { campaigns: true },
     });
 
     if (!pledge) {
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
     // 5. Kiểm tra số tiền
     const orderAmount = parseFloat(order.order_amount);
     const pledgeAmount = Number(pledge.totalAmount);
-    
+
     if (Math.abs(pledgeAmount - orderAmount) > 1) {
       console.error("[SEPAY WEBHOOK] Amount mismatch:", {
         expected: pledgeAmount,
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
 
     if (orderStatus === "CAPTURED" && transactionStatus === "APPROVED") {
       // Thanh toán thành công
-      await prisma.pledge.update({
+      await prisma.pledges.update({
         where: { id: pledge.id },
         data: {
           status: "SUCCESS",
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
       });
 
       // Cộng tiền vào campaign
-      await prisma.campaign.update({
+      await prisma.campaigns.update({
         where: { id: pledge.campaignId },
         data: {
           currentAmount: {
@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
       });
 
       // Kiểm tra campaign đạt mục tiêu
-      const updatedCampaign = await prisma.campaign.findUnique({
+      const updatedCampaign = await prisma.campaigns.findUnique({
         where: { id: pledge.campaignId },
       });
 
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
         Number(updatedCampaign.currentAmount) >= Number(updatedCampaign.goalAmount) &&
         updatedCampaign.status === "ACTIVE"
       ) {
-        await prisma.campaign.update({
+        await prisma.campaigns.update({
           where: { id: pledge.campaignId },
           data: { status: "SUCCESS" },
         });
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
       transactionStatus === "DECLINED"
     ) {
       // Thanh toán thất bại hoặc bị hủy
-      await prisma.pledge.update({
+      await prisma.pledges.update({
         where: { id: pledge.id },
         data: {
           status: "FAILED",
@@ -212,7 +212,7 @@ export async function POST(request: NextRequest) {
     } else {
       // Trạng thái khác (PENDING, PROCESSING, etc.)
       console.log("[SEPAY WEBHOOK] Unhandled status:", orderStatus, transactionStatus);
-      
+
       return NextResponse.json({
         success: true,
         message: "Status noted but not processed",

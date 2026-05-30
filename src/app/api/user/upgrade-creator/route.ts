@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { email: session.user.email },
     });
 
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     const { type, ...formData } = data;
 
     // Update user information
-    await prisma.user.update({
+    await prisma.users.update({
       where: { id: user.id },
       data: {
         displayName: formData.displayName || user.name,
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     };
 
     // Upsert KYC Info
-    await prisma.kYCInfo.upsert({
+    await prisma.kyc_info.upsert({
       where: { userId: user.id },
       update: kycData,
       create: {
@@ -79,8 +79,9 @@ export async function POST(req: NextRequest) {
     // TODO: Send confirmation email to user
 
     // Log audit
-    await prisma.auditLog.create({
+    await prisma.audit_logs.create({
       data: {
+        id: crypto.randomUUID(),
         userId: user.id,
         action: "CREATE",
         entityType: "USER",

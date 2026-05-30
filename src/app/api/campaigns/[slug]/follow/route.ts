@@ -13,7 +13,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ slug: 
         const { email } = await req.json();
 
         // Get campaign
-        const campaign = await prisma.campaign.findUnique({
+        const campaign = await prisma.campaigns.findUnique({
             where: { slug },
             select: { id: true, title: true }
         });
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ slug: 
         }
 
         // Check if already following
-        const existingFollow = await prisma.campaignFollower.findFirst({
+        const existingFollow = await prisma.campaign_followers.findFirst({
             where: {
                 campaignId: campaign.id,
                 OR: [
@@ -44,8 +44,9 @@ export async function POST(req: NextRequest, context: { params: Promise<{ slug: 
         }
 
         // Create follow
-        await prisma.campaignFollower.create({
+        await prisma.campaign_followers.create({
             data: {
+                id: crypto.randomUUID(),
                 campaignId: campaign.id,
                 userId: session?.user?.id || null,
                 email: !session?.user?.id ? email : null
@@ -77,7 +78,7 @@ export async function DELETE(req: NextRequest, context: { params: Promise<{ slug
         const email = searchParams.get("email");
 
         // Get campaign
-        const campaign = await prisma.campaign.findUnique({
+        const campaign = await prisma.campaigns.findUnique({
             where: { slug },
             select: { id: true }
         });
@@ -90,7 +91,7 @@ export async function DELETE(req: NextRequest, context: { params: Promise<{ slug
         }
 
         // Delete follow
-        await prisma.campaignFollower.deleteMany({
+        await prisma.campaign_followers.deleteMany({
             where: {
                 campaignId: campaign.id,
                 OR: [
@@ -125,7 +126,7 @@ export async function GET(req: NextRequest, context: { params: Promise<{ slug: s
         const email = searchParams.get("email");
 
         // Get campaign
-        const campaign = await prisma.campaign.findUnique({
+        const campaign = await prisma.campaigns.findUnique({
             where: { slug },
             select: { id: true }
         });
@@ -138,7 +139,7 @@ export async function GET(req: NextRequest, context: { params: Promise<{ slug: s
         }
 
         // Check if following
-        const isFollowing = await prisma.campaignFollower.findFirst({
+        const isFollowing = await prisma.campaign_followers.findFirst({
             where: {
                 campaignId: campaign.id,
                 OR: [
@@ -149,7 +150,7 @@ export async function GET(req: NextRequest, context: { params: Promise<{ slug: s
         });
 
         // Get total followers count
-        const followersCount = await prisma.campaignFollower.count({
+        const followersCount = await prisma.campaign_followers.count({
             where: { campaignId: campaign.id }
         });
 

@@ -16,7 +16,7 @@ export async function GET(
     const search = searchParams.get("search") || "";
     const tag = searchParams.get("tag") || "";
 
-    const campaign = await prisma.campaign.findFirst({
+    const campaign = await prisma.campaigns.findFirst({
       where: { OR: [{ slug }, { id: slug }] },
       select: { id: true }
     });
@@ -39,7 +39,7 @@ export async function GET(
       where.tags = { has: tag };
     }
 
-    const updates = await prisma.campaignUpdate.findMany({
+    const updates = await prisma.campaign_updates.findMany({
       where,
       orderBy: [
         { isPinned: "desc" }, // Ghim lên đầu
@@ -71,7 +71,7 @@ export async function POST(
     const { slug } = await context.params;
     const { title, content, imageUrl, tags, isPinned } = await req.json();
 
-    const campaign = await prisma.campaign.findFirst({
+    const campaign = await prisma.campaigns.findFirst({
       where: { OR: [{ slug }, { id: slug }] },
       select: { id: true, creatorId: true }
     });
@@ -85,8 +85,9 @@ export async function POST(
       return NextResponse.json({ error: "Bạn không có quyền đăng cập nhật cho dự án này" }, { status: 403 });
     }
 
-    const update = await prisma.campaignUpdate.create({
+    const update = await prisma.campaign_updates.create({
       data: {
+        id: crypto.randomUUID(),
         campaignId: campaign.id,
         title,
         content,

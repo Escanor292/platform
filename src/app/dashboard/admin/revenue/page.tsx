@@ -11,24 +11,24 @@ export default async function AdminRevenuePage() {
 
   // Thống kê doanh thu
   const [totalPledges, platformRevenue, successfulPledges, recentTransactions] = await Promise.all([
-    prisma.pledge.aggregate({
+    prisma.pledges.aggregate({
       _sum: { amount: true, totalAmount: true },
       _count: true
     }),
-    prisma.pledge.aggregate({
+    prisma.pledges.aggregate({
       _sum: { platformFee: true },
       where: { status: "SUCCESS" }
     }),
-    prisma.pledge.count({ where: { status: "SUCCESS" } }),
-    prisma.pledge.findMany({
+    prisma.pledges.count({ where: { status: "SUCCESS" } }),
+    prisma.pledges.findMany({
       take: 20,
       where: { status: "SUCCESS" },
       orderBy: { createdAt: "desc" },
       include: {
-        campaign: {
+        campaigns: {
           select: { title: true, campaignCode: true }
         },
-        user: {
+        users: {
           select: { name: true, email: true }
         }
       }
@@ -169,18 +169,18 @@ export default async function AdminRevenuePage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm font-bold text-gray-900 max-w-xs truncate">
-                        {tx.campaign.title}
+                        {tx.campaigns.title}
                       </div>
                       <div className="text-xs text-gray-400 font-mono">
-                        {tx.campaign.campaignCode}
+                        {tx.campaigns.campaignCode}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-bold text-gray-900">
-                        {tx.user?.name || "Ẩn danh"}
+                        {tx.users?.name || "Ẩn danh"}
                       </div>
                       <div className="text-xs text-gray-400">
-                        {tx.user?.email}
+                        {tx.users?.email}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">

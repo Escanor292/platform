@@ -30,7 +30,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ slug: 
         }
 
         // 3. Find campaign
-        const campaign = await prisma.campaign.findFirst({
+        const campaign = await prisma.campaigns.findFirst({
             where: { OR: [{ slug }, { id: slug }] },
             select: { id: true, title: true }
         });
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ slug: 
         }
 
         // 4. Check if user already reported this campaign
-        const existingReport = await prisma.campaignReport.findFirst({
+        const existingReport = await prisma.campaign_reports.findFirst({
             where: {
                 campaignId: campaign.id,
                 userId: userId
@@ -58,17 +58,19 @@ export async function POST(req: NextRequest, context: { params: Promise<{ slug: 
         }
 
         // 5. Create report
-        const report = await prisma.campaignReport.create({
+        const report = await prisma.campaign_reports.create({
             data: {
+                id: crypto.randomUUID(),
                 campaignId: campaign.id,
                 userId: userId,
                 reason,
                 description: description.trim(),
-                status: "PENDING"
+                status: "PENDING",
+                updatedAt: new Date()
             },
             include: {
-                user: { select: { name: true, email: true } },
-                campaign: { select: { title: true } }
+                users: { select: { name: true, email: true } },
+                campaigns: { select: { title: true } }
             }
         });
 
@@ -105,7 +107,7 @@ export async function GET(req: NextRequest, context: { params: Promise<{ slug: s
             );
         }
 
-        const campaign = await prisma.campaign.findFirst({
+        const campaign = await prisma.campaigns.findFirst({
             where: { OR: [{ slug }, { id: slug }] },
             select: { id: true }
         });
@@ -117,10 +119,10 @@ export async function GET(req: NextRequest, context: { params: Promise<{ slug: s
             );
         }
 
-        const reports = await prisma.campaignReport.findMany({
+        const reports = await prisma.campaign_reports.findMany({
             where: { campaignId: campaign.id },
             include: {
-                user: { select: { name: true, email: true, avatar: true } }
+                users: { select: { name: true, email: true, avatar: true } }
             },
             orderBy: { createdAt: "desc" }
         });

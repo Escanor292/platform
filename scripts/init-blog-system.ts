@@ -26,10 +26,13 @@ async function initBlogSystem() {
     ];
 
     for (const category of categories) {
-      await prisma.blogCategory.upsert({
+      await prisma.blog_categories.upsert({
         where: { slug: category.slug },
         update: {},
-        create: category,
+        create: {
+          ...category,
+          id: crypto.randomUUID(),
+        },
       });
     }
     console.log(`✅ Created ${categories.length} default categories\n`);

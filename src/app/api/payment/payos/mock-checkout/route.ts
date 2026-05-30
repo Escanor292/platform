@@ -13,15 +13,15 @@ export async function GET(request: NextRequest) {
 
     // Lấy thông tin pledge để biết url trả về campaign
     let returnUrl = `${process.env.NEXTAUTH_URL}/campaigns`;
-    
+
     if (pledgeId) {
         try {
-            const pledge = await prisma.pledge.findUnique({
+            const pledge = await prisma.pledges.findUnique({
                 where: { id: pledgeId },
-                include: { campaign: true }
+                include: { campaigns: true }
             });
-            if (pledge && pledge.campaign) {
-                returnUrl = `${process.env.NEXTAUTH_URL}/campaigns/${pledge.campaign.slug}`;
+            if (pledge && pledge.campaigns) {
+                returnUrl = `${process.env.NEXTAUTH_URL}/campaigns/${pledge.campaigns.slug}`;
             }
         } catch (e) {
             console.error("Error fetching pledge in mock checkout:", e);

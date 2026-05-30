@@ -9,10 +9,10 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug: 
   try {
     const { slug } = await context.params;
 
-    const campaign = await prisma.campaign.findFirst({
+    const campaign = await prisma.campaigns.findFirst({
       where: { OR: [{ id: slug }, { slug }] },
       include: {
-        creator: { select: { id: true, name: true, avatar: true } },
+        users: { select: { id: true, name: true, avatar: true } },
         rewards: { orderBy: { minAmount: "asc" } },
         pledges: {
           where: { isAnonymous: false },
@@ -25,9 +25,9 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug: 
           orderBy: { createdAt: "desc" },
           take: 10,
         },
-        linkedBlogs: {
+        campaign_blog_links: {
           include: {
-            blogPost: {
+            blog_posts: {
               select: {
                 id: true,
                 title: true,
@@ -38,7 +38,7 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug: 
                 viewCount: true,
                 likeCount: true,
                 commentCount: true,
-                author: {
+                users: {
                   select: {
                     id: true,
                     name: true,
@@ -53,7 +53,7 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug: 
         _count: {
           select: {
             pledges: true,
-            followers: true
+            campaign_followers: true
           }
         },
       },
@@ -82,7 +82,7 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ slug: s
     const { slug } = await context.params;
     const body = await req.json();
 
-    const campaign = await prisma.campaign.findUnique({ where: { slug } });
+    const campaign = await prisma.campaigns.findUnique({ where: { slug } });
     if (!campaign) {
       return NextResponse.json(
         { error: "Không tìm thấy campaign" },
@@ -91,7 +91,7 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ slug: s
     }
 
     // Update campaign data
-    const updated = await prisma.campaign.update({
+    const updated = await prisma.campaigns.update({
       where: { slug },
       data: {
         title: body.title,
@@ -110,13 +110,13 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ slug: s
     // Update blog links if provided
     if (body.linkedBlogIds !== undefined) {
       // Delete existing links
-      await prisma.campaignBlogLink.deleteMany({
+      await prisma.campaign_blog_links.deleteMany({
         where: { campaignId: campaign.id },
       });
 
       // Create new links
       if (Array.isArray(body.linkedBlogIds) && body.linkedBlogIds.length > 0) {
-        await prisma.campaignBlogLink.createMany({
+        await prisma.campaign_blog_links.createMany({
           data: body.linkedBlogIds.map((blogId: string, index: number) => ({
             campaignId: campaign.id,
             blogPostId: blogId,
@@ -141,7 +141,7 @@ export async function DELETE(_req: NextRequest, context: { params: Promise<{ slu
   try {
     const { slug } = await context.params;
 
-    const campaign = await prisma.campaign.findUnique({
+    const campaign = await prisma.campaigns.findUnique({
       where: { id: slug },
       include: { _count: { select: { pledges: true } } },
     });
@@ -160,7 +160,7 @@ export async function DELETE(_req: NextRequest, context: { params: Promise<{ slu
       );
     }
 
-    await prisma.campaign.delete({ where: { id: slug } });
+    await prisma.campaigns.delete({ where: { id: slug } });
     return NextResponse.json({ message: "Đã xóa campaign" });
   } catch (error) {
     console.error("[DELETE /api/campaigns/[id]]", error);

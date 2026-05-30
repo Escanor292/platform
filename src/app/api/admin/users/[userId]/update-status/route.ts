@@ -27,7 +27,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ userId
         }
 
         // Lấy thông tin user hiện tại
-        const user = await prisma.user.findUnique({
+        const user = await prisma.users.findUnique({
             where: { id: userId },
             select: { id: true, name: true, email: true, role: true, status: true }
         });
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ userId
         }
 
         // Update status
-        const updatedUser = await prisma.user.update({
+        const updatedUser = await prisma.users.update({
             where: { id: userId },
             data: { status },
             select: {

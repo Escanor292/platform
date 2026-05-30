@@ -9,10 +9,10 @@ export async function POST(request: Request) {
     const session = await auth();
     const user = session?.user;
     const body = await request.json();
-    const { 
-      amount, campaignId, 
+    const {
+      amount, campaignId,
       tipAmount = 0, vatAmount = 0,
-      guestEmail = null, displayName = null, 
+      guestEmail = null, displayName = null,
       isAnonymous = false, ipAddress = null
     } = body;
 
@@ -20,8 +20,9 @@ export async function POST(request: Request) {
     const transactionId = `VNPAY-${Date.now()}`;
 
     // 1. Tạo bản ghi Pledge (Trạng thái PENDING)
-    const pledge = await prisma.pledge.create({
+    const pledge = await prisma.pledges.create({
       data: {
+        id: crypto.randomUUID(),
         userId: user?.id || null,
         campaignId,
         amount,
@@ -35,6 +36,7 @@ export async function POST(request: Request) {
         paymentProvider: "VNPAY",
         transactionId: transactionId,
         status: "PENDING",
+        updatedAt: new Date(),
       }
     });
 
@@ -48,9 +50,9 @@ export async function POST(request: Request) {
       vnp_TxnRef: pledge.id,
     });
 
-    return NextResponse.json({ 
-        checkoutUrl: paymentUrl,
-        pledgeId: pledge.id 
+    return NextResponse.json({
+      checkoutUrl: paymentUrl,
+      pledgeId: pledge.id
     });
 
   } catch (error: any) {

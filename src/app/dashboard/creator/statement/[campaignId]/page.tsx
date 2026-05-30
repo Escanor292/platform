@@ -11,7 +11,7 @@ type Params = { params: Promise<{ campaignId: string }> };
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { campaignId } = await params;
 
-  const campaign = await prisma.campaign.findUnique({
+  const campaign = await prisma.campaigns.findUnique({
     where: { id: campaignId },
     select: { title: true, campaignCode: true }
   });
@@ -30,14 +30,14 @@ export default async function StatementPage({ params }: Params) {
     redirect("/auth/signin");
   }
 
-  const campaign = await prisma.campaign.findUnique({
+  const campaign = await prisma.campaigns.findUnique({
     where: { id: campaignId },
     include: {
       pledges: {
         where: { status: "SUCCESS" },
         orderBy: { createdAt: "desc" },
         include: {
-          user: {
+          users: {
             select: { name: true }
           }
         }
@@ -84,7 +84,7 @@ export default async function StatementPage({ params }: Params) {
             createdAt: p.createdAt,
             transactionId: p.transactionId,
             paymentProvider: p.paymentProvider,
-            user: p.user
+            user: p.users
           }))}
         />
       </div>

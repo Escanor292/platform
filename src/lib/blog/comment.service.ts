@@ -9,7 +9,7 @@ import { BlogCommentResponse } from '@/types/blog.types';
  * Get comments for a post
  */
 export async function getPostComments(postId: string): Promise<BlogCommentResponse[]> {
-  const comments = await prisma.blogComment.findMany({
+  const comments = await prisma.blog_comments.findMany({
     where: {
       postId,
       parentId: null, // Only root comments
@@ -17,29 +17,26 @@ export async function getPostComments(postId: string): Promise<BlogCommentRespon
       deletedAt: null,
     },
     include: {
-      user: {
+      users: {
         select: {
           id: true,
           name: true,
           avatar: true,
         },
       },
-      replies: {
+      blog_comments: {
         where: {
           status: 'VISIBLE',
           deletedAt: null,
         },
         include: {
-          user: {
+          users: {
             select: {
               id: true,
               name: true,
               avatar: true,
             },
           },
-        },
-        orderBy: {
-          createdAt: 'asc',
         },
       },
     },
@@ -61,7 +58,7 @@ export async function createComment(
   parentId?: string
 ): Promise<BlogCommentResponse> {
   // Validate post exists
-  const post = await prisma.blogPost.findUnique({
+  const post = await prisma.blog_posts.findUnique({
     where: { id: postId },
   });
 
@@ -71,7 +68,7 @@ export async function createComment(
 
   // Validate parent comment if provided
   if (parentId) {
-    const parentComment = await prisma.blogComment.findUnique({
+    const parentComment = await prisma.blog_comments.findUnique({
       where: { id: parentId },
     });
 
@@ -81,16 +78,18 @@ export async function createComment(
   }
 
   // Create comment
-  const comment = await prisma.blogComment.create({
+  const comment = await prisma.blog_comments.create({
     data: {
+      id: crypto.randomUUID(),
       postId,
       userId,
       content,
       parentId,
       status: 'VISIBLE',
+      updatedAt: new Date(),
     },
     include: {
-      user: {
+      users: {
         select: {
           id: true,
           name: true,
@@ -101,7 +100,7 @@ export async function createComment(
   });
 
   // Increment comment count
-  await prisma.blogPost.update({
+  await prisma.blog_posts.update({
     where: { id: postId },
     data: {
       commentCount: {
@@ -117,7 +116,7 @@ export async function createComment(
  * Delete a comment
  */
 export async function deleteComment(commentId: string, userId: string): Promise<void> {
-  const comment = await prisma.blogComment.findUnique({
+  const comment = await prisma.blog_comments.findUnique({
     where: { id: commentId },
     select: { userId: true, postId: true },
   });
@@ -126,7 +125,7 @@ export async function deleteComment(commentId: string, userId: string): Promise<
     throw new Error('Comment not found');
   }
 
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id: userId },
     select: { isAdmin: true },
   });
@@ -137,7 +136,7 @@ export async function deleteComment(commentId: string, userId: string): Promise<
   }
 
   // Soft delete
-  await prisma.blogComment.update({
+  await prisma.blog_comments.update({
     where: { id: commentId },
     data: {
       deletedAt: new Date(),
@@ -146,7 +145,7 @@ export async function deleteComment(commentId: string, userId: string): Promise<
   });
 
   // Decrement comment count
-  await prisma.blogPost.update({
+  await prisma.blog_posts.update({
     where: { id: comment.postId },
     data: {
       commentCount: {
@@ -164,7 +163,7 @@ export async function updateCommentStatus(
   userId: string,
   status: 'VISIBLE' | 'HIDDEN' | 'PENDING_REVIEW'
 ): Promise<void> {
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id: userId },
     select: { isAdmin: true },
   });
@@ -173,7 +172,7 @@ export async function updateCommentStatus(
     throw new Error('Only admins can update comment status');
   }
 
-  await prisma.blogComment.update({
+  await prisma.blog_comments.update({
     where: { id: commentId },
     data: { status },
   });

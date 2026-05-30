@@ -26,10 +26,10 @@ export async function GET(req: NextRequest) {
         }
 
         // Get all reports with campaign and user info
-        const reports = await prisma.campaignReport.findMany({
+        const reports = await prisma.campaign_reports.findMany({
             include: {
-                campaign: { select: { id: true, title: true, slug: true } },
-                user: { select: { name: true, email: true } }
+                campaigns: { select: { id: true, title: true, slug: true } },
+                users: { select: { name: true, email: true } }
             },
             orderBy: [
                 { status: "asc" }, // PENDING first

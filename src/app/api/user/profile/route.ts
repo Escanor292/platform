@@ -13,10 +13,10 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { email: session.user.email },
       include: {
-        kycInfo: true,
+        kyc_info: true,
       },
     });
 

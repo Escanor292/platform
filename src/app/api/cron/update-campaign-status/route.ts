@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     const now = new Date();
 
     // 1. Tìm các chiến dịch ACTIVE đã quá ngày endDate
-    const expiredCampaigns = await prisma.campaign.findMany({
+    const expiredCampaigns = await prisma.campaigns.findMany({
       where: {
         status: "ACTIVE",
         endDate: { lt: now }
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
        // Nếu không đạt -> FAILED (Sẽ kích hoạt hoàn tiền)
        const isSuccess = campaign.currentAmount >= campaign.goalAmount;
        
-       await prisma.campaign.update({
+       await prisma.campaigns.update({
           where: { id: campaign.id },
           data: {
              status: isSuccess ? "SUCCESS" : "FAILED"

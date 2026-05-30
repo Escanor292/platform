@@ -7,7 +7,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    const categories = await prisma.blogCategory.findMany({
+    const categories = await prisma.blog_categories.findMany({
       orderBy: { name: 'asc' },
     });
 

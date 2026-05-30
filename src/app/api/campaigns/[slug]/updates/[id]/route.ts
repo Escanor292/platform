@@ -20,10 +20,10 @@ export async function PUT(
         const { title, content, imageUrl, tags, isPinned } = await req.json();
 
         // Kiểm tra update có tồn tại và thuộc campaign này không
-        const update = await prisma.campaignUpdate.findUnique({
+        const update = await prisma.campaign_updates.findUnique({
             where: { id },
             include: {
-                campaign: {
+                campaigns: {
                     select: { id: true, creatorId: true, slug: true }
                 }
             }
@@ -34,16 +34,16 @@ export async function PUT(
         }
 
         // Kiểm tra slug có khớp không
-        if (update.campaign.slug !== slug && update.campaign.id !== slug) {
+        if (update.campaigns.slug !== slug && update.campaigns.id !== slug) {
             return NextResponse.json({ error: "Update does not belong to this campaign" }, { status: 400 });
         }
 
         // Kiểm tra quyền (phải là chủ dự án)
-        if (update.campaign.creatorId !== (session.user as any).id) {
+        if (update.campaigns.creatorId !== (session.user as any).id) {
             return NextResponse.json({ error: "Bạn không có quyền chỉnh sửa cập nhật này" }, { status: 403 });
         }
 
-        const updatedUpdate = await prisma.campaignUpdate.update({
+        const updatedUpdate = await prisma.campaign_updates.update({
             where: { id },
             data: {
                 title,
@@ -78,10 +78,10 @@ export async function DELETE(
         const { slug, id } = await context.params;
 
         // Kiểm tra update có tồn tại và thuộc campaign này không
-        const update = await prisma.campaignUpdate.findUnique({
+        const update = await prisma.campaign_updates.findUnique({
             where: { id },
             include: {
-                campaign: {
+                campaigns: {
                     select: { id: true, creatorId: true, slug: true }
                 }
             }
@@ -92,16 +92,16 @@ export async function DELETE(
         }
 
         // Kiểm tra slug có khớp không
-        if (update.campaign.slug !== slug && update.campaign.id !== slug) {
+        if (update.campaigns.slug !== slug && update.campaigns.id !== slug) {
             return NextResponse.json({ error: "Update does not belong to this campaign" }, { status: 400 });
         }
 
         // Kiểm tra quyền (phải là chủ dự án)
-        if (update.campaign.creatorId !== (session.user as any).id) {
+        if (update.campaigns.creatorId !== (session.user as any).id) {
             return NextResponse.json({ error: "Bạn không có quyền xóa cập nhật này" }, { status: 403 });
         }
 
-        await prisma.campaignUpdate.delete({
+        await prisma.campaign_updates.delete({
             where: { id }
         });
 

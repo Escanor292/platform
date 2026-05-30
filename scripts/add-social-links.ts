@@ -6,7 +6,7 @@ async function main() {
   const email = "test2@gmail.com";
 
   // Tìm user
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { email },
   });
 
@@ -62,7 +62,7 @@ async function main() {
   ];
 
   // Cập nhật user với social links
-  const updated = await prisma.user.update({
+  const updated = await prisma.users.update({
     where: { id: user.id },
     data: {
       socialLinks: socialLinks,

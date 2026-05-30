@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status") || "ACTIVE";
     const q = searchParams.get("q");
 
-    const campaigns = await prisma.campaign.findMany({
+    const campaigns = await prisma.campaigns.findMany({
       where: {
         status: status as any,
         category: category || undefined,
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
         ] : undefined
       },
       include: {
-        creator: { select: { name: true, avatar: true } }
+        users: { select: { name: true, avatar: true } }
       },
       orderBy: { createdAt: "desc" }
     });
@@ -71,8 +71,9 @@ export async function POST(req: NextRequest) {
     // Tạo campaign ID duy nhất
     const campaignCode = await generateUniqueCampaignCode();
 
-    const campaign = await prisma.campaign.create({
+    const campaign = await prisma.campaigns.create({
       data: {
+        id: crypto.randomUUID(),
         title,
         description: tagline,
         longDescription: description,
@@ -86,14 +87,21 @@ export async function POST(req: NextRequest) {
         creatorId: (session.user as any).id,
         currentAmount: 0,
         status: "DRAFT",
-        campaignCode
+        campaignCode,
+        updatedAt: new Date(),
+        users: {
+          connect: {
+            id: (session.user as any).id,
+          },
+        },
       }
     });
 
     // Create blog links if provided
     if (linkedBlogIds && Array.isArray(linkedBlogIds) && linkedBlogIds.length > 0) {
-      await prisma.campaignBlogLink.createMany({
+      await prisma.campaign_blog_links.createMany({
         data: linkedBlogIds.map((blogId: string, index: number) => ({
+          id: crypto.randomUUID(),
           campaignId: campaign.id,
           blogPostId: blogId,
           order: index,

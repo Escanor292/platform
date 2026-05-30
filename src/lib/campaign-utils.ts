@@ -18,7 +18,7 @@ export async function generateUniqueCampaignCode(): Promise<string> {
     const campaignCode = `CF-${dateStr}-${randomStr}`;
     
     // Kiểm tra xem code đã tồn tại chưa
-    const existing = await prisma.campaign.findUnique({
+    const existing = await prisma.campaigns.findUnique({
       where: { campaignCode }
     });
     

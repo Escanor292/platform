@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
 
     if (responseCode === "00" && result.isVerified) {
       // 1. Cập nhật trạng thái Pledge
-      const pledge = await prisma.pledge.update({
+      const pledge = await prisma.pledges.update({
         where: { id: pledgeId },
         data: { status: "SUCCESS" },
       });
@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
       );
     } else {
       // Thanh toán thất bại
-      await prisma.pledge.update({
+      await prisma.pledges.update({
         where: { id: pledgeId },
         data: { status: "FAILED" },
       });
@@ -65,12 +65,12 @@ export async function POST(req: NextRequest) {
        // Ở đây chúng ta cần tìm pledge dựa trên transactionId hoặc orderCode
        // Phụ thuộc vào cách chúng ta map ở Create Route.
        // Giả sử chúng ta tìm qua transactionId:
-       const pledge = await prisma.pledge.findFirst({
+       const pledge = await prisma.pledges.findFirst({
          where: { transactionId: `PAYOS-${body.orderCode}` } 
        });
 
        if (pledge) {
-          await prisma.pledge.update({
+          await prisma.pledges.update({
             where: { id: pledge.id },
             data: { status: "SUCCESS" }
           });

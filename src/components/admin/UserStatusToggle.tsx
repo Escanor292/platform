@@ -58,7 +58,7 @@ export default function UserStatusToggle({
                 throw new Error(data.error || "Có lỗi xảy ra");
             }
 
-            setCurrentStatus(data.user.status);
+            setCurrentStatus(data.users.status);
             toast.success(data.message);
 
             if (onSuccess) {

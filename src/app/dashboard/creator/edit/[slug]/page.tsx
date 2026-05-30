@@ -18,13 +18,13 @@ export default async function EditCampaignPage({ params }: EditCampaignPageProps
   const currentUser = session.user as any;
 
   // Lấy campaign theo slug
-  const campaign = await prisma.campaign.findUnique({
+  const campaign = await prisma.campaigns.findUnique({
     where: { slug },
     include: {
       rewards: true,
-      linkedBlogs: {
+      campaign_blog_links: {
         include: {
-          blogPost: {
+          blog_posts: {
             select: {
               id: true,
               title: true,
@@ -57,7 +57,7 @@ export default async function EditCampaignPage({ params }: EditCampaignPageProps
     feeRate: Number(campaign.feeRate),
     images: campaign.images || [], // Ensure images is always an array
     tags: campaign.tags || [], // Ensure tags is always an array
-    linkedBlogIds: campaign.linkedBlogs?.map(link => link.blogPostId) || [], // Extract blog IDs
+    linkedBlogIds: campaign.campaign_blog_links?.map(link => link.blogPostId) || [], // Extract blog IDs
     rewards: campaign.rewards.map(reward => ({
       ...reward,
       minAmount: Number(reward.minAmount),

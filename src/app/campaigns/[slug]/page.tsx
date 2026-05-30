@@ -20,20 +20,20 @@ export default async function CampaignDetailPage({ params }: Params) {
    const { slug } = await params;
    const session = await auth();
 
-   const campaign = await prisma.campaign.findFirst({
+   const campaign = await prisma.campaigns.findFirst({
       where: { OR: [{ slug }, { id: slug }] },
       include: {
-         creator: { select: { id: true, name: true, avatar: true, status: true } },
+         users: { select: { id: true, name: true, avatar: true, status: true } },
          rewards: { orderBy: { minAmount: "asc" } },
          pledges: {
             where: { status: "SUCCESS" },
             orderBy: { createdAt: "desc" },
             take: 5,
-            include: { user: { select: { id: true, name: true, avatar: true } } }
+            include: { users: { select: { id: true, name: true, avatar: true } } }
          },
-         linkedBlogs: {
+         campaign_blog_links: {
             include: {
-               blogPost: {
+               blog_posts: {
                   select: {
                      id: true,
                      title: true,
@@ -44,7 +44,7 @@ export default async function CampaignDetailPage({ params }: Params) {
                      viewCount: true,
                      likeCount: true,
                      commentCount: true,
-                     author: {
+                     users: {
                         select: {
                            id: true,
                            name: true,
@@ -59,7 +59,7 @@ export default async function CampaignDetailPage({ params }: Params) {
          _count: {
             select: {
                pledges: { where: { status: "SUCCESS" } },
-               followers: true
+               campaign_followers: true
             },
          },
       },
@@ -106,12 +106,12 @@ export default async function CampaignDetailPage({ params }: Params) {
          updatedAt: pledge.updatedAt.toISOString(),
          refundedAt: pledge.refundedAt?.toISOString() || null,
       })),
-      linkedBlogs: campaign.linkedBlogs?.map(link => ({
+      linkedBlogs: campaign.campaign_blog_links?.map(link => ({
          ...link,
          createdAt: link.createdAt.toISOString(),
          blogPost: {
-            ...link.blogPost,
-            publishedAt: link.blogPost.publishedAt?.toISOString() || null,
+            ...link.blog_posts,
+            publishedAt: link.blog_posts.publishedAt?.toISOString() || null,
          },
       })) || [],
    };
@@ -188,13 +188,13 @@ export default async function CampaignDetailPage({ params }: Params) {
                                  <div className="flex items-center gap-2">
                                     <span className="text-xs text-gray-500 font-semibold">By</span>
                                     <CreatorLink
-                                       creatorId={campaign.creator?.id || ""}
-                                       creatorName={campaign.creator?.name || "Anonymous"}
-                                       creatorAvatar={campaign.creator?.avatar}
+                                       creatorId={campaign.users?.id || ""}
+                                       creatorName={campaign.users?.name || "Anonymous"}
+                                       creatorAvatar={campaign.users?.avatar}
                                     />
                                  </div>
 
-                                 {campaign.creator?.status === "PRO" && (
+                                 {campaign.users?.status === "PRO" && (
                                     <div className="flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-100">
                                        <Zap size={12} className="fill-emerald-500 text-emerald-500" />
                                        <span className="text-[10px] font-black uppercase tracking-wider">Pro Creator</span>
@@ -256,7 +256,7 @@ export default async function CampaignDetailPage({ params }: Params) {
                                  campaignTitle={campaign.title}
                                  rewards={serializedCampaign.rewards || []}
                                  creatorId={campaign.creatorId}
-                                 creatorName={campaign.creator.name}
+                                 creatorName={campaign.users.name}
                                  campaignStatus={campaign.status}
                               />
 

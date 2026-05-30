@@ -18,16 +18,16 @@ export default async function EditRewardPage({ params }: PageProps) {
 
     const { slug, rewardId } = await params;
 
-    const reward = await prisma.reward.findFirst({
+    const reward = await prisma.rewards.findFirst({
         where: {
             id: rewardId,
-            campaign: {
+            campaigns: {
                 slug,
                 creatorId: (session.user as any).id,
             },
         },
         include: {
-            campaign: {
+            campaigns: {
                 select: {
                     id: true,
                     slug: true,
@@ -58,7 +58,7 @@ export default async function EditRewardPage({ params }: PageProps) {
         deliveryDate: reward.deliveryDate?.toISOString().split('T')[0] || null,
         isActive: reward.isActive,
         _count: reward._count,
-        campaign: reward.campaign,
+        campaign: reward.campaigns,
     };
 
     return (
@@ -68,7 +68,7 @@ export default async function EditRewardPage({ params }: PageProps) {
                 {/* Header */}
                 <div className="flex items-center gap-4 mb-8">
                     <Link
-                        href={`/dashboard/creator/rewards/${reward.campaign.slug}`}
+                        href={`/dashboard/creator/rewards/${reward.campaigns.slug}`}
                         className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center hover:bg-gray-100 transition border border-gray-200"
                     >
                         <ArrowLeft size={20} />
@@ -76,7 +76,7 @@ export default async function EditRewardPage({ params }: PageProps) {
                     <div>
                         <h1 className="text-4xl font-black text-gray-900">Chỉnh sửa quà tặng</h1>
                         <p className="text-gray-400 font-medium">
-                            {reward.campaign.title} • #{reward.campaign.campaignCode}
+                            {reward.campaigns.title} • #{reward.campaigns.campaignCode}
                         </p>
                     </div>
                 </div>

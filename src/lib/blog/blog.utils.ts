@@ -22,7 +22,7 @@ export async function generateUniqueSlug(title: string): Promise<string> {
   let counter = 1;
 
   while (true) {
-    const existing = await prisma.blogPost.findUnique({
+    const existing = await prisma.blog_posts.findUnique({
       where: { slug },
     });
 

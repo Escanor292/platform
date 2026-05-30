@@ -1,7 +1,7 @@
 import prisma from '../src/lib/prisma';
 
 async function checkRegularCreators() {
-    const creators = await prisma.user.findMany({
+    const creators = await prisma.users.findMany({
         where: {
             role: 'CREATOR',
             status: 'NORMAL',

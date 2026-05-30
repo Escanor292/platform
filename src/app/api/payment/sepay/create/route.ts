@@ -23,8 +23,9 @@ export async function POST(request: Request) {
     const transactionId = `SEPAY-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
     // 1. Tạo bản ghi Pledge (Trạng thái PENDING)
-    const pledge = await prisma.pledge.create({
+    const pledge = await prisma.pledges.create({
       data: {
+        id: crypto.randomUUID(),
         userId: user?.id || null,
         campaignId,
         amount,
@@ -40,6 +41,7 @@ export async function POST(request: Request) {
         paymentProvider: "SEPAY",
         transactionId: transactionId,
         status: "PENDING",
+        updatedAt: new Date(),
       },
     });
 

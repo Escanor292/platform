@@ -9,10 +9,10 @@ export default async function AdminCampaignsPage() {
   const session = await auth();
   if (!session?.user || (session.user as any).role !== "ADMIN") redirect("/");
 
-  const campaigns = await prisma.campaign.findMany({
+  const campaigns = await prisma.campaigns.findMany({
     orderBy: { createdAt: "desc" },
     include: {
-      creator: {
+      users: {
         select: { name: true, email: true }
       },
       _count: {
@@ -50,7 +50,7 @@ export default async function AdminCampaignsPage() {
   return (
     <div className="min-h-screen bg-slate-50/50 py-24 px-6">
       <div className="max-w-7xl mx-auto space-y-8">
-        
+
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link href="/dashboard/admin" className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center hover:bg-gray-100 transition border border-gray-200">
@@ -118,13 +118,13 @@ export default async function AdminCampaignsPage() {
                 {campaigns.map((campaign) => {
                   const StatusIcon = getStatusIcon(campaign.status);
                   const progress = Math.min(100, Math.round((Number(campaign.currentAmount) / Number(campaign.goalAmount)) * 100));
-                  
+
                   return (
                     <tr key={campaign.id} className="hover:bg-gray-50 transition">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <img 
-                            src={campaign.imageUrl || "/placeholder.jpg"} 
+                          <img
+                            src={campaign.imageUrl || "/placeholder.jpg"}
                             alt={campaign.title}
                             className="w-12 h-12 rounded-xl object-cover"
                           />
@@ -140,10 +140,10 @@ export default async function AdminCampaignsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-bold text-gray-900">
-                          {campaign.creator.name || "Chưa đặt tên"}
+                          {campaign.users.name || "Chưa đặt tên"}
                         </div>
                         <div className="text-xs text-gray-400">
-                          {campaign.creator.email}
+                          {campaign.users.email}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -170,7 +170,7 @@ export default async function AdminCampaignsPage() {
                         {new Date(campaign.createdAt).toLocaleDateString("vi-VN")}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <Link 
+                        <Link
                           href={`/campaigns/${campaign.slug}`}
                           className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-100 transition"
                         >

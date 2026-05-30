@@ -18,7 +18,7 @@ export async function PATCH(
     }
 
     // Check admin
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: session.user.id },
       select: { isAdmin: true },
     });
@@ -40,7 +40,7 @@ export async function PATCH(
       );
     }
 
-    const post = await prisma.blogPost.update({
+    const post = await prisma.blog_posts.update({
       where: { id },
       data: {
         status,

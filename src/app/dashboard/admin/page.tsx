@@ -33,25 +33,25 @@ export default async function AdminDashboard() {
     recentUsers,
     recentCampaigns
   ] = await Promise.all([
-    prisma.user.count(),
-    prisma.campaign.count(),
-    prisma.campaign.count({ where: { status: "PENDING_REVIEW" } }),
-    prisma.campaign.count({ where: { status: "ACTIVE" } }),
-    prisma.campaign.count({ where: { status: "SUCCESS" } }),
-    prisma.pledge.aggregate({ _sum: { amount: true } }),
-    prisma.pledge.aggregate({ 
+    prisma.users.count(),
+    prisma.campaigns.count(),
+    prisma.campaigns.count({ where: { status: "PENDING_REVIEW" } }),
+    prisma.campaigns.count({ where: { status: "ACTIVE" } }),
+    prisma.campaigns.count({ where: { status: "SUCCESS" } }),
+    prisma.pledges.aggregate({ _sum: { amount: true } }),
+    prisma.pledges.aggregate({ 
       _sum: { platformFee: true },
       where: { status: "SUCCESS" }
     }),
-    prisma.user.findMany({
+    prisma.users.findMany({
       take: 5,
       orderBy: { createdAt: "desc" },
       select: { id: true, name: true, email: true, role: true, createdAt: true }
     }),
-    prisma.campaign.findMany({
+    prisma.campaigns.findMany({
       take: 5,
       orderBy: { createdAt: "desc" },
-      include: { creator: { select: { name: true, email: true } } }
+      include: { users: { select: { name: true, email: true } } }
     })
   ]);
 
@@ -211,7 +211,7 @@ export default async function AdminDashboard() {
                 <div key={campaign.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition">
                   <div className="flex-1">
                     <div className="font-bold text-gray-900 truncate">{campaign.title}</div>
-                    <div className="text-xs text-gray-400">Bởi {campaign.creator.name}</div>
+                    <div className="text-xs text-gray-400">Bởi {campaign.users.name}</div>
                   </div>
                   <div className="text-right ml-4">
                     <div className={`text-[9px] font-black uppercase px-2 py-1 rounded whitespace-nowrap ${

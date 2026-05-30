@@ -2,7 +2,7 @@
 import { prisma } from '../src/lib/prisma';
 
 async function main() {
-  const result = await prisma.blogPost.updateMany({
+  const result = await prisma.blog_posts.updateMany({
     where: {
       status: 'PENDING_REVIEW'
     },

@@ -1,16 +1,16 @@
-import type { User } from '@prisma/client';
+import type { users } from '@prisma/client';
 
 /**
  * Check if user is admin
  */
-export function isAdmin(user: User | null | undefined): boolean {
+export function isAdmin(user: users | null | undefined): boolean {
   return user?.isAdmin === true;
 }
 
 /**
  * Require admin role
  */
-export function requireAdmin(user: User | null | undefined): void {
+export function requireAdmin(user: users | null | undefined): void {
   if (!isAdmin(user)) {
     throw new Error('Admin access required');
   }
@@ -19,28 +19,28 @@ export function requireAdmin(user: User | null | undefined): void {
 /**
  * Check if user can manage badges
  */
-export function canManageBadges(user: User | null | undefined): boolean {
+export function canManageBadges(user: users | null | undefined): boolean {
   return isAdmin(user);
 }
 
 /**
  * Check if user can assign badges
  */
-export function canAssignBadges(user: User | null | undefined): boolean {
+export function canAssignBadges(user: users | null | undefined): boolean {
   return isAdmin(user);
 }
 
 /**
  * Check if user can revoke badges
  */
-export function canRevokeBadges(user: User | null | undefined): boolean {
+export function canRevokeBadges(user: users | null | undefined): boolean {
   return isAdmin(user);
 }
 
 /**
  * Check if user can view badge details
  */
-export function canViewBadgeDetails(user: User | null | undefined): boolean {
+export function canViewBadgeDetails(user: users | null | undefined): boolean {
   // Anyone can view public badge details
   return true;
 }
@@ -49,7 +49,7 @@ export function canViewBadgeDetails(user: User | null | undefined): boolean {
  * Check if user can view user's badges
  */
 export function canViewUserBadges(
-  viewer: User | null | undefined,
+  viewer: users | null | undefined,
   targetUserId: string
 ): boolean {
   // Anyone can view public badges

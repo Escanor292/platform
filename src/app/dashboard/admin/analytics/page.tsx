@@ -24,8 +24,8 @@ export default async function AdminAnalyticsPage() {
     topCampaigns,
     topBackers
   ] = await Promise.all([
-    prisma.user.count({ where: { createdAt: { gte: currentMonth } } }),
-    prisma.user.count({
+    prisma.users.count({ where: { createdAt: { gte: currentMonth } } }),
+    prisma.users.count({
       where: {
         createdAt: {
           gte: lastMonth,
@@ -33,8 +33,8 @@ export default async function AdminAnalyticsPage() {
         }
       }
     }),
-    prisma.campaign.count({ where: { createdAt: { gte: currentMonth } } }),
-    prisma.campaign.count({
+    prisma.campaigns.count({ where: { createdAt: { gte: currentMonth } } }),
+    prisma.campaigns.count({
       where: {
         createdAt: {
           gte: lastMonth,
@@ -42,11 +42,11 @@ export default async function AdminAnalyticsPage() {
         }
       }
     }),
-    prisma.pledge.aggregate({
+    prisma.pledges.aggregate({
       _sum: { amount: true },
       where: { createdAt: { gte: currentMonth }, status: "SUCCESS" }
     }),
-    prisma.pledge.aggregate({
+    prisma.pledges.aggregate({
       _sum: { amount: true },
       where: {
         createdAt: {
@@ -56,15 +56,15 @@ export default async function AdminAnalyticsPage() {
         status: "SUCCESS"
       }
     }),
-    prisma.campaign.findMany({
+    prisma.campaigns.findMany({
       take: 10,
       orderBy: { currentAmount: "desc" },
       include: {
-        creator: { select: { name: true } },
+        users: { select: { name: true } },
         _count: { select: { pledges: true } }
       }
     }),
-    prisma.user.findMany({
+    prisma.users.findMany({
       take: 10,
       include: {
         _count: { select: { pledges: true } },
@@ -166,7 +166,7 @@ export default async function AdminAnalyticsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="font-bold text-gray-900 truncate">{campaign.title}</div>
                     <div className="text-xs text-gray-400">
-                      {campaign._count.pledges} backers • {campaign.creator.name}
+                      {campaign._count.pledges} backers • {campaign.users.name}
                     </div>
                   </div>
                   <div className="text-right">

@@ -19,10 +19,10 @@ export async function GET(request: NextRequest, context: { params: Promise<{ ple
     }
 
     // Tìm pledge trong database
-    const pledge = await prisma.pledge.findUnique({
+    const pledge = await prisma.pledges.findUnique({
       where: { id: pledgeId },
       include: {
-        campaign: {
+        campaigns: {
           select: {
             id: true,
             title: true,
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ ple
         createdAt: pledge.createdAt,
         updatedAt: pledge.updatedAt,
       },
-      campaign: pledge.campaign,
+      campaign: pledge.campaigns,
       isPending: pledge.status === "PENDING",
       isSuccess: pledge.status === "SUCCESS",
       isFailed: pledge.status === "FAILED",

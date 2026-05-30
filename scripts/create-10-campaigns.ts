@@ -4,10 +4,10 @@ const prisma = new PrismaClient();
 
 async function main() {
   const testEmail = 'test2@gmail.com';
-  
+
   console.log('🔍 Checking if test2@gmail.com exists...');
-  
-  const user = await prisma.user.findUnique({
+
+  const user = await prisma.users.findUnique({
     where: { email: testEmail }
   });
 
@@ -192,10 +192,12 @@ async function main() {
 
   for (const campaignData of campaigns) {
     console.log(`  Creating: ${campaignData.title}`);
-    await prisma.campaign.create({
+    await prisma.campaigns.create({
       data: {
         ...campaignData,
-        creatorId: user.id
+        creatorId: user.id,
+        id: crypto.randomUUID(),
+        updatedAt: new Date()
       }
     });
   }

@@ -10,7 +10,7 @@ export default async function ProfileEditRedirect() {
   }
 
   // Lấy user từ database để có ID
-  const dbUser = await prisma.user.findUnique({
+  const dbUser = await prisma.users.findUnique({
     where: { email: session.user.email! },
     select: { id: true }
   });

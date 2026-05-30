@@ -23,7 +23,7 @@ export async function GET() {
         }
 
         // Get total funds raised (sum of successful pledges)
-        const totalFundsResult = await prisma.pledge.aggregate({
+        const totalFundsResult = await prisma.pledges.aggregate({
             where: {
                 status: 'SUCCESS'
             },
@@ -33,14 +33,14 @@ export async function GET() {
         });
 
         // Get successful campaigns count
-        const successfulCampaigns = await prisma.campaign.count({
+        const successfulCampaigns = await prisma.campaigns.count({
             where: {
                 status: 'SUCCESS'
             }
         });
 
         // Get total unique backers (count distinct users who made successful pledges)
-        const totalBackers = await prisma.pledge.findMany({
+        const totalBackers = await prisma.pledges.findMany({
             where: {
                 status: 'SUCCESS'
             },
@@ -62,7 +62,7 @@ export async function GET() {
         });
 
         // Get active campaigns count
-        const activeCampaigns = await prisma.campaign.count({
+        const activeCampaigns = await prisma.campaigns.count({
             where: {
                 status: 'ACTIVE'
             }
@@ -82,7 +82,7 @@ export async function GET() {
         }
 
         // Calculate transparency rate (successful campaigns / total campaigns)
-        const totalCampaigns = await prisma.campaign.count();
+        const totalCampaigns = await prisma.campaigns.count();
         const transparencyRate = totalCampaigns > 0
             ? ((successfulCampaigns / totalCampaigns) * 100).toFixed(1)
             : '0.0';

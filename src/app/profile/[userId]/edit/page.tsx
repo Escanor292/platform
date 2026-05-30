@@ -18,7 +18,7 @@ export default async function EditProfilePage({ params }: EditProfilePageProps) 
   const currentUser = session.user as any;
 
   // Lấy user từ database
-  const dbUser = await prisma.user.findUnique({
+  const dbUser = await prisma.users.findUnique({
     where: { email: currentUser.email },
     select: { id: true }
   });
@@ -29,7 +29,7 @@ export default async function EditProfilePage({ params }: EditProfilePageProps) 
   }
 
   // Lấy thông tin user để edit
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id: userId }
   });
 

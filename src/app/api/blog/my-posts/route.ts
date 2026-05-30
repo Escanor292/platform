@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
             where.status = status;
         }
 
-        const posts = await prisma.blogPost.findMany({
+        const posts = await prisma.blog_posts.findMany({
             where,
             select: {
                 id: true,

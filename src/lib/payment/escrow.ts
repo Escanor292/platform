@@ -7,7 +7,7 @@ import prisma from "@/lib/prisma";
 export async function releaseEscrow(campaignId: string) {
   try {
     // 1. Tính tổng số tiền từ các pledge thành công
-    const result = await prisma.pledge.aggregate({
+    const result = await prisma.pledges.aggregate({
       where: {
         campaignId,
         status: "SUCCESS",
@@ -20,7 +20,7 @@ export async function releaseEscrow(campaignId: string) {
     const totalRaised = Number(result._sum.amount || 0);
 
     // 2. Cập nhật vào bản ghi Campaign
-    const campaign = await prisma.campaign.update({
+    const campaign = await prisma.campaigns.update({
       where: { id: campaignId },
       data: { currentAmount: totalRaised },
     });

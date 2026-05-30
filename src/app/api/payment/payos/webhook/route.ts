@@ -72,12 +72,12 @@ export async function POST(request: NextRequest) {
     // ============================================================
     // 3. FIND PLEDGE BY ORDER CODE
     // ============================================================
-    const pledge = await prisma.pledge.findFirst({
+    const pledge = await prisma.pledges.findFirst({
       where: {
         payosOrderCode: orderCode.toString(),
         paymentProvider: "PAYOS",
       },
-      include: { campaign: true, user: true },
+      include: { campaigns: true, users: true },
     });
 
     if (!pledge) {
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
       console.log(`[PAYOS WEBHOOK ${requestId}] Processing successful payment`);
 
       // Update pledge
-      await prisma.pledge.update({
+      await prisma.pledges.update({
         where: { id: pledge.id },
         data: {
           status: "SUCCESS",
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
       });
 
       // Update campaign amount
-      await prisma.campaign.update({
+      await prisma.campaigns.update({
         where: { id: pledge.campaignId },
         data: {
           currentAmount: {
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
       });
 
       // Check if campaign reached goal
-      const updatedCampaign = await prisma.campaign.findUnique({
+      const updatedCampaign = await prisma.campaigns.findUnique({
         where: { id: pledge.campaignId },
       });
 
@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
         Number(updatedCampaign.currentAmount) >= Number(updatedCampaign.goalAmount) &&
         updatedCampaign.status === "ACTIVE"
       ) {
-        await prisma.campaign.update({
+        await prisma.campaigns.update({
           where: { id: pledge.campaignId },
           data: { status: "SUCCESS" },
         });
@@ -196,7 +196,7 @@ export async function POST(request: NextRequest) {
       // ========== PAYMENT FAILED ==========
       console.log(`[PAYOS WEBHOOK ${requestId}] Processing failed payment: ${code} - ${desc}`);
 
-      await prisma.pledge.update({
+      await prisma.pledges.update({
         where: { id: pledge.id },
         data: {
           status: "FAILED",

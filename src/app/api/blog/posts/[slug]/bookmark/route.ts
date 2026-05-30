@@ -22,7 +22,7 @@ export async function POST(
     const { slug } = params;
 
     // Get post ID from slug
-    const post = await prisma.blogPost.findUnique({
+    const post = await prisma.blog_posts.findUnique({
       where: { slug },
       select: { id: true },
     });

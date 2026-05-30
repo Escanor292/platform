@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Lấy thông tin user hiện tại từ PostgreSQL
-    const currentUser = await prisma.user.findUnique({
+    const currentUser = await prisma.users.findUnique({
       where: { email: session.user.email },
     });
 
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Kiểm tra user đích có tồn tại không
-    const targetUser = await prisma.user.findUnique({
+    const targetUser = await prisma.users.findUnique({
       where: { id: participantId },
     });
 

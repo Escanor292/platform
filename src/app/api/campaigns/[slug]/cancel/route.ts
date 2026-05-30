@@ -18,9 +18,9 @@ export async function POST(
     const { reason } = await request.json().catch(() => ({ reason: "Creator hủy dự án" }));
 
     // Tìm dự án theo ID (do dashboard ID)
-    const campaign = await prisma.campaign.findUnique({
+    const campaign = await prisma.campaigns.findUnique({
       where: { id: campaignId },
-      include: { creator: true }
+      include: { users: true }
     });
 
     if (!campaign) return NextResponse.json({ error: "Dự án không tồn tại" }, { status: 404 });
@@ -37,7 +37,7 @@ export async function POST(
     }
 
     // === Bắt đầu quá trình hủy & hoàn tiền ===
-    const successPledges = await prisma.pledge.findMany({
+    const successPledges = await prisma.pledges.findMany({
       where: {
         campaignId,
         status: "SUCCESS",
@@ -49,7 +49,7 @@ export async function POST(
 
     for (const pledge of successPledges) {
       try {
-        await prisma.pledge.update({
+        await prisma.pledges.update({
           where: { id: pledge.id },
           data: { refundStatus: "PROCESSING" }
         });
@@ -62,7 +62,7 @@ export async function POST(
 
     const totalRefundAmount = successPledges.reduce((sum: number, p: any) => sum + Number(p.totalAmount), 0);
 
-    await prisma.campaign.update({
+    await prisma.campaigns.update({
       where: { id: campaignId },
       data: {
         status: "FAILED",

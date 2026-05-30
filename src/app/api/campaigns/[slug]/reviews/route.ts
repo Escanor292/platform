@@ -13,7 +13,7 @@ export async function GET(
   try {
     const { slug } = await context.params;
 
-    const campaign = await prisma.campaign.findFirst({
+    const campaign = await prisma.campaigns.findFirst({
       where: { OR: [{ slug }, { id: slug }] },
       select: { id: true }
     });
@@ -22,10 +22,10 @@ export async function GET(
       return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
     }
 
-    const reviews = await prisma.review.findMany({
+    const reviews = await prisma.reviews.findMany({
       where: { campaignId: campaign.id },
       include: {
-        user: { select: { name: true, avatar: true } }
+        users: { select: { name: true, avatar: true } }
       },
       orderBy: { createdAt: "desc" }
     });
@@ -54,7 +54,7 @@ export async function POST(
     const { slug } = await context.params;
     const { comment, imageUrl, rating } = await req.json();
 
-    const campaign = await prisma.campaign.findFirst({
+    const campaign = await prisma.campaigns.findFirst({
       where: { OR: [{ slug }, { id: slug }] },
       select: { id: true }
     });
@@ -63,8 +63,9 @@ export async function POST(
       return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
     }
 
-    const review = await prisma.review.create({
+    const review = await prisma.reviews.create({
       data: {
+        id: crypto.randomUUID(),
         campaignId: campaign.id,
         userId: (session.user as any).id,
         comment,
@@ -72,7 +73,7 @@ export async function POST(
         rating: rating || 5,
       },
       include: {
-        user: { select: { name: true, avatar: true } }
+        users: { select: { name: true, avatar: true } }
       }
     });
 

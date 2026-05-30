@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { email: 'test2@gmail.com' },
     select: { id: true, email: true, name: true }
   });
@@ -11,7 +11,7 @@ async function main() {
   console.log('User info:', user);
   
   if (user) {
-    const campaigns = await prisma.campaign.findMany({
+    const campaigns = await prisma.campaigns.findMany({
       where: { creatorId: user.id },
       select: { id: true, title: true, campaignCode: true }
     });

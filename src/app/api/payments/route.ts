@@ -49,8 +49,9 @@ export async function POST(request: NextRequest) {
       const transactionId = `PAYOS-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
       // Tạo pledge
-      const pledge = await prisma.pledge.create({
+      const pledge = await prisma.pledges.create({
         data: {
+          id: crypto.randomUUID(),
           userId: session?.user?.id || null,
           campaignId,
           rewardId: rewardId || null,
@@ -66,6 +67,7 @@ export async function POST(request: NextRequest) {
           paymentProvider: "PAYOS",
           transactionId: transactionId,
           status: "PENDING",
+          updatedAt: new Date(),
         }
       });
 
@@ -78,32 +80,32 @@ export async function POST(request: NextRequest) {
         amount: totalAmount
       });
 
-        let paymentLinkRes;
-        
-        // LUÔN DÙNG MOCK Ở MÔI TRƯỜNG DEV ĐỂ TEST KHÔNG TỐN TIỀN
-        if (process.env.NODE_ENV === 'development') {
-            console.log("[PAYOS CREATE] Development mode: Using local mock checkout.");
-            paymentLinkRes = {
-                checkoutUrl: `${process.env.NEXTAUTH_URL}/api/payment/payos/mock-checkout?orderCode=${orderCode}&amount=${totalAmount}&pledgeId=${pledge.id}`
-            };
-        } else {
-            // Môi trường Production sẽ gọi hàm thật
-            try {
-              paymentLinkRes = await createPayOSPaymentLink({
-                orderCode,
-                amount: Math.round(totalAmount),
-                description: `Ung ho du an ${campaignId.slice(0, 8)}`,
-                cancelUrl: `${process.env.NEXTAUTH_URL}/campaigns`,
-                returnUrl: `${process.env.NEXTAUTH_URL}/payment-success?status=success&ref=${pledge.id}`,
-              });
-            } catch (payosError: any) {
-              console.error("[PAYOS CREATE] PayOS API Error:", payosError);
-              throw new Error(`PayOS API failed: ${payosError.message}`);
-            }
+      let paymentLinkRes;
+
+      // LUÔN DÙNG MOCK Ở MÔI TRƯỜNG DEV ĐỂ TEST KHÔNG TỐN TIỀN
+      if (process.env.NODE_ENV === 'development') {
+        console.log("[PAYOS CREATE] Development mode: Using local mock checkout.");
+        paymentLinkRes = {
+          checkoutUrl: `${process.env.NEXTAUTH_URL}/api/payment/payos/mock-checkout?orderCode=${orderCode}&amount=${totalAmount}&pledgeId=${pledge.id}`
+        };
+      } else {
+        // Môi trường Production sẽ gọi hàm thật
+        try {
+          paymentLinkRes = await createPayOSPaymentLink({
+            orderCode,
+            amount: Math.round(totalAmount),
+            description: `Ung ho du an ${campaignId.slice(0, 8)}`,
+            cancelUrl: `${process.env.NEXTAUTH_URL}/campaigns`,
+            returnUrl: `${process.env.NEXTAUTH_URL}/payment-success?status=success&ref=${pledge.id}`,
+          });
+        } catch (payosError: any) {
+          console.error("[PAYOS CREATE] PayOS API Error:", payosError);
+          throw new Error(`PayOS API failed: ${payosError.message}`);
         }
+      }
 
       // Cập nhật pledge với orderCode
-      await prisma.pledge.update({
+      await prisma.pledges.update({
         where: { id: pledge.id },
         data: {
           payosOrderCode: orderCode.toString(),
@@ -130,8 +132,9 @@ export async function POST(request: NextRequest) {
       const transactionId = `SEPAY-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
       // Tạo pledge
-      const pledge = await prisma.pledge.create({
+      const pledge = await prisma.pledges.create({
         data: {
+          id: crypto.randomUUID(),
           userId: session?.user?.id || null,
           campaignId,
           rewardId: rewardId || null,
@@ -147,6 +150,7 @@ export async function POST(request: NextRequest) {
           paymentProvider: "SEPAY",
           transactionId: transactionId,
           status: "PENDING",
+          updatedAt: new Date(),
         },
       });
 
@@ -185,10 +189,10 @@ export async function POST(request: NextRequest) {
     console.error("[PAYMENTS_API] ERROR:", error);
 
     let cleanErrorMessage = error.message || "Lỗi hệ thống khi tạo giao dịch";
-    
+
     // Check if error contains Cloudflare HTML (522, 502, etc.)
     if (cleanErrorMessage.includes("522") || cleanErrorMessage.includes("cloudflare") || cleanErrorMessage.includes("<!DOCTYPE html>")) {
-       cleanErrorMessage = "Hệ thống cổng thanh toán PayOS đang bị gián đoạn máy chủ (Error 522). Vui lòng thử lại sau ít phút.";
+      cleanErrorMessage = "Hệ thống cổng thanh toán PayOS đang bị gián đoạn máy chủ (Error 522). Vui lòng thử lại sau ít phút.";
     }
 
     return NextResponse.json({

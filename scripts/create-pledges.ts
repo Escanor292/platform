@@ -14,10 +14,10 @@ const providers = ['SEPAY', 'VNPAY', 'MOMO', 'PAYOS'];
 
 async function main() {
   console.log('🔍 Finding campaigns with funding...');
-  
-  const campaigns = await prisma.campaign.findMany({
+
+  const campaigns = await prisma.campaigns.findMany({
     where: {
-      creatorId: (await prisma.user.findUnique({ where: { email: 'test2@gmail.com' } }))!.id,
+      creatorId: (await prisma.users.findUnique({ where: { email: 'test2@gmail.com' } }))!.id,
       currentAmount: { gt: 0 }
     },
     select: {
@@ -34,17 +34,17 @@ async function main() {
   for (const campaign of campaigns) {
     console.log(`📊 Creating pledges for: ${campaign.title}`);
     console.log(`   Current amount: ${campaign.currentAmount.toLocaleString()} VND`);
-    
+
     // Tính số lượng pledges dựa trên currentAmount
     const avgPledge = 1000000; // 1 triệu trung bình
     const numPledges = Math.max(5, Math.floor(Number(campaign.currentAmount) / avgPledge));
-    
+
     console.log(`   Creating ${numPledges} pledges...`);
-    
+
     // Tạo các pledges với số tiền ngẫu nhiên
     const pledgeAmounts = [];
     let totalCreated = 0;
-    
+
     for (let i = 0; i < numPledges; i++) {
       // Số tiền ngẫu nhiên: 500k, 1tr, 2tr, 5tr
       const amounts = [500000, 1000000, 2000000, 5000000];
@@ -52,13 +52,13 @@ async function main() {
       pledgeAmounts.push(amount);
       totalCreated += amount;
     }
-    
+
     // Điều chỉnh pledge cuối cùng để tổng khớp với currentAmount
     const diff = Number(campaign.currentAmount) - totalCreated;
     if (diff !== 0 && pledgeAmounts.length > 0) {
       pledgeAmounts[pledgeAmounts.length - 1] += diff;
     }
-    
+
     // Tạo pledges
     for (let i = 0; i < pledgeAmounts.length; i++) {
       const amount = pledgeAmounts[i];
@@ -66,11 +66,11 @@ async function main() {
       const platformFee = Math.round(amount * 0.08); // 8% phí
       const vatAmount = Math.round(platformFee * 0.1); // 10% VAT
       const totalAmount = amount + tipAmount + platformFee + vatAmount;
-      
+
       const isAnonymous = Math.random() > 0.7; // 30% ẩn danh
       const backerName = isAnonymous ? 'Ẩn danh' : backerNames[i % backerNames.length];
-      
-      await prisma.pledge.create({
+
+      await prisma.pledges.create({
         data: {
           campaignId: campaign.id,
           displayName: backerName,
@@ -90,11 +90,13 @@ async function main() {
             browser: ['Chrome', 'Firefox', 'Safari', 'Edge'][Math.floor(Math.random() * 4)],
             os: ['Windows', 'MacOS', 'iOS', 'Android'][Math.floor(Math.random() * 4)]
           },
-          createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000) // Random trong 30 ngày qua
+          createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000), // Random trong 30 ngày qua
+          id: crypto.randomUUID(),
+          updatedAt: new Date()
         }
       });
     }
-    
+
     console.log(`   ✅ Created ${pledgeAmounts.length} pledges\n`);
   }
 

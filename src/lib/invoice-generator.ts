@@ -10,7 +10,7 @@ export function generateInvoiceNumber(): string {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   const random = Math.random().toString(36).substring(2, 7).toUpperCase();
-  
+
   return `INV-${year}${month}${day}-${random}`;
 }
 
@@ -19,15 +19,15 @@ export function generateInvoiceNumber(): string {
  */
 export async function createBackerInvoice(pledgeId: string) {
   // Lấy thông tin pledge
-  const pledge = await prisma.pledge.findUnique({
+  const pledge = await prisma.pledges.findUnique({
     where: { id: pledgeId },
     include: {
-      campaign: {
+      campaigns: {
         select: {
           title: true,
         },
       },
-      user: {
+      users: {
         select: {
           name: true,
           email: true,
@@ -42,7 +42,7 @@ export async function createBackerInvoice(pledgeId: string) {
   }
 
   // Kiểm tra đã có hóa đơn chưa
-  const existing = await prisma.backerInvoice.findUnique({
+  const existing = await prisma.backer_invoices.findUnique({
     where: { pledgeId },
   });
 
@@ -51,22 +51,24 @@ export async function createBackerInvoice(pledgeId: string) {
   }
 
   // Tạo hóa đơn mới
-  const invoice = await prisma.backerInvoice.create({
+  const invoice = await prisma.backer_invoices.create({
     data: {
+      id: crypto.randomUUID(),
       invoiceNumber: generateInvoiceNumber(),
       pledgeId: pledge.id,
       backerName: pledge.displayName,
-      backerEmail: pledge.email || pledge.user?.email || null,
-      backerPhone: pledge.phoneNumber || pledge.user?.phone || null,
+      backerEmail: pledge.email || pledge.users?.email || null,
+      backerPhone: pledge.phoneNumber || pledge.users?.phone || null,
       amount: pledge.amount,
       tipAmount: pledge.tipAmount,
       platformFee: pledge.platformFee,
       vatAmount: pledge.vatAmount,
       totalAmount: pledge.totalAmount,
-      campaignTitle: pledge.campaign.title,
+      campaignTitle: pledge.campaigns.title,
       paymentMethod: pledge.paymentProvider,
       transactionId: pledge.transactionId,
       status: "PAID",
+      updatedAt: new Date(),
     },
   });
 
@@ -205,7 +207,7 @@ export function generateInvoiceHTML(invoice: any): string {
  * Lấy hóa đơn theo pledgeId
  */
 export async function getBackerInvoice(pledgeId: string) {
-  return await prisma.backerInvoice.findUnique({
+  return await prisma.backer_invoices.findUnique({
     where: { pledgeId },
   });
 }
@@ -214,7 +216,7 @@ export async function getBackerInvoice(pledgeId: string) {
  * Lấy hóa đơn theo invoiceNumber
  */
 export async function getBackerInvoiceByNumber(invoiceNumber: string) {
-  return await prisma.backerInvoice.findUnique({
+  return await prisma.backer_invoices.findUnique({
     where: { invoiceNumber },
   });
 }

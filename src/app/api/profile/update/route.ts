@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     const { name, bio, location, website, phone, shippingAddress, image, coverImage, socialLinks } = await req.json();
 
     // Lấy user từ database
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await prisma.users.findUnique({
       where: { email: session.user.email! },
       select: { id: true }
     });
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     }
 
     // Cập nhật thông tin
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id: dbUser.id },
       data: {
         name: name || null,

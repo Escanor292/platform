@@ -42,11 +42,13 @@ export async function addToBlacklist(
 ) {
   return await prisma.blacklist.create({
     data: {
+      id: crypto.randomUUID(),
       type,
       value,
       reason,
       addedBy,
       expiresAt,
+      updatedAt: new Date(),
     },
   });
 }

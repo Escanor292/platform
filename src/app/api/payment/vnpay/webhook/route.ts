@@ -53,9 +53,9 @@ export async function GET(request: NextRequest) {
     }
 
     // 3. Tìm pledge
-    const pledge = await prisma.pledge.findUnique({
+    const pledge = await prisma.pledges.findUnique({
       where: { id: pledgeId },
-      include: { campaign: true },
+      include: { campaigns: true },
     });
 
     if (!pledge) {
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
     // 5. Xử lý theo response code
     if (responseCode === "00") {
       // Thanh toán thành công
-      await prisma.pledge.update({
+      await prisma.pledges.update({
         where: { id: pledgeId },
         data: {
           status: "SUCCESS",
@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
       });
 
       // Cộng tiền vào campaign
-      await prisma.campaign.update({
+      await prisma.campaigns.update({
         where: { id: pledge.campaignId },
         data: {
           currentAmount: {
@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
       });
 
       // Kiểm tra campaign đạt mục tiêu
-      const updatedCampaign = await prisma.campaign.findUnique({
+      const updatedCampaign = await prisma.campaigns.findUnique({
         where: { id: pledge.campaignId },
       });
 
@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
         Number(updatedCampaign.currentAmount) >= Number(updatedCampaign.goalAmount) &&
         updatedCampaign.status === "ACTIVE"
       ) {
-        await prisma.campaign.update({
+        await prisma.campaigns.update({
           where: { id: pledge.campaignId },
           data: { status: "SUCCESS" },
         });
@@ -127,10 +127,10 @@ export async function GET(request: NextRequest) {
       // Send notifications (non-blocking)
       // 1. Notify Creator
       notificationService.send({
-        userId: pledge.campaign.creatorId,
+        userId: pledge.campaigns.creatorId,
         type: "PLEDGE_RECEIVED",
         title: "Bạn có lượt ủng hộ mới!",
-        message: `Chiến dịch "${pledge.campaign.title}" vừa nhận được ${Number(pledge.amount).toLocaleString('vi-VN')} VNĐ từ ${pledge.displayName}.`,
+        message: `Chiến dịch "${pledge.campaigns.title}" vừa nhận được ${Number(pledge.amount).toLocaleString('vi-VN')} VNĐ từ ${pledge.displayName}.`,
         payload: {
           campaignId: pledge.campaignId,
           pledgeId: pledge.id,
@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
           userId: pledge.userId,
           type: "PAYMENT_SUCCESS",
           title: "Ủng hộ thành công!",
-          message: `Bạn đã ủng hộ thành công ${Number(pledge.amount).toLocaleString('vi-VN')} VNĐ cho chiến dịch "${pledge.campaign.title}".`,
+          message: `Bạn đã ủng hộ thành công ${Number(pledge.amount).toLocaleString('vi-VN')} VNĐ cho chiến dịch "${pledge.campaigns.title}".`,
           payload: {
             campaignId: pledge.campaignId,
             pledgeId: pledge.id
@@ -160,7 +160,7 @@ export async function GET(request: NextRequest) {
       });
     } else {
       // Thanh toán thất bại
-      await prisma.pledge.update({
+      await prisma.pledges.update({
         where: { id: pledgeId },
         data: {
           status: "FAILED",

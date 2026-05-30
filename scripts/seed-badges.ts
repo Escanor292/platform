@@ -6,7 +6,7 @@ async function seedBadges() {
   console.log('🎖️  Seeding badges...');
 
   // Find admin user
-  const admin = await prisma.user.findFirst({
+  const admin = await prisma.users.findFirst({
     where: { isAdmin: true },
   });
 
@@ -147,8 +147,17 @@ async function seedBadges() {
   // Create badges
   for (const badge of badges) {
     try {
-      const created = await prisma.badge.create({
-        data: badge,
+      const created = await prisma.badges.create({
+        data: {
+          ...badge,
+          id: crypto.randomUUID(),
+          updated_at: new Date(),
+          users: {
+            connect: {
+              id: badge.createdBy,
+            },
+          },
+        },
       });
       console.log(`✅ Created badge: ${created.name} (${created.type})`);
     } catch (error: any) {
@@ -162,12 +171,12 @@ async function seedBadges() {
 
   console.log('\n🎉 Badge seeding completed!');
   console.log(`\n📊 Summary:`);
-  
-  const totalBadges = await prisma.badge.count();
-  const achievementBadges = await prisma.badge.count({
+
+  const totalBadges = await prisma.badges.count();
+  const achievementBadges = await prisma.badges.count({
     where: { type: 'achievement' },
   });
-  const customBadges = await prisma.badge.count({
+  const customBadges = await prisma.badges.count({
     where: { type: 'custom' },
   });
 

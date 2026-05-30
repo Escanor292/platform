@@ -15,7 +15,7 @@ async function clearCampaigns() {
     
     // 1. Delete campaign updates
     try {
-      const deletedUpdates = await prisma.campaignUpdate.deleteMany({});
+      const deletedUpdates = await prisma.campaign_updates.deleteMany({});
       console.log(`✅ Deleted ${deletedUpdates.count} campaign updates`);
     } catch (e) {
       console.log(`⚠️  Skipped campaign updates (table may not exist)`);
@@ -23,7 +23,7 @@ async function clearCampaigns() {
 
     // 2. Delete reviews
     try {
-      const deletedReviews = await prisma.review.deleteMany({
+      const deletedReviews = await prisma.reviews.deleteMany({
         where: { campaignId: { not: null } }
       });
       console.log(`✅ Deleted ${deletedReviews.count} reviews`);
@@ -33,7 +33,7 @@ async function clearCampaigns() {
 
     // 3. Delete rewards
     try {
-      const deletedRewards = await prisma.reward.deleteMany({});
+      const deletedRewards = await prisma.rewards.deleteMany({});
       console.log(`✅ Deleted ${deletedRewards.count} rewards`);
     } catch (e) {
       console.log(`⚠️  Skipped rewards (table may not exist)`);
@@ -41,7 +41,7 @@ async function clearCampaigns() {
 
     // 4. Delete backer invoices (through pledges)
     try {
-      const deletedBackerInvoices = await prisma.backerInvoice.deleteMany({});
+      const deletedBackerInvoices = await prisma.backer_invoices.deleteMany({});
       console.log(`✅ Deleted ${deletedBackerInvoices.count} backer invoices`);
     } catch (e) {
       console.log(`⚠️  Skipped backer invoices (table may not exist)`);
@@ -49,7 +49,7 @@ async function clearCampaigns() {
 
     // 5. Delete audit logs related to pledges
     try {
-      const deletedAuditLogs = await prisma.auditLog.deleteMany({
+      const deletedAuditLogs = await prisma.audit_logs.deleteMany({
         where: { entityType: "PLEDGE" }
       });
       console.log(`✅ Deleted ${deletedAuditLogs.count} audit logs`);
@@ -59,7 +59,7 @@ async function clearCampaigns() {
 
     // 6. Delete pledges
     try {
-      const deletedPledges = await prisma.pledge.deleteMany({});
+      const deletedPledges = await prisma.pledges.deleteMany({});
       console.log(`✅ Deleted ${deletedPledges.count} pledges`);
     } catch (e) {
       console.log(`⚠️  Skipped pledges (table may not exist)`);
@@ -67,14 +67,14 @@ async function clearCampaigns() {
 
     // 7. Delete platform invoices
     try {
-      const deletedInvoices = await prisma.platformInvoice.deleteMany({});
+      const deletedInvoices = await prisma.platform_invoices.deleteMany({});
       console.log(`✅ Deleted ${deletedInvoices.count} platform invoices`);
     } catch (e) {
       console.log(`⚠️  Skipped platform invoices (table may not exist)`);
     }
 
     // 8. Finally, delete campaigns
-    const deletedCampaigns = await prisma.campaign.deleteMany({});
+    const deletedCampaigns = await prisma.campaigns.deleteMany({});
     console.log(`✅ Deleted ${deletedCampaigns.count} campaigns`);
 
     console.log("\n🎉 All campaigns and related data cleared successfully!");

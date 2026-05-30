@@ -7,7 +7,7 @@ import prisma from "@/lib/prisma";
 export async function processCampaignRefund(campaignId: string) {
   try {
     // 1. Kiểm tra campaign và trạng thái
-    const campaign = await prisma.campaign.findUnique({
+    const campaign = await prisma.campaigns.findUnique({
       where: { id: campaignId },
     });
 
@@ -17,7 +17,7 @@ export async function processCampaignRefund(campaignId: string) {
     }
 
     // 2. Lấy danh sách các giao dịch đã SUCCESS
-    const pledges = await prisma.pledge.findMany({
+    const pledges = await prisma.pledges.findMany({
       where: {
         campaignId,
         status: "SUCCESS", 
@@ -36,7 +36,7 @@ export async function processCampaignRefund(campaignId: string) {
     for (const pledge of pledges) {
       try {
         // Cập nhật trạng thái đang xử lý
-        await prisma.pledge.update({
+        await prisma.pledges.update({
           where: { id: pledge.id },
           data: { refundStatus: "PROCESSING" },
         });
@@ -46,7 +46,7 @@ export async function processCampaignRefund(campaignId: string) {
 
         // 5. Cập nhật kết quả hoàn tiền
         if (refundSuccess) {
-          await prisma.pledge.update({
+          await prisma.pledges.update({
             where: { id: pledge.id },
             data: {
               refundStatus: "COMPLETED",
@@ -56,14 +56,14 @@ export async function processCampaignRefund(campaignId: string) {
           });
           refundedCount++;
         } else {
-          await prisma.pledge.update({
+          await prisma.pledges.update({
             where: { id: pledge.id },
             data: { refundStatus: "FAILED" },
           });
         }
       } catch (err) {
         console.error(`[REFUND_ERROR] Lỗi khi hoàn tiền giao dịch ${pledge.transactionId}`, err);
-        await prisma.pledge.update({
+        await prisma.pledges.update({
           where: { id: pledge.id },
           data: { refundStatus: "FAILED" },
         });

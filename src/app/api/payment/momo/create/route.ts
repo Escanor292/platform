@@ -7,18 +7,19 @@ export async function POST(request: Request) {
     const session = await auth();
     const user = session?.user;
     const body = await request.json();
-    const { 
-      amount, campaignId, 
+    const {
+      amount, campaignId,
       tipAmount = 0, vatAmount = 0,
-      guestEmail = null, displayName = null, 
+      guestEmail = null, displayName = null,
       isAnonymous = false, ipAddress = null
     } = body;
 
     const totalAmount = amount + tipAmount + vatAmount;
-    
+
     // 1. Tạo bản ghi Pledge (Trạng thái PENDING)
-    const pledge = await prisma.pledge.create({
+    const pledge = await prisma.pledges.create({
       data: {
+        id: crypto.randomUUID(),
         userId: user?.id || null,
         campaignId,
         amount,
@@ -32,21 +33,22 @@ export async function POST(request: Request) {
         paymentProvider: "MOMO",
         transactionId: `MOMO-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         status: "PENDING",
+        updatedAt: new Date(),
       }
     });
 
     // 2. Tạo orderId cho MoMo (format: MOMO-{pledgeId})
     const orderId = `MOMO-${pledge.id}`;
-    
+
     // 3. Giả lập tích hợp MoMo (Tạo link redirect)
     // Trong môi trường DEMO, chúng ta chuyển về trang thành công với ref=pledgeId
     // Trong production, cần gọi MoMo API để tạo payment link thật
     const redirectUrl = `${process.env.NEXTAUTH_URL}/payment-success?status=success&ref=${pledge.id}`;
-    
-    return NextResponse.json({ 
-        checkoutUrl: redirectUrl,
-        pledgeId: pledge.id,
-        orderId: orderId, // Để test webhook
+
+    return NextResponse.json({
+      checkoutUrl: redirectUrl,
+      pledgeId: pledge.id,
+      orderId: orderId, // Để test webhook
     });
 
   } catch (error: any) {

@@ -17,10 +17,10 @@ export async function PATCH(
         const { isActive } = body;
 
         // Check if user owns the reward's campaign
-        const reward = await prisma.reward.findUnique({
+        const reward = await prisma.rewards.findUnique({
             where: { id },
             include: {
-                campaign: {
+                campaigns: {
                     select: {
                         creatorId: true,
                     },
@@ -32,12 +32,12 @@ export async function PATCH(
             return NextResponse.json({ error: "Reward not found" }, { status: 404 });
         }
 
-        if (reward.campaign.creatorId !== (session.user as any).id) {
+        if (reward.campaigns.creatorId !== (session.user as any).id) {
             return NextResponse.json({ error: "Access denied" }, { status: 403 });
         }
 
         // Update reward status
-        const updatedReward = await prisma.reward.update({
+        const updatedReward = await prisma.rewards.update({
             where: { id },
             data: {
                 isActive: Boolean(isActive),

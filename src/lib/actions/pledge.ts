@@ -17,9 +17,10 @@ export async function createPledgeAction(formData: FormData) {
 
   // Trong thực tế, đây sẽ là nơi gọi API thanh toán (VNPay/MoMo/PayOS)
   // Ở đây chúng ta giả lập tạo một Pledge PENDING và chuyển hướng tới trang chọn phương thức
-  
-  const pledge = await prisma.pledge.create({
+
+  const pledge = await prisma.pledges.create({
     data: {
+      id: crypto.randomUUID(),
       campaignId,
       userId: session?.user?.id || null,
       amount,
@@ -29,6 +30,7 @@ export async function createPledgeAction(formData: FormData) {
       paymentProvider: "VNPAY", // Default chosen for demo
       transactionId: `TX-${Date.now()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`,
       status: "PENDING",
+      updatedAt: new Date(),
     },
   });
 

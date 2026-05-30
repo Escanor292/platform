@@ -22,7 +22,7 @@ export async function GET(req: Request) {
     switch (type) {
       case "id":
         // Tìm theo ID chính xác
-        const userById = await prisma.user.findUnique({
+        const userById = await prisma.users.findUnique({
           where: { id: query },
           select: {
             id: true,
@@ -37,7 +37,7 @@ export async function GET(req: Request) {
 
       case "email":
         // Tìm theo email (có thể tìm một phần)
-        users = await prisma.user.findMany({
+        users = await prisma.users.findMany({
           where: {
             email: {
               contains: query,
@@ -57,7 +57,7 @@ export async function GET(req: Request) {
 
       case "name":
         // Tìm theo tên (có thể tìm một phần)
-        users = await prisma.user.findMany({
+        users = await prisma.users.findMany({
           where: {
             name: {
               contains: query,

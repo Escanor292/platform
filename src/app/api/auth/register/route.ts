@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if email already exists
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { email },
     });
 
@@ -41,13 +41,15 @@ export async function POST(req: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user with default role BACKER
-    const user = await prisma.user.create({
+    const user = await prisma.users.create({
       data: {
+        id: crypto.randomUUID(),
         name,
         email,
         password: hashedPassword,
         role: "BACKER", // Mặc định là BACKER
         isOrganization: isOrganization || false,
+        updatedAt: new Date(),
       },
       select: {
         id: true,

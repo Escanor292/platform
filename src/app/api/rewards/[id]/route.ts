@@ -9,10 +9,10 @@ export async function GET(
     try {
         const { id } = await context.params;
 
-        const reward = await prisma.reward.findUnique({
+        const reward = await prisma.rewards.findUnique({
             where: { id },
             include: {
-                campaign: {
+                campaigns: {
                     select: {
                         id: true,
                         title: true,
@@ -63,10 +63,10 @@ export async function PUT(
         } = body;
 
         // Check if user owns the reward's campaign
-        const reward = await prisma.reward.findUnique({
+        const reward = await prisma.rewards.findUnique({
             where: { id },
             include: {
-                campaign: {
+                campaigns: {
                     select: {
                         creatorId: true,
                     },
@@ -78,12 +78,12 @@ export async function PUT(
             return NextResponse.json({ error: "Reward not found" }, { status: 404 });
         }
 
-        if (reward.campaign.creatorId !== (session.user as any).id) {
+        if (reward.campaigns.creatorId !== (session.user as any).id) {
             return NextResponse.json({ error: "Access denied" }, { status: 403 });
         }
 
         // Update reward
-        const updatedReward = await prisma.reward.update({
+        const updatedReward = await prisma.rewards.update({
             where: { id },
             data: {
                 title,
@@ -118,10 +118,10 @@ export async function DELETE(
         const { id } = await context.params;
 
         // Check if user owns the reward's campaign
-        const reward = await prisma.reward.findUnique({
+        const reward = await prisma.rewards.findUnique({
             where: { id },
             include: {
-                campaign: {
+                campaigns: {
                     select: {
                         creatorId: true,
                     },
@@ -138,7 +138,7 @@ export async function DELETE(
             return NextResponse.json({ error: "Reward not found" }, { status: 404 });
         }
 
-        if (reward.campaign.creatorId !== (session.user as any).id) {
+        if (reward.campaigns.creatorId !== (session.user as any).id) {
             return NextResponse.json({ error: "Access denied" }, { status: 403 });
         }
 
@@ -151,7 +151,7 @@ export async function DELETE(
         }
 
         // Delete reward
-        await prisma.reward.delete({
+        await prisma.rewards.delete({
             where: { id },
         });
 

@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check admin
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: session.user.id },
       select: { isAdmin: true },
     });
@@ -39,28 +39,28 @@ export async function GET(request: NextRequest) {
     }
 
     const [posts, total] = await Promise.all([
-      prisma.blogPost.findMany({
+      prisma.blog_posts.findMany({
         where,
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: {
-          author: {
+          users: {
             select: { id: true, name: true, email: true, avatar: true },
           },
-          campaign: {
+          campaigns: {
             select: { id: true, title: true, slug: true },
           },
           _count: {
             select: {
-              likes: true,
-              bookmarks: true,
-              comments: true,
+              blog_likes: true,
+              blog_bookmarks: true,
+              blog_comments: true,
             },
           },
         },
       }),
-      prisma.blogPost.count({ where }),
+      prisma.blog_posts.count({ where }),
     ]);
 
     return NextResponse.json({

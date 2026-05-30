@@ -5,7 +5,7 @@ import { KYCStatus } from "@prisma/client";
  * Kiểm tra user đã KYC chưa
  */
 export async function isKYCVerified(userId: string): Promise<boolean> {
-  const kyc = await prisma.kYCInfo.findUnique({
+  const kyc = await prisma.kyc_info.findUnique({
     where: { userId },
   });
 
@@ -16,7 +16,7 @@ export async function isKYCVerified(userId: string): Promise<boolean> {
  * Lấy thông tin KYC của user
  */
 export async function getKYCInfo(userId: string) {
-  return await prisma.kYCInfo.findUnique({
+  return await prisma.kyc_info.findUnique({
     where: { userId },
   });
 }
@@ -29,13 +29,13 @@ export async function getTransactionLimit(userId: string) {
   const kycStatus = kyc?.verificationStatus || "PENDING";
 
   // Tìm limit cụ thể cho user
-  let limit = await prisma.transactionLimit.findUnique({
+  let limit = await prisma.transaction_limits.findUnique({
     where: { userId },
   });
 
   // Nếu không có, tìm limit mặc định cho KYC status
   if (!limit) {
-    limit = await prisma.transactionLimit.findFirst({
+    limit = await prisma.transaction_limits.findFirst({
       where: {
         userId: null,
         kycStatus: kycStatus as KYCStatus,
@@ -111,8 +111,8 @@ export async function checkTransactionLimit(
   // Kiểm tra tổng giao dịch trong ngày
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
-  const todayPledges = await prisma.pledge.findMany({
+
+  const todayPledges = await prisma.pledges.findMany({
     where: {
       userId,
       status: "SUCCESS",
@@ -123,7 +123,7 @@ export async function checkTransactionLimit(
   });
 
   const todayTotal = todayPledges.reduce((sum, p) => sum + Number(p.totalAmount), 0);
-  
+
   if (todayTotal + amount > Number(limit.maxPerDay)) {
     return {
       allowed: false,

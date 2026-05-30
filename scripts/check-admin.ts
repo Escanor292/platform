@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 async function checkAdmin() {
   console.log("Checking admin user...");
   
-  const admin = await prisma.user.findUnique({
+  const admin = await prisma.users.findUnique({
     where: { email: "admin@crowdfunding.vn" },
     select: {
       id: true,

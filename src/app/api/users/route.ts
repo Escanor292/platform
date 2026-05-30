@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    const users = await prisma.user.findMany({
+    const users = await prisma.users.findMany({
       select: {
         id: true,
         name: true,
@@ -44,7 +44,7 @@ export async function PUT(req: NextRequest) {
 
     const { name, avatar } = await req.json();
 
-    const updated = await prisma.user.update({
+    const updated = await prisma.users.update({
       where: { id: session.user.id },
       data: { name, avatar },
     });

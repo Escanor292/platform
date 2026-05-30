@@ -60,10 +60,10 @@ export async function GET(req: NextRequest) {
     }
 
     // Fetch campaigns from database
-    const campaigns = await prisma.campaign.findMany({
+    const campaigns = await prisma.campaigns.findMany({
       where,
       include: {
-        creator: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -76,7 +76,7 @@ export async function GET(req: NextRequest) {
             pledges: {
               where: { status: 'SUCCESS' }
             },
-            followers: true
+            campaign_followers: true
           }
         }
       },
@@ -105,9 +105,9 @@ export async function GET(req: NextRequest) {
         imageUrl: campaign.imageUrl,
 
         creatorId: campaign.creatorId,
-        creatorName: campaign.creator.name,
-        creatorAvatar: campaign.creator.avatar,
-        creatorIsPro: campaign.creator.status === "PRO",
+        creatorName: campaign.users.name,
+        creatorAvatar: campaign.users.avatar,
+        creatorIsPro: campaign.users.status === "PRO",
 
         category: campaign.category,
         tags: campaign.tags,
@@ -118,7 +118,7 @@ export async function GET(req: NextRequest) {
         progressPercent,
 
         totalBackers: campaign._count.pledges,
-        totalFollowers: campaign._count.followers,
+        totalFollowers: campaign._count.campaign_followers,
         totalViews: 0, // TODO: Implement view tracking
         ratingAverage: 0, // TODO: Calculate from reviews
         ratingCount: 0, // TODO: Count reviews

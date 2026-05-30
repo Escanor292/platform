@@ -12,7 +12,7 @@ export default async function DashboardPage() {
   const user = session.user as any;
 
   // Lấy user từ database để đảm bảo có ID
-  const dbUser = await prisma.user.findUnique({
+  const dbUser = await prisma.users.findUnique({
     where: { email: user.email },
     select: { id: true }
   });

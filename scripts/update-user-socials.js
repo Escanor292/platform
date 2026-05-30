@@ -19,7 +19,7 @@ async function main() {
     const bio = 'Chào mừng bạn đến với hồ sơ của tôi. Tôi là một nhà sáng tạo đam mê các dự án cộng đồng và phát triển bền vững tại Việt Nam.';
 
     try {
-        const user = await prisma.user.findUnique({
+        const user = await prisma.users.findUnique({
             where: { id: userId }
         });
 
@@ -28,7 +28,7 @@ async function main() {
             return;
         }
 
-        const updatedUser = await prisma.user.update({
+        const updatedUser = await prisma.users.update({
             where: { id: userId },
             data: {
                 socialLinks: socialLinks,

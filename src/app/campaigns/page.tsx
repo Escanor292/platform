@@ -8,10 +8,10 @@ import { Tag, Layers } from "lucide-react";
 import { getCampaignTypeLabel } from "@/lib/project-helpers";
 
 export default async function CampaignsPage() {
-  const campaigns = await prisma.campaign.findMany({
+  const campaigns = await prisma.campaigns.findMany({
     where: { status: "ACTIVE" },
     include: {
-      creator: { select: { name: true, avatar: true, status: true } },
+      users: { select: { name: true, avatar: true, status: true } },
     },
     orderBy: { createdAt: "desc" },
   });

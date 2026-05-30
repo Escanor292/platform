@@ -19,7 +19,7 @@ async function generateUniqueCampaignCode(): Promise<string> {
     const campaignCode = `CF-${dateStr}-${randomStr}`;
     
     // Kiểm tra xem code đã tồn tại chưa
-    const existing = await prisma.campaign.findUnique({
+    const existing = await prisma.campaigns.findUnique({
       where: { campaignCode }
     });
     
@@ -68,7 +68,7 @@ async function testCampaignCodeGeneration() {
 
   // Test 4: Check existing campaigns
   console.log("\nTest 4: Check existing campaigns in database");
-  const campaigns = await prisma.campaign.findMany({
+  const campaigns = await prisma.campaigns.findMany({
     select: {
       id: true,
       title: true,
@@ -88,7 +88,7 @@ async function testCampaignCodeGeneration() {
 
   // Test 5: Check for duplicates in database
   console.log("\nTest 5: Check for duplicate campaign codes in database");
-  const allCampaigns = await prisma.campaign.findMany({
+  const allCampaigns = await prisma.campaigns.findMany({
     select: { campaignCode: true },
   });
   

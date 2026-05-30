@@ -113,8 +113,8 @@ export default function ReportsPage() {
                                     key={status}
                                     onClick={() => setFilter(status)}
                                     className={`px-4 py-3 font-semibold text-sm border-b-2 transition-colors ${filter === status
-                                            ? "border-blue-600 text-blue-600"
-                                            : "border-transparent text-gray-600 hover:text-gray-900"
+                                        ? "border-blue-600 text-blue-600"
+                                        : "border-transparent text-gray-600 hover:text-gray-900"
                                         }`}
                                 >
                                     {config.label} ({count})

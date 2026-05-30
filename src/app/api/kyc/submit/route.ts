@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Kiểm tra ID card đã tồn tại chưa
-    const existing = await prisma.kYCInfo.findFirst({
+    const existing = await prisma.kyc_info.findFirst({
       where: {
         idCardNumber,
         NOT: { userId },
@@ -62,9 +62,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Tạo hoặc cập nhật KYC
-    const kyc = await prisma.kYCInfo.upsert({
+    const kyc = await prisma.kyc_info.upsert({
       where: { userId },
       create: {
+        id: crypto.randomUUID(),
         userId,
         fullName,
         idCardNumber,
@@ -80,6 +81,12 @@ export async function POST(request: NextRequest) {
         occupation,
         monthlyIncome,
         verificationStatus: "PENDING",
+        updatedAt: new Date(),
+        users: {
+          connect: {
+            id: userId,
+          },
+        },
       },
       update: {
         fullName,

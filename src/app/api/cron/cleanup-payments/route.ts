@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     const threshold = new Date(Date.now() - 48 * 60 * 60 * 1000); // 48 giờ trước
 
     // 1. Tìm các Pledge PENDING quá 48h
-    const stalePledges = await prisma.pledge.findMany({
+    const stalePledges = await prisma.pledges.findMany({
       where: {
         status: "PENDING",
         createdAt: { lt: threshold }
@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     });
 
     for (const pledge of stalePledges) {
-      await prisma.pledge.update({
+      await prisma.pledges.update({
         where: { id: pledge.id },
         data: { status: "FAILED" }
       });

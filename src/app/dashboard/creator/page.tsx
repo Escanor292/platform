@@ -7,7 +7,7 @@ export default async function CreatorDashboard() {
    const session = await auth();
    if (!session?.user) redirect("/auth/login");
 
-   const campaigns = await prisma.campaign.findMany({
+   const campaigns = await prisma.campaigns.findMany({
       where: { creatorId: (session.user as any).id },
       include: { _count: { select: { pledges: true } } },
       orderBy: { createdAt: "desc" },

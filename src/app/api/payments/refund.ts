@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const campaign = await prisma.campaign.findUnique({
+    const campaign = await prisma.campaigns.findUnique({
       where: { id: campaignId },
     });
 
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     // Cập nhật trạng thái dự án thành CANCELED hoặc FAILED nếu chưa
     if (campaign.status !== "FAILED" && campaign.status !== "CANCELED") {
-      await prisma.campaign.update({
+      await prisma.campaigns.update({
         where: { id: campaignId },
         data: { status: "FAILED" },
       });

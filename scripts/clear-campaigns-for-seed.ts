@@ -10,35 +10,35 @@ async function main() {
 
         // Delete in order of dependencies
         console.log('  Deleting pledges...');
-        const pledgesDeleted = await prisma.pledge.deleteMany({});
+        const pledgesDeleted = await prisma.pledges.deleteMany({});
         console.log(`    ✅ Deleted ${pledgesDeleted.count} pledges`);
 
         console.log('  Deleting rewards...');
-        const rewardsDeleted = await prisma.reward.deleteMany({});
+        const rewardsDeleted = await prisma.rewards.deleteMany({});
         console.log(`    ✅ Deleted ${rewardsDeleted.count} rewards`);
 
         console.log('  Deleting campaign updates...');
-        const updatesDeleted = await prisma.campaignUpdate.deleteMany({});
+        const updatesDeleted = await prisma.campaign_updates.deleteMany({});
         console.log(`    ✅ Deleted ${updatesDeleted.count} campaign updates`);
 
         console.log('  Deleting campaign followers...');
-        const followersDeleted = await prisma.campaignFollower.deleteMany({});
+        const followersDeleted = await prisma.campaign_followers.deleteMany({});
         console.log(`    ✅ Deleted ${followersDeleted.count} campaign followers`);
 
         console.log('  Deleting campaign reports...');
-        const reportsDeleted = await prisma.campaignReport.deleteMany({});
+        const reportsDeleted = await prisma.campaign_reports.deleteMany({});
         console.log(`    ✅ Deleted ${reportsDeleted.count} campaign reports`);
 
         console.log('  Deleting reviews...');
-        const reviewsDeleted = await prisma.review.deleteMany({});
+        const reviewsDeleted = await prisma.reviews.deleteMany({});
         console.log(`    ✅ Deleted ${reviewsDeleted.count} reviews`);
 
         console.log('  Deleting platform invoices...');
-        const invoicesDeleted = await prisma.platformInvoice.deleteMany({});
+        const invoicesDeleted = await prisma.platform_invoices.deleteMany({});
         console.log(`    ✅ Deleted ${invoicesDeleted.count} platform invoices`);
 
         console.log('  Deleting campaigns...');
-        const campaignsDeleted = await prisma.campaign.deleteMany({});
+        const campaignsDeleted = await prisma.campaigns.deleteMany({});
         console.log(`    ✅ Deleted ${campaignsDeleted.count} campaigns`);
 
         console.log('\n✅ Campaign data cleared successfully!\n');
