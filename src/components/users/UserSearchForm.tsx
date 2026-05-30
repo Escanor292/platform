@@ -88,7 +88,7 @@ export default function UserSearchForm() {
       {/* Header Section */}
       <div className="mb-8 rounded-3xl border border-emerald-100 bg-white/80 p-8 shadow-sm backdrop-blur">
         <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">
-          Quản lý người dùng
+          Kết nối cộng đồng
         </div>
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
           Tìm kiếm người dùng
@@ -111,8 +111,8 @@ export default function UserSearchForm() {
                 type="button"
                 onClick={() => setSearchType("id")}
                 className={`rounded-xl px-4 py-2 text-sm font-medium transition flex items-center justify-center gap-2 ${searchType === "id"
-                    ? "bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-100"
-                    : "text-slate-600 hover:text-slate-900"
+                  ? "bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-100"
+                  : "text-slate-600 hover:text-slate-900"
                   }`}
               >
                 <Hash size={16} />
@@ -122,8 +122,8 @@ export default function UserSearchForm() {
                 type="button"
                 onClick={() => setSearchType("email")}
                 className={`rounded-xl px-4 py-2 text-sm font-medium transition flex items-center justify-center gap-2 ${searchType === "email"
-                    ? "bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-100"
-                    : "text-slate-600 hover:text-slate-900"
+                  ? "bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-100"
+                  : "text-slate-600 hover:text-slate-900"
                   }`}
               >
                 <Mail size={16} />
@@ -133,8 +133,8 @@ export default function UserSearchForm() {
                 type="button"
                 onClick={() => setSearchType("name")}
                 className={`rounded-xl px-4 py-2 text-sm font-medium transition flex items-center justify-center gap-2 ${searchType === "name"
-                    ? "bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-100"
-                    : "text-slate-600 hover:text-slate-900"
+                  ? "bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-100"
+                  : "text-slate-600 hover:text-slate-900"
                   }`}
               >
                 <User size={16} />
