@@ -13,6 +13,8 @@ export async function middleware(request: NextRequest) {
       pathname.startsWith("/lookup") ||
       pathname.startsWith("/policy") ||
       pathname.startsWith("/about") ||
+      pathname.startsWith("/gioi-thieu") ||
+      pathname.startsWith("/blog") ||
       pathname.startsWith("/projects") ||
       (pathname.startsWith("/profile/") && !pathname.startsWith("/profile/edit")) ||
       pathname.startsWith("/users/search");
@@ -25,7 +27,8 @@ export async function middleware(request: NextRequest) {
       pathname.startsWith("/api/campaigns") ||
       pathname.startsWith("/api/lookup") ||
       pathname.startsWith("/api/users/search") ||
-      pathname.startsWith("/api/stats/users");
+      pathname.startsWith("/api/stats/users") ||
+      pathname.startsWith("/api/blog");
 
     // Auth routes
     const isAuthRoute =
