@@ -26,7 +26,7 @@ export default function FooterNew() {
             <Link href="/campaigns" className="block cursor-pointer hover:text-white transition">
               Chiến dịch
             </Link>
-            <Link href="/about" className="block cursor-pointer hover:text-white transition">
+            <Link href="/gioi-thieu" className="block cursor-pointer hover:text-white transition">
               Giới thiệu
             </Link>
             <Link href="/lookup" className="block cursor-pointer hover:text-white transition">

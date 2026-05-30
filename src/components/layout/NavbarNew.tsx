@@ -122,7 +122,7 @@ export default function NavbarNew() {
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-pgreen group-hover:w-full transition-all duration-300" />
           </Link>
           <Link
-            href="/about"
+            href="/gioi-thieu"
             className="text-sm font-medium text-gray-600 hover:text-pgreen transition relative group"
           >
             Giới thiệu
