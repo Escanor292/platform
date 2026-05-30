@@ -1,0 +1,32 @@
+{
+  "title": "Bài viết draft - Chưa xuất bản",
+  "slug": "bai-viet-draft-chua-xuat-ban",
+  "excerpt": "Đây là bài viết draft để test chức năng draft của hệ thống blog.",
+  "coverImage": "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=1200&h=630&fit=crop",
+  "status": "DRAFT",
+  "type": "PLATFORM",
+  "visibility": "PUBLIC",
+  "authorId": "cmphnhw980003so1ufgn8czgk",
+  "publishedAt": null,
+  "readingTimeMinutes": 3,
+  "tags": [
+    "draft",
+    "test"
+  ],
+  "categories": [
+    "Test"
+  ],
+  "content": "# Bài viết draft - Chưa xuất bản\n\nĐây là bài viết draft để test chức năng draft của hệ thống blog.\n\n## Nội dung test\n\nBài viết này có status là DRAFT và sẽ không hiển thị công khai.\n\n### Mục đích\n- Test chức năng draft\n- Kiểm tra workflow duyệt bài\n- Verify hệ thống blog\n\n## Chú ý\n\nBài viết này không nên được xuất bản trong production.",
+  "richContent": {
+    "blocks": [
+      {
+        "id": "header-1",
+        "type": "heading",
+        "data": {
+          "text": "Bài viết draft - Chưa xuất bản",
+          "level": 1
+        }
+      }
+    ]
+  }
+}

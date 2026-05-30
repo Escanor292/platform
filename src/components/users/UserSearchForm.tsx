@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, User, Mail, Hash } from "lucide-react";
+import { Search, User, Mail, Hash, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 interface SearchResult {
@@ -18,6 +18,7 @@ export default function UserSearchForm() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,61 +26,118 @@ export default function UserSearchForm() {
 
     setIsLoading(true);
     setSearched(true);
+    setError(null);
 
     try {
       const response = await fetch(`/api/users/search?type=${searchType}&query=${encodeURIComponent(searchQuery)}`);
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error("Không thể tìm kiếm người dùng lúc này");
+      }
+
       setResults(data.users || []);
     } catch (error) {
       console.error("Search error:", error);
+      setError("Không thể tìm kiếm người dùng lúc này. Vui lòng thử lại sau.");
       setResults([]);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const getHelperText = () => {
+    switch (searchType) {
+      case "id":
+        return "Nhập chính xác ID người dùng, ví dụ: cmph...";
+      case "email":
+        return "Nhập email người dùng cần tra cứu.";
+      case "name":
+        return "Nhập tên hoặc một phần tên hiển thị.";
+      default:
+        return "";
+    }
+  };
+
+  const getPlaceholder = () => {
+    switch (searchType) {
+      case "id":
+        return "Nhập ID người dùng...";
+      case "email":
+        return "Nhập email người dùng...";
+      case "name":
+        return "Nhập tên người dùng...";
+      default:
+        return "";
+    }
+  };
+
+  const getRoleBadgeColor = (role: string) => {
+    switch (role.toUpperCase()) {
+      case "ADMIN":
+        return "bg-purple-100 text-purple-700";
+      case "CREATOR":
+        return "bg-amber-100 text-amber-700";
+      default:
+        return "bg-slate-100 text-slate-600";
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* Search Form */}
-      <form onSubmit={handleSearch} className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
-        <div className="space-y-4">
-          {/* Search Type */}
+      {/* Header Section */}
+      <div className="mb-8 rounded-3xl border border-emerald-100 bg-white/80 p-8 shadow-sm backdrop-blur">
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">
+          Quản lý người dùng
+        </div>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+          Tìm kiếm người dùng
+        </h1>
+        <p className="mt-3 max-w-2xl text-slate-600">
+          Tra cứu nhanh thông tin người dùng bằng ID, email hoặc tên hiển thị.
+        </p>
+      </div>
+
+      {/* Search Card */}
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <form onSubmit={handleSearch} className="space-y-6">
+          {/* Search Type Tabs */}
           <div>
-            <label className="block text-sm font-bold text-gray-900 mb-2">
-              Tìm kiếm theo
+            <label className="block text-sm font-semibold text-slate-900 mb-3">
+              Phương thức tìm kiếm
             </label>
-            <div className="flex gap-2">
+            <div className="grid grid-cols-3 gap-2 rounded-2xl bg-slate-100 p-1">
               <button
                 type="button"
                 onClick={() => setSearchType("id")}
-                className={`flex-1 px-4 py-2 rounded-xl font-bold transition ${searchType === "id"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                className={`rounded-xl px-4 py-2 text-sm font-medium transition flex items-center justify-center gap-2 ${searchType === "id"
+                    ? "bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-100"
+                    : "text-slate-600 hover:text-slate-900"
                   }`}
               >
-                <Hash size={16} className="inline mr-1" />
-                ID
+                <Hash size={16} />
+                # ID
               </button>
               <button
                 type="button"
                 onClick={() => setSearchType("email")}
-                className={`flex-1 px-4 py-2 rounded-xl font-bold transition ${searchType === "email"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                className={`rounded-xl px-4 py-2 text-sm font-medium transition flex items-center justify-center gap-2 ${searchType === "email"
+                    ? "bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-100"
+                    : "text-slate-600 hover:text-slate-900"
                   }`}
               >
-                <Mail size={16} className="inline mr-1" />
+                <Mail size={16} />
                 Email
               </button>
               <button
                 type="button"
                 onClick={() => setSearchType("name")}
-                className={`flex-1 px-4 py-2 rounded-xl font-bold transition ${searchType === "name"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                className={`rounded-xl px-4 py-2 text-sm font-medium transition flex items-center justify-center gap-2 ${searchType === "name"
+                    ? "bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-100"
+                    : "text-slate-600 hover:text-slate-900"
                   }`}
               >
-                <User size={16} className="inline mr-1" />
+                <User size={16} />
                 Tên
               </button>
             </div>
@@ -87,80 +145,104 @@ export default function UserSearchForm() {
 
           {/* Search Input */}
           <div>
-            <label className="block text-sm font-bold text-gray-900 mb-2">
+            <label className="block text-sm font-semibold text-slate-900 mb-3">
               {searchType === "id" && "Nhập ID người dùng"}
               {searchType === "email" && "Nhập email"}
               {searchType === "name" && "Nhập tên người dùng"}
             </label>
             <div className="relative">
+              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={
-                  searchType === "id" ? "cmo0vy9pf0000et1in40h2kfw" :
-                    searchType === "email" ? "user@example.com" :
-                      "Tên người dùng"
-                }
-                className="w-full px-4 py-3 pl-12 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition"
+                placeholder={getPlaceholder()}
+                className="h-12 w-full rounded-2xl border-slate-200 pl-11 pr-4 text-base focus:border-emerald-500 focus:ring-emerald-500"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleSearch(e);
+                  }
+                }}
               />
-              <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
+            <p className="mt-2 text-sm text-slate-500">{getHelperText()}</p>
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading || !searchQuery.trim()}
-            className="w-full px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="h-12 w-full rounded-2xl bg-emerald-600 px-6 font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60 transition flex items-center justify-center gap-2"
           >
-            {isLoading ? "Đang tìm kiếm..." : "Tìm kiếm"}
+            {isLoading ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                Đang tìm...
+              </>
+            ) : (
+              "Tìm kiếm"
+            )}
           </button>
-        </div>
-      </form>
+        </form>
+      </div>
 
-      {/* Results */}
+      {/* Results Section */}
       {searched && (
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
-          <h2 className="text-xl font-black text-gray-900 mb-4">
-            Kết quả tìm kiếm ({results.length})
-          </h2>
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900">Kết quả tìm kiếm</h2>
+              <p className="text-sm text-slate-500">
+                {results.length > 0
+                  ? `Tìm thấy ${results.length} người dùng`
+                  : "Thông tin người dùng sẽ hiển thị tại đây."
+                }
+              </p>
+            </div>
+          </div>
 
-          {results.length > 0 ? (
-            <div className="space-y-3">
+          {error ? (
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              {error}
+            </div>
+          ) : results.length > 0 ? (
+            <div className="space-y-4">
               {results.map((user) => (
                 <Link
                   key={user.id}
                   href={`/profile/${user.id}`}
-                  className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition group"
+                  className="flex items-center gap-4 rounded-2xl border border-emerald-100 bg-emerald-50/40 p-5 hover:bg-emerald-50/60 transition group"
                 >
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold overflow-hidden">
+                  <div className="h-14 w-14 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-sm">
                     {user.image ? (
-                      <img src={user.image} alt={user.name || "User"} className="w-full h-full object-cover" />
+                      <img src={user.image} alt={user.name || "User"} className="h-full w-full object-cover" />
                     ) : (
                       user.name?.[0]?.toUpperCase() || user.email[0].toUpperCase()
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-bold text-gray-900 group-hover:text-blue-600 transition">
+                    <div className="font-semibold text-slate-900 group-hover:text-emerald-700 transition">
                       {user.name || "Người dùng ẩn danh"}
                     </div>
-                    <div className="text-sm text-gray-400">{user.email}</div>
-                    <div className="text-xs text-gray-400 font-mono mt-1">ID: {user.id}</div>
+                    <div className="text-sm text-slate-600">{user.email}</div>
+                    <div className="text-xs text-slate-500 font-mono mt-1">ID: {user.id}</div>
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-xs font-black ${user.role === "ADMIN" ? "bg-red-100 text-red-600" :
-                      user.role === "CREATOR" ? "bg-blue-100 text-blue-600" :
-                        "bg-gray-100 text-gray-600"
-                    }`}>
+                  <div className={`px-3 py-1.5 rounded-full text-xs font-semibold ${getRoleBadgeColor(user.role)}`}>
                     {user.role}
                   </div>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <User size={48} className="mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-400">Không tìm thấy người dùng nào</p>
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 px-6 py-12 text-center">
+              <div className="mb-4 rounded-full bg-white p-4 shadow-sm">
+                <Search className="h-8 w-8 text-slate-400" />
+              </div>
+              <h3 className="text-base font-semibold text-slate-900">Không tìm thấy người dùng phù hợp</h3>
+              <p className="mt-2 max-w-md text-sm text-slate-500">
+                Hãy kiểm tra lại ID, email hoặc tên đã nhập.
+              </p>
             </div>
           )}
         </div>
