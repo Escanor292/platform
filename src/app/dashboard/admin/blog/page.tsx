@@ -61,7 +61,7 @@ export default function AdminBlogPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4" />
           <p className="text-gray-600">Đang tải...</p>
         </div>
       </div>
@@ -148,7 +148,7 @@ export default function AdminBlogPage() {
                     <div className="flex justify-end gap-2">
                       <Link
                         href={`/blog/${post.slug}`}
-                        className="text-blue-600 hover:text-blue-900"
+                        className="text-emerald-600 hover:text-emerald-900"
                         title="Xem"
                       >
                         <Eye className="w-5 h-5" />
@@ -208,11 +208,10 @@ function FilterButton({
   return (
     <button
       onClick={onClick}
-      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-        active
-          ? 'bg-blue-600 text-white'
-          : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
-      }`}
+      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${active
+        ? 'bg-emerald-600 text-white'
+        : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+        }`}
     >
       {label}
     </button>

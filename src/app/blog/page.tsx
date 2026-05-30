@@ -22,12 +22,16 @@ async function getBlogPosts(searchParams: any) {
       sort: searchParams.sort || 'latest',
     };
 
-    const result = await getBlogPostList(query);
-    return result;
+    const [result, featuredResult] = await Promise.all([
+      getBlogPostList(query),
+      getBlogPostList({ ...query, featured: true, limit: 3 }),
+    ]);
+
+    return { posts: result.posts, total: result.total, page: result.page, limit: result.limit, featuredPosts: featuredResult.posts };
   } catch (error) {
     console.error('Error fetching blog posts:', error);
     // Return empty result on error
-    return { posts: [], total: 0, page: 1, limit: 10 };
+    return { posts: [], total: 0, page: 1, limit: 10, featuredPosts: [] };
   }
 }
 
@@ -41,14 +45,26 @@ export default async function BlogPage({
   const session = await auth();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-emerald-600 to-emerald-500 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            Blog & Câu chuyện
+          </h1>
+          <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto">
+            Tin tức, câu chuyện và cập nhật từ cộng đồng crowdfunding TừTế Fund
+          </p>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Blog</h1>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Khám phá bài viết</h2>
             <p className="text-gray-600">
-              Tin tức, câu chuyện và cập nhật từ cộng đồng crowdfunding
+              Đọc những câu chuyện thú vị từ các creator và cộng đồng
             </p>
           </div>
 
@@ -62,6 +78,21 @@ export default async function BlogPage({
             </Link>
           )}
         </div>
+
+        {/* Featured Posts */}
+        {data.featuredPosts && data.featuredPosts.length > 0 && (
+          <div className="mb-12">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <span className="w-2 h-2 bg-emerald-600 rounded-full"></span>
+              Bài viết nổi bật
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {data.featuredPosts.map((post: BlogPostResponse) => (
+                <BlogCard key={post.id} post={post} />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Filters */}
         <div className="mb-6 flex flex-wrap gap-2">
@@ -92,10 +123,10 @@ export default async function BlogPage({
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
+            <div className="text-center py-16">
               <div className="text-gray-400 mb-4">
                 <svg
-                  className="w-16 h-16 mx-auto"
+                  className="w-20 h-20 mx-auto"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -108,12 +139,18 @@ export default async function BlogPage({
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <h3 className="text-2xl font-semibold text-gray-900 mb-2">
                 Chưa có bài viết nào
               </h3>
-              <p className="text-gray-600">
-                Hãy quay lại sau để đọc những câu chuyện thú vị từ cộng đồng
+              <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                Hãy quay lại sau để đọc những câu chuyện thú vị từ cộng đồng crowdfunding
               </p>
+              <Link
+                href="/projects"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+              >
+                Khám phá chiến dịch
+              </Link>
             </div>
           )}
         </Suspense>
@@ -126,9 +163,9 @@ export default async function BlogPage({
                 <a
                   key={page}
                   href={`/blog?page=${page}${params.type ? `&type=${params.type}` : ''}`}
-                  className={`px-4 py-2 rounded ${page === data.page
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-100'
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${page === data.page
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
                     }`}
                 >
                   {page}
@@ -155,7 +192,7 @@ function FilterButton({
     <a
       href={href}
       className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${active
-        ? 'bg-blue-600 text-white'
+        ? 'bg-emerald-600 text-white'
         : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
         }`}
     >
