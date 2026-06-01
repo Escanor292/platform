@@ -1,7 +1,8 @@
 "use client";
 
 import { SortOption } from "@/types/project";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, ChevronDown } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 
 interface ProjectSortSelectProps {
   value: SortOption;
@@ -20,25 +21,52 @@ const sortOptions: { value: SortOption; label: string }[] = [
 ];
 
 export function ProjectSortSelect({ value, onChange }: ProjectSortSelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const selectedOption = sortOptions.find(opt => opt.value === value);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <div className="relative">
-      <ArrowUpDown className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value as SortOption)}
-        className="appearance-none h-12 pl-12 pr-10 rounded-xl border-2 border-pgreen/20 focus:border-pgreen focus:ring-2 focus:ring-pgreen/20 focus:outline-none transition-all font-medium text-sm bg-white cursor-pointer hover:border-pgreen/40 text-dblue"
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full h-12 pl-12 pr-10 rounded-xl border-2 border-pgreen/20 focus:border-pgreen focus:ring-2 focus:ring-pgreen/20 focus:outline-none transition-all font-medium text-sm bg-white cursor-pointer hover:border-pgreen/40 text-dblue flex items-center justify-between"
       >
-        {sortOptions.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </div>
+        <ArrowUpDown className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
+        <span className="flex-1 text-left">{selectedOption?.label}</span>
+        <ChevronDown className={`text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} size={18} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-2 bg-white rounded-xl border-2 border-pgreen/20 shadow-lg overflow-hidden">
+          {sortOptions.map((option) => (
+            <button
+              key={option.value}
+              onClick={() => {
+                onChange(option.value);
+                setIsOpen(false);
+              }}
+              className={`w-full px-4 py-3 text-left text-sm font-medium transition-colors ${option.value === value
+                  ? "bg-pgreen text-white"
+                  : "text-dblue hover:bg-pgreen/10 hover:text-pgreen"
+                }`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
