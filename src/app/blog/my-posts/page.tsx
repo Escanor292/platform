@@ -64,7 +64,7 @@ export default function MyPostsPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pgreen mx-auto mb-4" />
           <p className="text-gray-600">Đang tải...</p>
         </div>
       </div>
@@ -72,17 +72,17 @@ export default function MyPostsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Bài viết của tôi</h1>
+            <h1 className="font-display text-3xl font-bold text-dblue mb-2">Bài viết của tôi</h1>
             <p className="text-gray-600">Quản lý các bài viết bạn đã tạo</p>
           </div>
           <Link
             href="/blog/editor"
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="flex items-center gap-2 rounded-2xl gradient-green px-6 py-3 font-bold text-white transition-all hover:shadow-lg hover:shadow-green-200"
           >
             <PlusCircle className="w-5 h-5" />
             Tạo bài viết mới
@@ -135,7 +135,7 @@ export default function MyPostsPage() {
             {posts.map((post) => (
               <div key={post.id} className="relative">
                 <BlogCard post={post} />
-                
+
                 {/* Action Buttons */}
                 <div className="absolute top-2 right-2 flex gap-2">
                   <Link
@@ -186,11 +186,10 @@ function FilterButton({
   return (
     <button
       onClick={onClick}
-      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-        active
-          ? 'bg-blue-600 text-white'
-          : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
-      }`}
+      className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${active
+        ? 'bg-pgreen text-white'
+        : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+        }`}
     >
       {label}
     </button>
@@ -200,10 +199,10 @@ function FilterButton({
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
     DRAFT: 'bg-gray-500 text-white',
-    PENDING_REVIEW: 'bg-yellow-500 text-white',
-    PUBLISHED: 'bg-green-500 text-white',
+    PENDING_REVIEW: 'bg-ebrown text-white',
+    PUBLISHED: 'bg-pgreen text-white',
     ARCHIVED: 'bg-gray-400 text-white',
-    REJECTED: 'bg-red-500 text-white',
+    REJECTED: 'bg-red-600 text-white',
   };
 
   const labels: Record<string, string> = {
@@ -215,7 +214,7 @@ function StatusBadge({ status }: { status: string }) {
   };
 
   return (
-    <span className={`px-2 py-1 rounded text-xs font-semibold ${styles[status] || 'bg-gray-500 text-white'}`}>
+    <span className={`rounded-full px-2 py-1 text-xs font-semibold ${styles[status] || 'bg-gray-500 text-white'}`}>
       {labels[status] || status}
     </span>
   );
