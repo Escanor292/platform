@@ -18,8 +18,8 @@ export function ProjectResultsHeader({ total, page, limit, isLoading }: ProjectR
           <div className="h-6 w-48 bg-gray-200 rounded animate-pulse" />
         ) : (
           <p className="text-sm text-gray-600">
-            Hiển thị <span className="font-bold text-gray-900">{start}-{end}</span> trong tổng số{" "}
-            <span className="font-bold text-gray-900">{total}</span> dự án
+            Hiển thị <span className="font-semibold text-dblue">{start}-{end}</span> trong tổng số{" "}
+            <span className="font-semibold text-dblue">{total}</span> dự án
           </p>
         )}
       </div>

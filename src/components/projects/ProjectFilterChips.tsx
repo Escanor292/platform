@@ -17,23 +17,23 @@ export function ProjectFilterChips({ filters, onRemoveFilter, onClearAll }: Proj
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-sm font-medium text-gray-500">Bộ lọc:</span>
-      
+      <span className="text-sm font-medium text-gray-500">Đang lọc:</span>
+
       {activeFilters.map((filter) => (
         <button
           key={`${filter.key}-${filter.value}`}
           onClick={() => onRemoveFilter(filter.key)}
-          className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors group"
+          className="inline-flex items-center gap-2 px-3 py-1.5 bg-pgreen/10 text-pgreen rounded-full text-sm font-medium hover:bg-pgreen/20 transition-colors group"
         >
           <span>{filter.label}</span>
-          <X size={14} className="group-hover:text-blue-900" />
+          <X size={14} className="group-hover:text-pgreen" />
         </button>
       ))}
 
       {activeFilters.length > 1 && (
         <button
           onClick={onClearAll}
-          className="text-sm font-medium text-gray-500 hover:text-gray-700 underline"
+          className="text-sm font-medium text-dblue hover:text-pgreen underline"
         >
           Xóa tất cả
         </button>

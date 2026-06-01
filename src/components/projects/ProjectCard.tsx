@@ -42,10 +42,10 @@ export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardPro
   return (
     <Link
       href={`/campaigns/${project.slug}`}
-      className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+      className="group bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
     >
       {/* Thumbnail */}
-      <div className="relative h-48 overflow-hidden bg-gray-100">
+      <div className="relative h-[210px] md:h-[200px] lg:h-[220px] overflow-hidden bg-gray-100">
         {project.imageUrl && (
           <img
             src={project.imageUrl}
@@ -61,7 +61,7 @@ export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardPro
             {getCompletionStateLabel(project.completionState)}
           </span>
           {project.isFeatured && (
-            <span className="px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-yellow-100 text-yellow-700">
+            <span className="px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-ebrown/10 text-ebrown">
               Nổi bật
             </span>
           )}
@@ -69,23 +69,28 @@ export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardPro
 
         {/* Campaign Code */}
         <div className="absolute top-3 right-3">
-          <span className="px-2 py-1 rounded-lg text-[10px] font-mono font-bold bg-black/70 text-white backdrop-blur">
-            {project.campaignCode}
+          <span
+            className="px-2 py-1 rounded-lg text-[10px] font-mono font-bold bg-black/70 text-white backdrop-blur"
+            title={project.campaignCode}
+          >
+            {project.campaignCode.length > 10
+              ? `${project.campaignCode.substring(0, 6)}...${project.campaignCode.slice(-4)}`
+              : project.campaignCode}
           </span>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-5 space-y-4">
+      <div className="p-6 space-y-4">
         {/* Category & Type */}
         <div className="flex flex-wrap gap-2">
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-600 rounded-md text-[9px] font-black uppercase tracking-wider border border-blue-100 italic">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-tblue/10 text-tblue rounded-md text-[9px] font-black uppercase tracking-wider border border-tblue/20 italic">
             <Tag size={10} />
             {project.category}
           </span>
           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider border italic ${project.campaignType === 'REWARD'
-              ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-              : 'bg-orange-50 text-orange-600 border-orange-100'
+            ? 'bg-pgreen/10 text-pgreen border-pgreen/20'
+            : 'bg-ebrown/10 text-ebrown border-ebrown/20'
             }`}>
             <Layers size={10} />
             {getCampaignTypeLabel(project.campaignType)}
@@ -93,13 +98,13 @@ export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardPro
         </div>
 
         {/* Title */}
-        <h3 className="font-bold text-lg text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors leading-tight">
+        <h3 className="font-display font-bold text-lg text-dblue line-clamp-2 group-hover:text-pgreen transition-colors leading-tight">
           {project.title}
         </h3>
 
         {/* Description */}
-        <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
-          {extractTextFromDescription(project.description)}
+        <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+          {extractTextFromDescription(project.description) || "Dự án đang cập nhật mô tả."}
         </p>
 
         {/* Progress */}
@@ -112,28 +117,25 @@ export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardPro
         />
 
         {/* Stats */}
-        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-          <div className="flex items-center gap-4 text-xs text-gray-500">
-            <div className="flex items-center gap-1">
-              <Users size={14} />
-              <span className="font-medium">{project.totalBackers}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Star size={14} className="fill-yellow-400 text-yellow-400" />
-              <span className="font-medium">{project.totalFollowers || 0}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Eye size={14} />
-              <span className="font-medium">{project.totalViews}</span>
-            </div>
-          </div>
-
+        <div className="flex items-center justify-between pt-2 border-t border-gray-100 text-xs text-gray-500">
+          <span className="font-medium">
+            {project.totalBackers} ủng hộ
+          </span>
           {project.endDate && (
-            <div className="flex items-center gap-1 text-xs text-gray-500">
-              <Calendar size={14} />
-              <span className="font-medium">{formatDaysRemaining(project.endDate)}</span>
-            </div>
+            <span className="font-medium">
+              {formatDaysRemaining(project.endDate)}
+            </span>
           )}
+        </div>
+
+        {/* Action Button */}
+        <div className="pt-2">
+          <Link
+            href={`/campaigns/${project.slug}`}
+            className="block w-full text-center px-4 py-2.5 rounded-xl gradient-green text-white font-bold text-sm hover:shadow-lg transition-all"
+          >
+            Xem chi tiết
+          </Link>
         </div>
 
         {/* Creator */}
@@ -141,10 +143,10 @@ export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardPro
           <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
             {project.creatorName.charAt(0)}
           </div>
-          <span className="text-xs text-gray-600 font-medium">
+          <span className="text-xs text-dblue font-medium">
             {project.creatorName}
             {project.creatorIsPro && (
-              <span className="ml-1 text-emerald-600">✓</span>
+              <span className="ml-1 text-pgreen">✓</span>
             )}
           </span>
         </div>

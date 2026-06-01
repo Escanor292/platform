@@ -20,22 +20,22 @@ import { SlidersHorizontal, Loader2 } from "lucide-react";
 export default function ProjectsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [data, setData] = useState<ProjectListResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
-  
+
   // Debounce search query để giảm số lần fetch
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
-  
+
   // Memoize filters to prevent unnecessary re-renders
   const filters = useMemo(() => {
     const parsed = parseProjectFilters(searchParams);
     // Override với debounced search query
     return { ...parsed, q: debouncedSearchQuery || undefined };
   }, [searchParams, debouncedSearchQuery]);
-  
+
   // Create stable query string
   const queryString = useMemo(() => {
     const params = filtersToSearchParams(filters);
@@ -56,16 +56,16 @@ export default function ProjectsPage() {
       }
 
       setIsLoading(true);
-      
+
       try {
         const response = await fetch(`/api/projects?${queryString}`);
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const result = await response.json();
-        
+
         if (isMounted) {
           setData(result);
           projectCache.set(queryString, result);
@@ -73,7 +73,7 @@ export default function ProjectsPage() {
         }
       } catch (error: any) {
         console.error("Error fetching projects:", error);
-        
+
         if (isMounted) {
           setData({
             items: [],
@@ -143,7 +143,7 @@ export default function ProjectsPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [filters, router]);
 
-  const hasActiveFilters = useMemo(() => 
+  const hasActiveFilters = useMemo(() =>
     Object.keys(filters).some(
       (key) => !["page", "limit", "sort"].includes(key) && filters[key as keyof ProjectFilters] !== undefined
     ),
@@ -151,56 +151,82 @@ export default function ProjectsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-12">
+    <div className="min-h-screen bg-white">
+      {/* Hero Header */}
+      <section
+        className="pt-32 pb-16 px-6 relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(180deg, #F8F7F2 0%, #f0f8f4 50%, #F8F7F2 100%)'
+        }}
+      >
+        {/* Background elements */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <div
+            className="absolute top-10 left-[5%] w-96 h-96 bg-gradient-to-br from-fgreen/20 via-fgreen/8 to-transparent rounded-full blur-3xl opacity-70"
+            style={{ animation: 'pulse 8s ease-in-out infinite' }}
+          />
+          <div
+            className="absolute top-32 right-[8%] w-80 h-80 bg-gradient-to-tl from-tblue/15 via-transparent to-transparent rounded-full blur-3xl opacity-60"
+            style={{ animation: 'pulse 10s ease-in-out 2s infinite' }}
+          />
+        </div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-8">
-            <h1 className="text-5xl font-black text-gray-900 mb-4 tracking-tight">
+            <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full backdrop-blur-md bg-white/55 border border-white/70 text-pgreen text-xs font-bold mb-6 shadow-lg">
+              Khám phá cộng đồng
+            </div>
+            <h1 className="font-display font-black text-4xl lg:text-6xl text-dblue mb-5">
               Khám phá dự án
             </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Tìm kiếm và ủng hộ các dự án sáng tạo, ý nghĩa từ cộng đồng
+            <p className="mx-auto max-w-2xl text-lg text-gray-600 leading-relaxed">
+              Tìm kiếm và đồng hành cùng những chiến dịch tử tế đang tạo tác động tích cực.
             </p>
           </div>
 
           {/* Search and Sort */}
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1">
-              <ProjectSearchBar
-                value={searchQuery}
-                onChange={handleSearch}
-                onClear={() => handleSearch("")}
-              />
-            </div>
-            <div className="flex gap-3">
-              <ProjectSortSelect
-                value={filters.sort || "newest"}
-                onChange={handleSort}
-              />
-              <button
-                onClick={() => setShowAdvancedFilters(true)}
-                className="h-12 px-6 rounded-xl border-2 border-gray-200 font-bold text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2 whitespace-nowrap"
-              >
-                <SlidersHorizontal size={18} />
-                <span className="hidden sm:inline">Bộ lọc</span>
-              </button>
+          <div className="max-w-4xl mx-auto">
+            <div className="glass rounded-3xl p-6 shadow-soft">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                  <ProjectSearchBar
+                    value={searchQuery}
+                    onChange={handleSearch}
+                    onClear={() => handleSearch("")}
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <ProjectSortSelect
+                    value={filters.sort || "newest"}
+                    onChange={handleSort}
+                  />
+                  <button
+                    onClick={() => setShowAdvancedFilters(true)}
+                    className="h-12 px-6 rounded-xl border-2 border-pgreen/20 font-bold text-dblue hover:border-pgreen/40 hover:text-pgreen transition-colors flex items-center gap-2 whitespace-nowrap"
+                  >
+                    <SlidersHorizontal size={18} />
+                    <span className="hidden sm:inline">Bộ lọc</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Active Filters */}
+              {hasActiveFilters && (
+                <div className="mt-4">
+                  <ProjectFilterChips
+                    filters={filters}
+                    onRemoveFilter={handleRemoveFilter}
+                    onClearAll={handleClearAllFilters}
+                  />
+                </div>
+              )}
             </div>
           </div>
-
-          {/* Active Filters */}
-          {hasActiveFilters && (
-            <ProjectFilterChips
-              filters={filters}
-              onRemoveFilter={handleRemoveFilter}
-              onClearAll={handleClearAllFilters}
-            />
-          )}
         </div>
-      </div>
+      </section>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Results Header */}
         {data && (
           <div className="mb-8">

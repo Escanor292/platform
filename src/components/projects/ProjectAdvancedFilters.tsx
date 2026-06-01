@@ -71,19 +71,19 @@ export function ProjectAdvancedFilters({ filters, onApply, onClose }: ProjectAdv
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-dblue/40 backdrop-blur-sm" onClick={onClose} />
 
       {/* Drawer */}
       <div className="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
-            <SlidersHorizontal size={24} className="text-blue-600" />
-            <h2 className="text-xl font-black text-gray-900">Bộ lọc nâng cao</h2>
+            <SlidersHorizontal size={24} className="text-pgreen" />
+            <h2 className="font-display text-xl font-bold text-dblue">Bộ lọc nâng cao</h2>
           </div>
           <button
             onClick={onClose}
-            className="w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center transition-colors"
+            className="w-10 h-10 rounded-xl hover:bg-pgreen/10 hover:text-pgreen flex items-center justify-center transition-colors"
           >
             <X size={24} />
           </button>
@@ -93,7 +93,7 @@ export function ProjectAdvancedFilters({ filters, onApply, onClose }: ProjectAdv
         <div className="p-6 space-y-8">
           {/* Category */}
           <div className="space-y-3">
-            <label className="block text-sm font-bold text-gray-900 uppercase tracking-wider">
+            <label className="block text-sm font-bold text-dblue uppercase tracking-wider">
               Danh mục
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -101,11 +101,10 @@ export function ProjectAdvancedFilters({ filters, onApply, onClose }: ProjectAdv
                 <button
                   key={cat}
                   onClick={() => setLocalFilters({ ...localFilters, category: localFilters.category === cat ? undefined : cat })}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    localFilters.category === cat
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
+                  className={`px-3 py-2 rounded-2xl text-sm font-medium transition-colors ${localFilters.category === cat
+                      ? "bg-pgreen text-white shadow-lg"
+                      : "bg-cream text-dblue hover:bg-pgreen/10 hover:text-pgreen"
+                    }`}
                 >
                   {cat}
                 </button>
@@ -115,7 +114,7 @@ export function ProjectAdvancedFilters({ filters, onApply, onClose }: ProjectAdv
 
           {/* Campaign Type */}
           <div className="space-y-3">
-            <label className="block text-sm font-bold text-gray-900 uppercase tracking-wider">
+            <label className="block text-sm font-bold text-dblue uppercase tracking-wider">
               Loại chiến dịch
             </label>
             <div className="space-y-2">
@@ -123,11 +122,10 @@ export function ProjectAdvancedFilters({ filters, onApply, onClose }: ProjectAdv
                 <button
                   key={type.value}
                   onClick={() => setLocalFilters({ ...localFilters, campaignType: localFilters.campaignType === type.value ? undefined : type.value })}
-                  className={`w-full px-4 py-3 rounded-lg text-sm font-medium text-left transition-colors ${
-                    localFilters.campaignType === type.value
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
+                  className={`w-full px-4 py-3 rounded-2xl text-sm font-medium text-left transition-colors ${localFilters.campaignType === type.value
+                      ? "bg-pgreen text-white"
+                      : "bg-cream text-dblue hover:bg-pgreen/10"
+                    }`}
                 >
                   {type.label}
                 </button>
@@ -137,7 +135,7 @@ export function ProjectAdvancedFilters({ filters, onApply, onClose }: ProjectAdv
 
           {/* Completion State */}
           <div className="space-y-3">
-            <label className="block text-sm font-bold text-gray-900 uppercase tracking-wider">
+            <label className="block text-sm font-bold text-dblue uppercase tracking-wider">
               Trạng thái
             </label>
             <div className="space-y-2">
@@ -145,11 +143,10 @@ export function ProjectAdvancedFilters({ filters, onApply, onClose }: ProjectAdv
                 <button
                   key={state.value}
                   onClick={() => setLocalFilters({ ...localFilters, completionState: localFilters.completionState === state.value ? undefined : state.value })}
-                  className={`w-full px-4 py-3 rounded-lg text-sm font-medium text-left transition-colors ${
-                    localFilters.completionState === state.value
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
+                  className={`w-full px-4 py-3 rounded-2xl text-sm font-medium text-left transition-colors ${localFilters.completionState === state.value
+                      ? "bg-pgreen text-white"
+                      : "bg-cream text-dblue hover:bg-pgreen/10"
+                    }`}
                 >
                   {state.label}
                 </button>
@@ -159,7 +156,7 @@ export function ProjectAdvancedFilters({ filters, onApply, onClose }: ProjectAdv
 
           {/* Rating */}
           <div className="space-y-3">
-            <label className="block text-sm font-bold text-gray-900 uppercase tracking-wider">
+            <label className="block text-sm font-bold text-dblue uppercase tracking-wider">
               Đánh giá
             </label>
             <div className="space-y-2">
@@ -167,11 +164,10 @@ export function ProjectAdvancedFilters({ filters, onApply, onClose }: ProjectAdv
                 <button
                   key={rating}
                   onClick={() => setLocalFilters({ ...localFilters, ratingMin: localFilters.ratingMin === rating ? undefined : rating })}
-                  className={`w-full px-4 py-3 rounded-lg text-sm font-medium text-left transition-colors ${
-                    localFilters.ratingMin === rating
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
+                  className={`w-full px-4 py-3 rounded-2xl text-sm font-medium text-left transition-colors ${localFilters.ratingMin === rating
+                      ? "bg-pgreen text-white"
+                      : "bg-cream text-dblue hover:bg-pgreen/10"
+                    }`}
                 >
                   {rating}+ sao
                 </button>
@@ -181,7 +177,7 @@ export function ProjectAdvancedFilters({ filters, onApply, onClose }: ProjectAdv
 
           {/* Time Range */}
           <div className="space-y-3">
-            <label className="block text-sm font-bold text-gray-900 uppercase tracking-wider">
+            <label className="block text-sm font-bold text-dblue uppercase tracking-wider">
               Thời gian tạo
             </label>
             <div className="space-y-2">
@@ -189,11 +185,10 @@ export function ProjectAdvancedFilters({ filters, onApply, onClose }: ProjectAdv
                 <button
                   key={range.value}
                   onClick={() => setLocalFilters({ ...localFilters, createdWithin: localFilters.createdWithin === range.value ? undefined : range.value })}
-                  className={`w-full px-4 py-3 rounded-lg text-sm font-medium text-left transition-colors ${
-                    localFilters.createdWithin === range.value
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
+                  className={`w-full px-4 py-3 rounded-2xl text-sm font-medium text-left transition-colors ${localFilters.createdWithin === range.value
+                      ? "bg-pgreen text-white"
+                      : "bg-cream text-dblue hover:bg-pgreen/10"
+                    }`}
                 >
                   {range.label}
                 </button>
@@ -203,7 +198,7 @@ export function ProjectAdvancedFilters({ filters, onApply, onClose }: ProjectAdv
 
           {/* Progress Range */}
           <div className="space-y-3">
-            <label className="block text-sm font-bold text-gray-900 uppercase tracking-wider">
+            <label className="block text-sm font-bold text-dblue uppercase tracking-wider">
               Tiến độ gây quỹ
             </label>
             <div className="space-y-2">
@@ -218,11 +213,10 @@ export function ProjectAdvancedFilters({ filters, onApply, onClose }: ProjectAdv
                       progressMax: isSelected ? undefined : range.max,
                     });
                   }}
-                  className={`w-full px-4 py-3 rounded-lg text-sm font-medium text-left transition-colors ${
-                    localFilters.progressMin === range.min && localFilters.progressMax === range.max
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
+                  className={`w-full px-4 py-3 rounded-2xl text-sm font-medium text-left transition-colors ${localFilters.progressMin === range.min && localFilters.progressMax === range.max
+                      ? "bg-pgreen text-white"
+                      : "bg-cream text-dblue hover:bg-pgreen/10"
+                    }`}
                 >
                   {range.label}
                 </button>
@@ -237,9 +231,9 @@ export function ProjectAdvancedFilters({ filters, onApply, onClose }: ProjectAdv
                 type="checkbox"
                 checked={localFilters.isFeatured || false}
                 onChange={(e) => setLocalFilters({ ...localFilters, isFeatured: e.target.checked || undefined })}
-                className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="w-5 h-5 rounded border-gray-300 text-pgreen focus:ring-pgreen"
               />
-              <span className="text-sm font-bold text-gray-900 uppercase tracking-wider">
+              <span className="text-sm font-bold text-dblue uppercase tracking-wider">
                 Chỉ dự án nổi bật
               </span>
             </label>
@@ -250,13 +244,13 @@ export function ProjectAdvancedFilters({ filters, onApply, onClose }: ProjectAdv
         <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex gap-3">
           <button
             onClick={handleReset}
-            className="flex-1 h-12 rounded-xl border-2 border-gray-200 font-bold text-gray-700 hover:bg-gray-50 transition-colors"
+            className="flex-1 h-12 rounded-xl border-2 border-pgreen/20 font-bold text-dblue hover:text-pgreen transition-colors"
           >
             Đặt lại
           </button>
           <button
             onClick={handleApply}
-            className="flex-1 h-12 rounded-xl bg-blue-600 font-bold text-white hover:bg-blue-700 transition-colors"
+            className="flex-1 h-12 rounded-xl gradient-green font-bold text-white hover:shadow-lg transition-all"
           >
             Áp dụng
           </button>

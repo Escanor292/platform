@@ -45,7 +45,7 @@ export function ProjectPagination({ currentPage, totalPages, onPageChange }: Pro
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="w-10 h-10 rounded-xl border-2 border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center hover:border-pgreen/40 hover:text-pgreen disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         <ChevronLeft size={20} />
       </button>
@@ -55,13 +55,12 @@ export function ProjectPagination({ currentPage, totalPages, onPageChange }: Pro
           key={idx}
           onClick={() => typeof page === "number" && onPageChange(page)}
           disabled={page === "..."}
-          className={`min-w-10 h-10 px-3 rounded-xl font-bold transition-colors ${
-            page === currentPage
-              ? "bg-blue-600 text-white"
+          className={`min-w-10 h-10 px-3 rounded-full font-bold transition-colors ${page === currentPage
+              ? "bg-pgreen text-white"
               : page === "..."
-              ? "cursor-default"
-              : "border-2 border-gray-200 hover:bg-gray-50"
-          }`}
+                ? "cursor-default"
+                : "border-2 border-gray-200 hover:border-pgreen/40 hover:text-pgreen"
+            }`}
         >
           {page}
         </button>
@@ -70,7 +69,7 @@ export function ProjectPagination({ currentPage, totalPages, onPageChange }: Pro
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="w-10 h-10 rounded-xl border-2 border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center hover:border-pgreen/40 hover:text-pgreen disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         <ChevronRight size={20} />
       </button>

@@ -26,7 +26,7 @@ export function ProjectSortSelect({ value, onChange }: ProjectSortSelectProps) {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as SortOption)}
-        className="appearance-none h-12 pl-12 pr-10 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-colors font-medium text-sm bg-white cursor-pointer hover:border-gray-300"
+        className="appearance-none h-12 pl-12 pr-10 rounded-xl border-2 border-pgreen/20 focus:border-pgreen focus:ring-2 focus:ring-pgreen/20 focus:outline-none transition-all font-medium text-sm bg-white cursor-pointer hover:border-pgreen/40 text-dblue"
       >
         {sortOptions.map((option) => (
           <option key={option.value} value={option.value}>
