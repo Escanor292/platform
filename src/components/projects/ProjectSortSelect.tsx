@@ -38,7 +38,7 @@ export function ProjectSortSelect({ value, onChange }: ProjectSortSelectProps) {
   }, []);
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative z-[100] overflow-visible" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full h-12 pl-12 pr-10 rounded-xl border-2 border-pgreen/20 focus:border-pgreen focus:ring-2 focus:ring-pgreen/20 focus:outline-none transition-all font-medium text-sm bg-white cursor-pointer hover:border-pgreen/40 text-dblue flex items-center justify-between"
@@ -49,7 +49,7 @@ export function ProjectSortSelect({ value, onChange }: ProjectSortSelectProps) {
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-2 w-full bg-white rounded-2xl border border-pgreen/20 shadow-xl overflow-hidden max-h-72 overflow-y-auto">
+        <div className="absolute left-0 right-0 top-full z-[999] mt-2 w-full bg-white rounded-2xl border border-pgreen/20 shadow-2xl overflow-hidden max-h-72 overflow-y-auto">
           {sortOptions.map((option) => (
             <button
               key={option.value}

@@ -154,12 +154,12 @@ export default function ProjectsPage() {
     <div className="min-h-screen bg-white">
       {/* Hero Header */}
       <section
-        className="pt-32 pb-16 px-6 relative overflow-hidden"
+        className="pt-32 pb-16 px-6 relative"
         style={{
           background: 'linear-gradient(180deg, #F8F7F2 0%, #f0f8f4 50%, #F8F7F2 100%)'
         }}
       >
-        {/* Background elements */}
+        {/* Background elements - separate container with overflow-hidden */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
           <div
             className="absolute top-10 left-[5%] w-96 h-96 bg-gradient-to-br from-fgreen/20 via-fgreen/8 to-transparent rounded-full blur-3xl opacity-70"
@@ -171,7 +171,7 @@ export default function ProjectsPage() {
           />
         </div>
 
-        <div className="max-w-7xl mx-auto relative z-10">
+        <div className="max-w-7xl mx-auto relative z-10 overflow-visible">
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full backdrop-blur-md bg-white/55 border border-white/70 text-pgreen text-xs font-bold mb-6 shadow-lg">
               Khám phá cộng đồng
@@ -185,7 +185,7 @@ export default function ProjectsPage() {
           </div>
 
           {/* Search and Sort */}
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto relative z-40 overflow-visible">
             <div className="glass rounded-3xl p-6 shadow-soft">
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
