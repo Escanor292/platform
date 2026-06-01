@@ -49,7 +49,7 @@ export function ProjectSortSelect({ value, onChange }: ProjectSortSelectProps) {
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-2 bg-white rounded-xl border-2 border-pgreen/20 shadow-lg overflow-hidden">
+        <div className="absolute left-0 right-0 top-full z-50 mt-2 w-full bg-white rounded-2xl border border-pgreen/20 shadow-xl overflow-hidden max-h-72 overflow-y-auto">
           {sortOptions.map((option) => (
             <button
               key={option.value}
@@ -58,8 +58,8 @@ export function ProjectSortSelect({ value, onChange }: ProjectSortSelectProps) {
                 setIsOpen(false);
               }}
               className={`w-full px-4 py-3 text-left text-sm font-medium transition-colors ${option.value === value
-                  ? "bg-pgreen text-white"
-                  : "text-dblue hover:bg-pgreen/10 hover:text-pgreen"
+                ? "bg-pgreen text-white"
+                : "text-dblue hover:bg-pgreen/10 hover:text-pgreen"
                 }`}
             >
               {option.label}
