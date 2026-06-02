@@ -91,10 +91,10 @@ export default function CampaignRewards({
                                 {/* CTA Button for Reward */}
                                 <button
                                     className={`
-                                        px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200
+                                        inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold shadow-sm transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-pgreen focus-visible:ring-offset-2
                                         ${!isAvailable
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                            : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm hover:shadow-md'
+                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60'
+                                            : 'gradient-green text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-green-200'
                                         }
                                     `}
                                     onClick={(e) => {
@@ -105,6 +105,7 @@ export default function CampaignRewards({
                                     }}
                                     disabled={!isAvailable}
                                 >
+                                    {isAvailable && <Gift className="h-4 w-4" />}
                                     {!isAvailable ? 'Hết suất' : 'Ủng hộ nhận quà'}
                                 </button>
                             </div>
