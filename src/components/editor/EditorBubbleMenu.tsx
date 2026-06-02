@@ -40,11 +40,11 @@ function BubbleButton({ onClick, isActive, title, children }: BubbleButtonProps)
       }}
       title={title}
       className={`
-        flex items-center justify-center w-8 h-8 rounded transition-all
+        flex items-center justify-center w-8 h-8 rounded-xl transition-all
         ${
           isActive
-            ? 'bg-blue-600 text-white'
-            : 'text-gray-700 hover:bg-gray-100'
+            ? 'bg-pgreen text-white'
+            : 'text-gray-700 hover:bg-pgreen/10 hover:text-pgreen'
         }
       `}
     >
@@ -83,7 +83,7 @@ export function EditorBubbleMenu({ editor, onLinkInsert }: EditorBubbleMenuProps
         
         return true;
       }}
-      className="flex items-center gap-0.5 px-2 py-1.5 bg-white border border-gray-200 rounded-lg shadow-lg"
+      className="flex items-center gap-1 px-2.5 py-2 bg-white border border-pgreen/10 rounded-2xl shadow-xl"
     >
       <BubbleButton
         onClick={() => editor.chain().focus().toggleBold().run()}

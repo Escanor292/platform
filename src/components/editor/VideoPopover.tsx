@@ -61,44 +61,48 @@ export function VideoPopover({
   const popoverRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Calculate position based on caret
-  const calculatePosition = useCallback(() => {
-    if (!editor || !editor.view) return;
+  // Calculate position - stable effect
+  useEffect(() => {
+    if (!isOpen || !editor?.view) return;
 
     try {
       const { state, view } = editor;
       const { from } = state.selection;
-
-      // Get coordinates from editor view
       const coords = view.coordsAtPos(from);
-
-      // Get editor container position
       const editorElement = view.dom;
       const editorRect = editorElement.getBoundingClientRect();
-
-      // Calculate popover position
-      const top = coords.bottom - editorRect.top + 8;
-      const left = coords.left - editorRect.left;
-
-      setPosition({ top, left });
+      
+      requestAnimationFrame(() => {
+        setPosition({
+          top: coords.bottom - editorRect.top + 8,
+          left: coords.left - editorRect.left,
+        });
+      });
     } catch (error) {
-      console.error('Error calculating position:', error);
-      setPosition({ top: 50, left: 50 });
+      console.error('[VideoPopover] Position calculation error:', error);
+      requestAnimationFrame(() => {
+        setPosition({ top: 50, left: 50 });
+      });
     }
-  }, [editor]);
+  }, [isOpen, editor]);
 
-  // Update position when opened
+  // Reset input and focus when opened
   useEffect(() => {
     if (isOpen) {
-      calculatePosition();
-      setUrl('');
-      setError('');
+      requestAnimationFrame(() => {
+        setUrl('');
+        setError('');
+      });
 
-      setTimeout(() => {
-        inputRef.current?.focus();
+      const timer = setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
       }, 50);
+
+      return () => clearTimeout(timer);
     }
-  }, [isOpen, calculatePosition]);
+  }, [isOpen]);
 
   // Click outside handler - ROBUST with pointerdown
   useEffect(() => {
@@ -115,7 +119,6 @@ export function VideoPopover({
       );
 
       if (isInsidePopover) {
-        console.log('[VideoPopover] Pointer down inside - keeping open');
         return;
       }
 
@@ -125,25 +128,21 @@ export function VideoPopover({
       );
 
       if (isToolbarButton) {
-        console.log('[VideoPopover] Pointer down on toolbar button - ignoring');
         return;
       }
 
       // Truly outside - close
-      console.log('[VideoPopover] Pointer down outside - closing');
       onClose();
     };
 
     // Add listener after delay, use capture phase
     const timer = setTimeout(() => {
       document.addEventListener('pointerdown', handlePointerDown, true);
-      console.log('[VideoPopover] Pointer down listener added');
     }, 200);
 
     return () => {
       clearTimeout(timer);
       document.removeEventListener('pointerdown', handlePointerDown, true);
-      console.log('[VideoPopover] Pointer down listener removed');
     };
   }, [isOpen, onClose]);
 
@@ -216,31 +215,31 @@ export function VideoPopover({
       onMouseDown={stopMouseEvents}
       onMouseUp={stopMouseEvents}
       onClick={stopMouseEvents}
-      className="absolute z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-3 min-w-[320px] max-w-[400px]"
+      className="absolute z-50 bg-white rounded-2xl shadow-2xl border border-pgreen/15 p-4 min-w-[320px] max-w-[400px]"
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,
       }}
     >
       {/* Header */}
-      <div className="flex items-center gap-2 mb-2">
-        <Youtube size={16} className="text-red-600" />
-        <span className="text-sm font-semibold text-gray-700">
+      <div className="flex items-center gap-2 mb-2.5">
+        <Youtube size={16} className="text-pgreen" />
+        <span className="text-sm font-semibold text-dblue">
           Chèn video YouTube/Vimeo
         </span>
       </div>
 
       {/* Input */}
-      <div className="mb-3">
+      <div className="mb-3.5">
         <input
           ref={inputRef}
           type="text"
           value={url}
           onChange={(e) => handleUrlChange(e.target.value)}
           placeholder="https://youtube.com/watch?v=... hoặc https://vimeo.com/..."
-          className={`w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 transition-all ${error
+          className={`w-full px-3.5 py-2 text-sm border rounded-xl focus:outline-none focus:ring-4 transition-all ${error
               ? 'border-red-300 focus:ring-red-200'
-              : 'border-gray-300 focus:ring-blue-200 focus:border-blue-400'
+              : 'border-pgreen/20 focus:ring-pgreen/10 focus:border-pgreen/40 bg-white'
             }`}
         />
         {error && (
@@ -258,7 +257,7 @@ export function VideoPopover({
         <button
           type="button"
           onClick={handleApply}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+          className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white gradient-green rounded-xl hover:shadow-md transition-all"
         >
           <Check size={14} />
           Chèn video
@@ -266,7 +265,7 @@ export function VideoPopover({
         <button
           type="button"
           onClick={onClose}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+          className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-dblue bg-cream rounded-xl hover:text-pgreen hover:bg-cream/80 transition-all"
         >
           <X size={14} />
           Hủy

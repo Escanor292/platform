@@ -68,7 +68,7 @@ export function ProductionEditor({
     editable: editable && !readOnly,
     editorProps: {
       attributes: {
-        class: 'prose prose-lg max-w-none min-h-[400px] px-6 py-6 focus:outline-none',
+        class: 'prose prose-lg max-w-none min-h-[420px] px-6 py-6 focus:outline-none',
       },
       handlePaste: (view, event, slice) => {
         // Let Tiptap handle paste, it will sanitize through extensions
@@ -108,11 +108,9 @@ export function ProductionEditor({
       }
     },
     onFocus: ({ editor, event }) => {
-      console.log('[ProductionEditor] Editor focused');
       callbacks.onFocus?.();
     },
     onBlur: ({ editor, event }) => {
-      console.log('[ProductionEditor] Editor blurred');
       callbacks.onBlur?.();
     },
   });
@@ -244,23 +242,18 @@ export function ProductionEditor({
 
     // CRITICAL: Prevent reopen if already open
     if (isVideoPopoverOpenRef.current) {
-      console.log('[ProductionEditor] Video popover already open - ignoring');
       return;
     }
-
-    console.log('[ProductionEditor] handleVideoEmbed called');
 
     // Set ref BEFORE state
     isVideoPopoverOpenRef.current = true;
 
     // Open popover
-    console.log('[ProductionEditor] Opening video popover');
     setIsVideoPopoverOpen(true);
   }, []);
 
   // Close video popover handler
   const handleVideoPopoverClose = useCallback(() => {
-    console.log('[ProductionEditor] Closing video popover');
     isVideoPopoverOpenRef.current = false;
     setIsVideoPopoverOpen(false);
   }, []);
@@ -272,26 +265,20 @@ export function ProductionEditor({
 
     // CRITICAL: Prevent reopen if already open
     if (isLinkPopoverOpenRef.current) {
-      console.log('[ProductionEditor] Popover already open - ignoring');
       return;
     }
 
-    console.log('[ProductionEditor] handleLinkInsert called');
-
     // Save selection
     const selection = saveSelection(currentEditor);
-    console.log('[ProductionEditor] Saved selection:', selection);
     setLinkSavedSelection(selection);
 
     // Check for existing link
     const previousUrl = getLinkAtCursor(currentEditor);
 
     if (previousUrl) {
-      console.log('[ProductionEditor] Edit mode');
       setLinkPopoverInitialUrl(previousUrl);
       setIsLinkEditMode(true);
     } else {
-      console.log('[ProductionEditor] Insert mode');
       setLinkPopoverInitialUrl('');
       setIsLinkEditMode(false);
     }
@@ -300,13 +287,11 @@ export function ProductionEditor({
     isLinkPopoverOpenRef.current = true;
 
     // Open popover
-    console.log('[ProductionEditor] Opening popover');
     setIsLinkPopoverOpen(true);
   }, []); // Stable reference
 
   // Close popover handler
   const handleLinkPopoverClose = useCallback(() => {
-    console.log('[ProductionEditor] Closing popover');
     isLinkPopoverOpenRef.current = false;
     setIsLinkPopoverOpen(false);
   }, []);
@@ -331,15 +316,15 @@ export function ProductionEditor({
 
   if (!editor) {
     return (
-      <div className="w-full border border-gray-200 rounded-lg bg-gray-50 animate-pulse">
-        <div className="h-12 bg-gray-200" />
+      <div className="w-full animate-pulse rounded-3xl border border-pgreen/10 bg-cream/40 overflow-hidden">
+        <div className="h-12 bg-cream/80 border-b border-pgreen/10" />
         <div className="h-96" />
       </div>
     );
   }
 
   return (
-    <div className={`w-full border border-gray-200 rounded-lg bg-white shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-300 transition-all ${className}`}>
+    <div className={`w-full overflow-hidden rounded-3xl border border-pgreen/15 bg-white shadow-soft transition-all focus-within:border-pgreen/40 focus-within:ring-4 focus-within:ring-pgreen/10 ${className}`}>
       {/* Toolbar */}
       <EditorToolbar
         editor={editor}
@@ -368,19 +353,19 @@ export function ProductionEditor({
           <style>{`
             /* Keep selection visible even when editor loses focus */
             .ProseMirror-selectednode {
-              outline: 2px solid rgba(59, 130, 246, 0.4);
+              outline: 2px solid rgba(46, 139, 87, 0.4);
             }
             
             /* Fake selection highlight when popover is open */
             .ProseMirror::selection,
             .ProseMirror ::selection {
-              background-color: rgba(59, 130, 246, 0.3) !important;
+              background-color: rgba(46, 139, 87, 0.3) !important;
             }
             
             /* Even when not focused */
             .ProseMirror:not(:focus)::selection,
             .ProseMirror:not(:focus) ::selection {
-              background-color: rgba(59, 130, 246, 0.25) !important;
+              background-color: rgba(46, 139, 87, 0.25) !important;
             }
           `}</style>
         )}
@@ -410,7 +395,7 @@ export function ProductionEditor({
         {isUploading && (
           <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-20">
             <div className="flex flex-col items-center gap-2">
-              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 border-4 border-pgreen border-t-transparent rounded-full animate-spin" />
               <span className="text-sm font-medium text-gray-700">Đang tải ảnh lên...</span>
             </div>
           </div>
@@ -418,14 +403,14 @@ export function ProductionEditor({
       </div>
 
       {/* Footer */}
-      <div className="px-6 py-3 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
+      <div className="px-6 py-3 bg-cream/40 border-t border-pgreen/10 flex justify-between items-center">
         {/* Save Status */}
         <div className="flex items-center gap-2 text-xs font-medium text-gray-500">
           <div
             className={`w-2 h-2 rounded-full transition-colors duration-300 ${saveStatus === 'saved'
-              ? 'bg-emerald-500'
+              ? 'bg-pgreen'
               : saveStatus === 'saving'
-                ? 'bg-amber-500 animate-pulse'
+                ? 'bg-fgreen animate-pulse'
                 : saveStatus === 'error'
                   ? 'bg-red-500'
                   : 'bg-gray-300'

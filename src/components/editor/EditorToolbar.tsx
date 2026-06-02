@@ -63,12 +63,12 @@ function ToolbarButton({ onClick, isActive, disabled, title, children, ...props 
       title={title}
       {...props}
       className={`
-        flex items-center justify-center w-9 h-9 rounded-md transition-all duration-150
+        flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-150
         disabled:opacity-30 disabled:cursor-not-allowed
         ${
           isActive
-            ? 'bg-blue-100 text-blue-700 shadow-sm'
-            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+            ? 'bg-pgreen text-white shadow-sm'
+            : 'text-gray-600 hover:bg-pgreen/10 hover:text-pgreen'
         }
       `}
     >
@@ -78,20 +78,20 @@ function ToolbarButton({ onClick, isActive, disabled, title, children, ...props 
 }
 
 function ToolbarDivider() {
-  return <div className="w-px h-6 bg-gray-200 mx-1" />;
+  return <div className="w-px h-6 bg-pgreen/10 mx-1" />;
 }
 
 function ToolbarGroup({ children }: { children: React.ReactNode }) {
-  return <div className="flex items-center gap-0.5">{children}</div>;
+  return <div className="flex items-center gap-1">{children}</div>;
 }
 
 export function EditorToolbar({ editor, onImageUpload, onVideoEmbed, onLinkInsert }: EditorToolbarProps) {
   if (!editor) return null;
 
   return (
-    <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
+    <div className="sticky top-0 z-10 bg-cream/40 backdrop-blur-md border-b border-pgreen/10 shadow-sm">
       {/* Desktop Toolbar */}
-      <div className="hidden md:flex flex-wrap items-center gap-1 px-3 py-2">
+      <div className="hidden md:flex flex-wrap items-center gap-1.5 px-4 py-2.5">
         {/* History */}
         <ToolbarGroup>
         <ToolbarButton
@@ -328,7 +328,7 @@ export function EditorToolbar({ editor, onImageUpload, onVideoEmbed, onLinkInser
     </div>
     
     {/* Mobile Toolbar - Simplified */}
-    <div className="flex md:hidden items-center gap-1 px-2 py-2 overflow-x-auto">
+    <div className="flex md:hidden items-center gap-2 px-3 py-2.5 overflow-x-auto hide-scrollbar">
       {/* Essential formatting only */}
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleBold().run()}

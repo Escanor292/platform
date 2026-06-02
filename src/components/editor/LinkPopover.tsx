@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Editor } from '@tiptap/react';
 import { Link as LinkIcon, Check, X, Trash2 } from 'lucide-react';
 import {
@@ -59,13 +59,17 @@ export function LinkPopover({
       const editorElement = view.dom;
       const editorRect = editorElement.getBoundingClientRect();
       
-      setPosition({
-        top: coords.bottom - editorRect.top + 8,
-        left: coords.left - editorRect.left,
+      requestAnimationFrame(() => {
+        setPosition({
+          top: coords.bottom - editorRect.top + 8,
+          left: coords.left - editorRect.left,
+        });
       });
     } catch (error) {
       console.error('[LinkPopover] Position calculation error:', error);
-      setPosition({ top: 50, left: 50 });
+      requestAnimationFrame(() => {
+        setPosition({ top: 50, left: 50 });
+      });
     }
   }, [isOpen, editor]);
 
@@ -73,7 +77,6 @@ export function LinkPopover({
   useEffect(() => {
     if (!isOpen) return;
 
-    console.log('[LinkPopover] Opened - initializing');
     setUrl(initialUrl);
     setError('');
 
@@ -82,7 +85,6 @@ export function LinkPopover({
       if (inputRef.current) {
         inputRef.current.focus();
         inputRef.current.select();
-        console.log('[LinkPopover] Input auto-focused');
       }
     }, 50);
 
@@ -104,7 +106,7 @@ export function LinkPopover({
       decorations.id = 'link-popover-highlight';
       decorations.textContent = `
         .ProseMirror .selection-highlight {
-          background-color: rgba(59, 130, 246, 0.3);
+          background-color: rgba(46, 139, 87, 0.3);
           border-radius: 2px;
         }
       `;
@@ -113,8 +115,6 @@ export function LinkPopover({
       // Add highlight class to selected range
       const transaction = view.state.tr;
       transaction.setMeta('addToHistory', false);
-      
-      console.log('[LinkPopover] Added visual highlight');
 
       return () => {
         // Cleanup
@@ -145,7 +145,6 @@ export function LinkPopover({
       );
       
       if (isInsidePopover) {
-        console.log('[LinkPopover] Pointer down inside - keeping open');
         return;
       }
 
@@ -155,50 +154,26 @@ export function LinkPopover({
       );
       
       if (isToolbarButton) {
-        console.log('[LinkPopover] Pointer down on toolbar button - ignoring');
         return;
       }
 
       // Truly outside - close
-      console.log('[LinkPopover] Pointer down outside - closing');
       onClose();
     };
 
     // Add listener after delay, use capture phase
     const timer = setTimeout(() => {
       document.addEventListener('pointerdown', handlePointerDown, true);
-      console.log('[LinkPopover] Pointer down listener added');
     }, 200);
 
     return () => {
       clearTimeout(timer);
       document.removeEventListener('pointerdown', handlePointerDown, true);
-      console.log('[LinkPopover] Pointer down listener removed');
     };
   }, [isOpen, onClose]);
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        console.log('[LinkPopover] Escape pressed - closing');
-        onClose();
-      } else if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        console.log('[LinkPopover] Enter pressed - applying');
-        handleApply();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, url, onClose]);
-
   // Apply link
-  const handleApply = () => {
+  const handleApply = useCallback(() => {
     const trimmedUrl = sanitizeUrlInput(url);
 
     // Validate
@@ -210,13 +185,7 @@ export function LinkPopover({
 
     const normalizedUrl = normalizeUrl(trimmedUrl);
     const selection = selectionRef.current;
-
-    if (!selection) {
-      console.error('[LinkPopover] No selection saved');
-      return;
-    }
-
-    console.log('[LinkPopover] Applying link:', { url: normalizedUrl, selection });
+    if (!selection) return;
 
     try {
       const hasSelection = selection.from !== selection.to;
@@ -232,8 +201,6 @@ export function LinkPopover({
           .setTextSelection(selection.to) // Move caret to END of link
           .unsetMark('link') // CRITICAL: Clear stored marks
           .run();
-        
-        console.log('[LinkPopover] Updated existing link');
       } else if (hasSelection) {
         // Case: Apply link to selection
         editor
@@ -244,8 +211,6 @@ export function LinkPopover({
           .setTextSelection(selection.to) // Move caret to END of link
           .unsetMark('link') // CRITICAL: Clear stored marks so next typing is plain
           .run();
-        
-        console.log('[LinkPopover] Applied link to selection');
       } else {
         // Case: Insert new link at caret
         const text = trimmedUrl;
@@ -262,32 +227,44 @@ export function LinkPopover({
           .setTextSelection(insertPos + text.length) // Move caret AFTER inserted link
           .unsetMark('link') // CRITICAL: Clear stored marks
           .run();
-        
-        console.log('[LinkPopover] Inserted new link');
       }
 
       // Additional safety: Force clear link mark from stored marks
       setTimeout(() => {
         if (editor && !editor.isDestroyed) {
           editor.commands.unsetMark('link');
-          console.log('[LinkPopover] Force cleared link mark');
         }
       }, 10);
 
-      console.log('[LinkPopover] Link applied successfully');
       onClose();
     } catch (error) {
       console.error('[LinkPopover] Apply error:', error);
       setError('Không thể áp dụng liên kết');
     }
-  };
+  }, [url, isEditMode, editor, onClose]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      } else if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleApply();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose, handleApply]);
 
   // Remove link
   const handleRemove = () => {
     const selection = selectionRef.current;
     if (!selection) return;
-
-    console.log('[LinkPopover] Removing link');
 
     try {
       editor.commands.focus();
@@ -305,7 +282,6 @@ export function LinkPopover({
         .unsetMark('link')
         .run();
 
-      console.log('[LinkPopover] Link removed');
       onClose();
     } catch (error) {
       console.error('[LinkPopover] Remove error:', error);
@@ -328,22 +304,22 @@ export function LinkPopover({
       onMouseDown={stopMouseEvents}
       onMouseUp={stopMouseEvents}
       onClick={stopMouseEvents}
-      className="absolute z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-3 min-w-[320px] max-w-[400px]"
+      className="absolute z-50 bg-white rounded-2xl shadow-2xl border border-pgreen/15 p-4 min-w-[320px] max-w-[400px]"
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,
       }}
     >
       {/* Header */}
-      <div className="flex items-center gap-2 mb-2">
-        <LinkIcon size={16} className="text-blue-600" />
-        <span className="text-sm font-semibold text-gray-700">
+      <div className="flex items-center gap-2 mb-2.5">
+        <LinkIcon size={16} className="text-pgreen" />
+        <span className="text-sm font-semibold text-dblue">
           {isEditMode ? 'Chỉnh sửa liên kết' : 'Chèn liên kết'}
         </span>
       </div>
 
       {/* Input - Auto-focused */}
-      <div className="mb-3">
+      <div className="mb-3.5">
         <input
           ref={inputRef}
           type="text"
@@ -353,10 +329,10 @@ export function LinkPopover({
             if (error) setError('');
           }}
           placeholder="example.com hoặc https://example.com"
-          className={`w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 transition-all ${
+          className={`w-full px-3.5 py-2 text-sm border rounded-xl focus:outline-none focus:ring-4 transition-all ${
             error
               ? 'border-red-300 focus:ring-red-200'
-              : 'border-gray-300 focus:ring-blue-200 focus:border-blue-400'
+              : 'border-pgreen/20 focus:ring-pgreen/10 focus:border-pgreen/40 bg-white'
           }`}
         />
         {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
@@ -368,7 +344,7 @@ export function LinkPopover({
           <button
             type="button"
             onClick={handleApply}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white gradient-green rounded-xl hover:shadow-md transition-all"
           >
             <Check size={14} />
             Áp dụng
@@ -376,7 +352,7 @@ export function LinkPopover({
           <button
             type="button"
             onClick={onClose}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-dblue bg-cream rounded-xl hover:text-pgreen hover:bg-cream/80 transition-all"
           >
             <X size={14} />
             Hủy
@@ -387,7 +363,7 @@ export function LinkPopover({
           <button
             type="button"
             onClick={handleRemove}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 rounded-xl hover:bg-red-100 transition-colors"
             title="Xóa liên kết"
           >
             <Trash2 size={14} />

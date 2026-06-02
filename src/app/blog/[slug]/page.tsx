@@ -12,6 +12,7 @@ import { Eye, Heart, Bookmark, Share2, Clock } from 'lucide-react';
 import { BlogPostResponse } from '@/types/blog.types';
 import { BlogCommentSection } from '@/components/blog/BlogCommentSection';
 import { Metadata } from 'next';
+import RichTextRenderer from '@/components/shared/RichTextRenderer';
 
 async function getBlogPost(slug: string) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
@@ -243,12 +244,12 @@ export default async function BlogDetailPage({
         )}
 
         {/* Content */}
-        <div className="prose prose-lg max-w-none mb-8">
+        <div className="mb-8">
           {post.content && (
-            <div dangerouslySetInnerHTML={{ __html: post.content }} />
+            <RichTextRenderer content={post.content} />
           )}
           {post.richContent && (
-            <div>
+            <div className="prose prose-lg max-w-none prose-headings:text-dblue prose-a:text-pgreen prose-strong:text-dblue">
               {post.richContent.blocks.map((block, index) => (
                 <RenderBlock key={index} block={block} />
               ))}

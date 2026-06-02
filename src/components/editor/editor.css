@@ -10,7 +10,7 @@
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
-  color: #adb5bd;
+  color: #9ca3af;
   pointer-events: none;
   height: 0;
 }
@@ -18,18 +18,22 @@
 /* Link styles */
 .ProseMirror a {
   cursor: pointer;
+  color: #2E8B57; /* pgreen */
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
+  transition: color 0.15s ease;
 }
 
 .ProseMirror a:hover {
+  color: #1F4E79; /* dblue */
   text-decoration-thickness: 2px;
 }
 
 /* Selection */
-.ProseMirror ::selection {
-  background-color: rgba(59, 130, 246, 0.3);
+.ProseMirror ::selection,
+.ProseMirror::selection {
+  background-color: rgba(46, 139, 87, 0.2) !important; /* pgreen/20 */
 }
 
 /* Lists */
@@ -51,40 +55,91 @@
   margin: 0.25rem 0;
 }
 
+/* Task list styling */
+.ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0.5rem;
+}
+
+.ProseMirror ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.ProseMirror ul[data-type="taskList"] li > label {
+  margin-top: 0.25rem;
+  user-select: none;
+}
+
+.ProseMirror ul[data-type="taskList"] li > div {
+  flex: 1;
+}
+
+.ProseMirror ul[data-type="taskList"] input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: #2E8B57; /* pgreen */
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 4px;
+}
+
 /* Headings */
 .ProseMirror h1 {
   font-size: 2em;
   font-weight: bold;
   margin: 0.67em 0;
+  color: #1F4E79; /* dblue */
 }
 
 .ProseMirror h2 {
   font-size: 1.5em;
   font-weight: bold;
   margin: 0.75em 0;
+  color: #1F4E79; /* dblue */
 }
 
 .ProseMirror h3 {
   font-size: 1.17em;
   font-weight: bold;
   margin: 0.83em 0;
+  color: #1F4E79; /* dblue */
 }
 
 /* Code */
 .ProseMirror code {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: #F8F7F2; /* cream */
+  color: #8B6B4A; /* ebrown */
+  border: 1px solid rgba(46, 139, 87, 0.1);
   padding: 0.2em 0.4em;
-  border-radius: 3px;
-  font-family: 'Courier New', monospace;
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.9em;
 }
 
 /* Blockquote */
 .ProseMirror blockquote {
-  border-left: 3px solid #e5e7eb;
-  padding-left: 1rem;
+  border-left: 4px solid #2E8B57; /* pgreen */
+  background-color: rgba(248, 247, 242, 0.6); /* cream/60 */
+  padding: 0.5rem 1rem;
   margin: 1rem 0;
   color: #6b7280;
+  border-radius: 0 12px 12px 0;
+}
+
+/* Image styling */
+.ProseMirror img {
+  border-radius: 1rem; /* rounded-2xl */
+  max-width: 100%;
+  height: auto;
+}
+
+/* Iframe / video styling */
+.ProseMirror iframe,
+.ProseMirror .video-wrapper {
+  border-radius: 1rem; /* rounded-2xl */
+  overflow: hidden;
 }
 
 /* Dark mode adjustments */
@@ -94,10 +149,12 @@
 
 .dark .ProseMirror code {
   background-color: rgba(255, 255, 255, 0.1);
+  color: #F8F7F2;
 }
 
 .dark .ProseMirror blockquote {
-  border-left-color: #4b5563;
+  border-left-color: #2E8B57;
+  background-color: rgba(0, 0, 0, 0.2);
   color: #9ca3af;
 }
 
