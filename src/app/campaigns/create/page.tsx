@@ -215,25 +215,38 @@ export default function CreateCampaignPage() {
   const invalidTagObjects = getTagsByIds(invalidTagsForPendingCategory);
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12 px-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header Section */}
-        <div className="mb-10 text-center animate-fade-in-up">
-          <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
-            <Rocket size={32} />
-          </div>
-          <h1 className="text-4xl font-black text-gray-900 mb-4 tracking-tighter">Bắt đầu mạch cảm hứng mới</h1>
-          <p className="text-gray-500 font-medium max-w-xl mx-auto">
-            Hãy chia sẻ câu chuyện của bạn với thế giới. Chúng tôi sẽ giúp bạn kết nối với cộng đồng để biến ý tưởng thành hiện thực hiện hữu.
-          </p>
-          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-            <span className="text-red-500">*</span>
-            <span>Các trường có dấu sao là bắt buộc</span>
-          </div>
+    <main className="min-h-screen bg-gradient-to-b from-cream via-white to-white">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden px-6 py-16">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute left-1/4 top-10 h-72 w-72 rounded-full bg-pgreen/10 blur-3xl" />
+          <div className="absolute right-1/4 top-24 h-72 w-72 rounded-full bg-tblue/10 blur-3xl" />
         </div>
 
+        <div className="relative z-10 mx-auto max-w-4xl text-center">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-pgreen/10 text-pgreen shadow-soft">
+            <Rocket className="h-9 w-9" />
+          </div>
+
+          <h1 className="font-display text-4xl font-black text-dblue md:text-5xl">
+            Bắt đầu mạch cảm hứng mới
+          </h1>
+
+          <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-gray-600">
+            Hãy chia sẻ câu chuyện của bạn với thế giới. Chúng tôi sẽ giúp bạn kết nối với cộng đồng để biến ý tưởng thành hiện thực hiện hữu.
+          </p>
+
+          <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-pgreen/10 px-5 py-2 text-sm font-bold text-pgreen">
+            <span className="text-red-500">*</span>
+            Các trường có dấu sao là bắt buộc
+          </div>
+        </div>
+      </section>
+
+      <div className="mx-auto max-w-5xl px-6 pb-20">
+
         {/* Main Form */}
-        <form onSubmit={handleSubmit} className="space-y-8 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
 
           {/* Category Change Warning Modal */}
           {showCategoryChangeWarning && pendingCategory && (
@@ -281,23 +294,30 @@ export default function CreateCampaignPage() {
           )}
 
           {/* Block 1: Thông tin cơ bản */}
-          <div className="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-soft">
-            <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                <AlignLeft size={20} />
+          <section className="rounded-3xl border border-pgreen/10 bg-white/90 p-8 shadow-soft backdrop-blur">
+            <div className="mb-8 flex items-center gap-4 border-b border-gray-100 pb-6">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pgreen/10 text-pgreen">
+                <AlignLeft className="h-6 w-6" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Thông tin cơ bản</h2>
+              <div>
+                <h2 className="font-display text-2xl font-bold text-dblue">
+                  Thông tin cơ bản
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Những thông tin đầu tiên giúp cộng đồng hiểu dự án của bạn.
+                </p>
+              </div>
             </div>
 
-            <div className="space-y-8">
-              <div className="space-y-3">
-                <label className="text-sm font-bold text-gray-900 flex justify-between">
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="mb-2 block text-sm font-bold text-dblue flex justify-between">
                   <span>Tên dự án <span className="text-red-500">*</span></span>
-                  <span className="text-gray-400 font-normal">Tối đa 60 ký tự</span>
+                  <span className="text-xs font-medium text-gray-400">Tối đa 60 ký tự</span>
                 </label>
                 <Input
                   required
-                  className="text-lg py-6 focus-ring rounded-xl bg-slate-50 border-gray-200"
+                  className="h-13 w-full rounded-2xl border border-gray-200 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-pgreen focus:outline-none focus:ring-4 focus:ring-pgreen/10 text-lg"
                   placeholder="Ví dụ: Năng lượng xanh cho bản vùng cao..."
                   value={formData.title}
                   maxLength={60}
@@ -305,39 +325,43 @@ export default function CreateCampaignPage() {
                 />
               </div>
 
-              <div className="space-y-3">
-                <label className="text-sm font-bold text-gray-900">
+              <div className="space-y-2">
+                <label className="mb-2 block text-sm font-bold text-dblue">
                   Mô tả ngắn (Tagline) <span className="text-red-500">*</span>
                 </label>
                 <Input
                   required
-                  className="py-5 focus-ring rounded-xl bg-slate-50 border-gray-200"
+                  className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-pgreen focus:outline-none focus:ring-4 focus:ring-pgreen/10"
                   placeholder="Câu tóm tắt ngắn gọn và cuốn hút nhất về dự án của bạn..."
                   value={formData.tagline}
                   onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
                 />
               </div>
             </div>
-          </div>
+          </section>
 
           {/* Block 2: Nội dung & Hình ảnh */}
-          <div className="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-soft">
-            <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                <ImageIcon size={20} />
+          <section className="rounded-3xl border border-pgreen/10 bg-white/90 p-8 shadow-soft backdrop-blur">
+            <div className="mb-8 flex items-center gap-4 border-b border-gray-100 pb-6">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pgreen/10 text-pgreen">
+                <ImageIcon className="h-6 w-6" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Câu chuyện & Media</h2>
-                <p className="text-sm text-gray-500 font-medium">Một câu chuyện hay cùng hình ảnh đẹp sẽ thu hút nhiều sự chú ý hơn.</p>
+                <h2 className="font-display text-2xl font-bold text-dblue">
+                  Câu chuyện & Media
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Một câu chuyện hay cùng hình ảnh đẹp sẽ thu hút nhiều sự chú ý hơn.
+                </p>
               </div>
             </div>
 
-            <div className="space-y-10">
-              <div className="space-y-3">
-                <label className="text-sm font-bold text-gray-900">
+            <div className="space-y-8">
+              <div className="space-y-2">
+                <label className="mb-2 block text-sm font-bold text-dblue">
                   Ảnh chiến dịch <span className="text-red-500">*</span>
                 </label>
-                <div className="bg-slate-50 p-6 rounded-2xl border border-dashed border-gray-300">
+                <div className="rounded-2xl border-dashed border-pgreen/30 bg-pgreen/5 p-6">
                   <MultipleImageUpload
                     label="Tải ảnh lên (Tỉ lệ khuyến nghị 16:9)"
                     images={formData.images}
@@ -355,8 +379,8 @@ export default function CreateCampaignPage() {
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <label className="text-sm font-bold text-gray-900">
+              <div className="space-y-2">
+                <label className="mb-2 block text-sm font-bold text-dblue">
                   Nội dung chi tiết <span className="text-red-500">*</span>
                 </label>
                 <ProductionEditor
@@ -370,38 +394,45 @@ export default function CreateCampaignPage() {
                 />
               </div>
             </div>
-          </div>
+          </section>
 
           {/* Block 3: Mục tiêu & Thời gian */}
-          <div className="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-soft">
-            <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                <Target size={20} />
+          <section className="rounded-3xl border border-pgreen/10 bg-white/90 p-8 shadow-soft backdrop-blur">
+            <div className="mb-8 flex items-center gap-4 border-b border-gray-100 pb-6">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pgreen/10 text-pgreen">
+                <Target className="h-6 w-6" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Mục tiêu & Lịch trình</h2>
+              <div>
+                <h2 className="font-display text-2xl font-bold text-dblue">
+                  Mục tiêu & Lịch trình
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Đặt mục tiêu thực tế và thời gian phù hợp cho chiến dịch.
+                </p>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <label className="text-sm font-bold text-gray-900">
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="mb-2 block text-sm font-bold text-dblue">
                   Số vốn mục tiêu (VNĐ) <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">₫</span>
                   <Input
                     type="text"
-                    className="pl-10 text-lg font-black text-gray-900 py-6 focus-ring rounded-xl bg-slate-50 border-gray-200"
+                    className="h-13 w-full rounded-2xl border border-gray-200 bg-white pl-10 pr-4 text-lg font-black text-gray-900 placeholder:text-gray-400 transition focus:border-pgreen focus:outline-none focus:ring-4 focus:ring-pgreen/10"
                     required
                     placeholder="1.000.000"
                     value={displayAmount}
                     onChange={handleAmountChange}
                   />
                 </div>
-                <p className="text-xs text-gray-500 font-medium">Đặt mục tiêu có thể đạt được để tạo động lực cho cộng đồng.</p>
+                <p className="mt-2 text-xs text-gray-500">Đặt mục tiêu có thể đạt được để tạo động lực cho cộng đồng.</p>
               </div>
 
-              <div className="space-y-3">
-                <label className="text-sm font-bold text-gray-900">
+              <div className="space-y-2">
+                <label className="mb-2 block text-sm font-bold text-dblue">
                   Hạn chót chiến dịch <span className="text-red-500">*</span>
                 </label>
                 <DateInput
@@ -409,22 +440,26 @@ export default function CreateCampaignPage() {
                   onChange={(value) => setFormData({ ...formData, endDate: value })}
                   placeholder="dd/mm/yyyy"
                   required
-                  min={new Date().toISOString().split('T')[0]} // Không cho chọn ngày quá khứ
+                  min={new Date().toISOString().split('T')[0]}
                 />
-                <p className="text-xs text-gray-500 font-medium">Thời gian tối đa thường là 30 - 60 ngày.</p>
+                <p className="mt-2 text-xs text-gray-500">Thời gian tối đa thường là 30 - 60 ngày.</p>
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* Block 4: Phân loại & Tags */}
-          <div className="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-soft">
-            <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
-              <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
-                <Tags size={20} />
+          {/* Block 4: Phân loại dự án */}
+          <section className="rounded-3xl border border-pgreen/10 bg-white/90 p-8 shadow-soft backdrop-blur">
+            <div className="mb-8 flex items-center gap-4 border-b border-gray-100 pb-6">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pgreen/10 text-pgreen">
+                <Tags className="h-6 w-6" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Phân loại dự án</h2>
-                <p className="text-sm text-gray-500 font-medium">Giúp người ủng hộ dễ dàng tìm thấy dự án của bạn</p>
+                <h2 className="font-display text-2xl font-bold text-dblue">
+                  Phân loại dự án
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Giúp người ủng hộ dễ dàng tìm thấy dự án của bạn.
+                </p>
               </div>
             </div>
 
@@ -449,21 +484,18 @@ export default function CreateCampaignPage() {
                 />
               </div>
             </div>
-          </div>
+          </section>
 
-          <div className="pt-4 flex justify-end">
+          <div className="pt-6 flex justify-end">
             <button
               type="submit"
               disabled={loading}
-              className={`
-                  btn-primary w-full md:w-auto px-12 py-5 text-lg shadow-[0_8px_30px_rgb(37,99,235,0.3)]
-                  ${loading ? "opacity-70 cursor-not-allowed" : ""}
-               `}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl gradient-green px-8 py-4 text-base font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-green-200 disabled:cursor-not-allowed disabled:opacity-60 w-full md:w-auto"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
                   <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Đang khởi tạo...
+                  Đang tạo chiến dịch...
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
@@ -474,6 +506,6 @@ export default function CreateCampaignPage() {
           </div>
         </form>
       </div>
-    </div>
+    </main>
   );
 }
