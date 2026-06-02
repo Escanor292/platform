@@ -53,15 +53,23 @@ export default async function EditProfilePage({ params }: EditProfilePageProps) 
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 py-24 px-6">
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-black text-gray-900 mb-2">Chỉnh sửa trang cá nhân</h1>
-          <p className="text-gray-400">Cập nhật thông tin của bạn</p>
+    <main className="min-h-screen bg-gradient-to-b from-cream via-white to-white px-6 py-12">
+      <div className="mx-auto max-w-5xl">
+        {/* Header Section */}
+        <div className="mb-8 rounded-3xl border border-pgreen/10 bg-white/80 p-8 shadow-soft backdrop-blur">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-pgreen/10 px-4 py-2 text-sm font-bold text-pgreen">
+            Hồ sơ cá nhân
+          </div>
+          <h1 className="font-display text-4xl font-black text-dblue">
+            Chỉnh sửa trang cá nhân
+          </h1>
+          <p className="mt-3 max-w-2xl text-gray-600">
+            Cập nhật thông tin hiển thị để cộng đồng hiểu rõ hơn về bạn và hành trình bạn đang đồng hành.
+          </p>
         </div>
 
         <ProfileEditForm user={userData} />
       </div>
-    </div>
+    </main>
   );
 }
