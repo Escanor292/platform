@@ -30,6 +30,8 @@ export const Callout = Node.create<CalloutOptions>({
 
   defining: true,
 
+  isolating: false,
+
   addAttributes() {
     return {
       variant: {
@@ -70,33 +72,30 @@ export const Callout = Node.create<CalloutOptions>({
     return {
       setCallout:
         (variant = 'info') =>
-        ({ editor, commands }) => {
+        ({ editor, commands, state }) => {
           if (editor.isActive('callout')) {
             return commands.updateAttributes('callout', { variant });
           }
 
-          const selectedText = editor.state.doc.textBetween(
-            editor.state.selection.from,
-            editor.state.selection.to,
-            ' '
-          );
+          const { empty } = state.selection;
 
-          return commands.insertContent({
-            type: 'callout',
-            attrs: { variant },
-            content: [
-              {
-                type: 'paragraph',
-                content: selectedText
-                  ? [{ type: 'text', text: selectedText }]
-                  : [],
-              },
-            ],
-          });
+          if (empty) {
+            return commands.insertContent({
+              type: 'callout',
+              attrs: { variant },
+              content: [
+                {
+                  type: 'paragraph',
+                },
+              ],
+            });
+          }
+
+          return commands.wrapIn('callout', { variant });
         },
       toggleCallout:
         (variant = 'info') =>
-        ({ editor, commands }) => {
+        ({ editor, commands, state }) => {
           if (editor.isActive('callout', { variant })) {
             return commands.lift('callout');
           }
@@ -105,24 +104,21 @@ export const Callout = Node.create<CalloutOptions>({
             return commands.updateAttributes('callout', { variant });
           }
 
-          const selectedText = editor.state.doc.textBetween(
-            editor.state.selection.from,
-            editor.state.selection.to,
-            ' '
-          );
+          const { empty } = state.selection;
 
-          return commands.insertContent({
-            type: 'callout',
-            attrs: { variant },
-            content: [
-              {
-                type: 'paragraph',
-                content: selectedText
-                  ? [{ type: 'text', text: selectedText }]
-                  : [],
-              },
-            ],
-          });
+          if (empty) {
+            return commands.insertContent({
+              type: 'callout',
+              attrs: { variant },
+              content: [
+                {
+                  type: 'paragraph',
+                },
+              ],
+            });
+          }
+
+          return commands.wrapIn('callout', { variant });
         },
     };
   },

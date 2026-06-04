@@ -32,6 +32,45 @@
   text-decoration-thickness: 2px;
 }
 
+/* Strikethrough & Underline styling */
+.ProseMirror s,
+.ProseMirror strike,
+.ProseMirror del,
+.prose s,
+.prose strike,
+.prose del,
+s,
+strike,
+del {
+  text-decoration-line: line-through;
+  text-decoration-thickness: 1.5px;
+  text-decoration-skip-ink: auto;
+  text-decoration-color: currentColor;
+}
+
+.ProseMirror u,
+.prose u,
+u {
+  text-decoration-line: underline;
+  text-underline-offset: 0.16em;
+  text-decoration-thickness: 1.5px;
+}
+
+.ProseMirror u s,
+.ProseMirror s u,
+.ProseMirror u del,
+.ProseMirror del u,
+.prose u s,
+.prose s u,
+.prose u del,
+.prose del u,
+u s,
+s u,
+u del,
+del u {
+  text-decoration-line: underline line-through;
+}
+
 /* Selection */
 .ProseMirror ::selection,
 .ProseMirror::selection {
@@ -202,43 +241,49 @@ kbd {
 
 /* Callout styling */
 .ProseMirror .callout,
+.ProseMirror [data-type="callout"],
 .prose .callout,
+.prose [data-type="callout"],
 .callout {
-  padding: 1rem 1.25rem;
   margin: 1rem 0;
-  border-radius: 0.75rem;
-  border-left: 4px solid;
-  background-color: #f8f9fa;
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  border-left: 4px solid #2E8B57;
+  background: #F8F7F2;
 }
 
 .ProseMirror .callout[data-variant="info"],
+.ProseMirror [data-type="callout"][data-variant="info"],
 .prose .callout[data-variant="info"],
+.prose [data-type="callout"][data-variant="info"],
 .callout[data-variant="info"] {
-  border-color: #3b82f6;
-  background-color: #eff6ff;
-  color: #1e40af;
+  border-left-color: #2F80ED;
+  background: rgba(47, 128, 237, 0.08);
 }
 
 .ProseMirror .callout[data-variant="warning"],
+.ProseMirror [data-type="callout"][data-variant="warning"],
 .prose .callout[data-variant="warning"],
+.prose [data-type="callout"][data-variant="warning"],
 .callout[data-variant="warning"] {
-  border-color: #f59e0b;
-  background-color: #fffbeb;
-  color: #92400e;
+  border-left-color: #8B6B4A;
+  background: rgba(139, 107, 74, 0.10);
 }
 
 .ProseMirror .callout[data-variant="success"],
+.ProseMirror [data-type="callout"][data-variant="success"],
 .prose .callout[data-variant="success"],
+.prose [data-type="callout"][data-variant="success"],
 .callout[data-variant="success"] {
-  border-color: #10b981;
-  background-color: #ecfdf5;
-  color: #065f46;
+  border-left-color: #2E8B57;
+  background: rgba(46, 139, 87, 0.10);
 }
 
 .ProseMirror .callout[data-variant="danger"],
+.ProseMirror [data-type="callout"][data-variant="danger"],
 .prose .callout[data-variant="danger"],
+.prose [data-type="callout"][data-variant="danger"],
 .callout[data-variant="danger"] {
-  border-color: #ef4444;
-  background-color: #fef2f2;
-  color: #991b1b;
+  border-left-color: #dc2626;
+  background: rgba(220, 38, 38, 0.08);
 }

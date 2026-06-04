@@ -42,7 +42,7 @@ export const ALLOWED_VIDEO_DOMAINS = [
 // ============================================
 
 export const ALLOWED_HTML_TAGS = [
-  'p', 'br', 'strong', 'em', 'u', 's', 'code',
+  'p', 'br', 'strong', 'em', 'u', 's', 'strike', 'del', 'code',
   'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
   'ul', 'ol', 'li',
   'blockquote', 'pre',
