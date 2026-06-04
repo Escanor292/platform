@@ -60,15 +60,39 @@ u {
 .ProseMirror s u,
 .ProseMirror u del,
 .ProseMirror del u,
+.ProseMirror a s,
+.ProseMirror s a,
+.ProseMirror a u,
+.ProseMirror u a,
 .prose u s,
 .prose s u,
 .prose u del,
 .prose del u,
+.prose a s,
+.prose s a,
+.prose a u,
+.prose u a,
 u s,
 s u,
 u del,
 del u {
   text-decoration-line: underline line-through;
+}
+
+/* Mark/Highlight styling */
+.ProseMirror mark {
+  border-radius: 0.25rem;
+  padding: 0 0.1em;
+}
+
+/* Link inside callout */
+.ProseMirror .callout a,
+.ProseMirror [data-type="callout"] a,
+.prose .callout a,
+.prose [data-type="callout"] a {
+  color: #2E8B57;
+  text-decoration-line: underline;
+  text-underline-offset: 0.16em;
 }
 
 /* Selection */
@@ -266,8 +290,9 @@ kbd {
 .prose .callout[data-variant="warning"],
 .prose [data-type="callout"][data-variant="warning"],
 .callout[data-variant="warning"] {
-  border-left-color: #8B6B4A;
-  background: rgba(139, 107, 74, 0.10);
+  border-left-color: #F59E0B;
+  background: rgba(245, 158, 11, 0.12);
+  color: #92400E;
 }
 
 .ProseMirror .callout[data-variant="success"],

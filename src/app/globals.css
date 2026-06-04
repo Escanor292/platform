@@ -433,9 +433,9 @@
 }
 
 .prose .callout[data-variant="warning"] {
-  border-color: #f59e0b;
-  background-color: #fffbeb;
-  color: #92400e;
+  border-color: #F59E0B;
+  background-color: #FFFBEB;
+  color: #92400E;
 }
 
 .prose .callout[data-variant="success"] {
