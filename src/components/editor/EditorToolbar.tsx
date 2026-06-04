@@ -298,28 +298,28 @@ export function EditorToolbar({ editor, onImageUpload, onVideoEmbed, onLinkInser
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleCallout('info').run()}
             isActive={editor.isActive('callout', { variant: 'info' })}
-            title="Hộp ghi chú"
+            title="Chèn hộp ghi chú"
           >
             <Info size={16} />
           </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleCallout('warning').run()}
             isActive={editor.isActive('callout', { variant: 'warning' })}
-            title="Hộp cảnh báo"
+            title="Chèn hộp cảnh báo"
           >
             <AlertTriangle size={16} />
           </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleCallout('success').run()}
             isActive={editor.isActive('callout', { variant: 'success' })}
-            title="Hộp thành công"
+            title="Chèn hộp thành công"
           >
             <CheckCircle size={16} />
           </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleCallout('danger').run()}
             isActive={editor.isActive('callout', { variant: 'danger' })}
-            title="Hộp quan trọng"
+            title="Chèn hộp quan trọng"
           >
             <AlertCircle size={16} />
           </ToolbarButton>

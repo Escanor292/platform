@@ -276,6 +276,23 @@ kbd {
   background: #F8F7F2;
 }
 
+/* Nested callout styling */
+.ProseMirror .callout .callout,
+.ProseMirror [data-type="callout"] [data-type="callout"],
+.prose .callout .callout,
+.prose [data-type="callout"] [data-type="callout"] {
+  margin-top: 0.85rem;
+  margin-bottom: 0.85rem;
+  border-radius: 0.9rem;
+}
+
+.ProseMirror .callout .callout .callout,
+.ProseMirror [data-type="callout"] [data-type="callout"] [data-type="callout"],
+.prose .callout .callout .callout,
+.prose [data-type="callout"] [data-type="callout"] [data-type="callout"] {
+  margin-left: 0.25rem;
+}
+
 .ProseMirror .callout[data-variant="info"],
 .ProseMirror [data-type="callout"][data-variant="info"],
 .prose .callout[data-variant="info"],

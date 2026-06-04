@@ -5,6 +5,7 @@
 
 import { Node, mergeAttributes } from '@tiptap/core';
 import { CalloutVariant } from '@/types/editor';
+import { NodeSelection } from '@tiptap/pm/state';
 
 export interface CalloutOptions {
   HTMLAttributes: Record<string, any>;
@@ -26,7 +27,7 @@ export const Callout = Node.create<CalloutOptions>({
 
   group: 'block',
 
-  content: 'block*',
+  content: 'block+',
 
   defining: true,
 
@@ -96,32 +97,35 @@ export const Callout = Node.create<CalloutOptions>({
         (variant = 'info') =>
           ({ editor, commands, state }) => {
             const { selection } = state;
+            const { empty } = selection;
 
-            // 1. Same variant active -> lift out of callout
-            if (editor.isActive('callout', { variant })) {
+            // Check if the callout node itself is selected (NodeSelection)
+            const isCalloutNodeSelected =
+              selection instanceof NodeSelection &&
+              selection.node.type.name === 'callout';
+
+            // 1. If callout node itself is selected with same variant -> lift out
+            if (isCalloutNodeSelected && editor.isActive('callout', { variant })) {
               return commands.lift('callout');
             }
 
-            // 2. Different variant active -> update variant only
-            if (editor.isActive('callout')) {
+            // 2. If callout node itself is selected with different variant -> change variant
+            if (isCalloutNodeSelected && editor.isActive('callout')) {
               return commands.updateAttributes('callout', { variant });
             }
 
-            // 3. Empty selection -> insert new callout with empty paragraph
-            if (selection.empty) {
-              return commands.insertContent({
-                type: 'callout',
-                attrs: { variant },
-                content: [{ type: 'paragraph' }],
-              });
+            // 3. If has text selection -> wrap selection into callout
+            if (!empty) {
+              return commands.wrapIn('callout', { variant });
             }
 
-            // 4. Has selection -> wrap selection into callout
-            const wrapped = commands.wrapIn('callout', { variant });
-            if (wrapped) return true;
-
-            // 5. Fallback: don't lose data, return false
-            return false;
+            // 4. Empty selection -> insert new callout at cursor position
+            // This allows creating nested callouts when cursor is inside another callout
+            return commands.insertContent({
+              type: 'callout',
+              attrs: { variant },
+              content: [{ type: 'paragraph' }],
+            });
           },
     };
   },

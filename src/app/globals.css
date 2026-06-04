@@ -426,6 +426,19 @@
   background-color: #f8f9fa;
 }
 
+/* Nested callout styling for rendered content */
+.prose .callout .callout,
+.prose [data-type="callout"] [data-type="callout"] {
+  margin-top: 0.85rem;
+  margin-bottom: 0.85rem;
+  border-radius: 0.9rem;
+}
+
+.prose .callout .callout .callout,
+.prose [data-type="callout"] [data-type="callout"] [data-type="callout"] {
+  margin-left: 0.25rem;
+}
+
 .prose .callout[data-variant="info"] {
   border-color: #3b82f6;
   background-color: #eff6ff;
