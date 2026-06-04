@@ -417,6 +417,39 @@
   @apply border-l-4 border-blue-600 bg-blue-50/50 p-6 rounded-r-2xl font-serif italic text-blue-900;
 }
 
+/* Callout styles for rendered content */
+.prose .callout {
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+  border-radius: 0.75rem;
+  border-left: 4px solid;
+  background-color: #f8f9fa;
+}
+
+.prose .callout[data-variant="info"] {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+  color: #1e40af;
+}
+
+.prose .callout[data-variant="warning"] {
+  border-color: #f59e0b;
+  background-color: #fffbeb;
+  color: #92400e;
+}
+
+.prose .callout[data-variant="success"] {
+  border-color: #10b981;
+  background-color: #ecfdf5;
+  color: #065f46;
+}
+
+.prose .callout[data-variant="danger"] {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+  color: #991b1b;
+}
+
 /* Hide scrollbar for Chrome, Safari and Opera */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;

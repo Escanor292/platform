@@ -73,7 +73,7 @@ function contentToHtml(content: string): string {
 
 // useSyncExternalStore-based hydration guard (no setState in effect)
 function subscribe() {
-  return () => {};
+  return () => { };
 }
 function getServerSnapshot() {
   return false;
@@ -102,7 +102,7 @@ export default function RichTextRenderer({ content }: RichTextRendererProps) {
   const html = contentToHtml(content);
   const sanitizedHtml = DOMPurify.sanitize(html, {
     ADD_TAGS: ["iframe"],
-    ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "src", "style", "target", "rel"],
+    ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "src", "style", "target", "rel", "data-type", "data-variant"],
   });
 
   return (

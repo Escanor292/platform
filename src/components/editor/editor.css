@@ -18,7 +18,8 @@
 /* Link styles */
 .ProseMirror a {
   cursor: pointer;
-  color: #2E8B57; /* pgreen */
+  color: #2E8B57;
+  /* pgreen */
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
@@ -26,14 +27,16 @@
 }
 
 .ProseMirror a:hover {
-  color: #1F4E79; /* dblue */
+  color: #1F4E79;
+  /* dblue */
   text-decoration-thickness: 2px;
 }
 
 /* Selection */
 .ProseMirror ::selection,
 .ProseMirror::selection {
-  background-color: rgba(46, 139, 87, 0.2) !important; /* pgreen/20 */
+  background-color: rgba(46, 139, 87, 0.2) !important;
+  /* pgreen/20 */
 }
 
 /* Lists */
@@ -68,18 +71,19 @@
   margin: 0.5rem 0;
 }
 
-.ProseMirror ul[data-type="taskList"] li > label {
+.ProseMirror ul[data-type="taskList"] li>label {
   margin-top: 0.25rem;
   user-select: none;
 }
 
-.ProseMirror ul[data-type="taskList"] li > div {
+.ProseMirror ul[data-type="taskList"] li>div {
   flex: 1;
 }
 
 .ProseMirror ul[data-type="taskList"] input[type="checkbox"] {
   cursor: pointer;
-  accent-color: #2E8B57; /* pgreen */
+  accent-color: #2E8B57;
+  /* pgreen */
   width: 1.1rem;
   height: 1.1rem;
   border-radius: 4px;
@@ -90,27 +94,32 @@
   font-size: 2em;
   font-weight: bold;
   margin: 0.67em 0;
-  color: #1F4E79; /* dblue */
+  color: #1F4E79;
+  /* dblue */
 }
 
 .ProseMirror h2 {
   font-size: 1.5em;
   font-weight: bold;
   margin: 0.75em 0;
-  color: #1F4E79; /* dblue */
+  color: #1F4E79;
+  /* dblue */
 }
 
 .ProseMirror h3 {
   font-size: 1.17em;
   font-weight: bold;
   margin: 0.83em 0;
-  color: #1F4E79; /* dblue */
+  color: #1F4E79;
+  /* dblue */
 }
 
 /* Code */
 .ProseMirror code {
-  background-color: #F8F7F2; /* cream */
-  color: #8B6B4A; /* ebrown */
+  background-color: #F8F7F2;
+  /* cream */
+  color: #8B6B4A;
+  /* ebrown */
   border: 1px solid rgba(46, 139, 87, 0.1);
   padding: 0.2em 0.4em;
   border-radius: 6px;
@@ -120,8 +129,10 @@
 
 /* Blockquote */
 .ProseMirror blockquote {
-  border-left: 4px solid #2E8B57; /* pgreen */
-  background-color: rgba(248, 247, 242, 0.6); /* cream/60 */
+  border-left: 4px solid #2E8B57;
+  /* pgreen */
+  background-color: rgba(248, 247, 242, 0.6);
+  /* cream/60 */
   padding: 0.5rem 1rem;
   margin: 1rem 0;
   color: #6b7280;
@@ -130,7 +141,8 @@
 
 /* Image styling */
 .ProseMirror img {
-  border-radius: 1rem; /* rounded-2xl */
+  border-radius: 1rem;
+  /* rounded-2xl */
   max-width: 100%;
   height: auto;
 }
@@ -138,7 +150,8 @@
 /* Iframe / video styling */
 .ProseMirror iframe,
 .ProseMirror .video-wrapper {
-  border-radius: 1rem; /* rounded-2xl */
+  border-radius: 1rem;
+  /* rounded-2xl */
   overflow: hidden;
 }
 
@@ -169,6 +182,7 @@
     opacity: 0;
     transform: scale(0.95) translateY(-4px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -184,4 +198,47 @@
 /* Keyboard hint styling */
 kbd {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Callout styling */
+.ProseMirror .callout,
+.prose .callout,
+.callout {
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+  border-radius: 0.75rem;
+  border-left: 4px solid;
+  background-color: #f8f9fa;
+}
+
+.ProseMirror .callout[data-variant="info"],
+.prose .callout[data-variant="info"],
+.callout[data-variant="info"] {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+  color: #1e40af;
+}
+
+.ProseMirror .callout[data-variant="warning"],
+.prose .callout[data-variant="warning"],
+.callout[data-variant="warning"] {
+  border-color: #f59e0b;
+  background-color: #fffbeb;
+  color: #92400e;
+}
+
+.ProseMirror .callout[data-variant="success"],
+.prose .callout[data-variant="success"],
+.callout[data-variant="success"] {
+  border-color: #10b981;
+  background-color: #ecfdf5;
+  color: #065f46;
+}
+
+.ProseMirror .callout[data-variant="danger"],
+.prose .callout[data-variant="danger"],
+.callout[data-variant="danger"] {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+  color: #991b1b;
 }
