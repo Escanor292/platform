@@ -7,17 +7,25 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { createBlogPost, getBlogPostList } from '@/lib/blog/blog.service';
 import { CreateBlogPostRequest } from '@/types/blog.types';
+import prisma from '@/lib/prisma';
+import { projectIdSchema } from '@/lib/project/project.validation';
+import {
+  validationErrorResponse,
+  forbiddenResponse
+} from '@/lib/project/project.response-handlers';
+import { z } from 'zod';
 
 /**
  * GET /api/blog/posts
- * Public endpoint - list published blog posts
+ * Public endpoint - list published blog posts with optional project filter
+ * Validates: Requirements 11.3, 11.4, 11.5
  */
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
     const searchParams = request.nextUrl.searchParams;
 
-    const query = {
+    const query: any = {
       page: parseInt(searchParams.get('page') || '1'),
       limit: parseInt(searchParams.get('limit') || '10'),
       search: searchParams.get('search') || undefined,
@@ -28,6 +36,18 @@ export async function GET(request: NextRequest) {
       featured: searchParams.get('featured') === 'true' || undefined,
       sort: (searchParams.get('sort') as any) || 'latest',
     };
+
+    // Project filter - Validates Requirements 11.3, 11.4, 11.5
+    const projectIdFilter = searchParams.get('projectId');
+    if (projectIdFilter) {
+      if (projectIdFilter === 'null' || projectIdFilter === 'standalone') {
+        // Filter for blog posts with NULL projectId (platform blog posts)
+        query.projectId = 'null';
+      } else {
+        // Filter for blog posts with specific projectId
+        query.projectId = projectIdFilter;
+      }
+    }
 
     const result = await getBlogPostList(query, session?.user?.id);
 
@@ -43,7 +63,8 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/blog/posts
- * Auth required - create new blog post
+ * Auth required - create new blog post with optional project association
+ * Validates: Requirements 10.1, 10.3, 10.4, 10.5
  */
 export async function POST(request: NextRequest) {
   try {
@@ -53,7 +74,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body: CreateBlogPostRequest = await request.json();
+    const body: CreateBlogPostRequest & { projectId?: string | null } = await request.json();
 
     // Validate required fields
     if (!body.title || !body.type || !body.visibility) {
@@ -69,6 +90,33 @@ export async function POST(request: NextRequest) {
         { error: 'Campaign ID is required for campaign updates' },
         { status: 400 }
       );
+    }
+
+    // Validate projectId if provided (Requirement 10.3, 10.4, 10.5)
+    if (body.projectId !== undefined && body.projectId !== null) {
+      // Validate projectId format (CUID)
+      try {
+        projectIdSchema.parse(body.projectId);
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return validationErrorResponse('Invalid project ID format');
+        }
+        throw error;
+      }
+
+      // Validate project exists and is owned by authenticated user
+      const project = await prisma.projects.findUnique({
+        where: { id: body.projectId },
+        select: { creatorId: true },
+      });
+
+      if (!project) {
+        return validationErrorResponse('Project not found');
+      }
+
+      if (project.creatorId !== session.user.id) {
+        return forbiddenResponse('Not authorized to add blog posts to this project');
+      }
     }
 
     const post = await createBlogPost(session.user.id, body);

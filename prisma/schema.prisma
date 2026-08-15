@@ -173,6 +173,7 @@ model blog_posts {
   id                   String                 @id
   authorId             String
   campaignId           String?
+  projectId            String?
   mongoContentId       String?
   title                String                 @db.VarChar(255)
   slug                 String                 @unique @db.VarChar(255)
@@ -200,11 +201,13 @@ model blog_posts {
   blog_post_tags       blog_post_tags[]
   users                users                  @relation(fields: [authorId], references: [id], onDelete: Cascade)
   campaigns            campaigns?             @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  projects             projects?              @relation(fields: [projectId], references: [id], onDelete: SetNull)
   blog_reports         blog_reports[]
   campaign_blog_links  campaign_blog_links[]
 
   @@index([authorId])
   @@index([campaignId])
+  @@index([projectId])
   @@index([deletedAt])
   @@index([isFeatured])
   @@index([publishedAt])
@@ -325,6 +328,7 @@ model campaigns {
   startDate           DateTime?
   endDate             DateTime?
   creatorId           String
+  projectId           String?
   feeRate             Float                 @default(0.08)
   createdAt           DateTime              @default(now())
   updatedAt           DateTime
@@ -335,12 +339,14 @@ model campaigns {
   campaign_reports    campaign_reports[]
   campaign_updates    campaign_updates[]
   users               users                 @relation(fields: [creatorId], references: [id])
+  projects            projects?             @relation(fields: [projectId], references: [id], onDelete: SetNull)
   platform_invoices   platform_invoices[]
   pledges             pledges[]
   reviews             reviews[]
   rewards             rewards[]
 
   @@index([category])
+  @@index([projectId])
   @@index([tags])
 }
 
@@ -396,6 +402,20 @@ model platform_invoices {
   updatedAt     DateTime
   campaigns     campaigns     @relation(fields: [campaignId], references: [id])
   users         users         @relation(fields: [creatorId], references: [id])
+}
+
+model projects {
+  id          String       @id @default(cuid())
+  creatorId   String
+  title       String       @db.VarChar(255)
+  description String?      @db.Text
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  users       users        @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  campaigns   campaigns[]
+  blog_posts  blog_posts[]
+
+  @@index([creatorId])
 }
 
 model pledges {
@@ -537,6 +557,7 @@ model users {
   kyc_info                                   kyc_info?
   platform_invoices                          platform_invoices[]
   pledges                                    pledges[]
+  projects                                   projects[]
   reviews                                    reviews[]
   user_badges_user_badges_assigned_byTousers user_badges[]        @relation("user_badges_assigned_byTousers")
   user_badges_user_badges_revoked_byTousers  user_badges[]        @relation("user_badges_revoked_byTousers")

@@ -31,9 +31,11 @@ export function UserBadgeList({
         setLoading(true);
         const data = await getUserBadges(userId);
         setBadges(data);
+        setError(null);
       } catch (err: any) {
-        console.error('Error fetching badges:', err);
+        // Silent fail - don't log to console, just set error state
         setError(err.message);
+        setBadges([]);
       } finally {
         setLoading(false);
       }

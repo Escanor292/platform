@@ -32,6 +32,10 @@ export async function getPublicBadges(): Promise<Badge[]> {
 export async function getUserBadges(userId: string): Promise<UserBadge[]> {
   const response = await fetch(`${API_BASE}/users/${userId}/badges`);
   if (!response.ok) {
+    // Return empty array instead of throwing for 404s (user has no badges)
+    if (response.status === 404) {
+      return [];
+    }
     throw new Error('Failed to fetch user badges');
   }
   return response.json();

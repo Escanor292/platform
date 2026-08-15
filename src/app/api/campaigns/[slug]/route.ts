@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import { projectIdSchema } from "@/lib/project/project.validation";
+import {
+  checkAuthentication,
+  validationErrorResponse,
+  forbiddenResponse
+} from "@/lib/project/project.response-handlers";
+import { z } from "zod";
 
 /**
  * GET /api/campaigns/[slug]
@@ -76,13 +84,24 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug: 
 /**
  * PUT /api/campaigns/[slug]
  * Cập nhật campaign (chỉ creator hoặc admin)
+ * Validates: Requirements 9.1, 9.2, 9.3, 9.4, 9.5
  */
 export async function PUT(req: NextRequest, context: { params: Promise<{ slug: string }> }) {
   try {
+    // Check authentication
+    const session = await auth();
+    const authError = checkAuthentication(session);
+    if (authError) return authError;
+
+    const userId = session!.user!.id;
     const { slug } = await context.params;
     const body = await req.json();
 
-    const campaign = await prisma.campaigns.findUnique({ where: { slug } });
+    const campaign = await prisma.campaigns.findUnique({
+      where: { slug },
+      select: { id: true, creatorId: true }
+    });
+
     if (!campaign) {
       return NextResponse.json(
         { error: "Không tìm thấy campaign" },
@@ -90,21 +109,63 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ slug: s
       );
     }
 
+    // Check ownership
+    if (campaign.creatorId !== userId) {
+      return forbiddenResponse('Not authorized to update this campaign');
+    }
+
+    // Prepare update data
+    const updateData: any = {
+      title: body.title,
+      description: body.tagline || body.description,
+      longDescription: body.description || body.longDescription || null,
+      goalAmount: body.goalAmount,
+      category: body.mainCategory || body.category,
+      tags: body.starterTags || body.tags || [],
+      imageUrl: body.imageUrl || null,
+      images: body.images || [],
+      videoUrl: body.videoUrl || null,
+      endDate: body.endDate ? new Date(body.endDate) : null,
+    };
+
+    // Handle projectId update if provided
+    if ('projectId' in body) {
+      if (body.projectId === null) {
+        // Allow setting to null to make campaign standalone
+        updateData.projectId = null;
+      } else {
+        // Validate projectId format (CUID)
+        try {
+          projectIdSchema.parse(body.projectId);
+        } catch (error) {
+          if (error instanceof z.ZodError) {
+            return validationErrorResponse('Invalid project ID format');
+          }
+          throw error;
+        }
+
+        // Validate project exists and is owned by campaign owner
+        const project = await prisma.projects.findUnique({
+          where: { id: body.projectId },
+          select: { creatorId: true },
+        });
+
+        if (!project) {
+          return validationErrorResponse('Project not found');
+        }
+
+        if (project.creatorId !== userId) {
+          return forbiddenResponse('Not authorized to add campaigns to this project');
+        }
+
+        updateData.projectId = body.projectId;
+      }
+    }
+
     // Update campaign data
     const updated = await prisma.campaigns.update({
       where: { slug },
-      data: {
-        title: body.title,
-        description: body.tagline || body.description, // Map tagline to description
-        longDescription: body.description || body.longDescription || null, // Map frontend description to longDescription
-        goalAmount: body.goalAmount,
-        category: body.mainCategory || body.category, // Map mainCategory to category
-        tags: body.starterTags || body.tags || [], // Save starterTags to tags
-        imageUrl: body.imageUrl || null,
-        images: body.images || [],
-        videoUrl: body.videoUrl || null,
-        endDate: body.endDate ? new Date(body.endDate) : null,
-      },
+      data: updateData,
     });
 
     // Update blog links if provided

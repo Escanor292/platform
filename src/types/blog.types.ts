@@ -122,6 +122,7 @@ export interface BlogPostListQuery {
   tag?: string;
   type?: string;
   campaignId?: string;
+  projectId?: string; // Filter by project ID or 'null'/'standalone' for platform blogs
   featured?: boolean;
   sort?: 'latest' | 'popular' | 'most_viewed';
   authorId?: string;

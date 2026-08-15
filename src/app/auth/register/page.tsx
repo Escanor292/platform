@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { Globe, Sparkles, Heart, Users, Building2, User as UserIcon } from "lucide-react";
+import { Globe, Sparkles, Heart, Users, Building2, User as UserIcon, Eye, EyeOff } from "lucide-react";
 import LeafIcon from "@/components/shared/LeafIcon";
 import Link from "next/link";
 import { useState } from "react";
@@ -12,6 +12,8 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [accountType, setAccountType] = useState<"individual" | "organization">("individual");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -75,32 +77,32 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gradient-to-br from-cream via-white to-fgreen/5 flex items-center justify-center px-4 py-24 relative overflow-hidden">
       {/* Enhanced Blurry Background */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div 
+        <div
           className="absolute -top-20 -left-20 w-[40rem] h-[40rem] bg-pgreen/10 rounded-full blur-[120px] opacity-60"
           style={{ animation: 'pulse 15s ease-in-out infinite' }}
         />
-        <div 
+        <div
           className="absolute -bottom-40 -right-20 w-[50rem] h-[50rem] bg-tblue/10 rounded-full blur-[150px] opacity-40"
           style={{ animation: 'pulse 20s ease-in-out 2s infinite' }}
         />
       </div>
 
       <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        
+
         {/* Left Side - Branding */}
         <div className="hidden lg:block space-y-8 animate-fade-in-up">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-fgreen/10 text-pgreen rounded-full text-xs font-black uppercase tracking-widest border border-fgreen/20">
             <Sparkles size={14} className="text-fgreen" />
             Tham gia cộng đồng
           </div>
-          
+
           <h1 className="font-display text-6xl font-black text-gray-900 tracking-tight leading-[1.1]">
             Khởi đầu hành trình
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-pgreen via-fgreen to-tblue mt-2">
               Thay đổi thế giới
             </span>
           </h1>
-          
+
           <p className="text-xl text-gray-600 font-medium leading-relaxed max-w-lg">
             Tham gia cộng đồng TửTế Fund - nơi những ý tưởng tuyệt vời được hiện thực hóa cùng sự ủng hộ của hàng ngàn trái tim.
           </p>
@@ -113,7 +115,7 @@ export default function RegisterPage() {
               <div className="text-2xl font-black text-gray-900 mb-1">10,000+</div>
               <div className="text-xs text-gray-500 font-bold uppercase tracking-wider">Thành viên</div>
             </div>
-            
+
             <div className="glass-morphism p-6 rounded-3xl border border-white/20">
               <div className="w-12 h-12 bg-fgreen/10 rounded-2xl flex items-center justify-center text-fgreen mb-4">
                 <Heart size={24} />
@@ -142,11 +144,10 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setAccountType("individual")}
-                  className={`p-4 rounded-2xl border-2 transition-all ${
-                    accountType === "individual"
-                      ? "border-pgreen bg-pgreen/5"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
+                  className={`p-4 rounded-2xl border-2 transition-all ${accountType === "individual"
+                    ? "border-pgreen bg-pgreen/5"
+                    : "border-gray-200 hover:border-gray-300"
+                    }`}
                 >
                   <UserIcon size={24} className={`mx-auto mb-2 ${accountType === "individual" ? "text-pgreen" : "text-gray-400"}`} />
                   <div className={`text-sm font-bold ${accountType === "individual" ? "text-pgreen" : "text-gray-600"}`}>
@@ -156,11 +157,10 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setAccountType("organization")}
-                  className={`p-4 rounded-2xl border-2 transition-all ${
-                    accountType === "organization"
-                      ? "border-pgreen bg-pgreen/5"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
+                  className={`p-4 rounded-2xl border-2 transition-all ${accountType === "organization"
+                    ? "border-pgreen bg-pgreen/5"
+                    : "border-gray-200 hover:border-gray-300"
+                    }`}
                 >
                   <Building2 size={24} className={`mx-auto mb-2 ${accountType === "organization" ? "text-pgreen" : "text-gray-400"}`} />
                   <div className={`text-sm font-bold ${accountType === "organization" ? "text-pgreen" : "text-gray-600"}`}>
@@ -192,26 +192,54 @@ export default function RegisterPage() {
                   />
                 </div>
                 <div>
-                  <input
-                    type="password"
-                    placeholder="Mật khẩu"
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    required
-                    minLength={6}
-                    className="w-full h-14 px-4 rounded-2xl border-2 border-gray-200 focus:border-pgreen focus:outline-none transition-colors"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Mật khẩu"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      required
+                      minLength={6}
+                      className="w-full h-14 px-4 pr-12 rounded-2xl border-2 border-gray-200 focus:border-pgreen focus:outline-none transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2 text-gray-400 transition hover:bg-pgreen/10 hover:text-pgreen focus:outline-none focus-visible:ring-2 focus-visible:ring-pgreen/30"
+                      aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <div>
-                  <input
-                    type="password"
-                    placeholder="Xác nhận mật khẩu"
-                    value={formData.confirmPassword}
-                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                    required
-                    minLength={6}
-                    className="w-full h-14 px-4 rounded-2xl border-2 border-gray-200 focus:border-pgreen focus:outline-none transition-colors"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Xác nhận mật khẩu"
+                      value={formData.confirmPassword}
+                      onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                      required
+                      minLength={6}
+                      className="w-full h-14 px-4 pr-12 rounded-2xl border-2 border-gray-200 focus:border-pgreen focus:outline-none transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2 text-gray-400 transition hover:bg-pgreen/10 hover:text-pgreen focus:outline-none focus-visible:ring-2 focus-visible:ring-pgreen/30"
+                      aria-label={showConfirmPassword ? "Ẩn mật khẩu xác nhận" : "Hiện mật khẩu xác nhận"}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {error && (
@@ -251,8 +279,8 @@ export default function RegisterPage() {
               <div className="text-center">
                 <p className="text-sm text-gray-600 font-medium">
                   Bạn đã có tài khoản?{" "}
-                  <Link 
-                    href="/auth/login" 
+                  <Link
+                    href="/auth/login"
                     className="text-pgreen font-black hover:text-fgreen transition-colors underline decoration-2 underline-offset-4"
                   >
                     Đăng nhập ngay

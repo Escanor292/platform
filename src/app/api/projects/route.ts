@@ -1,205 +1,143 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import { parseProjectFilters } from "@/lib/project-query-params";
-import { ProjectListResponse, ProjectListItem } from "@/types/project";
-import { calculateCompletionState } from "@/lib/project-helpers";
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { createProjectSchema, paginationSchema } from '@/lib/project/project.validation';
+import { createProject, listProjects } from '@/lib/project/project.service';
+import { logError } from '@/lib/project/project.errors';
+import {
+  checkAuthentication,
+  checkCreatorRole,
+  handleServiceError,
+  validationErrorResponse,
+  mapZodErrors,
+} from '@/lib/project/project.response-handlers';
+import { z } from 'zod';
 
 /**
- * GET /api/projects
- * Search and filter projects from database
+ * POST /api/projects
+ * Create a new project
+ * 
+ * Validates: Requirements 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7
  */
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
+    // Check authentication
+    const session = await auth();
+    const authError = checkAuthentication(session);
+    if (authError) return authError;
 
-    // Parse filters from query params
-    const filters = parseProjectFilters(searchParams);
+    // TypeScript knows session exists after authentication check
+    const userId = session!.user!.id as string;
 
-    // Build Prisma where clause
-    const where: any = {};
+    // Check creator role
+    const roleError = checkCreatorRole(session);
+    if (roleError) return roleError;
 
-    // Search filter
-    if (filters.q) {
-      const query = filters.q.trim().toLowerCase();
-      where.OR = [
-        { campaignCode: { contains: query, mode: 'insensitive' } },
-        { title: { contains: query, mode: 'insensitive' } },
-        { description: { contains: query, mode: 'insensitive' } },
-      ];
-    }
+    // Parse and validate request body
+    const body = await req.json();
 
-    // Category filter
-    if (filters.category) {
-      where.category = filters.category;
-    }
-
-    // Campaign type filter
-    if (filters.campaignType) {
-      where.type = filters.campaignType;
-    }
-
-    // Status filter
-    if (filters.status) {
-      where.status = filters.status;
-    }
-
-    // Created within filter
-    if (filters.createdWithin) {
-      const now = new Date();
-      let daysAgo = 30;
-
-      switch (filters.createdWithin) {
-        case '7d': daysAgo = 7; break;
-        case '30d': daysAgo = 30; break;
-        case '90d': daysAgo = 90; break;
-        case '365d': daysAgo = 365; break;
+    let validatedData;
+    try {
+      validatedData = createProjectSchema.parse(body);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return validationErrorResponse(mapZodErrors(error));
       }
-
-      const cutoffDate = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
-      where.createdAt = { gte: cutoffDate };
+      throw error;
     }
 
-    // Fetch campaigns from database
-    const campaigns = await prisma.campaigns.findMany({
-      where,
-      include: {
-        users: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-            status: true,
-          }
-        },
-        _count: {
-          select: {
-            pledges: {
-              where: { status: 'SUCCESS' }
-            },
-            campaign_followers: true
-          }
-        }
-      },
-      orderBy: getSortOrder(filters.sort || 'newest'),
-    });
+    // Create project
+    const project = await createProject(userId, validatedData);
 
-    // Transform to ProjectListItem format
-    const items: ProjectListItem[] = campaigns.map((campaign) => {
-      const progressPercent = Number(campaign.goalAmount) > 0
-        ? Math.round((Number(campaign.currentAmount) / Number(campaign.goalAmount)) * 100)
-        : 0;
-
-      const completionState = calculateCompletionState(
-        campaign.status as any,
-        campaign.startDate,
-        campaign.endDate,
-        progressPercent
-      );
-
-      return {
-        id: campaign.id,
-        campaignCode: campaign.campaignCode,
-        slug: campaign.slug,
-        title: campaign.title,
-        description: campaign.description,
-        imageUrl: campaign.imageUrl,
-
-        creatorId: campaign.creatorId,
-        creatorName: campaign.users.name,
-        creatorAvatar: campaign.users.avatar,
-        creatorIsPro: campaign.users.status === "PRO",
-
-        category: campaign.category,
-        tags: campaign.tags,
-        campaignType: campaign.type as any,
-
-        goalAmount: Number(campaign.goalAmount),
-        currentAmount: Number(campaign.currentAmount),
-        progressPercent,
-
-        totalBackers: campaign._count.pledges,
-        totalFollowers: campaign._count.campaign_followers,
-        totalViews: 0, // TODO: Implement view tracking
-        ratingAverage: 0, // TODO: Calculate from reviews
-        ratingCount: 0, // TODO: Count reviews
-
-        createdAt: campaign.createdAt,
-        updatedAt: campaign.updatedAt,
-        startDate: campaign.startDate,
-        endDate: campaign.endDate,
-
-        status: campaign.status as any,
-        completionState,
-        isFeatured: false, // TODO: Add featured flag to schema
-      };
-    });
-
-    // Apply client-side filters that can't be done in Prisma
-    let filteredItems = items;
-
-    // Rating filter
-    if (filters.ratingMin) {
-      filteredItems = filteredItems.filter(item => item.ratingAverage >= filters.ratingMin!);
-    }
-
-    // Progress filter
-    if (filters.progressMin !== undefined) {
-      filteredItems = filteredItems.filter(item => item.progressPercent >= filters.progressMin!);
-    }
-    if (filters.progressMax !== undefined) {
-      filteredItems = filteredItems.filter(item => item.progressPercent <= filters.progressMax!);
-    }
-
-    // Completion state filter
-    if (filters.completionState) {
-      filteredItems = filteredItems.filter(item => item.completionState === filters.completionState);
-    }
-
-    // Featured filter
-    if (filters.isFeatured) {
-      filteredItems = filteredItems.filter(item => item.isFeatured);
-    }
-
-    // Pagination
-    const page = filters.page || 1;
-    const limit = filters.limit || 12;
-    const total = filteredItems.length;
-    const totalPages = Math.ceil(total / limit);
-    const start = (page - 1) * limit;
-    const end = start + limit;
-    const paginatedItems = filteredItems.slice(start, end);
-
-    // Build response
-    const response: ProjectListResponse = {
-      items: paginatedItems,
-      total,
-      page,
-      limit,
-      totalPages,
-      appliedFilters: filters,
+    // Convert Date objects to ISO 8601 strings for response
+    const response = {
+      id: project.id,
+      creatorId: project.creatorId,
+      title: project.title,
+      description: project.description,
+      createdAt: project.createdAt.toISOString(),
+      updatedAt: project.updatedAt.toISOString(),
+      campaignCount: project.campaignCount,
+      blogPostCount: project.blogPostCount,
     };
 
-    return NextResponse.json(response);
+    return NextResponse.json(response, { status: 201 });
   } catch (error) {
-    console.error("[GET /api/projects]", error);
-    return NextResponse.json(
-      { error: "Lỗi server khi tìm kiếm dự án" },
-      { status: 500 }
-    );
+    const session = await auth();
+    logError(error as Error, {
+      operation: 'createProject',
+      userId: session?.user?.id || 'unknown',
+      method: 'POST',
+      path: '/api/projects',
+      body: await req.json().catch(() => ({})),
+    });
+
+    return handleServiceError(error);
   }
 }
 
-function getSortOrder(sort: string): any {
-  switch (sort) {
-    case 'newest':
-      return { createdAt: 'desc' };
-    case 'oldest':
-      return { createdAt: 'asc' };
-    case 'recently_updated':
-      return { updatedAt: 'desc' };
-    case 'ending_soon':
-      return { endDate: 'asc' };
-    default:
-      return { createdAt: 'desc' };
+/**
+ * GET /api/projects
+ * List projects for the authenticated user
+ * 
+ * Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 19.4
+ */
+export async function GET(req: NextRequest) {
+  try {
+    // Check authentication
+    const session = await auth();
+    const authError = checkAuthentication(session);
+    if (authError) return authError;
+
+    // TypeScript knows session exists after authentication check
+    const userId = session!.user!.id as string;
+
+    // Parse and validate pagination query parameters
+    const { searchParams } = new URL(req.url);
+    const page = searchParams.get('page');
+    const limit = searchParams.get('limit');
+
+    let paginationParams;
+    try {
+      paginationParams = paginationSchema.parse({
+        page: page || undefined,
+        limit: limit || undefined,
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return validationErrorResponse(mapZodErrors(error));
+      }
+      throw error;
+    }
+
+    // Get projects for the authenticated user
+    const result = await listProjects(userId, paginationParams);
+
+    // Convert Date objects to ISO 8601 strings for response
+    const response = {
+      data: result.data.map((project) => ({
+        id: project.id,
+        creatorId: project.creatorId,
+        title: project.title,
+        description: project.description,
+        createdAt: project.createdAt.toISOString(),
+        updatedAt: project.updatedAt.toISOString(),
+        campaignCount: project.campaignCount,
+        blogPostCount: project.blogPostCount,
+      })),
+      pagination: result.pagination,
+    };
+
+    return NextResponse.json(response, { status: 200 });
+  } catch (error) {
+    const session = await auth();
+    logError(error as Error, {
+      operation: 'listProjects',
+      userId: session?.user?.id || 'unknown',
+      method: 'GET',
+      path: '/api/projects',
+      params: { page: new URL(req.url).searchParams.get('page'), limit: new URL(req.url).searchParams.get('limit') },
+    });
+
+    return handleServiceError(error);
   }
 }

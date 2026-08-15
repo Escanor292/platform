@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { Tag, Layers } from "lucide-react";
-import { getCampaignTypeLabel } from "@/lib/project-helpers";
-import { CampaignType } from "@/types/project";
+import { getCampaignTypeLabel } from "@/lib/campaign-helpers";
+import { CampaignType } from "@/types/campaign";
 
 interface CampaignHeaderProps {
     title: string;

@@ -19,7 +19,7 @@ const customJestConfig = {
         '<rootDir>/__tests__/utils/',
         '<rootDir>/__tests__/run-tests-and-report.ts'
     ],
-    moduleNameMapping: {
+    moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
     },
     collectCoverageFrom: [

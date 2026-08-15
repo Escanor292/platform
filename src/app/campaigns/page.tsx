@@ -5,7 +5,7 @@ import { Search, Rocket, ArrowRight } from "lucide-react";
 import CampaignGrowthProgress from "@/components/campaign/CampaignGrowthProgress";
 import CreatorLink from "@/components/campaign/CreatorLink";
 import { Tag, Layers } from "lucide-react";
-import { getCampaignTypeLabel } from "@/lib/project-helpers";
+import { getCampaignTypeLabel } from "@/lib/campaign-helpers";
 
 export default async function CampaignsPage() {
   const campaigns = await prisma.campaigns.findMany({

@@ -12,7 +12,7 @@ import CampaignActions from "@/components/campaign/CampaignActions";
 import FavoriteCount from "@/components/campaign/FavoriteCount";
 import CampaignPageClient from "./CampaignPageClient";
 import { CampaignProvider } from "@/contexts/CampaignContext";
-import { getCampaignTypeLabel } from "@/lib/project-helpers";
+import { getCampaignTypeLabel } from "@/lib/campaign-helpers";
 
 type Params = { params: Promise<{ slug: string }> };
 

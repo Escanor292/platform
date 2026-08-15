@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Globe, Lock, Mail, AlertCircle, Loader2 } from "lucide-react";
 import LeafIcon from "@/components/shared/LeafIcon";
 import Link from "next/link";
@@ -42,7 +43,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div 
+    <div
       className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
       style={{
         background: 'linear-gradient(180deg, #F8F7F2 0%, #f0f8f4 50%, #F8F7F2 100%)'
@@ -50,15 +51,15 @@ export default function LoginPage() {
     >
       {/* Decorative background */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div 
+        <div
           className="absolute top-10 left-[5%] w-96 h-96 bg-gradient-to-br from-fgreen/20 via-fgreen/8 to-transparent rounded-full blur-3xl opacity-70"
           style={{ animation: 'pulse 8s ease-in-out infinite' }}
         />
-        <div 
+        <div
           className="absolute top-32 right-[8%] w-80 h-80 bg-gradient-to-tl from-tblue/15 via-transparent to-transparent rounded-full blur-3xl opacity-60"
           style={{ animation: 'pulse 10s ease-in-out 2s infinite' }}
         />
-        <div 
+        <div
           className="absolute bottom-10 left-[20%] w-[30rem] h-[30rem] bg-gradient-to-tr from-pgreen/10 to-transparent rounded-full blur-[100px] opacity-40"
           style={{ animation: 'pulse 12s ease-in-out 1s infinite' }}
         />
@@ -80,7 +81,7 @@ export default function LoginPage() {
                 {error}
               </div>
             )}
-            
+
             <div className="space-y-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-semibold text-dblue mb-1.5">
@@ -88,9 +89,9 @@ export default function LoginPage() {
                 </label>
                 <div className="relative group">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-pgreen transition" size={18} />
-                  <Input 
+                  <Input
                     id="email"
-                    type="email" 
+                    type="email"
                     placeholder="email@example.com"
                     className="pl-12 h-12 glass border border-gray-200 rounded-2xl focus:ring-2 focus:ring-pgreen focus:border-transparent transition-all font-medium"
                     value={email}
@@ -99,16 +100,15 @@ export default function LoginPage() {
                   />
                 </div>
               </div>
-               
+
               <div>
                 <label htmlFor="password" className="block text-sm font-semibold text-dblue mb-1.5">
                   Mật khẩu
                 </label>
                 <div className="relative group">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-pgreen transition" size={18} />
-                  <Input 
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-pgreen transition z-10" size={18} />
+                  <PasswordInput
                     id="password"
-                    type="password" 
                     placeholder="••••••••"
                     className="pl-12 h-12 glass border border-gray-200 rounded-2xl focus:ring-2 focus:ring-pgreen focus:border-transparent transition-all font-medium"
                     value={password}
@@ -119,8 +119,8 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full h-12 gradient-green text-white font-bold rounded-2xl hover:shadow-xl hover:shadow-green-200 transition-all active:scale-95"
               disabled={loading}
             >
@@ -144,15 +144,15 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="w-full h-12 flex items-center justify-center gap-3 glass border border-gray-200 rounded-2xl font-semibold text-gray-700 hover:border-pgreen hover:text-pgreen transition-all"
             onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
           >
             <Globe className="h-5 w-5" />
             Tiếp tục với Google
           </Button>
-          
+
           <p className="text-center text-sm text-gray-500 mt-6">
             Bạn chưa có tài khoản?{" "}
             <a href="/auth/register" className="text-pgreen font-semibold hover:underline">

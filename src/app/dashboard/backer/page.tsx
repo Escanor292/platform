@@ -79,9 +79,9 @@ export default async function BackerDashboard() {
           ) : (
             <div className="py-24 text-center glass-morphism rounded-[3rem]">
               <Search className="mx-auto text-gray-200 mb-6" size={56} />
-              <h3 className="text-xl font-black text-gray-900 mb-2">Bạn chưa ủng hộ dự án nào</h3>
-              <p className="text-gray-400 text-sm font-medium mb-8">Hãy khám phá những dự án đầy cảm hứng và bắt đầu hành trình của bạn.</p>
-              <Link href="/campaigns" className="btn-primary">Khám phá dự án ngay</Link>
+              <h3 className="text-xl font-black text-gray-900 mb-2">Bạn chưa ủng hộ chiến dịch nào</h3>
+              <p className="text-gray-400 text-sm font-medium mb-8">Hãy khám phá những chiến dịch đầy cảm hứng và bắt đầu hành trình của bạn.</p>
+              <Link href="/campaigns" className="btn-primary">Khám phá chiến dịch ngay</Link>
             </div>
           )}
         </div>

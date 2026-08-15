@@ -234,7 +234,7 @@ export default function NavbarNew() {
                       </Link>
                     )}
 
-                    {/* Chỉ hiển thị "Quản lý dự án" cho CREATOR và ADMIN */}
+                    {/* Chỉ hiển thị "Quản lý chiến dịch" cho CREATOR và ADMIN */}
                     {(user?.role === "CREATOR" || user?.role === "ADMIN" || isAdmin) && (
                       <Link
                         href="/dashboard/creator"
@@ -242,7 +242,7 @@ export default function NavbarNew() {
                         onClick={() => setIsDropdownOpen(false)}
                       >
                         <FolderKanban size={16} />
-                        Quản lý dự án
+                        Quản lý chiến dịch
                       </Link>
                     )}
 
@@ -252,7 +252,7 @@ export default function NavbarNew() {
                       onClick={() => setIsDropdownOpen(false)}
                     >
                       <HeartHandshake size={16} />
-                      Dự án quan tâm
+                      Chiến dịch quan tâm
                     </Link>
 
                     <Link

@@ -2,26 +2,26 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ProjectFilters, ProjectListResponse, SortOption } from "@/types/project";
-import { parseProjectFilters, filtersToSearchParams } from "@/lib/project-query-params";
-import { projectCache } from "@/lib/project-cache";
+import { CampaignFilters, CampaignListResponse, SortOption } from "@/types/campaign";
+import { parseCampaignFilters, filtersToSearchParams } from "@/lib/campaign-query-params";
+import { campaignCache } from "@/lib/campaign-cache";
 import { useDebounce } from "@/hooks/useDebounce";
-import { ProjectSearchBar } from "@/components/projects/ProjectSearchBar";
-import { ProjectSortSelect } from "@/components/projects/ProjectSortSelect";
-import { ProjectFilterChips } from "@/components/projects/ProjectFilterChips";
-import { ProjectAdvancedFilters } from "@/components/projects/ProjectAdvancedFilters";
-import { ProjectGrid } from "@/components/projects/ProjectGrid";
-import { ProjectEmptyState } from "@/components/projects/ProjectEmptyState";
-import { ProjectResultsHeader } from "@/components/projects/ProjectResultsHeader";
-import { ProjectPagination } from "@/components/projects/ProjectPagination";
-import { ProjectGridSkeleton } from "@/components/projects/ProjectCardSkeleton";
+import { CampaignSearchBar } from "@/components/campaigns/CampaignSearchBar";
+import { CampaignSortSelect } from "@/components/campaigns/CampaignSortSelect";
+import { CampaignFilterChips } from "@/components/campaigns/CampaignFilterChips";
+import { CampaignAdvancedFilters } from "@/components/campaigns/CampaignAdvancedFilters";
+import { CampaignGrid } from "@/components/campaigns/CampaignGrid";
+import { CampaignEmptyState } from "@/components/campaigns/CampaignEmptyState";
+import { CampaignResultsHeader } from "@/components/campaigns/CampaignResultsHeader";
+import { CampaignPagination } from "@/components/campaigns/CampaignPagination";
+import { CampaignGridSkeleton } from "@/components/campaigns/CampaignCardSkeleton";
 import { SlidersHorizontal, Loader2 } from "lucide-react";
 
 export default function ProjectsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [data, setData] = useState<ProjectListResponse | null>(null);
+  const [data, setData] = useState<CampaignListResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
@@ -31,7 +31,7 @@ export default function ProjectsPage() {
 
   // Memoize filters to prevent unnecessary re-renders
   const filters = useMemo(() => {
-    const parsed = parseProjectFilters(searchParams);
+    const parsed = parseCampaignFilters(searchParams);
     // Override với debounced search query
     return { ...parsed, q: debouncedSearchQuery || undefined };
   }, [searchParams, debouncedSearchQuery]);
@@ -48,7 +48,7 @@ export default function ProjectsPage() {
 
     const fetchProjects = async () => {
       // Check cache first
-      const cachedData = projectCache.get(queryString);
+      const cachedData = campaignCache.get(queryString);
       if (cachedData && isMounted) {
         setData(cachedData);
         setIsLoading(false);
@@ -58,7 +58,7 @@ export default function ProjectsPage() {
       setIsLoading(true);
 
       try {
-        const response = await fetch(`/api/projects?${queryString}`);
+        const response = await fetch(`/api/campaigns?${queryString}`);
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -68,7 +68,7 @@ export default function ProjectsPage() {
 
         if (isMounted) {
           setData(result);
-          projectCache.set(queryString, result);
+          campaignCache.set(queryString, result);
           setIsLoading(false);
         }
       } catch (error: any) {
@@ -96,7 +96,7 @@ export default function ProjectsPage() {
   }, [queryString, filters]);
 
   // Update URL with new filters
-  const updateFilters = useCallback((newFilters: Partial<ProjectFilters>) => {
+  const updateFilters = useCallback((newFilters: Partial<CampaignFilters>) => {
     const updated = { ...filters, ...newFilters, page: 1 }; // Reset to page 1 on filter change
     const params = filtersToSearchParams(updated);
     router.push(`/projects?${params.toString()}`);
@@ -121,7 +121,7 @@ export default function ProjectsPage() {
   }, [updateFilters]);
 
   // Handle remove filter
-  const handleRemoveFilter = useCallback((key: keyof ProjectFilters) => {
+  const handleRemoveFilter = useCallback((key: keyof CampaignFilters) => {
     updateFilters({ [key]: undefined });
   }, [updateFilters]);
 
@@ -131,7 +131,7 @@ export default function ProjectsPage() {
   }, [router]);
 
   // Handle advanced filters
-  const handleApplyAdvancedFilters = useCallback((newFilters: Partial<ProjectFilters>) => {
+  const handleApplyAdvancedFilters = useCallback((newFilters: Partial<CampaignFilters>) => {
     updateFilters(newFilters);
   }, [updateFilters]);
 
@@ -145,7 +145,7 @@ export default function ProjectsPage() {
 
   const hasActiveFilters = useMemo(() =>
     Object.keys(filters).some(
-      (key) => !["page", "limit", "sort"].includes(key) && filters[key as keyof ProjectFilters] !== undefined
+      (key) => !["page", "limit", "sort"].includes(key) && filters[key as keyof CampaignFilters] !== undefined
     ),
     [filters]
   );
@@ -177,7 +177,7 @@ export default function ProjectsPage() {
               Khám phá cộng đồng
             </div>
             <h1 className="font-display font-black text-4xl lg:text-6xl text-dblue mb-5">
-              Khám phá dự án
+              Khám phá chiến dịch
             </h1>
             <p className="mx-auto max-w-2xl text-lg text-gray-600 leading-relaxed">
               Tìm kiếm và đồng hành cùng những chiến dịch tử tế đang tạo tác động tích cực.
@@ -189,14 +189,14 @@ export default function ProjectsPage() {
             <div className="glass rounded-3xl p-6 shadow-soft">
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
-                  <ProjectSearchBar
+                  <CampaignSearchBar
                     value={searchQuery}
                     onChange={handleSearch}
                     onClear={() => handleSearch("")}
                   />
                 </div>
                 <div className="flex gap-3">
-                  <ProjectSortSelect
+                  <CampaignSortSelect
                     value={filters.sort || "newest"}
                     onChange={handleSort}
                   />
@@ -213,7 +213,7 @@ export default function ProjectsPage() {
               {/* Active Filters */}
               {hasActiveFilters && (
                 <div className="mt-4">
-                  <ProjectFilterChips
+                  <CampaignFilterChips
                     filters={filters}
                     onRemoveFilter={handleRemoveFilter}
                     onClearAll={handleClearAllFilters}
@@ -230,7 +230,7 @@ export default function ProjectsPage() {
         {/* Results Header */}
         {data && (
           <div className="mb-8">
-            <ProjectResultsHeader
+            <CampaignResultsHeader
               total={data.total}
               page={data.page}
               limit={data.limit}
@@ -241,26 +241,26 @@ export default function ProjectsPage() {
 
         {/* Loading State */}
         {isLoading && (
-          <ProjectGridSkeleton count={12} />
+          <CampaignGridSkeleton count={12} />
         )}
 
         {/* Empty State */}
         {!isLoading && data && data.items.length === 0 && (
-          <ProjectEmptyState
+          <CampaignEmptyState
             hasFilters={hasActiveFilters}
             onClearFilters={handleClearAllFilters}
           />
         )}
 
-        {/* Project Grid */}
+        {/* Campaign Grid */}
         {!isLoading && data && data.items.length > 0 && (
           <>
-            <ProjectGrid projects={data.items} />
+            <CampaignGrid projects={data.items} />
 
             {/* Pagination */}
             {data.totalPages > 1 && (
               <div className="mt-12">
-                <ProjectPagination
+                <CampaignPagination
                   currentPage={data.page}
                   totalPages={data.totalPages}
                   onPageChange={handlePageChange}
@@ -273,7 +273,7 @@ export default function ProjectsPage() {
 
       {/* Advanced Filters Drawer */}
       {showAdvancedFilters && (
-        <ProjectAdvancedFilters
+        <CampaignAdvancedFilters
           filters={filters}
           onApply={handleApplyAdvancedFilters}
           onClose={() => setShowAdvancedFilters(false)}

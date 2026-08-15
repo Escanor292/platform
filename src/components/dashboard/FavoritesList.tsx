@@ -76,15 +76,15 @@ export default function FavoritesList() {
                 <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
                     <HeartHandshake size={32} className="text-red-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Chưa có dự án quan tâm</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Chưa có chiến dịch quan tâm</h3>
                 <p className="text-gray-600 mb-6">
-                    Khám phá và đánh dấu các dự án bạn thích để theo dõi tiến độ
+                    Khám phá và đánh dấu các chiến dịch bạn thích để theo dõi tiến độ
                 </p>
                 <Link
                     href="/projects"
                     className="inline-flex items-center gap-2 px-6 py-3 bg-pgreen text-white rounded-lg font-semibold hover:bg-pgreen/90 transition"
                 >
-                    Khám phá dự án
+                    Khám phá chiến dịch
                 </Link>
             </div>
         );

@@ -2,25 +2,30 @@ import { prisma } from "@/lib/prisma";
 import { formatVND, formatDate } from "@/lib/utils";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { MapPin, Calendar, Heart, Rocket, Award, TrendingUp, Settings, ShieldCheck, Tag, Layers, MessageCircle } from "lucide-react";
+import { MapPin, Calendar, Heart, Rocket, Award, TrendingUp, Settings, ShieldCheck, Tag, Layers, MessageCircle, Eye, EyeOff } from "lucide-react";
 import { auth } from "@/lib/auth";
 import UserIdDisplay from "@/components/profile/UserIdDisplay";
 import SocialLinks from "@/components/profile/SocialLinks";
 import { SocialLink } from "@/types/social";
 import { CampaignGrowthProgress } from "@/components/campaign/CampaignGrowthProgress";
-import { getCampaignTypeLabel } from "@/lib/project-helpers";
+import { getCampaignTypeLabel } from "@/lib/campaign-helpers";
 import { UserBadgeList } from "@/components/badge/UserBadgeList";
 import { StartChatButton } from "@/components/chat/StartChatButton";
+import { ProfileBlogCard } from "@/components/profile/ProfileBlogCard";
+import { ProfileTabs } from "@/components/profile/ProfileTabs";
 
 interface ProfilePageProps {
   params: Promise<{ userId: string }>;
+  searchParams: Promise<{ preview?: string }>;
 }
 
-export default async function ProfilePage({ params }: ProfilePageProps) {
+export default async function ProfilePage({ params, searchParams }: ProfilePageProps) {
   const { userId } = await params;
+  const { preview } = await searchParams;
   const session = await auth();
   const currentUserId = (session?.user as any)?.id;
   const isOwnProfile = currentUserId === userId;
+  const showAsPublic = isOwnProfile && preview === "public";
 
   // Lấy thông tin user
   const user = await prisma.users.findUnique({
@@ -50,6 +55,34 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         orderBy: { createdAt: "desc" },
         take: 10
       },
+      blog_posts: {
+        where: {
+          deletedAt: null,
+          ...(isOwnProfile && !showAsPublic
+            ? {} // Owner: tất cả trạng thái
+            : {
+              status: 'PUBLISHED',
+              visibility: 'PUBLIC'
+            })
+        },
+        orderBy: isOwnProfile && !showAsPublic
+          ? { updatedAt: 'desc' }
+          : { publishedAt: 'desc' },
+        take: 5,
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          coverImage: true,
+          status: true,
+          publishedAt: true,
+          createdAt: true,
+          updatedAt: true,
+          viewCount: true,
+          likeCount: true,
+          commentCount: true,
+        }
+      },
       _count: {
         select: {
           campaigns: true,
@@ -62,6 +95,19 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   if (!user) {
     notFound();
   }
+
+  // Serialize data cho Client Component (convert Decimal to number/string)
+  const serializedCampaigns = user.campaigns.map(campaign => ({
+    ...campaign,
+    goalAmount: Number(campaign.goalAmount),
+    currentAmount: Number(campaign.currentAmount),
+    feeRate: Number(campaign.feeRate),
+  }));
+
+  const serializedPledges = user.pledges.map(pledge => ({
+    ...pledge,
+    amount: Number(pledge.amount),
+  }));
 
   // Tính toán thống kê
   const totalRaised = user.campaigns.reduce((sum, c) => sum + Number(c.currentAmount), 0);
@@ -105,8 +151,18 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             </div>
 
             {/* Edit Button - Top Right */}
-            {isOwnProfile && (
+            {isOwnProfile && !showAsPublic && (
               <div className="absolute top-6 right-8 flex gap-2">
+                {/* Preview Toggle - Only show in owner mode */}
+                <Link
+                  href={`/profile/${userId}?preview=public`}
+                  className="px-4 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl text-sm font-bold transition flex items-center gap-2"
+                  title="Xem giao diện công khai"
+                >
+                  <Eye size={16} />
+                  Chế độ xem
+                </Link>
+
                 <Link
                   href={`/profile/${userId}/edit`}
                   className="px-4 py-2 bg-gray-100 text-gray-900 rounded-xl text-sm font-bold hover:bg-gray-200 transition flex items-center gap-2"
@@ -135,8 +191,22 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               </div>
             )}
 
-            {/* Message Button - For other users */}
-            {!isOwnProfile && currentUserId && (
+            {/* Preview Mode - Return to Owner View Button */}
+            {isOwnProfile && showAsPublic && (
+              <div className="absolute top-20 right-8">
+                <Link
+                  href={`/profile/${userId}`}
+                  className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-lg"
+                  title="Quay về chế độ chủ sở hữu"
+                >
+                  <EyeOff size={16} />
+                  Chế độ khách
+                </Link>
+              </div>
+            )}
+
+            {/* Message Button - For other users OR Preview Mode */}
+            {(!isOwnProfile || showAsPublic) && currentUserId && (
               <div className="absolute top-6 right-8">
                 <StartChatButton
                   campaignOwnerId={userId}
@@ -199,12 +269,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 </div>
               )}
 
-              {/* Badges */}
-              <div className="pt-2">
-                <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">Huy hiệu</h3>
-                <UserBadgeList userId={userId} maxDisplay={8} />
-              </div>
-
               {/* Stats */}
               <div className="flex flex-wrap gap-8 pt-4">
                 {isCreator && (
@@ -240,173 +304,65 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           </div>
         </div>
 
-        {/* Tabs Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Created Campaigns */}
-            {isCreator && user.campaigns.length > 0 && (
-              <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
-                <h2 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2">
-                  <Rocket size={24} className="text-blue-600" />
-                  Dự án đã tạo ({user.campaigns.length})
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {user.campaigns.map((campaign) => {
-                    const progress = Math.min(100, Math.round((Number(campaign.currentAmount) / Number(campaign.goalAmount)) * 100));
-                    return (
-                      <Link
-                        key={campaign.id}
-                        href={`/campaigns/${campaign.slug}`}
-                        className="group"
-                      >
-                        <div className="bg-gray-50 rounded-2xl overflow-hidden hover:shadow-lg transition-all">
-                          <div className="relative h-40 overflow-hidden">
-                            <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                              <span className={`px-2 py-1 rounded-lg text-[8px] font-black uppercase ${campaign.status === "ACTIVE" ? "bg-green-500 text-white" : "bg-blue-500 text-white"
-                                }`}>
-                                {campaign.status}
-                              </span>
-                              <span className="px-2 py-1 bg-white/90 backdrop-blur rounded-lg text-[8px] font-black uppercase border border-white/20 text-blue-600 flex items-center gap-1">
-                                <Tag size={8} />
-                                {campaign.category}
-                              </span>
-                              <span className={`px-2 py-1 bg-white/90 backdrop-blur rounded-lg text-[8px] font-black uppercase border border-white/20 flex items-center gap-1 ${campaign.type === 'REWARD' ? 'text-emerald-600' : 'text-orange-600'}`}>
-                                <Layers size={8} />
-                                {getCampaignTypeLabel(campaign.type as any)}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="p-4">
-                            <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition">
-                              {campaign.title}
-                            </h3>
-                            <div className="space-y-4">
-                              <CampaignGrowthProgress
-                                currentAmount={Number(campaign.currentAmount)}
-                                goalAmount={Number(campaign.goalAmount)}
-                                variant="compact"
-                                size="sm"
-                                showTree={false}
-                              />
-                              <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                                {campaign._count.pledges} người ủng hộ
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+        {/* Profile Tabs */}
+        <ProfileTabs
+          userId={userId}
+          isOwnProfile={isOwnProfile}
+          showAsPublic={showAsPublic}
+          campaigns={serializedCampaigns}
+          blogPosts={user.blog_posts}
+          pledges={serializedPledges}
+          isCreator={isCreator}
+          isBacker={isBacker}
+        />
 
-            {/* Supported Campaigns */}
-            {isBacker && user.pledges.length > 0 && (
-              <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
-                <h2 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2">
-                  <Heart size={24} className="text-pink-600" />
-                  Đã ủng hộ ({user.pledges.length})
-                </h2>
-                <div className="space-y-4">
-                  {user.pledges.map((pledge) => (
-                    <Link
-                      key={pledge.id}
-                      href={`/campaigns/${pledge.campaigns.slug}`}
-                      className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition group"
-                    >
-                      <img
-                        src={pledge.campaigns.imageUrl || "/placeholder.jpg"}
-                        alt={pledge.campaigns.title}
-                        className="w-16 h-16 rounded-xl object-cover"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-gray-900 truncate group-hover:text-blue-600 transition">
-                          {pledge.campaigns.title}
-                        </h3>
-                        <div className="text-xs text-gray-400">
-                          {new Date(pledge.createdAt).toLocaleDateString("vi-VN")}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-black text-pink-600">
-                          {formatVND(Number(pledge.amount))}
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
+        {/* Sidebar - Achievements */}
+        {(isCreator || isBacker) && (
+          <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-6">
+            <h3 className="text-lg font-black text-gray-900 mb-4">Thành tích</h3>
+            <div className="space-y-3">
+              {isCreator && successfulCampaigns > 0 && (
+                <div className="flex items-center gap-3 p-3 bg-green-50 rounded-xl">
+                  <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                    <Award size={20} className="text-white" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-gray-900">
+                      {successfulCampaigns} dự án thành công
+                    </div>
+                    <div className="text-xs text-gray-400">Creator xuất sắc</div>
+                  </div>
                 </div>
-              </div>
-            )}
-
-            {/* Empty State */}
-            {!isCreator && !isBacker && (
-              <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-16 text-center">
-                <div className="text-gray-300 mb-4">
-                  <TrendingUp size={64} className="mx-auto" />
+              )}
+              {isBacker && user._count.pledges >= 5 && (
+                <div className="flex items-center gap-3 p-3 bg-pink-50 rounded-xl">
+                  <div className="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center">
+                    <Heart size={20} className="text-white" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-gray-900">
+                      Người ủng hộ tích cực
+                    </div>
+                    <div className="text-xs text-gray-400">{user._count.pledges} đóng góp</div>
+                  </div>
                 </div>
-                <h3 className="text-xl font-black text-gray-900 mb-2">
-                  Chưa có hoạt động
-                </h3>
-                <p className="text-gray-400">
-                  Người dùng này chưa tạo dự án hoặc ủng hộ chiến dịch nào.
-                </p>
-              </div>
-            )}
+              )}
+              {totalRaised >= 10000000 && (
+                <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl">
+                  <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                    <TrendingUp size={20} className="text-white" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-gray-900">
+                      Huy động 10M+
+                    </div>
+                    <div className="text-xs text-gray-400">Milestone đạt được</div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Achievements */}
-            {(isCreator || isBacker) && (
-              <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-6">
-                <h3 className="text-lg font-black text-gray-900 mb-4">Thành tích</h3>
-                <div className="space-y-3">
-                  {isCreator && successfulCampaigns > 0 && (
-                    <div className="flex items-center gap-3 p-3 bg-green-50 rounded-xl">
-                      <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                        <Award size={20} className="text-white" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-bold text-gray-900">
-                          {successfulCampaigns} dự án thành công
-                        </div>
-                        <div className="text-xs text-gray-400">Creator xuất sắc</div>
-                      </div>
-                    </div>
-                  )}
-                  {isBacker && user._count.pledges >= 5 && (
-                    <div className="flex items-center gap-3 p-3 bg-pink-50 rounded-xl">
-                      <div className="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center">
-                        <Heart size={20} className="text-white" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-bold text-gray-900">
-                          Người ủng hộ tích cực
-                        </div>
-                        <div className="text-xs text-gray-400">{user._count.pledges} đóng góp</div>
-                      </div>
-                    </div>
-                  )}
-                  {totalRaised >= 10000000 && (
-                    <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl">
-                      <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                        <TrendingUp size={20} className="text-white" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-bold text-gray-900">
-                          Huy động 10M+
-                        </div>
-                        <div className="text-xs text-gray-400">Milestone đạt được</div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

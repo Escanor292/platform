@@ -4,7 +4,7 @@ import Link from "next/link";
 import { formatVND, formatDate, extractTextFromDescription } from "@/lib/utils";
 import { FileText, Settings, Gift, Tag, Layers } from "lucide-react";
 import { CampaignGrowthProgress } from "@/components/campaign/CampaignGrowthProgress";
-import { getCampaignTypeLabel } from "@/lib/project-helpers";
+import { getCampaignTypeLabel } from "@/lib/campaign-helpers";
 
 interface CreatorCampaignCardProps {
     campaign: {

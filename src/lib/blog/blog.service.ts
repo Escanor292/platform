@@ -179,6 +179,17 @@ export async function getBlogPostList(
     where.campaignId = query.campaignId;
   }
 
+  // Filter by project (Requirement 11.3, 11.4, 11.5)
+  if (query.projectId !== undefined) {
+    if (query.projectId === 'null' || query.projectId === 'standalone') {
+      // Filter for blog posts with NULL projectId (platform blog posts)
+      where.projectId = null;
+    } else {
+      // Filter for blog posts with specific projectId
+      where.projectId = query.projectId;
+    }
+  }
+
   // Filter by author
   if (query.authorId) {
     where.authorId = query.authorId;
