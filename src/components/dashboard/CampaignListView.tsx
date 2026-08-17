@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { formatVND, formatDate, extractTextFromDescription } from '@/lib/utils';
 import {
@@ -14,9 +15,11 @@ import {
     XCircle,
     FileText,
     TrendingUp,
-    Gift
+    Gift,
+    FolderKanban
 } from 'lucide-react';
 import { CampaignGrowthProgress } from '@/components/campaign/CampaignGrowthProgress';
+import { toast } from 'sonner';
 
 interface Campaign {
     id: string;
@@ -30,16 +33,48 @@ interface Campaign {
     goalAmount: number;
     endDate: Date | null;
     createdAt: Date;
+    projectId: string | null;
     _count: {
         pledges: number;
     };
 }
 
-interface CampaignListViewProps {
-    campaigns: Campaign[];
+interface ProjectOption {
+    id: string;
+    title: string;
 }
 
-export default function CampaignListView({ campaigns }: CampaignListViewProps) {
+interface CampaignListViewProps {
+    campaigns: Campaign[];
+    projects?: ProjectOption[];
+}
+
+export default function CampaignListView({ campaigns, projects = [] }: CampaignListViewProps) {
+    const [assigningProject, setAssigningProject] = useState<string | null>(null);
+
+    const handleAssignProject = async (campaignSlug: string, projectId: string | null) => {
+        setAssigningProject(campaignSlug);
+        try {
+            const response = await fetch(`/api/campaigns/${campaignSlug}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ projectId }),
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Không thể gán Project');
+            }
+
+            toast.success(projectId ? 'Đã gán vào Project' : 'Đã tách khỏi Project');
+            window.location.reload();
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'Lỗi gán Project');
+        } finally {
+            setAssigningProject(null);
+        }
+    };
+
     const getStatusBadge = (status: string) => {
         const statusConfig = {
             DRAFT: {
@@ -92,7 +127,7 @@ export default function CampaignListView({ campaigns }: CampaignListViewProps) {
         return (
             <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
                 <FileText className="mx-auto text-gray-300 mb-4" size={48} />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Không tìm thấy dự án</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Không tìm thấy chiến dịch</h3>
                 <p className="text-gray-500">Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc</p>
             </div>
         );
@@ -103,7 +138,7 @@ export default function CampaignListView({ campaigns }: CampaignListViewProps) {
             {/* Header */}
             <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
                 <div className="grid grid-cols-12 gap-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    <div className="col-span-4">Dự án</div>
+                    <div className="col-span-4">Chiến dịch</div>
                     <div className="col-span-2">Trạng thái</div>
                     <div className="col-span-2">Tiến độ</div>
                     <div className="col-span-2">Thống kê</div>
@@ -204,10 +239,28 @@ export default function CampaignListView({ campaigns }: CampaignListViewProps) {
                                 {/* Actions */}
                                 <div className="col-span-2">
                                     <div className="flex items-center gap-2">
+                                        {projects.length > 0 && (
+                                            <div className="relative">
+                                                <select
+                                                    value={campaign.projectId || ''}
+                                                    onChange={(e) => handleAssignProject(campaign.slug, e.target.value || null)}
+                                                    disabled={assigningProject === campaign.slug}
+                                                    className="text-xs border border-gray-300 rounded px-2 py-1 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50"
+                                                    title="Gán vào Project"
+                                                >
+                                                    <option value="">Chưa có project</option>
+                                                    {projects.map((project) => (
+                                                        <option key={project.id} value={project.id}>
+                                                            {project.title}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        )}
                                         <Link
                                             href={`/campaigns/${campaign.slug}`}
                                             className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                                            title="Xem dự án"
+                                            title="Xem chiến dịch"
                                         >
                                             <Eye size={16} />
                                         </Link>

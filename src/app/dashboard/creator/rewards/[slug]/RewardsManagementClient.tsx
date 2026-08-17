@@ -106,7 +106,7 @@ export default function RewardsManagementClient({ campaign }: RewardsManagementC
                     Chưa có quà tặng nào
                 </h3>
                 <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                    Tạo các gói quà tặng hấp dẫn để thu hút người ủng hộ cho dự án của bạn
+                    Tạo các gói quà tặng hấp dẫn để thu hút người ủng hộ cho chiến dịch của bạn
                 </p>
                 <Link
                     href={`/dashboard/creator/rewards/${campaign.slug}/create`}

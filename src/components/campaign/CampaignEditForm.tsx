@@ -166,7 +166,7 @@ export default function CampaignEditForm({ campaign }: CampaignEditFormProps) {
 
     // Validate required fields with specific messages
     const missingFields: string[] = [];
-    if (!formData.title) missingFields.push("Tên dự án");
+    if (!formData.title) missingFields.push("Tên chiến dịch");
     if (!formData.tagline) missingFields.push("Mô tả ngắn");
     if (!formData.description) missingFields.push("Nội dung chi tiết");
     if (!formData.imageUrl) missingFields.push("Ảnh bìa");
@@ -186,17 +186,17 @@ export default function CampaignEditForm({ campaign }: CampaignEditFormProps) {
     }).then(async (res) => {
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.message || "Lỗi khi cập nhật dự án");
+        throw new Error(error.message || "Lỗi khi cập nhật chiến dịch");
       }
       return res.json();
     });
 
     toast.promise(promise, {
-      loading: 'Đang cập nhật dự án...',
+      loading: 'Đang cập nhật chiến dịch...',
       success: () => {
         router.push("/dashboard/creator");
         router.refresh();
-        return '✅ Cập nhật dự án thành công!';
+        return '✅ Cập nhật chiến dịch thành công!';
       },
       error: (err) => err.message,
     });
@@ -271,7 +271,7 @@ export default function CampaignEditForm({ campaign }: CampaignEditFormProps) {
           <div className="space-y-8">
             <div className="space-y-3">
               <label className="text-sm font-bold text-gray-900 flex justify-between">
-                <span>Tên dự án <span className="text-red-500">*</span></span>
+                <span>Tên chiến dịch <span className="text-red-500">*</span></span>
                 <span className="text-gray-400 font-normal">Tối đa 60 ký tự</span>
               </label>
               <Input
@@ -291,7 +291,7 @@ export default function CampaignEditForm({ campaign }: CampaignEditFormProps) {
               <Input
                 required
                 className="py-5 focus-ring rounded-xl bg-slate-50 border-gray-200"
-                placeholder="Câu tóm tắt ngắn gọn và cuốn hút nhất về dự án của bạn..."
+                placeholder="Câu tóm tắt ngắn gọn và cuốn hút nhất về chiến dịch của bạn..."
                 value={formData.tagline}
                 onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
               />
@@ -402,8 +402,8 @@ export default function CampaignEditForm({ campaign }: CampaignEditFormProps) {
               <Tags size={20} />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Phân loại dự án</h2>
-              <p className="text-sm text-gray-500 font-medium">Giúp người ủng hộ dễ dàng tìm thấy dự án của bạn</p>
+              <h2 className="text-2xl font-bold text-gray-900">Phân loại chiến dịch</h2>
+              <p className="text-sm text-gray-500 font-medium">Giúp người ủng hộ dễ dàng tìm thấy chiến dịch của bạn</p>
             </div>
           </div>
 

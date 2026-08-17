@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { HeartHandshake, Calendar, TrendingUp, X } from "lucide-react";
 import CampaignGrowthProgress from "@/components/campaign/CampaignGrowthProgress";
@@ -22,11 +22,7 @@ export default function FavoritesList() {
     const [favorites, setFavorites] = useState<FavoriteCampaign[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        loadFavorites();
-    }, []);
-
-    const loadFavorites = () => {
+    const loadFavorites = useCallback(() => {
         // Load from localStorage
         const stored = localStorage.getItem("favoriteCampaigns");
         if (stored) {
@@ -40,7 +36,11 @@ export default function FavoritesList() {
             }
         }
         setLoading(false);
-    };
+    }, []);
+
+    useEffect(() => {
+        loadFavorites();
+    }, [loadFavorites]);
 
     const removeFavorite = (campaignId: string) => {
         const stored = localStorage.getItem("favoriteCampaigns");

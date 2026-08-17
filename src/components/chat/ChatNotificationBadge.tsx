@@ -1,11 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 
 export function ChatNotificationBadge() {
   const { data: session } = useSession();
   const [unreadCount, setUnreadCount] = useState(0);
+
+  const loadUnreadCount = useCallback(async () => {
+    try {
+      const response = await fetch("/api/chat/unread-count");
+      if (response.ok) {
+        const data = await response.json();
+        setUnreadCount(data.unreadCount);
+      }
+    } catch (error) {
+      console.error("Failed to load unread count:", error);
+    }
+  }, []);
 
   useEffect(() => {
     if (!session?.user) return;
@@ -16,19 +28,7 @@ export function ChatNotificationBadge() {
     const interval = setInterval(loadUnreadCount, 30000);
 
     return () => clearInterval(interval);
-  }, [session]);
-
-  const loadUnreadCount = async () => {
-    try {
-      const response = await fetch("/api/chat/unread-count");
-      if (response.ok) {
-        const data = await response.json();
-        setUnreadCount(data.unreadCount);
-      }
-    } catch (error) {
-      console.error("Failed to load unread count:", error);
-    }
-  };
+  }, [session, loadUnreadCount]);
 
   if (unreadCount === 0) return null;
 

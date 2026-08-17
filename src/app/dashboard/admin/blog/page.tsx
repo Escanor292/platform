@@ -245,7 +245,7 @@ function StatusBadge({ status }: { status: string }) {
 function getTypeLabel(type: string): string {
   const labels: Record<string, string> = {
     PLATFORM: 'Tin tức',
-    CAMPAIGN_UPDATE: 'Cập nhật dự án',
+    CAMPAIGN_UPDATE: 'Cập nhật chiến dịch',
     ANNOUNCEMENT: 'Thông báo',
     STORY: 'Câu chuyện',
     IMPACT_REPORT: 'Báo cáo tác động',

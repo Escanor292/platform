@@ -43,12 +43,12 @@ export function ProfileBlogCard({ post, isOwner }: ProfileBlogCardProps) {
                 {isOwner && (
                     <div className="absolute top-2 left-2">
                         <span className={`px-2 py-1 rounded-lg text-[8px] font-black uppercase ${post.status === 'PUBLISHED'
-                                ? 'bg-green-500 text-white'
-                                : post.status === 'DRAFT'
-                                    ? 'bg-gray-500 text-white'
-                                    : post.status === 'PENDING_REVIEW'
-                                        ? 'bg-yellow-500 text-white'
-                                        : 'bg-blue-500 text-white'
+                            ? 'bg-green-500 text-white'
+                            : post.status === 'DRAFT'
+                                ? 'bg-gray-500 text-white'
+                                : post.status === 'PENDING_REVIEW'
+                                    ? 'bg-yellow-500 text-white'
+                                    : 'bg-blue-500 text-white'
                             }`}>
                             {post.status}
                         </span>
@@ -91,7 +91,7 @@ export function ProfileBlogCard({ post, isOwner }: ProfileBlogCardProps) {
                     </Link>
                     {isOwner && (
                         <Link
-                            href={`/blog/${post.slug}/edit`}
+                            href="/blog/my-posts"
                             className="px-3 py-2 bg-gray-200 text-gray-700 rounded-xl text-xs font-bold hover:bg-gray-300 transition flex items-center gap-1"
                         >
                             <Edit size={12} /> Sửa

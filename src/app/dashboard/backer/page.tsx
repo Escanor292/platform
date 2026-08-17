@@ -39,7 +39,7 @@ export default async function BackerDashboard() {
         </div>
 
         <div className="space-y-8">
-          <h2 className="text-sm font-black text-gray-400 uppercase tracking-widest border-b pb-4">Dự án đã đồng hành ({pledges.length})</h2>
+          <h2 className="text-sm font-black text-gray-400 uppercase tracking-widest border-b pb-4">Chiến dịch đã đồng hành ({pledges.length})</h2>
 
           {pledges.length > 0 ? (
             <div className="grid grid-cols-1 gap-6">

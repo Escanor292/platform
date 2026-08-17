@@ -13,6 +13,16 @@ export default async function CreatorDashboard() {
       orderBy: { createdAt: "desc" },
    });
 
+   // Get projects for the creator (for project assignment dropdown)
+   const projects = await prisma.projects.findMany({
+      where: { creatorId: (session.user as any).id },
+      select: {
+         id: true,
+         title: true,
+      },
+      orderBy: { createdAt: "desc" },
+   });
+
    // Serialize the data for client component
    const serializedCampaigns = campaigns.map(campaign => ({
       id: campaign.id,
@@ -28,6 +38,7 @@ export default async function CreatorDashboard() {
       goalAmount: Number(campaign.goalAmount),
       endDate: campaign.endDate,
       createdAt: campaign.createdAt,
+      projectId: campaign.projectId,
       _count: campaign._count,
    }));
 
@@ -39,6 +50,7 @@ export default async function CreatorDashboard() {
          campaigns={serializedCampaigns}
          totalRaised={totalRaised}
          totalBackers={totalBackers}
+         projects={projects}
       />
    );
 }

@@ -74,8 +74,8 @@ export default async function EditCampaignPage({ params }: EditCampaignPageProps
     <div className="min-h-screen bg-slate-50/50 py-24 px-6">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-black text-gray-900 mb-2">Chỉnh sửa dự án</h1>
-          <p className="text-gray-400">Cập nhật thông tin dự án của bạn</p>
+          <h1 className="text-4xl font-black text-gray-900 mb-2">Chỉnh sửa chiến dịch</h1>
+          <p className="text-gray-400">Cập nhật thông tin chiến dịch của bạn</p>
         </div>
 
         <CampaignEditForm campaign={campaignData} />

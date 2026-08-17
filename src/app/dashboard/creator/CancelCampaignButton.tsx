@@ -20,7 +20,7 @@ export default function CancelCampaignButton({
   const handleCancel = async () => {
     const isConfirmed = confirm(
       `⚠️ CẢNH BÁO QUAN TRỌNG:\n\n` +
-      `Bạn đang yêu cầu HỦY dự án "${campaignTitle}".\n` +
+      `Bạn đang yêu cầu HỦY chiến dịch "${campaignTitle}".\n` +
       `Hệ thống sẽ TỰ ĐỘNG thực hiện lệnh HOÀN TIỀN cho toàn bộ người ủng hộ.\n\n` +
       `Hành động này KHÔNG THỂ HOÀN TÁC. Bạn chắc chắn muốn tiếp tục?`
     );
@@ -32,17 +32,17 @@ export default function CancelCampaignButton({
       const res = await fetch(`/api/campaigns/${campaignId}/cancel`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reason: "Creator chủ động hủy dự án" }),
+        body: JSON.stringify({ reason: "Creator chủ động hủy chiến dịch" }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        alert("Lỗi: " + (data.error || "Không thể hủy dự án"));
+        alert("Lỗi: " + (data.error || "Không thể hủy chiến dịch"));
         return;
       }
 
-      alert(`✅ Đã hủy dán thành công.\n${data.message}`);
+      alert(`✅ Đã hủy chiến dịch thành công.\n${data.message}`);
       router.refresh();
     } catch {
       alert("Lỗi kết nối máy chủ");
@@ -55,7 +55,7 @@ export default function CancelCampaignButton({
     <button
       onClick={handleCancel}
       disabled={loading}
-      title="Hủy dự án & Hoàn tiền cho người ủng hộ"
+      title="Hủy chiến dịch & Hoàn tiền cho người ủng hộ"
       className="text-xs font-bold text-amber-600 hover:text-white hover:bg-amber-600 px-3 py-2 rounded-lg transition border border-amber-100 disabled:opacity-50 flex items-center gap-1"
     >
       {loading ? (

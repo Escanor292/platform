@@ -309,8 +309,14 @@ export async function getBlogPostBySlug(
     throw new Error('You do not have permission to read this post');
   }
 
-  // Get content from MongoDB
-  const content = await getBlogContent(post.id);
+  // Get content from MongoDB (graceful handling if MongoDB fails)
+  let content = null;
+  try {
+    content = await getBlogContent(post.id);
+  } catch (error) {
+    console.error('[BLOG] Failed to fetch content from MongoDB for post:', post.id, error);
+    // Continue without content - post will display with empty content
+  }
 
   // Increment view count
   await prisma.blog_posts.update({

@@ -17,8 +17,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   });
 
   return {
-    title: `Báo cáo giao dịch - ${campaign?.title || 'Dự án'}`,
-    description: `Báo cáo chi tiết các giao dịch ủng hộ cho dự án ${campaign?.title || ''}`
+    title: `Báo cáo giao dịch - ${campaign?.title || 'Chiến dịch'}`,
+    description: `Báo cáo chi tiết các giao dịch ủng hộ cho chiến dịch ${campaign?.title || ''}`
   };
 }
 

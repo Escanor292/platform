@@ -29,8 +29,8 @@ export default async function FavoritesPage() {
                             <HeartHandshake size={24} className="text-red-600" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">Dự án quan tâm</h1>
-                            <p className="text-gray-600 mt-1">Các dự án bạn đã đánh dấu quan tâm</p>
+                            <h1 className="text-3xl font-bold text-gray-900">Chiến dịch quan tâm</h1>
+                            <p className="text-gray-600 mt-1">Các chiến dịch bạn đã đánh dấu quan tâm</p>
                         </div>
                     </div>
                 </div>

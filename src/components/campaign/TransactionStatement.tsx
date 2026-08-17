@@ -84,17 +84,17 @@ export default function TransactionStatement({ campaign, pledges }: TransactionS
         {/* Header */}
         <div className="text-center border-b border-gray-200 pb-6">
           <h1 className="text-3xl font-black text-gray-900 mb-2">BÁO CÁO GIAO DỊCH</h1>
-          <p className="text-sm text-gray-500 font-medium">Báo cáo chi tiết các khoản ủng hộ dự án</p>
+          <p className="text-sm text-gray-500 font-medium">Báo cáo chi tiết các khoản ủng hộ chiến dịch</p>
         </div>
 
         {/* Campaign Info */}
         <div className="grid grid-cols-2 gap-6 bg-blue-50 rounded-xl p-6 border border-blue-100">
           <div>
-            <div className="text-xs text-blue-600 font-bold uppercase mb-1">Tên dự án</div>
+            <div className="text-xs text-blue-600 font-bold uppercase mb-1">Tên chiến dịch</div>
             <div className="text-lg font-black text-gray-900">{campaign.title}</div>
           </div>
           <div>
-            <div className="text-xs text-blue-600 font-bold uppercase mb-1">Mã dự án</div>
+            <div className="text-xs text-blue-600 font-bold uppercase mb-1">Mã chiến dịch</div>
             <div className="text-lg font-mono font-bold text-gray-900">{campaign.campaignCode}</div>
           </div>
           <div>

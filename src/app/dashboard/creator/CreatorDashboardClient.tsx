@@ -22,21 +22,29 @@ interface Campaign {
     goalAmount: number;
     endDate: Date | null;
     createdAt: Date;
+    projectId: string | null;
     _count: {
         pledges: number;
     };
+}
+
+interface ProjectOption {
+    id: string;
+    title: string;
 }
 
 interface CreatorDashboardClientProps {
     campaigns: Campaign[];
     totalRaised: number;
     totalBackers: number;
+    projects: ProjectOption[];
 }
 
 export default function CreatorDashboardClient({
     campaigns = [], // Default value để tránh undefined
     totalRaised = 0,
-    totalBackers = 0
+    totalBackers = 0,
+    projects = []
 }: CreatorDashboardClientProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [filters, setFilters] = useState<CampaignFilters>({});
@@ -128,13 +136,13 @@ export default function CreatorDashboardClient({
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-100">
                             <Zap size={12} fill="currentColor" /> Chế độ Creator Pro
                         </div>
-                        <h1 className="text-5xl md:text-6xl font-black text-gray-900 tracking-tighter leading-none">Dự án của tôi</h1>
+                        <h1 className="text-5xl md:text-6xl font-black text-gray-900 tracking-tighter leading-none">Chiến dịch của tôi</h1>
                         <p className="text-lg text-gray-400 font-medium">Theo dõi và quản lý hành trình sáng tạo của bạn.</p>
                     </div>
 
                     <Link href="/campaigns/create" className="h-20 px-10 bg-blue-600 text-white font-black rounded-3xl hover:bg-black transition flex items-center gap-3 shadow-xl active:scale-95">
                         <Plus size={24} />
-                        Bắt đầu dự án mới
+                        Bắt đầu chiến dịch mới
                     </Link>
                 </div>
 
@@ -165,7 +173,7 @@ export default function CreatorDashboardClient({
                             <Activity size={32} />
                         </div>
                         <div>
-                            <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Dự án đang chạy</div>
+                            <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Chiến dịch đang chạy</div>
                             <div className="text-2xl font-black text-gray-900">{(campaigns || []).filter(c => c.status === "ACTIVE").length} / {(campaigns || []).length}</div>
                         </div>
                     </div>
@@ -183,7 +191,7 @@ export default function CreatorDashboardClient({
                     {/* View Mode Toggle */}
                     <div className="flex items-center justify-between">
                         <h2 className="text-sm font-black text-gray-400 uppercase tracking-widest">
-                            Danh sách dự án ({filteredCampaigns.length})
+                            Danh sách chiến dịch ({filteredCampaigns.length})
                         </h2>
 
                         <div className="flex items-center gap-2 bg-white rounded-xl border border-gray-200 p-1">
@@ -213,7 +221,7 @@ export default function CreatorDashboardClient({
                     {/* Campaign Display */}
                     {filteredCampaigns.length > 0 ? (
                         viewMode === 'list' ? (
-                            <CampaignListView campaigns={filteredCampaigns} />
+                            <CampaignListView campaigns={filteredCampaigns} projects={projects} />
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                                 {filteredCampaigns.map((campaign) => (
@@ -230,13 +238,13 @@ export default function CreatorDashboardClient({
                             <h3 className="text-2xl font-black text-gray-900 mb-2">
                                 {(campaigns || []).length === 0
                                     ? "Thế giới đang chờ đợi ý tưởng của bạn"
-                                    : "Không tìm thấy dự án phù hợp"
+                                    : "Không tìm thấy chiến dịch phù hợp"
                                 }
                             </h3>
                             <p className="text-gray-400 font-medium mb-10 max-w-sm mx-auto">
                                 {(campaigns || []).length === 0
-                                    ? "Chưa có dự án nào được khởi tạo. Hãy cùng nhau bắt đầu hành trình thay đổi thế giới ngay!"
-                                    : "Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy dự án bạn cần."
+                                    ? "Chưa có chiến dịch nào được khởi tạo. Hãy cùng nhau bắt đầu hành trình thay đổi thế giới ngay!"
+                                    : "Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy chiến dịch bạn cần."
                                 }
                             </p>
                             {(campaigns || []).length === 0 && (

@@ -45,7 +45,7 @@ export default function CreateCampaignPage() {
     if (status === "loading") return;
 
     if (!session) {
-      toast.error("Vui lòng đăng nhập để tạo dự án");
+      toast.error("Vui lòng đăng nhập để tạo chiến dịch");
       router.push("/auth/login?callbackUrl=/campaigns/create");
       return;
     }
@@ -54,9 +54,9 @@ export default function CreateCampaignPage() {
     const userRole = user?.role;
     const isAdmin = user?.isAdmin === true || userRole === "ADMIN";
 
-    // Chỉ cho phép CREATOR và ADMIN tạo dự án
+    // Chỉ cho phép CREATOR và ADMIN tạo chiến dịch
     if (userRole !== "CREATOR" && !isAdmin) {
-      toast.error("Bạn cần nâng cấp lên tài khoản Creator để tạo dự án");
+      toast.error("Bạn cần nâng cấp lên tài khoản Creator để tạo chiến dịch");
       router.push("/");
     }
   }, [session, status, router]);
@@ -171,7 +171,7 @@ export default function CreateCampaignPage() {
 
     // Validate required fields with specific messages
     const missingFields: string[] = [];
-    if (!formData.title) missingFields.push("Tên dự án");
+    if (!formData.title) missingFields.push("Tên chiến dịch");
     if (!formData.tagline) missingFields.push("Mô tả ngắn");
     if (!formData.description) missingFields.push("Nội dung chi tiết");
     if (!formData.imageUrl) missingFields.push("Ảnh bìa");
@@ -191,16 +191,16 @@ export default function CreateCampaignPage() {
     }).then(async (res) => {
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.message || "Lỗi khi tạo dự án");
+        throw new Error(error.message || "Lỗi khi tạo chiến dịch");
       }
       return res.json();
     });
 
     toast.promise(promise, {
-      loading: 'Đang khởi tạo dự án...',
+      loading: 'Đang khởi tạo chiến dịch...',
       success: (campaign) => {
         router.push(`/campaigns/${campaign.slug}`);
-        return '🎉 Tạo dự án thành công!';
+        return '🎉 Tạo chiến dịch thành công!';
       },
       error: (err) => err.message,
     });
@@ -304,7 +304,7 @@ export default function CreateCampaignPage() {
                   Thông tin cơ bản
                 </h2>
                 <p className="text-sm text-gray-500">
-                  Những thông tin đầu tiên giúp cộng đồng hiểu dự án của bạn.
+                  Những thông tin đầu tiên giúp cộng đồng hiểu chiến dịch của bạn.
                 </p>
               </div>
             </div>
@@ -312,7 +312,7 @@ export default function CreateCampaignPage() {
             <div className="space-y-6">
               <div className="space-y-2">
                 <label className="mb-2 block text-sm font-bold text-dblue flex justify-between">
-                  <span>Tên dự án <span className="text-red-500">*</span></span>
+                  <span>Tên chiến dịch <span className="text-red-500">*</span></span>
                   <span className="text-xs font-medium text-gray-400">Tối đa 60 ký tự</span>
                 </label>
                 <Input
@@ -332,7 +332,7 @@ export default function CreateCampaignPage() {
                 <Input
                   required
                   className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-pgreen focus:outline-none focus:ring-4 focus:ring-pgreen/10"
-                  placeholder="Câu tóm tắt ngắn gọn và cuốn hút nhất về dự án của bạn..."
+                  placeholder="Câu tóm tắt ngắn gọn và cuốn hút nhất về chiến dịch của bạn..."
                   value={formData.tagline}
                   onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
                 />
@@ -447,7 +447,7 @@ export default function CreateCampaignPage() {
             </div>
           </section>
 
-          {/* Block 4: Phân loại dự án */}
+          {/* Block 4: Phân loại chiến dịch */}
           <section className="rounded-3xl border border-pgreen/10 bg-white/90 p-8 shadow-soft backdrop-blur">
             <div className="mb-8 flex items-center gap-4 border-b border-gray-100 pb-6">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pgreen/10 text-pgreen">
@@ -455,10 +455,10 @@ export default function CreateCampaignPage() {
               </div>
               <div>
                 <h2 className="font-display text-2xl font-bold text-dblue">
-                  Phân loại dự án
+                  Phân loại chiến dịch
                 </h2>
                 <p className="text-sm text-gray-500">
-                  Giúp người ủng hộ dễ dàng tìm thấy dự án của bạn.
+                  Giúp người ủng hộ dễ dàng tìm thấy chiến dịch của bạn.
                 </p>
               </div>
             </div>

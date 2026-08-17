@@ -62,9 +62,6 @@ export async function POST(req: NextRequest) {
     // Ví dụ xử lý PayOS Webhook
     if (body.orderCode && body.status === "PAID") {
        // PayOS thường gửi orderCode là Number, chúng ta lưu transactionId hoặc pledgeId tương ứng
-       // Ở đây chúng ta cần tìm pledge dựa trên transactionId hoặc orderCode
-       // Phụ thuộc vào cách chúng ta map ở Create Route.
-       // Giả sử chúng ta tìm qua transactionId:
        const pledge = await prisma.pledges.findFirst({
          where: { transactionId: `PAYOS-${body.orderCode}` } 
        });

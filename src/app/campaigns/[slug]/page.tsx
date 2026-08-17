@@ -13,6 +13,7 @@ import FavoriteCount from "@/components/campaign/FavoriteCount";
 import CampaignPageClient from "./CampaignPageClient";
 import { CampaignProvider } from "@/contexts/CampaignContext";
 import { getCampaignTypeLabel } from "@/lib/campaign-helpers";
+import OwnerEditPanel from "@/components/OwnerEditPanel";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -292,6 +293,23 @@ export default async function CampaignDetailPage({ params }: Params) {
                   </div>
                </div>
             </div>
+
+            {/* Owner Edit Panel */}
+            <OwnerEditPanel
+               isOwner={!!isCreator}
+               blocks={[
+                  {
+                     label: 'Thông tin chiến dịch',
+                     editUrl: `/dashboard/creator/edit/${slug}`,
+                     description: 'Tiêu đề, mô tả, ảnh, tags'
+                  },
+                  {
+                     label: 'Phần quà/Rewards',
+                     editUrl: `/dashboard/creator/rewards/${slug}`,
+                     description: 'Quản lý quà tặng'
+                  }
+               ]}
+            />
          </div>
       </CampaignProvider>
    );

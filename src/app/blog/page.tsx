@@ -112,7 +112,7 @@ export default async function BlogPage({
           />
           <FilterButton
             href="/blog?type=CAMPAIGN_UPDATE"
-            label="Cập nhật dự án"
+            label="Cập nhật chiến dịch"
             active={params.type === 'CAMPAIGN_UPDATE'}
           />
           <FilterButton

@@ -83,6 +83,42 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
           commentCount: true,
         }
       },
+      projects: {
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          createdAt: true,
+          updatedAt: true,
+          campaigns: {
+            where: { status: { in: ["ACTIVE", "SUCCESS"] } },
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+              status: true,
+              type: true,
+              imageUrl: true,
+              createdAt: true,
+              rewards: {
+                select: {
+                  id: true,
+                  title: true,
+                  description: true,
+                  minAmount: true,
+                  maxQuantity: true,
+                  deliveryDate: true,
+                  isActive: true,
+                  createdAt: true,
+                },
+                orderBy: { createdAt: 'asc' },
+              },
+            },
+            orderBy: { createdAt: 'desc' },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      },
       _count: {
         select: {
           campaigns: true,
@@ -107,6 +143,18 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
   const serializedPledges = user.pledges.map(pledge => ({
     ...pledge,
     amount: Number(pledge.amount),
+  }));
+
+  // Serialize projects with campaigns and rewards
+  const serializedProjects = (user.projects || []).map(project => ({
+    ...project,
+    campaigns: project.campaigns.map(campaign => ({
+      ...campaign,
+      rewards: campaign.rewards.map(reward => ({
+        ...reward,
+        minAmount: Number(reward.minAmount),
+      })),
+    })),
   }));
 
   // Tính toán thống kê
@@ -312,6 +360,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
           campaigns={serializedCampaigns}
           blogPosts={user.blog_posts}
           pledges={serializedPledges}
+          projects={serializedProjects}
           isCreator={isCreator}
           isBacker={isBacker}
         />

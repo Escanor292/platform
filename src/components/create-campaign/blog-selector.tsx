@@ -107,7 +107,7 @@ export function BlogSelector({ selectedBlogIds, onBlogsChange }: BlogSelectorPro
             </div>
 
             <p className="text-sm text-gray-600">
-                Gắn các bài blog của bạn vào dự án để người ủng hộ có thể tìm hiểu thêm về câu chuyện, tiến độ và thông tin chi tiết.
+                Gắn các bài blog của bạn vào chiến dịch để người ủng hộ có thể tìm hiểu thêm về câu chuyện, tiến độ và thông tin chi tiết.
             </p>
 
             {/* Selected Blogs */}
