@@ -74,7 +74,7 @@ export async function POST(
 
     // Parse request body
     const body: SendMessageRequest = await request.json();
-    const { text } = body;
+    const { text, attachments, sensitive } = body;
 
     // Validate input
     if (!text || !text.trim()) {
@@ -85,7 +85,7 @@ export async function POST(
     }
 
     // Send message
-    const message = await sendMessage(conversationId, userId, text);
+    const message = await sendMessage(conversationId, userId, text, attachments, sensitive);
 
     return NextResponse.json({
       message,

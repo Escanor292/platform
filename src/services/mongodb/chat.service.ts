@@ -13,6 +13,7 @@ import {
   ConversationParticipant,
   ConversationCampaign,
   ChatReportReason,
+  MessageType,
 } from '@/types/chat.types';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -22,6 +23,7 @@ import {
 const CONVERSATIONS_COLLECTION = 'conversations';
 const MESSAGES_COLLECTION = 'messages';
 const CHAT_REPORTS_COLLECTION = 'chat_reports';
+const USER_NOTES_COLLECTION = 'user_notes';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helper Functions
@@ -187,6 +189,8 @@ export async function startConversation(
     isActive: true,
     isReported: false,
     blockedBy: [],
+    hiddenBy: [],
+    typingBy: {},
     createdAt: now,
     updatedAt: now,
   };
@@ -205,7 +209,10 @@ export async function getUserConversations(userId: string): Promise<MongoConvers
   const conversationsCollection = db.collection<MongoConversation>(CONVERSATIONS_COLLECTION);
 
   const conversations = await conversationsCollection
-    .find({ participantIds: userId })
+    .find({
+      participantIds: userId,
+      hiddenBy: { $ne: userId }, // Exclude conversations hidden by user
+    })
     .sort({ updatedAt: -1 })
     .toArray();
 
@@ -244,7 +251,9 @@ export async function getConversationById(
 export async function sendMessage(
   conversationId: string,
   senderId: string,
-  text: string
+  text: string,
+  attachments: any[] = [],
+  sensitive: boolean = false
 ): Promise<MongoMessage> {
   if (!ObjectId.isValid(conversationId)) {
     throw new Error('Invalid conversation ID');
@@ -276,8 +285,8 @@ export async function sendMessage(
 
   // Validate text
   const trimmedText = text.trim();
-  if (!trimmedText) {
-    throw new Error('Message text cannot be empty');
+  if (!trimmedText && attachments.length === 0) {
+    throw new Error('Message text or attachments are required');
   }
 
   if (trimmedText.length > 2000) {
@@ -290,6 +299,19 @@ export async function sendMessage(
     throw new Error('Sender not found');
   }
 
+  // Determine message type based on attachments
+  let messageType: MessageType = 'text';
+  if (attachments.length > 0) {
+    const firstAttachmentType = attachments[0]?.type;
+    if (firstAttachmentType === 'image') {
+      messageType = 'image';
+    } else if (firstAttachmentType === 'voice') {
+      messageType = 'voice';
+    } else {
+      messageType = 'file';
+    }
+  }
+
   // Create message
   const now = new Date();
   const newMessage: MongoMessage = {
@@ -298,10 +320,12 @@ export async function sendMessage(
     senderName: senderInfo.name,
     senderAvatar: senderInfo.avatarUrl,
     text: trimmedText,
-    type: 'text',
-    attachments: [],
+    type: messageType,
+    attachments: attachments || [],
     readBy: [senderId], // Sender has read their own message
     isDeleted: false,
+    sensitive,
+    revealedBy: sensitive ? [senderId] : [], // Only track revealedBy if sensitive
     createdAt: now,
     updatedAt: now,
   };
@@ -592,4 +616,356 @@ export async function getTotalUnreadCount(userId: string): Promise<number> {
   });
 
   return totalUnread;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// User Search Operations
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Search users by name or email
+ */
+export async function searchUsers(query: string, currentUserId: string): Promise<any[]> {
+  if (!query || query.trim().length < 2) {
+    return [];
+  }
+
+  const db = await getDb();
+  const users = await prisma.users.findMany({
+    where: {
+      AND: [
+        {
+          OR: [
+            { name: { contains: query, mode: 'insensitive' } },
+            { displayName: { contains: query, mode: 'insensitive' } },
+            { email: { contains: query, mode: 'insensitive' } },
+          ],
+        },
+        { id: { not: currentUserId } }, // Exclude current user
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+      displayName: true,
+      email: true,
+      avatar: true,
+      role: true,
+    },
+    take: 10,
+  });
+
+  return users.map((user) => ({
+    id: user.id,
+    name: user.displayName || user.name,
+    displayName: user.displayName,
+    email: user.email,
+    avatar: user.avatar || undefined,
+    role: user.role,
+  }));
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Typing Indicator Operations
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Set typing indicator for conversation
+ */
+export async function setTypingIndicator(
+  conversationId: string,
+  userId: string,
+  isTyping: boolean
+): Promise<void> {
+  if (!ObjectId.isValid(conversationId)) {
+    throw new Error('Invalid conversation ID');
+  }
+
+  const db = await getDb();
+  const conversationsCollection = db.collection<MongoConversation>(CONVERSATIONS_COLLECTION);
+
+  if (isTyping) {
+    // Set typing indicator with current timestamp
+    await conversationsCollection.updateOne(
+      { _id: new ObjectId(conversationId), participantIds: userId },
+      {
+        $set: {
+          [`typingBy.${userId}`]: Date.now(),
+          updatedAt: new Date(),
+        },
+      }
+    );
+  } else {
+    // Remove typing indicator
+    await conversationsCollection.updateOne(
+      { _id: new ObjectId(conversationId) },
+      {
+        $unset: { [`typingBy.${userId}`]: '' },
+        $set: { updatedAt: new Date() },
+      }
+    );
+  }
+}
+
+/**
+ * Get typing users for conversation (excluding expired indicators)
+ */
+export async function getTypingUsers(
+  conversationId: string,
+  currentUserId: string
+): Promise<string[]> {
+  if (!ObjectId.isValid(conversationId)) {
+    throw new Error('Invalid conversation ID');
+  }
+
+  const db = await getDb();
+  const conversationsCollection = db.collection<MongoConversation>(CONVERSATIONS_COLLECTION);
+
+  const conversation = await conversationsCollection.findOne({
+    _id: new ObjectId(conversationId),
+  });
+
+  if (!conversation || !conversation.typingBy) {
+    return [];
+  }
+
+  const now = Date.now();
+  const typingUsers: string[] = [];
+  const expiredTyping: string[] = [];
+
+  // Check each typing indicator (expire after 5 seconds)
+  Object.entries(conversation.typingBy).forEach(([userId, timestamp]) => {
+    if (userId === currentUserId) return; // Don't show current user's typing
+
+    if (now - timestamp < 5000) {
+      typingUsers.push(userId);
+    } else {
+      expiredTyping.push(userId);
+    }
+  });
+
+  // Clean up expired typing indicators
+  if (expiredTyping.length > 0) {
+    const updateData: any = {};
+    expiredTyping.forEach((userId) => {
+      updateData[`typingBy.${userId}`] = '';
+    });
+
+    await conversationsCollection.updateOne(
+      { _id: new ObjectId(conversationId) },
+      {
+        $unset: updateData,
+        $set: { updatedAt: new Date() },
+      }
+    );
+  }
+
+  return typingUsers;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Soft Delete Conversation Operations
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Soft delete conversation (hide for user)
+ */
+export async function deleteConversation(conversationId: string, userId: string): Promise<void> {
+  if (!ObjectId.isValid(conversationId)) {
+    throw new Error('Invalid conversation ID');
+  }
+
+  const db = await getDb();
+  const conversationsCollection = db.collection<MongoConversation>(CONVERSATIONS_COLLECTION);
+
+  // Validate user is participant
+  const conversation = await conversationsCollection.findOne({
+    _id: new ObjectId(conversationId),
+    participantIds: userId,
+  });
+
+  if (!conversation) {
+    throw new Error('Conversation not found or user is not a participant');
+  }
+
+  // Add user to hiddenBy array
+  await conversationsCollection.updateOne(
+    { _id: new ObjectId(conversationId) },
+    {
+      $addToSet: { hiddenBy: userId },
+      $set: { updatedAt: new Date() },
+    }
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// User Note Operations (24h notes)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Create user note (expires after 24 hours)
+ */
+export async function createUserNote(
+  userId: string,
+  targetUserId: string,
+  note: string
+): Promise<any> {
+  const db = await getDb();
+  const userNotesCollection = db.collection(USER_NOTES_COLLECTION);
+
+  // Validate users exist
+  const [currentUser, targetUser] = await Promise.all([
+    getUserInfo(userId),
+    getUserInfo(targetUserId),
+  ]);
+
+  if (!currentUser) {
+    throw new Error('Current user not found');
+  }
+
+  if (!targetUser) {
+    throw new Error('Target user not found');
+  }
+
+  // Create note
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
+
+  const newNote = {
+    userId,
+    targetUserId,
+    note: note.trim(),
+    expiresAt,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  const result = await userNotesCollection.insertOne(newNote as any);
+  (newNote as any)._id = result.insertedId;
+
+  return newNote;
+}
+
+/**
+ * Get user's notes (only active, not expired)
+ */
+export async function getUserNotes(userId: string): Promise<any[]> {
+  const db = await getDb();
+  const userNotesCollection = db.collection(USER_NOTES_COLLECTION);
+
+  const notes = await userNotesCollection
+    .find({
+      userId,
+      expiresAt: { $gt: new Date() }, // Only active notes
+    })
+    .sort({ createdAt: -1 })
+    .toArray();
+
+  return notes;
+}
+
+/**
+ * Update user note
+ */
+export async function updateUserNote(noteId: string, userId: string, note: string): Promise<void> {
+  const db = await getDb();
+  const userNotesCollection = db.collection(USER_NOTES_COLLECTION);
+
+  await userNotesCollection.updateOne(
+    { _id: new ObjectId(noteId), userId },
+    {
+      $set: {
+        note: note.trim(),
+        updatedAt: new Date(),
+      },
+    }
+  );
+}
+
+/**
+ * Delete user note
+ */
+export async function deleteUserNote(noteId: string, userId: string): Promise<void> {
+  const db = await getDb();
+  const userNotesCollection = db.collection(USER_NOTES_COLLECTION);
+
+  await userNotesCollection.deleteOne({
+    _id: new ObjectId(noteId),
+    userId,
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Message Search Operations
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Search messages in conversation
+ */
+export async function searchMessages(
+  conversationId: string,
+  userId: string,
+  query: string
+): Promise<{ messages: any[]; count: number }> {
+  if (!ObjectId.isValid(conversationId)) {
+    throw new Error('Invalid conversation ID');
+  }
+
+  const db = await getDb();
+  const conversationsCollection = db.collection<MongoConversation>(CONVERSATIONS_COLLECTION);
+  const messagesCollection = db.collection<MongoMessage>(MESSAGES_COLLECTION);
+
+  // Validate user is participant
+  const conversation = await conversationsCollection.findOne({
+    _id: new ObjectId(conversationId),
+    participantIds: userId,
+  });
+
+  if (!conversation) {
+    throw new Error('Conversation not found');
+  }
+
+  // Search in text and attachments filename
+  const searchRegex = new RegExp(query, 'i');
+
+  const messages = await messagesCollection
+    .find({
+      conversationId: new ObjectId(conversationId),
+      isDeleted: false,
+      $or: [
+        { text: searchRegex },
+        { 'attachments.filename': searchRegex },
+      ],
+    })
+    .sort({ createdAt: -1 })
+    .limit(50)
+    .toArray();
+
+  return { messages, count: messages.length };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sensitive Message Operations
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Reveal sensitive message
+ */
+export async function revealMessage(messageId: string, userId: string): Promise<void> {
+  const db = await getDb();
+  const messagesCollection = db.collection<MongoMessage>(MESSAGES_COLLECTION);
+
+  const message = await messagesCollection.findOne({ _id: new ObjectId(messageId) });
+
+  if (!message) {
+    throw new Error('Message not found');
+  }
+
+  await messagesCollection.updateOne(
+    { _id: new ObjectId(messageId) },
+    {
+      $addToSet: { revealedBy: userId },
+      $set: { updatedAt: new Date() },
+    }
+  );
 }

@@ -12,14 +12,29 @@ import {
   forbiddenResponse
 } from "@/lib/project/project.response-handlers";
 import { z } from "zod";
+import {
+  cacheGet,
+  cacheSet,
+  buildCampaignsCacheKey,
+  CAMPAIGNS_CACHE_PREFIX,
+  cacheInvalidatePrefix,
+} from "@/lib/redis-cache";
 
 /**
  * GET /api/campaigns
- * Search and filter campaigns from database
+ * Search and filter campaigns from database with Redis caching
  */
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
+    const queryString = searchParams.toString();
+    const cacheKey = buildCampaignsCacheKey(queryString);
+
+    // Kiểm tra Redis cache trước
+    const cachedResponse = await cacheGet<CampaignListResponse>(cacheKey);
+    if (cachedResponse) {
+      return NextResponse.json(cachedResponse);
+    }
 
     // Parse filters from query params
     const filters = parseCampaignFilters(searchParams);
@@ -200,6 +215,9 @@ export async function GET(req: NextRequest) {
       appliedFilters: filters,
     };
 
+    // Lưu vào Redis cache (TTL mặc định 300s = 5 phút)
+    await cacheSet(cacheKey, response, 300);
+
     return NextResponse.json(response);
   } catch (error) {
     console.error("[GET /api/campaigns]", error);
@@ -278,6 +296,9 @@ export async function POST(req: NextRequest) {
         projectId: projectId || null, // Set to NULL if not provided
       },
     });
+
+    // Invalidate campaigns cache khi có campaign mới
+    await cacheInvalidatePrefix(CAMPAIGNS_CACHE_PREFIX);
 
     return NextResponse.json(campaign, { status: 201 });
   } catch (error) {

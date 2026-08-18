@@ -88,3 +88,16 @@ Object.defineProperty(window, 'matchMedia', {
         dispatchEvent: jest.fn(),
     })),
 })
+
+// Mock ioredis
+jest.mock('ioredis', () => {
+    return jest.fn().mockImplementation(() => ({
+        get: jest.fn().mockResolvedValue(null),
+        set: jest.fn().mockResolvedValue('OK'),
+        del: jest.fn().mockResolvedValue(1),
+        scan: jest.fn().mockResolvedValue(['0', []]),
+        flushall: jest.fn().mockResolvedValue('OK'),
+        on: jest.fn(),
+        status: 'ready',
+    }));
+});

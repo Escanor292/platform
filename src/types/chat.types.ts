@@ -55,19 +55,24 @@ export interface MongoConversation extends MongoBase {
   isActive: boolean;
   isReported: boolean;
   blockedBy: string[]; // Array of user IDs who blocked this conversation
+  hiddenBy: string[]; // Array of user IDs who hid this conversation (soft delete)
+  typingBy: Record<string, number>; // { userId: timestamp } for typing indicator (expires after 5s)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Message Types
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type MessageType = 'text' | 'image' | 'file';
+export type MessageType = 'text' | 'image' | 'file' | 'voice';
 
 export interface MessageAttachment {
   url: string;
-  type: 'image' | 'file';
+  type: 'image' | 'file' | 'voice';
   filename?: string;
   size?: number;
+  mimeType?: string;
+  duration?: number; // For voice notes in seconds
+  thumbnail?: string; // For video/images
 }
 
 export interface MongoMessage extends MongoBase {
@@ -80,6 +85,8 @@ export interface MongoMessage extends MongoBase {
   attachments: MessageAttachment[];
   readBy: string[]; // Array of user IDs who read this message
   isDeleted: boolean;
+  sensitive?: boolean; // Sensitive content (spoiler)
+  revealedBy: string[]; // Array of user IDs who revealed sensitive content
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -101,6 +108,17 @@ export interface MongoChatReport extends MongoBase {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// User Note Types (24h notes)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface MongoUserNote extends MongoBase {
+  userId: string; // PostgreSQL user.id - the user who created the note
+  targetUserId: string; // PostgreSQL user.id - the user the note is about
+  note: string;
+  expiresAt: Date; // Note expires after 24 hours
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // API Request/Response Types
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -116,6 +134,8 @@ export interface StartConversationResponse {
 
 export interface SendMessageRequest {
   text: string;
+  attachments?: MessageAttachment[];
+  sensitive?: boolean;
 }
 
 export interface SendMessageResponse {
@@ -143,6 +163,55 @@ export interface ReportConversationRequest {
 }
 
 export interface MarkAsReadResponse {
+  success: boolean;
+}
+
+export interface SearchUsersRequest {
+  query: string;
+}
+
+export interface SearchUsersResponse {
+  users: Array<{
+    id: string;
+    name: string;
+    displayName?: string;
+    email: string;
+    avatar?: string;
+    role: string;
+  }>;
+}
+
+export interface TypingIndicatorRequest {
+  isTyping: boolean;
+}
+
+export interface DeleteConversationResponse {
+  success: boolean;
+}
+
+export interface CreateUserNoteRequest {
+  targetUserId: string;
+  note: string;
+}
+
+export interface CreateUserNoteResponse {
+  note: MongoUserNote;
+}
+
+export interface GetUserNotesResponse {
+  notes: MongoUserNote[];
+}
+
+export interface SearchMessagesRequest {
+  query: string;
+}
+
+export interface SearchMessagesResponse {
+  messages: MongoMessage[];
+  count: number;
+}
+
+export interface RevealMessageResponse {
   success: boolean;
 }
 

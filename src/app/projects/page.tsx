@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CampaignFilters, CampaignListResponse, SortOption } from "@/types/campaign";
 import { parseCampaignFilters, filtersToSearchParams } from "@/lib/campaign-query-params";
-import { campaignCache } from "@/lib/campaign-cache";
 import { useDebounce } from "@/hooks/useDebounce";
 import { CampaignSearchBar } from "@/components/campaigns/CampaignSearchBar";
 import { CampaignSortSelect } from "@/components/campaigns/CampaignSortSelect";
@@ -47,14 +46,6 @@ export default function ProjectsPage() {
     let isMounted = true;
 
     const fetchProjects = async () => {
-      // Check cache first
-      const cachedData = campaignCache.get(queryString);
-      if (cachedData && isMounted) {
-        setData(cachedData);
-        setIsLoading(false);
-        return;
-      }
-
       setIsLoading(true);
 
       try {
@@ -68,7 +59,6 @@ export default function ProjectsPage() {
 
         if (isMounted) {
           setData(result);
-          campaignCache.set(queryString, result);
           setIsLoading(false);
         }
       } catch (error: any) {

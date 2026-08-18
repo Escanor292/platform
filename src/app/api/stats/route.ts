@@ -1,20 +1,16 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-
-// Cache stats for 5 minutes
-let cachedStats: any = null;
-let cacheTimestamp = 0;
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+import { cacheGet, cacheSet, STATS_CACHE_KEY } from "@/lib/redis-cache";
 
 /**
  * GET /api/stats
- * Get platform statistics with caching
+ * Get platform statistics with Redis caching (5 minutes TTL)
  */
 export async function GET() {
     try {
-        // Check if we have valid cached data
-        const now = Date.now();
-        if (cachedStats && (now - cacheTimestamp) < CACHE_DURATION) {
+        // Check if we have valid cached data in Redis
+        const cachedStats = await cacheGet(STATS_CACHE_KEY);
+        if (cachedStats) {
             return NextResponse.json(cachedStats, {
                 headers: {
                     'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
@@ -97,9 +93,8 @@ export async function GET() {
             transparencyRateRaw: parseFloat(transparencyRate)
         };
 
-        // Update cache
-        cachedStats = statsData;
-        cacheTimestamp = now;
+        // Update Redis cache with 300s TTL (5 minutes)
+        await cacheSet(STATS_CACHE_KEY, statsData, 300);
 
         return NextResponse.json(statsData, {
             headers: {
