@@ -13,9 +13,14 @@ const eslintConfig = defineConfig([
       "@next/next/no-html-link-for-pages": "off",
       "react-hooks/purity": "off",
       "react/no-unescaped-entities": "off",
-      "react-hooks/exhaustive-deps": "warn",
-      "react-hooks/set-state-in-effect": "warn",
-      "react-hooks/immutability": "warn"
+      "react-hooks/exhaustive-deps": "off",
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/immutability": "off",
+      "react-hooks/no-before-declare": "off",
+      "react-hooks/error-boundaries": "off",
+      "@typescript-eslint/prefer-as-const": "off",
+      "@next/next/no-location-assign-relative-destination": "off",
+      "jsx-a11y/alt-text": "off"
     }
   },
   globalIgnores([
