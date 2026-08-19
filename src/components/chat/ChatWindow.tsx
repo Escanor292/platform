@@ -18,39 +18,19 @@ import {
     Info,
     Mic,
     Search,
-    Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-
-interface Message {
-    id: string;
-    content: string;
-    senderId: string;
-    createdAt: Date;
-    isRead: boolean;
-    type?: 'text' | 'image' | 'file' | 'voice';
-    attachments?: {
-        type: 'image' | 'file' | 'voice';
-        url: string;
-        name?: string;
-        size?: number;
-        mimeType?: string;
-        duration?: number;
-        thumbnail?: string;
-    }[];
-    sensitive?: boolean;
-    revealedBy?: string[];
-}
+import { MongoMessage } from '@/types/chat.types';
 
 interface ChatWindowProps {
     conversationId: string;
     recipientName: string;
     recipientAvatar?: string;
-    messages: Message[];
+    messages: MongoMessage[];
     currentUserId: string;
-    onSendMessage: (content: string, attachments?: File[]) => void;
+    onSendMessage: (content: string, attachments?: File[], sensitive?: boolean) => void;
     isOnline?: boolean;
     onToggleInfoPanel?: () => void;
     showInfoPanel?: boolean;
@@ -77,7 +57,7 @@ export function ChatWindow({
     const [isTyping, setIsTyping] = useState(false);
     const [showSearchDialog, setShowSearchDialog] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState<Message[]>([]);
+    const [searchResults, setSearchResults] = useState<MongoMessage[]>([]);
     const [searching, setSearching] = useState(false);
     const [isSensitive, setIsSensitive] = useState(false);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -108,8 +88,9 @@ export function ChatWindow({
     // Handle send message
     const handleSend = () => {
         if (messageText.trim()) {
-            onSendMessage(messageText.trim());
+            onSendMessage(messageText.trim(), undefined, isSensitive);
             setMessageText('');
+            setIsSensitive(false);
             textareaRef.current?.focus();
         }
     };
@@ -144,8 +125,8 @@ export function ChatWindow({
     };
 
     // Group messages by date
-    const groupMessagesByDate = (messages: Message[]) => {
-        const groups: { [key: string]: Message[] } = {};
+    const groupMessagesByDate = (messages: MongoMessage[]) => {
+        const groups: { [key: string]: MongoMessage[] } = {};
         messages.forEach((message) => {
             const date = format(new Date(message.createdAt), 'dd/MM/yyyy', { locale: vi });
             if (!groups[date]) {
@@ -251,7 +232,7 @@ export function ChatWindow({
 
                                     return (
                                         <div
-                                            key={message.id}
+                                            key={message._id?.toString()}
                                             className={cn(
                                                 'flex gap-2 mb-2',
                                                 isCurrentUser ? 'justify-end' : 'justify-start'
@@ -288,14 +269,14 @@ export function ChatWindow({
                                                                 {attachment.type === 'image' && (
                                                                     <img
                                                                         src={attachment.url}
-                                                                        alt={attachment.name || 'Image'}
+                                                                        alt={attachment.filename || 'Image'}
                                                                         className="rounded-lg max-w-full h-auto max-h-48 object-cover"
                                                                     />
                                                                 )}
                                                                 {attachment.type === 'file' && (
                                                                     <div className="flex items-center gap-2 bg-black/10 rounded-lg p-2">
                                                                         <Paperclip className="h-4 w-4" />
-                                                                        <span className="text-sm">{attachment.name}</span>
+                                                                        <span className="text-sm">{attachment.filename}</span>
                                                                     </div>
                                                                 )}
                                                                 {attachment.type === 'voice' && (
@@ -312,9 +293,9 @@ export function ChatWindow({
                                                 )}
 
                                                 {/* Text content */}
-                                                {message.content && (
+                                                {message.text && (
                                                     <p className="text-sm whitespace-pre-wrap break-words">
-                                                        {isRevealed ? message.content : '🔒 Tin nhắn nhạy cảm'}
+                                                        {isRevealed ? message.text : '🔒 Tin nhắn nhạy cảm'}
                                                     </p>
                                                 )}
 
@@ -328,7 +309,7 @@ export function ChatWindow({
                                                     >
                                                         {formatMessageTime(message.createdAt)}
                                                     </p>
-                                                    {isCurrentUser && message.isRead && (
+                                                    {isCurrentUser && message.readBy?.includes(currentUserId) && (
                                                         <span className="text-xs text-white/70">Đã xem</span>
                                                     )}
                                                 </div>
@@ -453,7 +434,7 @@ export function ChatWindow({
                                     <div className="space-y-2">
                                         {searchResults.map((msg) => (
                                             <div
-                                                key={msg.id}
+                                                key={msg._id?.toString()}
                                                 className="p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"
                                                 onClick={() => {
                                                     setShowSearchDialog(false);
@@ -461,7 +442,7 @@ export function ChatWindow({
                                                 }}
                                             >
                                                 <p className="text-sm text-gray-900 line-clamp-2">
-                                                    {msg.content}
+                                                    {msg.text}
                                                 </p>
                                                 <p className="text-xs text-gray-500 mt-1">
                                                     {formatMessageTime(msg.createdAt)}
