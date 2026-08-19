@@ -248,7 +248,7 @@ export function ProjectFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[85vh] p-0 gap-0 overflow-hidden rounded-3xl">
+      <DialogContent className="max-w-4xl max-h-[85vh] p-0 gap-0 overflow-y-auto rounded-3xl">
         <DialogHeader className="px-8 pt-8 pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center">
@@ -263,7 +263,7 @@ export function ProjectFormDialog({
           </div>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="basic" className="px-8 pb-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="basic" className="px-8 pb-8 flex flex-col min-h-0">
           <TabsList className="grid w-full grid-cols-3 mb-6 h-12">
             <TabsTrigger value="basic">Thông tin cơ bản</TabsTrigger>
             <TabsTrigger value="media">Ảnh & mô tả chi tiết</TabsTrigger>
@@ -277,6 +277,7 @@ export function ProjectFormDialog({
             </TabsTrigger>
           </TabsList>
 
+          <div className="overflow-y-auto pr-2 -mr-2" style={{ maxHeight: "calc(85vh - 260px)" }}>
           {/* Tab 1: Basic info */}
           <TabsContent value="basic" className="space-y-5 mt-0">
             <div className="space-y-2">
@@ -516,6 +517,7 @@ export function ProjectFormDialog({
               </ScrollArea>
             </div>
           </TabsContent>
+          </div>
         </Tabs>
 
         {/* Footer actions */}
