@@ -474,6 +474,10 @@ model rewards {
   isActive     Boolean   @default(true)
   maxQuantity  Int?
   minAmount    Decimal
+  maxAmount    Decimal?
+  stock        Int?
+  productImages String[] @default([])
+  productVideo  String?
   updatedAt    DateTime
   pledges      pledges[]
   campaigns    campaigns @relation(fields: [campaignId], references: [id], onDelete: Cascade)

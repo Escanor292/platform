@@ -9,14 +9,22 @@ import {
     CopyPlus,
     Plus,
     Calendar,
-    FileText,
     Eye,
     EyeOff,
     Check,
     Loader2,
     Gift,
+    Tag,
+    Layers,
+    Upload,
+    Video,
+    Percent,
+    Boxes,
+    Image as ImageIcon,
+    Play,
 } from "lucide-react";
 import { formatVND } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { CurrencyInput } from "@/components/shared/CurrencyInput";
 import { DateInput } from "@/components/shared/DateInput";
 
@@ -60,16 +68,23 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
     const [loadingCampaigns, setLoadingCampaigns] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
-    // Form tạo mới
+    // Form tạo mới (chuẩn thương mại điện tử)
     const [newForm, setNewForm] = useState({
         campaignId: "",
         title: "",
+        brand: "",
+        category: "",
         description: "",
         minAmount: "",
+        maxAmount: "",
+        stock: "",
+        productImages: [] as string[],
+        productVideo: "",
         maxQuantity: "",
         deliveryDate: "",
         isActive: true,
     });
+    const [uploadingMedia, setUploadingMedia] = useState(false);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -139,6 +154,10 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
                     title: newForm.title,
                     description: newForm.description || null,
                     minAmount: parseFloat(newForm.minAmount),
+                    maxAmount: newForm.maxAmount ? parseFloat(newForm.maxAmount) : null,
+                    stock: newForm.stock ? parseInt(newForm.stock) : null,
+                    productImages: newForm.productImages,
+                    productVideo: newForm.productVideo || null,
                     maxQuantity: newForm.maxQuantity ? parseInt(newForm.maxQuantity) : null,
                     deliveryDate: newForm.deliveryDate ? new Date(newForm.deliveryDate) : null,
                     isActive: true,
@@ -155,6 +174,59 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
             toast.error(e.message || "Lỗi khi tạo sản phẩm");
         } finally {
             setSubmitting(false);
+        }
+    };
+
+    // --- Upload media (ảnh / video) qua /api/upload ---
+    const uploadFile = async (file: File): Promise<{ url: string; isVideo: boolean }> => {
+        const isVideo = file.type.startsWith("video/");
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await fetch("/api/upload", { method: "POST", body: formData });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Upload thất bại");
+        const url = data.secure_url || data.url;
+        if (!url) throw new Error("Không nhận được URL ảnh/video");
+        return { url, isVideo };
+    };
+
+    const handleMediaUpload = async (files: FileList | null) => {
+        if (!files || files.length === 0) return;
+        const arr = Array.from(files);
+        for (const file of arr) {
+            const okImage = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"].includes(file.type);
+            const okVideo = ["video/mp4", "video/webm", "video/quicktime"].includes(file.type);
+            if (!okImage && !okVideo) {
+                toast.error(`File "${file.name}" không được hỗ trợ (chỉ JPG, PNG, WEBP, MP4, WEBM)`);
+                continue;
+            }
+            if (file.size > 30 * 1024 * 1024) {
+                toast.error(`File "${file.name}" quá 30MB`);
+                continue;
+            }
+            if (!file.type.startsWith("video/") && newForm.productImages.length >= 8) {
+                toast.error("Tối đa 8 ảnh sản phẩm");
+                break;
+            }
+            if (file.type.startsWith("video/") && newForm.productVideo) {
+                toast.error("Sản phẩm chỉ hỗ trợ 1 video");
+                continue;
+            }
+            setUploadingMedia(true);
+            try {
+                const { url, isVideo } = await uploadFile(file);
+                if (isVideo) {
+                    setNewForm((f) => ({ ...f, productVideo: url }));
+                    toast.success("Đã tải video lên thành công");
+                } else {
+                    setNewForm((f) => ({ ...f, productImages: [...f.productImages, url] }));
+                    toast.success("Đã tải ảnh lên thành công");
+                }
+            } catch (e: any) {
+                toast.error(e.message || "Upload thất bại");
+            } finally {
+                setUploadingMedia(false);
+            }
         }
     };
 
@@ -348,6 +420,101 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
                                 </div>
                             )}
 
+                            {/* ---- Hình ảnh & Video ---- */}
+                            <div>
+                                <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                                    <ImageIcon size={16} className="text-emerald-600" />
+                                    Hình ảnh & Video sản phẩm
+                                </label>
+                                <div
+                                    className={cn(
+                                        "border-2 border-dashed rounded-2xl p-6 transition-all cursor-pointer",
+                                        uploadingMedia
+                                            ? "border-gray-200 bg-gray-50"
+                                            : "border-emerald-200 hover:border-emerald-400 hover:bg-emerald-50/30"
+                                    )}
+                                    onClick={() =>
+                                        !uploadingMedia &&
+                                        document
+                                            .getElementById("product-media-input")
+                                            ?.click()
+                                    }
+                                >
+                                    <input
+                                        id="product-media-input"
+                                        type="file"
+                                        className="hidden"
+                                        accept="image/*,video/*"
+                                        multiple={!newForm.productVideo}
+                                        onChange={(e) => {
+                                            handleMediaUpload(e.target.files);
+                                            e.target.value = "";
+                                        }}
+                                    />
+                                    <div className="flex items-center justify-center gap-3 text-gray-500">
+                                        {uploadingMedia ? (
+                                            <>
+                                                <Loader2 size={22} className="animate-spin text-emerald-600" />
+                                                <span className="text-sm font-bold">Đang tải lên...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload size={22} className="text-emerald-500" />
+                                                <div className="text-center">
+                                                    <p className="text-sm font-bold">Thêm ảnh / video sản phẩm</p>
+                                                    <p className="text-xs text-gray-400 mt-1">
+                                                        JPG, PNG, WEBP, MP4, WEBM (tối đa 30MB/file, tối đa 8 ảnh + 1 video)
+                                                    </p>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                                {/* Preview media đã tải */}
+                                {(newForm.productImages.length > 0 || newForm.productVideo) && (
+                                    <div className="mt-3 grid grid-cols-4 gap-2">
+                                        {newForm.productImages.map((img, i) => (
+                                            <div key={img} className="relative group aspect-square rounded-xl overflow-hidden border border-gray-200">
+                                                <img src={img} alt={`Ảnh ${i + 1}`} className="w-full h-full object-cover" />
+                                                {i === 0 && (
+                                                    <span className="absolute top-1 left-1 text-[10px] font-black bg-emerald-600 text-white px-2 py-0.5 rounded-full">
+                                                        Bìa
+                                                    </span>
+                                                )}
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setNewForm((f) => ({
+                                                            ...f,
+                                                            productImages: f.productImages.filter((x) => x !== img),
+                                                        }))
+                                                    }
+                                                    className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition"
+                                                >
+                                                    <X size={12} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        {newForm.productVideo && (
+                                            <div className="relative group aspect-square rounded-xl overflow-hidden border-2 border-emerald-400 bg-gray-900">
+                                                <video src={newForm.productVideo} className="w-full h-full object-cover" />
+                                                <span className="absolute top-1 left-1 text-[10px] font-black bg-blue-600 text-white px-2 py-0.5 rounded-full flex items-center gap-1">
+                                                    <Play size={10} /> Video
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setNewForm((f) => ({ ...f, productVideo: "" }))}
+                                                    className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition"
+                                                >
+                                                    <X size={12} />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* ---- Tên & thông tin cơ bản ---- */}
                             <div>
                                 <label className="block text-sm font-bold text-gray-900 mb-2">
                                     Tên sản phẩm *
@@ -357,62 +524,99 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
                                     value={newForm.title}
                                     onChange={(e) => setNewForm((f) => ({ ...f, title: e.target.value }))}
                                     required
-                                    placeholder="VD: Gói ủng hộ cơ bản, Sản phẩm đầu tiên..."
+                                    placeholder="VD: Túi vải canvas thương mại công bằng, Gói ủng hộ cơ bản..."
                                     className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
                                 />
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-bold text-gray-900 mb-2">
-                                    Mô tả chi tiết
-                                </label>
-                                <textarea
-                                    value={newForm.description}
-                                    onChange={(e) =>
-                                        setNewForm((f) => ({ ...f, description: e.target.value }))
-                                    }
-                                    rows={3}
-                                    placeholder="Mô tả chi tiết về sản phẩm, quyền lợi, điều kiện..."
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition resize-none"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-bold text-gray-900 mb-2">
-                                    Giá sản phẩm *
-                                </label>
-                                <CurrencyInput
-                                    name="minAmount"
-                                    value={newForm.minAmount}
-                                    onChange={(value) => setNewForm((f) => ({ ...f, minAmount: value }))}
-                                    placeholder="50.000"
-                                    required
-                                    min="1000"
-                                    step="1000"
-                                />
-                                <p className="text-xs text-gray-500 mt-1">
-                                    Số tiền tối thiểu để nhận được sản phẩm này (VNĐ)
-                                </p>
-                            </div>
-
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-900 mb-2">
-                                        Số lượng giới hạn
+                                    <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                                        <Tag size={14} className="text-gray-400" />
+                                        Thương hiệu
                                     </label>
-                                    <div className="relative">
-                                        <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                                        <input
-                                            type="number"
-                                            value={newForm.maxQuantity}
-                                            onChange={(e) =>
-                                                setNewForm((f) => ({ ...f, maxQuantity: e.target.value }))
-                                            }
-                                            min="1"
-                                            placeholder="Không giới hạn"
-                                            className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
-                                        />
-                                    </div>
+                                    <input
+                                        type="text"
+                                        value={newForm.brand}
+                                        onChange={(e) => setNewForm((f) => ({ ...f, brand: e.target.value }))}
+                                        placeholder="VD: Tử Tế Shop"
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                                        <Layers size={14} className="text-gray-400" />
+                                        Danh mục
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={newForm.category}
+                                        onChange={(e) => setNewForm((f) => ({ ...f, category: e.target.value }))}
+                                        placeholder="VD: Quà tặng, Thời trang, F&B..."
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* ---- Giá bán ---- */}
+                            <div className="p-4 bg-orange-50/60 border border-orange-100 rounded-2xl space-y-4">
+                                <div className="flex items-center gap-2 text-sm font-black text-orange-700">
+                                    <Percent size={16} />
+                                    Giá bán
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                                        Giá sản phẩm (giá bán) *
+                                    </label>
+                                    <CurrencyInput
+                                        name="minAmount"
+                                        value={newForm.minAmount}
+                                        onChange={(value) => setNewForm((f) => ({ ...f, minAmount: value }))}
+                                        placeholder="50.000"
+                                        required
+                                        min="1000"
+                                        step="1000"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                                        Giá gốc (giá tham chiếu)
+                                    </label>
+                                    <CurrencyInput
+                                        name="maxAmount"
+                                        value={newForm.maxAmount}
+                                        onChange={(value) => setNewForm((f) => ({ ...f, maxAmount: value }))}
+                                        placeholder="80.000"
+                                        min="1000"
+                                        step="1000"
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Hiển thị giá gốc bị gạch đi kèm % giảm giá, tạo cảm giác khuyến mãi như Shopee/Lazada
+                                    </p>
+                                    {newForm.minAmount && newForm.maxAmount && parseFloat(newForm.maxAmount) > parseFloat(newForm.minAmount) && (
+                                        <div className="inline-block mt-2 px-2.5 py-1 bg-red-600 text-white text-xs font-black rounded-lg">
+                                            Giảm {Math.round(((parseFloat(newForm.maxAmount) - parseFloat(newForm.minAmount)) / parseFloat(newForm.maxAmount)) * 100)}%
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* ---- Tồn kho & vận chuyển ---- */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                                        <Boxes size={14} className="text-gray-400" />
+                                        Tồn kho
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={newForm.stock}
+                                        onChange={(e) => setNewForm((f) => ({ ...f, stock: e.target.value }))}
+                                        min="1"
+                                        placeholder="VD: 100"
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">Số lượng còn có thể nhận</p>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-gray-900 mb-2">
@@ -427,6 +631,22 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
                                         min={new Date().toISOString().split("T")[0]}
                                     />
                                 </div>
+                            </div>
+
+                            {/* ---- Mô tả chi tiết ---- */}
+                            <div>
+                                <label className="block text-sm font-bold text-gray-900 mb-2">
+                                    Mô tả chi tiết
+                                </label>
+                                <textarea
+                                    value={newForm.description}
+                                    onChange={(e) =>
+                                        setNewForm((f) => ({ ...f, description: e.target.value }))
+                                    }
+                                    rows={5}
+                                    placeholder="Mô tả chất liệu, kích thước, màu sắc, thành phần, điều kiện sử dụng, quyền lợi kèm theo..."
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition resize-none"
+                                />
                             </div>
 
                             {/* Status toggle */}
