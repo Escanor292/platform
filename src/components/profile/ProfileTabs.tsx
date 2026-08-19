@@ -8,6 +8,7 @@ import { CampaignGrowthProgress } from '@/components/campaign/CampaignGrowthProg
 import { getCampaignTypeLabel } from '@/lib/campaign-helpers';
 import { ProfileBlogCard } from '@/components/profile/ProfileBlogCard';
 import { UserBadgeList } from '@/components/badge/UserBadgeList';
+import { AddProductModal } from '@/components/profile/AddProductModal';
 
 type TabType = 'projects' | 'campaigns' | 'products' | 'blog' | 'pledges' | 'badges';
 
@@ -84,6 +85,9 @@ export function ProfileTabs({
     // State for delete operations
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [deleteError, setDeleteError] = useState<string | null>(null);
+
+    // State for Add Product modal
+    const [isAddProductOpen, setIsAddProductOpen] = useState(false);
 
     // Helper function for delete with confirm dialog
     const handleDelete = async (
@@ -425,14 +429,13 @@ export function ProfileTabs({
                                 Sản phẩm ({totalProducts})
                             </h2>
                             {isOwnerMode && (
-                                <Link
-                                    href={safeCampaigns.length > 0 ? `/dashboard/creator/rewards/${safeCampaigns[0].slug}` : '/dashboard/creator/projects'}
+                                <button
+                                    onClick={() => setIsAddProductOpen(true)}
                                     className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-4 py-2 text-sm font-bold transition flex items-center gap-2"
-                                    title={safeCampaigns.length > 0 ? 'Thêm sản phẩm vào chiến dịch' : 'Tạo chiến dịch trước để thêm sản phẩm'}
                                 >
                                     <Plus size={16} />
                                     Thêm sản phẩm
-                                </Link>
+                                </button>
                             )}
                         </div>
                         {products.length > 0 ? (
@@ -548,7 +551,7 @@ export function ProfileTabs({
                             <div className="bg-gray-50 rounded-2xl p-8 text-center">
                                 <Package size={48} className="text-gray-300 mx-auto mb-4" />
                                 <p className="text-gray-600 font-medium mb-2">Chưa có sản phẩm nào.</p>
-                                <p className="text-gray-400 text-sm">Thêm phần quà vào các chiến dịch của bạn.</p>
+                                <p className="text-gray-400 text-sm">Chọn sản phẩm từ chiến dịch hoặc tạo sản phẩm mới với giá như nền tảng thương mại điện tử.</p>
                             </div>
                         )}
                     </div>
@@ -660,6 +663,9 @@ export function ProfileTabs({
                     </div>
                 )}
             </div>
+
+            {/* Add Product Modal */}
+            <AddProductModal isOpen={isAddProductOpen} onClose={() => setIsAddProductOpen(false)} />
         </div>
     );
 }
