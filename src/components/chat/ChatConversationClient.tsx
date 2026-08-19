@@ -209,6 +209,7 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                         onToggleInfoPanel={() => setShowInfoPanel(!showInfoPanel)}
                         showInfoPanel={showInfoPanel}
                         typingUsers={typingUsers}
+                        onMessagesUpdate={setMessages}
                     />
                 </div>
 

@@ -52,6 +52,7 @@ interface ChatWindowProps {
     typingUsers?: string[];
     onLoadMore?: () => void;
     hasMore?: boolean;
+    onMessagesUpdate?: (updated: MongoMessage[]) => void;
 }
 
 // Bộ emoji phổ biến cho người dùng Việt Nam
@@ -99,6 +100,7 @@ export function ChatWindow({
     typingUsers = [],
     onLoadMore,
     hasMore = false,
+    onMessagesUpdate,
 }: ChatWindowProps) {
     const router = useRouter();
 
@@ -414,10 +416,22 @@ export function ChatWindow({
             if (!response.ok) {
                 const data = await response.json();
                 alert(data.error || 'Không thể mở tin nhắn nhạy cảm');
+                return;
             }
-            // Sau khi reveal, reload lại messages để UI cập nhật trạng thái revealedBy
-            await new Promise((resolve) => setTimeout(resolve, 300));
-            window.location.reload();
+            // Cập nhật tin nhắn trong state thay vì reload toàn trang
+            const updatedMessages = messages.map((m) => {
+                if (m._id?.toString() === messageId) {
+                    return { ...m, revealedBy: [...(m.revealedBy || []), currentUserId] };
+                }
+                return m;
+            });
+            onMessagesUpdate?.(updatedMessages);
+            // Cuộn về tin nhắn vừa mở sau một chút delay để UI kịp render
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            const bubble = document.getElementById(`message-bubble-${messageId}`);
+            if (bubble) {
+                bubble.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         } catch (err: any) {
             console.error('Reveal error:', err);
             alert('Không thể mở tin nhắn nhạy cảm');
@@ -588,6 +602,7 @@ export function ChatWindow({
 
                                     return (
                                         <div
+                                            id={`message-bubble-${message._id?.toString()}`}
                                             key={message._id?.toString()}
                                             className={cn(
                                                 'flex gap-2 mb-2',
