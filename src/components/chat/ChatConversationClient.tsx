@@ -160,7 +160,7 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
         <div className="container mx-auto px-4 pt-24 pb-8 max-w-7xl h-[calc(100vh-8rem)]">
             <div className={cn(
                 "grid gap-0 h-full rounded-lg border border-gray-200 overflow-hidden bg-white",
-                showInfoPanel ? "grid-cols-1 lg:grid-cols-[320px_1fr_320px]" : "grid-cols-1 lg:grid-cols-[320px_1fr]"
+                showInfoPanel ? "grid-cols-1 lg:grid-cols-[300px_1fr_300px]" : "grid-cols-1 lg:grid-cols-[300px_1fr]"
             )}>
                 {/* Left: Chat Sidebar */}
                 <div className="hidden lg:flex min-w-0 overflow-hidden border-r border-gray-200">

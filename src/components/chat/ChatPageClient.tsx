@@ -103,7 +103,7 @@ export function ChatPageClient() {
 
     return (
         <div className="container mx-auto px-4 pt-24 pb-8 max-w-7xl h-[calc(100vh-8rem)]">
-            <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-0 h-full rounded-lg border border-gray-200 overflow-hidden bg-white">
+            <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-0 h-full rounded-lg border border-gray-200 overflow-hidden bg-white">
                 {/* Left: Chat Sidebar */}
                 <div className="min-w-0 overflow-hidden">
                     <ChatSidebar

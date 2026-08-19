@@ -140,7 +140,7 @@ export function ChatWindow({
 
     return (
         <>
-            <div className="flex h-full flex-col min-h-0 bg-white">
+            <div className="flex h-full w-full flex-col min-h-0 min-w-0 bg-white">
                 {/* Header */}
                 <div className="flex items-center justify-between border-b p-4 flex-shrink-0">
                     <div className="flex items-center gap-3">
