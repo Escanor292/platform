@@ -27,7 +27,14 @@ export function ChatNotificationBadge() {
     // Poll every 30 seconds
     const interval = setInterval(loadUnreadCount, 30000);
 
-    return () => clearInterval(interval);
+    // Cập nhật ngay khi nhận event đánh dấu đã đọc từ trang chat
+    const onChatRead = () => loadUnreadCount();
+    window.addEventListener("chat:read", onChatRead);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("chat:read", onChatRead);
+    };
   }, [session, loadUnreadCount]);
 
   if (unreadCount === 0) return null;

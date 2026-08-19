@@ -48,6 +48,7 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
             loadConversation();
             loadMessages();
             loadAllConversations();
+            markAsRead();
         }
     }, [conversationId]);
 
@@ -76,6 +77,24 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
             console.error('Load messages error:', err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const markAsRead = async () => {
+        try {
+            const response = await fetch(`/api/chat/conversations/${conversationId}/read`, {
+                method: 'PATCH',
+            });
+            if (response.ok) {
+                // Cập nhật ngay số chưa đọc của cuộc trò chuyện này trên sidebar
+                setAllConversations((prev) =>
+                    prev.map((c) => (c.id === conversationId ? { ...c, unreadCount: 0 } : c))
+                );
+                // Báo cho navbar badge cập nhật số tổng ngay lập tức
+                window.dispatchEvent(new Event("chat:read"));
+            }
+        } catch (err) {
+            console.error('Mark as read error:', err);
         }
     };
 
