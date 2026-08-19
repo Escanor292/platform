@@ -140,8 +140,12 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
     // --- Tạo sản phẩm mới ---
     const handleCreateNew = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newForm.campaignId || !newForm.title || !newForm.minAmount) {
-            toast.error("Vui lòng chọn chiến dịch, tên và giá sản phẩm");
+        if (!newForm.title || !newForm.minAmount) {
+            toast.error("Vui lòng nhập tên và giá sản phẩm");
+            return;
+        }
+        if (!newForm.campaignId) {
+            toast.error("Không tìm thấy chiến dịch. Vui lòng tạo chiến dịch trước.");
             return;
         }
         setSubmitting(true);
@@ -230,12 +234,25 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
         }
     };
 
-    const openNew = () => {
-        // Nếu chỉ có 1 chiến dịch thì chọn luôn, không cần hỏi
-        if (campaigns.length === 1) {
-            setNewForm((f) => ({ ...f, campaignId: campaigns[0].id }));
-        } else if (campaigns.length > 1) {
-            setNewForm((f) => ({ ...f, campaignId: "" }));
+    const openNew = async () => {
+        // Tự tải danh sách chiến dịch nếu chưa có, rồi auto-chọn
+        try {
+            if (campaigns.length === 0) {
+                const res = await fetch("/api/rewards/my");
+                const data = await res.json();
+                if (res.ok && Array.isArray(data.campaigns)) {
+                    setCampaigns(data.campaigns);
+                    if (data.campaigns.length > 0) {
+                        setNewForm((f) => ({ ...f, campaignId: data.campaigns[0].id }));
+                    }
+                }
+            } else if (campaigns.length === 1) {
+                setNewForm((f) => ({ ...f, campaignId: campaigns[0].id }));
+            } else {
+                setNewForm((f) => ({ ...f, campaignId: f.campaignId || (campaigns.length > 0 ? campaigns[0].id : "") }));
+            }
+        } catch {
+            // không chặn luồng, để validate khi submit
         }
         setStep("createNew");
     };
@@ -397,7 +414,7 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
                             {campaigns.length > 1 && (
                                 <div>
                                     <label className="block text-sm font-bold text-gray-900 mb-2">
-                                        Chiến dịch *
+                                        Chiến dịch
                                     </label>
                                     <select
                                         value={newForm.campaignId}
@@ -591,7 +608,7 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
                                         step="1000"
                                     />
                                     <p className="text-xs text-gray-500 mt-1">
-                                        Hiển thị giá gốc bị gạch đi kèm % giảm giá, tạo cảm giác khuyến mãi như Shopee/Lazada
+                                        Hiển thị giá gốc bị gạch đi kèm % giảm giá
                                     </p>
                                     {newForm.minAmount && newForm.maxAmount && parseFloat(newForm.maxAmount) > parseFloat(newForm.minAmount) && (
                                         <div className="inline-block mt-2 px-2.5 py-1 bg-red-600 text-white text-xs font-black rounded-lg">
