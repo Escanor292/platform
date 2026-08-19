@@ -25,6 +25,7 @@ import {
     Ban,
     X,
     Lock,
+    ChevronDown,
 } from 'lucide-react';
 import {
     DropdownMenu,
@@ -148,8 +149,12 @@ export function ChatWindow({
 
     // Theo dõi conversationId để biết khi nào mở cuộc trò chuyện mới
     const prevConversationIdRef = useRef(conversationId);
+    const [showNewMessageNotice, setShowNewMessageNotice] = useState(false);
+    const prevMessagesCountRef = useRef(messages.length);
 
-    // Auto scroll: chỉ cuộn trong vùng tin nhắn, không làm trang bị trôi
+    // Khi có tin nhắn mới: KHÔNG tự cuộn, chỉ hiện thông báo "Có tin nhắn mới"
+    // nếu người dùng đang cuộn lên trên xem tin cũ.
+    // Khi mở cuộc trò chuyện mới: cuộn về tin gần nhất (không làm trôi trang).
     useEffect(() => {
         const scrollArea = scrollAreaRef.current;
         if (!scrollArea) return;
@@ -158,13 +163,29 @@ export function ChatWindow({
         if (isNewConversation) {
             // Mở cuộc trò chuyện mới: cuộn về cuối tin nhắn gần nhất, đứng yên trong khung
             scrollArea.scrollTop = scrollArea.scrollHeight;
+            setShowNewMessageNotice(false);
             return;
         }
-        const isNearBottom = scrollArea.scrollHeight - scrollArea.scrollTop - scrollArea.clientHeight < 150;
-        if (isNearBottom) {
+        // Có tin mới gửi đi từ chính mình: giữ nguyên vị trí, không thông báo
+        if (messages.length > prevMessagesCountRef.current) {
+            prevMessagesCountRef.current = messages.length;
+            const isNearBottom = scrollArea.scrollHeight - scrollArea.scrollTop - scrollArea.clientHeight < 150;
+            if (!isNearBottom) {
+                setShowNewMessageNotice(true);
+            }
+            return;
+        }
+        prevMessagesCountRef.current = messages.length;
+    }, [messages, conversationId]);
+
+    // Cuộn xuống cuối danh sách khi bấm "Có tin nhắn mới"
+    const scrollToNewMessages = () => {
+        const scrollArea = scrollAreaRef.current;
+        if (scrollArea) {
             scrollArea.scrollTop = scrollArea.scrollHeight;
         }
-    }, [messages, conversationId]);
+        setShowNewMessageNotice(false);
+    };
 
     // Cleanup recording timer on unmount
     useEffect(() => {
@@ -441,14 +462,7 @@ export function ChatWindow({
                 return m;
             });
             onMessagesUpdate?.(updatedMessages);
-            // Cuộn về tin nhắn vừa mở trong vùng tin nhắn (không làm trang bị trôi)
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            const scrollArea = scrollAreaRef.current;
-            const bubble = document.getElementById(`message-bubble-${messageId}`);
-            if (scrollArea && bubble) {
-                const top = bubble.offsetTop - scrollArea.clientHeight / 2 + bubble.clientHeight / 2;
-                scrollArea.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
-            }
+            // Mở tin nhắn tại chỗ, không cuộn gì cả
         } catch (err: any) {
             console.error('Reveal error:', err);
             alert('Không thể mở tin nhắn nhạy cảm');
@@ -585,7 +599,7 @@ export function ChatWindow({
                 </div>
 
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 min-h-0 space-y-4" ref={scrollAreaRef}>
+                <div className="flex-1 overflow-y-auto p-4 min-h-0 space-y-4 relative" ref={scrollAreaRef}>
                     <div className="space-y-4">
                         {/* Load more button */}
                         {hasMore && onLoadMore && (
@@ -749,6 +763,19 @@ export function ChatWindow({
                             </div>
                         )}
                         <div ref={messagesEndRef} />
+                        {/* Thông báo "Có tin nhắn mới" khi tin mới đến mà user đang cuộn lên trên */}
+                        {showNewMessageNotice && (
+                            <div className="flex justify-center py-2">
+                                <button
+                                    type="button"
+                                    onClick={scrollToNewMessages}
+                                    className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-primary shadow-md ring-1 ring-gray-200 hover:bg-gray-50 transition-colors"
+                                >
+                                    <ChevronDown className="h-3.5 w-3.5" />
+                                    Có tin nhắn mới
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
 
