@@ -11,6 +11,8 @@ export interface PublicProjectDetail {
     description: string | null;
     coverImage: string | null;
     richDescription: any;
+    heroBackgroundType?: string;
+    heroBackgroundConfig?: any;
     linkedBlogPostIds: string[];
     linkedRewardIds: string[];
     createdAt: string;

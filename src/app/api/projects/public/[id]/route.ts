@@ -120,6 +120,8 @@ export async function GET(
             description: project.description,
             coverImage: project.coverImage,
             richDescription: project.richDescription,
+            heroBackgroundType: project.heroBackgroundType,
+            heroBackgroundConfig: project.heroBackgroundConfig,
             linkedBlogPostIds: project.project_blog_links.map((l) => l.blogPostId),
             linkedRewardIds: project.project_reward_links.map((l) => l.rewardId),
             createdAt: project.createdAt.toISOString(),

@@ -83,7 +83,9 @@ export default function ProjectDetailClient({ project }: ProjectDetailClientProp
             <section
                 className="relative overflow-hidden"
                 style={{
-                    background: 'linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%)',
+                    background: project.heroBackgroundType === 'color'
+                        ? `linear-gradient(${(project.heroBackgroundConfig?.angle ?? 135)}deg, ${project.heroBackgroundConfig?.colors?.join(', ')})`
+                        : 'linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%)',
                 }}
             >
                 <div className="max-w-7xl mx-auto px-6 py-16">
@@ -126,7 +128,7 @@ export default function ProjectDetailClient({ project }: ProjectDetailClientProp
                         <div className="flex-1 flex justify-center">
                             <div className="relative w-full max-w-md h-80 lg:h-96">
                                 <div className="absolute inset-0 bg-white/10 rounded-3xl backdrop-blur-sm border border-white/20" />
-                                {project.coverImage ? (
+                                {project.coverImage && project.heroBackgroundType !== 'color' ? (
                                     <Image
                                         src={project.coverImage}
                                         alt={project.title}

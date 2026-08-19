@@ -15,6 +15,8 @@ export interface CreateProjectInput {
     slug?: string;
     coverImage?: string | null;
     richDescription?: any;
+    heroBackgroundType?: 'image' | 'color';
+    heroBackgroundConfig?: { colors: string[]; angle?: number } | null;
     blogPostIds?: string[];
     rewardIds?: string[];
 }
@@ -25,6 +27,8 @@ export interface UpdateProjectInput {
     slug?: string | null;
     coverImage?: string | null;
     richDescription?: any;
+    heroBackgroundType?: 'image' | 'color';
+    heroBackgroundConfig?: { colors: string[]; angle?: number } | null;
     blogPostIds?: string[];
     rewardIds?: string[];
 }
@@ -37,6 +41,8 @@ export interface ProjectWithCounts {
     description: string | null;
     coverImage: string | null;
     richDescription: any;
+    heroBackgroundType: string;
+    heroBackgroundConfig: any;
     createdAt: Date;
     updatedAt: Date;
     campaignCount: number;
@@ -99,6 +105,8 @@ export async function createProject(
             slug: input.slug || null,
             coverImage: input.coverImage ?? null,
             richDescription: input.richDescription ?? null,
+            heroBackgroundType: input.heroBackgroundType ?? 'image',
+            heroBackgroundConfig: input.heroBackgroundConfig ?? undefined,
             project_blog_links: input.blogPostIds?.length
                 ? { create: input.blogPostIds.map((blogPostId) => ({ blogPostId })) }
                 : undefined,
@@ -210,6 +218,8 @@ export async function getProjectById(
         description: project.description,
         coverImage: project.coverImage,
         richDescription: project.richDescription,
+        heroBackgroundType: project.heroBackgroundType,
+        heroBackgroundConfig: project.heroBackgroundConfig,
         linkedBlogPostIds,
         linkedRewardIds,
         createdAt: project.createdAt,
@@ -338,6 +348,12 @@ export async function updateProject(
     }
     if (input.richDescription !== undefined) {
         updateData.richDescription = input.richDescription || null;
+    }
+    if (input.heroBackgroundType !== undefined) {
+        updateData.heroBackgroundType = input.heroBackgroundType;
+    }
+    if (input.heroBackgroundConfig !== undefined) {
+        updateData.heroBackgroundConfig = input.heroBackgroundConfig || null;
     }
 
     // Sync blog links if provided (replace all)

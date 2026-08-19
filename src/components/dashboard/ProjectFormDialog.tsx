@@ -27,7 +27,21 @@ import {
   Package,
   ChevronRight,
   Check,
+  PlusCircle,
+  X,
+  Palette,
 } from "lucide-react";
+
+const HERO_BG_PRESETS: { name: string; colors: string[]; angle: number }[] = [
+  { name: "Tử Tế Tím", colors: ["#7c3aed", "#2563eb", "#0ea5e9"], angle: 135 },
+  { name: "Xanh hi vọng", colors: ["#0f766e", "#059669", "#34d399"], angle: 135 },
+  { name: "Hoàng hôn ấm", colors: ["#f43f5e", "#f59e0b", "#fbbf24"], angle: 120 },
+  { name: "Đại dương sâu", colors: ["#1e3a8a", "#2563eb", "#60a5fa"], angle: 135 },
+  { name: "Hoa anh đào", colors: ["#ec4899", "#f472b6", "#fce7f3"], angle: 120 },
+  { name: "Đêm vàng kim", colors: ["#0f172a", "#4c1d95", "#fbbf24"], angle: 135 },
+  { name: "Lá mùa thu", colors: ["#15803d", "#a3e635", "#fde047"], angle: 135 },
+  { name: "Bão tím", colors: ["#312e81", "#7c3aed", "#c084fc"], angle: 135 },
+];
 
 interface BlogPost {
   id: string;
@@ -59,6 +73,8 @@ interface ProjectFormDialogProps {
     description: string | null;
     coverImage: string | null;
     richDescription: any;
+    heroBackgroundType?: string;
+    heroBackgroundConfig?: any;
     linkedBlogPostIds: string[];
     linkedRewardIds: string[];
   } | null;
@@ -88,6 +104,11 @@ export function ProjectFormDialog({
   const [coverImage, setCoverImage] = useState("");
   const [richDescription, setRichDescription] = useState("");
 
+  // Hero background (image or multi-color gradient)
+  const [heroBgType, setHeroBgType] = useState<"image" | "color">("image");
+  const [heroBgColors, setHeroBgColors] = useState<string[]>([]);
+  const [heroBgAngle, setHeroBgAngle] = useState(135);
+
   // Linked items
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [selectedBlogIds, setSelectedBlogIds] = useState<string[]>([]);
@@ -111,6 +132,17 @@ export function ProjectFormDialog({
       );
       setSelectedBlogIds(project.linkedBlogPostIds || []);
       setSelectedRewardIds(project.linkedRewardIds || []);
+      setHeroBgType(project.heroBackgroundType === "color" ? "color" : "image");
+      setHeroBgColors(
+        Array.isArray(project.heroBackgroundConfig?.colors)
+          ? (project.heroBackgroundConfig.colors as string[])
+          : []
+      );
+      setHeroBgAngle(
+        typeof project.heroBackgroundConfig?.angle === "number"
+          ? project.heroBackgroundConfig.angle
+          : 135
+      );
       fetchBlogPosts();
       fetchRewards();
     } else {
@@ -127,6 +159,9 @@ export function ProjectFormDialog({
     setDescription("");
     setCoverImage("");
     setRichDescription("");
+    setHeroBgType("image");
+    setHeroBgColors([]);
+    setHeroBgAngle(135);
     setSelectedBlogIds([]);
     setSelectedRewardIds([]);
     setActiveTab("basic");
@@ -191,6 +226,13 @@ export function ProjectFormDialog({
       toast.error("Vui lòng nhập tên dự án");
       return;
     }
+    if (heroBgType === "color") {
+      const validColors = heroBgColors.filter((c) => /^#[0-9a-fA-F]{6}$/.test(c));
+      if (validColors.length < 2) {
+        toast.error("Chế độ nền màu cần ít nhất 2 mã màu hợp lệ (ví dụ #7c3aed)");
+        return;
+      }
+    }
     setLoading(true);
     try {
       const body = {
@@ -199,6 +241,14 @@ export function ProjectFormDialog({
         slug: slug.trim() || undefined,
         coverImage: coverImage || undefined,
         richDescription: richDescription || undefined,
+        heroBackgroundType: heroBgType,
+        heroBackgroundConfig:
+          heroBgType === "color"
+            ? {
+                colors: heroBgColors.filter((c) => /^#[0-9a-fA-F]{6}$/.test(c)),
+                angle: heroBgAngle,
+              }
+            : null,
         blogPostIds: selectedBlogIds,
         rewardIds: selectedRewardIds,
       };
@@ -335,6 +385,160 @@ export function ProjectFormDialog({
                 onChange={setCoverImage}
                 label="Bấm để tải ảnh bìa (PNG, JPG, WEBP — tối đa 5MB)"
               />
+            </div>
+
+            {/* Hero background style: image or multi-color gradient */}
+            <div>
+              <label className="text-sm font-black text-gray-900 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <Palette className="w-4 h-4" />
+                Nền trang dự án (hero)
+              </label>
+              <div className="flex gap-2 mb-4">
+                {([
+                  { v: "image" as const, label: "Ảnh sản phẩm" },
+                  { v: "color" as const, label: "Màu / Gradient" },
+                ] as const).map((opt) => (
+                  <button
+                    key={opt.v}
+                    type="button"
+                    onClick={() => setHeroBgType(opt.v)}
+                    className={`flex-1 py-2.5 rounded-xl text-sm font-bold border-2 transition-all ${
+                      heroBgType === opt.v
+                        ? "border-purple-600 bg-purple-600 text-white shadow-md"
+                        : "border-gray-200 bg-white text-gray-600 hover:border-purple-300"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+
+              {heroBgType === "image" ? (
+                <p className="text-xs text-gray-400 font-medium">
+                  Nền trang sẽ dùng ảnh bìa dự án đã tải ở trên.
+                </p>
+              ) : (
+                <div className="space-y-4 border border-gray-200 rounded-2xl p-5 bg-gray-50/50">
+                  {/* Live gradient preview */}
+                  <div
+                    className="h-24 rounded-xl border border-gray-200 shadow-inner flex items-center justify-center"
+                    style={{
+                      background:
+                        heroBgColors.length >= 2
+                          ? `linear-gradient(${heroBgAngle}deg, ${heroBgColors.join(", ")})`
+                          : "linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%)",
+                    }}
+                  >
+                    <span className="text-xs font-bold text-white drop-shadow bg-black/20 px-3 py-1 rounded-full">
+                      Xem trước nền trang
+                    </span>
+                  </div>
+
+                  {/* Color inputs */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-gray-700 uppercase tracking-wider">
+                      Các mã màu (hex) — thêm {heroBgColors.length >= 2 ? `${heroBgColors.length} màu` : "ít nhất 2 màu"} để tạo gradient
+                    </label>
+                    {heroBgColors.map((c, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <div
+                          className="w-9 h-9 rounded-lg border border-gray-300 flex-shrink-0"
+                          style={{ backgroundColor: c }}
+                        />
+                        <input
+                          value={c}
+                          onChange={(e) => {
+                            const next = [...heroBgColors];
+                            next[i] = e.target.value;
+                            setHeroBgColors(next);
+                          }}
+                          placeholder="#7c3aed"
+                          maxLength={7}
+                          className="h-10 rounded-xl border border-gray-300 px-3 text-sm font-mono bg-white w-32"
+                        />
+                        <input
+                          type="color"
+                          value={/^#[0-9a-fA-F]{6}$/.test(c) ? c : "#000000"}
+                          onChange={(e) => {
+                            const next = [...heroBgColors];
+                            next[i] = e.target.value;
+                            setHeroBgColors(next);
+                          }}
+                          className="w-10 h-10 rounded-lg cursor-pointer border border-gray-300 bg-white"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setHeroBgColors(heroBgColors.filter((_, j) => j !== i))
+                          }
+                          className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                          aria-label="Xóa màu này"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                    {heroBgColors.length < 8 && (
+                      <button
+                        type="button"
+                        onClick={() => setHeroBgColors([...heroBgColors, "#7c3aed"])}
+                        className="flex items-center gap-1.5 text-sm font-bold text-purple-600 hover:text-purple-700"
+                      >
+                        <PlusCircle className="w-4 h-4" />
+                        Thêm màu ({heroBgColors.length}/8)
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Presets */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-gray-700 uppercase tracking-wider">
+                      Gradient gợi ý — bấm để áp dụng
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {HERO_BG_PRESETS.map((p) => (
+                        <button
+                          key={p.name}
+                          type="button"
+                          onClick={() => {
+                            setHeroBgColors([...p.colors]);
+                            setHeroBgAngle(p.angle);
+                          }}
+                          className="group relative h-14 rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md hover:border-purple-400 transition-all"
+                        >
+                          <div
+                            className="absolute inset-0"
+                            style={{
+                              background: `linear-gradient(${p.angle}deg, ${p.colors.join(", ")})`,
+                            }}
+                          />
+                          <span className="absolute inset-x-0 bottom-0 text-center text-[10px] font-bold text-white bg-black/30 py-1 backdrop-blur-sm">
+                            {p.name}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Angle */}
+                  <div className="flex items-center gap-3">
+                    <label className="text-xs font-black text-gray-700 uppercase tracking-wider">
+                      Hướng gradient
+                    </label>
+                    <input
+                      type="range"
+                      min={0}
+                      max={360}
+                      value={heroBgAngle}
+                      onChange={(e) => setHeroBgAngle(Number(e.target.value))}
+                      className="flex-1 accent-purple-600"
+                    />
+                    <span className="text-xs font-mono font-bold text-gray-500 w-9 text-right">
+                      {heroBgAngle}°
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">

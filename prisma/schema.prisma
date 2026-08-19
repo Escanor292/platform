@@ -414,6 +414,10 @@ model projects {
   description           String?               @db.Text
   coverImage            String?               @db.VarChar(512)
   richDescription       Json?
+  /// Kiểu nền hero: 'image' (ảnh bìa coverImage) hoặc 'color' (gradient từ mã màu trong heroBackgroundConfig)
+  heroBackgroundType    String                @default("image") @db.VarChar(16)
+  /// Cấu hình nền màu, ví dụ: { "colors": ["#2563eb", "#1d4ed8", "#7c3aed"], "angle": 135 }
+  heroBackgroundConfig  Json?
   createdAt             DateTime              @default(now())
   updatedAt             DateTime              @updatedAt
   users                 users                 @relation(fields: [creatorId], references: [id], onDelete: Cascade)

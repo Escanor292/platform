@@ -25,6 +25,17 @@ export const createProjectSchema = z.object({
         .pipe(z.string().max(255).optional()),
     coverImage: z.union([z.string().url().max(512), z.null()]).optional(),
     richDescription: z.union([z.any(), z.null()]).optional(),
+    heroBackgroundType: z.enum(['image', 'color']).optional(),
+    heroBackgroundConfig: z.union([
+        z.object({
+            colors: z
+                .array(z.string().regex(/^#([0-9a-fA-F]{3}){1,2}$|^#[0-9a-fA-F]{6}$/, 'Invalid hex color code'))
+                .min(1, 'At least one color is required')
+                .max(10, 'Maximum 10 colors'),
+            angle: z.number().int().min(0).max(360).optional().default(135),
+        }),
+        z.null(),
+    ]).optional(),
     blogPostIds: z.array(z.string().min(1).max(50)).max(100).optional(),
     rewardIds: z.array(z.string().min(1).max(50)).max(100).optional(),
 });
@@ -57,6 +68,17 @@ export const updateProjectSchema = z
             .pipe(z.string().max(255).nullable().optional()),
         coverImage: z.union([z.string().url().max(512), z.null()]).optional(),
         richDescription: z.union([z.any(), z.null()]).optional(),
+        heroBackgroundType: z.enum(['image', 'color']).optional(),
+        heroBackgroundConfig: z.union([
+            z.object({
+                colors: z
+                    .array(z.string().regex(/^#([0-9a-fA-F]{3}){1,2}$|^#[0-9a-fA-F]{6}$/, 'Invalid hex color code'))
+                    .min(1, 'At least one color is required')
+                    .max(10, 'Maximum 10 colors'),
+                angle: z.number().int().min(0).max(360).optional().default(135),
+            }),
+            z.null(),
+        ]).optional(),
         blogPostIds: z.array(z.string().min(1).max(50)).max(100).optional(),
         rewardIds: z.array(z.string().min(1).max(50)).max(100).optional(),
     })
@@ -67,6 +89,8 @@ export const updateProjectSchema = z
             data.slug !== undefined ||
             data.coverImage !== undefined ||
             data.richDescription !== undefined ||
+            data.heroBackgroundType !== undefined ||
+            data.heroBackgroundConfig !== undefined ||
             data.blogPostIds !== undefined ||
             data.rewardIds !== undefined,
         {
