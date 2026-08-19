@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import ProjectDetailClient from './ProjectDetailClient';
 import { PublicProjectDetail } from '@/types/project-detail';
 import OwnerEditPanel from '@/components/OwnerEditPanel';
+import { ProjectDetailPageClient } from './ProjectDetailPageClient';
 
 interface ProjectPageProps {
     params: Promise<{ projectId: string }>;
@@ -155,23 +156,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     const campaignWithRewards = project.campaigns.find(c => c.rewards && c.rewards.length > 0);
 
     return (
-        <>
-            <ProjectDetailClient project={project} />
-            <OwnerEditPanel
-                isOwner={!!isOwner}
-                blocks={[
-                    {
-                        label: 'Thông tin dự án',
-                        editUrl: '/dashboard/creator/projects',
-                        description: 'Tiêu đề, mô tả'
-                    },
-                    ...(campaignWithRewards ? [{
-                        label: 'Sản phẩm/Rewards',
-                        editUrl: `/dashboard/creator/rewards/${campaignWithRewards.slug}`,
-                        description: 'Quản lý quà tặng'
-                    }] : [])
-                ]}
-            />
-        </>
+        <ProjectDetailPageClient
+            project={project}
+            isOwner={!!isOwner}
+            campaignWithRewards={campaignWithRewards}
+        />
     );
 }

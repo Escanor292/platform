@@ -1,13 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { Settings, ChevronUp, ChevronDown, Edit, ExternalLink } from 'lucide-react';
+import { Settings, ChevronUp, ChevronDown, Edit, ExternalLink, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
 interface EditBlock {
   label: string;
-  editUrl: string;
+  editUrl?: string;
   description?: string;
+  /** Called when clicked; enables instant in-place editing instead of navigation */
+  onEdit?: () => void;
 }
 
 interface OwnerEditPanelProps {
@@ -38,30 +40,58 @@ export default function OwnerEditPanel({ isOwner, blocks }: OwnerEditPanelProps)
         {/* Content */}
         {isExpanded && (
           <div className="p-4 space-y-3 max-w-sm">
-            {blocks.map((block, index) => (
-              <Link
-                key={index}
-                href={block.editUrl}
-                className="block group"
-              >
-                <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors border border-gray-200">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <Edit size={14} className="text-blue-600 flex-shrink-0" />
-                      <span className="font-medium text-sm text-gray-900 truncate">
-                        {block.label}
-                      </span>
+            {blocks.map((block, index) =>
+              block.onEdit ? (
+                <button
+                  key={index}
+                  onClick={block.onEdit}
+                  className="w-full text-left group"
+                >
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors border border-gray-200">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <Edit size={14} className="text-purple-600 flex-shrink-0" />
+                        <span className="font-medium text-sm text-gray-900 truncate">
+                          {block.label}
+                        </span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-purple-500 bg-purple-50 px-1.5 py-0.5 rounded">
+                          Sửa ngay
+                        </span>
+                      </div>
+                      {block.description && (
+                        <p className="text-xs text-gray-500 mt-1 truncate">
+                          {block.description}
+                        </p>
+                      )}
                     </div>
-                    {block.description && (
-                      <p className="text-xs text-gray-500 mt-1 truncate">
-                        {block.description}
-                      </p>
-                    )}
+                    <ChevronRight size={14} className="text-gray-400 group-hover:text-purple-600 transition-colors flex-shrink-0 ml-2" />
                   </div>
-                  <ExternalLink size={14} className="text-gray-400 group-hover:text-blue-600 transition-colors flex-shrink-0 ml-2" />
-                </div>
-              </Link>
-            ))}
+                </button>
+              ) : (
+                <Link
+                  key={index}
+                  href={block.editUrl || '#'}
+                  className="block group"
+                >
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors border border-gray-200">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <Edit size={14} className="text-blue-600 flex-shrink-0" />
+                        <span className="font-medium text-sm text-gray-900 truncate">
+                          {block.label}
+                        </span>
+                      </div>
+                      {block.description && (
+                        <p className="text-xs text-gray-500 mt-1 truncate">
+                          {block.description}
+                        </p>
+                      )}
+                    </div>
+                    <ExternalLink size={14} className="text-gray-400 group-hover:text-blue-600 transition-colors flex-shrink-0 ml-2" />
+                  </div>
+                </Link>
+              )
+            )}
           </div>
         )}
       </div>
