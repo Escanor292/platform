@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Rocket, MessageCircle, Heart, Award, Tag, Layers, TrendingUp, FolderKanban, Package, Gift, Plus, Pencil, Trash2, MoreVertical } from 'lucide-react';
+import { Rocket, MessageCircle, Heart, Award, Tag, Layers, TrendingUp, FolderKanban, Package, Gift, Plus, Pencil, Trash2, MoreVertical, Share2 } from 'lucide-react';
 import { formatVND, formatDate } from '@/lib/utils';
 import { CampaignGrowthProgress } from '@/components/campaign/CampaignGrowthProgress';
 import { getCampaignTypeLabel } from '@/lib/campaign-helpers';
@@ -464,7 +464,7 @@ export function ProfileTabs({
                                                 : null;
                                         return (
                                             <div key={reward.id} className="group relative">
-                                                <Link href={campaign?.slug ? `/campaigns/${campaign.slug}` : '#'} className="block">
+                                                <Link href={`/products/${reward.id}`} className="block">
                                                     <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-0.5 transition-all">
                                                         {/* Gallery ảnh */}
                                                         {images.length > 0 && (
@@ -537,6 +537,24 @@ export function ProfileTabs({
                                                 </Link>
                                             {isOwnerMode && (
                                                 <div className="absolute top-3 right-3 flex gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={async (e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/products/${reward.id}`;
+                                                            try {
+                                                                await navigator.clipboard.writeText(url);
+                                                                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', message: 'Đã sao chép link sản phẩm' } }));
+                                                            } catch {
+                                                                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Không sao chép được link' } }));
+                                                            }
+                                                        }}
+                                                        className="w-8 h-8 rounded-full bg-white/95 backdrop-blur border border-gray-200 text-gray-600 hover:text-pgreen hover:border-pgreen flex items-center justify-center shadow-sm transition-colors"
+                                                        title="Sao chép link sản phẩm"
+                                                    >
+                                                        <Share2 size={14} />
+                                                    </button>
                                                     {campaign?.slug ? (
                                                         <Link
                                                             href={`/dashboard/creator/rewards/${campaign.slug}/edit/${reward.id}`}
