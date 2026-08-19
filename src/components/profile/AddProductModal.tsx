@@ -71,6 +71,9 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
     // Form tạo mới (chuẩn thương mại điện tử)
     const [newForm, setNewForm] = useState({
         campaignId: "",
+        projectId: "",
+        projects: [] as any[],
+        projectsLoaded: false,
         title: "",
         brand: "",
         category: "",
@@ -144,17 +147,15 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
             toast.error("Vui lòng nhập tên và giá sản phẩm");
             return;
         }
-        if (!newForm.campaignId) {
-            toast.error("Không tìm thấy chiến dịch. Vui lòng tạo chiến dịch trước.");
-            return;
-        }
+
         setSubmitting(true);
         try {
             const res = await fetch("/api/rewards", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
+                    body: JSON.stringify({
                     campaignId: newForm.campaignId,
+                    projectId: newForm.projectId || null,
                     title: newForm.title,
                     description: newForm.description || null,
                     minAmount: parseFloat(newForm.minAmount),
@@ -236,7 +237,7 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
 
     const openNew = async () => {
         // Tự tải danh sách chiến dịch nếu chưa có, rồi auto-chọn
-        try {
+            try {
             if (campaigns.length === 0) {
                 const res = await fetch("/api/rewards/my");
                 const data = await res.json();
@@ -245,6 +246,11 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
                     if (data.campaigns.length > 0) {
                         setNewForm((f) => ({ ...f, campaignId: data.campaigns[0].id }));
                     }
+                    setNewForm((f) => ({
+                        ...f,
+                        projects: Array.isArray(data.projects) ? data.projects : [],
+                        projectsLoaded: true,
+                    }));
                 }
             } else if (campaigns.length === 1) {
                 setNewForm((f) => ({ ...f, campaignId: campaigns[0].id }));
@@ -410,32 +416,29 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
 
                     {step === "createNew" && (
                         <form onSubmit={handleCreateNew} className="space-y-5">
-                            {/* Chọn chiến dịch nếu nhiều */}
-                            {campaigns.length > 1 && (
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-900 mb-2">
-                                        Chiến dịch
-                                    </label>
-                                    <select
-                                        value={newForm.campaignId}
-                                        onChange={(e) =>
-                                            setNewForm((f) => ({ ...f, campaignId: e.target.value }))
-                                        }
-                                        required
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-white"
-                                    >
-                                        <option value="">-- Chọn chiến dịch --</option>
-                                        {campaigns.map((c) => (
-                                            <option key={c.id} value={c.id}>
-                                                {c.title}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Sản phẩm mới sẽ được liên kết với chiến dịch này.
-                                    </p>
-                                </div>
-                            )}
+                            {/* Chọn dự án (có thể không thuộc dự án nào) */}
+                            <div>
+                                <label className="block text-sm font-bold text-gray-900 mb-2">
+                                    Dự án liên kết
+                                </label>
+                                <select
+                                    value={newForm.projectId}
+                                    onChange={(e) =>
+                                        setNewForm((f) => ({ ...f, projectId: e.target.value }))
+                                    }
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-white"
+                                >
+                                    <option value="">-- Không thuộc dự án nào --</option>
+                                    {newForm.projects.map((p: any) => (
+                                        <option key={p.id} value={p.id}>
+                                            {p.title}
+                                        </option>
+                                    ))}
+                                </select>
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Chọn dự án để sản phẩm hiển thị trong dự án đó, hoặc để trống nếu sản phẩm không thuộc dự án nào.
+                                </p>
+                            </div>
 
                             {/* ---- Hình ảnh & Video ---- */}
                             <div>

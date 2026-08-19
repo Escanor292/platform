@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         const {
             campaignId,
+            projectId,
             title,
             description,
             minAmount,
@@ -25,33 +26,52 @@ export async function POST(req: NextRequest) {
         } = body;
 
         // Validate required fields
-        if (!campaignId || !title || !minAmount) {
+        if (!title || !minAmount) {
             return NextResponse.json(
                 { error: "Missing required fields" },
                 { status: 400 }
             );
         }
 
-        // Check if user owns the campaign
-        const campaign = await prisma.campaigns.findFirst({
-            where: {
-                id: campaignId,
-                creatorId: (session.user as any).id,
-            },
-        });
+        // Validate campaign ownership if provided
+        const resolvedCampaignId = campaignId;
+        if (campaignId) {
+            const campaign = await prisma.campaigns.findFirst({
+                where: {
+                    id: campaignId,
+                    creatorId: (session.user as any).id,
+                },
+            });
+            if (!campaign) {
+                return NextResponse.json(
+                    { error: "Campaign not found or access denied" },
+                    { status: 404 }
+                );
+            }
+        }
 
-        if (!campaign) {
-            return NextResponse.json(
-                { error: "Campaign not found or access denied" },
-                { status: 404 }
-            );
+        // Validate project ownership if provided
+        if (projectId) {
+            const project = await prisma.projects.findFirst({
+                where: {
+                    id: projectId,
+                    creatorId: (session.user as any).id,
+                },
+            });
+            if (!project) {
+                return NextResponse.json(
+                    { error: "Project not found or access denied" },
+                    { status: 404 }
+                );
+            }
         }
 
         // Create reward
         const reward = await prisma.rewards.create({
             data: {
                 id: crypto.randomUUID(),
-                campaignId,
+                campaignId: resolvedCampaignId as string,
+                projectId: projectId || null,
                 title,
                 description,
                 minAmount: parseFloat(minAmount),
@@ -63,11 +83,6 @@ export async function POST(req: NextRequest) {
                 deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
                 isActive: Boolean(isActive),
                 updatedAt: new Date(),
-                campaigns: {
-                    connect: {
-                        id: campaignId,
-                    },
-                },
             },
         });
 

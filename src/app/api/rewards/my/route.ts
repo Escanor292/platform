@@ -14,7 +14,8 @@ export async function GET() {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const campaigns = await prisma.campaigns.findMany({
+        const [campaigns, projects] = await Promise.all([
+        prisma.campaigns.findMany({
             where: {
                 creatorId: (session.user as any).id,
                 status: { in: ["ACTIVE", "SUCCESS", "DRAFT"] },
@@ -43,7 +44,18 @@ export async function GET() {
                 },
             },
             orderBy: { createdAt: "desc" },
-        });
+        }),
+        prisma.projects.findMany({
+            where: { creatorId: (session.user as any).id },
+            select: {
+                id: true,
+                title: true,
+                description: true,
+                createdAt: true,
+            },
+            orderBy: { createdAt: "desc" },
+        }),
+        ]);
 
         const serialized = campaigns.map((c) => ({
             ...c,
@@ -54,7 +66,7 @@ export async function GET() {
             })),
         }));
 
-        return NextResponse.json({ campaigns: serialized });
+        return NextResponse.json({ campaigns: serialized, projects });
     } catch (error) {
         console.error("[GET /api/rewards/my]", error);
         return NextResponse.json(
