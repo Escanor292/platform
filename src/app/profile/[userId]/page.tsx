@@ -106,9 +106,13 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
                   title: true,
                   description: true,
                   minAmount: true,
+                  maxAmount: true,
+                  stock: true,
                   maxQuantity: true,
                   deliveryDate: true,
                   isActive: true,
+                  productImages: true,
+                  productVideo: true,
                   createdAt: true,
                 },
                 orderBy: { createdAt: 'asc' },
@@ -153,6 +157,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
       rewards: campaign.rewards.map(reward => ({
         ...reward,
         minAmount: Number(reward.minAmount),
+        maxAmount: reward.maxAmount !== null ? Number(reward.maxAmount) : null,
       })),
     })),
   }));

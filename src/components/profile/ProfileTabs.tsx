@@ -139,30 +139,45 @@ export function ProfileTabs({
     const classifyRewards = () => {
         const products: Array<{ reward: any; campaign: any; isMain: boolean }> = [];
         const gifts: Array<{ reward: any; campaign: any; isMain: boolean }> = [];
+        const seen = new Set<string>();
+
+        // Reward nào có media (ảnh/video) hoặc giá gốc → sản phẩm TMĐT, ưu tiên hiện ở tab Sản phẩm
+        const isEcommerceProduct = (r: any) =>
+            (Array.isArray(r.productImages) && r.productImages.length > 0) || !!r.maxAmount;
 
         safeProjects.forEach((project) => {
             (project.campaigns || []).forEach((campaign: any) => {
                 const activeRewards = (campaign.rewards || []).filter((r: any) => r.isActive);
 
                 if (campaign.type === 'REWARD') {
-                    // For REWARD campaigns: first reward (earliest createdAt) is main product
                     if (activeRewards.length > 0) {
                         const sortedRewards = [...activeRewards].sort((a, b) =>
                             new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
                         );
 
-                        // First reward is main product
-                        products.push({ reward: sortedRewards[0], campaign, isMain: true });
-
-                        // Remaining rewards are gifts
-                        sortedRewards.slice(1).forEach((reward) => {
-                            gifts.push({ reward, campaign, isMain: false });
+                        sortedRewards.forEach((reward, idx) => {
+                            if (isEcommerceProduct(reward)) {
+                                // Sản phẩm TMĐT luôn hiện trong tab Sản phẩm (không trùng lặp)
+                                if (!seen.has(reward.id)) {
+                                    products.push({ reward, campaign, isMain: true });
+                                    seen.add(reward.id);
+                                }
+                            } else if (idx === 0) {
+                                // Reward đầu tiên của campaign REWARD (không có media/giá gốc) là sản phẩm chính
+                                products.push({ reward, campaign, isMain: true });
+                            } else {
+                                gifts.push({ reward, campaign, isMain: false });
+                            }
                         });
                     }
                 } else if (campaign.type === 'DONATION') {
-                    // For DONATION campaigns: all rewards are gifts
                     activeRewards.forEach((reward: any) => {
-                        gifts.push({ reward, campaign, isMain: false });
+                        if (isEcommerceProduct(reward) && !seen.has(reward.id)) {
+                            products.push({ reward, campaign, isMain: true });
+                            seen.add(reward.id);
+                        } else {
+                            gifts.push({ reward, campaign, isMain: false });
+                        }
                     });
                 }
             });
@@ -441,45 +456,103 @@ export function ProfileTabs({
                         {products.length > 0 ? (
                             <>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {products.map(({ reward, campaign }) => (
-                                        <div key={reward.id} className="group relative">
-                                            <Link href={`/campaigns/${campaign.slug}`} className="block">
-                                                <div className="bg-gray-50 rounded-2xl overflow-hidden hover:shadow-lg transition-all">
-                                                    <div className="p-6">
-                                                        <div className="flex items-start justify-between mb-3">
-                                                            <div className="flex-1">
-                                                                <h3 className="font-bold text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-600 transition">
-                                                                    {reward.title}
-                                                                </h3>
-                                                                {reward.description && (
-                                                                    <p className="text-sm text-gray-600 line-clamp-2">
-                                                                        {reward.description}
-                                                                    </p>
+                                    {products.map(({ reward, campaign }) => {
+                                        const images = Array.isArray(reward.productImages) ? reward.productImages : [];
+                                        const discount =
+                                            reward.maxAmount && reward.minAmount && reward.maxAmount > reward.minAmount
+                                                ? Math.round(((reward.maxAmount - reward.minAmount) / reward.maxAmount) * 100)
+                                                : null;
+                                        return (
+                                            <div key={reward.id} className="group relative">
+                                                <Link href={campaign?.slug ? `/campaigns/${campaign.slug}` : '#'} className="block">
+                                                    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-0.5 transition-all">
+                                                        {/* Gallery ảnh */}
+                                                        {images.length > 0 && (
+                                                            <div className="relative bg-gray-100 flex items-center justify-center overflow-hidden group/img">
+                                                                <img
+                                                                    src={images[0]}
+                                                                    alt={reward.title}
+                                                                    className="w-full h-44 object-cover"
+                                                                />
+                                                                {images.length > 1 && (
+                                                                    <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded-full">
+                                                                        +{images.length - 1} ảnh
+                                                                    </span>
                                                                 )}
-                                                            </div>
-                                                            <div className="ml-3 text-right">
-                                                                <div className="text-sm font-black text-emerald-600">
-                                                                    {formatVND(reward.minAmount)}
+                                                                <div className="absolute inset-0 opacity-0 group-hover/img:opacity-100 transition flex items-end">
+                                                                    <div className="w-full flex justify-center gap-1 pb-1 bg-gradient-to-t from-black/50 to-transparent pt-4">
+                                                                        {images.slice(0, 5).map((img: string, i: number) => (
+                                                                            <img
+                                                                                key={i}
+                                                                                src={img}
+                                                                                className="w-8 h-8 rounded-lg object-cover border-2 border-white"
+                                                                            />
+                                                                        ))}
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                        <div className="flex items-center gap-2 text-xs text-gray-400">
-                                                            <span className="font-bold uppercase">
-                                                                {campaign.title}
-                                                            </span>
+                                                        )}
+                                                        <div className="p-5">
+                                                            <div className="flex items-start justify-between mb-2">
+                                                                <div className="flex-1">
+                                                                    <h3 className="font-bold text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-600 transition">
+                                                                        {reward.title}
+                                                                    </h3>
+                                                                    {reward.description && (
+                                                                        <p className="text-sm text-gray-600 line-clamp-2">
+                                                                            {reward.description}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                                <div className="ml-3 text-right shrink-0">
+                                                                    <div className="text-lg font-black text-red-600">
+                                                                        {formatVND(reward.minAmount)}
+                                                                    </div>
+                                                                    {reward.maxAmount && reward.maxAmount > reward.minAmount && (
+                                                                        <div className="text-xs text-gray-400 line-through">
+                                                                            {formatVND(reward.maxAmount)}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex items-center gap-2 flex-wrap mt-2">
+                                                                {discount && (
+                                                                    <span className="inline-flex items-center bg-red-600 text-white text-[11px] font-black px-2 py-0.5 rounded">
+                                                                        GIẢM {discount}%
+                                                                    </span>
+                                                                )}
+                                                                {reward.stock !== null && reward.stock !== undefined && (
+                                                                    <span className="text-[11px] text-gray-400 font-medium">
+                                                                        Tồn kho: {reward.stock}
+                                                                    </span>
+                                                                )}
+                                                                {campaign && (
+                                                                    <span className="text-[11px] text-gray-400 font-bold uppercase ml-auto">
+                                                                        {campaign.title}
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </Link>
+                                                </Link>
                                             {isOwnerMode && (
                                                 <div className="absolute top-3 right-3 flex gap-2">
-                                                    <Link
-                                                        href={`/dashboard/creator/rewards/${campaign.slug}/edit/${reward.id}`}
-                                                        className="p-2 bg-white rounded-lg shadow-md hover:bg-gray-100 transition"
-                                                        title="Sửa sản phẩm"
-                                                    >
-                                                        <Pencil size={16} className="text-gray-600" />
-                                                    </Link>
+                                                    {campaign?.slug ? (
+                                                        <Link
+                                                            href={`/dashboard/creator/rewards/${campaign.slug}/edit/${reward.id}`}
+                                                            className="p-2 bg-white rounded-lg shadow-md hover:bg-gray-100 transition"
+                                                            title="Sửa sản phẩm"
+                                                        >
+                                                            <Pencil size={16} className="text-gray-600" />
+                                                        </Link>
+                                                    ) : (
+                                                        <button
+                                                            className="p-2 bg-gray-100 rounded-lg opacity-50 cursor-not-allowed"
+                                                            title="Sửa sản phẩm"
+                                                        >
+                                                            <Pencil size={16} className="text-gray-400" />
+                                                        </button>
+                                                    )}
                                                     <button
                                                         onClick={() => handleDelete(reward.id, reward.title, `/api/rewards/${reward.id}`)}
                                                         disabled={deletingId === reward.id}
@@ -490,8 +563,9 @@ export function ProfileTabs({
                                                     </button>
                                                 </div>
                                             )}
-                                        </div>
-                                    ))}
+                                            </div>
+                                        )
+                                    })}
                                 </div>
 
                                 {totalGifts > 0 && (
