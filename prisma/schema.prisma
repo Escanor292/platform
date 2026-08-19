@@ -202,9 +202,10 @@ model blog_posts {
   users                users                  @relation(fields: [authorId], references: [id], onDelete: Cascade)
   campaigns            campaigns?             @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   projects             projects?              @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  blog_reports         blog_reports[]
-  campaign_blog_links  campaign_blog_links[]
-  rewards              rewards[]
+  blog_reports            blog_reports[]
+  campaign_blog_links     campaign_blog_links[]
+  project_blog_links      project_blog_links[]
+  rewards                 rewards[]
 
   @@index([authorId])
   @@index([campaignId])
@@ -406,18 +407,54 @@ model platform_invoices {
 }
 
 model projects {
-  id          String       @id @default(cuid())
-  creatorId   String
-  title       String       @db.VarChar(255)
-  description String?      @db.Text
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  users       users        @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  campaigns   campaigns[]
-  blog_posts  blog_posts[]
-  rewards     rewards[]
+  id                    String                @id @default(cuid())
+  creatorId             String
+  title                 String                @db.VarChar(255)
+  slug                  String?               @unique @db.VarChar(255)
+  description           String?               @db.Text
+  coverImage            String?               @db.VarChar(512)
+  richDescription       Json?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  users                 users                 @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  campaigns             campaigns[]
+  blog_posts            blog_posts[]
+  rewards               rewards[]
+  project_blog_links    project_blog_links[]
+  project_reward_links  project_reward_links[]
 
   @@index([creatorId])
+  @@index([slug])
+}
+
+// Blog được gắn vào dự án (nhiều-nhiều, độc lập với projectId chính của blog)
+model project_blog_links {
+  id         String     @id @default(cuid())
+  projectId  String
+  blogPostId String
+  order      Int        @default(0)
+  createdAt  DateTime   @default(now())
+  projects   projects   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  blog_posts blog_posts @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, blogPostId])
+  @@index([blogPostId])
+  @@index([projectId])
+}
+
+// Sản phẩm/Reward được gắn hiển thị vào dự án (nhiều-nhiều)
+model project_reward_links {
+  id        String   @id @default(cuid())
+  projectId String
+  rewardId  String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  projects  projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  rewards   rewards  @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, rewardId])
+  @@index([rewardId])
+  @@index([projectId])
 }
 
 model pledges {
@@ -483,10 +520,11 @@ model rewards {
   productImages String[] @default([])
   productVideo  String?
   updatedAt             DateTime
-  pledges               pledges[]
-  campaigns           campaigns @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  projects            projects? @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  blog_posts          blog_posts[]
+  pledges                pledges[]
+  campaigns            campaigns @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  projects             projects? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  blog_posts           blog_posts[]
+  project_reward_links project_reward_links[]
   @@index([campaignId])
   @@index([projectId])
 }

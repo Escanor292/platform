@@ -7,7 +7,12 @@ export interface PublicProjectDetail {
     id: string;
     creatorId: string;
     title: string;
+    slug: string | null;
     description: string | null;
+    coverImage: string | null;
+    richDescription: any;
+    linkedBlogPostIds: string[];
+    linkedRewardIds: string[];
     createdAt: string;
     updatedAt: string;
     campaignCount: number;
@@ -34,6 +39,8 @@ export interface PublicReward {
     title: string;
     description: string | null;
     minAmount: number;
+    imageUrl: string | null;
+    isIncludedInProject: boolean;
     maxQuantity: number | null;
     deliveryDate: string | null;
     isActive: boolean;

@@ -53,11 +53,16 @@ export async function POST(req: NextRequest) {
       id: project.id,
       creatorId: project.creatorId,
       title: project.title,
+      slug: project.slug,
       description: project.description,
+      coverImage: project.coverImage,
+      richDescription: project.richDescription,
       createdAt: project.createdAt.toISOString(),
       updatedAt: project.updatedAt.toISOString(),
       campaignCount: project.campaignCount,
       blogPostCount: project.blogPostCount,
+      linkedBlogPostIds: project.linkedBlogPostIds,
+      linkedRewardIds: project.linkedRewardIds,
     };
 
     return NextResponse.json(response, { status: 201 });
@@ -119,10 +124,15 @@ export async function GET(req: NextRequest) {
         creatorId: project.creatorId,
         title: project.title,
         description: project.description,
+        slug: project.slug,
+        coverImage: project.coverImage,
+        richDescription: project.richDescription,
         createdAt: project.createdAt.toISOString(),
         updatedAt: project.updatedAt.toISOString(),
         campaignCount: project.campaignCount,
         blogPostCount: project.blogPostCount,
+        linkedBlogPostIds: project.linkedBlogPostIds,
+        linkedRewardIds: project.linkedRewardIds,
       })),
       pagination: result.pagination,
     };

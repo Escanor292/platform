@@ -12,24 +12,38 @@ import { prisma } from '@/lib/prisma';
 export interface CreateProjectInput {
     title: string;
     description?: string;
+    slug?: string;
+    coverImage?: string | null;
+    richDescription?: any;
+    blogPostIds?: string[];
+    rewardIds?: string[];
 }
 
 export interface UpdateProjectInput {
     title?: string;
     description?: string;
+    slug?: string | null;
+    coverImage?: string | null;
+    richDescription?: any;
+    blogPostIds?: string[];
+    rewardIds?: string[];
 }
 
 export interface ProjectWithCounts {
     id: string;
     creatorId: string;
     title: string;
+    slug: string | null;
     description: string | null;
+    coverImage: string | null;
+    richDescription: any;
     createdAt: Date;
     updatedAt: Date;
     campaignCount: number;
     blogPostCount: number;
+    linkedBlogPostIds: string[];
+    linkedRewardIds: string[];
 }
-
 export interface ProjectDetail extends ProjectWithCounts {
     campaigns: {
         id: string;
@@ -40,6 +54,8 @@ export interface ProjectDetail extends ProjectWithCounts {
         currentAmount: number;
         imageUrl: string | null;
     }[];
+    linkedBlogPostIds: string[];
+    linkedRewardIds: string[];
     blogPosts: {
         id: string;
         title: string;
@@ -80,23 +96,47 @@ export async function createProject(
             creatorId,
             title: input.title,
             description: input.description || null,
+            slug: input.slug || null,
+            coverImage: input.coverImage ?? null,
+            richDescription: input.richDescription ?? null,
+            project_blog_links: input.blogPostIds?.length
+                ? { create: input.blogPostIds.map((blogPostId) => ({ blogPostId })) }
+                : undefined,
+            project_reward_links: input.rewardIds?.length
+                ? { create: input.rewardIds.map((rewardId) => ({ rewardId })) }
+                : undefined,
         },
     });
 
     // Get counts for associated items (initially 0)
-    const [campaignCount, blogPostCount] = await Promise.all([
-        prisma.campaigns.count({
-            where: { projectId: project.id },
-        }),
-        prisma.blog_posts.count({
-            where: { projectId: project.id },
-        }),
-    ]);
+    const [campaignCount, blogPostCount, linkedBlogPostIds, linkedRewardIds] =
+        await Promise.all([
+            prisma.campaigns.count({
+                where: { projectId: project.id },
+            }),
+            prisma.blog_posts.count({
+                where: { projectId: project.id },
+            }),
+            prisma.project_blog_links
+                .findMany({
+                    where: { projectId: project.id },
+                    select: { blogPostId: true },
+                })
+                .then((links) => links.map((l) => l.blogPostId)),
+            prisma.project_reward_links
+                .findMany({
+                    where: { projectId: project.id },
+                    select: { rewardId: true },
+                })
+                .then((links) => links.map((l) => l.rewardId)),
+        ]);
 
     return {
         ...project,
         campaignCount,
         blogPostCount,
+        linkedBlogPostIds,
+        linkedRewardIds,
     };
 }
 
@@ -136,8 +176,17 @@ export async function getProjectById(
                     excerpt: true,
                     coverImage: true,
                     publishedAt: true,
+                    status: true,
                 },
                 orderBy: { createdAt: 'desc' },
+            },
+            project_blog_links: {
+                select: { blogPostId: true, order: true },
+                orderBy: { order: 'asc' },
+            },
+            project_reward_links: {
+                select: { rewardId: true, order: true },
+                orderBy: { order: 'asc' },
             },
         },
     });
@@ -150,12 +199,19 @@ export async function getProjectById(
     // Calculate counts
     const campaignCount = project.campaigns.length;
     const blogPostCount = project.blog_posts.length;
+    const linkedBlogPostIds = project.project_blog_links.map((l) => l.blogPostId);
+    const linkedRewardIds = project.project_reward_links.map((l) => l.rewardId);
 
     return {
         id: project.id,
         creatorId: project.creatorId,
         title: project.title,
+        slug: project.slug,
         description: project.description,
+        coverImage: project.coverImage,
+        richDescription: project.richDescription,
+        linkedBlogPostIds,
+        linkedRewardIds,
         createdAt: project.createdAt,
         updatedAt: project.updatedAt,
         campaignCount,
@@ -208,19 +264,34 @@ export async function listProjects(
     // Get counts for each project efficiently
     const projectsWithCounts = await Promise.all(
         projects.map(async (project) => {
-            const [campaignCount, blogPostCount] = await Promise.all([
-                prisma.campaigns.count({
-                    where: { projectId: project.id },
-                }),
-                prisma.blog_posts.count({
-                    where: { projectId: project.id },
-                }),
-            ]);
+            const [campaignCount, blogPostCount, linkedBlogPostIds, linkedRewardIds] =
+                await Promise.all([
+                    prisma.campaigns.count({
+                        where: { projectId: project.id },
+                    }),
+                    prisma.blog_posts.count({
+                        where: { projectId: project.id },
+                    }),
+                    prisma.project_blog_links
+                        .findMany({
+                            where: { projectId: project.id },
+                            select: { blogPostId: true },
+                        })
+                        .then((links) => links.map((l) => l.blogPostId)),
+                    prisma.project_reward_links
+                        .findMany({
+                            where: { projectId: project.id },
+                            select: { rewardId: true },
+                        })
+                        .then((links) => links.map((l) => l.rewardId)),
+                ]);
 
             return {
                 ...project,
                 campaignCount,
                 blogPostCount,
+                linkedBlogPostIds,
+                linkedRewardIds,
             };
         })
     );
@@ -259,6 +330,37 @@ export async function updateProject(
     if (input.description !== undefined) {
         updateData.description = input.description || null;
     }
+    if (input.slug !== undefined) {
+        updateData.slug = input.slug || null;
+    }
+    if (input.coverImage !== undefined) {
+        updateData.coverImage = input.coverImage || null;
+    }
+    if (input.richDescription !== undefined) {
+        updateData.richDescription = input.richDescription || null;
+    }
+
+    // Sync blog links if provided (replace all)
+    if (input.blogPostIds !== undefined) {
+        updateData.project_blog_links = {
+            deleteMany: {},
+            create: input.blogPostIds.map((blogPostId, index) => ({
+                blogPostId,
+                order: index,
+            })),
+        };
+    }
+
+    // Sync reward links if provided (replace all)
+    if (input.rewardIds !== undefined) {
+        updateData.project_reward_links = {
+            deleteMany: {},
+            create: input.rewardIds.map((rewardId, index) => ({
+                rewardId,
+                order: index,
+            })),
+        };
+    }
 
     // Update project with parameterized query
     const project = await prisma.projects.update({
@@ -266,20 +368,37 @@ export async function updateProject(
         data: updateData,
     });
 
-    // Get updated counts
-    const [campaignCount, blogPostCount] = await Promise.all([
-        prisma.campaigns.count({
-            where: { projectId: project.id },
-        }),
-        prisma.blog_posts.count({
-            where: { projectId: project.id },
-        }),
-    ]);
+    // Get updated counts and linked items
+    const [campaignCount, blogPostCount, linkedBlogPostIds, linkedRewardIds] =
+        await Promise.all([
+            prisma.campaigns.count({
+                where: { projectId: project.id },
+            }),
+            prisma.blog_posts.count({
+                where: { projectId: project.id },
+            }),
+            prisma.project_blog_links
+                .findMany({
+                    where: { projectId: project.id },
+                    orderBy: { order: 'asc' },
+                    select: { blogPostId: true },
+                })
+                .then((links) => links.map((l) => l.blogPostId)),
+            prisma.project_reward_links
+                .findMany({
+                    where: { projectId: project.id },
+                    orderBy: { order: 'asc' },
+                    select: { rewardId: true },
+                })
+                .then((links) => links.map((l) => l.rewardId)),
+        ]);
 
     return {
         ...project,
         campaignCount,
         blogPostCount,
+        linkedBlogPostIds,
+        linkedRewardIds,
     };
 }
 

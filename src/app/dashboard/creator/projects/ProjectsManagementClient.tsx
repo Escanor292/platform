@@ -15,9 +15,11 @@ import {
    AlertCircle,
    ArrowLeft,
    X,
-   ExternalLink
+   ExternalLink,
+   Package
 } from "lucide-react";
 import { toast } from "sonner";
+import { ProjectFormDialog } from "@/components/dashboard/ProjectFormDialog";
 import {
    Dialog,
    DialogContent,
@@ -35,10 +37,17 @@ interface Project {
    creatorId: string;
    title: string;
    description: string | null;
+   slug: string | null;
+   coverImage: string | null;
+   richDescription: any;
+   linkedBlogPostIds: string[];
+   linkedRewardIds: string[];
    createdAt: Date;
    updatedAt: Date;
    campaignCount: number;
    blogPostCount: number;
+   linkedBlogCount: number;
+   linkedRewardCount: number;
    hasActiveCampaign: boolean;
 }
 
@@ -56,87 +65,10 @@ export default function ProjectsManagementClient({
    activeCampaignsCount
 }: ProjectsManagementClientProps) {
    const [isLoading, setIsLoading] = useState(false);
-   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-   const [editDialogOpen, setEditDialogOpen] = useState(false);
+   const [formDialogOpen, setFormDialogOpen] = useState(false);
+   const [formProject, setFormProject] = useState<Project | null>(null);
    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
    const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-
-   // Form states
-   const [createTitle, setCreateTitle] = useState("");
-   const [createDescription, setCreateDescription] = useState("");
-   const [editTitle, setEditTitle] = useState("");
-   const [editDescription, setEditDescription] = useState("");
-
-   const handleCreateProject = async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!createTitle.trim()) {
-         toast.error("Vui lòng nhập tên Project");
-         return;
-      }
-
-      setIsLoading(true);
-      try {
-         const response = await fetch("/api/projects", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-               title: createTitle.trim(),
-               description: createDescription.trim() || undefined,
-            }),
-         });
-
-         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || "Không thể tạo Project");
-         }
-
-         toast.success("Đã tạo Project thành công");
-         setCreateDialogOpen(false);
-         setCreateTitle("");
-         setCreateDescription("");
-         window.location.reload();
-      } catch (error) {
-         toast.error(error instanceof Error ? error.message : "Lỗi tạo Project");
-      } finally {
-         setIsLoading(false);
-      }
-   };
-
-   const handleEditProject = async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!selectedProject || !editTitle.trim()) {
-         toast.error("Vui lòng nhập tên Project");
-         return;
-      }
-
-      setIsLoading(true);
-      try {
-         const response = await fetch(`/api/projects/${selectedProject.id}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-               title: editTitle.trim(),
-               description: editDescription.trim() || undefined,
-            }),
-         });
-
-         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || "Không thể cập nhật Project");
-         }
-
-         toast.success("Đã cập nhật Project thành công");
-         setEditDialogOpen(false);
-         setSelectedProject(null);
-         setEditTitle("");
-         setEditDescription("");
-         window.location.reload();
-      } catch (error) {
-         toast.error(error instanceof Error ? error.message : "Lỗi cập nhật Project");
-      } finally {
-         setIsLoading(false);
-      }
-   };
 
    const handleDeleteProject = async () => {
       if (!selectedProject) return;
@@ -164,10 +96,13 @@ export default function ProjectsManagementClient({
    };
 
    const openEditDialog = (project: Project) => {
-      setSelectedProject(project);
-      setEditTitle(project.title);
-      setEditDescription(project.description || "");
-      setEditDialogOpen(true);
+      setFormProject(project);
+      setFormDialogOpen(true);
+   };
+
+   const openCreateDialog = () => {
+      setFormProject(null);
+      setFormDialogOpen(true);
    };
 
    const openDeleteDialog = (project: Project) => {
@@ -190,7 +125,7 @@ export default function ProjectsManagementClient({
                </div>
 
                <Button
-                  onClick={() => setCreateDialogOpen(true)}
+                  onClick={() => openCreateDialog()}
                   className="h-20 px-10 bg-blue-600 text-white font-black rounded-3xl hover:bg-black transition flex items-center gap-3 shadow-xl"
                >
                   <Plus size={24} />
@@ -244,7 +179,7 @@ export default function ProjectsManagementClient({
                      Tạo Project để tổ chức các chiến dịch của bạn một cách hiệu quả hơn
                   </p>
                   <Button
-                     onClick={() => setCreateDialogOpen(true)}
+                     onClick={() => openCreateDialog()}
                      className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-2xl font-semibold hover:bg-purple-700 transition"
                   >
                      <Plus size={20} />
@@ -256,6 +191,31 @@ export default function ProjectsManagementClient({
                   {projects.map((project) => (
                      <Card key={project.id} className="rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                         <CardHeader className="pb-4">
+                           {project.coverImage ? (
+                              <Link
+                                 href={`/projects/${project.id}`}
+                                 target="_blank"
+                                 rel="noopener noreferrer"
+                                 className="block -mt-1 -mx-4 mb-3 overflow-hidden rounded-t-3xl"
+                              >
+                                 <img
+                                    src={project.coverImage}
+                                    alt={project.title}
+                                    className="w-full h-44 object-cover hover:scale-105 transition-transform duration-500"
+                                 />
+                              </Link>
+                           ) : (
+                              <Link
+                                 href={`/projects/${project.id}`}
+                                 target="_blank"
+                                 rel="noopener noreferrer"
+                                 className="block -mt-1 -mx-4 mb-3 rounded-t-3xl"
+                              >
+                                 <div className="w-full h-28 bg-gradient-to-br from-purple-100 via-blue-50 to-blue-100 flex items-center justify-center">
+                                    <FolderKanban size={36} className="text-purple-300" />
+                                 </div>
+                              </Link>
+                           )}
                            <div className="flex items-start justify-between gap-4">
                               <div className="flex-1 min-w-0">
                                  <Link
@@ -303,6 +263,22 @@ export default function ProjectsManagementClient({
                                  </div>
                               </div>
                            </div>
+                           {(project.linkedBlogCount > 0 || project.linkedRewardCount > 0) && (
+                              <div className="flex items-center gap-2 pt-1">
+                                 {project.linkedRewardCount > 0 && (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-600 border border-blue-100 rounded-full text-xs font-semibold">
+                                       <Package size={11} />
+                                       {project.linkedRewardCount} sản phẩm
+                                    </span>
+                                 )}
+                                 {project.linkedBlogCount > 0 && (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-50 text-purple-600 border border-purple-100 rounded-full text-xs font-semibold">
+                                       <FileText size={11} />
+                                       {project.linkedBlogCount} bài viết
+                                    </span>
+                                 )}
+                              </div>
+                           )}
 
                            {/* Status */}
                            <div className="flex items-center gap-2">
@@ -330,7 +306,7 @@ export default function ProjectsManagementClient({
                                  onClick={() => openEditDialog(project)}
                                  className="flex-1"
                               >
-                                 <Edit size={14} className="mr-1" />
+                                 <Edit size={14} />
                                  Sửa
                               </Button>
                               <Button
@@ -348,107 +324,15 @@ export default function ProjectsManagementClient({
                </div>
             )}
 
-            {/* Create Project Dialog */}
-            <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-               <DialogContent className="sm:max-w-[500px]">
-                  <DialogHeader>
-                     <DialogTitle>Tạo Project mới</DialogTitle>
-                     <DialogDescription>
-                        Tạo một Project mới để tổ chức các chiến dịch của bạn
-                     </DialogDescription>
-                  </DialogHeader>
-                  <form onSubmit={handleCreateProject} className="space-y-4">
-                     <div>
-                        <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                           Tên Project <span className="text-red-500">*</span>
-                        </label>
-                        <Input
-                           placeholder="Nhập tên Project"
-                           value={createTitle}
-                           onChange={(e) => setCreateTitle(e.target.value)}
-                           maxLength={255}
-                           disabled={isLoading}
-                        />
-                     </div>
-                     <div>
-                        <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                           Mô tả
-                        </label>
-                        <Textarea
-                           placeholder="Nhập mô tả cho Project (tùy chọn)"
-                           value={createDescription}
-                           onChange={(e) => setCreateDescription(e.target.value)}
-                           rows={3}
-                           disabled={isLoading}
-                        />
-                     </div>
-                     <div className="flex justify-end gap-3 pt-4">
-                        <Button
-                           type="button"
-                           variant="outline"
-                           onClick={() => setCreateDialogOpen(false)}
-                           disabled={isLoading}
-                        >
-                           Hủy
-                        </Button>
-                        <Button type="submit" disabled={isLoading}>
-                           {isLoading ? "Đang tạo..." : "Tạo Project"}
-                        </Button>
-                     </div>
-                  </form>
-               </DialogContent>
-            </Dialog>
-
-            {/* Edit Project Dialog */}
-            <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-               <DialogContent className="sm:max-w-[500px]">
-                  <DialogHeader>
-                     <DialogTitle>Sửa Project</DialogTitle>
-                     <DialogDescription>
-                        Cập nhật thông tin Project
-                     </DialogDescription>
-                  </DialogHeader>
-                  <form onSubmit={handleEditProject} className="space-y-4">
-                     <div>
-                        <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                           Tên Project <span className="text-red-500">*</span>
-                        </label>
-                        <Input
-                           placeholder="Nhập tên Project"
-                           value={editTitle}
-                           onChange={(e) => setEditTitle(e.target.value)}
-                           maxLength={255}
-                           disabled={isLoading}
-                        />
-                     </div>
-                     <div>
-                        <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                           Mô tả
-                        </label>
-                        <Textarea
-                           placeholder="Nhập mô tả cho Project (tùy chọn)"
-                           value={editDescription}
-                           onChange={(e) => setEditDescription(e.target.value)}
-                           rows={3}
-                           disabled={isLoading}
-                        />
-                     </div>
-                     <div className="flex justify-end gap-3 pt-4">
-                        <Button
-                           type="button"
-                           variant="outline"
-                           onClick={() => setEditDialogOpen(false)}
-                           disabled={isLoading}
-                        >
-                           Hủy
-                        </Button>
-                        <Button type="submit" disabled={isLoading}>
-                           {isLoading ? "Đang cập nhật..." : "Lưu thay đổi"}
-                        </Button>
-                     </div>
-                  </form>
-               </DialogContent>
-            </Dialog>
+            {/* Create/Edit Project Form Dialog */}
+            <ProjectFormDialog
+               open={formDialogOpen}
+               onOpenChange={setFormDialogOpen}
+               project={formProject}
+               onSuccess={() => {
+                  window.location.reload();
+               }}
+            />
 
             {/* Delete Project Dialog */}
             <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

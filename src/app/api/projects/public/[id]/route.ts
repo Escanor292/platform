@@ -77,6 +77,27 @@ export async function GET(
                     },
                     orderBy: { createdAt: 'desc' },
                 },
+                project_reward_links: {
+                    select: { rewardId: true, order: true },
+                    orderBy: { order: 'asc' },
+                },
+                // Linked blog posts (may not belong to the project directly)
+                project_blog_links: {
+                    include: {
+                        blog_posts: {
+                            select: {
+                                id: true,
+                                title: true,
+                                slug: true,
+                                excerpt: true,
+                                coverImage: true,
+                                publishedAt: true,
+                                status: true,
+                            },
+                        },
+                    },
+                    orderBy: { order: 'asc' },
+                },
             },
         });
 
@@ -95,11 +116,16 @@ export async function GET(
             id: project.id,
             creatorId: project.creatorId,
             title: project.title,
+            slug: project.slug,
             description: project.description,
+            coverImage: project.coverImage,
+            richDescription: project.richDescription,
+            linkedBlogPostIds: project.project_blog_links.map((l) => l.blogPostId),
+            linkedRewardIds: project.project_reward_links.map((l) => l.rewardId),
             createdAt: project.createdAt.toISOString(),
             updatedAt: project.updatedAt.toISOString(),
             campaignCount,
-            blogPostCount,
+            blogPostCount: Math.max(blogPostCount, project.project_blog_links.length),
             campaigns: project.campaigns.map((c) => ({
                 id: c.id,
                 title: c.title,
@@ -121,14 +147,29 @@ export async function GET(
                     createdAt: r.createdAt.toISOString(),
                 })),
             })),
-            blogPosts: project.blog_posts.map((b) => ({
-                id: b.id,
-                title: b.title,
-                slug: b.slug,
-                excerpt: b.excerpt,
-                coverImage: b.coverImage,
-                publishedAt: b.publishedAt ? b.publishedAt.toISOString() : null,
-            })),
+            blogPosts: [
+                ...project.blog_posts.map((b) => ({
+                    id: b.id,
+                    title: b.title,
+                    slug: b.slug,
+                    excerpt: b.excerpt,
+                    coverImage: b.coverImage,
+                    publishedAt: b.publishedAt ? b.publishedAt.toISOString() : null,
+                })),
+                // Include linked blog posts that are not directly owned by the project
+                ...project.project_blog_links
+                    .map((l) => l.blog_posts)
+                    .filter((bp): bp is NonNullable<typeof bp> => bp !== null)
+                    .filter((bp) => !project.blog_posts.some((owned) => owned.id === bp.id))
+                    .map((bp) => ({
+                        id: bp.id,
+                        title: bp.title,
+                        slug: bp.slug,
+                        excerpt: bp.excerpt,
+                        coverImage: bp.coverImage,
+                        publishedAt: bp.publishedAt ? bp.publishedAt.toISOString() : null,
+                    })),
+            ],
         };
 
         return NextResponse.json(response, { status: 200 });

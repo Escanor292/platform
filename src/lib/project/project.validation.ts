@@ -18,6 +18,15 @@ export const createProjectSchema = z.object({
         .string()
         .optional()
         .transform((val) => val?.trim() || undefined),
+    slug: z
+        .string()
+        .optional()
+        .transform((val) => (val ? val.trim().toLowerCase() : undefined))
+        .pipe(z.string().max(255).optional()),
+    coverImage: z.union([z.string().url().max(512), z.null()]).optional(),
+    richDescription: z.union([z.any(), z.null()]).optional(),
+    blogPostIds: z.array(z.string().min(1).max(50)).max(100).optional(),
+    rewardIds: z.array(z.string().min(1).max(50)).max(100).optional(),
 });
 
 /**
@@ -41,10 +50,29 @@ export const updateProjectSchema = z
             .string()
             .transform((val) => val?.trim() || undefined)
             .optional(),
+        slug: z
+            .string()
+            .optional()
+            .transform((val) => (val ? val.trim().toLowerCase() : undefined))
+            .pipe(z.string().max(255).nullable().optional()),
+        coverImage: z.union([z.string().url().max(512), z.null()]).optional(),
+        richDescription: z.union([z.any(), z.null()]).optional(),
+        blogPostIds: z.array(z.string().min(1).max(50)).max(100).optional(),
+        rewardIds: z.array(z.string().min(1).max(50)).max(100).optional(),
     })
-    .refine((data) => data.title !== undefined || data.description !== undefined, {
-        message: 'At least one field must be provided',
-    });
+    .refine(
+        (data) =>
+            data.title !== undefined ||
+            data.description !== undefined ||
+            data.slug !== undefined ||
+            data.coverImage !== undefined ||
+            data.richDescription !== undefined ||
+            data.blogPostIds !== undefined ||
+            data.rewardIds !== undefined,
+        {
+            message: 'At least one field must be provided',
+        }
+    );
 
 /**
  * Validation schema for pagination parameters

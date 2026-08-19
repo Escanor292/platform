@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { PublicProjectDetail, PublicCampaign, getCampaignStatusBadge } from '@/types/project-detail';
 import { FolderKanban, Users, ArrowRight, Calendar, Loader2, Gift, Package, ExternalLink } from 'lucide-react';
+import RichTextRenderer from '@/components/shared/RichTextRenderer';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatDate, formatVND } from '@/lib/utils';
@@ -121,21 +122,43 @@ export default function ProjectDetailClient({ project }: ProjectDetailClientProp
                             </div>
                         </div>
 
-                        {/* Right Image - Product showcase */}
+                        {/* Right Image - Project cover */}
                         <div className="flex-1 flex justify-center">
                             <div className="relative w-full max-w-md h-80 lg:h-96">
                                 <div className="absolute inset-0 bg-white/10 rounded-3xl backdrop-blur-sm border border-white/20" />
-                                <div className="absolute inset-4 flex items-center justify-center">
-                                    <div className="text-white text-center">
-                                        <div className="text-6xl mb-4">⌚</div>
-                                        <div className="text-sm text-blue-200">Sản phẩm công nghệ</div>
+                                {project.coverImage ? (
+                                    <Image
+                                        src={project.coverImage}
+                                        alt={project.title}
+                                        fill
+                                        className="rounded-3xl object-cover"
+                                        unoptimized
+                                    />
+                                ) : (
+                                    <div className="absolute inset-4 flex items-center justify-center">
+                                        <div className="text-white text-center">
+                                            <FolderKanban className="w-20 h-20 mx-auto mb-4 opacity-60" />
+                                            <div className="text-sm text-blue-200">{project.description ? '' : 'Dự án'}</div>
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
+
+            {/* Rich Description */}
+            {project.richDescription && (
+                <section className="max-w-7xl mx-auto px-6 py-16">
+                    <h2 className="font-display font-bold text-3xl text-gray-900 mb-8">
+                        Giới thiệu dự án
+                    </h2>
+                    <Card className="p-8">
+                        <RichTextRenderer content={project.richDescription} />
+                    </Card>
+                </section>
+            )}
 
             {/* Campaigns Timeline */}
             <section className="max-w-7xl mx-auto px-6 py-16">
@@ -335,6 +358,141 @@ export default function ProjectDetailClient({ project }: ProjectDetailClientProp
                     </div>
                 )}
             </section>
+
+            {/* Linked Products & Blogs (attached by creator) */}
+            {(() => {
+                const linkedBlogPosts = project.blogPosts.filter((p) =>
+                    project.linkedBlogPostIds.includes(p.id)
+                );
+                const linkedRewards = [...products, ...gifts].filter(({ reward }) =>
+                    project.linkedRewardIds.includes(reward.id)
+                );
+                const hasLinked = linkedBlogPosts.length > 0 || linkedRewards.length > 0;
+                if (!hasLinked) return null;
+                return (
+                    <section className="max-w-7xl mx-auto px-6 py-16 bg-gray-50">
+                        <h2 className="font-display font-bold text-3xl text-gray-900 mb-8">
+                            Sản phẩm &amp; bài viết được gắn vào dự án
+                        </h2>
+                        <div className="space-y-10">
+                            {linkedRewards.length > 0 && (
+                                <div>
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <Package className="w-5 h-5 text-blue-600" />
+                                        <h3 className="font-display font-bold text-xl text-gray-900">
+                                            Sản phẩm ({linkedRewards.length})
+                                        </h3>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {linkedRewards.map(({ reward, campaign }) => {
+                                            const statusInfo = getCampaignStatusInfo(campaign.status);
+                                            const isIncluded = reward.isIncludedInProject;
+                                            return (
+                                                <Card key={reward.id} className="p-6 hover:shadow-lg transition-shadow">
+                                                    <div className="space-y-4">
+                                                        {reward.imageUrl ? (
+                                                            <div className="relative w-full h-40 overflow-hidden rounded-xl bg-gray-100">
+                                                                <Image
+                                                                    src={reward.imageUrl}
+                                                                    alt={reward.title}
+                                                                    fill
+                                                                    className="object-cover"
+                                                                    unoptimized
+                                                                />
+                                                            </div>
+                                                        ) : (
+                                                            <div className="w-full h-40 rounded-xl bg-gray-100 flex items-center justify-center">
+                                                                <Package className="w-10 h-10 text-gray-300" />
+                                                            </div>
+                                                        )}
+                                                        <h4 className="font-display font-bold text-lg text-gray-900 line-clamp-2">
+                                                            {reward.title}
+                                                        </h4>
+                                                        {reward.description && (
+                                                            <p className="text-sm text-gray-600 line-clamp-2">
+                                                                {reward.description}
+                                                            </p>
+                                                        )}
+                                                        <div className="flex items-center justify-between">
+                                                            <Badge
+                                                                className="text-white"
+                                                                style={{ backgroundColor: statusInfo.color }}
+                                                            >
+                                                                {statusInfo.label}
+                                                            </Badge>
+                                                            {isIncluded ? (
+                                                                <span className="inline-flex items-center gap-1 text-xs font-medium text-purple-700 bg-purple-100 rounded-full px-2 py-1">
+                                                                    <Package className="w-3 h-3" /> Hiển thị trong dự án
+                                                                </span>
+                                                            ) : (
+                                                                <span className="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-100 rounded-full px-2 py-1">
+                                                                    Ẩn khỏi dự án
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex items-center justify-between pt-2 border-t">
+                                                            <span className="font-bold text-blue-600">
+                                                                {formatVND(reward.minAmount)}
+                                                            </span>
+                                                            <Link
+                                                                href={`/campaigns/${campaign.slug}`}
+                                                                className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
+                                                            >
+                                                                Xem chiến dịch <ExternalLink size={12} />
+                                                            </Link>
+                                                        </div>
+                                                    </div>
+                                                </Card>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+                            {linkedBlogPosts.length > 0 && (
+                                <div>
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <Users className="w-5 h-5 text-orange-600" />
+                                        <h3 className="font-display font-bold text-xl text-gray-900">
+                                            Bài viết liên kết ({linkedBlogPosts.length})
+                                        </h3>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {linkedBlogPosts.map((post) => (
+                                            <Link key={post.id} href={`/blog/${post.slug}`}>
+                                                <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-full">
+                                                    {post.coverImage ? (
+                                                        <div className="relative w-full h-40 overflow-hidden">
+                                                            <Image
+                                                                src={post.coverImage}
+                                                                alt={post.title}
+                                                                fill
+                                                                className="object-cover"
+                                                                unoptimized
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        <div className="w-full h-40 bg-gray-100 flex items-center justify-center">
+                                                            <Users className="w-10 h-10 text-gray-300" />
+                                                        </div>
+                                                    )}
+                                                    <div className="p-5">
+                                                        <h4 className="font-display font-bold text-lg text-gray-900 mb-2 line-clamp-2">
+                                                            {post.title}
+                                                        </h4>
+                                                        {post.excerpt && (
+                                                            <p className="text-sm text-gray-600 line-clamp-2">{post.excerpt}</p>
+                                                        )}
+                                                    </div>
+                                                </Card>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </section>
+                );
+            })()}
 
             {/* Products in Project */}
             <section className="max-w-7xl mx-auto px-6 py-16">
