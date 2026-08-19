@@ -16,35 +16,39 @@ import RichTextRenderer from '@/components/shared/RichTextRenderer';
 import { ProductBoxRenderer } from '@/components/shared/ProductBoxRenderer';
 import { auth } from '@/lib/auth';
 import OwnerEditPanel from '@/components/OwnerEditPanel';
+import {
+  getBlogPostBySlug,
+  getBlogPostList,
+} from '@/lib/blog/blog.service';
 
-async function getBlogPost(slug: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  const res = await fetch(`${baseUrl}/api/blog/posts/${slug}`, {
-    cache: 'no-store',
-  });
-
-  if (!res.ok) {
-    if (res.status === 404) {
-      notFound();
-    }
-    throw new Error('Failed to fetch blog post');
+/**
+ * Fetch blog post directly from the service layer (no self-host HTTP fetch).
+ * Returns { post, error } instead of throwing, so the page can render a
+ * friendly error UI instead of crashing the server.
+ */
+async function getBlogPost(slug: string, currentUserId?: string) {
+  try {
+    const post = await getBlogPostBySlug(slug, currentUserId);
+    const err: 'not-found' = 'not-found';
+    if (!post) return { post: null, error: err };
+    return { post, error: null as any };
+  } catch (error: any) {
+    console.error('[BLOG] Failed to fetch post:', error?.message || error);
+    // Permission errors should show a friendly message, not crash
+    const err: 'forbidden' | 'error' = error?.message?.includes('permission')
+      ? 'forbidden'
+      : 'error';
+    return { post: null, error: err };
   }
-
-  return res.json();
 }
 
-async function getRelatedPosts(slug: string, currentPostId: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  const res = await fetch(`${baseUrl}/api/blog/posts?limit=3`, {
-    cache: 'no-store',
-  });
-
-  if (!res.ok) {
+async function getRelatedPosts(currentPostId: string) {
+  try {
+    const result = await getBlogPostList({ page: 1, limit: 3, sort: 'latest' });
+    return result.posts.filter((post: any) => post.id !== currentPostId).slice(0, 3);
+  } catch {
     return [];
   }
-
-  const data = await res.json();
-  return data.posts.filter((post: any) => post.id !== currentPostId).slice(0, 3);
 }
 
 export async function generateMetadata({
@@ -56,9 +60,9 @@ export async function generateMetadata({
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
   try {
-    const post = await getBlogPost(slug);
+    const { post } = await getBlogPost(slug);
 
-    if (post.status !== 'PUBLISHED') {
+    if (!post || post.status !== 'PUBLISHED') {
       return {
         robots: {
           index: false,
@@ -85,8 +89,8 @@ export async function generateMetadata({
         siteName: 'TừTế Fund',
         locale: 'vi_VN',
         type: 'article',
-        publishedTime: post.publishedAt,
-        modifiedTime: post.updatedAt,
+        publishedTime: post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
+        modifiedTime: new Date(post.updatedAt).toISOString(),
         authors: [post.author?.name || ''],
         images: [
           {
@@ -96,7 +100,7 @@ export async function generateMetadata({
             alt: post.title,
           },
         ],
-      },
+      } as const,
       twitter: {
         card: 'summary_large_image',
         title,
@@ -116,6 +120,8 @@ export async function generateMetadata({
   }
 }
 
+
+
 export default async function BlogDetailPage({
   params,
 }: {
@@ -123,10 +129,46 @@ export default async function BlogDetailPage({
 }) {
   const { slug } = await params;
   const session = await auth();
-  const post: BlogPostResponse = await getBlogPost(slug);
-  const relatedPosts = await getRelatedPosts(slug, post.id);
+  const currentUserId = (session?.user as any)?.id;
+  const { post, error } = await getBlogPost(slug, currentUserId);
 
-  const isAuthor = session?.user && (session.user as any).id === post.author?.id;
+  const isAuthor = !!currentUserId && post ? currentUserId === post.author?.id : false;
+
+  if (error === 'not-found') {
+    notFound();
+  }
+
+  if (error || !post) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center px-6">
+        <div className="text-center max-w-md">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h1 className="text-2xl font-bold text-dblue mb-3">Không thể tải bài viết</h1>
+          <p className="text-gray-600 mb-6">
+            {error === 'forbidden'
+              ? 'Bạn không có quyền xem bài viết này.'
+              : 'Đã có lỗi xảy ra khi tải bài viết. Vui lòng thử lại sau.'}
+          </p>
+          <div className="flex justify-center gap-3">
+            <a
+              href={`/blog/${slug}`}
+              className="rounded-full gradient-green px-5 py-2.5 text-sm font-semibold text-white"
+            >
+              Thử lại
+            </a>
+            <Link
+              href="/blog"
+              className="rounded-full border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            >
+              Về trang Blog
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const relatedPosts = await getRelatedPosts(post.id);
 
   return (
     <>
