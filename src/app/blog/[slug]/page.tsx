@@ -13,6 +13,7 @@ import { BlogPostResponse } from '@/types/blog.types';
 import { BlogCommentSection } from '@/components/blog/BlogCommentSection';
 import { Metadata } from 'next';
 import RichTextRenderer from '@/components/shared/RichTextRenderer';
+import { ProductBoxRenderer } from '@/components/shared/ProductBoxRenderer';
 import { auth } from '@/lib/auth';
 import OwnerEditPanel from '@/components/OwnerEditPanel';
 
@@ -252,7 +253,10 @@ export default async function BlogDetailPage({
           {/* Content */}
           <div className="mb-8">
             {post.content && (
-              <RichTextRenderer content={post.content} />
+              <>
+                <RichTextRenderer content={post.content} />
+                <ProductBoxRenderer />
+              </>
             )}
             {post.richContent && (
               <div className="prose prose-lg max-w-none prose-headings:text-dblue prose-a:text-pgreen prose-strong:text-dblue">

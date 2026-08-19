@@ -27,6 +27,7 @@ import {
   Link as LinkIcon,
   Image as ImageIcon,
   Video,
+  Package,
   Minus,
   Undo,
   Redo,
@@ -42,6 +43,7 @@ interface EditorToolbarProps {
   onImageUpload?: () => void;
   onVideoEmbed?: () => void;
   onLinkInsert?: () => void;
+  onProductBox?: () => void;
 }
 
 interface ToolbarButtonProps {
@@ -84,7 +86,7 @@ function ToolbarGroup({ children }: { children: React.ReactNode }) {
   return <div className="flex items-center gap-1">{children}</div>;
 }
 
-export function EditorToolbar({ editor, onImageUpload, onVideoEmbed, onLinkInsert }: EditorToolbarProps) {
+export function EditorToolbar({ editor, onImageUpload, onVideoEmbed, onLinkInsert, onProductBox }: EditorToolbarProps) {
   if (!editor) return null;
 
   return (
@@ -289,6 +291,12 @@ export function EditorToolbar({ editor, onImageUpload, onVideoEmbed, onLinkInser
           >
             <Video size={16} />
           </ToolbarButton>
+          <ToolbarButton
+            onClick={onProductBox || (() => { })}
+            title="Chèn hộp sản phẩm vào bài viết"
+          >
+            <Package size={16} />
+          </ToolbarButton>
         </ToolbarGroup>
 
         <ToolbarDivider />
@@ -382,6 +390,12 @@ export function EditorToolbar({ editor, onImageUpload, onVideoEmbed, onLinkInser
           title="Image"
         >
           <ImageIcon size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={onProductBox || (() => { })}
+          title="Product"
+        >
+          <Package size={16} />
         </ToolbarButton>
 
         <ToolbarButton

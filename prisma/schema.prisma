@@ -204,6 +204,7 @@ model blog_posts {
   projects             projects?              @relation(fields: [projectId], references: [id], onDelete: SetNull)
   blog_reports         blog_reports[]
   campaign_blog_links  campaign_blog_links[]
+  rewards              rewards[]
 
   @@index([authorId])
   @@index([campaignId])
@@ -473,18 +474,19 @@ model rewards {
   description  String?
   createdAt    DateTime  @default(now())
   deliveryDate DateTime?
-  isActive     Boolean   @default(true)
-  maxQuantity  Int?
-  minAmount    Decimal
+  isActive              Boolean   @default(true)
+  isIncludedInProject   Boolean   @default(true)
+  maxQuantity           Int?
+  minAmount             Decimal
   maxAmount    Decimal?
   stock        Int?
   productImages String[] @default([])
   productVideo  String?
-  updatedAt    DateTime
-  pledges      pledges[]
-  campaigns    campaigns @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  projects     projects? @relation(fields: [projectId], references: [id], onDelete: SetNull)
-
+  updatedAt             DateTime
+  pledges               pledges[]
+  campaigns           campaigns @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  projects            projects? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  blog_posts          blog_posts[]
   @@index([campaignId])
   @@index([projectId])
 }

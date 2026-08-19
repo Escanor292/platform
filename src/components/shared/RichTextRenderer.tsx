@@ -13,6 +13,49 @@ import { Color } from "@tiptap/extension-color";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import { ImageWithCaption, VideoEmbed, Callout } from "@/components/editor/extensions";
+import { Node, mergeAttributes } from "@tiptap/core";
+import { ProductBoxRenderer } from "@/components/shared/ProductBoxRenderer";
+
+// Render-only ProductBox extension for display: content rendered by ProductBoxRenderer
+const ProductBox = Node.create({
+  name: "productBox",
+  group: "block",
+  inline: false,
+  addAttributes() {
+    return {
+      rewardId: { default: null },
+      title: { default: "" },
+      price: { default: "" },
+      imageUrl: { default: null },
+      linkUrl: { default: null },
+    };
+  },
+  parseHTML() {
+    return [{ tag: 'div[data-type="product-box"]' }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    const attrs = HTMLAttributes as Record<string, any>;
+    const payload = encodeURIComponent(
+      JSON.stringify({
+        rewardId: attrs.rewardId,
+        title: attrs.title || "",
+        price: attrs.price || "",
+        imageUrl: attrs.imageUrl,
+        linkUrl: attrs.linkUrl,
+      })
+    );
+    return [
+      "div",
+      mergeAttributes(this.options.HTMLAttributes, {
+        "data-type": "product-box",
+        "data-payload": payload,
+        "data-slot": "product-box",
+        class: "product-box-slot",
+      }),
+      0,
+    ];
+  },
+});
 
 // Extensions list used by the editor
 const TIPTAP_EXTENSIONS = [
@@ -32,6 +75,7 @@ const TIPTAP_EXTENSIONS = [
   Color,
   TaskList,
   TaskItem.configure({ nested: true }),
+  ProductBox, // custom render-only extension — shows interactive product card
 ];
 
 /**
@@ -102,7 +146,7 @@ export default function RichTextRenderer({ content }: RichTextRendererProps) {
   const html = contentToHtml(content);
   const sanitizedHtml = DOMPurify.sanitize(html, {
     ADD_TAGS: ["iframe"],
-    ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "src", "style", "target", "rel", "data-type", "data-variant"],
+    ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "src", "style", "target", "rel", "data-type", "data-variant", "data-payload", "data-slot"],
   });
 
   return (

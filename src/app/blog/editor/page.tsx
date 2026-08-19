@@ -24,10 +24,14 @@ export default function BlogEditorPage() {
     categoryIds: [] as string[],
     tags: [] as string[],
     status: 'DRAFT',
+    projectId: null as string | null,
+    campaignId: undefined as string | undefined,
   });
 
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -37,7 +41,42 @@ export default function BlogEditorPage() {
 
   useEffect(() => {
     fetchCategories();
+    fetchProjectsAndCampaigns();
   }, []);
+
+  const fetchProjectsAndCampaigns = async () => {
+    try {
+      // Lấy dự án + chiến dịch của chính người đăng nhập
+      const [projectsRes, rewardsRes] = await Promise.all([
+        fetch('/api/projects?limit=100'),
+        fetch('/api/rewards/my'),
+      ]);
+      if (projectsRes.ok) {
+        const data = await projectsRes.json();
+        setProjects(data.data || []);
+      }
+      if (rewardsRes.ok) {
+        const data = await rewardsRes.json();
+        // Chiến dịch của user nằm trong campaigns + projectsWithCampaigns.campaigns
+        const seen = new Set<string>();
+        const items: any[] = [];
+        const addCampaigns = (list: any[]) =>
+          (list || []).forEach((p: any) =>
+            (p.campaigns || []).forEach((c: any) => {
+              if (!seen.has(c.id)) {
+                seen.add(c.id);
+                items.push({ ...c, projectTitle: p.title || p.name });
+              }
+            })
+          );
+        addCampaigns(data.campaigns || []);
+        addCampaigns(data.projectsWithCampaigns || []);
+        setCampaigns(items);
+      }
+    } catch (error) {
+      console.error('Failed to fetch projects/campaigns:', error);
+    }
+  };
 
   const fetchCategories = async () => {
     try {
@@ -58,7 +97,8 @@ export default function BlogEditorPage() {
     try {
       const payload = {
         ...formData,
-        campaignId: campaignId || undefined,
+        campaignId: campaignId || formData.campaignId || undefined,
+        projectId: formData.projectId || undefined,
         status: publishNow ? 'PUBLISHED' : 'DRAFT',
       };
 
@@ -108,6 +148,48 @@ export default function BlogEditorPage() {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Nhập tiêu đề bài viết..."
             />
+          </div>
+
+          {/* Liên kết dự án & chiến dịch */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Dự án (không bắt buộc)
+              </label>
+              <select
+                value={formData.projectId || ''}
+                onChange={(e) => setFormData({ ...formData, projectId: e.target.value || null })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                <option value="">Không thuộc dự án nào</option>
+                {projects.map((p: any) => (
+                  <option key={p.id} value={p.id}>{p.title}</option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-gray-500">
+                Bài viết có thể độc lập, không thuộc bất kỳ dự án nào.
+              </p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Chiến dịch liên quan (không bắt buộc)
+              </label>
+              <select
+                value={formData.campaignId || campaignId || ''}
+                onChange={(e) => setFormData({ ...formData, campaignId: e.target.value || undefined })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                <option value="">Không thuộc chiến dịch nào</option>
+                {campaigns.map((c: any) => (
+                  <option key={c.id} value={c.id}>
+                    {c.title}{c.projectTitle ? ` • ${c.projectTitle}` : (c.project?.title ? ` • ${c.project.title}` : '')}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-gray-500">
+                Blog có thể liên kết với một chiến dịch để hiển thị cùng nhau.
+              </p>
+            </div>
           </div>
 
           {/* Excerpt */}

@@ -1,0 +1,413 @@
+/**
+ * Trang chi tiết sản phẩm
+ * - Nếu sản phẩm thuộc chiến dịch → giao diện dạng huy động vốn (progress, Pledge ngay)
+ * - Nếu sản phẩm độc lập → giao diện dạng thương mại điện tử
+ */
+
+import { notFound } from 'next/navigation';
+import {
+  ShieldCheck,
+  Package,
+  RotateCcw,
+  Users,
+  FolderOpen,
+  Share2,
+  Check,
+  Calendar,
+  Layers,
+} from 'lucide-react';
+import prisma from '@/lib/prisma';
+import { formatVND } from '@/lib/utils';
+import ProductGallery from '@/components/products/ProductGallery';
+
+function daysBetween(a: Date, b: Date): number {
+  return Math.ceil((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+export default async function ProductDetailPage({
+  params,
+}: {
+  params: Promise<{ rewardId: string }>;
+}) {
+  const { rewardId } = await params;
+
+  const reward = await prisma.rewards.findUnique({
+    where: { id: rewardId },
+    include: {
+      campaigns: {
+        include: {
+          users: { select: { id: true, name: true, avatar: true } },
+          projects: { select: { id: true, title: true } },
+          pledges: {
+            where: { status: 'SUCCESS' },
+            select: { amount: true },
+            orderBy: { amount: 'desc' },
+            take: 1,
+          },
+          _count: {
+            select: {
+              pledges: { where: { status: 'SUCCESS' } },
+            },
+          },
+        },
+      },
+      projects: true,
+    },
+  });
+
+  if (!reward) return notFound();
+
+  const campaign = (reward as any).campaigns as any;
+  const campaignProject = campaign?.projects || null;
+  const project = (reward as any).projects;
+  const images = reward.productImages || [];
+  const hasDiscount =
+    reward.maxAmount && Number(reward.maxAmount) > Number(reward.minAmount);
+  const discountPercent = hasDiscount
+    ? Math.round(
+        ((Number(reward.maxAmount!) - Number(reward.minAmount)) /
+          Number(reward.maxAmount!)) *
+          100
+      )
+    : 0;
+
+  const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://platform-guypmwy3d-escanor292s-projects.vercel.app'}/products/${reward.id}`;
+
+  // ---------- Chế độ 1: Sản phẩm thuộc chiến dịch (dạng huy động) ----------
+  if (campaign) {
+    const totalRaised = campaign.currentAmount || 0;
+    const goal = campaign.goalAmount || 1;
+    const percent = Math.min(100, Math.round((totalRaised / goal) * 100));
+    const daysLeft = campaign.endDate
+      ? daysBetween(new Date(), new Date(campaign.endDate))
+      : null;
+    const topPledge = campaign.pledges[0];
+    const backers = (campaign._count as any)?.pledges ?? 0;
+
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6 flex-wrap">
+            <a href="/" className="hover:text-pgreen">Trang chủ</a>
+            <span>›</span>
+              {campaignProject && (
+                <>
+                  <a href={`/projects/${campaignProject.id}`} className="hover:text-pgreen">
+                    Dự án
+                  </a>
+                  <span>›</span>
+                </>
+              )}
+            <a href={`/campaigns/${campaign.slug}`} className="hover:text-pgreen">
+              {campaign.title}
+            </a>
+            <span>›</span>
+            <span className="text-gray-700 font-medium">{reward.title}</span>
+          </nav>
+
+          <div className="bg-white rounded-3xl shadow-soft border border-gray-100 overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+              {/* Ảnh sản phẩm */}
+              <div className="relative min-h-[320px] lg:min-h-[420px] bg-gray-100">
+                {images[0] ? (
+                  <ProductGallery images={images} videoUrl={reward.productVideo} />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-gray-300">
+                    <Package size={72} />
+                  </div>
+                )}
+              </div>
+
+              {/* Thông tin */}
+              <div className="p-8 lg:p-10 flex flex-col">
+                {/* Badge dự án + chiến dịch */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {project && (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-full">
+                      <FolderOpen size={13} />
+                      Dự án: {(campaignProject || project)?.title}
+                    </span>
+                  )}
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-pgreen bg-pgreen/10 border border-pgreen/20 px-3 py-1.5 rounded-full">
+                    <Layers size={13} />
+                    Chiến dịch: {campaign.title}
+                  </span>
+                </div>
+
+                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-3">
+                  {reward.title}
+                </h1>
+
+                {reward.description && (
+                  <p className="text-gray-600 leading-relaxed mb-5 text-sm">
+                    {reward.description}
+                  </p>
+                )}
+
+                {/* Giá */}
+                <div className="mb-5">
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-3xl font-extrabold text-pgreen">
+                      {formatVND(reward.minAmount)} đ
+                    </span>
+                    {hasDiscount && (
+                      <>
+                        <span className="text-lg text-gray-400 line-through">
+                          {formatVND(reward.maxAmount!)} đ
+                        </span>
+                        <span className="text-xs font-bold text-white bg-red-500 px-2 py-0.5 rounded">
+                          -{discountPercent}%
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Mức đóng góp tối thiểu để nhận sản phẩm này
+                  </p>
+                </div>
+
+                {/* Progress */}
+                <div className="mb-6">
+                  <div className="flex justify-between text-sm mb-1.5">
+                    <span className="font-bold text-gray-900">
+                      {formatVND(totalRaised)} đ
+                    </span>
+                    <span className="font-bold text-pgreen">{percent}%</span>
+                  </div>
+                  <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-pgreen to-fgreen rounded-full transition-all"
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-500 mt-1.5">
+                    <span>Mục tiêu: {formatVND(goal)} đ</span>
+                    {daysLeft !== null && (
+                      <span className="flex items-center gap-1">
+                        <Calendar size={11} /> Còn {daysLeft} ngày
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Pledge cao nhất */}
+                {topPledge && (
+                  <div className="mb-6 p-4 rounded-2xl bg-cream/60 border border-pgreen/10">
+                    <div className="text-xs font-semibold text-gray-500 mb-0.5">
+                      Đóng góp cao nhất cho phần quà này
+                    </div>
+                    <div className="text-lg font-bold text-gray-900">
+                      {formatVND(topPledge.amount)} đ
+                    </div>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex flex-wrap gap-3 mt-auto">
+                  <a
+                    href={`/campaigns/${campaign.slug}?reward=${reward.id}`}
+                    className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-pgreen text-white font-bold rounded-xl hover:bg-pgreen/90 transition-colors shadow-sm"
+                  >
+                    Đóng góp ngay
+                  </a>
+                  <button
+                    type="button"
+                    data-share-button
+                    data-url={shareUrl}
+                    className="inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-white text-gray-700 border border-gray-200 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+                  >
+                    <Share2 size={17} />
+                    Chia sẻ
+                  </button>
+                </div>
+
+                {/* Trust badges */}
+                <div className="grid grid-cols-2 gap-3 mt-8 pt-6 border-t border-gray-100">
+                  {[
+                    { icon: ShieldCheck, title: 'Thanh toán an toàn', sub: 'Bảo mật 100%' },
+                    { icon: Package, title: 'Giao hàng toàn quốc', sub: 'Miễn phí vận chuyển' },
+                    { icon: RotateCcw, title: 'Đổi trả dễ dàng', sub: 'Trong 7 ngày' },
+                    {
+                      icon: Users,
+                      title: 'Cộng đồng ủng hộ',
+                      sub: `${backers} người ủng hộ`,
+                    },
+                  ].map(({ icon: Icon, title, sub }) => (
+                    <div key={title} className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-full bg-pgreen/10 flex items-center justify-center flex-shrink-0">
+                        <Icon size={16} className="text-pgreen" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-gray-900">{title}</div>
+                        <div className="text-[11px] text-gray-500">{sub}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ShareScript />
+      </div>
+    );
+  }
+
+  // ---------- Chế độ 2: Sản phẩm độc lập (dạng TMĐT) ----------
+  const stockText = reward.stock
+    ? `Còn ${reward.stock} sản phẩm`
+    : 'Không giới hạn số lượng';
+  const deliveryText = reward.deliveryDate
+    ? `Giao dự kiến: ${new Date(reward.deliveryDate).toLocaleDateString('vi-VN')}`
+    : null;
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6 flex-wrap">
+          <a href="/" className="hover:text-pgreen">Trang chủ</a>
+          <span>›</span>
+          <span className="text-gray-700 font-medium">{reward.title}</span>
+        </nav>
+
+        <div className="bg-white rounded-3xl shadow-soft border border-gray-100 overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+            {/* Gallery */}
+            <div className="relative min-h-[320px] lg:min-h-[420px] bg-gray-100">
+              {images.length > 0 || reward.productVideo ? (
+                <ProductGallery images={images} videoUrl={reward.productVideo} />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center text-gray-300">
+                  <Package size={72} />
+                </div>
+              )}
+            </div>
+
+            {/* Info */}
+            <div className="p-8 lg:p-10 flex flex-col">
+              {project && (
+                <span className="inline-flex items-center gap-1.5 w-fit text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-full mb-3">
+                  <FolderOpen size={13} />
+                  Dự án: {project.title}
+                </span>
+              )}
+
+              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
+                {reward.title}
+              </h1>
+
+              {/* Giá */}
+              <div className="mb-5 p-4 rounded-2xl bg-cream/50 border border-pgreen/10">
+                <div className="flex items-baseline gap-3">
+                  <span className="text-3xl font-extrabold text-pgreen">
+                    {formatVND(reward.minAmount)} đ
+                  </span>
+                  {hasDiscount && (
+                    <>
+                      <span className="text-lg text-gray-400 line-through">
+                        {formatVND(reward.maxAmount!)} đ
+                      </span>
+                      <span className="text-xs font-bold text-white bg-red-500 px-2 py-0.5 rounded">
+                        -{discountPercent}%
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Meta */}
+              <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600 mb-5">
+                <span className="flex items-center gap-1.5">
+                  <Package size={15} className="text-pgreen" /> {stockText}
+                </span>
+                {deliveryText && (
+                  <span className="flex items-center gap-1.5">
+                    <Calendar size={15} className="text-pgreen" /> {deliveryText}
+                  </span>
+                )}
+                {((reward as any)._count?.pledges ?? 0) > 0 && (
+                  <span className="flex items-center gap-1.5">
+                    <Users size={15} className="text-pgreen" />{' '}
+                    {(reward as any)._count.pledges} người đã nhận
+                  </span>
+                )}
+              </div>
+
+              {reward.description && (
+                <p className="text-gray-600 leading-relaxed mb-6 text-sm whitespace-pre-line">
+                  {reward.description}
+                </p>
+              )}
+
+              {/* Actions */}
+              <div className="flex flex-wrap gap-3 mt-auto">
+                                  <a href={`/profile/${campaign.users.id}#products`}
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-pgreen text-white font-bold rounded-xl hover:bg-pgreen/90 transition-colors shadow-sm"
+                >
+                  Liên hệ nhà sáng tạo
+                </a>
+                <button
+                  type="button"
+                  data-share-button
+                  data-url={shareUrl}
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-white text-gray-700 border border-gray-200 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+                >
+                  <Share2 size={17} />
+                  Chia sẻ
+                </button>
+              </div>
+
+              {/* Trust */}
+              <div className="grid grid-cols-2 gap-3 mt-8 pt-6 border-t border-gray-100">
+                {[
+                  { icon: ShieldCheck, title: 'Thanh toán an toàn', sub: 'Bảo mật 100%' },
+                  { icon: Package, title: 'Giao hàng toàn quốc', sub: 'Miễn phí vận chuyển' },
+                  { icon: RotateCcw, title: 'Đổi trả dễ dàng', sub: 'Trong 7 ngày' },
+                  { icon: Users, title: 'Cộng đồng ủng hộ', sub: 'Nền tảng Tử Tế Fund' },
+                ].map(({ icon: Icon, title, sub }) => (
+                  <div key={title} className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-full bg-pgreen/10 flex items-center justify-center flex-shrink-0">
+                      <Icon size={16} className="text-pgreen" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-gray-900">{title}</div>
+                      <div className="text-[11px] text-gray-500">{sub}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ShareScript />
+    </div>
+  );
+}
+
+/** Client script: xử lý nút chia sẻ (copy link) */
+function ShareScript() {
+  return (
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `
+      document.querySelectorAll('[data-share-button]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const url = btn.getAttribute('data-url') || window.location.href;
+          try {
+            await navigator.clipboard.writeText(url);
+            const original = btn.innerHTML;
+            btn.innerHTML = '<svg width=17 height=17 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Đã sao chép link';
+            setTimeout(() => { btn.innerHTML = original; }, 2000);
+          } catch (e) {
+            prompt('Sao chép link sản phẩm:', url);
+          }
+        });
+      });
+    `,
+      }}
+    />
+  );
+}

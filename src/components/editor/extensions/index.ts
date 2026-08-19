@@ -19,6 +19,7 @@ import { Color } from '@tiptap/extension-color';
 import { ImageWithCaption } from './image-with-caption';
 import { VideoEmbed } from './video-embed';
 import { Callout } from './callout';
+import { ProductBox } from './product-box';
 import { EDITOR_LIMITS, KEYBOARD_SHORTCUTS } from '@/lib/editor/constants';
 
 export interface EditorExtensionsConfig {
@@ -154,6 +155,12 @@ export function getEditorExtensions(config: EditorExtensionsConfig = {}) {
         class: 'callout',
       },
     }),
+
+    ProductBox.configure({
+      HTMLAttributes: {
+        class: 'product-box',
+      },
+    }),
   ];
 }
 
@@ -162,4 +169,5 @@ export {
   ImageWithCaption,
   VideoEmbed,
   Callout,
+  ProductBox,
 };

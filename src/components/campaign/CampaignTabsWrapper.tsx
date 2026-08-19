@@ -6,6 +6,7 @@ import { Clock, ShieldCheck, BookOpen } from "lucide-react";
 import CommentSection from "@/components/campaign/CommentSection";
 import UpdateSection from "@/components/campaign/UpdateSection";
 import RichTextRenderer from "@/components/shared/RichTextRenderer";
+import { ProductBoxRenderer } from "@/components/shared/ProductBoxRenderer";
 import BackerLink from "@/components/campaign/BackerLink";
 import CampaignRewards from "@/components/campaign/CampaignRewards";
 import LinkedBlogsSection from "@/components/campaign/LinkedBlogsSection";
@@ -77,7 +78,10 @@ export default function CampaignTabsWrapper({
                         <div className="lg:col-span-2">
                             <TabsContent value="details" className="mt-0">
                                 <div className="prose max-w-none">
-                                    <RichTextRenderer content={campaign.longDescription || campaign.description} />
+                                    <>
+                                        <RichTextRenderer content={campaign.longDescription || campaign.description} />
+                                        <ProductBoxRenderer />
+                                    </>
                                 </div>
                             </TabsContent>
 

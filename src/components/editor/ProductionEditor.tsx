@@ -13,6 +13,7 @@ import { EditorToolbar } from './EditorToolbar';
 import { EditorBubbleMenu } from './EditorBubbleMenu';
 import { LinkPopover } from './LinkPopover';
 import { VideoPopover } from './VideoPopover';
+import { ProductBoxPopover } from './ProductBoxPopover';
 import { getLinkAtCursor, isSelectionInsideLink, saveSelection, type SavedSelection } from '@/lib/editor/link-commands';
 import { sanitizeHtml } from '@/lib/editor/sanitize';
 import { getUrlError, normalizeUrl, isValidVideoUrl, getVideoProvider } from '@/lib/editor/validation';
@@ -39,6 +40,15 @@ export function ProductionEditor({
   const [isLinkEditMode, setIsLinkEditMode] = useState(false);
   const [linkSavedSelection, setLinkSavedSelection] = useState<SavedSelection | null>(null);
   const [isVideoPopoverOpen, setIsVideoPopoverOpen] = useState(false);
+  const [isProductPopoverOpen, setIsProductPopoverOpen] = useState(false);
+  const [productEditData, setProductEditData] = useState<{
+    rewardId: string | null;
+    title: string;
+    price: string;
+    imageUrl: string | null;
+    linkUrl: string | null;
+    pos: number | null;
+  } | null>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const editorRef = useRef<Editor | null>(null);
   const isMountedRef = useRef(true);
@@ -258,6 +268,26 @@ export function ProductionEditor({
     setIsVideoPopoverOpen(false);
   }, []);
 
+  // Product box handler
+  const handleProductBox = useCallback(() => {
+    const currentEditor = editorRef.current;
+    if (!currentEditor) return;
+    // New insert: position cursor selection
+    setProductEditData(null);
+    setIsProductPopoverOpen(true);
+  }, []);
+
+  // Listen for productbox:edit events dispatched from ProductBox node view
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      setProductEditData(detail || null);
+      setIsProductPopoverOpen(true);
+    };
+    window.addEventListener('productbox:edit', handler);
+    return () => window.removeEventListener('productbox:edit', handler);
+  }, []);
+
   // Link insert handler with modern popover
   const handleLinkInsert = useCallback(() => {
     const currentEditor = editorRef.current;
@@ -331,6 +361,7 @@ export function ProductionEditor({
         onImageUpload={handleImageUpload}
         onVideoEmbed={handleVideoEmbed}
         onLinkInsert={handleLinkInsert}
+        onProductBox={handleProductBox}
       />
 
       {/* Bubble Menu */}
@@ -388,6 +419,20 @@ export function ProductionEditor({
             editor={editor}
             isOpen={isVideoPopoverOpen}
             onClose={handleVideoPopoverClose}
+          />
+        )}
+
+        {/* Product Box Popover */}
+        {isProductPopoverOpen && (
+          <ProductBoxPopover
+            editor={editor}
+            isOpen={isProductPopoverOpen}
+            onClose={() => setIsProductPopoverOpen(false)}
+            editData={productEditData}
+            onCancelEdit={() => {
+              setProductEditData(null);
+              setIsProductPopoverOpen(false);
+            }}
           />
         )}
 

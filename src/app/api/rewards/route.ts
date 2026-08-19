@@ -22,7 +22,8 @@ export async function POST(req: NextRequest) {
             productVideo,
             maxQuantity,
             deliveryDate,
-            isActive
+            isActive,
+            isIncludedInProject
         } = body;
 
         // Validate required fields
@@ -66,12 +67,34 @@ export async function POST(req: NextRequest) {
             }
         }
 
+        // Resolve project linkage
+        let resolvedProjectId: string | null = projectId || null;
+        let resolvedIncludedInProject = isIncludedInProject === false ? false : true;
+        if (campaignId) {
+            const campaign = await prisma.campaigns.findFirst({
+                where: { id: campaignId },
+                select: { projectId: true, creatorId: true },
+            });
+            if (campaign?.projectId) {
+                // Sản phẩm tạo từ chiến dịch: tự động thuộc về dự án của chiến dịch
+                if (resolvedIncludedInProject) {
+                    resolvedProjectId = campaign.projectId;
+                }
+            } else {
+                resolvedIncludedInProject = false;
+                resolvedProjectId = null;
+            }
+        } else if (resolvedIncludedInProject && !resolvedProjectId) {
+            resolvedIncludedInProject = false;
+        }
+
         // Create reward
         const reward = await prisma.rewards.create({
             data: {
                 id: crypto.randomUUID(),
                 campaignId: resolvedCampaignId as string,
-                projectId: projectId || null,
+                projectId: resolvedProjectId,
+                isIncludedInProject: resolvedIncludedInProject,
                 title,
                 description,
                 minAmount: parseFloat(minAmount),

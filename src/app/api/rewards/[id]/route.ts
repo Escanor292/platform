@@ -16,12 +16,27 @@ export async function GET(
                     select: {
                         id: true,
                         title: true,
+                        slug: true,
                         creatorId: true,
+                        projectId: true,
+                        currentAmount: true,
+                        goalAmount: true,
+                        endDate: true,
+                        projects: { select: { id: true, title: true } },
+                        imageUrl: true,
+                        images: true,
                     },
+                },
+                projects: { select: { id: true, title: true } },
+                pledges: {
+                    where: { status: "SUCCESS" },
+                    select: { amount: true, createdAt: true },
+                    orderBy: { amount: "desc" },
+                    take: 1,
                 },
                 _count: {
                     select: {
-                        pledges: true,
+                        pledges: { where: { status: "SUCCESS" } },
                     },
                 },
             },
@@ -57,9 +72,14 @@ export async function PUT(
             title,
             description,
             minAmount,
+            maxAmount,
+            stock,
+            productImages,
+            productVideo,
             maxQuantity,
             deliveryDate,
-            isActive
+            isActive,
+            isIncludedInProject
         } = body;
 
         // Check if user owns the reward's campaign
@@ -78,8 +98,21 @@ export async function PUT(
             return NextResponse.json({ error: "Reward not found" }, { status: 404 });
         }
 
-        if (reward.campaigns.creatorId !== (session.user as any).id) {
+        if ((reward.campaigns as any).creatorId !== (session.user as any).id) {
             return NextResponse.json({ error: "Access denied" }, { status: 403 });
+        }
+
+        // Đồng bộ project linkage với toggle isIncludedInProject
+        let updateProjectId: string | null | undefined = undefined;
+        let updateIncludedInProject: boolean | undefined = undefined;
+        if (isIncludedInProject !== undefined) {
+            updateIncludedInProject = Boolean(isIncludedInProject);
+            const campaignProjectId = (reward.campaigns as any).projectId;
+            if (campaignProjectId && updateIncludedInProject) {
+                updateProjectId = campaignProjectId;
+            } else {
+                updateProjectId = null;
+            }
         }
 
         // Update reward
@@ -88,10 +121,15 @@ export async function PUT(
             data: {
                 title,
                 description,
-                minAmount: minAmount ? parseFloat(minAmount) : undefined,
-                maxQuantity: maxQuantity ? parseInt(maxQuantity) : null,
+                minAmount: minAmount !== undefined ? parseFloat(minAmount) : undefined,
+                maxAmount: maxAmount !== undefined ? (maxAmount ? parseFloat(maxAmount) : null) : undefined,
+                stock: stock !== undefined ? (stock ? parseInt(stock) : null) : undefined,
+                productImages: Array.isArray(productImages) ? productImages : undefined,
+                productVideo: productVideo !== undefined ? (productVideo || null) : undefined,
+                maxQuantity: maxQuantity !== undefined ? (maxQuantity ? parseInt(maxQuantity) : null) : undefined,
                 deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
                 isActive: isActive !== undefined ? Boolean(isActive) : undefined,
+                ...(updateIncludedInProject !== undefined ? { isIncludedInProject: updateIncludedInProject, projectId: updateProjectId } : {}),
             },
         });
 
@@ -138,7 +176,7 @@ export async function DELETE(
             return NextResponse.json({ error: "Reward not found" }, { status: 404 });
         }
 
-        if (reward.campaigns.creatorId !== (session.user as any).id) {
+        if ((reward.campaigns as any).creatorId !== (session.user as any).id) {
             return NextResponse.json({ error: "Access denied" }, { status: 403 });
         }
 

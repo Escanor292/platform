@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ProductionEditor } from "@/components/editor";
 import { EDITOR_PLACEHOLDERS } from "@/lib/editor/constants";
 import RichTextRenderer from "@/components/shared/RichTextRenderer";
+import { ProductBoxRenderer } from "@/components/shared/ProductBoxRenderer";
 
 interface UpdateSectionProps {
   campaignId: string;
@@ -436,7 +437,10 @@ export default function UpdateSection({ campaignId, slug, isCreator }: UpdateSec
 
                       <div className="bg-white border border-gray-100 p-10 rounded-[2.5rem] shadow-soft group-hover:shadow-premium transition-all duration-500">
                         <div className="mb-8">
-                          <RichTextRenderer content={update.content} />
+                          <>
+                            <RichTextRenderer content={update.content} />
+                            <ProductBoxRenderer />
+                          </>
                         </div>
                         {update.imageUrl && (
                           <div className="relative w-full h-[400px] overflow-hidden rounded-[2rem] border border-gray-100 shadow-inner group/img">
