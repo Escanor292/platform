@@ -148,16 +148,16 @@ export function ChatScreen({ conversationId }: ChatScreenProps) {
 
   if (sessionStatus === "loading") {
     return (
-      <div className="flex h-[600px] items-center justify-center">
+      <div className="flex h-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2">Đang tải phiên đăng nhập...</span>
+        <span className="ml-2 text-sm text-gray-500">Đang tải phiên đăng nhập...</span>
       </div>
     );
   }
 
   if (sessionStatus === "unauthenticated") {
     return (
-      <div className="flex h-[600px] flex-col items-center justify-center rounded-lg border border-gray-200 bg-white p-8">
+      <div className="flex h-full flex-col items-center justify-center p-8">
         <div className="text-center">
           <h3 className="text-lg font-semibold text-gray-900">Chưa đăng nhập</h3>
           <p className="mt-2 text-sm text-gray-600">
@@ -176,23 +176,25 @@ export function ChatScreen({ conversationId }: ChatScreenProps) {
 
   if (loading) {
     return (
-      <div className="flex h-[600px] items-center justify-center">
+      <div className="flex h-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2">Đang tải tin nhắn...</span>
+        <span className="ml-2 text-sm text-gray-500">Đang tải tin nhắn...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center">
-        <p className="text-sm text-red-600">{error}</p>
+      <div className="flex h-full items-center justify-center p-6">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center max-w-md">
+          <p className="text-sm text-red-600">{error}</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-full flex-col min-h-0 rounded-lg border border-gray-200 bg-white">
+    <div className="flex h-full w-full flex-col min-h-0 bg-white">
       {/* Header */}
       <div className="border-b border-gray-200 p-4 flex-shrink-0">
         <div className="flex items-center gap-3">
