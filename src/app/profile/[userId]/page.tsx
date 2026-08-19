@@ -87,9 +87,13 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
         select: {
           id: true,
           title: true,
+          slug: true,
           description: true,
+          coverImage: true,
           createdAt: true,
           updatedAt: true,
+          _count: { select: { project_reward_links: true } },
+          project_blog_links: { select: { blogPostId: true } },
           campaigns: {
             where: { status: { in: ["ACTIVE", "SUCCESS"] } },
             select: {

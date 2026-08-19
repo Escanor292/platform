@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Rocket, MessageCircle, Heart, Award, Tag, Layers, TrendingUp, FolderKanban, Package, Gift, Plus, Pencil, Trash2, MoreVertical, Share2 } from 'lucide-react';
+import Image from 'next/image';
+import { Rocket, MessageCircle, Heart, Award, Tag, Layers, TrendingUp, FolderKanban, Package, Gift, Plus, Pencil, Trash2, MoreVertical, Share2, LayoutList, FileText } from 'lucide-react';
 import { formatVND, formatDate } from '@/lib/utils';
 import { CampaignGrowthProgress } from '@/components/campaign/CampaignGrowthProgress';
 import { getCampaignTypeLabel } from '@/lib/campaign-helpers';
@@ -278,23 +279,59 @@ export function ProfileTabs({
                         </div>
                         {safeProjects.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {safeProjects.map((project) => (
+                                {safeProjects.map((project) => {
+                                    const campaignCount = project.campaigns?.length || 0;
+                                    const blogCount = project.project_blog_links?.length || 0;
+                                    const productCount = (project as any)._count?.project_reward_links || 0;
+                                    return (
                                     <div key={project.id} className="group relative">
                                         <Link href={`/projects/${project.id}`} className="block">
-                                            <div className="bg-gray-50 rounded-2xl overflow-hidden hover:shadow-lg transition-all">
-                                                <div className="p-6">
-                                                    <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition">
+                                            <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+                                                <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100">
+                                                    {project.coverImage ? (
+                                                        <Image
+                                                            src={project.coverImage}
+                                                            alt={project.title}
+                                                            fill
+                                                            className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                                                        />
+                                                    ) : (
+                                                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                                                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                                                                <FolderKanban size={28} className="text-white" />
+                                                            </div>
+                                                            <span className="text-xs font-bold text-purple-400 uppercase tracking-widest">Chưa có ảnh bìa</span>
+                                                        </div>
+                                                    )}
+                                                    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-bold text-purple-600 shadow-sm">
+                                                        {campaignCount} chiến dịch
+                                                    </div>
+                                                </div>
+                                                <div className="p-5">
+                                                    <h3 className="font-black text-gray-900 text-lg mb-1.5 line-clamp-2 group-hover:text-purple-600 transition">
                                                         {project.title}
                                                     </h3>
                                                     {project.description && (
-                                                        <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                                                        <p className="text-sm text-gray-500 mb-4 line-clamp-2">
                                                             {project.description}
                                                         </p>
                                                     )}
-                                                    <div className="flex items-center gap-2 text-xs text-gray-400">
-                                                        <span className="font-bold uppercase">
-                                                            {project.campaigns?.length || 0} chiến dịch
-                                                        </span>
+                                                    <div className="flex items-center gap-4 pt-3 border-t border-gray-100">
+                                                        <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                                                            <LayoutList size={14} className="text-blue-500" />
+                                                            <span className="font-semibold">{campaignCount}</span>
+                                                            <span>chiến dịch</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                                                            <FileText size={14} className="text-purple-500" />
+                                                            <span className="font-semibold">{blogCount}</span>
+                                                            <span>bài viết</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                                                            <Package size={14} className="text-green-500" />
+                                                            <span className="font-semibold">{productCount}</span>
+                                                            <span>sản phẩm</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -319,7 +356,8 @@ export function ProfileTabs({
                                             </div>
                                         )}
                                     </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         ) : (
                             <div className="bg-gray-50 rounded-2xl p-8 text-center">
