@@ -24,6 +24,7 @@ import {
     Flag,
     Ban,
     X,
+    Lock,
 } from 'lucide-react';
 import {
     DropdownMenu,
@@ -849,13 +850,18 @@ export function ChatWindow({
                         </div>
 
                         <Button
-                            variant="ghost"
+                            variant={isSensitive ? "default" : "outline"}
                             size="icon"
-                            className="rounded-full flex-shrink-0"
+                            className={cn(
+                                "rounded-full flex-shrink-0 border-2 transition-all",
+                                isSensitive
+                                    ? "bg-red-600 border-red-600 text-white hover:bg-red-700 hover:border-red-700 shadow-md ring-2 ring-red-200"
+                                    : "bg-white border-gray-300 text-gray-400 hover:border-gray-400 hover:text-gray-500"
+                            )}
                             onClick={() => setIsSensitive(!isSensitive)}
                             title={isSensitive ? "Bỏ đánh dấu nhạy cảm - tin nhắn gửi đi sẽ bị che, người nhận phải bấm để xem" : "Đánh dấu nhạy cảm - tin nhắn gửi đi sẽ bị che, người nhận phải bấm để xem"}
                         >
-                            <span className={isSensitive ? "text-red-500" : "text-gray-400"}>🔒</span>
+                            <Lock className="h-4 w-4" />
                         </Button>
 
                         <Button
