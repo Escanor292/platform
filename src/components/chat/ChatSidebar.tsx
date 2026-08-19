@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Search, MessageSquarePlus, MoreVertical, Edit2, Clock } from 'lucide-react';
+import { Search, Users, MessageSquarePlus, MoreVertical, Edit2, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -137,7 +137,7 @@ export function ChatSidebar({
     };
 
     return (
-        <div className="flex h-full w-80 flex-col border-r bg-white">
+        <div className="flex h-full w-full flex-col bg-white">
             {/* Header with user account */}
             <div className="border-b p-4">
                 <div className="flex items-center justify-between mb-3">
@@ -157,9 +157,9 @@ export function ChatSidebar({
                     <button
                         onClick={() => setShowNewMessageDialog(true)}
                         className="rounded-full p-2 hover:bg-gray-100 transition-colors"
-                        title="Tin nhắn mới"
+                        title="Tạo nhóm chat"
                     >
-                        <MessageSquarePlus className="h-5 w-5 text-gray-600" />
+                        <Users className="h-5 w-5 text-gray-600" />
                     </button>
                 </div>
 

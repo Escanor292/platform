@@ -61,13 +61,12 @@ export function ChatWindow({
     const [searching, setSearching] = useState(false);
     const [isSensitive, setIsSensitive] = useState(false);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     // Auto scroll to bottom when new messages arrive
     useEffect(() => {
-        if (scrollAreaRef.current) {
-            scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-        }
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
     // Get initials for avatar
@@ -198,7 +197,7 @@ export function ChatWindow({
                 </div>
 
                 {/* Messages */}
-                <ScrollArea className="flex-1 p-4 min-h-0" ref={scrollAreaRef}>
+                <div className="flex-1 overflow-y-auto p-4 min-h-0 space-y-4" ref={scrollAreaRef}>
                     <div className="space-y-4">
                         {/* Load more button */}
                         {hasMore && onLoadMore && (
@@ -344,8 +343,9 @@ export function ChatWindow({
                                 </div>
                             </div>
                         )}
+                        <div ref={messagesEndRef} />
                     </div>
-                </ScrollArea>
+                </div>
 
                 {/* Input */}
                 <div className="border-t p-4 flex-shrink-0">
