@@ -158,12 +158,9 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
 
     return (
         <div className="container mx-auto px-4 pt-24 pb-8 max-w-7xl h-[calc(100vh-8rem)]">
-            <div className={cn(
-                "grid gap-0 h-full rounded-lg border border-gray-200 overflow-hidden bg-white",
-                showInfoPanel ? "grid-cols-1 lg:grid-cols-[300px_1fr_300px]" : "grid-cols-1 lg:grid-cols-[300px_1fr]"
-            )}>
+            <div className="flex h-full w-full rounded-lg border border-gray-200 overflow-hidden bg-white">
                 {/* Left: Chat Sidebar */}
-                <div className="hidden lg:flex min-w-0 overflow-hidden border-r border-gray-200">
+                <div className="hidden lg:flex w-[300px] shrink-0 min-w-0 overflow-hidden border-r border-gray-200 h-full">
                     <ChatSidebar
                         conversations={allConversations}
                         activeConversationId={conversationId}
@@ -173,7 +170,7 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                 </div>
 
                 {/* Middle: Chat Window */}
-                <div className="min-w-0 overflow-hidden">
+                <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
                     <ChatWindow
                         conversationId={conversationId}
                         recipientName={otherParticipant?.name || 'Người dùng'}
@@ -188,9 +185,9 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                     />
                 </div>
 
-                {/* Right: Info Panel */}
+                {/* Right: Info Panel (Desktop) */}
                 {showInfoPanel && (
-                    <div className="hidden lg:flex min-w-0 overflow-hidden border-l border-gray-200">
+                    <div className="hidden lg:flex w-[280px] shrink-0 min-w-0 border-l border-gray-200 h-full overflow-hidden bg-white transition-all duration-200 animate-in slide-in-from-right">
                         <ChatInfoPanel
                             conversationId={conversationId}
                             otherUserId={otherParticipant?.userId}
@@ -198,10 +195,28 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                             otherUserAvatar={otherParticipant?.avatarUrl}
                             otherUserRole={otherParticipant?.role}
                             campaign={conversation?.campaign}
+                            onClose={() => setShowInfoPanel(false)}
                         />
                     </div>
                 )}
             </div>
+
+            {/* Mobile Info Panel Drawer */}
+            {showInfoPanel && (
+                <div className="fixed inset-0 z-50 bg-black/50 lg:hidden flex justify-end animate-in fade-in duration-200">
+                    <div className="w-full max-w-xs h-full bg-white shadow-xl animate-in slide-in-from-right duration-200">
+                        <ChatInfoPanel
+                            conversationId={conversationId}
+                            otherUserId={otherParticipant?.userId}
+                            otherUserName={otherParticipant?.name}
+                            otherUserAvatar={otherParticipant?.avatarUrl}
+                            otherUserRole={otherParticipant?.role}
+                            campaign={conversation?.campaign}
+                            onClose={() => setShowInfoPanel(false)}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

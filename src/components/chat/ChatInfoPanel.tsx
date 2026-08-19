@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { UserAvatar } from "./UserAvatar";
 import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 
 interface ChatInfoPanelProps {
   conversationId: string;
@@ -17,6 +18,7 @@ interface ChatInfoPanelProps {
     currentAmount: number;
     goalAmount: number;
   };
+  onClose?: () => void;
 }
 
 export function ChatInfoPanel({
@@ -26,6 +28,7 @@ export function ChatInfoPanel({
   otherUserAvatar,
   otherUserRole,
   campaign,
+  onClose,
 }: ChatInfoPanelProps) {
   const { data: session } = useSession();
   const [sharedMedia, setSharedMedia] = useState<any[]>([]);
@@ -46,10 +49,19 @@ export function ChatInfoPanel({
   }
 
   return (
-    <div className="h-full flex flex-col bg-white border-l border-gray-200">
+    <div className="h-full flex flex-col bg-white">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-gray-200 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gray-900">Thông tin</h2>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+            title="Đóng thông tin"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       {/* Scrollable content */}

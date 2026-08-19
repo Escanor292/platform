@@ -182,13 +182,14 @@ export function ChatWindow({
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="rounded-full"
+                            className={cn(
+                                "rounded-full transition-colors",
+                                showInfoPanel ? "bg-blue-50 text-blue-600 hover:bg-blue-100" : "text-gray-600 hover:bg-gray-100"
+                            )}
                             onClick={onToggleInfoPanel}
+                            title={showInfoPanel ? "Đóng thông tin" : "Xem thông tin"}
                         >
-                            <Info className={cn(
-                                "h-5 w-5",
-                                showInfoPanel ? "text-primary" : "text-gray-600"
-                            )} />
+                            <Info className="h-5 w-5" />
                         </Button>
                         <Button variant="ghost" size="icon" className="rounded-full">
                             <MoreVertical className="h-5 w-5 text-gray-600" />
