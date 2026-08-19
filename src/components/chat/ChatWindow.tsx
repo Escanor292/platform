@@ -146,10 +146,25 @@ export function ChatWindow({
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-    // Auto scroll to bottom when new messages arrive
+    // Theo dõi conversationId để biết khi nào mở cuộc trò chuyện mới
+    const prevConversationIdRef = useRef(conversationId);
+
+    // Auto scroll: chỉ cuộn trong vùng tin nhắn, không làm trang bị trôi
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
+        const scrollArea = scrollAreaRef.current;
+        if (!scrollArea) return;
+        const isNewConversation = prevConversationIdRef.current !== conversationId;
+        prevConversationIdRef.current = conversationId;
+        if (isNewConversation) {
+            // Mở cuộc trò chuyện mới: cuộn về cuối tin nhắn gần nhất, đứng yên trong khung
+            scrollArea.scrollTop = scrollArea.scrollHeight;
+            return;
+        }
+        const isNearBottom = scrollArea.scrollHeight - scrollArea.scrollTop - scrollArea.clientHeight < 150;
+        if (isNearBottom) {
+            scrollArea.scrollTop = scrollArea.scrollHeight;
+        }
+    }, [messages, conversationId]);
 
     // Cleanup recording timer on unmount
     useEffect(() => {
@@ -426,11 +441,13 @@ export function ChatWindow({
                 return m;
             });
             onMessagesUpdate?.(updatedMessages);
-            // Cuộn về tin nhắn vừa mở sau một chút delay để UI kịp render
+            // Cuộn về tin nhắn vừa mở trong vùng tin nhắn (không làm trang bị trôi)
             await new Promise((resolve) => setTimeout(resolve, 100));
+            const scrollArea = scrollAreaRef.current;
             const bubble = document.getElementById(`message-bubble-${messageId}`);
-            if (bubble) {
-                bubble.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (scrollArea && bubble) {
+                const top = bubble.offsetTop - scrollArea.clientHeight / 2 + bubble.clientHeight / 2;
+                scrollArea.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
             }
         } catch (err: any) {
             console.error('Reveal error:', err);
