@@ -403,6 +403,26 @@ export function ChatWindow({
         }
     };
 
+    // ─── Sensitive message reveal ────────────────────────────────
+    const handleRevealMessage = async (messageId: string) => {
+        try {
+            const response = await fetch(`/api/chat/conversations/${conversationId}/messages/${messageId}/reveal`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                alert(data.error || 'Không thể mở tin nhắn nhạy cảm');
+            }
+            // Sau khi reveal, reload lại messages để UI cập nhật trạng thái revealedBy
+            await new Promise((resolve) => setTimeout(resolve, 300));
+            window.location.reload();
+        } catch (err: any) {
+            console.error('Reveal error:', err);
+            alert('Không thể mở tin nhắn nhạy cảm');
+        }
+    };
+
     // ─── Call buttons (feature placeholder) ───────────────────────
     const handleCall = (type: 'voice' | 'video') => {
         alert(
@@ -480,26 +500,26 @@ export function ChatWindow({
                         >
                             <Video className="h-5 w-5 text-gray-600" />
                         </Button>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className={cn(
-                                "rounded-full transition-colors",
-                                showInfoPanel ? "bg-blue-50 text-blue-600 hover:bg-blue-100" : "text-gray-600 hover:bg-gray-100"
-                            )}
-                            onClick={onToggleInfoPanel}
-                            title={showInfoPanel ? "Đóng thông tin" : "Xem thông tin"}
-                        >
-                            <Info className="h-5 w-5" />
-                        </Button>
-                        {/* More options menu */}
+                        {/* Menu gộp: Thông tin + các hành động cuộc trò chuyện */}
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="rounded-full" title="Thêm tùy chọn">
-                                    <MoreVertical className="h-5 w-5 text-gray-600" />
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className={cn(
+                                        "rounded-full transition-colors",
+                                        showInfoPanel ? "bg-blue-50 text-blue-600 hover:bg-blue-100" : "text-gray-600 hover:bg-gray-100"
+                                    )}
+                                    title={showInfoPanel ? "Đóng thông tin" : "Thông tin và tùy chọn"}
+                                >
+                                    <Info className="h-5 w-5" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-56">
+                                <DropdownMenuItem onClick={onToggleInfoPanel}>
+                                    <Info className="h-4 w-4 mr-2" />
+                                    {showInfoPanel ? 'Đóng thông tin' : 'Xem thông tin'}
+                                </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => setShowSearchDialog(true)}>
                                     <Search className="h-4 w-4 mr-2" />
                                     Tìm kiếm trong cuộc trò chuyện
@@ -628,11 +648,27 @@ export function ChatWindow({
                                                 )}
 
                                                 {/* Text content */}
-                                                {message.text && (
+                                                {message.text && (isRevealed ? (
                                                     <p className="text-sm whitespace-pre-wrap break-words">
-                                                        {isRevealed ? message.text : '🔒 Tin nhắn nhạy cảm'}
+                                                        {message.text}
+                                                        {message.sensitive && isCurrentUser && (
+                                                            <span className="ml-2 text-[10px] text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">🔒 Nhạy cảm</span>
+                                                        )}
                                                     </p>
-                                                )}
+                                                ) : (
+                                                    <div className="flex flex-col items-center gap-2 bg-black/10 rounded-lg p-4 my-1">
+                                                        <span className="text-lg">🔒</span>
+                                                        <p className="text-xs text-gray-600">Tin nhắn nhạy cảm</p>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="text-xs"
+                                                            onClick={() => handleRevealMessage(message._id?.toString() || '')}
+                                                        >
+                                                            Nhấn để xem nội dung
+                                                        </Button>
+                                                    </div>
+                                                ))}
 
                                                 {/* Timestamp and seen status */}
                                                 <div className="flex items-center justify-end gap-1 mt-1">
@@ -817,7 +853,7 @@ export function ChatWindow({
                             size="icon"
                             className="rounded-full flex-shrink-0"
                             onClick={() => setIsSensitive(!isSensitive)}
-                            title={isSensitive ? "Bỏ đánh dấu nhạy cảm" : "Đánh dấu nhạy cảm"}
+                            title={isSensitive ? "Bỏ đánh dấu nhạy cảm - tin nhắn gửi đi sẽ bị che, người nhận phải bấm để xem" : "Đánh dấu nhạy cảm - tin nhắn gửi đi sẽ bị che, người nhận phải bấm để xem"}
                         >
                             <span className={isSensitive ? "text-red-500" : "text-gray-400"}>🔒</span>
                         </Button>
