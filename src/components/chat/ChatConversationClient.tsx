@@ -33,7 +33,7 @@ interface ChatConversationClientProps {
 export function ChatConversationClient({ conversationId }: ChatConversationClientProps) {
     const router = useRouter();
     const { data: session } = useSession();
-    const currentUserId = session?.user?.id || '';
+    const currentUserId = session?.user?.id as string || '';
 
     const [conversation, setConversation] = useState<MongoConversation | null>(null);
     const [messages, setMessages] = useState<MongoMessage[]>([]);
@@ -44,12 +44,12 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
     const [typingUsers, setTypingUsers] = useState<string[]>([]);
 
     useEffect(() => {
-        if (conversationId && currentUserId) {
+        if (conversationId) {
             loadConversation();
             loadMessages();
             loadAllConversations();
         }
-    }, [conversationId, currentUserId]);
+    }, [conversationId]);
 
     const loadConversation = async () => {
         try {

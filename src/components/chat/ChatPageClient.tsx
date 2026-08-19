@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { ChatSidebar } from './ChatSidebar';
 import { MongoConversation } from '@/types/chat.types';
@@ -24,6 +25,8 @@ interface Conversation {
 
 export function ChatPageClient() {
     const router = useRouter();
+    const { data: session } = useSession();
+    const currentUserId = session?.user?.id as string || '';
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -43,7 +46,6 @@ export function ChatPageClient() {
 
             // Map MongoConversation to Conversation interface
             const mappedConversations: Conversation[] = data.conversations.map((conv: MongoConversation) => {
-                const currentUserId = 'current_user_id'; // TODO: Get from session
                 const otherParticipant = conv.participants.find((p: any) => p.userId !== currentUserId);
 
                 return {
