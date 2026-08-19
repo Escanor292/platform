@@ -7,6 +7,7 @@ import { ChatWindow } from './ChatWindow';
 import { ChatSidebar } from './ChatSidebar';
 import { ChatInfoPanel } from './ChatInfoPanel';
 import { MongoConversation, MongoMessage } from '@/types/chat.types';
+import { cn } from '@/lib/utils';
 
 interface Message {
     id: string;
@@ -157,9 +158,12 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
 
     return (
         <div className="container mx-auto px-4 pt-24 pb-8 max-w-7xl h-[calc(100vh-8rem)]">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-0 h-full rounded-lg border border-gray-200 overflow-hidden bg-white">
+            <div className={cn(
+                "grid gap-0 h-full rounded-lg border border-gray-200 overflow-hidden bg-white",
+                showInfoPanel ? "grid-cols-1 lg:grid-cols-[320px_1fr_320px]" : "grid-cols-1 lg:grid-cols-[320px_1fr]"
+            )}>
                 {/* Left: Chat Sidebar */}
-                <div className="hidden lg:flex lg:col-span-1 h-full border-r border-gray-200">
+                <div className="hidden lg:flex min-w-0 overflow-hidden border-r border-gray-200">
                     <ChatSidebar
                         conversations={allConversations}
                         activeConversationId={conversationId}
@@ -169,7 +173,7 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                 </div>
 
                 {/* Middle: Chat Window */}
-                <div className="col-span-1 lg:col-span-2 h-full">
+                <div className="min-w-0 overflow-hidden">
                     <ChatWindow
                         conversationId={conversationId}
                         recipientName={otherParticipant?.name || 'Người dùng'}
@@ -186,7 +190,7 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
 
                 {/* Right: Info Panel */}
                 {showInfoPanel && (
-                    <div className="hidden lg:flex lg:col-span-1 h-full border-l border-gray-200">
+                    <div className="hidden lg:flex min-w-0 overflow-hidden border-l border-gray-200">
                         <ChatInfoPanel
                             conversationId={conversationId}
                             otherUserId={otherParticipant?.userId}

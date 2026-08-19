@@ -101,9 +101,9 @@ export function ChatPageClient() {
 
     return (
         <div className="container mx-auto px-4 pt-24 pb-8 max-w-7xl h-[calc(100vh-8rem)]">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-0 h-full rounded-lg border border-gray-200 overflow-hidden bg-white">
+            <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-0 h-full rounded-lg border border-gray-200 overflow-hidden bg-white">
                 {/* Left: Chat Sidebar */}
-                <div className="col-span-1 lg:col-span-1 h-full">
+                <div className="min-w-0 overflow-hidden">
                     <ChatSidebar
                         conversations={conversations}
                         onSelectConversation={handleSelectConversation}
@@ -113,7 +113,7 @@ export function ChatPageClient() {
                 </div>
 
                 {/* Right: Placeholder */}
-                <div className="hidden lg:flex lg:col-span-3 h-full flex-col items-center justify-center p-8 text-center text-gray-500">
+                <div className="hidden lg:flex h-full flex-col items-center justify-center p-8 text-center text-gray-500">
                     <div className="max-w-md">
                         <h3 className="text-lg font-semibold text-gray-900 mb-1">Chọn cuộc trò chuyện</h3>
                         <p className="text-sm text-gray-500">

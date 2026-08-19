@@ -141,9 +141,9 @@ export function ChatWindow({
 
     return (
         <>
-            <div className="flex h-full flex-col bg-white">
+            <div className="flex h-full flex-col min-h-0 bg-white">
                 {/* Header */}
-                <div className="flex items-center justify-between border-b p-4">
+                <div className="flex items-center justify-between border-b p-4 flex-shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="relative">
                             <Avatar className="h-10 w-10">
@@ -198,7 +198,7 @@ export function ChatWindow({
                 </div>
 
                 {/* Messages */}
-                <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+                <ScrollArea className="flex-1 p-4 min-h-0" ref={scrollAreaRef}>
                     <div className="space-y-4">
                         {/* Load more button */}
                         {hasMore && onLoadMore && (
@@ -348,7 +348,7 @@ export function ChatWindow({
                 </ScrollArea>
 
                 {/* Input */}
-                <div className="border-t p-4">
+                <div className="border-t p-4 flex-shrink-0">
                     <div className="flex items-end gap-2">
                         <div className="flex gap-1">
                             <Button variant="ghost" size="icon" className="rounded-full flex-shrink-0" title="Đính kèm tệp">
