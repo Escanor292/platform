@@ -3,7 +3,7 @@
  * Multi-layer security for user-generated content
  */
 
-import DOMPurify from 'dompurify';
+import DOMPurify, { type Config as DOMPurifyConfig } from 'dompurify';
 import {
   ALLOWED_HTML_TAGS,
   ALLOWED_HTML_ATTRIBUTES,
@@ -16,7 +16,7 @@ import { SanitizeOptions, SanitizeResult } from '@/types/editor';
 // DOMPURIFY CONFIGURATION
 // ============================================
 
-const DEFAULT_SANITIZE_CONFIG: DOMPurify.Config = {
+const DEFAULT_SANITIZE_CONFIG: DOMPurifyConfig = {
   ALLOWED_TAGS: [...ALLOWED_HTML_TAGS],
   ALLOWED_ATTR: Object.keys(ALLOWED_HTML_ATTRIBUTES).reduce((acc, tag) => {
     return [...acc, ...ALLOWED_HTML_ATTRIBUTES[tag]];
@@ -44,7 +44,7 @@ export function sanitizeHtml(
 ): string {
   if (!html || typeof html !== 'string') return '';
 
-  const config: DOMPurify.Config = {
+  const config: DOMPurifyConfig = {
     ...DEFAULT_SANITIZE_CONFIG,
     ...(options.allowedTags && { ALLOWED_TAGS: options.allowedTags }),
     ...(options.allowedAttributes && { ALLOWED_ATTR: Object.values(options.allowedAttributes).flat() }),
