@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import {
     Send,
@@ -18,16 +19,29 @@ import {
     Info,
     Mic,
     Search,
+    Loader2,
+    Trash2,
+    Flag,
+    Ban,
+    X,
 } from 'lucide-react';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { MongoMessage } from '@/types/chat.types';
+import { MongoMessage, MessageAttachment } from '@/types/chat.types';
 
 interface ChatWindowProps {
     conversationId: string;
     recipientName: string;
     recipientAvatar?: string;
+    recipientUserId?: string;
     messages: MongoMessage[];
     currentUserId: string;
     onSendMessage: (content: string, attachments?: File[], sensitive?: boolean) => void;
@@ -39,10 +53,42 @@ interface ChatWindowProps {
     hasMore?: boolean;
 }
 
+// Bộ emoji phổ biến cho người dùng Việt Nam
+const EMOJI_LIST = [
+    '😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '🙃',
+    '😉', '😊', '😇', '🥰', '😍', '🤩', '😘', '😗', '😚', '😙',
+    '🥲', '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫',
+    '🤔', '🫡', '🤐', '🤨', '😐', '😑', '😶', '🫥', '😏', '😒',
+    '🙄', '😬', '🤥', '😌', '😔', '😪', '🤤', '😴', '😷', '🤒',
+    '🤕', '🤢', '🤮', '🥵', '🥶', '🥴', '😵', '🤯', '🤠', '🥳',
+    '🥸', '😎', '🤓', '🧐', '😕', '🫤', '😟', '🙁', '☹️', '😮',
+    '😯', '😲', '😳', '🥺', '🥹', '😦', '😧', '😨', '😰', '😥',
+    '😢', '😭', '😱', '😖', '😣', '😞', '😓', '😩', '😫', '🥱',
+    '😤', '😡', '😠', '🤬', '😈', '👿', '💀', '☠️', '💩', '🤡',
+    '👍', '👎', '👌', '✌️', '🤞', '🤟', '🤘', '🤙', '👏', '🙌',
+    '🫶', '👐', '🤝', '🙏', '✍️', '💪', '❤️', '🧡', '💛', '💚',
+    '💙', '💜', '🖤', '🤍', '💔', '❣️', '💕', '💗', '💖', '💘',
+    '💝', '💯', '💢', '💥', '💫', '✨', '🎉', '🎊', '🔥', '⭐',
+];
+
+interface ReportReason {
+    value: string;
+    label: string;
+}
+
+const REPORT_REASONS: ReportReason[] = [
+    { value: 'spam', label: 'Spam / Quảng cáo' },
+    { value: 'harassment', label: 'Quấy rối / Bắt nạt' },
+    { value: 'inappropriate', label: 'Nội dung không phù hợp' },
+    { value: 'scam', label: 'Lừa đảo' },
+    { value: 'other', label: 'Lý do khác' },
+];
+
 export function ChatWindow({
     conversationId,
     recipientName,
     recipientAvatar,
+    recipientUserId,
     messages,
     currentUserId,
     onSendMessage,
@@ -53,6 +99,8 @@ export function ChatWindow({
     onLoadMore,
     hasMore = false,
 }: ChatWindowProps) {
+    const router = useRouter();
+
     const [messageText, setMessageText] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const [showSearchDialog, setShowSearchDialog] = useState(false);
@@ -60,6 +108,37 @@ export function ChatWindow({
     const [searchResults, setSearchResults] = useState<MongoMessage[]>([]);
     const [searching, setSearching] = useState(false);
     const [isSensitive, setIsSensitive] = useState(false);
+
+    // Attachment states
+    const [pendingAttachments, setPendingAttachments] = useState<File[]>([]);
+    const [uploading, setUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const imageInputRef = useRef<HTMLInputElement>(null);
+
+    // Emoji picker state
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+    // Voice recording state
+    const [isRecording, setIsRecording] = useState(false);
+    const [recordingTime, setRecordingTime] = useState(0);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const chunksRef = useRef<Blob[]>([]);
+    const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    // Report dialog state
+    const [showReportDialog, setShowReportDialog] = useState(false);
+    const [reportReason, setReportReason] = useState('spam');
+    const [reportDescription, setReportDescription] = useState('');
+    const [reporting, setReporting] = useState(false);
+
+    // Block confirmation state
+    const [showBlockDialog, setShowBlockDialog] = useState(false);
+    const [blocking, setBlocking] = useState(false);
+
+    // Delete confirmation state
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -68,6 +147,13 @@ export function ChatWindow({
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
+
+    // Cleanup recording timer on unmount
+    useEffect(() => {
+        return () => {
+            if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+        };
+    }, []);
 
     // Get initials for avatar
     const getInitials = (name: string) => {
@@ -86,10 +172,11 @@ export function ChatWindow({
 
     // Handle send message
     const handleSend = () => {
-        if (messageText.trim()) {
-            onSendMessage(messageText.trim(), undefined, isSensitive);
+        if (messageText.trim() || pendingAttachments.length > 0) {
+            onSendMessage(messageText.trim(), pendingAttachments.length > 0 ? pendingAttachments : undefined, isSensitive);
             setMessageText('');
             setIsSensitive(false);
+            setPendingAttachments([]);
             textareaRef.current?.focus();
         }
     };
@@ -102,7 +189,123 @@ export function ChatWindow({
         }
     };
 
-    // Search messages
+    // ─── Emoji picker ─────────────────────────────────────────────
+    const insertEmoji = (emoji: string) => {
+        const textarea = textareaRef.current;
+        if (!textarea) {
+            setMessageText((prev) => prev + emoji);
+            return;
+        }
+        const start = textarea.selectionStart ?? messageText.length;
+        const end = textarea.selectionEnd ?? messageText.length;
+        const newText = messageText.slice(0, start) + emoji + messageText.slice(end);
+        setMessageText(newText);
+        // Restore cursor position after state update
+        requestAnimationFrame(() => {
+            textarea.focus();
+            const pos = start + emoji.length;
+            textarea.setSelectionRange(pos, pos);
+        });
+    };
+
+    // ─── File / image attachment ──────────────────────────────────
+    const validateFile = (file: File): string | null => {
+        if (file.size > 5 * 1024 * 1024) {
+            return `File "${file.name}" quá lớn (tối đa 5MB)`;
+        }
+        return null;
+    };
+
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        const newFiles: File[] = [];
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const error = validateFile(file);
+            if (error) {
+                alert(error);
+                continue;
+            }
+            newFiles.push(file);
+        }
+
+        if (newFiles.length > 0) {
+            setPendingAttachments((prev) => [...prev, ...newFiles]);
+        }
+        // Reset input để có thể chọn lại cùng file
+        e.target.value = '';
+    };
+
+    const removePendingAttachment = (index: number) => {
+        setPendingAttachments((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    // ─── Voice recording ──────────────────────────────────────────
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+            mediaRecorderRef.current = recorder;
+            chunksRef.current = [];
+
+            recorder.ondataavailable = (e) => {
+                if (e.data.size > 0) chunksRef.current.push(e.data);
+            };
+
+            recorder.onstop = () => {
+                stream.getTracks().forEach((track) => track.stop());
+                const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+                const file = new File([blob], `voice-${Date.now()}.webm`, { type: 'audio/webm' });
+                if (blob.size > 0) {
+                    setPendingAttachments((prev) => [...prev, file]);
+                }
+            };
+
+            recorder.start();
+            setIsRecording(true);
+            setRecordingTime(0);
+            recordingTimerRef.current = setInterval(() => {
+                setRecordingTime((t) => t + 1);
+            }, 1000);
+        } catch (err) {
+            console.error('Microphone access denied:', err);
+            alert('Không thể truy cập micro. Vui lòng cấp quyền truy cập micro trong trình duyệt.');
+        }
+    };
+
+    const stopRecording = () => {
+        if (mediaRecorderRef.current && isRecording) {
+            mediaRecorderRef.current.stop();
+            setIsRecording(false);
+            if (recordingTimerRef.current) {
+                clearInterval(recordingTimerRef.current);
+                recordingTimerRef.current = null;
+            }
+        }
+    };
+
+    const cancelRecording = () => {
+        if (mediaRecorderRef.current && isRecording) {
+            mediaRecorderRef.current.stop();
+            mediaRecorderRef.current.stream.getTracks().forEach((t) => t.stop());
+            chunksRef.current = [];
+            setIsRecording(false);
+            if (recordingTimerRef.current) {
+                clearInterval(recordingTimerRef.current);
+                recordingTimerRef.current = null;
+            }
+        }
+    };
+
+    const formatRecordingTime = (seconds: number) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}:${s.toString().padStart(2, '0')}`;
+    };
+
+    // ─── Search messages ──────────────────────────────────────────
     const handleSearchMessages = async (query: string) => {
         if (query.trim().length < 2) {
             setSearchResults([]);
@@ -121,6 +324,92 @@ export function ChatWindow({
         } finally {
             setSearching(false);
         }
+    };
+
+    // ─── Block user ───────────────────────────────────────────────
+    const handleBlockUser = async () => {
+        try {
+            setBlocking(true);
+            const response = await fetch(`/api/chat/conversations/${conversationId}/block`, {
+                method: 'POST',
+            });
+            if (response.ok) {
+                setShowBlockDialog(false);
+                alert('Người dùng đã bị chặn. Cuộc trò chuyện này sẽ bị ẩn.');
+                router.push('/chat');
+            } else {
+                const data = await response.json();
+                alert(data.error || 'Không thể chặn người dùng');
+            }
+        } catch (err: any) {
+            console.error('Block error:', err);
+            alert(err.message || 'Không thể chặn người dùng');
+        } finally {
+            setBlocking(false);
+        }
+    };
+
+    // ─── Report conversation ──────────────────────────────────────
+    const handleReport = async () => {
+        if (!reportDescription.trim()) {
+            alert('Vui lòng mô tả lý do báo cáo');
+            return;
+        }
+        try {
+            setReporting(true);
+            const response = await fetch(`/api/chat/conversations/${conversationId}/report`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    reason: reportReason,
+                    description: reportDescription.trim(),
+                }),
+            });
+            if (response.ok) {
+                setShowReportDialog(false);
+                setReportDescription('');
+                alert('Cảm ơn bạn đã báo cáo. Đội ngũ quản trị sẽ xem xét trong thời gian sớm nhất.');
+            } else {
+                const data = await response.json();
+                alert(data.error || 'Không thể gửi báo cáo');
+            }
+        } catch (err: any) {
+            console.error('Report error:', err);
+            alert(err.message || 'Không thể gửi báo cáo');
+        } finally {
+            setReporting(false);
+        }
+    };
+
+    // ─── Delete conversation ──────────────────────────────────────
+    const handleDeleteConversation = async () => {
+        try {
+            setDeleting(true);
+            const response = await fetch(`/api/chat/conversations/${conversationId}/delete`, {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                setShowDeleteDialog(false);
+                router.push('/chat');
+            } else {
+                const data = await response.json();
+                alert(data.error || 'Không thể xóa cuộc trò chuyện');
+            }
+        } catch (err: any) {
+            console.error('Delete error:', err);
+            alert(err.message || 'Không thể xóa cuộc trò chuyện');
+        } finally {
+            setDeleting(false);
+        }
+    };
+
+    // ─── Call buttons (feature placeholder) ───────────────────────
+    const handleCall = (type: 'voice' | 'video') => {
+        alert(
+            type === 'voice'
+                ? 'Tính năng gọi thoại đang được phát triển và sẽ ra mắt trong phiên bản sắp tới.'
+                : 'Tính năng gọi video đang được phát triển và sẽ ra mắt trong phiên bản sắp tới.'
+        );
     };
 
     // Group messages by date
@@ -173,10 +462,22 @@ export function ChatWindow({
                         >
                             <Search className="h-5 w-5 text-gray-600" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="rounded-full">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="rounded-full"
+                            onClick={() => handleCall('voice')}
+                            title="Gọi thoại"
+                        >
                             <Phone className="h-5 w-5 text-gray-600" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="rounded-full">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="rounded-full"
+                            onClick={() => handleCall('video')}
+                            title="Gọi video"
+                        >
                             <Video className="h-5 w-5 text-gray-600" />
                         </Button>
                         <Button
@@ -191,9 +492,43 @@ export function ChatWindow({
                         >
                             <Info className="h-5 w-5" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="rounded-full">
-                            <MoreVertical className="h-5 w-5 text-gray-600" />
-                        </Button>
+                        {/* More options menu */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="rounded-full" title="Thêm tùy chọn">
+                                    <MoreVertical className="h-5 w-5 text-gray-600" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-56">
+                                <DropdownMenuItem onClick={() => setShowSearchDialog(true)}>
+                                    <Search className="h-4 w-4 mr-2" />
+                                    Tìm kiếm trong cuộc trò chuyện
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    onClick={() => setShowReportDialog(true)}
+                                    className="text-red-600 focus:text-red-600"
+                                >
+                                    <Flag className="h-4 w-4 mr-2" />
+                                    Báo cáo cuộc trò chuyện
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => setShowBlockDialog(true)}
+                                    className="text-red-600 focus:text-red-600"
+                                >
+                                    <Ban className="h-4 w-4 mr-2" />
+                                    Chặn người dùng
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    onClick={() => setShowDeleteDialog(true)}
+                                    className="text-red-600 focus:text-red-600"
+                                >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Xóa cuộc trò chuyện
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </div>
 
@@ -348,18 +683,108 @@ export function ChatWindow({
                     </div>
                 </div>
 
+                {/* Pending attachments preview */}
+                {pendingAttachments.length > 0 && (
+                    <div className="border-t px-4 py-2 flex-shrink-0">
+                        <div className="flex flex-wrap gap-2 items-center">
+                            {pendingAttachments.map((file, index) => (
+                                <div
+                                    key={index}
+                                    className="relative flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-1.5"
+                                >
+                                    <span className="text-sm text-gray-700 max-w-[160px] truncate">
+                                        {file.name}
+                                    </span>
+                                    <span className="text-xs text-gray-500">
+                                        {(file.size / 1024).toFixed(0)}KB
+                                    </span>
+                                    <button
+                                        onClick={() => removePendingAttachment(index)}
+                                        className="text-gray-400 hover:text-red-500 transition-colors"
+                                        title="Xóa tệp đính kèm"
+                                    >
+                                        <X className="h-3.5 w-3.5" />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* Input */}
                 <div className="border-t p-4 flex-shrink-0">
+                    {/* Hidden file inputs */}
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        multiple
+                        className="hidden"
+                        accept="*/*"
+                        onChange={handleFileSelect}
+                    />
+                    <input
+                        ref={imageInputRef}
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleFileSelect}
+                    />
+
+                    {/* Voice recording indicator */}
+                    {isRecording && (
+                        <div className="flex items-center gap-3 mb-2 bg-red-50 border border-red-200 rounded-lg px-4 py-2">
+                            <span className="relative flex h-3 w-3">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                            </span>
+                            <span className="text-sm font-medium text-red-600">
+                                Đang ghi âm {formatRecordingTime(recordingTime)}
+                            </span>
+                            <div className="ml-auto flex gap-2">
+                                <Button variant="outline" size="sm" onClick={cancelRecording}>
+                                    Hủy
+                                </Button>
+                                <Button size="sm" className="bg-red-500 hover:bg-red-600 text-white" onClick={stopRecording}>
+                                    Gửi ghi âm
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="flex items-end gap-2">
                         <div className="flex gap-1">
-                            <Button variant="ghost" size="icon" className="rounded-full flex-shrink-0" title="Đính kèm tệp">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="rounded-full flex-shrink-0"
+                                title="Đính kèm tệp"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={uploading}
+                            >
                                 <Paperclip className="h-5 w-5 text-gray-600" />
                             </Button>
-                            <Button variant="ghost" size="icon" className="rounded-full flex-shrink-0" title="Đính kèm ảnh">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="rounded-full flex-shrink-0"
+                                title="Đính kèm ảnh"
+                                onClick={() => imageInputRef.current?.click()}
+                                disabled={uploading}
+                            >
                                 <ImageIcon className="h-5 w-5 text-gray-600" />
                             </Button>
-                            <Button variant="ghost" size="icon" className="rounded-full flex-shrink-0" title="Ghi âm">
-                                <Mic className="h-5 w-5 text-gray-600" />
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={cn(
+                                    "rounded-full flex-shrink-0",
+                                    isRecording && "text-red-500"
+                                )}
+                                title={isRecording ? "Dừng ghi âm" : "Ghi âm"}
+                                onClick={isRecording ? stopRecording : startRecording}
+                            >
+                                <Mic className="h-5 w-5" />
                             </Button>
                         </div>
 
@@ -376,8 +801,12 @@ export function ChatWindow({
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="absolute right-2 bottom-2 rounded-full"
+                                className={cn(
+                                    "absolute right-2 bottom-2 rounded-full",
+                                    showEmojiPicker && "bg-gray-100"
+                                )}
                                 title="Emoji"
+                                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                             >
                                 <Smile className="h-5 w-5 text-gray-600" />
                             </Button>
@@ -395,12 +824,34 @@ export function ChatWindow({
 
                         <Button
                             onClick={handleSend}
-                            disabled={!messageText.trim()}
+                            disabled={(!messageText.trim() && pendingAttachments.length === 0) || uploading}
                             className="rounded-full h-11 w-11 p-0 flex-shrink-0 bg-primary hover:bg-primary/90"
                         >
-                            <Send className="h-5 w-5" />
+                            {uploading ? (
+                                <Loader2 className="h-5 w-5 animate-spin" />
+                            ) : (
+                                <Send className="h-5 w-5" />
+                            )}
                         </Button>
                     </div>
+
+                    {/* Emoji picker */}
+                    {showEmojiPicker && (
+                        <div className="absolute bottom-full mb-2 right-4 w-72 bg-white border border-gray-200 rounded-xl shadow-xl z-10">
+                            <div className="grid grid-cols-8 gap-1 p-2 max-h-64 overflow-y-auto">
+                                {EMOJI_LIST.map((emoji, index) => (
+                                    <button
+                                        key={index}
+                                        type="button"
+                                        className="h-8 w-8 flex items-center justify-center text-lg hover:bg-gray-100 rounded transition-colors"
+                                        onClick={() => insertEmoji(emoji)}
+                                    >
+                                        {emoji}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Search Messages Dialog */}
@@ -456,7 +907,150 @@ export function ChatWindow({
                         </div>
                     </DialogContent>
                 </Dialog>
+
+                {/* Report Dialog */}
+                <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2">
+                                <Flag className="h-5 w-5 text-red-500" />
+                                Báo cáo cuộc trò chuyện
+                            </DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-700">Lý do báo cáo</label>
+                                <div className="space-y-1">
+                                    {REPORT_REASONS.map((reason) => (
+                                        <label
+                                            key={reason.value}
+                                            className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 cursor-pointer"
+                                        >
+                                            <input
+                                                type="radio"
+                                                name="report-reason"
+                                                value={reason.value}
+                                                checked={reportReason === reason.value}
+                                                onChange={() => setReportReason(reason.value)}
+                                                className="accent-red-500"
+                                            />
+                                            <span className="text-sm text-gray-700">{reason.label}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-700">
+                                    Mô tả chi tiết <span className="text-red-500">*</span>
+                                </label>
+                                <Textarea
+                                    placeholder="Vui lòng mô tả chi tiết vấn đề bạn gặp phải..."
+                                    value={reportDescription}
+                                    onChange={(e) => setReportDescription(e.target.value)}
+                                    className="min-h-24"
+                                />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setShowReportDialog(false)}>
+                                Hủy
+                            </Button>
+                            <Button
+                                onClick={handleReport}
+                                disabled={reporting || !reportDescription.trim()}
+                                className="bg-red-500 hover:bg-red-600 text-white"
+                            >
+                                {reporting ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                        Đang gửi...
+                                    </>
+                                ) : (
+                                    'Gửi báo cáo'
+                                )}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Block Confirmation Dialog */}
+                <Dialog open={showBlockDialog} onOpenChange={setShowBlockDialog}>
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2">
+                                <Ban className="h-5 w-5 text-red-500" />
+                                Chặn người dùng
+                            </DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-700">
+                                Bạn có chắc chắn muốn chặn <strong>{recipientName}</strong>?
+                            </p>
+                            <p className="text-sm text-gray-500">
+                                Cuộc trò chuyện này sẽ bị ẩn và người dùng không thể gửi tin nhắn cho bạn nữa.
+                            </p>
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setShowBlockDialog(false)}>
+                                Hủy
+                            </Button>
+                            <Button
+                                onClick={handleBlockUser}
+                                disabled={blocking}
+                                className="bg-red-500 hover:bg-red-600 text-white"
+                            >
+                                {blocking ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                        Đang xử lý...
+                                    </>
+                                ) : (
+                                    'Xác nhận chặn'
+                                )}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Delete Confirmation Dialog */}
+                <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2">
+                                <Trash2 className="h-5 w-5 text-red-500" />
+                                Xóa cuộc trò chuyện
+                            </DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-700">
+                                Bạn có chắc chắn muốn xóa cuộc trò chuyện với <strong>{recipientName}</strong>?
+                            </p>
+                            <p className="text-sm text-gray-500">
+                                Hành động này chỉ xóa cuộc trò chuyện ở phía bạn. Toàn bộ tin nhắn sẽ không còn hiển thị.
+                            </p>
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+                                Hủy
+                            </Button>
+                            <Button
+                                onClick={handleDeleteConversation}
+                                disabled={deleting}
+                                className="bg-red-500 hover:bg-red-600 text-white"
+                            >
+                                {deleting ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                        Đang xóa...
+                                    </>
+                                ) : (
+                                    'Xác nhận xóa'
+                                )}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
         </>
     );
-} 
+}

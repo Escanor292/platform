@@ -109,15 +109,41 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
         }
     };
 
-    const handleSendMessage = async (content: string, attachments?: File[], sensitive?: boolean) => {
-        if (!content.trim() || sending) return;
+    const handleSendMessage = async (content: string, files?: File[], sensitive?: boolean) => {
+        if ((!content.trim() && (!files || files.length === 0)) || sending) return;
 
         try {
             setSending(true);
+
+            // Upload files to Cloudinary first
+            const attachmentUrls: { url: string; type: 'image' | 'file' | 'voice'; filename?: string; size?: number; mimeType?: string }[] = [];
+            if (files && files.length > 0) {
+                for (const file of files) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    const uploadResponse = await fetch('/api/upload', {
+                        method: 'POST',
+                        body: formData,
+                    });
+                    if (!uploadResponse.ok) {
+                        const errData = await uploadResponse.json().catch(() => ({ error: 'Upload failed' }));
+                        throw new Error(errData.error || `Không thể tải lên file "${file.name}"`);
+                    }
+                    const uploadData = await uploadResponse.json();
+                    attachmentUrls.push({
+                        url: uploadData.url,
+                        type: file.type.startsWith('audio/') ? 'voice' : file.type.startsWith('image/') ? 'image' : 'file',
+                        filename: file.name,
+                        size: file.size,
+                        mimeType: file.type,
+                    });
+                }
+            }
+
             const response = await fetch(`/api/chat/conversations/${conversationId}/messages`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: content, attachments: [], sensitive }),
+                body: JSON.stringify({ text: content, attachments: attachmentUrls, sensitive }),
             });
 
             if (!response.ok) {
@@ -175,6 +201,7 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                         conversationId={conversationId}
                         recipientName={otherParticipant?.name || 'Người dùng'}
                         recipientAvatar={otherParticipant?.avatarUrl}
+                        recipientUserId={otherParticipant?.userId}
                         messages={messages}
                         currentUserId={currentUserId}
                         onSendMessage={handleSendMessage}
