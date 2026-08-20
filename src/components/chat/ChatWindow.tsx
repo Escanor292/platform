@@ -121,16 +121,15 @@ function EmojiPickerPortal({
     onClickCapture: () => void;
     onSelect: (emoji: string) => void;
 }) {
-    const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
+    const [pos, setPos] = useState<{ bottom: number; right: number } | null>(null);
 
     const update = useCallback(() => {
         if (inputRef.current) {
             const r = inputRef.current.getBoundingClientRect();
-            const PICKER_HEIGHT = 430; // header + tabs + grid + padding
             const GAP = 8;
-            // Bảng emoji hiện ngay phía trên ô nhập; nếu không đủ chỗ thì bám sát mép trên màn hình
-            const top = Math.max(8, r.top - PICKER_HEIGHT - GAP);
-            setPos({ top, right: window.innerWidth - r.right + 16 });
+            // Bảng emoji bám ngay phía trên ô nhập, không có khoảng trống
+            const bottom = Math.max(window.innerHeight - r.top + GAP, 40);
+            setPos({ bottom, right: window.innerWidth - r.right + 16 });
         }
     }, [inputRef]);
 
@@ -152,7 +151,7 @@ function EmojiPickerPortal({
     return createPortal(
         <div
             className="fixed z-[100] animate-in fade-in zoom-in-95 duration-150"
-            style={{ top: pos.top, right: pos.right }}
+            style={{ bottom: pos.bottom, right: pos.right }}
             onClickCapture={onClickCapture}
         >
             <EmojiPicker position="top" onSelect={onSelect} />
@@ -1016,7 +1015,7 @@ export function ChatWindow({
                                 variant="ghost"
                                 size="icon"
                                 className={cn(
-                                    "absolute right-2 bottom-2 rounded-full",
+                                    "absolute right-2 bottom-1/2 translate-y-1/2 rounded-full",
                                     showEmojiPicker && "bg-gray-100"
                                 )}
                                 title="Emoji"

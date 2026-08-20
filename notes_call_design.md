@@ -192,3 +192,21 @@ Ngoài ra user muốn "đồng nhất màu xám" — có thể chỉ cần thêm
 - Còn lại: typecheck + commit (email nguyenquachphutai@gmail.com, name Escanor292) + push → báo user hard reload 2 tab.
 - Quy trình push: cd ~/platform && npx tsc --noEmit 2>&1 | grep -c "src/" (mong 0) && git add -A && git -c user.email="nguyenquachphutai@gmail.com" -c user.name="Escanor292" commit -m "..." && git push origin HEAD:main
 - Dev server: localhost:3322 (session shell "check" chạy ok, session "dev" bị lỗi shell khi env chưa load).
+
+
+## Phase 20 (21/8): Tinh chỉnh bảng emoji bám sát ô nhập
+Yêu cầu user: (1) có khoảng trống giữa bảng emoji và ô nhập → bảng cần "xích xuống dưới" bám sát; (2) nút emoji (icon mặt cười) dịch xuống chút cho cân bằng theo chiều dọc với ô nhập văn bản.
+
+Ảnh user: picker hiện dính lên HEADER khung chat (bị header che phần trên, tabs bị cắt), còn phía dưới có khoảng trống giữa picker đáy và ô nhập.
+
+File: src/components/chat/ChatWindow.tsx
+- EmojiPickerPortal (dòng 115-162): pos = {top, right}; top = Math.max(8, r.top - PICKER_HEIGHT - GAP), PICKER_HEIGHT=430, GAP=8; right = window.innerWidth - r.right + 16. Render qua createPortal document.body, style={{top, right}}, className fixed z-[100].
+- inputContainerRef gắn tại div className="border-t p-4 flex-shrink-0 relative".
+- EmojiPicker root (EmojiPicker.tsx dòng ~270): className `z-50 w-80 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden mb-2` (đã bỏ absolute/right-0).
+- Nơi dùng portal: ~dòng 1052: <EmojiPickerPortal inputRef={inputContainerRef} onClickCapture={() => setShowEmojiPicker(false)} onSelect={...} />.
+
+CHẨN ĐOÁN hiện tượng ảnh: Math.max(8, ...) clamped → top=8 → bảng dính mép trên màn hình, cách xa ô nhập = khoảng trống. Picker cao thực (khi có tabs) > khoảng trống phía trên → bị header che phần trên? Không — top=8 nghĩa là dính trên, grid hiển thị từ dưới xuống, header KHÔNG che; nhưng ảnh cho thấy bảng bị che phía trên bởi header khung chat → nghĩa là top KHÔNG bị clamped, r.top - 438 nằm TRONG vùng header. Và đáy picker cách ô nhập ~40px = GAP + dư. → Bảng cần tính lại: dùng BOTTOM anchor: bottom = window.innerHeight - r.top + 8 (bám ngay trên ô nhập).
+
+QUYẾT ĐỊNH SỬA:
+1. EmojiPickerPortal: đổi pos từ {top,right} sang {top: bottomAnchored} — đặt style `bottom: ${innerHeight - r.top + 8}px, right: ${innerWidth - r.right + 16}px`. Bỏ top hoàn toàn, không cần Math.max — picker sẽ luôn bám ngay trên ô nhập; nếu vượt quá mép trên thì overflow màn hình bị cắt (chấp nhận, hoặc vẫn clamp bottom >= innerHeight - ...). Giữ clamp: bottom = Math.max(window.innerHeight - r.top + 8, 40).
+2. Nút emoji căn dọc: hàng input dùng flex items-end; đổi wrapper chứa icon emoji + lock thành items-center (giữ hàng icons trái items-end giữ nguyên để mic/attach bám đáy) — kiểm tra cấu trúc trước khi sửa (dòng ~917 flex items-end gap-2 gồm div icons-trái + div flex-1 + div icons-phải + button).
