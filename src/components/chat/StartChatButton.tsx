@@ -4,6 +4,10 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { MessageCircle, Loader2 } from "lucide-react";
+import {
+  encodeProductMarker,
+  type ProductCardData,
+} from "@/components/chat/ProductMessageCard";
 
 interface StartChatButtonProps {
   campaignId?: string;
@@ -17,6 +21,10 @@ interface StartChatButtonProps {
   rewardTitle?: string;
   /** Giá bán sản phẩm hiển thị trong tin nhắn giới thiệu */
   rewardPrice?: string;
+  /** Ảnh sản phẩm (URL) để hiển thị trong thẻ sản phẩm trên tin nhắn */
+  rewardImage?: string;
+  /** Giá gốc bị gạch (nếu có khuyến mãi) */
+  rewardOriginalPrice?: string;
   variant?: "default" | "outline" | "none";
   className?: string;
   label?: string;
@@ -31,6 +39,8 @@ export function StartChatButton({
   rewardId,
   rewardTitle,
   rewardPrice,
+  rewardImage,
+  rewardOriginalPrice,
   variant = "default",
   className = "",
   label,
@@ -85,14 +95,19 @@ export function StartChatButton({
       let introMessage: string | null = null;
       if (rewardId && rewardTitle) {
         const rewardUrl = `${window.location.origin}/products/${rewardId}`;
-        const priceLine = rewardPrice ? `💰 Giá: ${rewardPrice}\n` : "";
+        const productCard = encodeProductMarker({
+          id: rewardId,
+          title: rewardTitle,
+          price: rewardPrice || "",
+          image: rewardImage,
+          originalPrice: rewardOriginalPrice,
+        } as ProductCardData);
         introMessage =
           `👋 Xin chào ${campaignOwnerName}!\n\n` +
-          `Tôi muốn trao đổi về sản phẩm của bạn:\n` +
-          `📦 ${rewardTitle}\n` +
-          priceLine +
-          `🔗 ${rewardUrl}\n\n` +
-          `Bạn có thể tư vấn thêm cho tôi về sản phẩm này không?`;
+          `Tôi muốn trao đổi về sản phẩm của bạn:\n\n` +
+          `${productCard}\n\n` +
+          `Bạn có thể tư vấn thêm cho tôi về sản phẩm này không?\n` +
+          `🔗 ${rewardUrl}`;
       } else if (campaignTitle) {
         const campaignUrl = campaignSlug
           ? `${window.location.origin}/campaigns/${campaignSlug}`

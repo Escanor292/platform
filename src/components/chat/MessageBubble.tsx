@@ -4,6 +4,10 @@ import { MongoMessage } from "@/types/chat.types";
 import { UserAvatar } from "./UserAvatar";
 import { formatTime } from "@/lib/utils";
 import Link from "next/link";
+import {
+  parseProductSegments,
+  ProductMessageCard,
+} from "./ProductMessageCard";
 
 interface MessageBubbleProps {
   message: MongoMessage;
@@ -58,7 +62,21 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
               : "bg-white border border-gray-100 text-gray-900 rounded-tl-none mr-auto"
             }`}
         >
-          <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">{message.text}</p>
+          <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words space-y-2">
+            {parseProductSegments(message.text).map((seg, i) =>
+              seg.type === "product" ? (
+                <ProductMessageCard
+                  key={`product-${i}`}
+                  data={seg.data}
+                  className="my-1"
+                />
+              ) : (
+                <p key={`text-${i}`} className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+                  {linkify(seg.content)}
+                </p>
+              )
+            )}
+          </div>
         </div>
 
         {/* Timestamp */}
@@ -67,5 +85,26 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
         </span>
       </div>
     </div>
+  );
+}
+
+/** Đổi URL trần trong text thành link bấm được */
+function linkify(text: string) {
+  const urlRegex = /\b(https?:\/\/[^\s<>"']+)/g;
+  const parts = text.split(urlRegex);
+  return parts.map((part, i) =>
+    urlRegex.test(part) ? (
+      <a
+        key={i}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline break-all"
+      >
+        {part}
+      </a>
+    ) : (
+      <span key={i}>{part}</span>
+    )
   );
 }

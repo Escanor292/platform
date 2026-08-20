@@ -386,6 +386,7 @@ export default async function ProductDetailPage({
                   title={reward.title}
                   image={images[0] || ''}
                   price={Number(reward.minAmount)}
+                  originalPrice={reward.maxAmount ? Number(reward.maxAmount) : undefined}
                   stock={reward.stock}
                   contactUserId={contactUserId}
                   ownerName={campaign?.users?.name || 'Nhà sáng tạo'}

@@ -15,6 +15,8 @@ interface AddToCartButtonProps {
   contactUserId: string;
   ownerName: string;
   campaignId?: string | null;
+  /** Giá gốc bị gạch (nếu có khuyến mãi) */
+  originalPrice?: number;
   className?: string;
 }
 
@@ -32,6 +34,7 @@ export function AddToCartButton({
   contactUserId,
   ownerName,
   campaignId,
+  originalPrice,
   className = "",
 }: AddToCartButtonProps) {
   const { addItem, items } = useCart();
@@ -46,7 +49,11 @@ export function AddToCartButton({
         campaignId={campaignId || undefined}
         rewardId={rewardId}
         rewardTitle={title}
-        rewardPrice={`${price}đ`}
+        rewardImage={image || undefined}
+        rewardPrice={`${price.toLocaleString("vi-VN")}đ`}
+        rewardOriginalPrice={
+          originalPrice ? `${originalPrice.toLocaleString("vi-VN")}đ` : undefined
+        }
         className={`flex-1 ${className}`}
       />
     );

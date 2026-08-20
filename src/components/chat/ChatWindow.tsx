@@ -35,6 +35,7 @@ import {
     DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { ProductMessageCard, parseProductSegments } from './ProductMessageCard';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { MongoMessage, MessageAttachment } from '@/types/chat.types';
@@ -56,6 +57,40 @@ interface ChatWindowProps {
     onLoadMore?: () => void;
     hasMore?: boolean;
     onMessagesUpdate?: (updated: MongoMessage[]) => void;
+}
+
+/** Đổi URL trần trong text thành link bấm được */
+function linkifyText(text: string) {
+    const urlRegex = /\b(https?:\/\/[^\s<>"']+)/g;
+    const parts = text.split(urlRegex);
+    return parts.map((part, i) =>
+        urlRegex.test(part) ? (
+            <a
+                key={i}
+                href={part}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline break-all"
+            >
+                {part}
+            </a>
+        ) : (
+            <span key={i}>{part}</span>
+        )
+    );
+}
+
+/** Render nội dung tin nhắn: phân tách thẻ sản phẩm thành ProductMessageCard */
+function renderMessageText(text: string) {
+    return parseProductSegments(text).map((seg, i) =>
+        seg.type === 'product' ? (
+            <ProductMessageCard key={`product-${i}`} data={seg.data} className="my-1" />
+        ) : (
+            <p key={`text-${i}`} className="text-sm whitespace-pre-wrap break-words">
+                {linkifyText(seg.content)}
+            </p>
+        )
+    );
 }
 
 // Bộ emoji phổ biến cho người dùng Việt Nam
@@ -707,12 +742,12 @@ export function ChatWindow({
 
                                                 {/* Text content */}
                                                 {message.text && (isRevealed ? (
-                                                    <p className="text-sm whitespace-pre-wrap break-words">
-                                                        {message.text}
+                                                    <div className="space-y-1">
+                                                        {renderMessageText(message.text)}
                                                         {message.sensitive && isCurrentUser && (
-                                                            <span className="ml-2 text-[10px] text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">🔒 Nhạy cảm</span>
+                                                            <span className="inline-flex ml-2 text-[10px] text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5 align-middle">🔒 Nhạy cảm</span>
                                                         )}
-                                                    </p>
+                                                    </div>
                                                 ) : (
                                                     <div className="flex flex-col items-center gap-2 bg-black/10 rounded-lg p-4 my-1">
                                                         <span className="text-lg">🔒</span>
