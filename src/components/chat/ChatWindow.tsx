@@ -1,6 +1,6 @@
 'use client';
-
 import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -536,33 +536,63 @@ export function ChatWindow({
             <div className="flex h-full w-full flex-col min-h-0 min-w-0 bg-white">
                 {/* Header */}
                 <div className="flex items-center justify-between border-b p-4 flex-shrink-0">
-                    <div className="flex items-center gap-3">
-                        <div className="relative">
-                            <Avatar className={`h-10 w-10 ${recipientDeleted ? "grayscale opacity-60" : ""}`}>
-                                {recipientDeleted ? (
-                                    <AvatarFallback className="bg-gray-200 text-gray-400">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                                    </AvatarFallback>
+                        <div className="flex items-center gap-3">
+                            <div className="relative">
+                                {recipientUserId && !recipientDeleted ? (
+                                    <Link href={`/profile/${recipientUserId}`} title={`Xem trang cá nhân của ${recipientName}`}>
+                                        <Avatar className={`h-10 w-10 transition-transform hover:scale-105 ${recipientDeleted ? "grayscale opacity-60" : ""}`}>
+                                            {recipientDeleted ? (
+                                                <AvatarFallback className="bg-gray-200 text-gray-400">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                                </AvatarFallback>
+                                            ) : (
+                                                <>
+                                                    <AvatarImage src={recipientAvatar} alt={recipientName} />
+                                                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white">
+                                                        {getInitials(recipientName)}
+                                                    </AvatarFallback>
+                                                </>
+                                            )}
+                                        </Avatar>
+                                        {isOnline && !recipientDeleted && (
+                                            <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white" />
+                                        )}
+                                    </Link>
                                 ) : (
                                     <>
-                                        <AvatarImage src={recipientAvatar} alt={recipientName} />
-                                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white">
-                                            {getInitials(recipientName)}
-                                        </AvatarFallback>
+                                        <Avatar className={`h-10 w-10 ${recipientDeleted ? "grayscale opacity-60" : ""}`}>
+                                            {recipientDeleted ? (
+                                                <AvatarFallback className="bg-gray-200 text-gray-400">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                                </AvatarFallback>
+                                            ) : (
+                                                <>
+                                                    <AvatarImage src={recipientAvatar} alt={recipientName} />
+                                                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white">
+                                                        {getInitials(recipientName)}
+                                                    </AvatarFallback>
+                                                </>
+                                            )}
+                                        </Avatar>
+                                        {isOnline && !recipientDeleted && (
+                                            <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white" />
+                                        )}
                                     </>
                                 )}
-                            </Avatar>
-                            {isOnline && !recipientDeleted && (
-                                <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white" />
-                            )}
+                            </div>
+                            <div>
+                                {recipientUserId && !recipientDeleted ? (
+                                    <Link href={`/profile/${recipientUserId}`} className="hover:text-primary transition-colors">
+                                        <h3 className={`font-semibold ${recipientDeleted ? "text-gray-400 italic" : "text-gray-900"}`}>{recipientName}</h3>
+                                    </Link>
+                                ) : (
+                                    <h3 className={`font-semibold ${recipientDeleted ? "text-gray-400 italic" : "text-gray-900"}`}>{recipientName}</h3>
+                                )}
+                                <p className="text-xs text-gray-500">
+                                    {recipientDeleted ? 'Tài khoản đã bị xóa' : isOnline ? 'Đang hoạt động' : 'Không hoạt động'}
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 className={`font-semibold ${recipientDeleted ? "text-gray-400 italic" : "text-gray-900"}`}>{recipientName}</h3>
-                            <p className="text-xs text-gray-500">
-                                {recipientDeleted ? 'Tài khoản đã bị xóa' : isOnline ? 'Đang hoạt động' : 'Không hoạt động'}
-                            </p>
-                        </div>
-                    </div>
 
                     <div className="flex items-center gap-2">
                         <Button
