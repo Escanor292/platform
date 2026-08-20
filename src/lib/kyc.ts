@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { KYCStatus } from "@prisma/client";
+import { KYCStatus } from "../../prisma/generated/client";
 
 /**
  * Kiểm tra user đã KYC chưa

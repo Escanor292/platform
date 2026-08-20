@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { AuditAction } from "@prisma/client";
+import { AuditAction } from "../../prisma/generated/client";
 import { auditLogMongoService } from "@/services/mongodb/audit-log.service";
 import { activityLogService } from "@/services/mongodb/activity-log.service";
 interface CreateAuditLogParams {

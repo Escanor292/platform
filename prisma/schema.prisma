@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "./generated/client"
 }
 
 datasource db {
@@ -509,7 +510,7 @@ model reviews {
 
 model rewards {
   id           String    @id
-  campaignId   String
+  campaignId   String?
   projectId    String?
   title        String
   description  String?
@@ -525,7 +526,7 @@ model rewards {
   productVideo  String?
   updatedAt             DateTime
   pledges                pledges[]
-  campaigns            campaigns @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaigns            campaigns? @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   projects             projects? @relation(fields: [projectId], references: [id], onDelete: SetNull)
   blog_posts           blog_posts[]
   project_reward_links project_reward_links[]

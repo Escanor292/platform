@@ -93,6 +93,25 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
           createdAt: true,
           updatedAt: true,
           _count: { select: { project_reward_links: true } },
+          rewards: {
+            where: { isActive: true },
+            select: {
+              id: true,
+              title: true,
+              description: true,
+              minAmount: true,
+              maxAmount: true,
+              campaignId: true,
+              stock: true,
+              maxQuantity: true,
+              deliveryDate: true,
+              isActive: true,
+              productImages: true,
+              productVideo: true,
+              createdAt: true,
+            },
+            orderBy: { createdAt: 'asc' },
+          },
           project_blog_links: { select: { blogPostId: true } },
           campaigns: {
             where: { status: { in: ["ACTIVE", "SUCCESS"] } },
@@ -164,6 +183,13 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
         maxAmount: reward.maxAmount !== null ? Number(reward.maxAmount) : null,
       })),
     })),
+    rewards: ((project as any).rewards as any[])
+      .filter((reward: any) => !reward.campaignId)
+      .map((reward: any) => ({
+        ...reward,
+        minAmount: Number(reward.minAmount),
+        maxAmount: reward.maxAmount !== null ? Number(reward.maxAmount) : null,
+      })),
   }));
 
   // Tính toán thống kê

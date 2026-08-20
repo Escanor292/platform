@@ -92,8 +92,8 @@ export async function POST(req: NextRequest) {
         const reward = await prisma.rewards.create({
             data: {
                 id: crypto.randomUUID(),
-                campaignId: resolvedCampaignId as string,
-                projectId: resolvedProjectId,
+                campaignId: resolvedCampaignId || undefined,
+                projectId: resolvedProjectId || undefined,
                 isIncludedInProject: resolvedIncludedInProject,
                 title,
                 description,

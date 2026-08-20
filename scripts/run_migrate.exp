@@ -1,0 +1,12 @@
+#!/usr/bin/expect -f
+set timeout 600
+set env(DATABASE_URL) $env(DATABASE_URL)
+spawn npx prisma migrate dev --name $argv
+expect {
+    "Apply these changes?" { send "y\r"; exp_continue }
+    "Everything is now in sync" { }
+    "Database now up to date" { }
+    "Migrations applied" { }
+    timeout { puts "TIMEOUT"; exit 1 }
+    eof { }
+}

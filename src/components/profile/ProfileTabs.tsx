@@ -182,6 +182,14 @@ export function ProfileTabs({
                     });
                 }
             });
+
+            // Sản phẩm trực tiếp thuộc dự án (không qua chiến dịch nào)
+            (project.rewards || []).forEach((reward: any) => {
+                if (reward.isActive && !seen.has(reward.id)) {
+                    products.push({ reward, campaign: null, isMain: true });
+                    seen.add(reward.id);
+                }
+            });
         });
 
         return { products, gifts };
@@ -569,6 +577,11 @@ export function ProfileTabs({
                                                                         {campaign.title}
                                                                     </span>
                                                                 )}
+                                                                {!campaign && (
+                                                                    <span className="text-[11px] text-emerald-600 font-bold uppercase ml-auto">
+                                                                        Sản phẩm độc lập
+                                                                    </span>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -593,22 +606,17 @@ export function ProfileTabs({
                                                     >
                                                         <Share2 size={14} />
                                                     </button>
-                                                    {campaign?.slug ? (
-                                                        <Link
-                                                            href={`/dashboard/creator/rewards/${campaign.slug}/edit/${reward.id}`}
-                                                            className="p-2 bg-white rounded-lg shadow-md hover:bg-gray-100 transition"
-                                                            title="Sửa sản phẩm"
-                                                        >
-                                                            <Pencil size={16} className="text-gray-600" />
-                                                        </Link>
-                                                    ) : (
-                                                        <button
-                                                            className="p-2 bg-gray-100 rounded-lg opacity-50 cursor-not-allowed"
-                                                            title="Sửa sản phẩm"
-                                                        >
-                                                            <Pencil size={16} className="text-gray-400" />
-                                                        </button>
-                                                    )}
+                                                    <Link
+                                                        href={
+                                                            campaign?.slug
+                                                                ? `/dashboard/creator/rewards/${campaign.slug}/edit/${reward.id}`
+                                                                : `/products/${reward.id}?edit=1`
+                                                        }
+                                                        className="p-2 bg-white rounded-lg shadow-md hover:bg-gray-100 transition"
+                                                        title="Sửa sản phẩm"
+                                                    >
+                                                        <Pencil size={16} className="text-gray-600" />
+                                                    </Link>
                                                     <button
                                                         onClick={() => handleDelete(reward.id, reward.title, `/api/rewards/${reward.id}`)}
                                                         disabled={deletingId === reward.id}

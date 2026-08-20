@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { BlacklistType } from "@prisma/client";
+import { BlacklistType } from "../../prisma/generated/client";
 
 /**
  * Kiểm tra IP có bị blacklist không
