@@ -74,7 +74,7 @@ export function ReactionRow({
     // (kể cả khi chưa có phản ứng nào), giống Messenger/Zalo
     if (!pickerOpen && list.length === 0) {
         return (
-            <div className={cn('relative inline-flex items-center gap-1 mt-1', alignment === 'right' ? 'ml-auto' : '')} onPointerDown={(e) => e.stopPropagation()}>
+            <div className={cn('relative inline-flex items-center gap-1 mt-1 self-end', alignment === 'left' ? 'self-start' : '')} onPointerDown={(e) => e.stopPropagation()}>
                 <button
                     type="button"
                     title="Thả cảm xúc"
@@ -92,7 +92,7 @@ export function ReactionRow({
 
     return (
         <div
-            className={cn('relative inline-flex items-center gap-1 mt-1', alignment === 'right' ? 'ml-auto' : '')}
+            className={cn('relative inline-flex items-center gap-1 mt-1 self-end', alignment === 'left' ? 'self-start' : '')}
             onPointerDown={(e) => e.stopPropagation()}
         >
             {/* Nút thêm phản ứng */}

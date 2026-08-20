@@ -794,6 +794,7 @@ export function ChatWindow({
                                                 isCurrentUser ? 'justify-end' : 'justify-start'
                                             )}
                                         >
+                                            <div className={cn('flex flex-col min-w-0', isCurrentUser ? 'items-end' : 'items-start')}>
                                             {!isCurrentUser && (
                                                 <Avatar className="h-8 w-8 flex-shrink-0">
                                                     {showAvatar ? (
@@ -888,7 +889,7 @@ export function ChatWindow({
 
                                             </div>
 
-                                            {/* Reactions (thả cảm xúc) — nằm ngoài bong bóng tin nhắn */}
+                                            {/* Reactions (thả cảm xúc) — nằm ngay dưới bong bóng tin nhắn */}
                                             <ReactionRow
                                                 reactions={message.reactions}
                                                 currentUserId={currentUserId}
@@ -896,6 +897,7 @@ export function ChatWindow({
                                                 onToggleReaction={handleToggleReaction}
                                                 alignment={isCurrentUser ? 'right' : 'left'}
                                             />
+                                            </div>
                                         </div>
                                     );
                                 })}

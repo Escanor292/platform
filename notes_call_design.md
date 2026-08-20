@@ -283,3 +283,21 @@ Pill "❤️ 1" hiện dưới tin nhắn cuối, nút 👍+ (Thả cảm xúc) 
 
 ## 20:36 — ReactionRow đưa ra ngoài bubble (đúng yêu cầu user)
 Pill "❤️ 1" giờ nằm bên ngoài bong bóng màu xanh, bong bóng gọn lại như trước. Screenshot xác nhận. Đang kiểm tra pill tin người khác (alignment left) trước khi push.
+
+
+## 20:41 — Pill vẫn lệch ngoài bong bóng phải
+Vấn đề: div flex-col wrapper giãn full chiều rộng do cha justify-end → pill inline-flex căn trái trong wrapper full-width nên trông như nằm ngoài bong bóng. Fix: thêm `items-end` khi isCurrentUser, `items-start` khi không, hoặc đặt pill trong cùng div chứa bubble (trong div rounded-2xl nhưng ngoài nội dung) — nhưng user muốn pill NGOÀI nền màu. Giải pháp: wrapper flex-col + `items-end`/`items-start` cho pill căn đúng cạnh bong bóng; đồng thời bubble div vẫn max-w-[70%] tự căn.
+
+
+## 20:42 — Nguyên nhân pill lệch: MessageReaction.tsx div ReactionRow có `ml-auto` khi alignment right (và pill button có ml-auto? không) — div wrapper inline-flex items-center gap-1 với ml-auto → nội dung bị dồn hết sang phải container full-width. Bong bóng nằm ngoài div này nên không bị ảnh hưởng. Fix: bỏ ml-auto trong MessageReaction.tsx; căn bằng align-self trên div (self-end/self-start) để pill hàng nằm đúng cạnh bong bóng.
+
+
+## 20:43 — Fix pill nằm ngay dưới bong bóng (đang thực hiện)
+Yêu cầu user: pill phản ứng phải nằm ngay BÊN DƯỚI bong bóng chat, không lệch ra ngoài.
+Trạng thái: (1) ChatWindow.tsx: đã nhóm bubble + ReactionRow trong div flex-col items-end/items-start OK. (2) MessageReaction.tsx: div wrapper ReactionRow vẫn dùng 'ml-auto' khi alignment right → làm pill hàng bị dồn sang phải cực. Cần đổi 'ml-auto' → 'self-end' (và left → 'self-start') ở 2 chỗ:
+- Dòng ~77: return sớm khi list rỗng (div nút 👍+)
+- Dòng ~94-96: div chính render picker + pills
+Cách sửa: dùng Python sed hoặc read file rồi edit từng dòng riêng biệt. Sau đó typecheck, commit push (git -c user.name="NQP Tai" -c user.email="nguyenquachphutai@gmail.com"). Conversation test: 6a86bd6d6dbff94146f47778, dev http://localhost:3322 (log /tmp/dev2.log), user test2 id 92df92ff-0f15-469f-9f24-99b44984bd13, tin test có reaction ❤️ mid 6a876183672d3f039de8ae23.
+
+
+## 20:43b — Screenshot sau fix self-end: pill ❤️1 nằm ngay dưới cạnh phải bong bóng (phong cách Messenger), bong bóng gọn. Chấp nhận được. Commit + push.
