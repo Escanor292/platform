@@ -15,7 +15,7 @@ import { Metadata } from 'next';
 import RichTextRenderer from '@/components/shared/RichTextRenderer';
 import { ProductBoxRenderer } from '@/components/shared/ProductBoxRenderer';
 import { auth } from '@/lib/auth';
-import OwnerEditPanel from '@/components/OwnerEditPanel';
+import BlogDetailPageClient from './BlogDetailPageClient';
 import {
   getBlogPostBySlug,
   getBlogPostList,
@@ -171,7 +171,7 @@ export default async function BlogDetailPage({
   const relatedPosts = await getRelatedPosts(post.id);
 
   return (
-    <>
+    <BlogDetailPageClient post={post}>
       <div className="min-h-screen bg-white">
         {/* Breadcrumbs */}
         <div className="border-b border-gray-200 bg-white">
@@ -443,24 +443,7 @@ export default async function BlogDetailPage({
           />
         </article>
       </div>
-
-      {/* Owner Edit Panel */}
-      <OwnerEditPanel
-        isOwner={!!isAuthor}
-        blocks={[
-          {
-            label: 'Nội dung bài viết',
-            editUrl: `/blog/editor?slug=${slug}`,
-            description: 'Tiêu đề, nội dung, ảnh bìa'
-          },
-          {
-            label: 'Tags',
-            editUrl: `/blog/editor?slug=${slug}`,
-            description: 'Thẻ bài viết'
-          }
-        ]}
-      />
-    </>
+    </BlogDetailPageClient>
   );
 }
 

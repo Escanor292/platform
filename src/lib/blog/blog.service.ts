@@ -92,6 +92,8 @@ export async function createBlogPost(
       publishedAt: status === 'PUBLISHED' ? new Date() : null,
       wordCount,
       readingTimeMinutes,
+      // Fallback: store content in PostgreSQL when MongoDB is unavailable
+      content: data.content || undefined,
       blog_post_categories: data.categoryIds
         ? {
           create: data.categoryIds.map((categoryId) => ({
@@ -127,7 +129,7 @@ export async function createBlogPost(
     },
   });
 
-  // Create content in MongoDB
+    // Create content in MongoDB
   try {
     const mongoContentId = await createBlogContent({
       postId: post.id,
@@ -137,16 +139,19 @@ export async function createBlogPost(
       wordCount,
       readingTimeMinutes,
     });
-
     // Update PostgreSQL with MongoDB reference
     await prisma.blog_posts.update({
       where: { id: post.id },
       data: { mongoContentId },
     });
   } catch (error) {
-    // Rollback: delete PostgreSQL record if MongoDB fails
-    await prisma.blog_posts.delete({ where: { id: post.id } });
-    throw new Error('Failed to create blog content in MongoDB');
+    // Fallback: keep content in PostgreSQL `content`/`richContent` columns
+    // instead of deleting the post. The reader layer falls back to these
+    // columns when MongoDB content is unavailable.
+    console.error(
+      '[BLOG] Failed to create content in MongoDB, keeping content in PostgreSQL:',
+      error
+    );
   }
 
   return formatBlogPostResponse(post);
@@ -315,7 +320,18 @@ export async function getBlogPostBySlug(
     content = await getBlogContent(post.id);
   } catch (error) {
     console.error('[BLOG] Failed to fetch content from MongoDB for post:', post.id, error);
-    // Continue without content - post will display with empty content
+    // Continue without MongoDB content - will fall back to PG columns below
+  }
+
+  // Fallback: use PostgreSQL content column when MongoDB content is missing
+  if (!content?.content && !content?.richContent) {
+    if (post.content) {
+      content = {
+        content: post.content,
+        richContent: null,
+        tableOfContents: null,
+      } as any;
+    }
   }
 
   // Increment view count
@@ -389,18 +405,23 @@ export async function updateBlogPost(
     throw new Error('You can only edit your own posts');
   }
 
-  // Create version before update
-  const oldContent = await getBlogContent(postId);
-  if (oldContent) {
-    await createVersion({
-      postId,
-      authorId: currentUserId,
-      titleSnapshot: post.title,
-      excerptSnapshot: post.excerpt || undefined,
-      contentSnapshot: oldContent.content,
-      richContentSnapshot: oldContent.richContent,
-      changeNote: 'Update',
-    });
+  // Create version before update (graceful: skip versioning if MongoDB fails)
+  let oldContent = null;
+  try {
+    oldContent = await getBlogContent(postId);
+    if (oldContent) {
+      await createVersion({
+        postId,
+        authorId: currentUserId,
+        titleSnapshot: post.title,
+        excerptSnapshot: post.excerpt || undefined,
+        contentSnapshot: oldContent.content,
+        richContentSnapshot: oldContent.richContent,
+        changeNote: 'Update',
+      });
+    }
+  } catch (error) {
+    console.error('[BLOG] Failed to create version (MongoDB unavailable), continuing update:', error);
   }
 
   // Calculate new word count if content changed
@@ -411,13 +432,27 @@ export async function updateBlogPost(
     wordCount = calculateWordCount(data.content, data.richContent);
     readingTimeMinutes = calculateReadingTime(wordCount);
 
-    // Update MongoDB content
-    await updateBlogContent(postId, {
-      content: data.content,
-      richContent: data.richContent,
-      wordCount,
-      readingTimeMinutes,
-    });
+    // Update MongoDB content (fallback to PostgreSQL columns on failure)
+    try {
+      await updateBlogContent(postId, {
+        content: data.content,
+        richContent: data.richContent,
+        wordCount,
+        readingTimeMinutes,
+      });
+    } catch (error) {
+      console.error('[BLOG] Failed to update MongoDB content, keeping in PostgreSQL:', error);
+      // Content stays in the PostgreSQL `content` column, which the reader
+      // layer falls back to when MongoDB content is unavailable.
+      try {
+        await prisma.blog_posts.update({
+          where: { id: postId },
+          data: { content: data.content || null },
+        });
+      } catch (pgError) {
+        console.error('[BLOG] Failed to persist content to PostgreSQL:', pgError);
+      }
+    }
   }
 
   // Generate new slug if title changed
