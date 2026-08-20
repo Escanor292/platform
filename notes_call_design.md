@@ -98,3 +98,7 @@ C) Emoji: user nói "hiện mã ký tự thay vì emoji" — EmojiPicker render 
 - ĐÃ LÀM: EmojiPicker trong ChatWindow di chuyển wrapper từ "absolute bottom-full right-4" → "absolute -top-2 right-0 translate-y-[-100%] z-50" (hiện bên phải khung nhập, phía trên). Picker nội tại position='top' giữ nguyên (bottom-full relative wrapper) — wrapper mới đặt đúng chỗ.
 - Emoji "mã ký tự": EmojiPicker render emoji thật {emoji}; user thấy mã do font Windows thiếu glyph → không fix được từ code. Để nguyên.
 - Tiếp: tsc + lint + commit push (email nguyenquachphutai@gmail.com), dev server 3322 OK.
+
+### Emoji picker vị trí (fix 20/8 lần 2)
+Cấu trúc hiện tại: div Input (border-t p-4, không relative) chứa `<div flex items-end gap-2>` (dòng 917-1003, không relative) và picker div tuyệt đối (dòng ~1005-1019). Vì cha trực tiếp không relative, vị trí absolute của picker bị lệch xa khỏi khung nhập (người dùng báo: bấm emoji nhưng picker KHÔNG hiện ở chỗ muốn — gần vùng đánh dấu trên màn hình chat).
+Giải pháp: thêm `relative` vào div Input (dòng 876) và chỉnh picker wrapper: className="absolute bottom-[72px] right-4" (72px = chiều cao vùng input ≈ 64px+padding) → picker hiện phía trên ô nhập, sát phải, ngay trong khung chat.

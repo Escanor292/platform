@@ -874,7 +874,7 @@ export function ChatWindow({
                 )}
 
                 {/* Input */}
-                <div className="border-t p-4 flex-shrink-0">
+                <div className="border-t p-4 flex-shrink-0 relative">
                     {/* Hidden file inputs */}
                     <input
                         ref={fileInputRef}
@@ -1005,7 +1005,7 @@ export function ChatWindow({
                     {/* Emoji picker — hiện bên phải khung nhập tin nhắn (phía trên) */}
                     {showEmojiPicker && (
                         <div
-                            className="absolute -top-2 right-0 translate-y-[-100%] z-50"
+                            className="absolute bottom-[76px] right-4 z-50"
                             onClickCapture={() => setShowEmojiPicker(false)}
                         >
                             <EmojiPicker
