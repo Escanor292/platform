@@ -21,7 +21,7 @@ import { formatVND } from '@/lib/utils';
 import { auth } from '@/lib/auth';
 import ProductGallery from '@/components/products/ProductGallery';
 import { ProductQuickEdit } from '@/components/products/ProductQuickEdit';
-import { StartChatButton } from '@/components/chat/StartChatButton';
+import { AddToCartButton } from '@/components/products/AddToCartButton';
 
 function daysBetween(a: Date, b: Date): number {
   return Math.ceil((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24));
@@ -229,7 +229,7 @@ export default async function ProductDetailPage({
                     href={`/campaigns/${campaign.slug}?reward=${reward.id}`}
                     className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-pgreen text-white font-bold rounded-xl hover:bg-pgreen/90 transition-colors shadow-sm"
                   >
-                    Đóng góp ngay
+                    Ủng hộ ngay
                   </a>
                   <button
                     type="button"
@@ -381,14 +381,15 @@ export default async function ProductDetailPage({
 
               {/* Actions */}
               <div className="flex flex-wrap gap-3 mt-auto">
-                <StartChatButton
-                  campaignOwnerId={contactUserId || reward.id}
-                  campaignOwnerName={campaign?.users?.name || 'Nhà sáng tạo'}
-                  campaignId={campaign?.id}
+                <AddToCartButton
                   rewardId={reward.id}
-                  rewardTitle={reward.title}
-                  rewardPrice={formatVND(reward.minAmount)}
-                  className="flex-1"
+                  title={reward.title}
+                  image={images[0] || ''}
+                  price={Number(reward.minAmount)}
+                  stock={reward.stock}
+                  contactUserId={contactUserId}
+                  ownerName={campaign?.users?.name || 'Nhà sáng tạo'}
+                  campaignId={campaign?.id}
                 />
                 <button
                   type="button"
