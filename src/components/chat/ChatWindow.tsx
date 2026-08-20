@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -110,6 +111,49 @@ const REPORT_REASONS: ReportReason[] = [
     { value: 'other', label: 'Lý do khác' },
 ];
 
+// Bảng chọn emoji render qua Portal vào body để không bị cắt bởi overflow của khung chat
+function EmojiPickerPortal({
+    inputRef,
+    onClickCapture,
+    onSelect,
+}: {
+    inputRef: React.RefObject<HTMLDivElement | null>;
+    onClickCapture: () => void;
+    onSelect: (emoji: string) => void;
+}) {
+    const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
+
+    useEffect(() => {
+        const update = () => {
+            if (inputRef.current) {
+                const r = inputRef.current.getBoundingClientRect();
+                // Bảng emoji cao ~380px, hiện ngay phía trên ô nhập; nếu không đủ chỗ thì sát trên màn hình
+                const top = Math.max(8, r.top - 390);
+                setPos({ top, right: window.innerWidth - r.right + 16 });
+            }
+        };
+        update();
+        window.addEventListener('resize', update);
+        window.addEventListener('scroll', update, true);
+        return () => {
+            window.removeEventListener('resize', update);
+            window.removeEventListener('scroll', update, true);
+        };
+    }, [inputRef]);
+
+    if (!pos) return null;
+    return createPortal(
+        <div
+            className="fixed z-[100] animate-in fade-in zoom-in-95 duration-150"
+            style={{ top: pos.top, right: pos.right }}
+            onClickCapture={onClickCapture}
+        >
+            <EmojiPicker position="top" onSelect={onSelect} />
+        </div>,
+        document.body
+    );
+}
+
 export function ChatWindow({
     conversationId,
     recipientName,
@@ -173,6 +217,7 @@ export function ChatWindow({
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const inputContainerRef = useRef<HTMLDivElement>(null);
 
     // Theo dõi conversationId để biết khi nào mở cuộc trò chuyện mới
     const prevConversationIdRef = useRef(conversationId);
@@ -874,7 +919,7 @@ export function ChatWindow({
                 )}
 
                 {/* Input */}
-                <div className="border-t p-4 flex-shrink-0 relative">
+                <div ref={inputContainerRef} className="border-t p-4 flex-shrink-0 relative">
                     {/* Hidden file inputs */}
                     <input
                         ref={fileInputRef}
@@ -1002,20 +1047,16 @@ export function ChatWindow({
                         </Button>
                     </div>
 
-                    {/* Emoji picker — hiện bên phải khung nhập tin nhắn (phía trên) */}
+                    {/* Emoji picker — render qua portal vào body để không bị cắt bởi overflow của khung chat */}
                     {showEmojiPicker && (
-                        <div
-                            className="absolute bottom-[76px] right-4 z-50"
+                        <EmojiPickerPortal
+                            inputRef={inputContainerRef}
                             onClickCapture={() => setShowEmojiPicker(false)}
-                        >
-                            <EmojiPicker
-                                position="top"
-                                onSelect={(emoji) => {
-                                    insertEmoji(emoji);
-                                    setShowEmojiPicker(false);
-                                }}
-                            />
-                        </div>
+                            onSelect={(emoji) => {
+                                insertEmoji(emoji);
+                                setShowEmojiPicker(false);
+                            }}
+                        />
                     )}
                 </div>
 

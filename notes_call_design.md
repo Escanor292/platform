@@ -102,3 +102,35 @@ C) Emoji: user nói "hiện mã ký tự thay vì emoji" — EmojiPicker render 
 ### Emoji picker vị trí (fix 20/8 lần 2)
 Cấu trúc hiện tại: div Input (border-t p-4, không relative) chứa `<div flex items-end gap-2>` (dòng 917-1003, không relative) và picker div tuyệt đối (dòng ~1005-1019). Vì cha trực tiếp không relative, vị trí absolute của picker bị lệch xa khỏi khung nhập (người dùng báo: bấm emoji nhưng picker KHÔNG hiện ở chỗ muốn — gần vùng đánh dấu trên màn hình chat).
 Giải pháp: thêm `relative` vào div Input (dòng 876) và chỉnh picker wrapper: className="absolute bottom-[72px] right-4" (72px = chiều cao vùng input ≈ 64px+padding) → picker hiện phía trên ô nhập, sát phải, ngay trong khung chat.
+
+### Emoji picker fix lần 3 (bị che phần trên)
+Ảnh user: bảng emoji hiện phía trên input nhưng phần đầu grid (hàng emoji ngay dưới tabs) bị cắt/che — do wrapper picker nằm trong div Input relative; phần trên vượt lên bị cắt bởi một ancestor có overflow-hidden (khung chat hoặc info panel).
+Quyết định: render EmojiPicker qua ReactDOM.createPortal vào document.body, định vị fixed theo vị trí ô nhập (dùng ref inputContainerRef đo getBoundingClientRect) → không bao giờ bị cắt bởi overflow. Bottom = chiều cao viewport - top của input container + 8px spacing.
+Cần: thêm inputContainerRef vào ChatWindow; useEffect cập nhật position khi show; portal className fixed right-4 z-[100].
+
+### Trạng thái portal emoji (đang làm, 20/8 lần 3)
+ĐÃ LÀM: ChatWindow.tsx — thay picker inline bằng <EmojiPickerPortal inputRef onClickCapture onSelect>.
+CÒN PHẢI LÀM:
+1. ChatWindow.tsx: thêm `import { createPortal } from 'react-dom';` (đầu file imports).
+2. ChatWindow.tsx: thêm `const inputContainerRef = useRef<HTMLDivElement>(null);` — gắn ref vào div Input (dòng ~877: `<div className="border-t p-4 flex-shrink-0 relative">` → thêm `ref={inputContainerRef}`).
+3. ChatWindow.tsx: tạo component nội bộ `EmojiPickerPortal` (trước export function ChatWindow hoặc sau): dùng createPortal vào document.body, đo inputContainerRef.current.getBoundingClientRect() khi render; style fixed: top = rect.top - 8 - chiều cao picker (khó biết trước) → đơn giản: đặt `bottom: ${window.innerHeight - rect.top + 8}px; right: 64px;` trong wrapper div fixed z-[100]. Picker cao ~370px → nếu rect.top < 380 thì bị che header trang — clamp: top = Math.max(16, rect.top - 378).
+   CÁCH ĐƠN GIẢN HƠN: wrapper fixed với `top: clamp`, chiều cao max-h phù hợp viewport. Code mẫu:
+   ```tsx
+   function EmojiPickerPortal({ inputRef, onClickCapture, onSelect }: { inputRef: React.RefObject<HTMLDivElement | null>; onClickCapture: () => void; onSelect: (e: string) => void }) {
+       const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
+       useEffect(() => {
+           const update = () => { if (inputRef.current) { const r = inputRef.current.getBoundingClientRect(); setPos({ top: Math.max(16, r.top - 390), right: window.innerWidth - r.right + 16 }); } };
+           update();
+           window.addEventListener('resize', update); window.addEventListener('scroll', update, true);
+           return () => { window.removeEventListener('resize', update); window.removeEventListener('scroll', update, true); };
+       }, [inputRef]);
+       if (!pos) return null;
+       return createPortal(
+           <div className="fixed z-[100] animate-in fade-in zoom-in-95 duration-150" style={{ top: pos.top, right: pos.right }} onClickCapture={onClickCapture}>
+               <EmojiPicker position="top" onSelect={onSelect} />
+           </div>, document.body);
+   }
+   ```
+4. Gỡ className "absolute bottom-[76px] right-4 z-50" ở wrapper cũ — ĐÃ thay bằng EmojiPickerPortal rồi, không còn.
+5. Typecheck (npx tsc --noEmit | grep -c "src/" = 0), lint sạch, commit email nguyenquachphutai@gmail.com, push origin HEAD:main. Dev server port 3322 chạy (curl localhost:3322 = 200).
+6. Báo user: bảng emoji giờ render ngoài khung chat (portal), không bị cắt.
