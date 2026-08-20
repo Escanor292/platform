@@ -18,7 +18,9 @@ import {
 } from 'lucide-react';
 import prisma from '@/lib/prisma';
 import { formatVND } from '@/lib/utils';
+import { auth } from '@/lib/auth';
 import ProductGallery from '@/components/products/ProductGallery';
+import { ProductQuickEdit } from '@/components/products/ProductQuickEdit';
 
 function daysBetween(a: Date, b: Date): number {
   return Math.ceil((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24));
@@ -77,6 +79,18 @@ export default async function ProductDetailPage({
     : 0;
 
   const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://platform-guypmwy3d-escanor292s-projects.vercel.app'}/products/${reward.id}`;
+
+  // Kiểm tra quyền chủ sở hữu (cho chỉnh sửa nhanh tại chỗ)
+  const session = await auth();
+  const currentUserId = (session?.user as any)?.id;
+  const isAdmin = (session?.user as any)?.isAdmin === true;
+  const ownerIds = [
+    campaign?.users?.id,
+    campaign?.creatorId,
+    campaignProject?.creatorId,
+    project?.creatorId,
+  ].filter(Boolean);
+  const isOwner = isAdmin || (currentUserId && ownerIds.includes(currentUserId));
 
   // ---------- Chế độ 1: Sản phẩm thuộc chiến dịch (dạng huy động) ----------
   if (campaign) {
@@ -154,12 +168,12 @@ export default async function ProductDetailPage({
                 <div className="mb-5">
                   <div className="flex items-baseline gap-3">
                     <span className="text-3xl font-extrabold text-pgreen">
-                      {formatVND(reward.minAmount)} đ
+                      {formatVND(reward.minAmount)}
                     </span>
                     {hasDiscount && (
                       <>
                         <span className="text-lg text-gray-400 line-through">
-                          {formatVND(reward.maxAmount!)} đ
+                          {formatVND(reward.maxAmount!)}
                         </span>
                         <span className="text-xs font-bold text-white bg-red-500 px-2 py-0.5 rounded">
                           -{discountPercent}%
@@ -176,7 +190,7 @@ export default async function ProductDetailPage({
                 <div className="mb-6">
                   <div className="flex justify-between text-sm mb-1.5">
                     <span className="font-bold text-gray-900">
-                      {formatVND(totalRaised)} đ
+                      {formatVND(totalRaised)}
                     </span>
                     <span className="font-bold text-pgreen">{percent}%</span>
                   </div>
@@ -187,7 +201,7 @@ export default async function ProductDetailPage({
                     />
                   </div>
                   <div className="flex justify-between text-xs text-gray-500 mt-1.5">
-                    <span>Mục tiêu: {formatVND(goal)} đ</span>
+                    <span>Mục tiêu: {formatVND(goal)}</span>
                     {daysLeft !== null && (
                       <span className="flex items-center gap-1">
                         <Calendar size={11} /> Còn {daysLeft} ngày
@@ -203,7 +217,7 @@ export default async function ProductDetailPage({
                       Đóng góp cao nhất cho phần quà này
                     </div>
                     <div className="text-lg font-bold text-gray-900">
-                      {formatVND(topPledge.amount)} đ
+                      {formatVND(topPledge.amount)}
                     </div>
                   </div>
                 )}
@@ -255,6 +269,24 @@ export default async function ProductDetailPage({
           </div>
         </div>
         <ShareScript />
+        {isOwner && (
+          <ProductQuickEdit
+            product={{
+              id: reward.id,
+              title: reward.title,
+              description: reward.description,
+              minAmount: Number(reward.minAmount),
+              maxAmount: reward.maxAmount ? Number(reward.maxAmount) : null,
+              stock: reward.stock,
+              maxQuantity: reward.maxQuantity,
+              deliveryDate: reward.deliveryDate,
+              isActive: reward.isActive,
+              productImages: images,
+              productVideo: reward.productVideo,
+            }}
+            isOwner={isOwner}
+          />
+        )}
       </div>
     );
   }
@@ -307,12 +339,12 @@ export default async function ProductDetailPage({
               <div className="mb-5 p-4 rounded-2xl bg-cream/50 border border-pgreen/10">
                 <div className="flex items-baseline gap-3">
                   <span className="text-3xl font-extrabold text-pgreen">
-                    {formatVND(reward.minAmount)} đ
+                    {formatVND(reward.minAmount)}
                   </span>
                   {hasDiscount && (
                     <>
                       <span className="text-lg text-gray-400 line-through">
-                        {formatVND(reward.maxAmount!)} đ
+                        {formatVND(reward.maxAmount!)}
                       </span>
                       <span className="text-xs font-bold text-white bg-red-500 px-2 py-0.5 rounded">
                         -{discountPercent}%
@@ -388,6 +420,24 @@ export default async function ProductDetailPage({
         </div>
       </div>
       <ShareScript />
+      {isOwner && (
+        <ProductQuickEdit
+          product={{
+            id: reward.id,
+            title: reward.title,
+            description: reward.description,
+            minAmount: Number(reward.minAmount),
+            maxAmount: reward.maxAmount ? Number(reward.maxAmount) : null,
+            stock: reward.stock,
+            maxQuantity: reward.maxQuantity,
+            deliveryDate: reward.deliveryDate,
+            isActive: reward.isActive,
+            productImages: images,
+            productVideo: reward.productVideo,
+          }}
+          isOwner={isOwner}
+        />
+      )}
     </div>
   );
 }

@@ -82,11 +82,17 @@ export async function PUT(
             isIncludedInProject
         } = body;
 
-        // Check if user owns the reward's campaign
+        // Check if user owns the reward: chủ chiến dịch, chủ dự án hoặc admin
         const reward = await prisma.rewards.findUnique({
             where: { id },
             include: {
                 campaigns: {
+                    select: {
+                        creatorId: true,
+                        projectId: true,
+                    },
+                },
+                projects: {
                     select: {
                         creatorId: true,
                     },
@@ -98,7 +104,13 @@ export async function PUT(
             return NextResponse.json({ error: "Reward not found" }, { status: 404 });
         }
 
-        if ((reward.campaigns as any).creatorId !== (session.user as any).id) {
+        const uid = (session.user as any).id;
+        const isAdmin = (session.user as any).isAdmin === true;
+        const ownerIds = [
+            (reward.campaigns as any)?.creatorId,
+            (reward.projects as any)?.creatorId,
+        ].filter(Boolean);
+        if (!isAdmin && !ownerIds.includes(uid)) {
             return NextResponse.json({ error: "Access denied" }, { status: 403 });
         }
 
@@ -107,9 +119,12 @@ export async function PUT(
         let updateIncludedInProject: boolean | undefined = undefined;
         if (isIncludedInProject !== undefined) {
             updateIncludedInProject = Boolean(isIncludedInProject);
-            const campaignProjectId = (reward.campaigns as any).projectId;
+            const campaignProjectId = (reward.campaigns as any)?.projectId;
             if (campaignProjectId && updateIncludedInProject) {
                 updateProjectId = campaignProjectId;
+            } else if (updateIncludedInProject && reward.projects) {
+                // Sản phẩm độc lập: giữ nguyên dự án hiện tại
+                updateProjectId = reward.projectId;
             } else {
                 updateProjectId = null;
             }
@@ -155,11 +170,16 @@ export async function DELETE(
 
         const { id } = await context.params;
 
-        // Check if user owns the reward's campaign
+        // Check if user owns the reward: chủ chiến dịch, chủ dự án hoặc admin
         const reward = await prisma.rewards.findUnique({
             where: { id },
             include: {
                 campaigns: {
+                    select: {
+                        creatorId: true,
+                    },
+                },
+                projects: {
                     select: {
                         creatorId: true,
                     },
@@ -176,7 +196,13 @@ export async function DELETE(
             return NextResponse.json({ error: "Reward not found" }, { status: 404 });
         }
 
-        if ((reward.campaigns as any).creatorId !== (session.user as any).id) {
+        const uid = (session.user as any).id;
+        const isAdmin = (session.user as any).isAdmin === true;
+        const ownerIds = [
+            (reward.campaigns as any)?.creatorId,
+            (reward.projects as any)?.creatorId,
+        ].filter(Boolean);
+        if (!isAdmin && !ownerIds.includes(uid)) {
             return NextResponse.json({ error: "Access denied" }, { status: 403 });
         }
 
