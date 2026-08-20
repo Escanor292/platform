@@ -38,6 +38,7 @@ import {
 import { cn } from '@/lib/utils';
 import { ProductMessageCard, parseProductSegments } from './ProductMessageCard';
 import { EmojiPicker } from './EmojiPicker';
+import { ReactionRow } from './MessageReaction';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { MongoMessage, MessageAttachment } from '@/types/chat.types';
@@ -114,11 +115,11 @@ const REPORT_REASONS: ReportReason[] = [
 // Bảng chọn emoji render qua Portal vào body để không bị cắt bởi overflow của khung chat
 function EmojiPickerPortal({
     inputRef,
-    onClickCapture,
+    onClose,
     onSelect,
 }: {
     inputRef: React.RefObject<HTMLDivElement | null>;
-    onClickCapture: () => void;
+    onClose: () => void;
     onSelect: (emoji: string) => void;
 }) {
     const [pos, setPos] = useState<{ bottom: number; right: number } | null>(null);
@@ -153,16 +154,20 @@ function EmojiPickerPortal({
             className="fixed z-[100] animate-in fade-in zoom-in-95 duration-150"
             style={{ bottom: pos.bottom, right: pos.right }}
             onPointerDown={(e) => {
-                // Chỉ đóng picker khi click vào nền của bảng; nếu click vào nút emoji thật sự
-                // (button) thì để event tiếp tục bubble để onSelect chạy và chèn emoji
+                // Chọn nhiều emoji liên tục: bảng KHÔNG tự tắt khi bấm vào nút emoji.
+                // Chỉ đóng khi click vào nền trống của bảng (không phải button).
                 const target = e.target as HTMLElement;
-                if (!target.closest('button')) {
+                const isEmojiButton = !!target.closest('button');
+                if (isEmojiButton) {
                     e.stopPropagation();
-                    onClickCapture();
+                    // Không đóng — người dùng có thể tiếp tục chọn emoji tiếp theo
+                } else {
+                    e.stopPropagation();
+                    onClose();
                 }
             }}
         >
-            <EmojiPicker position="top" onSelect={onSelect} />
+            <EmojiPicker position="top" onSelect={onSelect} onClose={onClose} />
         </div>,
         document.body
     );
@@ -206,6 +211,30 @@ export function ChatWindow({
 
     // Emoji picker state
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+    const handleToggleReaction = async (messageId: string, emoji: string) => {
+        try {
+            const response = await fetch(
+                `/api/chat/conversations/${conversationId}/messages/${messageId}/reaction`,
+                {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ emoji }),
+                }
+            );
+            if (!response.ok) return;
+            const data = await response.json();
+            // Cập nhật cục bộ để hiển thị ngay
+            const updatedMessages = messages.map((m) =>
+                m._id?.toString() === messageId ? { ...m, reactions: data.reactions } : m
+            );
+            if (onMessagesUpdate) {
+                onMessagesUpdate(updatedMessages);
+            }
+        } catch {
+            // Bỏ qua lỗi phản ứng
+        }
+    };
 
     // Voice recording state
     const [isRecording, setIsRecording] = useState(false);
@@ -856,6 +885,15 @@ export function ChatWindow({
                                                         <span className="text-xs text-white/70">Đã xem</span>
                                                     )}
                                                 </div>
+
+                                                {/* Reactions (thả cảm xúc) */}
+                                                <ReactionRow
+                                                    reactions={message.reactions}
+                                                    currentUserId={currentUserId}
+                                                    messageId={message._id?.toString() || ''}
+                                                    onToggleReaction={handleToggleReaction}
+                                                    alignment={isCurrentUser ? 'right' : 'left'}
+                                                />
                                             </div>
                                         </div>
                                     );
@@ -1065,10 +1103,11 @@ export function ChatWindow({
                     {showEmojiPicker && (
                         <EmojiPickerPortal
                             inputRef={inputContainerRef}
-                            onClickCapture={() => setShowEmojiPicker(false)}
+                            onClose={() => setShowEmojiPicker(false)}
                             onSelect={(emoji) => {
+                                // Chèn emoji vào ô nhập nhưng KHÔNG tắt bảng — cho phép chọn nhiều emoji liên tục.
+                                // Bấm lại nút emoji để tắt bảng thủ công.
                                 insertEmoji(emoji);
-                                setShowEmojiPicker(false);
                             }}
                         />
                     )}

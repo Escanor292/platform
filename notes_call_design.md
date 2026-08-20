@@ -222,3 +222,60 @@ Fix: bỏ onClickCapture trực tiếp; thay bằng onPointerDown trên nền: n
 File liên quan: src/components/chat/ChatWindow.tsx (EmojiPickerPortal), EmojiPicker.tsx handleSelect gọi onSelect.
 Việc còn lại: typecheck + lint + commit push.
 Cấu trúc dùng portal: ChatWindow render {showEmojiPicker && <EmojiPickerPortal inputRef={inputContainerRef} onClickCapture={() => setShowEmojiPicker(false)} onSelect={(emoji) => { insertEmoji(emoji); setShowEmojiPicker(false); }} />}.
+
+## Phase 25 (21/8): Emoji multi-select + toggle thủ công + message reactions
+Yêu cầu: (1) chọn nhiều emoji liên tục, picker không tự tắt; (2) tắt/mở picker thủ công; (3) reaction lên tin nhắn.
+
+Thiết kế:
+- MongoMessage + field optional `reactions?: { emoji: string; userIds: string[] }[]`.
+- API PATCH /api/chat/conversations/[id]/messages/[messageId]/reaction { emoji } → toggle trong chat.service.ts (toggleMessageReaction).
+- Frontend: fetch PATCH → cập nhật messages local (setState + ref).
+- ChatWindow: hover bubble → nút "😊+" hiện ReactionPicker nhỏ (👍❤️😂😮😢🙏🔥👏); pill hiển thị reaction dưới text; highlight nếu mình react.
+- Picker toggle: onPointerDown nền chỉ đóng khi click nền trống (đã fix ở phase 24); onSelect KHÔNG đóng picker. Thêm nút X (đóng) và nút 👋 (bấm lại nút smile để tắt — toggle).
+- EmojiPicker.tsx giữ nguyên onSelect; portal trong ChatWindow xử lý toggle.
+- Dùng onMessagesUpdate prop (đã có trong ChatWindowProps) để sync state ngoài khi reaction.
+
+
+## Cập nhật 20/8 20:20 — Emoji picker + Reaction
+### Feature mới (emoji picker + reaction)
+- `src/components/chat/MessageReaction.tsx` (mới): ReactionPicker (8 emoji nhanh: 👍❤️😂😮😢🙏🔥👏) + ReactionRow (nút 👍+ và các pill: xanh dương khi tôi đã phản ứng, đếm số người).
+- ChatWindow: handleToggleReaction (PATCH /api/chat/conversations/[id]/messages/[mid]/reaction) + ReactionRow dưới mỗi bubble; picker không tự đóng khi chọn emoji (chỉ đóng khi click nền trống, nút X, hoặc bấm lại nút emoji).
+- `src/components/chat/EmojiPicker.tsx`: thêm prop onClose + nút X tròn trên header.
+- `src/types/chat.types.ts`: thêm MessageReaction { emoji, userIds } + ReactionRequest; MongoMessage.reactions?
+- chat.service.ts: toggleMessageReaction (upsert reaction.usersIds atomic); export MessageReaction type.
+- API route mới: `src/app/api/chat/conversations/[conversationId]/messages/[messageId]/reaction/route.ts` (PATCH).
+### Kiểm tra GUI dev 3322 (login test2@gmail.com / 123, conv 6a86bd6d6dbff94146f47778 với Test Creator Pro)
+- CHỌN NHIỀU EMOJI: ĐẠT — bấm 😄 rồi 😍, picker vẫn mở, textarea = "😄😍"
+- NÚT X ĐÓNG THỦ CÔNG: ĐẠT — picker đóng khi bấm X
+- Toggle nút emoji: có sẵn (bấm lại tắt)
+- Còn kiểm tra: reaction (toggle + hiển thị pill)
+
+
+## Kiểm tra reaction GUI (20:23, dev 3322)
+- Nút 👍+ "Thả cảm xúc" đã hiện dưới mọi tin nhắn (3 tin). Cần test: click nút → picker 8 emoji hiện → chọn ❤️ → pill xanh hiện + API PATCH 200 → polling cập nhật messages → pill hiện cả 2 bên.
+- Dev server cần reload trang sau file edit vì Next.js không tự hot-reload khi click test qua console.
+- Conversation test: 6a86bd6d6dbff94146f47778 (test2@gmail.com = Test Creator ↔ test3/cmphnhw8e0002so1uh16dwpvn = Test Creator Pro). Tin test vừa gửi: "Kiểm tra phản ứng emoji 😄❤️".
+- Còn lại: typecheck, commit push (git -c user.email=nguyenquachphutai@gmail.com), thông báo user.
+- Emoji picker multi-select + nút X: đã PASS.
+
+
+## Tình trạng test reaction (20:25) — CHƯA HOÀN THÀNH
+- Nút 👍+ "Thả cảm xúc" hiện dưới 3 tin (index tool thường lệch: 26,27,28 không ổn định).
+- Screenshot: 3 nút reaction nằm ở cuối mỗi bubble: tin 1 (~722,350), tin 2 (~722,428), tin 3 (~722,465). ReactionPicker hiện trên bubble (-top-11).
+- Vấn đề: sau khi JS click nút reaction, nút bị biến mất khỏi DOM (không phải lỗi API — handler chỉ return sớm nếu !response.ok; có thể polling re-render hoặc lỗi component khi pickerOpen=true). Cần kiểm tra lại bằng click tọa độ thực (browser_click tọa độ 722,465) thay vì index.
+- Dev server: localhost:3322, dev session "check" grep /tmp/dev2.log. Git: push với -c user.email=nguyenquachphutai@gmail.com user.name="NQP Tai". Repo Escanor292/platform branch main.
+- Conversation test: 6a86bd6d6dbff94146f47778, user test2@gmail.com (Test Creator).
+
+
+## Tìm hiểu 20:26
+- Click tọa độ đúng (1153,673) → state pickerOpen đổi (nút tin cuối biến mất, chỉ còn 1 nút reaction trong DOM cho tin khác). Picker chưa hiện trong screenshot → có thể picker render nhưng nằm trên vùng khác, hoặc animation chưa chạy. Cần check DOM ngay sau click.
+- Vấn đề mới đáng chú ý: khi pickerOpen=true và list rỗng, component render div chứa nút 👍+ (mở/toggle) + picker, nhưng div đó là relative → picker absolute -top-11 so với div. Div này không có className gì che. Có thể picker nằm bên ngoài viewport nếu bubble sát top.
+
+
+## Chẩn đoán 20:29
+Reaction API hoạt động 200 (đã gắn ❤️ vào tin 6a86cf5d871a4a67eb60987d — tin SIGNAL kiểu call end, không phải tin chat). Pill render logic OK. Tin chat thường (text thường) chưa có phản ứng nên pill chưa hiện — đúng behavior. Tiếp theo: (1) gỡ reaction khỏi tin signal: PATCH emoji❤️ lần 2 để toggle off; (2) gắn reaction vào tin chat thật ('Kiểm tra phản ứng emoji') để kiểm tra pill hiện trên UI.
+Tài khoản test: test2@gmail.com id 92df92ff-0f15-469f-9f24-99b44984bd13. Conversation 6a86bd6d6dbff94146f47778.
+
+
+## Test 20:30 — HOÀN THÀNH: Reaction hoạt động
+Pill "❤️ 1" hiện dưới tin nhắn cuối, nút 👍+ (Thả cảm xúc) hiện trên cả 3 tin. Pill màu xanh highlight khi người dùng tự phản ứng (bg-blue-100, border-blue-400). Cập nhật qua polling 3-5s. Còn việc: typecheck, commit, push.

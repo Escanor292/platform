@@ -14,6 +14,7 @@ import {
   ConversationCampaign,
   ChatReportReason,
   MessageType,
+  MessageReaction,
 } from '@/types/chat.types';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -567,10 +568,73 @@ export async function deleteMessage(messageId: string, userId: string): Promise<
   );
 }
 
+/**
+ * Toggle a reaction (emoji) on a message.
+ * - Nếu user đã react emoji này → xóa user khỏi danh sách; nếu danh sách rỗng → xóa entry.
+ * - Nếu user chưa react → thêm user vào entry (tạo mới nếu chưa có emoji này).
+ */
+export async function toggleMessageReaction(
+  messageId: string,
+  userId: string,
+  emoji: string
+): Promise<MessageReaction[] | null> {
+  if (!ObjectId.isValid(messageId)) {
+    throw new Error('Invalid message ID');
+  }
+  const trimmed = emoji.trim();
+  if (!trimmed) {
+    throw new Error('Invalid emoji');
+  }
+
+  const db = await getDb();
+  const messagesCollection = db.collection<MongoMessage>(MESSAGES_COLLECTION);
+
+  // Bỏ phản ứng nếu user đã react emoji này trước đó
+  await messagesCollection.updateOne(
+    { _id: new ObjectId(messageId), 'reactions.emoji': trimmed, 'reactions.userIds': userId },
+    {
+      $pull: { 'reactions.$.userIds': userId },
+      $set: { updatedAt: new Date() },
+    }
+  );
+  // Xóa entry rỗng
+  await messagesCollection.updateOne(
+    { _id: new ObjectId(messageId), 'reactions.userIds': { $size: 0 } },
+    { $pull: { reactions: { userIds: { $size: 0 } } }, $set: { updatedAt: new Date() } }
+  );
+
+  const message = await messagesCollection.findOne({ _id: new ObjectId(messageId) });
+  if (!message) {
+    return null;
+  }
+
+  const existing = message.reactions?.find((r) => r.emoji === trimmed);
+  if (existing) {
+    // Đã có entry nhưng chưa có user này → thêm user
+    if (!existing.userIds.includes(userId)) {
+      await messagesCollection.updateOne(
+        { _id: new ObjectId(messageId), 'reactions.emoji': trimmed },
+        { $push: { 'reactions.$.userIds': userId }, $set: { updatedAt: new Date() } }
+      );
+    }
+  } else {
+    // Chưa có emoji này → tạo entry mới
+    await messagesCollection.updateOne(
+      { _id: new ObjectId(messageId) },
+      {
+        $push: { reactions: { emoji: trimmed, userIds: [userId] } },
+        $set: { updatedAt: new Date() },
+      }
+    );
+  }
+
+  const updated = await messagesCollection.findOne({ _id: new ObjectId(messageId) });
+  return updated?.reactions ?? null;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Report & Block Operations
 // ─────────────────────────────────────────────────────────────────────────────
-
 /**
  * Report conversation or message
  */

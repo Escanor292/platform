@@ -92,6 +92,13 @@ export interface MongoMessage extends MongoBase {
   senderDeleted?: boolean;
   sensitive?: boolean; // Sensitive content (spoiler)
   revealedBy: string[]; // Array of user IDs who revealed sensitive content
+  /** Phản ứng cảm xúc (reaction) lên tin nhắn: mỗi emoji một entry */
+  reactions?: MessageReaction[];
+}
+
+export interface MessageReaction {
+  emoji: string;
+  userIds: string[]; // Array of user IDs who reacted with this emoji
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

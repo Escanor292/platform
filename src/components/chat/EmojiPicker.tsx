@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { X } from 'lucide-react';
 
 export interface EmojiCategory {
     id: string;
@@ -146,6 +148,8 @@ interface EmojiPickerProps {
     onSelect: (emoji: string) => void;
     /** Vị trí đặt picker, mặc định 'top' */
     position?: 'top' | 'bottom';
+    /** Callback khi người dùng yêu cầu đóng picker thủ công */
+    onClose?: () => void;
 }
 
 /**
@@ -155,7 +159,7 @@ interface EmojiPickerProps {
  * - Phần "Gần đây" lưu 24 emoji dùng gần nhất (localStorage)
  * - Nhấn ESC để đóng
  */
-export function EmojiPicker({ onSelect, position = 'top' }: EmojiPickerProps) {
+export function EmojiPicker({ onSelect, position = 'top', onClose }: EmojiPickerProps) {
     const [activeCategory, setActiveCategory] = useState('smileys');
     const [searchQuery, setSearchQuery] = useState('');
     const [recentEmojis, setRecentEmojis] = useState<string[]>([]);
@@ -272,15 +276,27 @@ export function EmojiPicker({ onSelect, position = 'top' }: EmojiPickerProps) {
             className={`z-50 w-80 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden ${position === 'top' ? 'mb-2' : 'mt-2'}`}
         >
             {/* Header + tìm kiếm */}
-            <div className="p-2 border-b border-gray-100">
+            <div className="flex items-center gap-1 p-2 border-b border-gray-100">
                 <Input
                     ref={searchRef}
                     placeholder="Tìm emoji... (vd: yêu, cười, cảm ơn)"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="h-8 text-sm"
+                    className="h-8 text-sm flex-1"
                     autoFocus
                 />
+                {onClose && (
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full flex-shrink-0"
+                        title="Đóng bảng emoji"
+                        onClick={onClose}
+                    >
+                        <X className="h-4 w-4" />
+                    </Button>
+                )}
             </div>
 
             {/* Danh mục */}
