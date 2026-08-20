@@ -624,7 +624,7 @@ export function ChatWindow({
                                     <h3 className={`font-semibold ${recipientDeleted ? "text-gray-400 italic" : "text-gray-900"}`}>{recipientName}</h3>
                                 )}
                                 <p className="text-xs text-gray-500">
-                                    {recipientDeleted ? 'Tài khoản đã bị xóa' : isOnline ? 'Đang hoạt động' : 'Không hoạt động'}
+                                    {recipientDeleted ? 'Tài khoản đã xóa' : isOnline ? 'Đang hoạt động' : 'Không hoạt động'}
                                 </p>
                             </div>
                         </div>

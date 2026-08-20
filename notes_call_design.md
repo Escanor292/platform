@@ -149,3 +149,26 @@ Quyết định: h-[calc(100dvh-11rem)] = 901-176 = 725 → 64+725+150=939 > 901
 nav=78px, pt-24→container top=78+16(px-4 margin?) thực tế 78, containerH=972 (do h-[calc(100vh-8rem)]=1100-128=972 OK), footerH=293px, footerTop=1050. Khung chat (chatFrame) cao 844px → đáy 1018.
 Vấn đề user thấy: trên máy user (901px viewport, zoom?) khung chat chỉ ~560px vì... đo sandbox: khung chat chỉ 844/972 do header ChatWindow p-4 border? Không — chatFrame là div "flex h-full w-full rounded-lg border" cao 844 ≠ container 972? ChatConversationClient root là container; bên trong có div flex... Khung chat cao 844 < 972 nghĩa là có gì đó giảm chiều cao (ChatConversationClient inner div h-full). Thực tế trong sandbox khung đã dài gần hết màn hình; ảnh user có thể bị zoom. Dù vậy: yêu cầu user = "cho phần màu xanh dài ra theo chiều dọc" → tăng chiều cao khung chat: sửa container pt-24→pt-20, h-[calc(100vh-8rem)]→h-[calc(100dvh-12rem)]? container hiện 972 là ok rồi. Khung chat 844 vì ChatConversationClient inner: `<div className="flex h-full w-full rounded-lg border overflow-hidden bg-white">` — cao 844 thay vì 972-32 padding=940? 972-2*16(px-4)=940 ≠ 844. Chênh 96px = chính pt-24? Không, pt là padding trong. 940-844=96 = pt-24 bên TRONG container — h-full của inner div tính từ container content height = 972-96-32=844 ✓.
 → Muốn khung chat dài hơn: giảm pt-24→pt-16 (giảm 32px) → khung ~876px. Và có thể bỏ pb-8→pb-2. Ngoài ra user ảnh: trên máy họ khung chỉ 560px → có thể viewport họ nhỏ. Quyết định: giảm pt-24→pt-16, pb-8→pb-3 trong ChatConversationClient.
+
+### "Người dùng đã xóa" không đồng nhất (21/8)
+Ảnh user: (1) trong ConversationItem (sidebar /chat): avatar UserAvatar với deleted → có thể render avatar icon xám + tên in nghiêng; (2) trong ChatWindow header: dùng avatar + tên riêng — ảnh 2 cho thấy "Người dùng đã xóa" với avatar xám (icon SVG) tên in nghiêng nhạt. Ảnh 1 (sidebar) lại thấy avatar xanh lá "ND" đậm — nghĩa là deleted flag KHÔNG được truyền/khớp ở ConversationItem (otherParticipant.deleted false?) hoặc UserAvatar deleted render khác.
+Check: UserAvatar.tsx, ChatWindow header avatar/namedeleted logic, ConversationItem line 45 deleted={otherParticipant.deleted}.
+Fix: thống nhất 1 phong cách: avatar xám mờ (grayscale), tên "Người dùng đã xóa" hoặc tên cũ + (Người dùng đã xóa), cùng style italic gray-400 ở cả header + sidebar + bong bóng tin nhắn.
+
+### Chẩn đoán chi tiết (21/8):
+Hai nơi hiển thị khác nhau:
+1. **ConversationItem** (sidebar, dùng UserAvatar + otherParticipant.name nguyên bản): khi deleted=true → avatar xám icon User, tên in nghiêng gray-400 nhưng vẫn hiện TÊN CŨ của người dùng (vd "Nguyễn Đức"? ảnh thấy "ND"). Nếu deleted=false (DB không có flag) → avatar màu initials.
+2. **ChatWindow header** (dùng Avatar shadcn): deleted → icon xám, tên in nghiêng + "Tài khoản đã bị xóa" nhỏ.
+Ảnh user: ở sidebar (ảnh 1) "Người dùng đã xóa" hiện avatar xanh "ND" đậm — nghĩa là cuộc trò chuyện đó KHÔNG có flag deleted (tên DB = "Người dùng đã xóa" do chat.service DELETED_USER_LABEL gán khi user xóa → tên thật của participant = "Người dùng đã xóa") → deleted flag = false → render như người thường với tên lạ.
+Ảnh 2: header khung chat hiện "Người dùng đã xóa" + avatar xám (deleted=true, icon SVG).
+FIX: thống nhất bằng cách xử lý ở tên: nếu name === DELETED_USER_LABEL ('Người dùng đã xóa') → coi như deleted dù flag không có; hiển thị thống nhất: avatar xám icon User, tên in nghiêng gray-400 + phụ đề "Tài khoản đã xóa".
+Cần sửa: (a) ConversationItem: derive deleted = p.deleted || p.name === DELETED_USER_LABEL; đổi tên hiển thị thành "Người dùng đã xóa" kèm icon, bỏ link profile. (b) ChatWindow header: derive same isDeleted; tên + phụ đề giống nhau. (c) Bong bóng tin nhắn (MessageBubble?) — kiểm tra render tên người gửi đã xóa.
+Preview tin nhắn cuối (ConversationItem lastMessage) còn hiện JSON: ConversationItem dùng conversation.lastMessage.text (Mongo conversation) — describeCallSignal chỉ dùng ở loadAllConversations (ChatConversationClient mapped) → ConversationItem nhận conversation gốc (Mongo) nên lastMessage.text JSON vẫn hiện. Fix ConversationItem: mô tả call-signal ở đó.
+
+### Trạng thái phase 12 (21/8):
+ĐÃ XONG: ConversationItem.tsx — derive isDeleted = p.deleted || name === 'Người dùng đã xóa'; displayName = isDeleted ? 'Người dùng đã xóa' : name; avatar UserAvatar deleted=isDeleted; tên in nghiêng gray-400 + phụ đề "Tài khoản đã xóa"; preview lastMessage dùng describeCallSignal cho type call-signal (hàm nội bộ trong file).
+CÒN LÀM:
+1. ChatWindow header (dòng ~573-630): header đã dùng recipientDeleted prop — OK về mặt logic; nhưng tên hiển thị vẫn là recipientName gốc ("Người dùng đã xóa" nếu DB đã gán nhãn) — ổn. Phụ đề "Tài khoản đã bị xóa" (dòng 627) — thống nhất dùng "Tài khoản đã xóa" cho khớp ConversationItem.
+2. MessageBubble.tsx dòng ~52: tên người gửi đã xóa in nghiêng — ok, thêm phụ đề? không cần.
+3. Typecheck + lint + commit push (email nguyenquachphutai@gmail.com, tên Escanor292), báo user.
+Quy trình: cd ~/platform && npx tsc --noEmit 2>&1 | grep -c "src/" (mong =0) && npx next lint; git add -A && git commit -m "..." && git push origin HEAD:main. Dev server localhost:3322 đang chạy.
