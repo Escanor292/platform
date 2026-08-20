@@ -397,6 +397,7 @@ export async function sendMessage(
     lastMessage: {
       text: trimmedText,
       senderId,
+      type: messageType,
       createdAt: now,
     },
     updatedAt: now,

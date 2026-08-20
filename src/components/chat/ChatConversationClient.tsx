@@ -161,7 +161,10 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                     userDeleted: !!otherParticipant?.deleted,
                     lastMessage: {
                         id: conv.lastMessage?.senderId || '',
-                        content: conv.lastMessage?.text || '',
+                        content:
+                            conv.lastMessage?.type === 'call-signal'
+                                ? describeCallSignal(conv.lastMessage.text)
+                                : (conv.lastMessage?.text || ''),
                         createdAt: conv.lastMessage?.createdAt || new Date(),
                         isRead: false,
                     },
@@ -173,6 +176,20 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
             setAllConversations(mappedConversations);
         } catch (err) {
             console.error('Load conversations error:', err);
+        }
+    };
+
+    // Mô tả tin tín hiệu cuộc gọi cho preview (thay vì hiện JSON thô)
+    const describeCallSignal = (text: string): string => {
+        try {
+            const sig = JSON.parse(text);
+            if (sig?.type === 'call') return sig.mode === 'video' ? '📹 Cuộc gọi video đến...' : '📞 Cuộc gọi thoại đến...';
+            if (sig?.type === 'accept') return sig.mode === 'video' ? '📹 Cuộc gọi video được chấp nhận' : '📞 Cuộc gọi thoại được chấp nhận';
+            if (sig?.type === 'end' || sig?.type === 'bye') return '📵 Cuộc gọi đã kết thúc';
+            if (sig?.type === 'reject') return '❌ Cuộc gọi bị từ chối';
+            return '📞 Tín hiệu cuộc gọi';
+        } catch {
+            return '';
         }
     };
 

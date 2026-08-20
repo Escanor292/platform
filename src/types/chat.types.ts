@@ -44,6 +44,7 @@ export interface ConversationLastMessage {
   text: string;
   senderId: string;
   createdAt: Date;
+  type?: MessageType; // 'text' | 'image' | 'voice' | 'file' | 'call-signal' | ...
 }
 
 export interface MongoConversation extends MongoBase {
