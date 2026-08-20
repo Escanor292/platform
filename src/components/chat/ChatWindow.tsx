@@ -36,6 +36,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { ProductMessageCard, parseProductSegments } from './ProductMessageCard';
+import { EmojiPicker } from './EmojiPicker';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { MongoMessage, MessageAttachment } from '@/types/chat.types';
@@ -92,24 +93,6 @@ function renderMessageText(text: string) {
         )
     );
 }
-
-// Bộ emoji phổ biến cho người dùng Việt Nam
-const EMOJI_LIST = [
-    '😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '🙃',
-    '😉', '😊', '😇', '🥰', '😍', '🤩', '😘', '😗', '😚', '😙',
-    '🥲', '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫',
-    '🤔', '🫡', '🤐', '🤨', '😐', '😑', '😶', '🫥', '😏', '😒',
-    '🙄', '😬', '🤥', '😌', '😔', '😪', '🤤', '😴', '😷', '🤒',
-    '🤕', '🤢', '🤮', '🥵', '🥶', '🥴', '😵', '🤯', '🤠', '🥳',
-    '🥸', '😎', '🤓', '🧐', '😕', '🫤', '😟', '🙁', '☹️', '😮',
-    '😯', '😲', '😳', '🥺', '🥹', '😦', '😧', '😨', '😰', '😥',
-    '😢', '😭', '😱', '😖', '😣', '😞', '😓', '😩', '😫', '🥱',
-    '😤', '😡', '😠', '🤬', '😈', '👿', '💀', '☠️', '💩', '🤡',
-    '👍', '👎', '👌', '✌️', '🤞', '🤟', '🤘', '🤙', '👏', '🙌',
-    '🫶', '👐', '🤝', '🙏', '✍️', '💪', '❤️', '🧡', '💛', '💚',
-    '💙', '💜', '🖤', '🤍', '💔', '❣️', '💕', '💗', '💖', '💘',
-    '💝', '💯', '💢', '💥', '💫', '✨', '🎉', '🎊', '🔥', '⭐',
-];
 
 interface ReportReason {
     value: string;
@@ -1014,19 +997,17 @@ export function ChatWindow({
 
                     {/* Emoji picker */}
                     {showEmojiPicker && (
-                        <div className="absolute bottom-full mb-2 right-4 w-72 bg-white border border-gray-200 rounded-xl shadow-xl z-10">
-                            <div className="grid grid-cols-8 gap-1 p-2 max-h-64 overflow-y-auto">
-                                {EMOJI_LIST.map((emoji, index) => (
-                                    <button
-                                        key={index}
-                                        type="button"
-                                        className="h-8 w-8 flex items-center justify-center text-lg hover:bg-gray-100 rounded transition-colors"
-                                        onClick={() => insertEmoji(emoji)}
-                                    >
-                                        {emoji}
-                                    </button>
-                                ))}
-                            </div>
+                        <div
+                            className="absolute bottom-full right-4"
+                            onClickCapture={() => setShowEmojiPicker(false)}
+                        >
+                            <EmojiPicker
+                                position="top"
+                                onSelect={(emoji) => {
+                                    insertEmoji(emoji);
+                                    setShowEmojiPicker(false);
+                                }}
+                            />
                         </div>
                     )}
                 </div>
