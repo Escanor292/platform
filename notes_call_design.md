@@ -179,3 +179,16 @@ ConversationItem (sidebar /chat, dùng API /api/chat/conversations): nếu route
 Thực tế ảnh 1: avatar "ND" XANH (không xám) → UserAvatar deleted prop=false hoặc avatarUrl có ảnh? ND xanh = getInitials từ name "Người dùng đã xóa"?? getInitials lấy chữ cái đầu/từ cuối: "ND". Màu xanh → className gradient primary → deleted=false. → ConversationItem nhận participant deleted=false, name='Người dùng đã xóa' (hoặc tên gốc giống label).
 Vậy fix code ConversationItem isDeleted = deleted || name===label sẽ render xám. production chưa có code mới lúc user xem → chờ user refresh sau deploy. CŨNG CẦN: kiểm tra route conversations có thực sự enrich không — xem src/app/api/chat/conversations/route.ts
 Ngoài ra user muốn "đồng nhất màu xám" — có thể chỉ cần thêm avatar màu xanh ND hiện ra trong ConversationItem vì production cũ. Đợi deploy + xác nhận route.
+
+### Chẩn đoán "ngược lại" (21/8):
+- Trang /chat dùng **ChatSidebar.tsx** (component riêng, render avatar + tên trực tiếp, KHÔNG dùng ConversationItem).
+- ChatSidebar render xám khi `conversation.userDeleted === true` (avatar grayscale + tên gray-400 italic).
+- Khung chat dùng ChatConversationClient + ChatWindow (header xám khi recipientDeleted) — ĐÚNG → user thấy khi bấm vào.
+- Nếu user thấy trang /chat XANH (không xám) → nghĩa là API trả `userDeleted = false` cho user đã xóa. Xem nơi map Conversation trong ChatPageClient/API: có thể route cũ trả userDeleted từ enriched deleted flag, nhưng code mới đổi tên field? enrichDeletedUsers trả participants[].deleted — ChatPageClient map sang userDeleted? Kiểm tra!
+
+### Root cause cuối (21/8):
+- Trang /chat → ChatPageClient.tsx map API conversations → truyền vào ChatSidebar. Map CŨ không có field `userDeleted` → ChatSidebar (đã có logic render xám khi userDeleted=true) không kích hoạt → render avatar xanh + tên đậm.
+- ĐÃ SỬA ChatPageClient.tsx: thêm userDeleted?: boolean; userName dùng label 'Người dùng đã xóa' khi deleted; userDeleted = !!deleted || name===label.
+- Còn lại: typecheck + commit (email nguyenquachphutai@gmail.com, name Escanor292) + push → báo user hard reload 2 tab.
+- Quy trình push: cd ~/platform && npx tsc --noEmit 2>&1 | grep -c "src/" (mong 0) && git add -A && git -c user.email="nguyenquachphutai@gmail.com" -c user.name="Escanor292" commit -m "..." && git push origin HEAD:main
+- Dev server: localhost:3322 (session shell "check" chạy ok, session "dev" bị lỗi shell khi env chưa load).

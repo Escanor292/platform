@@ -21,6 +21,8 @@ interface Conversation {
     lastMessage: Message;
     unreadCount: number;
     isOnline?: boolean;
+    /** Tài khoản đối phương đã bị xóa khỏi hệ thống */
+    userDeleted?: boolean;
 }
 
 export function ChatPageClient() {
@@ -51,7 +53,10 @@ export function ChatPageClient() {
                 return {
                     id: conv._id?.toString() || '',
                     userId: otherParticipant?.userId || '',
-                    userName: otherParticipant?.name || 'Người dùng',
+                    userName:
+                        otherParticipant?.deleted || otherParticipant?.name === 'Người dùng đã xóa'
+                            ? 'Người dùng đã xóa'
+                            : otherParticipant?.name || 'Người dùng',
                     userAvatar: otherParticipant?.avatarUrl,
                     lastMessage: {
                         id: conv.lastMessage?.senderId || '',
@@ -61,6 +66,8 @@ export function ChatPageClient() {
                     },
                     unreadCount: conv.unreadCount[currentUserId] || 0,
                     isOnline: false,
+                    // Thống nhất giao diện "Người dùng đã xóa": dùng flag hoặc tên được gán nhãn
+                    userDeleted: !!otherParticipant?.deleted || otherParticipant?.name === 'Người dùng đã xóa',
                 };
             });
 
