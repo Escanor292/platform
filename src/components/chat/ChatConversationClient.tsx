@@ -259,7 +259,7 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
 
     if (loading) {
         return (
-            <div className="flex h-[600px] items-center justify-center">
+            <div className="container mx-auto px-4 pt-16 pb-3 max-w-7xl h-[calc(100dvh-10.5rem)] flex items-center justify-center">
                 <div className="text-gray-500">Đang tải...</div>
             </div>
         );
