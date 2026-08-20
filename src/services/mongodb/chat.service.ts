@@ -61,7 +61,16 @@ async function getUserInfo(userId: string): Promise<ConversationParticipant | nu
     },
   });
 
-  if (!user) return null;
+  if (!user) {
+    // Người dùng đã bị xóa khỏi PostgreSQL nhưng vẫn có thể tham gia chat (MongoDB)
+    return {
+      userId,
+      name: DELETED_USER_LABEL,
+      email: '',
+      role: 'deleted',
+      deleted: true,
+    } as unknown as ConversationParticipant;
+  }
 
   return {
     userId: user.id,
@@ -69,7 +78,52 @@ async function getUserInfo(userId: string): Promise<ConversationParticipant | nu
     email: user.email,
     avatarUrl: user.avatar || undefined,
     role: user.role,
-  };
+    deleted: false,
+  } as ConversationParticipant;
+}
+
+export const DELETED_USER_LABEL = 'Người dùng đã xóa';
+
+/**
+ * Kiểm tra và đánh dấu người tham gia đã bị xóa tài khoản (không còn trong PostgreSQL).
+ * Dữ liệu chat MongoDB vẫn giữ nguyên, chỉ bổ sung flag `deleted`.
+ */
+export async function enrichDeletedUsers<T extends { participants: ConversationParticipant[]; participantIds: string[] }>(
+  items: T[]
+): Promise<T[]> {
+  const userIds = [...new Set(items.flatMap((c) => c.participantIds))];
+  if (userIds.length === 0) return items;
+
+  const existing = await prisma.users.findMany({
+    where: { id: { in: userIds } },
+    select: { id: true, avatar: true, displayName: true, name: true, email: true, role: true },
+  });
+  const existingIds = new Set(existing.map((u) => u.id));
+
+  return items.map((item) => ({
+    ...item,
+    participants: item.participants.map((p) => {
+      const isDeleted = !existingIds.has(p.userId);
+      const fresh = existing.find((u) => u.id === p.userId);
+      // Nếu user vẫn còn thì làm mới thông tin (avatar/role) từ PostgreSQL
+      if (!isDeleted && fresh) {
+        return {
+          ...p,
+          name: fresh.displayName || fresh.name,
+          email: fresh.email,
+          avatarUrl: fresh.avatar || p.avatarUrl,
+          role: fresh.role,
+          deleted: false,
+        } as ConversationParticipant;
+      }
+      return {
+        ...p,
+        name: isDeleted ? DELETED_USER_LABEL : p.name,
+        role: isDeleted ? 'deleted' : p.role,
+        deleted: isDeleted,
+      } as ConversationParticipant;
+    }),
+  }));
 }
 
 /**
@@ -216,7 +270,8 @@ export async function getUserConversations(userId: string): Promise<MongoConvers
     .sort({ updatedAt: -1 })
     .toArray();
 
-  return conversations;
+  // Đánh dấu người tham gia đã bị xóa tài khoản (không sửa MongoDB, chỉ bổ sung flag)
+  return (await enrichDeletedUsers(conversations)) as unknown as MongoConversation[];
 }
 
 /**
@@ -238,7 +293,10 @@ export async function getConversationById(
     participantIds: userId, // Ensure user is participant
   });
 
-  return conversation;
+  if (!conversation) return null;
+
+  const enriched = await enrichDeletedUsers([conversation as any]);
+  return enriched[0] as unknown as MongoConversation;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -414,7 +472,20 @@ export async function getMessages(
   const hasMore = messages.length > limit;
   const resultMessages = hasMore ? messages.slice(0, limit) : messages;
 
-  return { messages: resultMessages, hasMore };
+  // Đánh dấu tin nhắn của người gửi đã bị xóa tài khoản
+  const senderIds = [...new Set(resultMessages.map((m) => m.senderId))];
+  const existing = await prisma.users.findMany({
+    where: { id: { in: senderIds } },
+    select: { id: true },
+  });
+  const existingIds = new Set(existing.map((u) => u.id));
+  const enriched = resultMessages.map((m) => ({
+    ...m,
+    senderName: existingIds.has(m.senderId) ? m.senderName : DELETED_USER_LABEL,
+    senderDeleted: !existingIds.has(m.senderId),
+  })) as MongoMessage[];
+
+  return { messages: enriched, hasMore };
 }
 
 /**

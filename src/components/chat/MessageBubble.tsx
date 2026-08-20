@@ -23,7 +23,7 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
 
   return (
     <div className={`flex gap-2 ${isOwn ? "flex-row-reverse" : "flex-row"}`}>
-      {/* Avatar */}
+      {/* Avatar - icon xám khi người gửi đã bị xóa */}
       {!isOwn && (
         <UserAvatar
           src={message.senderAvatar}
@@ -31,21 +31,25 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
           size="sm"
           userId={message.senderId}
           clickable={true}
+          deleted={message.senderDeleted}
         />
       )}
 
       {/* Message Content */}
       <div className="flex-1 min-w-0">
-        {/* Sender Name (only for other's messages) - clickable */}
-        {!isOwn && (
-          <Link
-            href={`/profile/${message.senderId}`}
-            onClick={(e) => e.stopPropagation()}
-            className="text-xs text-gray-500 mb-1 block hover:text-primary hover:underline transition-colors w-fit"
-          >
-            {message.senderName}
-          </Link>
-        )}
+        {/* Sender Name (only for other's messages) - không link khi user đã xóa */}
+        {!isOwn &&
+          (message.senderDeleted ? (
+            <span className="text-xs text-gray-400 italic mb-1 block w-fit">{message.senderName}</span>
+          ) : (
+            <Link
+              href={`/profile/${message.senderId}`}
+              onClick={(e) => e.stopPropagation()}
+              className="text-xs text-gray-500 mb-1 block hover:text-primary hover:underline transition-colors w-fit"
+            >
+              {message.senderName}
+            </Link>
+          ))}
 
         {/* Message Bubble */}
         <div

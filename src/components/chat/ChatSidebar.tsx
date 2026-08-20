@@ -29,6 +29,7 @@ interface Conversation {
     lastMessage: Message;
     unreadCount: number;
     isOnline?: boolean;
+    userDeleted?: boolean;
 }
 
 interface UserNote {
@@ -266,13 +267,21 @@ export function ChatSidebar({
                                     <div className="flex items-start gap-3">
                                         {/* Avatar with online status */}
                                         <div className="relative flex-shrink-0">
-                                            <Avatar className="h-12 w-12">
-                                                <AvatarImage src={conversation.userAvatar} alt={conversation.userName} />
-                                                <AvatarFallback className="bg-gradient-to-br from-green-500 to-emerald-600 text-white">
-                                                    {getInitials(conversation.userName)}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            {conversation.isOnline && (
+                                            {conversation.userDeleted ? (
+                                                <Avatar className="h-12 w-12 grayscale opacity-60">
+                                                    <AvatarFallback className="bg-gray-200 text-gray-400">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                            ) : (
+                                                <Avatar className="h-12 w-12">
+                                                    <AvatarImage src={conversation.userAvatar} alt={conversation.userName} />
+                                                    <AvatarFallback className="bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+                                                        {getInitials(conversation.userName)}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                            )}
+                                            {conversation.isOnline && !conversation.userDeleted && (
                                                 <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white" />
                                             )}
                                         </div>
@@ -283,7 +292,11 @@ export function ChatSidebar({
                                                 <h3
                                                     className={cn(
                                                         'font-medium text-sm truncate',
-                                                        conversation.unreadCount > 0 ? 'text-gray-900' : 'text-gray-700'
+                                                        conversation.userDeleted
+                                                            ? 'text-gray-400 italic'
+                                                            : conversation.unreadCount > 0
+                                                                ? 'text-gray-900'
+                                                                : 'text-gray-700'
                                                     )}
                                                 >
                                                     {conversation.userName}

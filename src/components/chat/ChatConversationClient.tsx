@@ -24,6 +24,8 @@ interface Conversation {
     lastMessage: Message;
     unreadCount: number;
     isOnline?: boolean;
+    /** Tài khoản đối phương đã bị xóa khỏi hệ thống */
+    userDeleted?: boolean;
 }
 
 interface ChatConversationClientProps {
@@ -111,6 +113,7 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                     userId: otherParticipant?.userId || '',
                     userName: otherParticipant?.name || 'Người dùng',
                     userAvatar: otherParticipant?.avatarUrl,
+                    userDeleted: !!otherParticipant?.deleted,
                     lastMessage: {
                         id: conv.lastMessage?.senderId || '',
                         content: conv.lastMessage?.text || '',
@@ -221,6 +224,7 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                         recipientName={otherParticipant?.name || 'Người dùng'}
                         recipientAvatar={otherParticipant?.avatarUrl}
                         recipientUserId={otherParticipant?.userId}
+                        recipientDeleted={!!otherParticipant?.deleted}
                         messages={messages}
                         currentUserId={currentUserId}
                         onSendMessage={handleSendMessage}
@@ -241,6 +245,7 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                             otherUserName={otherParticipant?.name}
                             otherUserAvatar={otherParticipant?.avatarUrl}
                             otherUserRole={otherParticipant?.role}
+                            otherUserDeleted={!!otherParticipant?.deleted}
                             campaign={conversation?.campaign}
                             onClose={() => setShowInfoPanel(false)}
                         />
@@ -258,6 +263,7 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                             otherUserName={otherParticipant?.name}
                             otherUserAvatar={otherParticipant?.avatarUrl}
                             otherUserRole={otherParticipant?.role}
+                            otherUserDeleted={!!otherParticipant?.deleted}
                             campaign={conversation?.campaign}
                             onClose={() => setShowInfoPanel(false)}
                         />

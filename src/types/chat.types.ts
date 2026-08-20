@@ -27,6 +27,8 @@ export interface ConversationParticipant {
   email: string;
   avatarUrl?: string;
   role: string; // backer, creator, admin
+  /** Tài khoản đã bị xóa khỏi PostgreSQL (bản chat MongoDB vẫn giữ) */
+  deleted?: boolean;
 }
 
 export interface ConversationCampaign {
@@ -85,6 +87,8 @@ export interface MongoMessage extends MongoBase {
   attachments: MessageAttachment[];
   readBy: string[]; // Array of user IDs who read this message
   isDeleted: boolean;
+  /** Người gửi đã bị xóa tài khoản khỏi PostgreSQL (bản tin vẫn giữ nguyên trong MongoDB) */
+  senderDeleted?: boolean;
   sensitive?: boolean; // Sensitive content (spoiler)
   revealedBy: string[]; // Array of user IDs who revealed sensitive content
 }

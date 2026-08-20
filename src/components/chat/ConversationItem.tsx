@@ -35,29 +35,38 @@ export function ConversationItem({ conversation, isActive, onClick }: Conversati
           : "border-gray-200 bg-white hover:bg-gray-50"
         }`}
     >
-      {/* Avatar - clickable */}
+      {/* Avatar - clickable (không link khi user đã bị xóa) */}
       <UserAvatar
         src={otherParticipant.avatarUrl}
         name={otherParticipant.name}
         size="md"
         userId={otherParticipant.userId}
         clickable={true}
+        deleted={otherParticipant.deleted}
       />
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        {/* Name and Role - name is clickable */}
+        {/* Name and Role - name is clickable (user đã xóa không có link profile) */}
         <div className="flex items-center gap-2">
-          <Link
-            href={`/profile/${otherParticipant.userId}`}
-            onClick={(e) => e.stopPropagation()}
-            className={`font-medium truncate hover:text-primary hover:underline transition-colors ${hasUnread ? "font-semibold" : ""}`}
-          >
-            {otherParticipant.name}
-          </Link>
-          <span className="text-xs text-gray-500 capitalize">
-            {otherParticipant.role}
-          </span>
+          {otherParticipant.deleted ? (
+            <span className={`font-medium truncate text-gray-400 italic ${hasUnread ? "font-semibold" : ""}`}>
+              {otherParticipant.name}
+            </span>
+          ) : (
+            <Link
+              href={`/profile/${otherParticipant.userId}`}
+              onClick={(e) => e.stopPropagation()}
+              className={`font-medium truncate hover:text-primary hover:underline transition-colors ${hasUnread ? "font-semibold" : ""}`}
+            >
+              {otherParticipant.name}
+            </Link>
+          )}
+          {!otherParticipant.deleted && (
+            <span className="text-xs text-gray-500 capitalize">
+              {otherParticipant.role}
+            </span>
+          )}
         </div>
 
         {/* Campaign Info */}

@@ -10,9 +10,11 @@ interface UserAvatarProps {
   size?: "sm" | "md" | "lg";
   userId?: string;
   clickable?: boolean;
+  /** Tài khoản đã bị xóa — hiển thị icon xám thay vì ảnh */
+  deleted?: boolean;
 }
 
-export function UserAvatar({ src, name, size = "md", userId, clickable = false }: UserAvatarProps) {
+export function UserAvatar({ src, name, size = "md", userId, clickable = false, deleted = false }: UserAvatarProps) {
   const sizeClasses = {
     sm: "h-8 w-8",
     md: "h-10 w-10",
@@ -35,10 +37,12 @@ export function UserAvatar({ src, name, size = "md", userId, clickable = false }
 
   const avatarContent = (
     <div
-      className={`${sizeClasses[size]} flex-shrink-0 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center overflow-hidden ${clickable && userId ? "cursor-pointer hover:opacity-80 transition-opacity" : ""
+      className={`${sizeClasses[size]} flex-shrink-0 rounded-full ${deleted ? "bg-gray-200" : "bg-gradient-to-br from-primary/20 to-primary/10"} flex items-center justify-center overflow-hidden ${clickable && userId && !deleted ? "cursor-pointer hover:opacity-80 transition-opacity" : ""}
         }`}
     >
-      {src ? (
+      {deleted ? (
+        <User className={deleted ? `text-gray-400 ${size === "lg" ? "h-6 w-6" : size === "md" ? "h-5 w-5" : "h-4 w-4"}` : undefined} />
+      ) : src ? (
         <Image
           src={src}
           alt={name}
@@ -54,7 +58,7 @@ export function UserAvatar({ src, name, size = "md", userId, clickable = false }
     </div>
   );
 
-  if (clickable && userId) {
+  if (clickable && userId && !deleted) {
     return (
       <Link href={`/profile/${userId}`} onClick={(e) => e.stopPropagation()}>
         {avatarContent}

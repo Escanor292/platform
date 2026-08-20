@@ -44,6 +44,8 @@ interface ChatWindowProps {
     recipientName: string;
     recipientAvatar?: string;
     recipientUserId?: string;
+    /** Tài khoản đối phương đã bị xóa khỏi hệ thống */
+    recipientDeleted?: boolean;
     messages: MongoMessage[];
     currentUserId: string;
     onSendMessage: (content: string, attachments?: File[], sensitive?: boolean) => void;
@@ -92,6 +94,7 @@ export function ChatWindow({
     recipientName,
     recipientAvatar,
     recipientUserId,
+    recipientDeleted = false,
     messages,
     currentUserId,
     onSendMessage,
@@ -500,20 +503,28 @@ export function ChatWindow({
                 <div className="flex items-center justify-between border-b p-4 flex-shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="relative">
-                            <Avatar className="h-10 w-10">
-                                <AvatarImage src={recipientAvatar} alt={recipientName} />
-                                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white">
-                                    {getInitials(recipientName)}
-                                </AvatarFallback>
+                            <Avatar className={`h-10 w-10 ${recipientDeleted ? "grayscale opacity-60" : ""}`}>
+                                {recipientDeleted ? (
+                                    <AvatarFallback className="bg-gray-200 text-gray-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    </AvatarFallback>
+                                ) : (
+                                    <>
+                                        <AvatarImage src={recipientAvatar} alt={recipientName} />
+                                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white">
+                                            {getInitials(recipientName)}
+                                        </AvatarFallback>
+                                    </>
+                                )}
                             </Avatar>
-                            {isOnline && (
+                            {isOnline && !recipientDeleted && (
                                 <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white" />
                             )}
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900">{recipientName}</h3>
+                            <h3 className={`font-semibold ${recipientDeleted ? "text-gray-400 italic" : "text-gray-900"}`}>{recipientName}</h3>
                             <p className="text-xs text-gray-500">
-                                {isOnline ? 'Đang hoạt động' : 'Không hoạt động'}
+                                {recipientDeleted ? 'Tài khoản đã bị xóa' : isOnline ? 'Đang hoạt động' : 'Không hoạt động'}
                             </p>
                         </div>
                     </div>

@@ -15,6 +15,8 @@ interface ChatInfoPanelProps {
   otherUserName?: string;
   otherUserAvatar?: string;
   otherUserRole?: string;
+  /** Tài khoản đối phương đã bị xóa khỏi hệ thống */
+  otherUserDeleted?: boolean;
   campaign?: {
     campaignId: string;
     title: string;
@@ -39,6 +41,7 @@ export function ChatInfoPanel({
   otherUserName,
   otherUserAvatar,
   otherUserRole,
+  otherUserDeleted = false,
   campaign,
   onClose,
 }: ChatInfoPanelProps) {
@@ -207,12 +210,13 @@ export function ChatInfoPanel({
               size="lg"
               userId={otherUserId}
               clickable={true}
+              deleted={otherUserDeleted}
             />
-            <h3 className="mt-3 font-semibold text-gray-900">
+            <h3 className={`mt-3 font-semibold ${otherUserDeleted ? "text-gray-400 italic" : "text-gray-900"}`}>
               {otherUserName}
             </h3>
-            <p className="text-sm text-gray-500 capitalize">
-              {otherUserRole || "Người dùng"}
+            <p className="text-sm text-gray-500">
+              {otherUserDeleted ? "Tài khoản đã bị xóa" : otherUserRole || "Người dùng"}
             </p>
           </div>
         </div>
