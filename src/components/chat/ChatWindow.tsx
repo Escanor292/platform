@@ -123,23 +123,30 @@ function EmojiPickerPortal({
 }) {
     const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
 
+    const update = useCallback(() => {
+        if (inputRef.current) {
+            const r = inputRef.current.getBoundingClientRect();
+            const PICKER_HEIGHT = 430; // header + tabs + grid + padding
+            const GAP = 8;
+            // Bảng emoji hiện ngay phía trên ô nhập; nếu không đủ chỗ thì bám sát mép trên màn hình
+            const top = Math.max(8, r.top - PICKER_HEIGHT - GAP);
+            setPos({ top, right: window.innerWidth - r.right + 16 });
+        }
+    }, [inputRef]);
+
+    // Cập nhật vị trí ngay sau khi mount xong layout (sau 1 khung hình) và khi cuộn/thay đổi cỡ
     useEffect(() => {
-        const update = () => {
-            if (inputRef.current) {
-                const r = inputRef.current.getBoundingClientRect();
-                // Bảng emoji cao ~380px, hiện ngay phía trên ô nhập; nếu không đủ chỗ thì sát trên màn hình
-                const top = Math.max(8, r.top - 390);
-                setPos({ top, right: window.innerWidth - r.right + 16 });
-            }
-        };
-        update();
+        const raf = requestAnimationFrame(update);
         window.addEventListener('resize', update);
         window.addEventListener('scroll', update, true);
+        const interval = setInterval(update, 300);
         return () => {
+            cancelAnimationFrame(raf);
             window.removeEventListener('resize', update);
             window.removeEventListener('scroll', update, true);
+            clearInterval(interval);
         };
-    }, [inputRef]);
+    }, [update]);
 
     if (!pos) return null;
     return createPortal(

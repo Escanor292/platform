@@ -269,7 +269,7 @@ export function EmojiPicker({ onSelect, position = 'top' }: EmojiPickerProps) {
     return (
         <div
             ref={pickerRef}
-            className={`absolute right-0 z-50 w-80 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden ${position === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}`}
+            className={`z-50 w-80 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden ${position === 'top' ? 'mb-2' : 'mt-2'}`}
         >
             {/* Header + tìm kiếm */}
             <div className="p-2 border-b border-gray-100">
