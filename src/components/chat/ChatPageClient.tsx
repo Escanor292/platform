@@ -126,7 +126,7 @@ export function ChatPageClient() {
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">Tin nhắn</h3>
                     <p className="text-sm text-gray-500">Chọn một cuộc trò chuyện để xem.</p>
                 </div>
-                <div className="hidden lg:flex h-full flex-col items-center justify-center p-8 text-center text-gray-500">
+                <div className="hidden lg:flex flex-1 items-center justify-center p-8 text-center text-gray-500">
                     <div className="max-w-md">
                         <h3 className="text-lg font-semibold text-gray-900 mb-1">Chọn cuộc trò chuyện</h3>
                         <p className="text-sm text-gray-500">
