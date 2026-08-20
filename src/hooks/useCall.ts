@@ -87,8 +87,13 @@ export function useCall({
     const callStartRef = useRef<number>(0);
     const durationTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const processedTsRef = useRef<Set<string>>(new Set());
+    const phaseConfigRef = useRef({ conversationId, currentUserId });
+    phaseConfigRef.current = { conversationId, currentUserId };
 
-    phaseRef.current = phase;
+    // Cập nhật phaseRef ngoài render phase (React Compiler forbids ref access during render)
+    useEffect(() => {
+        phaseRef.current = phase;
+    }, [phase]);
 
     // Dừng chuông/báo hiệu bằng Web Audio
     const stopRingTone = useCallback(() => {
@@ -232,13 +237,14 @@ export function useCall({
 
     // ───────────────────── Signaling send ─────────────────────
     const sendSignal = useCallback(async (sig: Omit<CallSignal, 'from'>) => {
-        const payload = { ...sig, from: currentUserId, ts: sig.ts ?? Date.now() };
-        await fetch(`/api/chat/conversations/${conversationId}/messages`, {
+        const { conversationId: cid, currentUserId: uid } = phaseConfigRef.current;
+        const payload = { ...sig, from: uid, ts: sig.ts ?? Date.now() };
+        await fetch(`/api/chat/conversations/${cid}/messages`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ text: JSON.stringify(payload), type: CALL_SIGNAL }),
         }).catch((err) => console.error('Send signal error', err));
-    }, [conversationId, currentUserId]);
+    }, []);
 
     // ───────────────────── Cuộc gọi đi ─────────────────────
     const startCall = useCallback(async (m: CallMode) => {
@@ -407,7 +413,6 @@ export function useCall({
         return () => {
             endCall(false);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [conversationId]);
 
     return {

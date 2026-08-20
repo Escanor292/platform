@@ -150,7 +150,6 @@ export function ProjectFormDialog({
       fetchBlogPosts();
       fetchRewards();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, project?.id]);
 
   const resetForm = () => {

@@ -17,6 +17,8 @@ const eslintConfig = defineConfig([
       "react-hooks/set-state-in-effect": "off",
       "react-hooks/immutability": "off",
       "react-hooks/no-before-declare": "off",
+      "react-hooks/refs": "off",
+      "react-hooks/preserve-manual-memoization": "off",
       "react-hooks/error-boundaries": "off",
       "@typescript-eslint/prefer-as-const": "off",
       "@next/next/no-location-assign-relative-destination": "off",

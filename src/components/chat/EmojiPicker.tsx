@@ -248,19 +248,21 @@ export function EmojiPicker({ onSelect, position = 'top' }: EmojiPickerProps) {
     const normalizedQuery = searchQuery.trim().toLowerCase();
 
     // Kết quả tìm kiếm: tìm trong tất cả danh mục
-    let searchResults: string[] = [];
-    if (normalizedQuery) {
+    const searchResults: string[] = (() => {
+        if (!normalizedQuery) return [];
         const seen = new Set<string>();
+        const out: string[] = [];
         for (const cat of EMOJI_CATEGORIES) {
             for (const emoji of cat.emojis) {
                 const kw = getEmojiKeywords(emoji);
                 if (!seen.has(emoji) && kw.includes(normalizedQuery)) {
                     seen.add(emoji);
-                    searchResults.push(emoji);
+                    out.push(emoji);
                 }
             }
         }
-    }
+        return out;
+    })();
 
     const activeCat = EMOJI_CATEGORIES.find((c) => c.id === activeCategory);
 

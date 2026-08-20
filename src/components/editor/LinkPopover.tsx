@@ -89,7 +89,6 @@ export function LinkPopover({
     }, 50);
 
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]); // Only run when isOpen changes
 
   // Add visual highlight to selected text when popover is open
