@@ -213,10 +213,10 @@ export function ChatInfoPanel({
               deleted={otherUserDeleted}
             />
             <h3 className={`mt-3 font-semibold ${otherUserDeleted ? "text-gray-400 italic" : "text-gray-900"}`}>
-              {otherUserName}
+              {otherUserDeleted ? "Người dùng đã xóa" : otherUserName}
             </h3>
             <p className="text-sm text-gray-500">
-              {otherUserDeleted ? "Tài khoản đã bị xóa" : otherUserRole || "Người dùng"}
+              {otherUserDeleted ? "Tài khoản đã xóa" : otherUserRole || "Người dùng"}
             </p>
           </div>
         </div>

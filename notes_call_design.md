@@ -172,3 +172,10 @@ CÒN LÀM:
 2. MessageBubble.tsx dòng ~52: tên người gửi đã xóa in nghiêng — ok, thêm phụ đề? không cần.
 3. Typecheck + lint + commit push (email nguyenquachphutai@gmail.com, tên Escanor292), báo user.
 Quy trình: cd ~/platform && npx tsc --noEmit 2>&1 | grep -c "src/" (mong =0) && npx next lint; git add -A && git commit -m "..." && git push origin HEAD:main. Dev server localhost:3322 đang chạy.
+
+### Chẩn đoán 2 bên vẫn khác (21/8, tiếp):
+chat.service enrichDeletedUsers: participant của user bị xóa → name='Người dùng đã xóa', deleted=true, role='deleted' — flag này chỉ được set KHI gọi enrichDeletedUsers (chỉ các route gọi nó). Các route khác (vd GET conversation detail cho ChatWindow) có thể gọi hàm khác mapParticipant mà trả name gốc + deleted=false?? Dòng 68: hàm riêng (getParticipant?) trả DELETED_USER_LABEL+deleted=true khi !user. ChatWindow header xám = đúng theo flag này.
+ConversationItem (sidebar /chat, dùng API /api/chat/conversations): nếu route đó KHÔNG gọi enrichDeletedUsers → deleted=false, name=tên GỐC ("Nguyễn Đức"?). Nhưng ảnh 1 user thấy tên "Người dùng đã xóa" → route conversations CÓ enrich (dòng 486 senderName existingIds.has → DELETED_USER_LABEL). Vậy name đã là label, deleted có thể =false ở conversation participants? enrich trả deleted=true. Hmm.
+Thực tế ảnh 1: avatar "ND" XANH (không xám) → UserAvatar deleted prop=false hoặc avatarUrl có ảnh? ND xanh = getInitials từ name "Người dùng đã xóa"?? getInitials lấy chữ cái đầu/từ cuối: "ND". Màu xanh → className gradient primary → deleted=false. → ConversationItem nhận participant deleted=false, name='Người dùng đã xóa' (hoặc tên gốc giống label).
+Vậy fix code ConversationItem isDeleted = deleted || name===label sẽ render xám. production chưa có code mới lúc user xem → chờ user refresh sau deploy. CŨNG CẦN: kiểm tra route conversations có thực sự enrich không — xem src/app/api/chat/conversations/route.ts
+Ngoài ra user muốn "đồng nhất màu xám" — có thể chỉ cần thêm avatar màu xanh ND hiện ra trong ConversationItem vì production cũ. Đợi deploy + xác nhận route.
