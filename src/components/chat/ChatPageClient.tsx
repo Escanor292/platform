@@ -94,7 +94,7 @@ export function ChatPageClient() {
 
     if (loading) {
         return (
-            <div className="flex h-[600px] items-center justify-center">
+            <div className="container mx-auto px-4 pt-16 pb-3 max-w-7xl h-[calc(100dvh-10.5rem)] flex items-center justify-center">
                 <div className="text-gray-500">Đang tải...</div>
             </div>
         );
@@ -102,17 +102,17 @@ export function ChatPageClient() {
 
     if (error) {
         return (
-            <div className="flex h-[600px] items-center justify-center">
+            <div className="container mx-auto px-4 pt-16 pb-3 max-w-7xl h-[calc(100dvh-10.5rem)] flex items-center justify-center">
                 <div className="text-red-500">{error}</div>
             </div>
         );
     }
 
     return (
-        <div className="container mx-auto px-4 pt-24 pb-8 max-w-7xl h-[calc(100vh-8rem)]">
-            <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-0 h-full rounded-lg border border-gray-200 overflow-hidden bg-white">
+        <div className="container mx-auto px-4 pt-16 pb-3 max-w-7xl h-[calc(100dvh-10.5rem)]">
+            <div className="flex h-full w-full rounded-lg border border-gray-200 overflow-hidden bg-white">
                 {/* Left: Chat Sidebar */}
-                <div className="min-w-0 overflow-hidden">
+                <div className="hidden lg:flex w-[300px] shrink-0 min-w-0 overflow-hidden border-r border-gray-200 h-full">
                     <ChatSidebar
                         conversations={conversations}
                         onSelectConversation={handleSelectConversation}
@@ -122,6 +122,10 @@ export function ChatPageClient() {
                 </div>
 
                 {/* Right: Placeholder */}
+                <div className="flex lg:hidden h-full flex-col items-center justify-center p-8 text-center text-gray-500">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Tin nhắn</h3>
+                    <p className="text-sm text-gray-500">Chọn một cuộc trò chuyện để xem.</p>
+                </div>
                 <div className="hidden lg:flex h-full flex-col items-center justify-center p-8 text-center text-gray-500">
                     <div className="max-w-md">
                         <h3 className="text-lg font-semibold text-gray-900 mb-1">Chọn cuộc trò chuyện</h3>
