@@ -394,14 +394,18 @@ export function useCall({
         stopRingTone();
         stopPolling();
         if (durationTimerRef.current) clearInterval(durationTimerRef.current);
+        durationTimerRef.current = null;
         localStreamRef.current?.getTracks().forEach((t) => t.stop());
         localStreamRef.current = null;
         remoteStreamRef.current = null;
         peerRef.current?.close();
         peerRef.current = null;
+        // Gửi tín hiệu kết thúc cho đối phương TRƯỚC khi đặt phase idle
+        // (để điều kiện check không bị fail và đối phương tắt chuông/đóng modal)
         if (notify && phaseRef.current !== 'idle') {
             sendSignal({ type: 'end', ts: Date.now() }).catch(() => {});
         }
+        setPhase('idle');
         setMuted(false);
         setCameraOff(false);
         setIsRemoteVideo(false);

@@ -104,7 +104,8 @@ export function CallModal({
             "fixed inset-0 z-[100] flex items-center justify-center transition-opacity duration-200",
             visible || phase !== 'idle' ? "opacity-100" : "pointer-events-none opacity-0"
         )}>
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={phase === 'idle' ? onClose : undefined} />
+            {phase !== 'idle' && <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />}
+            {phase === 'idle' && <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />}
             <div className={cn(
                 "relative w-full max-w-lg mx-4 overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200",
                 activeVideo ? "max-w-5xl bg-black rounded-2xl" : "bg-white rounded-3xl"

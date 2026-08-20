@@ -77,3 +77,8 @@ TypeScript: đã clean (tsc --noEmit chỉ còn lỗi scripts cũ không quan tr
 - MongoDB check: cat /tmp/muri.txt → MONGODB_URI env; script check DB ở ~/platform/scripts hoặc /tmp/check_call.mjs (collection: messages, conversations; conversationId ObjectId)
 - Push: git add -A; git -c user.email=nguyenquachphutai@gmail.com -c user.name="Escanor292" commit -m "..."; git push https://github.com/Escanor292/platform.git HEAD:main (hoặc remote origin https)
 - Vercel production URL: platform-lcdguxlry-escanor292s-projects.vercel.app
+
+## Bug: Nút "Hủy cuộc gọi" không hoạt động (báo cáo 20/8)
+Chẩn đoán: `endCall()` KHÔNG gọi `setPhase('idle')` → sau khi bấm Hủy, `call.phase` vẫn 'ringing' → `visible={call.phase !== 'idle'}` vẫn true → modal không đóng (trông như bấm không được).
+
+Fix: (1) thêm `setPhase('idle')` trong endCall — ĐÃ LÀM nhưng thứ tự sai: setPhase('idle') TRƯỚC khi notify → điều kiện `phaseRef.current !== 'idle'` fail → không gửi tín hiệu 'end' đến đối phương. (2) SỬA: gửi tín hiệu 'end' TRƯỚC, rồi mới setPhase('idle'). Đồng thời thêm `rejectIncoming`-like behavior: người gọi hủy cũng nên gửi 'bye' hoặc 'end' để đối phương (nếu đang incoming) tắt chuông. Polling incoming chỉ xử lý type:'end' → gửi 'end' là đủ.
