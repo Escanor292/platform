@@ -279,3 +279,7 @@ Tài khoản test: test2@gmail.com id 92df92ff-0f15-469f-9f24-99b44984bd13. Conv
 
 ## Test 20:30 — HOÀN THÀNH: Reaction hoạt động
 Pill "❤️ 1" hiện dưới tin nhắn cuối, nút 👍+ (Thả cảm xúc) hiện trên cả 3 tin. Pill màu xanh highlight khi người dùng tự phản ứng (bg-blue-100, border-blue-400). Cập nhật qua polling 3-5s. Còn việc: typecheck, commit, push.
+
+
+## 20:36 — ReactionRow đưa ra ngoài bubble (đúng yêu cầu user)
+Pill "❤️ 1" giờ nằm bên ngoài bong bóng màu xanh, bong bóng gọn lại như trước. Screenshot xác nhận. Đang kiểm tra pill tin người khác (alignment left) trước khi push.

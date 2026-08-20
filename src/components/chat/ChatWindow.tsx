@@ -886,15 +886,16 @@ export function ChatWindow({
                                                     )}
                                                 </div>
 
-                                                {/* Reactions (thả cảm xúc) */}
-                                                <ReactionRow
-                                                    reactions={message.reactions}
-                                                    currentUserId={currentUserId}
-                                                    messageId={message._id?.toString() || ''}
-                                                    onToggleReaction={handleToggleReaction}
-                                                    alignment={isCurrentUser ? 'right' : 'left'}
-                                                />
                                             </div>
+
+                                            {/* Reactions (thả cảm xúc) — nằm ngoài bong bóng tin nhắn */}
+                                            <ReactionRow
+                                                reactions={message.reactions}
+                                                currentUserId={currentUserId}
+                                                messageId={message._id?.toString() || ''}
+                                                onToggleReaction={handleToggleReaction}
+                                                alignment={isCurrentUser ? 'right' : 'left'}
+                                            />
                                         </div>
                                     );
                                 })}
