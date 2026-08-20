@@ -5,6 +5,7 @@ import NavbarNew from "@/components/layout/NavbarNew";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import FooterNew from "@/components/shared/FooterNew";
 import { Providers } from "@/components/shared/Providers";
+import { CartProvider } from "@/components/products/CartProvider";
 import { Toaster } from "sonner";
 
 const playfair = Playfair_Display({
@@ -50,6 +51,7 @@ export default function RootLayout({
     <html lang="vi">
       <body className={`${playfair.variable} ${sourceSans.variable}`}>
         <Providers>
+          <CartProvider>
           <Toaster position="top-center" richColors theme="light" />
           <div className="flex flex-col min-h-screen pb-16 md:pb-0">
             <NavbarNew />
@@ -59,6 +61,7 @@ export default function RootLayout({
             <FooterNew />
             <MobileBottomNav />
           </div>
+          </CartProvider>
         </Providers>
       </body>
     </html>

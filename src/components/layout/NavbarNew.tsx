@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import LeafIcon from "../shared/LeafIcon";
 import { ChatNotificationBadge } from "@/components/chat/ChatNotificationBadge";
+import { CartDropdown } from "@/components/products/CartProvider";
 
 export default function NavbarNew() {
   const { data: session } = useSession();
@@ -155,6 +156,9 @@ export default function NavbarNew() {
         <div className="hidden md:flex items-center gap-3">
           {session ? (
             <>
+              {/* Giỏ hàng */}
+              <CartDropdown />
+
               {/* Chat Link */}
               <Link
                 href="/chat"

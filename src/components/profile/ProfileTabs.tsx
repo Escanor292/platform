@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Rocket, MessageCircle, Heart, Award, Tag, Layers, TrendingUp, FolderKanban, Package, Gift, Plus, Pencil, Trash2, MoreVertical, Share2, LayoutList, FileText } from 'lucide-react';
 import { formatVND, formatDate } from '@/lib/utils';
+import ShopeeProductCard from '@/components/products/ShopeeProductCard';
 import { CampaignGrowthProgress } from '@/components/campaign/CampaignGrowthProgress';
 import { getCampaignTypeLabel } from '@/lib/campaign-helpers';
 import { ProfileBlogCard } from '@/components/profile/ProfileBlogCard';
@@ -501,135 +502,28 @@ export function ProfileTabs({
                         </div>
                         {products.length > 0 ? (
                             <>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {products.map(({ reward, campaign }) => {
-                                        const images = Array.isArray(reward.productImages) ? reward.productImages : [];
-                                        const discount =
-                                            reward.maxAmount && reward.minAmount && reward.maxAmount > reward.minAmount
-                                                ? Math.round(((reward.maxAmount - reward.minAmount) / reward.maxAmount) * 100)
-                                                : null;
-                                        return (
-                                            <div key={reward.id} className="group relative">
-                                                <Link href={`/products/${reward.id}`} className="block">
-                                                    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-0.5 transition-all">
-                                                        {/* Gallery ảnh */}
-                                                        {images.length > 0 && (
-                                                            <div className="relative bg-gray-100 flex items-center justify-center overflow-hidden group/img">
-                                                                <img
-                                                                    src={images[0]}
-                                                                    alt={reward.title}
-                                                                    className="w-full h-44 object-cover"
-                                                                />
-                                                                {images.length > 1 && (
-                                                                    <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded-full">
-                                                                        +{images.length - 1} ảnh
-                                                                    </span>
-                                                                )}
-                                                                <div className="absolute inset-0 opacity-0 group-hover/img:opacity-100 transition flex items-end">
-                                                                    <div className="w-full flex justify-center gap-1 pb-1 bg-gradient-to-t from-black/50 to-transparent pt-4">
-                                                                        {images.slice(0, 5).map((img: string, i: number) => (
-                                                                            <img
-                                                                                key={i}
-                                                                                src={img}
-                                                                                className="w-8 h-8 rounded-lg object-cover border-2 border-white"
-                                                                            />
-                                                                        ))}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                        <div className="p-5">
-                                                            <div className="flex items-start justify-between mb-2">
-                                                                <div className="flex-1">
-                                                                    <h3 className="font-bold text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-600 transition">
-                                                                        {reward.title}
-                                                                    </h3>
-                                                                    {reward.description && (
-                                                                        <p className="text-sm text-gray-600 line-clamp-2">
-                                                                            {reward.description}
-                                                                        </p>
-                                                                    )}
-                                                                </div>
-                                                                <div className="ml-3 text-right shrink-0">
-                                                                    <div className="text-lg font-black text-red-600">
-                                                                        {formatVND(reward.minAmount)}
-                                                                    </div>
-                                                                    {reward.maxAmount && reward.maxAmount > reward.minAmount && (
-                                                                        <div className="text-xs text-gray-400 line-through">
-                                                                            {formatVND(reward.maxAmount)}
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex items-center gap-2 flex-wrap mt-2">
-                                                                {discount && (
-                                                                    <span className="inline-flex items-center bg-red-600 text-white text-[11px] font-black px-2 py-0.5 rounded">
-                                                                        GIẢM {discount}%
-                                                                    </span>
-                                                                )}
-                                                                {reward.stock !== null && reward.stock !== undefined && (
-                                                                    <span className="text-[11px] text-gray-400 font-medium">
-                                                                        Tồn kho: {reward.stock}
-                                                                    </span>
-                                                                )}
-                                                                {campaign && (
-                                                                    <span className="text-[11px] text-gray-400 font-bold uppercase ml-auto">
-                                                                        {campaign.title}
-                                                                    </span>
-                                                                )}
-                                                                {!campaign && (
-                                                                    <span className="text-[11px] text-emerald-600 font-bold uppercase ml-auto">
-                                                                        Sản phẩm độc lập
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </Link>
-                                            {isOwnerMode && (
-                                                <div className="absolute top-3 right-3 flex gap-2">
-                                                    <button
-                                                        type="button"
-                                                        onClick={async (e) => {
-                                                            e.preventDefault();
-                                                            e.stopPropagation();
-                                                            const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/products/${reward.id}`;
-                                                            try {
-                                                                await navigator.clipboard.writeText(url);
-                                                                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', message: 'Đã sao chép link sản phẩm' } }));
-                                                            } catch {
-                                                                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Không sao chép được link' } }));
-                                                            }
-                                                        }}
-                                                        className="w-8 h-8 rounded-full bg-white/95 backdrop-blur border border-gray-200 text-gray-600 hover:text-pgreen hover:border-pgreen flex items-center justify-center shadow-sm transition-colors"
-                                                        title="Sao chép link sản phẩm"
-                                                    >
-                                                        <Share2 size={14} />
-                                                    </button>
-                                                    <Link
-                                                        href={
-                                                            campaign?.slug
-                                                                ? `/dashboard/creator/rewards/${campaign.slug}/edit/${reward.id}`
-                                                                : `/products/${reward.id}?edit=1`
-                                                        }
-                                                        className="p-2 bg-white rounded-lg shadow-md hover:bg-gray-100 transition"
-                                                        title="Sửa sản phẩm"
-                                                    >
-                                                        <Pencil size={16} className="text-gray-600" />
-                                                    </Link>
-                                                    <button
-                                                        onClick={() => handleDelete(reward.id, reward.title, `/api/rewards/${reward.id}`)}
-                                                        disabled={deletingId === reward.id}
-                                                        className="p-2 bg-white rounded-lg shadow-md hover:bg-red-100 transition disabled:opacity-50"
-                                                        title="Xóa sản phẩm"
-                                                    >
-                                                        <Trash2 size={16} className="text-red-600" />
-                                                    </button>
-                                                </div>
-                                            )}
-                                            </div>
-                                        )
-                                    })}
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                    {products.map(({ reward, campaign }) => (
+                                        <ShopeeProductCard
+                                            key={reward.id}
+                                            product={{
+                                                id: reward.id,
+                                                title: reward.title,
+                                                description: reward.description,
+                                                minAmount: reward.minAmount,
+                                                maxAmount: reward.maxAmount,
+                                                stock: reward.stock,
+                                                productImages: Array.isArray(reward.productImages) ? reward.productImages : [],
+                                                campaignTitle: campaign?.title || null,
+                                                isOwnerMode,
+                                                onEditUrl: campaign?.slug
+                                                    ? `/dashboard/creator/rewards/${campaign.slug}/edit/${reward.id}`
+                                                    : `/products/${reward.id}?edit=1`,
+                                                onDelete: (id: string, title: string) =>
+                                                    handleDelete(id, title, `/api/rewards/${id}`),
+                                            }}
+                                        />
+                                    ))}
                                 </div>
 
                                 {totalGifts > 0 && (
