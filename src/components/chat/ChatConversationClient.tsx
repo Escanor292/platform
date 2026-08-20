@@ -266,7 +266,7 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
     }
 
     return (
-        <div className="container mx-auto px-4 pt-24 pb-8 max-w-7xl h-[calc(100vh-8rem)]">
+        <div className="container mx-auto px-4 pt-16 pb-3 max-w-7xl h-[calc(100dvh-10.5rem)]">
             <div className="flex h-full w-full rounded-lg border border-gray-200 overflow-hidden bg-white">
                 {/* Left: Chat Sidebar */}
                 <div className="hidden lg:flex w-[300px] shrink-0 min-w-0 overflow-hidden border-r border-gray-200 h-full">

@@ -134,3 +134,18 @@ CÒN PHẢI LÀM:
 4. Gỡ className "absolute bottom-[76px] right-4 z-50" ở wrapper cũ — ĐÃ thay bằng EmojiPickerPortal rồi, không còn.
 5. Typecheck (npx tsc --noEmit | grep -c "src/" = 0), lint sạch, commit email nguyenquachphutai@gmail.com, push origin HEAD:main. Dev server port 3322 chạy (curl localhost:3322 = 200).
 6. Báo user: bảng emoji giờ render ngoài khung chat (portal), không bị cắt.
+
+### Kéo dài khung chat theo chiều dọc (yêu cầu 20/8)
+Ảnh user: khung chat (vùng xanh) chỉ chiếm ~60% chiều cao màn hình, dư khoảng trắng lớn trên (do padding-top 24 = 96px dưới header) và dưới (pb-8 + footer).
+Fix: ChatConversationClient.tsx dòng ~252: container mx-auto px-4 pt-24 pb-8 max-w-7xl h-[calc(100vh-8rem)].
+- Đổi pt-24 → pt-20 (giảm khoảng trống trên)
+- Đổi pb-8 → pb-4
+- Đổi h-[calc(100vh-8rem)] → h-[calc(100dvh-7.5rem)] để tận dụng chiều cao màn hình (header ~64px, bớt 0.5rem đệm)
+- 100dvh tránh vấn đề thanh địa chỉ mobile.
+Kiểm tra footer cao bao nhiêu: FooterNew (không thấy inline-style cao). Giả định footer ~70px; 7.5rem = 120px ≈ header + footer + đệm. Nếu quá thấp sẽ che bởi footer → thử h-[calc(100dvh-9rem)] an toàn hơn? Trong ảnh, frame hiện h~560px trong màn hình 901: overhead hiện tại = 901-560=341px (gồm header 64 + pt96 + pb32 + footer ~150?). Footer lớn ~150px → 100dvh-9rem=901-144=757 vẫn an toàn (không chạm footer vì container nằm trong body flow, footer nằm dưới nó; h quá lớn sẽ đẩy footer xuống). Rủi ro: nếu h=[calc(100dvh-9rem)] với body có header 64 + container 757 + footer 150 = 971 > 901 → xuất hiện scrollbar toàn trang → KHÔNG tốt (user không muốn cuộn trang).
+Quyết định: h-[calc(100dvh-11rem)] = 901-176 = 725 → 64+725+150=939 > 901 vẫn scrollbar. Phải đo footer thật! Đo bằng browser trên dev: document.querySelector('footer').offsetHeight.
+
+### Đo đạc thực tế (20/8, dev 1100px viewport):
+nav=78px, pt-24→container top=78+16(px-4 margin?) thực tế 78, containerH=972 (do h-[calc(100vh-8rem)]=1100-128=972 OK), footerH=293px, footerTop=1050. Khung chat (chatFrame) cao 844px → đáy 1018.
+Vấn đề user thấy: trên máy user (901px viewport, zoom?) khung chat chỉ ~560px vì... đo sandbox: khung chat chỉ 844/972 do header ChatWindow p-4 border? Không — chatFrame là div "flex h-full w-full rounded-lg border" cao 844 ≠ container 972? ChatConversationClient root là container; bên trong có div flex... Khung chat cao 844 < 972 nghĩa là có gì đó giảm chiều cao (ChatConversationClient inner div h-full). Thực tế trong sandbox khung đã dài gần hết màn hình; ảnh user có thể bị zoom. Dù vậy: yêu cầu user = "cho phần màu xanh dài ra theo chiều dọc" → tăng chiều cao khung chat: sửa container pt-24→pt-20, h-[calc(100vh-8rem)]→h-[calc(100dvh-12rem)]? container hiện 972 là ok rồi. Khung chat 844 vì ChatConversationClient inner: `<div className="flex h-full w-full rounded-lg border overflow-hidden bg-white">` — cao 844 thay vì 972-32 padding=940? 972-2*16(px-4)=940 ≠ 844. Chênh 96px = chính pt-24? Không, pt là padding trong. 940-844=96 = pt-24 bên TRONG container — h-full của inner div tính từ container content height = 972-96-32=844 ✓.
+→ Muốn khung chat dài hơn: giảm pt-24→pt-16 (giảm 32px) → khung ~876px. Và có thể bỏ pb-8→pb-2. Ngoài ra user ảnh: trên máy họ khung chỉ 560px → có thể viewport họ nhỏ. Quyết định: giảm pt-24→pt-16, pb-8→pb-3 trong ChatConversationClient.
