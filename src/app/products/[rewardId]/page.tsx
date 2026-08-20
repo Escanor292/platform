@@ -60,6 +60,11 @@ export default async function ProductDetailPage({
   const campaign = (reward as any).campaigns as any;
   const campaignProject = campaign?.projects || null;
   const project = (reward as any).projects;
+  // ID nhà sáng tạo để liên hệ (an toàn với sản phẩm có/không chiến dịch)
+  const contactUserId =
+    campaign?.users?.id ||
+    campaign?.creatorId ||
+    project?.creatorId;
   const images = reward.productImages || [];
   const hasDiscount =
     reward.maxAmount && Number(reward.maxAmount) > Number(reward.minAmount);
@@ -343,7 +348,7 @@ export default async function ProductDetailPage({
 
               {/* Actions */}
               <div className="flex flex-wrap gap-3 mt-auto">
-                                  <a href={`/profile/${campaign.users.id}#products`}
+                                  <a href={`/profile/${contactUserId || reward.id}#products`}
                   className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-pgreen text-white font-bold rounded-xl hover:bg-pgreen/90 transition-colors shadow-sm"
                 >
                   Liên hệ nhà sáng tạo
