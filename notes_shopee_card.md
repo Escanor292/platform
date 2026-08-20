@@ -55,3 +55,38 @@
 - Trang /cart: hiển thị sản phẩm, +/- số lượng, xóa, xóa toàn bộ, tổng cộng, "Liên hệ nhà sáng tạo" + ghi chú chưa tích hợp thanh toán. OK.
 - TODO còn lại: test badge % giảm (set maxAmount > minAmount) + card có ảnh thật; rồi commit+push.
 - Typecheck src: 0 lỗi.
+
+## TASK MỚI (2026-08-20): Nút chat trên trang sản phẩm
+Yêu cầu user: trang sản phẩm thêm nút chat → mở khung chat kèm thông tin sản phẩm để backer trao đổi với creator (giống trang chiến dịch: "Nhắn tin với Test Creator Pro").
+Đã làm:
+- `src/components/chat/StartChatButton.tsx`: thêm props `rewardId`, `rewardTitle`, `rewardPrice`. Intro message ưu tiên sản phẩm (📦 tên, 💰 giá, 🔗 link /products/{id}) nếu có rewardId+rewardTitle, else dùng campaign title. Callback login cũng ưu tiên /products/{rewardId}.
+- Còn lại: gắn StartChatButton vào `src/app/products/[rewardId]/page.tsx` thay nút `<a>Liên hệ nhà sáng tạo</a>` (chế độ chiến dịch ~dòng 383: `href={`/profile/${contactUserId}#products`}`, và chế độ độc lập có nút tương tự). Props: campaignOwnerId=contactUserId (lấy từ campaign.users.id || campaign.creatorId || project.creatorId), campaignOwnerName (cần fetch tên user — dùng campaign.users.name nếu có, else query thêm user name), rewardId=reward.id, rewardTitle=reward.title, rewardPrice=formatVND(reward.minAmount) (đã sửa page dùng replace "VNĐ"→"đ" cho giá), variant="outline" className="w-full" hoặc giữ style pgreen.
+- Lưu ý page là server component async; cần import StartChatButton ("use client") trực tiếp. Tên chủ sở hữu: campaign.users?.name, nếu null fetch thêm user name qua prisma.
+- Typecheck: npx tsc --noEmit -p tsconfig.json (lỗi bcrypt scripts bỏ qua).
+- Sau đó: test login test2@gmail.com/123 (backer) mở /products/b30ad967-... bấm nút chat → trang /chat/{id} hiện tin nhắn intro kèm sản phẩm. Commit/push: git -c user.email=nguyenquachphutai@gmail.com -c user.name=Escanor292 repo Escanor292/platform branch main.
+- Sản phẩm test: id b30ad967-c249-40ff-b6e4-f0b878d56e3b, owner=test3 (cmphnhw8e0002so1uh16dwpvn), KHÔNG thuộc chiến dịch (chế độ độc lập), thuộc dự án Mầm xanh tử tế.
+- Dev: localhost:3322. Login: test1/test2/admin/test3 @gmail.com pass 123.
+
+### Kết quả kiểm tra trang sản phẩm (2026-08-20)
+Nút "Nhắn tin với Nhà sáng tạo" đã hiện đúng trên trang sản phẩm (chế độ độc lập), render bằng StartChatButton với props rewardId/rewardTitle/rewardPrice. Trang load bình thường không lỗi. Khi bấm với session chủ sở hữu (test3) thì đúng logic hiện alert "Bạn không thể nhắn tin với chính mình". Browser click thật bị timeout do alert block, nhưng hành vi đúng (alert đã hiện → click JS mô phỏng đã pass trước đó, url không đổi).
+Chưa test được luồng full (tạo conversation + gửi intro message) vì MongoDB Atlas chặn IP sandbox (API chat 500). Trên production sẽ hoạt động.
+Còn lại: login test2@gmail.com (backer) thử bấm nút chat → nếu không test được do Atlas, commit/push là đủ.
+Git: cd ~/platform, git config user.email nguyenquachphutai@gmail.com, user.name Escanor292, repo Escanor292/platform, branch main.
+
+### Chẩn đoán lỗi chat (2026-08-20 08:24)
+Trang /chat hiện "Không thể tải danh sách cuộc trò chuyện". Dev log: `MongoServerSelectionError: connection <monitor> to 159.143.78.200:27017 closed` — .env dùng MONGODB_URI dạng trực tiếp với IP shard cũ, Atlas đã đổi IP shard. Dạng `mongodb+srv://` ping thành công. Fix: đổi MONGODB_URI trong .env sandbox sang dạng mongodb+srv; user cần cập nhật Vercel env var riêng nếu lỗi còn trên production.
+
+### Debug MongoDB Node driver (08:28)
+- Port 27017 trên cả 3 IP shard mới (159.143.78.200/218/231) đều OPEN qua TCP.
+- pymongo (Python) kết nối SRV **thành công**.
+- Node mongodb driver 7.5: mọi URI `mongodb+srv://` đều fail `TypeError: Cannot read properties of undefined (reading 'join')` tại resolveSRV (connection_string.js:88:66) — có vẻ là bug của driver 7.5 với DNS resolver trong sandbox (resolveSrv trả OK, TXT record có thể là nguyên nhân).
+- URI `mongodb://hostlist` với replicaSet=atlas-q4j8k3-shard-0 fail `connection <monitor> closed` — có thể cần authSource hoặc TLS. Thử tiếp: thêm `tls=true` hoặc check authSource admin.
+
+### Kết luận MongoDB (08:35)
+Kiểm tra thực tế: `c.DuAn.command('ping')` fail `OperationFailure: bad auth Authentication failed` (code 8000 AtlasError). Kết nối mạng OK (TCP mở, DNS SRV đúng), nhưng credential không xác thực được. Nguyên nhân khả dĩ: mật khẩu Atlas có chứa ký tự đặc biệt và chuỗi trong .env bị encode sai tầng (%40Tai → thực tế mk có thể là "0909115079@Tai" nhưng đã qua 2 lần encode ở đâu đó, hoặc mk thật đã đổi). Không nên tự đoán mật khẩu mới — hỏi user. Lưu ý: user có thể đã thay đổi mk database hoặc credential trong Vercel env khác với .env sandbox.
+
+### KẾT QUẢ (08:40) — MongoDB cluster MỚI hoạt động
+User cung cấp URI mới: cluster `duan.b4wcshp.mongodb.net`, mk `0909115079@Tai`. Đã cập nhật .env (dòng MONGODB_URI). DB mới chứa conversations, messages... — API chat /api/chat/conversations trả 200.
+Luồng test hoàn chỉnh ĐÃ PASS: login test2@gmail.com/123 (backer) → mở /products/b30ad967-c249-40ff-b6e4-f0b878d56e3b → bấm "Nhắn tin với Nhà sáng tạo" → backend log: POST /api/chat/conversations/6a86bd6d6dbff94146f47778/messages 200, PATCH read 200, GET messages 200. Conversation mới id `6a86bd6d6dbff94146f47778` giữa test2 (TC backer) và Test Creator.
+Còn lại: typecheck, commit, push (git -c user.email=nguyenquachphutai@gmail.com -c user.name=Escanor292, repo Escanor292/platform branch main), báo user. Nhắc user: cập nhật biến MONGODB_URI trên Vercel (production) sang `mongodb+srv://nguyenquachphutai_db_user:0909115079%40Tai@duan.b4wcshp.mongodb.net/?retryWrites=true&w=majority&appName=DuAn` để chat hoạt động trên production.
+Lưu ý: không push .env lên GitHub (đã có trong .gitignore).

@@ -11,6 +11,12 @@ interface StartChatButtonProps {
   campaignOwnerName: string;
   campaignTitle?: string;
   campaignSlug?: string;
+  /** Id sản phẩm để kèm vào cuộc trò chuyện/tin nhắn giới thiệu */
+  rewardId?: string;
+  /** Tên sản phẩm (kèm giá) cho tin nhắn giới thiệu khi trao đổi về sản phẩm */
+  rewardTitle?: string;
+  /** Giá bán sản phẩm hiển thị trong tin nhắn giới thiệu */
+  rewardPrice?: string;
   variant?: "default" | "outline" | "none";
   className?: string;
   label?: string;
@@ -22,6 +28,9 @@ export function StartChatButton({
   campaignOwnerName,
   campaignTitle,
   campaignSlug,
+  rewardId,
+  rewardTitle,
+  rewardPrice,
   variant = "default",
   className = "",
   label,
@@ -33,11 +42,13 @@ export function StartChatButton({
   const handleStartChat = async () => {
     // Check if user is logged in
     if (!session?.user) {
-      const callbackUrl = campaignSlug 
-        ? `/campaigns/${campaignSlug}` 
-        : campaignId 
-          ? `/campaigns/${campaignId}` 
-          : `/profile/${campaignOwnerId}`;
+      const callbackUrl = rewardId
+        ? `/products/${rewardId}`
+        : campaignSlug
+          ? `/campaigns/${campaignSlug}`
+          : campaignId
+            ? `/campaigns/${campaignId}`
+            : `/profile/${campaignOwnerId}`;
       router.push(`/auth/login?callbackUrl=${callbackUrl}`);
       return;
     }
@@ -69,20 +80,34 @@ export function StartChatButton({
       const data = await response.json();
       const conversationId = data.conversation._id?.toString() || data.conversation._id;
 
-      // Nếu có thông tin dự án, gửi tin nhắn giới thiệu tự động
-      if (campaignTitle) {
+      // Tin nhắn giới thiệu: ưu tiên thông tin sản phẩm (khi bấm từ trang sản phẩm),
+      // nếu không có sản phẩm thì dùng thông tin chiến dịch/dự án
+      let introMessage: string | null = null;
+      if (rewardId && rewardTitle) {
+        const rewardUrl = `${window.location.origin}/products/${rewardId}`;
+        const priceLine = rewardPrice ? `💰 Giá: ${rewardPrice}\n` : "";
+        introMessage =
+          `👋 Xin chào ${campaignOwnerName}!\n\n` +
+          `Tôi muốn trao đổi về sản phẩm của bạn:\n` +
+          `📦 ${rewardTitle}\n` +
+          priceLine +
+          `🔗 ${rewardUrl}\n\n` +
+          `Bạn có thể tư vấn thêm cho tôi về sản phẩm này không?`;
+      } else if (campaignTitle) {
         const campaignUrl = campaignSlug
           ? `${window.location.origin}/campaigns/${campaignSlug}`
           : `${window.location.origin}/campaigns/${campaignId}`;
 
-        const introMessage =
+        introMessage =
           `👋 Xin chào ${campaignOwnerName}!\n\n` +
           `Tôi muốn thảo luận về dự án của bạn:\n` +
           `📋 ${campaignTitle}\n` +
           `🔗 ${campaignUrl}\n\n` +
           `Bạn có thể giúp tôi tìm hiểu thêm về dự án này không?`;
+      }
 
-        // Gửi tin nhắn giới thiệu (bỏ qua lỗi nếu có, vẫn chuyển trang)
+      // Gửi tin nhắn giới thiệu (bỏ qua lỗi nếu có, vẫn chuyển trang)
+      if (introMessage) {
         try {
           await fetch(`/api/chat/conversations/${conversationId}/messages`, {
             method: "POST",
