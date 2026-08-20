@@ -152,7 +152,15 @@ function EmojiPickerPortal({
         <div
             className="fixed z-[100] animate-in fade-in zoom-in-95 duration-150"
             style={{ bottom: pos.bottom, right: pos.right }}
-            onClickCapture={onClickCapture}
+            onPointerDown={(e) => {
+                // Chỉ đóng picker khi click vào nền của bảng; nếu click vào nút emoji thật sự
+                // (button) thì để event tiếp tục bubble để onSelect chạy và chèn emoji
+                const target = e.target as HTMLElement;
+                if (!target.closest('button')) {
+                    e.stopPropagation();
+                    onClickCapture();
+                }
+            }}
         >
             <EmojiPicker position="top" onSelect={onSelect} />
         </div>,

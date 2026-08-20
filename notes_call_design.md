@@ -210,3 +210,15 @@ CHẨN ĐOÁN hiện tượng ảnh: Math.max(8, ...) clamped → top=8 → bả
 QUYẾT ĐỊNH SỬA:
 1. EmojiPickerPortal: đổi pos từ {top,right} sang {top: bottomAnchored} — đặt style `bottom: ${innerHeight - r.top + 8}px, right: ${innerWidth - r.right + 16}px`. Bỏ top hoàn toàn, không cần Math.max — picker sẽ luôn bám ngay trên ô nhập; nếu vượt quá mép trên thì overflow màn hình bị cắt (chấp nhận, hoặc vẫn clamp bottom >= innerHeight - ...). Giữ clamp: bottom = Math.max(window.innerHeight - r.top + 8, 40).
 2. Nút emoji căn dọc: hàng input dùng flex items-end; đổi wrapper chứa icon emoji + lock thành items-center (giữ hàng icons trái items-end giữ nguyên để mic/attach bám đáy) — kiểm tra cấu trúc trước khi sửa (dòng ~917 flex items-end gap-2 gồm div icons-trái + div flex-1 + div icons-phải + button).
+
+
+## Phase 24 (21/8): Fix emoji không chèn được vào ô nhập
+Yêu cầu user: bấm vào emoji thì bảng đóng mất + emoji không xuất hiện trên ô chat → không chọn được.
+
+Root cause: EmojiPickerPortal (ChatWindow.tsx ~dòng 150-170) dùng `onClickCapture` trên div nền của portal. onClickCapture chạy ở PHASE CAPTURE trước khi onClick của nút emoji bubble → khi click vào nút emoji, event bị đóng picker trước khi onSelect chạy → emoji không được chèn.
+
+Fix: bỏ onClickCapture trực tiếp; thay bằng onPointerDown trên nền: nếu e.target.closest('button') → không đóng (để onClick của nút chạy onSelect); ngược lại đóng picker (stopPropagation + onClickCapture).
+
+File liên quan: src/components/chat/ChatWindow.tsx (EmojiPickerPortal), EmojiPicker.tsx handleSelect gọi onSelect.
+Việc còn lại: typecheck + lint + commit push.
+Cấu trúc dùng portal: ChatWindow render {showEmojiPicker && <EmojiPickerPortal inputRef={inputContainerRef} onClickCapture={() => setShowEmojiPicker(false)} onSelect={(emoji) => { insertEmoji(emoji); setShowEmojiPicker(false); }} />}.
