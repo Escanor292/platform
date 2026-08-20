@@ -311,7 +311,8 @@ export async function sendMessage(
   senderId: string,
   text: string,
   attachments: any[] = [],
-  sensitive: boolean = false
+  sensitive: boolean = false,
+  type: MessageType | 'call-signal' = 'text'
 ): Promise<MongoMessage> {
   if (!ObjectId.isValid(conversationId)) {
     throw new Error('Invalid conversation ID');
@@ -357,9 +358,9 @@ export async function sendMessage(
     throw new Error('Sender not found');
   }
 
-  // Determine message type based on attachments
-  let messageType: MessageType = 'text';
-  if (attachments.length > 0) {
+  // Determine message type based on attachments (overridable for system signals like 'call-signal')
+  let messageType: MessageType | 'call-signal' = type !== 'text' ? type : 'text';
+  if (messageType === 'text' && attachments.length > 0) {
     const firstAttachmentType = attachments[0]?.type;
     if (firstAttachmentType === 'image') {
       messageType = 'image';

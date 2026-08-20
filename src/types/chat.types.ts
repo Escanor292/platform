@@ -65,7 +65,7 @@ export interface MongoConversation extends MongoBase {
 // Message Types
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type MessageType = 'text' | 'image' | 'file' | 'voice';
+export type MessageType = 'text' | 'image' | 'file' | 'voice' | 'call-signal';
 
 export interface MessageAttachment {
   url: string;

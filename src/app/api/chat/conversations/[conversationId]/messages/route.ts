@@ -73,19 +73,30 @@ export async function POST(
     const { conversationId } = await context.params;
 
     // Parse request body
-    const body: SendMessageRequest = await request.json();
-    const { text, attachments, sensitive } = body;
+    const body: SendMessageRequest & { type?: string } = await request.json();
+    const { text, attachments, sensitive, type } = body;
 
-    // Validate input
-    if (!text || !text.trim()) {
+    // Validate input: tin hiệu gọi (call-signal) là JSON trong text, tin thường phải có text
+    const isCallSignal = type === 'call-signal';
+    if (!text || (!text.trim() && !isCallSignal)) {
       return NextResponse.json(
         { error: 'Message text is required' },
         { status: 400 }
       );
     }
+    if (isCallSignal) {
+      try {
+        JSON.parse(text);
+      } catch {
+        return NextResponse.json(
+          { error: 'Invalid call signal payload' },
+          { status: 400 }
+        );
+      }
+    }
 
     // Send message
-    const message = await sendMessage(conversationId, userId, text, attachments, sensitive);
+    const message = await sendMessage(conversationId, userId, text, attachments || [], sensitive || false, isCallSignal ? 'call-signal' : 'text');
 
     return NextResponse.json({
       message,

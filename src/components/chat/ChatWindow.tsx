@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -50,7 +50,10 @@ interface ChatWindowProps {
     recipientDeleted?: boolean;
     messages: MongoMessage[];
     currentUserId: string;
+    currentUserName?: string;
+    currentAvatar?: string;
     onSendMessage: (content: string, attachments?: File[], sensitive?: boolean) => void;
+    onStartCall?: (callType: 'voice' | 'video') => void;
     isOnline?: boolean;
     onToggleInfoPanel?: () => void;
     showInfoPanel?: boolean;
@@ -115,7 +118,10 @@ export function ChatWindow({
     recipientDeleted = false,
     messages,
     currentUserId,
+    currentUserName,
+    currentAvatar,
     onSendMessage,
+    onStartCall,
     isOnline,
     onToggleInfoPanel,
     showInfoPanel,
@@ -490,16 +496,17 @@ export function ChatWindow({
         }
     };
 
-    // ─── Call buttons (feature placeholder) ───────────────────────
-    const handleCall = (type: 'voice' | 'video') => {
-        alert(
-            type === 'voice'
-                ? 'Tính năng gọi thoại đang được phát triển và sẽ ra mắt trong phiên bản sắp tới.'
-                : 'Tính năng gọi video đang được phát triển và sẽ ra mắt trong phiên bản sắp tới.'
-        );
+    // ─── Call buttons ───────────────────────
+    const handleCall = (callType: 'voice' | 'video') => {
+        onStartCall?.(callType);
     };
 
     // Group messages by date
+    // Ẩn tin tín hiệu cuộc gọi (call-signal) khỏi giao diện chat — chỉ dùng làm kênh signaling
+    const visibleMessages = useMemo(
+        () => messages.filter((m) => m.type !== 'call-signal'),
+        [messages]
+    );
     const groupMessagesByDate = (messages: MongoMessage[]) => {
         const groups: { [key: string]: MongoMessage[] } = {};
         messages.forEach((message) => {
@@ -512,7 +519,7 @@ export function ChatWindow({
         return groups;
     };
 
-    const messageGroups = groupMessagesByDate(messages);
+    const messageGroups = groupMessagesByDate(visibleMessages);
 
     return (
         <>

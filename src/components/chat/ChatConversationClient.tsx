@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { ChatWindow } from './ChatWindow';
 import { ChatSidebar } from './ChatSidebar';
 import { ChatInfoPanel } from './ChatInfoPanel';
+import { CallModal } from './CallModal';
+import { useCall } from '@/hooks/useCall';
 import { MongoConversation, MongoMessage } from '@/types/chat.types';
 import { cn } from '@/lib/utils';
 
@@ -44,6 +46,49 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
     const [sending, setSending] = useState(false);
     const [showInfoPanel, setShowInfoPanel] = useState(false);
     const [typingUsers, setTypingUsers] = useState<string[]>([]);
+    const [currentUserName, setCurrentUserName] = useState('Bạn');
+    const [currentUserAvatar, setCurrentUserAvatar] = useState<string | undefined>(undefined);
+
+    // ─── Lưu trạng thái messages mới nhất để dùng làm kênh signaling cho cuộc gọi ───
+    const otherParticipant = conversation?.participants.find((p: any) => p.userId !== currentUserId);
+    const messagesRef = useRef<MongoMessage[]>([]);
+    const setMessagesState = (updater: React.SetStateAction<MongoMessage[]>) => {
+        setMessages((prev) => {
+            const next = typeof updater === 'function' ? (updater as (p: MongoMessage[]) => MongoMessage[])(prev) : updater;
+            messagesRef.current = next;
+            return next;
+        });
+    };
+
+    useEffect(() => {
+        setCurrentUserName((session?.user as any)?.name || 'Bạn');
+        setCurrentUserAvatar((session?.user as any)?.image || undefined);
+    }, [session]);
+
+    // Hàm lấy tin nhắn mới nhất từ API — dùng bởi hook gọi để poll tín hiệu cuộc gọi
+    const fetchLatestMessages = useCallback(async () => {
+        try {
+            const response = await fetch(`/api/chat/conversations/${conversationId}/messages?limit=50`);
+            if (!response.ok) return [];
+            const data = await response.json();
+            const list: MongoMessage[] = data.messages.reverse();
+            setMessagesState(list);
+            return list;
+        } catch {
+            return [];
+        }
+    }, [conversationId]);
+
+    const call = useCall({
+        conversationId,
+        currentUserId,
+        currentUserName,
+        currentAvatar: currentUserAvatar,
+        recipientUserId: otherParticipant?.userId,
+        recipientName: otherParticipant?.name || 'Người dùng',
+        recipientAvatar: otherParticipant?.avatarUrl,
+        onFetchMessages: fetchLatestMessages,
+    });
 
     useEffect(() => {
         if (conversationId) {
@@ -194,7 +239,6 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
         }
     };
 
-    const otherParticipant = conversation?.participants.find((p: any) => p.userId !== currentUserId);
 
     if (loading) {
         return (
@@ -227,7 +271,10 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                         recipientDeleted={!!otherParticipant?.deleted}
                         messages={messages}
                         currentUserId={currentUserId}
+                        currentUserName={currentUserName}
+                        currentAvatar={currentUserAvatar}
                         onSendMessage={handleSendMessage}
+                        onStartCall={(callType) => call.startCall(callType)}
                         isOnline={false}
                         onToggleInfoPanel={() => setShowInfoPanel(!showInfoPanel)}
                         showInfoPanel={showInfoPanel}
@@ -253,6 +300,30 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                 )}
             </div>
 
+            {/* Modal cuộc gọi thoại/video */}
+            <CallModal
+                visible={call.phase !== 'idle' || !!call.error}
+                onClose={() => call.endCall(true)}
+                phase={call.phase}
+                mode={call.mode}
+                isRemoteVideo={call.isRemoteVideo}
+                muted={call.muted}
+                cameraOff={call.cameraOff}
+                callDuration={call.callDuration}
+                recipientName={otherParticipant?.name || 'Người dùng'}
+                recipientAvatar={otherParticipant?.avatarUrl}
+                currentUserName={currentUserName}
+                currentAvatar={currentUserAvatar}
+                error={call.error}
+                localVideoRef={call.localVideoRef}
+                remoteVideoRef={call.remoteVideoRef}
+                onAccept={() => call.acceptIncoming()}
+                onReject={() => call.rejectIncoming()}
+                onEnd={() => call.endCall(true)}
+                onToggleMute={() => call.toggleMute()}
+                onToggleCamera={() => call.toggleCamera()}
+                onDismissError={() => call.setError(null)}
+            />
             {/* Mobile Info Panel Drawer */}
             {showInfoPanel && (
                 <div className="fixed inset-0 z-50 bg-black/50 lg:hidden flex justify-end animate-in fade-in duration-200">
