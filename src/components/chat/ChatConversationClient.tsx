@@ -287,6 +287,7 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                         recipientUserId={otherParticipant?.userId}
                         recipientDeleted={!!otherParticipant?.deleted}
                         messages={messages}
+                        loading={loading}
                         currentUserId={currentUserId}
                         currentUserName={currentUserName}
                         currentAvatar={currentUserAvatar}

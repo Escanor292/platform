@@ -63,6 +63,7 @@ interface ChatWindowProps {
     onLoadMore?: () => void;
     hasMore?: boolean;
     onMessagesUpdate?: (updated: MongoMessage[]) => void;
+    loading?: boolean;
 }
 
 /** Đổi URL trần trong text thành link bấm được */
@@ -192,6 +193,7 @@ export function ChatWindow({
     onLoadMore,
     hasMore = false,
     onMessagesUpdate,
+    loading = false,
 }: ChatWindowProps) {
     const router = useRouter();
 
@@ -263,25 +265,37 @@ export function ChatWindow({
     const inputContainerRef = useRef<HTMLDivElement>(null);
 
     // Theo dõi conversationId để biết khi nào mở cuộc trò chuyện mới
-    const prevConversationIdRef = useRef(conversationId);
+    const prevConversationIdRef = useRef<string | null>(null);
     const [showNewMessageNotice, setShowNewMessageNotice] = useState(false);
     const prevMessagesCountRef = useRef(messages.length);
 
-    // Khi có tin nhắn mới: KHÔNG tự cuộn, chỉ hiện thông báo "Có tin nhắn mới"
-    // nếu người dùng đang cuộn lên trên xem tin cũ.
-    // Khi mở cuộc trò chuyện mới: cuộn về tin gần nhất (không làm trôi trang).
+    // Khi mở cuộc trò chuyện mới, chỉ cuộn sau khi dữ liệu đã tải xong.
+    // Tin nhắn mới đến trong cuộc trò chuyện đang mở vẫn giữ nguyên vị trí người dùng đang xem.
     useEffect(() => {
         const scrollArea = scrollAreaRef.current;
-        if (!scrollArea) return;
+        if (!scrollArea || loading) return;
+
         const isNewConversation = prevConversationIdRef.current !== conversationId;
-        prevConversationIdRef.current = conversationId;
         if (isNewConversation) {
-            // Mở cuộc trò chuyện mới: cuộn về cuối tin nhắn gần nhất, đứng yên trong khung
-            scrollArea.scrollTop = scrollArea.scrollHeight;
+            prevConversationIdRef.current = conversationId;
+            prevMessagesCountRef.current = messages.length;
             setShowNewMessageNotice(false);
+
+            // Chờ layout hoàn tất (bao gồm thẻ sản phẩm/hình ảnh) rồi mới cuộn xuống đáy.
+            requestAnimationFrame(() => {
+                const currentScrollArea = scrollAreaRef.current;
+                if (!currentScrollArea) return;
+                currentScrollArea.scrollTop = currentScrollArea.scrollHeight;
+                requestAnimationFrame(() => {
+                    if (scrollAreaRef.current) {
+                        scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+                    }
+                });
+            });
             return;
         }
-        // Có tin mới gửi đi từ chính mình: giữ nguyên vị trí, không thông báo
+
+        // Có tin mới trong cuộc trò chuyện đang mở: chỉ báo nếu người dùng đang xem tin cũ.
         if (messages.length > prevMessagesCountRef.current) {
             prevMessagesCountRef.current = messages.length;
             const isNearBottom = scrollArea.scrollHeight - scrollArea.scrollTop - scrollArea.clientHeight < 150;
@@ -291,7 +305,7 @@ export function ChatWindow({
             return;
         }
         prevMessagesCountRef.current = messages.length;
-    }, [messages, conversationId]);
+    }, [messages, conversationId, loading]);
 
     // Cuộn xuống cuối danh sách khi bấm "Có tin nhắn mới"
     const scrollToNewMessages = () => {
