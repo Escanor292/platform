@@ -8,8 +8,6 @@ interface PlatformStats {
   successfulCampaigns: number;
   activeCampaigns: number;
   totalBackers: number;
-  transparencyRate: string;
-  transparencyRateRaw: number;
 }
 
 export default function StatsSection() {
@@ -17,7 +15,6 @@ export default function StatsSection() {
     { value: '...', label: 'Tổng tiền gây quỹ', trend: 'Đang tải...', colorClass: 'text-pgreen', bgClass: 'from-pgreen/5' },
     { value: '...', label: 'Chiến dịch thành công', trend: 'Đang tải...', colorClass: 'text-tblue', bgClass: 'from-tblue/5' },
     { value: '...', label: 'Người ủng hộ', trend: 'Đang tải...', colorClass: 'text-dblue', bgClass: 'from-dblue/5' },
-    { value: '...', label: 'Tỷ lệ minh bạch', trend: 'Zero hidden fees', colorClass: 'text-ebrown', bgClass: 'from-ebrown/5' },
   ]);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -60,13 +57,6 @@ export default function StatsSection() {
               colorClass: 'text-dblue',
               bgClass: 'from-dblue/5'
             },
-            {
-              value: data.transparencyRate,
-              label: 'Tỷ lệ minh bạch',
-              trend: 'Zero hidden fees',
-              colorClass: 'text-ebrown',
-              bgClass: 'from-ebrown/5'
-            },
           ]);
           setIsLoading(false);
         }
@@ -97,7 +87,7 @@ export default function StatsSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {stats.map((stat, index) => (
             <div
               key={`${stat.label}-${index}`}
