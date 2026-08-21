@@ -6,7 +6,6 @@ import ProjectDetailClient from './ProjectDetailClient';
 import { PublicProjectDetail } from '@/types/project-detail';
 import OwnerEditPanel from '@/components/OwnerEditPanel';
 import { ProjectFormDialog } from '@/components/dashboard/ProjectFormDialog';
-import EntitySummaryCard from '@/components/ai/EntitySummaryCard';
 
 interface ProjectDetailPageClientProps {
   project: PublicProjectDetail;
@@ -41,9 +40,6 @@ export function ProjectDetailPageClient({
   return (
     <>
       <ProjectDetailClient project={project} />
-      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <EntitySummaryCard sourceType="project" sourceId={project.id} />
-      </div>
       <OwnerEditPanel
         isOwner={isOwner}
         blocks={[

@@ -20,7 +20,6 @@ import {
   getBlogPostBySlug,
   getBlogPostList,
 } from '@/lib/blog/blog.service';
-import EntitySummaryCard from '@/components/ai/EntitySummaryCard';
 
 /**
  * Fetch blog post directly from the service layer (no self-host HTTP fetch).
@@ -281,7 +280,6 @@ export default async function BlogDetailPage({
             </div>
           </header>
 
-          <EntitySummaryCard sourceType="blog" sourceId={post.id} />
 
           {/* Cover Image */}
           {post.coverImage && (

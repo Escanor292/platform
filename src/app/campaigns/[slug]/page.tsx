@@ -14,7 +14,6 @@ import CampaignPageClient from "./CampaignPageClient";
 import { CampaignProvider } from "@/contexts/CampaignContext";
 import { getCampaignTypeLabel } from "@/lib/campaign-helpers";
 import OwnerEditPanel from "@/components/OwnerEditPanel";
-import EntitySummaryCard from "@/components/ai/EntitySummaryCard";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -142,7 +141,6 @@ export default async function CampaignDetailPage({ params }: Params) {
                      campaignCode={campaign.campaignCode}
                   />
 
-                  <EntitySummaryCard sourceType="campaign" sourceId={campaign.id} />
 
                   <div className="mt-8">
                      {/* Top Section - 2 Columns (Media & Progress) */}
