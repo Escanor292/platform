@@ -4,6 +4,7 @@ import { formatVND, formatDate } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle, XCircle, Clock, Eye } from "lucide-react";
+import CampaignReviewActions from "@/components/admin/CampaignReviewActions";
 
 export default async function AdminCampaignsPage() {
   const session = await auth();
@@ -170,13 +171,18 @@ export default async function AdminCampaignsPage() {
                         {new Date(campaign.createdAt).toLocaleDateString("vi-VN")}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <Link
-                          href={`/campaigns/${campaign.slug}`}
-                          className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-100 transition"
-                        >
-                          <Eye size={12} />
-                          Xem
-                        </Link>
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/campaigns/${campaign.slug}`}
+                            className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-100 transition"
+                          >
+                            <Eye size={12} />
+                            Xem
+                          </Link>
+                          {campaign.status === "PENDING_REVIEW" && (
+                            <CampaignReviewActions campaignId={campaign.id} />
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
