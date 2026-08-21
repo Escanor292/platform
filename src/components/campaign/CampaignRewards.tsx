@@ -1,8 +1,9 @@
 'use client';
 
 import { formatVND } from "@/lib/utils";
-import { Gift, Users, Clock } from "lucide-react";
+import { Gift, Users, Clock, PlayCircle } from "lucide-react";
 import { useCampaignContext } from "@/contexts/CampaignContext";
+import { useRouter } from "next/navigation";
 
 interface Reward {
     id: string;
@@ -12,6 +13,8 @@ interface Reward {
     estimatedDelivery?: string | null;
     limitQuantity?: number | null;
     claimedCount?: number;
+    productImages?: string[] | null;
+    productVideo?: string | null;
 }
 
 interface CampaignRewardsProps {
@@ -24,6 +27,7 @@ export default function CampaignRewards({
     selectedRewardId
 }: CampaignRewardsProps) {
     const { openRewardDonation } = useCampaignContext();
+    const router = useRouter();
     if (!rewards || rewards.length === 0) {
         return (
             <div className="bg-white border border-gray-200 rounded-lg p-6">
@@ -42,6 +46,10 @@ export default function CampaignRewards({
         );
     }
 
+    const openRewardDetails = (rewardId: string) => {
+        router.push(`/products/${rewardId}`);
+    };
+
     return (
         <div className="bg-white border border-gray-200 rounded-lg p-6">
             <div className="flex items-center gap-2 mb-4">
@@ -58,28 +66,69 @@ export default function CampaignRewards({
                     const remainingQuantity = reward.limitQuantity
                         ? reward.limitQuantity - (reward.claimedCount || 0)
                         : null;
-                    const isAvailable = !reward.limitQuantity || (remainingQuantity && remainingQuantity > 0);
+                    const isAvailable = !reward.limitQuantity || (remainingQuantity !== null && remainingQuantity > 0);
+                    const previewImage = reward.productImages?.[0];
+                    const hasVideo = Boolean(reward.productVideo);
+                    const hasMedia = Boolean(previewImage || hasVideo);
 
                     return (
                         <div
                             key={reward.id}
                             className={`
-                border rounded-lg p-4 transition-all duration-200 cursor-pointer
+                border rounded-lg overflow-hidden transition-all duration-200 cursor-pointer
                 ${isSelected
                                     ? 'border-emerald-500 bg-emerald-50 shadow-sm'
-                                    : 'border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/30'
+                                    : 'border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/30 hover:shadow-sm'
                                 }
-                ${!isAvailable ? 'opacity-60 cursor-not-allowed' : ''}
               `}
-                            onClick={() => {
-                                if (isAvailable) {
-                                    openRewardDonation(reward);
+                            role="link"
+                            tabIndex={0}
+                            aria-label={`Xem chi tiết phần quà ${reward.title}`}
+                            onClick={() => openRewardDetails(reward.id)}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter' || event.key === ' ') {
+                                    event.preventDefault();
+                                    openRewardDetails(reward.id);
                                 }
                             }}
                         >
-                            {/* Reward Header */}
-                            <div className="flex justify-between items-start mb-3">
-                                <div className="flex-1">
+                            {/* Product image/video preview */}
+                            {hasMedia && (
+                                <div className="relative aspect-[16/6] w-full overflow-hidden bg-gray-100">
+                                    {hasVideo ? (
+                                        <video
+                                            className="h-full w-full object-cover"
+                                            src={reward.productVideo || undefined}
+                                            poster={previewImage || undefined}
+                                            muted
+                                            loop
+                                            playsInline
+                                            preload="metadata"
+                                            aria-label={`Video giới thiệu ${reward.title}`}
+                                        />
+                                    ) : (
+                                        <img
+                                            className="h-full w-full object-cover transition-transform duration-300 hover:scale-[1.02]"
+                                            src={previewImage || undefined}
+                                            alt={reward.title}
+                                            loading="lazy"
+                                        />
+                                    )}
+                                    {hasVideo && (
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                            <span className="inline-flex items-center gap-1.5 rounded-full bg-black/55 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-sm">
+                                                <PlayCircle className="h-4 w-4" />
+                                                Video sản phẩm
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            <div className="p-4">
+                                {/* Reward Header */}
+                                <div className="flex justify-between items-start gap-4 mb-3">
+                                <div className="flex-1 min-w-0">
                                     <div className="text-lg font-bold text-emerald-600 mb-1">
                                         {formatVND(reward.minAmount)}
                                     </div>
@@ -90,7 +139,9 @@ export default function CampaignRewards({
 
                                 {/* CTA Button for Reward */}
                                 <button
+                                    type="button"
                                     className={`
+                                        shrink-0
                                         inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold shadow-sm transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-pgreen focus-visible:ring-offset-2
                                         ${!isAvailable
                                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60'
@@ -98,6 +149,7 @@ export default function CampaignRewards({
                                         }
                                     `}
                                     onClick={(e) => {
+                                        // The card opens details; only this button opens the payment modal.
                                         e.stopPropagation();
                                         if (isAvailable) {
                                             openRewardDonation(reward);
@@ -147,6 +199,7 @@ export default function CampaignRewards({
                                     </div>
                                 </div>
                             )}
+                            </div>
                         </div>
                     );
                 })}
