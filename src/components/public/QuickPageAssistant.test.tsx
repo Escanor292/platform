@@ -47,4 +47,25 @@ describe("QuickPageAssistant", () => {
     expect(within(panel).getByText(/Test Creator Pro có 1 dự án công khai/)).toBeInTheDocument();
     expect(within(panel).getByText(/Dự án hiển thị: Dự án xanh/)).toBeInTheDocument();
   });
+
+  it("tóm tắt dự án công khai trên route chi tiết dự án", async () => {
+    mockUsePathname.mockReturnValue("/projects/cmt0y1lls000196jc66m2pj7t");
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => ({ data: { title: "Mầm xanh tử tế", description: "Dự án trồng cây xanh cho trường học vùng khó khăn.", _count: { campaigns: 1, blog_posts: 0, rewards: 0 } } }),
+    });
+
+    render(<QuickPageAssistant />);
+    fireEvent.click(screen.getByRole("button", { name: "Mở trợ lý nhanh" }));
+    const panel = screen.getByRole("region", { name: "Trợ lý trang" });
+    expect(await within(panel).findByText(/Mầm xanh tử tế/)).toBeInTheDocument();
+
+    fireEvent.change(within(panel).getByPlaceholderText("Hỏi về trang này…"), { target: { value: "Dự án này nói về gì?" } });
+    fireEvent.click(within(panel).getByRole("button", { name: "Gửi câu hỏi" }));
+
+    const assistantMessages = panel.querySelectorAll(".mr-5");
+    expect(assistantMessages).toHaveLength(2);
+    expect(assistantMessages[1]).toHaveTextContent("Mầm xanh tử tế");
+    expect(assistantMessages[1]).toHaveTextContent("Dự án trồng cây xanh cho trường học vùng khó khăn.");
+  });
 });
