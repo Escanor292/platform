@@ -203,10 +203,10 @@ model blog_posts {
   users                users                  @relation(fields: [authorId], references: [id], onDelete: Cascade)
   campaigns            campaigns?             @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   projects             projects?              @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  blog_reports            blog_reports[]
-  campaign_blog_links     campaign_blog_links[]
-  project_blog_links      project_blog_links[]
-  rewards                 rewards[]
+  blog_reports         blog_reports[]
+  campaign_blog_links  campaign_blog_links[]
+  project_blog_links   project_blog_links[]
+  rewards              rewards[]
 
   @@index([authorId])
   @@index([campaignId])
@@ -408,25 +408,25 @@ model platform_invoices {
 }
 
 model projects {
-  id                    String                @id @default(cuid())
-  creatorId             String
-  title                 String                @db.VarChar(255)
-  slug                  String?               @unique @db.VarChar(255)
-  description           String?               @db.Text
-  coverImage            String?               @db.VarChar(512)
-  richDescription       Json?
+  id                   String                 @id @default(cuid())
+  creatorId            String
+  title                String                 @db.VarChar(255)
+  slug                 String?                @unique @db.VarChar(255)
+  description          String?                @db.Text
+  coverImage           String?                @db.VarChar(512)
+  richDescription      Json?
   /// Kiểu nền hero: 'image' (ảnh bìa coverImage) hoặc 'color' (gradient từ mã màu trong heroBackgroundConfig)
-  heroBackgroundType    String                @default("image") @db.VarChar(16)
+  heroBackgroundType   String                 @default("image") @db.VarChar(16)
   /// Cấu hình nền màu, ví dụ: { "colors": ["#2563eb", "#1d4ed8", "#7c3aed"], "angle": 135 }
-  heroBackgroundConfig  Json?
-  createdAt             DateTime              @default(now())
-  updatedAt             DateTime              @updatedAt
-  users                 users                 @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  campaigns             campaigns[]
-  blog_posts            blog_posts[]
-  rewards               rewards[]
-  project_blog_links    project_blog_links[]
-  project_reward_links  project_reward_links[]
+  heroBackgroundConfig Json?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  users                users                  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  campaigns            campaigns[]
+  blog_posts           blog_posts[]
+  rewards              rewards[]
+  project_blog_links   project_blog_links[]
+  project_reward_links project_reward_links[]
 
   @@index([creatorId])
   @@index([slug])
@@ -489,10 +489,12 @@ model pledges {
   shippingAddress    String?
   payosOrderCode     String?          @unique
   webhookProcessedAt DateTime?
+  receivedAt         DateTime?
   audit_logs         audit_logs[]
   backer_invoices    backer_invoices?
   campaigns          campaigns        @relation(fields: [campaignId], references: [id])
   rewards            rewards?         @relation(fields: [rewardId], references: [id])
+  product_reviews    product_reviews?
   users              users?           @relation(fields: [userId], references: [id])
 }
 
@@ -509,29 +511,49 @@ model reviews {
 }
 
 model rewards {
-  id           String    @id
-  campaignId   String?
-  projectId    String?
-  title        String
-  description  String?
-  createdAt    DateTime  @default(now())
-  deliveryDate DateTime?
-  isActive              Boolean   @default(true)
-  isIncludedInProject   Boolean   @default(true)
-  maxQuantity           Int?
-  minAmount             Decimal
-  maxAmount    Decimal?
-  stock        Int?
-  productImages String[] @default([])
-  productVideo  String?
-  updatedAt             DateTime
-  pledges                pledges[]
-  campaigns            campaigns? @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  projects             projects? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  id                   String                 @id
+  campaignId           String?
+  projectId            String?
+  title                String
+  description          String?
+  createdAt            DateTime               @default(now())
+  deliveryDate         DateTime?
+  isActive             Boolean                @default(true)
+  isIncludedInProject  Boolean                @default(true)
+  maxQuantity          Int?
+  minAmount            Decimal
+  maxAmount            Decimal?
+  stock                Int?
+  productImages        String[]               @default([])
+  productVideo         String?
+  updatedAt            DateTime
+  pledges              pledges[]
+  product_reviews      product_reviews[]
+  campaigns            campaigns?             @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  projects             projects?              @relation(fields: [projectId], references: [id], onDelete: SetNull)
   blog_posts           blog_posts[]
   project_reward_links project_reward_links[]
+
   @@index([campaignId])
   @@index([projectId])
+}
+
+model product_reviews {
+  id        String   @id
+  rewardId  String
+  pledgeId  String   @unique
+  userId    String
+  rating    Int
+  comment   String
+  mediaUrls String[] @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  rewards   rewards  @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+  pledges   pledges  @relation(fields: [pledgeId], references: [id], onDelete: Cascade)
+  users     users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([rewardId, createdAt])
+  @@index([userId])
 }
 
 model transaction_limits {
@@ -612,6 +634,7 @@ model users {
   pledges                                    pledges[]
   projects                                   projects[]
   reviews                                    reviews[]
+  product_reviews                            product_reviews[]
   user_badges_user_badges_assigned_byTousers user_badges[]        @relation("user_badges_assigned_byTousers")
   user_badges_user_badges_revoked_byTousers  user_badges[]        @relation("user_badges_revoked_byTousers")
   user_badges_user_badges_user_idTousers     user_badges[]        @relation("user_badges_user_idTousers")

@@ -23,6 +23,7 @@ import ProductGallery from '@/components/products/ProductGallery';
 import { ProductQuickEdit } from '@/components/products/ProductQuickEdit';
 import { AddToCartButton } from '@/components/products/AddToCartButton';
 import CampaignRewardDonationButton from '@/components/products/CampaignRewardDonationButton';
+import ProductReviews from '@/components/products/ProductReviews';
 
 function daysBetween(a: Date, b: Date): number {
   return Math.ceil((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24));
@@ -282,6 +283,7 @@ export default async function ProductDetailPage({
             </div>
           </div>
         </div>
+        <ProductReviews rewardId={reward.id} />
         <ShareScript />
         {isOwner && (
           <ProductQuickEdit
@@ -442,6 +444,7 @@ export default async function ProductDetailPage({
           </div>
         </div>
       </div>
+      <ProductReviews rewardId={reward.id} />
       <ShareScript />
       {isOwner && (
         <ProductQuickEdit
