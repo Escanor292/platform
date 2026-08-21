@@ -82,6 +82,18 @@ const TIPTAP_EXTENSIONS = [
  * Tries to parse the content string as TipTap JSON.
  * Returns the parsed object if valid, or null.
  */
+export function normalizeRichTextContent(content: unknown): string {
+  if (typeof content === "string") return content;
+  if (content && typeof content === "object") {
+    try {
+      return JSON.stringify(content);
+    } catch {
+      return "";
+    }
+  }
+  return "";
+}
+
 function parseTipTapJson(content: string): object | null {
   try {
     const parsed = JSON.parse(content);
@@ -97,22 +109,23 @@ function parseTipTapJson(content: string): object | null {
 /**
  * Converts content (TipTap JSON string OR plain HTML) to an HTML string.
  */
-function contentToHtml(content: string): string {
-  if (!content) return "";
+function contentToHtml(content: unknown): string {
+  const normalized = normalizeRichTextContent(content);
+  if (!normalized) return "";
 
   // Detect TipTap JSON
-  const json = parseTipTapJson(content);
+  const json = parseTipTapJson(normalized);
   if (json) {
     try {
       return generateHTML(json as any, TIPTAP_EXTENSIONS);
     } catch {
       // Fallback to raw if generateHTML fails
-      return `<p>${content}</p>`;
+      return `<p>${normalized}</p>`;
     }
   }
 
   // Already HTML or plain text
-  return content;
+  return normalized;
 }
 
 // useSyncExternalStore-based hydration guard (no setState in effect)
@@ -127,7 +140,7 @@ function getClientSnapshot() {
 }
 
 interface RichTextRendererProps {
-  content: string;
+  content: unknown;
 }
 
 export default function RichTextRenderer({ content }: RichTextRendererProps) {

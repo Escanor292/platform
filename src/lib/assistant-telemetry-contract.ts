@@ -1,4 +1,4 @@
-export const ASSISTANT_TELEMETRY_EVENTS = ["opened", "answer_rendered", "answer_failed", "sensitive_rejected", "memory_cleared"] as const;
+export const ASSISTANT_TELEMETRY_EVENTS = ["opened", "answer_rendered", "answer_failed", "sensitive_rejected", "command_rejected", "memory_cleared"] as const;
 
 export type AssistantTelemetryEventType = (typeof ASSISTANT_TELEMETRY_EVENTS)[number];
 

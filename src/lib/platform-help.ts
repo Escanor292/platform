@@ -1,3 +1,5 @@
+import { COMMAND_REFUSAL, isCommandLikeRequest } from "@/lib/assistant-safety";
+
 export type PlatformHelpAnswer = {
   content: string;
   action?: { label: string; href: string };
@@ -7,6 +9,7 @@ type EvidenceSnippet = { role: "user" | "assistant"; text: string };
 
 export function getPlatformHelpAnswer(question: string, evidence: EvidenceSnippet[] = []): PlatformHelpAnswer {
   const input = question.toLocaleLowerCase("vi-VN");
+  if (isCommandLikeRequest(question)) return { content: COMMAND_REFUSAL };
   if (/(nhắc lại|trước đó|vừa hỏi|tiếp tục|lần trước)/.test(input)) {
     const previousQuestion = evidence.find(item => item.role === "user");
     return previousQuestion ? { content: `Trong phiên này, tôi tìm thấy ngữ cảnh gần nhất: “${previousQuestion.text}”. Tôi có thể tiếp tục hướng dẫn từ nội dung đó.` } : { content: "Tôi chưa có ngữ cảnh trợ giúp phù hợp trong phiên này. Bạn có thể nói lại điều bạn muốn thực hiện trên nền tảng." };

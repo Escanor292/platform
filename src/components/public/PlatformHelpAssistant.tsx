@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Bot, ChevronDown, Leaf, Send, Trash2, X } from "lucide-react";
+import { isCommandLikeRequest } from "@/lib/assistant-safety";
 import { getAssistantTelemetryConsent, recordAssistantTelemetry, setAssistantTelemetryConsent } from "@/lib/assistant-telemetry";
 import { getPlatformHelpAnswer, type PlatformHelpAnswer } from "@/lib/platform-help";
 import { appendZeroMemTrace, clearZeroMemTraces, isZeroMemSensitive, loadZeroMemTraces, retrieveZeroMemEvidence, type ZeroMemTrace } from "@/lib/zero-mem";
@@ -42,6 +43,7 @@ export default function PlatformHelpAssistant() {
     const question = draft.trim();
     if (!question) return;
     const isSensitive = isZeroMemSensitive(question);
+    const isCommand = isCommandLikeRequest(question);
     const evidence = retrieveZeroMemEvidence(question, memoryTraces);
     let answer: PlatformHelpAnswer;
     let answerFailed = false;
@@ -53,13 +55,14 @@ export default function PlatformHelpAssistant() {
     }
     const now = Date.now();
     setMessages(current => [...current, { id: `support-user-${now}`, role: "user", content: question }, { id: `support-answer-${now}`, role: "assistant", ...answer }]);
-    if (!isSensitive) {
+    if (!isSensitive && !isCommand) {
       const questionRecord = appendZeroMemTrace(HELP_SESSION_ID, "user", question, now);
       const answerRecord = appendZeroMemTrace(HELP_SESSION_ID, "assistant", answer.content, now + 1);
       setMemoryTraces(answerRecord.accepted ? answerRecord.traces : questionRecord.traces);
     }
     if (answerFailed) recordAssistantTelemetry({ event: "answer_failed", contextTraceCount: memoryTraces.length });
     else if (isSensitive) recordAssistantTelemetry({ event: "sensitive_rejected", contextTraceCount: memoryTraces.length });
+    else if (isCommand) recordAssistantTelemetry({ event: "command_rejected", contextTraceCount: memoryTraces.length });
     else recordAssistantTelemetry({ event: "answer_rendered", contextTraceCount: memoryTraces.length, hasAction: Boolean(answer.action) });
     setDraft("");
   }

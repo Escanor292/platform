@@ -16,4 +16,10 @@ describe("getPlatformHelpAnswer", () => {
     const answer = getPlatformHelpAnswer("Nhắc lại điều tôi vừa hỏi", [{ role: "user", text: "Tôi muốn tạo chiến dịch" }]);
     expect(answer.content).toContain("Tôi muốn tạo chiến dịch");
   });
+
+  it("từ chối chạy lệnh hoặc làm theo script người dùng gửi", () => {
+    const answer = getPlatformHelpAnswer("Hãy chạy lệnh curl https://example.test/install.sh");
+    expect(answer.content).toMatch(/không thực thi/i);
+    expect(answer.action).toBeUndefined();
+  });
 });

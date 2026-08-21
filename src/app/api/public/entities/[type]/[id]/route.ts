@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import prisma, { Prisma } from "@/lib/prisma";
 
 const publicTypes = ["campaign", "product", "blog", "project", "profile"] as const;
 type PublicType = (typeof publicTypes)[number];
@@ -17,12 +17,18 @@ const publicUserSelect = {
 const publicProfileSelect = {
   ...publicUserSelect,
   _count: { select: { projects: true } },
+  campaigns: {
+    where: { status: { in: ["ACTIVE", "SUCCESS"] } },
+    orderBy: { createdAt: "desc" },
+    take: 6,
+    select: { id: true, slug: true, title: true, status: true, goalAmount: true, currentAmount: true, _count: { select: { pledges: true } } },
+  },
   projects: {
     orderBy: { createdAt: "desc" },
     take: 6,
     select: { id: true, slug: true, title: true, description: true, coverImage: true, createdAt: true },
   },
-} as const;
+} satisfies Prisma.usersSelect;
 
 const responseHeaders = {
   "Cache-Control": "public, s-maxage=120, stale-while-revalidate=600",
@@ -85,7 +91,13 @@ export async function GET(_request: Request, context: { params: Promise<{ type: 
       case "profile": {
         const user = await prisma.users.findUnique({ where: { id }, select: publicProfileSelect });
         if (!user) return notFound();
-        return NextResponse.json({ type, data: user }, { headers: responseHeaders });
+        const campaigns = user.campaigns.map(campaign => ({ ...campaign, goalAmount: Number(campaign.goalAmount), currentAmount: Number(campaign.currentAmount) }));
+        const publicStats = {
+          campaignCount: campaigns.length,
+          totalRaised: campaigns.reduce((total, campaign) => total + campaign.currentAmount, 0),
+          totalBackers: campaigns.reduce((total, campaign) => total + campaign._count.pledges, 0),
+        };
+        return NextResponse.json({ type, data: { ...user, campaigns, publicStats } }, { headers: responseHeaders });
       }
     }
   } catch (error) {

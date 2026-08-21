@@ -27,6 +27,7 @@ describe("GET /api/public/entities/profile/[id]", () => {
       location: null,
       coverImage: null,
       _count: { projects: 1 },
+      campaigns: [],
       projects: [{ id: "project-public", slug: "du-an-xanh", title: "Dự án xanh", description: "Dự án công khai", coverImage: null, createdAt: new Date("2026-08-01T00:00:00.000Z") }],
     });
 
@@ -36,7 +37,7 @@ describe("GET /api/public/entities/profile/[id]", () => {
 
     const payload = await response.json();
     expect(response.status).toBe(200);
-    expect(payload.data).toMatchObject({ _count: { projects: 1 }, projects: [{ id: "project-public", title: "Dự án xanh" }] });
+    expect(payload.data).toMatchObject({ _count: { projects: 1 }, publicStats: { campaignCount: 0, totalRaised: 0, totalBackers: 0 }, projects: [{ id: "project-public", title: "Dự án xanh" }] });
     expect(payload.data).not.toHaveProperty("email");
     expect(payload.data).not.toHaveProperty("password");
     expect(payload.data).not.toHaveProperty("bankAccount");
