@@ -112,8 +112,9 @@ export default function HeroSection() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full backdrop-blur-md bg-white/55 border border-white/70 text-pgreen text-xs font-bold mb-8 shadow-lg hover:shadow-xl transition-all">
             <div className="w-4 h-4 rounded-full bg-pgreen animate-pulse" />
-            <span>🏆 Nền tảng gây quỹ cộng đồng #1 Việt Nam</span>
+            <span>🏆 Nền tảng gây quỹ cộng đồng #2 Việt Nam</span>
           </div>
+          <p className="mt-2 ml-2 text-[11px] italic text-gray-500">Vì chưa có tài liệu chứng minh</p>
 
           {/* Main Headline */}
           <h1 className="font-display font-black text-6xl lg:text-7xl xl:text-8xl text-dblue mb-8 drop-shadow-lg" style={{ letterSpacing: '0.02em', lineHeight: '1.3' }}>

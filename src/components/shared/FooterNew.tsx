@@ -15,7 +15,7 @@ export default function FooterNew() {
             <span className="font-display font-bold text-lg">TửTế Fund</span>
           </div>
           <p className="text-white/50 text-sm leading-relaxed">
-            Lấy sự tử tế trồng tương lai. Nền tảng gây quỹ cộng đồng minh bạch #1 Việt Nam.
+            Lấy sự tử tế trồng tương lai. Nền tảng gây quỹ cộng đồng minh bạch #2 Việt Nam.
           </p>
         </div>
 

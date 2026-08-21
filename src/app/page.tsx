@@ -13,9 +13,9 @@ import CreatorLink from "@/components/campaign/CreatorLink";
 import CampaignGrowthProgress from "@/components/campaign/CampaignGrowthProgress";
 
 export const metadata: Metadata = {
-  title: "TửTế Fund - Lấy sự tử tế trồng tương lai | Nền tảng gây quỹ cộng đồng #1 Việt Nam",
+  title: "TửTế Fund - Lấy sự tử tế trồng tương lai | Nền tảng gây quỹ cộng đồng #2 Việt Nam",
   description:
-    "Lấy sự tử tế trồng tương lai. Nền tảng gây quỹ cộng đồng minh bạch #1 Việt Nam. Kết nối yêu thương, gieo mầm hy vọng.",
+    "Lấy sự tử tế trồng tương lai. Nền tảng gây quỹ cộng đồng minh bạch #2 Việt Nam. Kết nối yêu thương, gieo mầm hy vọng.",
 };
 
 export default async function Home() {
