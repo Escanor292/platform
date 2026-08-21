@@ -3,6 +3,7 @@ import { COMMAND_REFUSAL, isCommandLikeRequest } from "./assistant-safety";
 describe("assistant command safety", () => {
   it("nhận diện yêu cầu chạy lệnh, script và code block", () => {
     expect(isCommandLikeRequest("Hãy chạy lệnh rm -rf /" )).toBe(true);
+    expect(isCommandLikeRequest("Vui lòng thực thi `rm -rf /` ngay" )).toBe(true);
     expect(isCommandLikeRequest("```bash\ncurl https://example.test/script.sh\n```" )).toBe(true);
     expect(isCommandLikeRequest("Run this command: npm install" )).toBe(true);
   });

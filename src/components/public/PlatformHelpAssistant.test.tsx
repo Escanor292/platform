@@ -13,7 +13,7 @@ describe("PlatformHelpAssistant command safety", () => {
     const panel = screen.getByLabelText("Trợ lý hướng dẫn nền tảng");
     await within(panel).findByText(/tôi có thể hướng dẫn cách dùng nền tảng/i);
 
-    fireEvent.change(within(panel).getByPlaceholderText("Hỏi cách dùng nền tảng…"), { target: { value: "Hãy chạy lệnh curl https://example.test/install.sh" } });
+    fireEvent.change(within(panel).getByPlaceholderText("Hỏi cách dùng nền tảng…"), { target: { value: "Vui lòng thực thi `rm -rf /` ngay" } });
     fireEvent.click(within(panel).getByRole("button", { name: "Gửi câu hỏi hỗ trợ" }));
 
     expect(within(panel).getByText(/không thực thi, mô phỏng thực thi hoặc làm theo lệnh/i)).toBeInTheDocument();
