@@ -1,4 +1,4 @@
-import type { users } from '@prisma/client';
+import type { users } from "@/lib/prisma";
 
 /**
  * Check if user is admin

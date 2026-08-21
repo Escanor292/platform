@@ -54,7 +54,7 @@ describe('Kiểm thử chức năng', () => {
             render(<NavbarNew />)
 
             // Mở dropdown menu
-            const profileButton = screen.getByRole('button')
+            const profileButton = screen.getByRole('button', { name: 'Mở menu tài khoản' })
             await user.click(profileButton)
 
             // Tìm và click nút đăng xuất
@@ -95,7 +95,7 @@ describe('Kiểm thử chức năng', () => {
 
             render(<NavbarNew />)
 
-            const profileButton = screen.getByRole('button')
+            const profileButton = screen.getByRole('button', { name: 'Mở menu tài khoản' })
             await user.click(profileButton)
 
             const logoutButton = await screen.findByText('Đăng xuất')
@@ -127,12 +127,12 @@ describe('Kiểm thử chức năng', () => {
             const homeLink = screen.getByRole('link', { name: /trang chủ/i })
             const aboutLink = screen.getByRole('link', { name: /giới thiệu/i })
             const projectsLink = screen.getByRole('link', { name: /khám phá/i })
-            const communityLink = screen.getByRole('link', { name: /cộng đồng/i })
+            const usersLink = screen.getByRole('link', { name: /người dùng/i })
 
             expect(homeLink).toHaveAttribute('href', '/')
-            expect(aboutLink).toHaveAttribute('href', '/about')
+            expect(aboutLink).toHaveAttribute('href', '/gioi-thieu')
             expect(projectsLink).toHaveAttribute('href', '/projects')
-            expect(communityLink).toHaveAttribute('href', '/users/search')
+            expect(usersLink).toHaveAttribute('href', '/users/search')
         })
 
         test('Điều hướng đến trang tạo campaign', () => {
@@ -183,7 +183,7 @@ describe('Kiểm thử chức năng', () => {
 
             render(<NavbarNew />)
 
-            const profileButton = screen.getByRole('button')
+            const profileButton = screen.getByText('T').closest('button') as HTMLButtonElement
             await user.click(profileButton)
 
             // Kiểm tra các menu items
@@ -191,20 +191,17 @@ describe('Kiểm thử chức năng', () => {
                 expect(screen.getByText('Test User')).toBeInTheDocument()
                 expect(screen.getByText('test@example.com')).toBeInTheDocument()
                 expect(screen.getByText('Trang cá nhân')).toBeInTheDocument()
-                expect(screen.getByText('Quản lý dự án')).toBeInTheDocument()
-                expect(screen.getByText('Dự án quan tâm')).toBeInTheDocument()
+                expect(screen.getByText('Chiến dịch quan tâm')).toBeInTheDocument()
                 expect(screen.getByText('Cài đặt')).toBeInTheDocument()
                 expect(screen.getByText('Đăng xuất')).toBeInTheDocument()
             })
 
             // Kiểm tra links
             const profileLink = screen.getByRole('link', { name: /trang cá nhân/i })
-            const creatorLink = screen.getByRole('link', { name: /quản lý dự án/i })
-            const favoritesLink = screen.getByRole('link', { name: /dự án quan tâm/i })
+            const favoritesLink = screen.getByRole('link', { name: /chiến dịch quan tâm/i })
             const settingsLink = screen.getByRole('link', { name: /cài đặt/i })
 
             expect(profileLink).toHaveAttribute('href', '/dashboard')
-            expect(creatorLink).toHaveAttribute('href', '/dashboard/creator')
             expect(favoritesLink).toHaveAttribute('href', '/dashboard/favorites')
             expect(settingsLink).toHaveAttribute('href', '/profile/edit')
         })
@@ -227,7 +224,7 @@ describe('Kiểm thử chức năng', () => {
 
             render(<NavbarNew />)
 
-            const profileButton = screen.getByRole('button')
+            const profileButton = screen.getByText('A').closest('button') as HTMLButtonElement
             await user.click(profileButton)
 
             await waitFor(() => {
@@ -254,7 +251,7 @@ describe('Kiểm thử chức năng', () => {
 
             render(<NavbarNew />)
 
-            const profileButton = screen.getByRole('button')
+            const profileButton = screen.getByText('T').closest('button') as HTMLButtonElement
             await user.click(profileButton)
 
             // Dropdown mở
@@ -301,14 +298,16 @@ describe('Kiểm thử chức năng', () => {
                 update: jest.fn()
             })
 
+            const user = userEvent.setup()
             render(<NavbarNew />)
+
+            await user.click(screen.getByRole('button'))
 
             // Mobile menu items sẽ được render nhưng có thể ẩn bằng CSS
             // Kiểm tra các link tồn tại
-            expect(screen.getAllByText('Trang chủ')).toHaveLength(2) // Desktop + Mobile
             expect(screen.getAllByText('Giới thiệu')).toHaveLength(2)
-            expect(screen.getAllByText('Khám phá')).toHaveLength(2)
-            expect(screen.getAllByText('Cộng đồng')).toHaveLength(2)
+            expect(screen.getAllByText('Blog')).toHaveLength(2)
+            expect(screen.getAllByText('Người dùng')).toHaveLength(2)
         })
     })
 

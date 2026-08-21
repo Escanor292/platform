@@ -27,17 +27,16 @@ describe('SQL Migration Idempotence', () => {
             process.cwd(),
             'prisma',
             'migrations',
-            '20260809151306_add_projects_table',
+            '0001_init_full_schema',
             'migration.sql'
         );
 
         const migrationSQL = fs.readFileSync(migrationPath, 'utf-8');
 
-        // Verify the migration creates tables and constraints
+        // Verify the active baseline migration creates the projects schema and constraints.
         expect(migrationSQL).toContain('CREATE TABLE "projects"');
-        expect(migrationSQL).toContain('CREATE INDEX');
-        expect(migrationSQL).toContain('ADD CONSTRAINT');
-        expect(migrationSQL).toContain('ADD COLUMN');
+        expect(migrationSQL).toContain('CREATE INDEX "projects_creatorId_idx"');
+        expect(migrationSQL).toContain('ADD CONSTRAINT "projects_creatorId_fkey"');
     });
 
     test('should verify projects table exists after migration', async () => {
@@ -125,12 +124,12 @@ describe('SQL Migration Idempotence', () => {
         }>>`
       SELECT migration_name, finished_at
       FROM _prisma_migrations
-      WHERE migration_name LIKE '%add_projects%'
+      WHERE migration_name = '0001_init_full_schema'
       ORDER BY finished_at DESC
     `;
 
         expect(migrations.length).toBeGreaterThan(0);
-        expect(migrations[0].migration_name).toContain('add_projects');
+        expect(migrations[0].migration_name).toBe('0001_init_full_schema');
         expect(migrations[0].finished_at).not.toBeNull();
     });
 

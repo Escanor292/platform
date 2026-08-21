@@ -617,6 +617,17 @@ model users {
   user_badges_user_badges_user_idTousers     user_badges[]        @relation("user_badges_user_idTousers")
 }
 
+model assistant_telemetry_events {
+  id        String   @id @default(cuid())
+  assistant String   @db.VarChar(64)
+  eventType String   @db.VarChar(64)
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([assistant, eventType, createdAt])
+}
+
 enum AuditAction {
   CREATE
   UPDATE

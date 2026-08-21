@@ -36,7 +36,7 @@ describe('Kiểm thử giao diện', () => {
             expect(screen.getByText('Trang chủ')).toBeInTheDocument()
             expect(screen.getByText('Giới thiệu')).toBeInTheDocument()
             expect(screen.getByText('Khám phá')).toBeInTheDocument()
-            expect(screen.getByText('Cộng đồng')).toBeInTheDocument()
+            expect(screen.getByText('Người dùng')).toBeInTheDocument()
 
             // Kiểm tra nút đăng nhập và gây quỹ
             expect(screen.getByText('Đăng nhập')).toBeInTheDocument()
@@ -110,20 +110,12 @@ describe('Kiểm thử giao diện', () => {
 
             render(<NavbarNew />)
 
-            // Tìm profile button bằng cách tìm button có chứa avatar
-            const buttons = screen.getAllByRole('button')
-            const profileButton = buttons.find(btn =>
-                btn.querySelector('div')?.textContent === 'T'
-            )
-
-            expect(profileButton).toBeTruthy()
-            fireEvent.click(profileButton!)
+            fireEvent.click(screen.getByRole('button', { name: 'Mở menu tài khoản' }))
 
             // Kiểm tra dropdown menu xuất hiện
             await waitFor(() => {
                 expect(screen.getByText('Trang cá nhân')).toBeInTheDocument()
-                expect(screen.getByText('Quản lý dự án')).toBeInTheDocument()
-                expect(screen.getByText('Dự án quan tâm')).toBeInTheDocument()
+                expect(screen.getByText('Chiến dịch quan tâm')).toBeInTheDocument()
                 expect(screen.getByText('Cài đặt')).toBeInTheDocument()
                 expect(screen.getByText('Đăng xuất')).toBeInTheDocument()
             })
@@ -147,13 +139,7 @@ describe('Kiểm thử giao diện', () => {
 
             render(<NavbarNew />)
 
-            const buttons = screen.getAllByRole('button')
-            const profileButton = buttons.find(btn =>
-                btn.querySelector('div')?.textContent === 'A'
-            )
-
-            expect(profileButton).toBeTruthy()
-            fireEvent.click(profileButton!)
+            fireEvent.click(screen.getByRole('button', { name: 'Mở menu tài khoản' }))
 
             await waitFor(() => {
                 expect(screen.getByText('Quản trị')).toBeInTheDocument()
@@ -175,13 +161,7 @@ describe('Kiểm thử giao diện', () => {
 
             render(<NavbarNew />)
 
-            const buttons = screen.getAllByRole('button')
-            const profileButton = buttons.find(btn =>
-                btn.querySelector('div')?.textContent === 'R'
-            )
-
-            expect(profileButton).toBeTruthy()
-            fireEvent.click(profileButton!)
+            fireEvent.click(screen.getByRole('button', { name: 'Mở menu tài khoản' }))
 
             await waitFor(() => {
                 expect(screen.queryByText('Quản trị')).not.toBeInTheDocument()

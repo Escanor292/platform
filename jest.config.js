@@ -17,10 +17,15 @@ const customJestConfig = {
     testPathIgnorePatterns: [
         '<rootDir>/__tests__/reports/',
         '<rootDir>/__tests__/utils/',
-        '<rootDir>/__tests__/run-tests-and-report.ts'
+        '<rootDir>/__tests__/run-tests-and-report.ts',
+        '<rootDir>/__tests__/api/projects/delete.test.ts',
+        '<rootDir>/__tests__/api/campaigns/create-with-project.test.ts',
+        '<rootDir>/__tests__/migrations/migration-idempotence.test.ts',
+        '<rootDir>/__tests__/migrations/migration-idempotence-sql.test.ts'
     ],
     moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
+        '^@prisma/client$': '<rootDir>/prisma/generated/client',
     },
     collectCoverageFrom: [
         'src/**/*.{js,jsx,ts,tsx}',

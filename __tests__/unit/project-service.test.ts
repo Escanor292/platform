@@ -22,6 +22,16 @@ jest.mock('@/lib/prisma', () => ({
         blog_posts: {
             count: jest.fn(),
         },
+        project_blog_links: {
+            findMany: jest.fn(),
+            deleteMany: jest.fn(),
+            createMany: jest.fn(),
+        },
+        project_reward_links: {
+            findMany: jest.fn(),
+            deleteMany: jest.fn(),
+            createMany: jest.fn(),
+        },
         users: {
             findUnique: jest.fn(),
         },
@@ -44,6 +54,8 @@ import {
 describe('Project Service', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        (prisma.project_blog_links.findMany as jest.Mock).mockResolvedValue([]);
+        (prisma.project_reward_links.findMany as jest.Mock).mockResolvedValue([]);
     });
 
     describe('createProject', () => {
@@ -72,15 +84,17 @@ describe('Project Service', () => {
                 ...mockProject,
                 campaignCount: 0,
                 blogPostCount: 0,
+                linkedBlogPostIds: [],
+                linkedRewardIds: [],
             });
 
-            expect(prisma.projects.create).toHaveBeenCalledWith({
-                data: {
+            expect(prisma.projects.create).toHaveBeenCalledWith(expect.objectContaining({
+                data: expect.objectContaining({
                     creatorId: 'user123',
                     title: 'Test Project',
                     description: 'Test description',
-                },
-            });
+                }),
+            }));
         });
 
         it('should create a project with title only (description as null)', async () => {
@@ -104,13 +118,13 @@ describe('Project Service', () => {
             const result = await createProject('user123', input);
 
             expect(result.description).toBeNull();
-            expect(prisma.projects.create).toHaveBeenCalledWith({
-                data: {
+            expect(prisma.projects.create).toHaveBeenCalledWith(expect.objectContaining({
+                data: expect.objectContaining({
                     creatorId: 'user123',
                     title: 'Test Project',
                     description: null,
-                },
-            });
+                }),
+            }));
         });
 
         it('should use parameterized queries (SQL injection protection)', async () => {
@@ -135,13 +149,13 @@ describe('Project Service', () => {
             await createProject('user123', maliciousInput);
 
             // Verify Prisma is called with the raw values (Prisma handles parameterization)
-            expect(prisma.projects.create).toHaveBeenCalledWith({
-                data: {
+            expect(prisma.projects.create).toHaveBeenCalledWith(expect.objectContaining({
+                data: expect.objectContaining({
                     creatorId: 'user123',
                     title: "'; DROP TABLE projects;--",
                     description: "'; DELETE FROM users;--",
-                },
-            });
+                }),
+            }));
         });
     });
 

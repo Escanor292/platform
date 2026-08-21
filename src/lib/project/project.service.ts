@@ -207,8 +207,8 @@ export async function getProjectById(
     // Calculate counts
     const campaignCount = project.campaigns.length;
     const blogPostCount = project.blog_posts.length;
-    const linkedBlogPostIds = project.project_blog_links.map((l) => l.blogPostId);
-    const linkedRewardIds = project.project_reward_links.map((l) => l.rewardId);
+    const linkedBlogPostIds = (project.project_blog_links ?? []).map((l) => l.blogPostId);
+    const linkedRewardIds = (project.project_reward_links ?? []).map((l) => l.rewardId);
 
     return {
         id: project.id,

@@ -1,55 +1,34 @@
 import '@testing-library/jest-dom'
+const { TextEncoder, TextDecoder } = require('util')
+const { ReadableStream, WritableStream, TransformStream } = require('node:stream/web')
+global.TextEncoder = global.TextEncoder || TextEncoder
+global.TextDecoder = global.TextDecoder || TextDecoder
+global.ReadableStream = global.ReadableStream || ReadableStream
+global.WritableStream = global.WritableStream || WritableStream
+global.TransformStream = global.TransformStream || TransformStream
+const { Request: EdgeRequest, Response: EdgeResponse } = require('next/dist/compiled/@edge-runtime/primitives/fetch')
 
 // Mock Request and Response for Next.js server components
 if (typeof global.Request === 'undefined') {
-    global.Request = class Request {
-        constructor(input, init) {
-            this.url = typeof input === 'string' ? input : input.url;
-            this.method = init?.method || 'GET';
-        }
-    };
+    global.Request = EdgeRequest;
 }
 
 if (typeof global.Response === 'undefined') {
-    global.Response = class Response {
-        constructor(body, init) {
-            this._body = body;
-            this.status = init?.status || 200;
-            this.statusText = init?.statusText || '';
-            this.headers = new Map(Object.entries(init?.headers || {}));
-        }
-
-        async json() {
-            if (typeof this._body === 'string') {
-                return JSON.parse(this._body);
-            }
-            return this._body;
-        }
-
-        static json(body, init) {
-            return new Response(body, init);
-        }
-    };
+    global.Response = EdgeResponse;
 }
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
-    useRouter() {
-        return {
+    useRouter: jest.fn(() => ({
             push: jest.fn(),
             replace: jest.fn(),
             prefetch: jest.fn(),
             back: jest.fn(),
             forward: jest.fn(),
             refresh: jest.fn(),
-        }
-    },
-    useSearchParams() {
-        return new URLSearchParams()
-    },
-    usePathname() {
-        return ''
-    },
+    })),
+    useSearchParams: jest.fn(() => new URLSearchParams()),
+    usePathname: jest.fn(() => ''),
 }))
 
 // Mock next-auth/react
@@ -67,9 +46,24 @@ jest.mock('sonner', () => ({
     toast: {
         success: jest.fn(),
         error: jest.fn(),
-        promise: jest.fn(),
+        promise: jest.fn((operation, messages) => Promise.resolve(operation).then(value => {
+            messages?.success?.(value);
+            return value;
+        }).catch(error => {
+            if (typeof messages?.error === 'function') messages.error(error);
+            return undefined;
+        })),
     },
 }))
+
+// Navbar is tested independently; the cart dropdown has its own provider tests.
+jest.mock('@/components/products/CartProvider', () => ({
+    CartDropdown: () => null,
+}));
+
+jest.mock('@/components/chat/ChatNotificationBadge', () => ({
+    ChatNotificationBadge: () => null,
+}));
 
 // Mock fetch globally
 global.fetch = jest.fn()
@@ -100,4 +94,4 @@ jest.mock('ioredis', () => {
         on: jest.fn(),
         status: 'ready',
     }));
-});
+});

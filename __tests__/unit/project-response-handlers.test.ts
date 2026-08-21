@@ -475,7 +475,7 @@ describe('Project Response Handlers', () => {
 
             expect(JSON.stringify(json)).not.toContain('postgres://');
             expect(JSON.stringify(json)).not.toContain('password');
-            expect(json.error.message).toBe('Internal server error');
+            expect(json.error.message).toBe('Service temporarily unavailable');
         });
 
         it('should not expose stack traces', async () => {

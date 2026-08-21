@@ -8,7 +8,7 @@
 
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { Prisma } from '@prisma/client';
+import { Prisma } from "@/lib/prisma";
 
 /**
  * Error response structure following Requirement 19.2

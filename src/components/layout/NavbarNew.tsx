@@ -184,8 +184,7 @@ export default function NavbarNew() {
                 <button
                   ref={triggerRef}
                   onClick={handleTriggerClick}
-                  onMouseEnter={handleTriggerMouseEnter}
-                  onMouseLeave={handleTriggerMouseLeave}
+                  aria-label="Mở menu tài khoản"
                   className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded-xl transition focus-ring"
                 >
                   <div className="w-9 h-9 rounded-full bg-pgreen/10 border border-pgreen/20 flex items-center justify-center text-pgreen font-bold overflow-hidden">
@@ -206,8 +205,6 @@ export default function NavbarNew() {
                 {isDropdownOpen && (
                   <div
                     ref={dropdownRef}
-                    onMouseEnter={handleDropdownMouseEnter}
-                    onMouseLeave={handleDropdownMouseLeave}
                     className="absolute right-0 top-full mt-1 w-56 bg-white rounded-2xl shadow-premium border border-gray-100 p-2 z-50 animate-in fade-in zoom-in-95 duration-200"
                   >
                     {/* User Info */}
