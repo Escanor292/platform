@@ -6,6 +6,7 @@
 import { ObjectId } from 'mongodb';
 import { getDb } from '@/lib/mongodb';
 import { prisma } from '@/lib/prisma';
+import { normalizePrivacySettings } from '@/lib/profile-settings';
 import {
   MongoConversation,
   MongoMessage,
@@ -59,6 +60,7 @@ async function getUserInfo(userId: string): Promise<ConversationParticipant | nu
       email: true,
       avatar: true,
       role: true,
+      privacySettings: true,
     },
   });
 
@@ -76,7 +78,7 @@ async function getUserInfo(userId: string): Promise<ConversationParticipant | nu
   return {
     userId: user.id,
     name: user.displayName || user.name,
-    email: user.email,
+    email: normalizePrivacySettings(user.role, user.privacySettings).email ? user.email : '',
     avatarUrl: user.avatar || undefined,
     role: user.role,
     deleted: false,
@@ -97,7 +99,7 @@ export async function enrichDeletedUsers<T extends { participants: ConversationP
 
   const existing = await prisma.users.findMany({
     where: { id: { in: userIds } },
-    select: { id: true, avatar: true, displayName: true, name: true, email: true, role: true },
+    select: { id: true, avatar: true, displayName: true, name: true, email: true, role: true, privacySettings: true },
   });
   const existingIds = new Set(existing.map((u) => u.id));
 
@@ -111,7 +113,7 @@ export async function enrichDeletedUsers<T extends { participants: ConversationP
         return {
           ...p,
           name: fresh.displayName || fresh.name,
-          email: fresh.email,
+          email: normalizePrivacySettings(fresh.role, fresh.privacySettings).email ? fresh.email : '',
           avatarUrl: fresh.avatar || p.avatarUrl,
           role: fresh.role,
           deleted: false,
@@ -763,11 +765,8 @@ export async function getTotalUnreadCount(userId: string): Promise<number> {
  * Search users by name or email
  */
 export async function searchUsers(query: string, currentUserId: string): Promise<any[]> {
-  if (!query || query.trim().length < 2) {
-    return [];
-  }
+  if (!query || query.trim().length < 2) return [];
 
-  const db = await getDb();
   const users = await prisma.users.findMany({
     where: {
       AND: [
@@ -778,7 +777,7 @@ export async function searchUsers(query: string, currentUserId: string): Promise
             { email: { contains: query, mode: 'insensitive' } },
           ],
         },
-        { id: { not: currentUserId } }, // Exclude current user
+        { id: { not: currentUserId } },
       ],
     },
     select: {
@@ -788,18 +787,26 @@ export async function searchUsers(query: string, currentUserId: string): Promise
       email: true,
       avatar: true,
       role: true,
+      privacySettings: true,
     },
-    take: 10,
+    take: 20,
   });
 
-  return users.map((user) => ({
-    id: user.id,
-    name: user.displayName || user.name,
-    displayName: user.displayName,
-    email: user.email,
-    avatar: user.avatar || undefined,
-    role: user.role,
-  }));
+  return users
+    .filter((user) => {
+      const emailVisible = normalizePrivacySettings(user.role, user.privacySettings).email;
+      const nameMatches = (user.displayName || user.name).toLocaleLowerCase().includes(query.toLocaleLowerCase());
+      return nameMatches || (emailVisible && user.email.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
+    })
+    .slice(0, 10)
+    .map((user) => ({
+      id: user.id,
+      name: user.displayName || user.name,
+      displayName: user.displayName,
+      email: normalizePrivacySettings(user.role, user.privacySettings).email ? user.email : null,
+      avatar: user.avatar || undefined,
+      role: user.role,
+    }));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

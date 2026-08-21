@@ -13,6 +13,7 @@ import { UserBadgeList } from "@/components/badge/UserBadgeList";
 import { StartChatButton } from "@/components/chat/StartChatButton";
 import { ProfileBlogCard } from "@/components/profile/ProfileBlogCard";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
+import { canExposePrivacyField } from "@/lib/profile-settings";
 
 interface ProfilePageProps {
   params: Promise<{ userId: string }>;
@@ -158,6 +159,14 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
   if (!user) {
     notFound();
   }
+
+  const profileIsPublic = !isOwnProfile || showAsPublic;
+  const showLocation = canExposePrivacyField(user.role, user.privacySettings, 'location', !profileIsPublic);
+  const showBio = canExposePrivacyField(user.role, user.privacySettings, 'bio', !profileIsPublic);
+  const showWebsite = canExposePrivacyField(user.role, user.privacySettings, 'website', !profileIsPublic);
+  const showSocialLinks = canExposePrivacyField(user.role, user.privacySettings, 'socialLinks', !profileIsPublic);
+  const showEmail = canExposePrivacyField(user.role, user.privacySettings, 'email', !profileIsPublic);
+  const showPhone = canExposePrivacyField(user.role, user.privacySettings, 'phone', !profileIsPublic);
 
   // Serialize data cho Client Component (convert Decimal to number/string)
   const serializedCampaigns = user.campaigns.map(campaign => ({
@@ -327,7 +336,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
                   <Calendar size={16} />
                   Tham gia {new Date(user.createdAt).toLocaleDateString("vi-VN", { month: "long", year: "numeric" })}
                 </div>
-                {user.location && (
+                {user.location && showLocation && (
                   <div className="flex items-center gap-1">
                     <MapPin size={16} />
                     {user.location}
@@ -341,14 +350,22 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
               </div>
 
               {/* Bio */}
-              {user.bio && (
+              {user.bio && showBio && (
                 <p className="text-gray-600 max-w-3xl leading-relaxed">{user.bio}</p>
               )}
 
               {/* Social Links */}
-              {user.socialLinks && Array.isArray(user.socialLinks) && (user.socialLinks as SocialLink[]).length > 0 && (
+              {user.socialLinks && showSocialLinks && Array.isArray(user.socialLinks) && (user.socialLinks as SocialLink[]).length > 0 && (
                 <div className="pt-2">
                   <SocialLinks links={user.socialLinks as SocialLink[]} size="md" />
+                </div>
+              )}
+
+              {(showEmail || showPhone || (showWebsite && user.website)) && (
+                <div className="flex flex-wrap gap-3 pt-2 text-sm text-gray-600">
+                  {showEmail && user.email && <span className="rounded-full bg-gray-50 px-3 py-1">Email: {user.email}</span>}
+                  {showPhone && user.phone && <span className="rounded-full bg-gray-50 px-3 py-1">Điện thoại: {user.phone}</span>}
+                  {showWebsite && user.website && <a href={user.website} target="_blank" rel="noreferrer" className="rounded-full bg-gray-50 px-3 py-1 text-pgreen hover:underline">Website</a>}
                 </div>
               )}
 

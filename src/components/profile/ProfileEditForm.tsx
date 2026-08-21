@@ -3,10 +3,11 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Save, X, Upload, Camera, Image as ImageIcon } from "lucide-react";
+import { Save, X, Upload, Camera, Image as ImageIcon, Bell, Eye, EyeOff, LockKeyhole } from "lucide-react";
 import Link from "next/link";
 import SocialLinksEditor from "./SocialLinksEditor";
 import { SocialLink } from "@/types/social";
+import { normalizeNotificationSettings, normalizePrivacySettings, type NotificationSettings, type PrivacySettings } from "@/lib/profile-settings";
 
 interface ProfileEditFormProps {
   user: {
@@ -21,7 +22,19 @@ interface ProfileEditFormProps {
     phone: string | null;
     shippingAddress: string | null;
     socialLinks?: any;
+    role: string;
+    privacySettings?: unknown;
+    notificationSettings?: unknown;
   };
+}
+
+function PrivacyToggle({ label, description, value, disabled = false, onChange }: { label: string; description: string; value: boolean; disabled?: boolean; onChange: (value: boolean) => void }) {
+  return (
+    <div className={`flex items-start justify-between gap-4 rounded-2xl border p-4 ${disabled ? 'border-gray-100 bg-gray-50' : 'border-gray-100 bg-white'}`}>
+      <div className="flex items-start gap-3"><span className={`mt-1 ${value ? 'text-pgreen' : 'text-gray-400'}`}>{value ? <Eye size={18} /> : <EyeOff size={18} />}</span><div><p className="font-bold text-gray-900">{label}</p><p className="mt-1 text-xs leading-5 text-gray-500">{description}</p></div></div>
+      <button type="button" role="switch" aria-checked={value} disabled={disabled} onClick={() => onChange(!value)} className={`relative h-6 w-11 shrink-0 rounded-full transition ${value ? 'bg-pgreen' : 'bg-gray-300'} ${disabled ? 'cursor-not-allowed opacity-60' : ''}`}><span className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition ${value ? 'left-6' : 'left-1'}`} /></button>
+    </div>
+  );
 }
 
 export default function ProfileEditForm({ user }: ProfileEditFormProps) {
@@ -41,8 +54,14 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
     shippingAddress: user.shippingAddress || "",
     image: user.image || "",
     coverImage: user.coverImage || "",
-    socialLinks: (user.socialLinks as SocialLink[]) || []
+    socialLinks: (user.socialLinks as SocialLink[]) || [],
+    privacySettings: normalizePrivacySettings(user.role, user.privacySettings),
+    notificationSettings: normalizeNotificationSettings(user.notificationSettings),
   });
+
+  const isCreator = user.role === "CREATOR" || user.role === "CREATOR_PENDING" || user.role === "ADMIN";
+  const privacySettings = formData.privacySettings as PrivacySettings;
+  const notificationSettings = formData.notificationSettings as NotificationSettings;
 
   const handleFileUpload = async (file: File, type: "avatar" | "cover") => {
     if (!file) return;
@@ -422,6 +441,40 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
           value={formData.socialLinks}
           onChange={(links) => setFormData({ ...formData, socialLinks: links })}
         />
+      </section>
+
+      {/* Privacy and notification settings */}
+      <section className="rounded-3xl border border-gray-100 bg-white p-6 shadow-soft">
+        <div className="mb-6 flex items-start gap-3">
+          <LockKeyhole className="mt-1 text-pgreen" size={22} />
+          <div>
+            <h2 className="font-display text-2xl font-bold text-dblue">Quyền riêng tư</h2>
+            <p className="mt-1 text-sm text-gray-500">Tên tài khoản và mã người dùng luôn được hiển thị để nhận diện hồ sơ. Chỉ các thông tin phù hợp mới có thể bật/tắt công khai.</p>
+          </div>
+        </div>
+        <div className="space-y-3">
+          <div className="flex items-start justify-between gap-4 rounded-2xl bg-gray-50 p-4">
+            <div><p className="font-bold text-gray-900">Tên tài khoản và mã người dùng</p><p className="mt-1 text-xs text-gray-500">Bắt buộc công khai để người khác nhận diện và tìm đúng tài khoản.</p></div>
+            <span className="shrink-0 rounded-full bg-gray-200 px-3 py-1 text-xs font-bold text-gray-600">Luôn hiển thị</span>
+          </div>
+          <PrivacyToggle label="Email" description={isCreator ? "Creator cần công khai email để cộng đồng và đối tác liên hệ." : "Nếu ẩn email, người khác không thể tìm bạn bằng email."} value={privacySettings.email} disabled={isCreator} onChange={(value) => setFormData((current) => ({ ...current, privacySettings: { ...privacySettings, email: value } }))} />
+          <PrivacyToggle label="Số điện thoại" description={isCreator ? "Creator cần công khai số điện thoại để phục vụ liên hệ và xác minh." : "Backer có thể ẩn số điện thoại khỏi hồ sơ công khai."} value={privacySettings.phone} disabled={isCreator} onChange={(value) => setFormData((current) => ({ ...current, privacySettings: { ...privacySettings, phone: value } }))} />
+          <PrivacyToggle label="Địa điểm" description="Cho phép hiển thị khu vực bạn đang sinh sống." value={privacySettings.location} onChange={(value) => setFormData((current) => ({ ...current, privacySettings: { ...privacySettings, location: value } }))} />
+          <PrivacyToggle label="Giới thiệu" description="Cho phép hiển thị phần giới thiệu trên trang cá nhân." value={privacySettings.bio} onChange={(value) => setFormData((current) => ({ ...current, privacySettings: { ...privacySettings, bio: value } }))} />
+          <PrivacyToggle label="Website" description="Cho phép hiển thị website liên kết trên hồ sơ." value={privacySettings.website} onChange={(value) => setFormData((current) => ({ ...current, privacySettings: { ...privacySettings, website: value } }))} />
+          <PrivacyToggle label="Liên kết mạng xã hội" description="Cho phép cộng đồng xem các mạng xã hội đã liên kết." value={privacySettings.socialLinks} onChange={(value) => setFormData((current) => ({ ...current, privacySettings: { ...privacySettings, socialLinks: value } }))} />
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-gray-100 bg-white p-6 shadow-soft">
+        <div className="mb-6 flex items-start gap-3"><Bell className="mt-1 text-pgreen" size={22} /><div><h2 className="font-display text-2xl font-bold text-dblue">Thông báo cá nhân</h2><p className="mt-1 text-sm text-gray-500">Chọn nhóm thông báo bạn muốn nhận. Các thay đổi chỉ áp dụng cho tài khoản của bạn.</p></div></div>
+        <div className="space-y-3">
+          <PrivacyToggle label="Thanh toán và khoản ủng hộ" description="Thanh toán thành công và khoản ủng hộ nhận được." value={notificationSettings.paymentSuccess && notificationSettings.pledgeReceived} onChange={(value) => setFormData((current) => ({ ...current, notificationSettings: { ...notificationSettings, paymentSuccess: value, pledgeReceived: value } }))} />
+          <PrivacyToggle label="Duyệt chiến dịch và bài viết" description="Kết quả Admin duyệt hoặc từ chối nội dung của bạn." value={notificationSettings.campaignReview && notificationSettings.blogReview} onChange={(value) => setFormData((current) => ({ ...current, notificationSettings: { ...notificationSettings, campaignReview: value, blogReview: value } }))} />
+          <PrivacyToggle label="Người quan tâm chiến dịch" description="Khi có người theo dõi chiến dịch của bạn." value={notificationSettings.campaignFollowed} onChange={(value) => setFormData((current) => ({ ...current, notificationSettings: { ...notificationSettings, campaignFollowed: value } }))} />
+          <PrivacyToggle label="Bình luận và phản hồi" description="Khi bài viết có bình luận mới hoặc có người trả lời bạn." value={notificationSettings.comments} onChange={(value) => setFormData((current) => ({ ...current, notificationSettings: { ...notificationSettings, comments: value } }))} />
+          <PrivacyToggle label="Thông báo hệ thống" description="Các thông tin vận hành quan trọng của nền tảng." value={notificationSettings.system} onChange={(value) => setFormData((current) => ({ ...current, notificationSettings: { ...notificationSettings, system: value } }))} />
+        </div>
       </section>
 
       {/* Actions */}

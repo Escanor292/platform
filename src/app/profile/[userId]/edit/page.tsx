@@ -49,7 +49,10 @@ export default async function EditProfilePage({ params }: EditProfilePageProps) 
     website: user.website,
     phone: user.phone,
     shippingAddress: user.shippingAddress,
-    socialLinks: user.socialLinks
+    socialLinks: user.socialLinks,
+    role: user.role,
+    privacySettings: user.privacySettings,
+    notificationSettings: user.notificationSettings,
   };
 
   return (

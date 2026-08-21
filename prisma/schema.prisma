@@ -618,6 +618,8 @@ model users {
   coverImage                                 String?
   shippingAddress                            String?
   socialLinks                                Json?
+  privacySettings                            Json?
+  notificationSettings                       Json?
   status                                     UserStatus           @default(NORMAL)
   audit_logs                                 audit_logs[]
   badges                                     badges[]
