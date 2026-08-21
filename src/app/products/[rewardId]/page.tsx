@@ -22,6 +22,7 @@ import { auth } from '@/lib/auth';
 import ProductGallery from '@/components/products/ProductGallery';
 import { ProductQuickEdit } from '@/components/products/ProductQuickEdit';
 import { AddToCartButton } from '@/components/products/AddToCartButton';
+import CampaignRewardDonationButton from '@/components/products/CampaignRewardDonationButton';
 import EntitySummaryCard from '@/components/ai/EntitySummaryCard';
 
 function daysBetween(a: Date, b: Date): number {
@@ -64,6 +65,7 @@ export default async function ProductDetailPage({
   const campaign = (reward as any).campaigns as any;
   const campaignProject = campaign?.projects || null;
   const project = (reward as any).projects;
+  const relatedProject = campaignProject || project;
   // ID nhà sáng tạo để liên hệ (an toàn với sản phẩm có/không chiến dịch)
   const contactUserId =
     campaign?.users?.id ||
@@ -142,18 +144,24 @@ export default async function ProductDetailPage({
 
               {/* Thông tin */}
               <div className="p-8 lg:p-10 flex flex-col">
-                {/* Badge dự án + chiến dịch */}
+                {/* Liên kết dự án + chiến dịch */}
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {project && (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-full">
+                  {relatedProject && (
+                    <a
+                      href={`/projects/${relatedProject.id}`}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-full hover:bg-blue-100 hover:border-blue-200 transition-colors"
+                    >
                       <FolderOpen size={13} />
-                      Dự án: {(campaignProject || project)?.title}
-                    </span>
+                      Dự án: {relatedProject.title}
+                    </a>
                   )}
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-pgreen bg-pgreen/10 border border-pgreen/20 px-3 py-1.5 rounded-full">
+                  <a
+                    href={`/campaigns/${campaign.slug}`}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-pgreen bg-pgreen/10 border border-pgreen/20 px-3 py-1.5 rounded-full hover:bg-pgreen/15 hover:border-pgreen/30 transition-colors"
+                  >
                     <Layers size={13} />
                     Chiến dịch: {campaign.title}
-                  </span>
+                  </a>
                 </div>
 
                 <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-3">
@@ -226,12 +234,17 @@ export default async function ProductDetailPage({
 
                 {/* Actions */}
                 <div className="flex flex-wrap gap-3 mt-auto">
-                  <a
-                    href={`/campaigns/${campaign.slug}?reward=${reward.id}`}
-                    className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-pgreen text-white font-bold rounded-xl hover:bg-pgreen/90 transition-colors shadow-sm"
-                  >
-                    Ủng hộ ngay
-                  </a>
+                  <CampaignRewardDonationButton
+                    campaignId={campaign.id}
+                    campaignSlug={campaign.slug}
+                    reward={{
+                      id: reward.id,
+                      title: reward.title,
+                      description: reward.description,
+                      minAmount: Number(reward.minAmount),
+                      estimatedDelivery: reward.deliveryDate?.toISOString() || null,
+                    }}
+                  />
                   <button
                     type="button"
                     data-share-button
@@ -328,10 +341,13 @@ export default async function ProductDetailPage({
             {/* Info */}
             <div className="p-8 lg:p-10 flex flex-col">
               {project && (
-                <span className="inline-flex items-center gap-1.5 w-fit text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-full mb-3">
+                <a
+                  href={`/projects/${project.id}`}
+                  className="inline-flex items-center gap-1.5 w-fit text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-full mb-3 hover:bg-blue-100 hover:border-blue-200 transition-colors"
+                >
                   <FolderOpen size={13} />
                   Dự án: {project.title}
-                </span>
+                </a>
               )}
 
               <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
