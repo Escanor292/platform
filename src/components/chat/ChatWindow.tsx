@@ -851,8 +851,9 @@ export function ChatWindow({
 
                                                 {/* Text content */}
                                                 {message.text && (isRevealed ? (
-                                                    <div className="space-y-1">
+                                                    <div className={cn('space-y-1', isCurrentUser ? 'text-center' : 'text-left')}>
                                                         {renderMessageText(message.text)}
+                                                        
                                                         {message.sensitive && isCurrentUser && (
                                                             <span className="inline-flex ml-2 text-[10px] text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5 align-middle">🔒 Nhạy cảm</span>
                                                         )}
