@@ -23,6 +23,7 @@
     "test:ui": "jest __tests__/ui",
     "test:functional": "jest __tests__/functional",
     "test:integration": "jest __tests__/integration",
+    "test:e2e": "playwright test",
     "test:report": "tsx __tests__/run-tests-and-report.ts",
     "test:all": "npm test && npm run test:db",
     "mongo:init": "node scripts/init-mongodb.js",
@@ -83,6 +84,7 @@
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "15.1.4",
+    "@playwright/test": "^1.62.1",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
