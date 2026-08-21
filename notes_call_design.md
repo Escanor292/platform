@@ -301,3 +301,5 @@ Cách sửa: dùng Python sed hoặc read file rồi edit từng dòng riêng bi
 
 
 ## 20:43b — Screenshot sau fix self-end: pill ❤️1 nằm ngay dưới cạnh phải bong bóng (phong cách Messenger), bong bóng gọn. Chấp nhận được. Commit + push.
+## Gợi ý thành viên tạo nhóm chat (21/08/2026)
+Đã cập nhật NewMessageDialog để khi mở modal và chưa nhập từ khóa, hiển thị mục “Đã trò chuyện gần đây”. Dữ liệu lấy từ danh sách conversations, loại chính người dùng, conversation không có participant còn tồn tại và participant bị đánh dấu deleted/deletedAt. Kiểm tra trên dev server: modal hiển thị Test Creator Pro (test3@gmail.com), không hiển thị Người dùng đã xóa; ô tìm kiếm vẫn hoạt động. Typecheck thành công.
