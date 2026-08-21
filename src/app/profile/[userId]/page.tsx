@@ -13,6 +13,7 @@ import { UserBadgeList } from "@/components/badge/UserBadgeList";
 import { StartChatButton } from "@/components/chat/StartChatButton";
 import { ProfileBlogCard } from "@/components/profile/ProfileBlogCard";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
+import EntitySummaryCard from "@/components/ai/EntitySummaryCard";
 
 interface ProfilePageProps {
   params: Promise<{ userId: string }>;
@@ -386,6 +387,8 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
             </div>
           </div>
         </div>
+
+        <EntitySummaryCard sourceType="profile" sourceId={user.id} />
 
         {/* Profile Tabs */}
         <ProfileTabs
