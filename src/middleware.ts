@@ -4,10 +4,6 @@ import { auth } from "@/lib/auth";
 export async function middleware(request: NextRequest) {
   try {
     const { pathname } = request.nextUrl;
-    const isAssistantE2eFixture = process.env.E2E_TEST_MODE === "1" && /^\/(products|blog|profile)\/e2e-(product|blog|profile)$/.test(pathname);
-    if (isAssistantE2eFixture) {
-      return NextResponse.rewrite(new URL("/e2e/assistant-fixture", request.url));
-    }
     const session = await auth();
 
     // Public routes that don't need authentication

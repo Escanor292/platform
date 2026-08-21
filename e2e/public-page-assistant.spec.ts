@@ -1,13 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
 
-type Fixture = Record<string, unknown>;
-
-async function mockPublicEntity(page: Page, sourceType: "product" | "blog" | "profile", sourceId: string, data: Fixture) {
-  await page.route(`**/api/public/entities/${sourceType}/${sourceId}`, route => route.fulfill({
-    contentType: "application/json",
-    body: JSON.stringify({ data }),
-  }));
-}
+const publicPages = [
+  { label: "product", path: "/products/e2e-public-product", entityPath: "/api/public/entities/product/e2e-public-product", summaryText: "Còn lại: 7" },
+  { label: "blog", path: "/blog/e2e-nhat-ky-gieo-mam", entityPath: "/api/public/entities/blog/e2e-nhat-ky-gieo-mam", summaryText: "Lượt xem: 42" },
+  { label: "profile", path: "/profile/e2e-public-user", entityPath: "/api/public/entities/profile/e2e-public-user", summaryText: "Dự án công khai: 1" },
+] as const;
 
 async function openAssistant(page: Page) {
   await page.getByRole("button", { name: "Mở trợ lý nhanh" }).click();
@@ -15,17 +12,10 @@ async function openAssistant(page: Page) {
 }
 
 test.describe("Hỏi nhanh trên thực thể công khai", () => {
-  test("hiển thị giá và tồn kho của product từ dữ liệu public", async ({ page }) => {
-    await mockPublicEntity(page, "product", "e2e-product", {
-      title: "Bình nước tái sử dụng",
-      description: "Sản phẩm hỗ trợ chiến dịch xanh.",
-      minAmount: 150_000,
-      maxAmount: 200_000,
-      stock: 7,
-      campaigns: { title: "Sống xanh" },
-      projects: { title: "Trường học xanh" },
-    });
-    await page.goto("/products/e2e-product");
+  test("product công khai tải không cần đăng nhập và trả lời giá/tồn kho từ allowlist thật", async ({ page }) => {
+    await page.goto("/products/e2e-public-product");
+    await expect(page).toHaveURL(/\/products\/e2e-public-product$/);
+    await expect(page.getByRole("heading", { name: "Bình nước tái sử dụng" })).toBeVisible();
     await openAssistant(page);
     await expect(page.getByText("Còn lại: 7", { exact: false })).toBeVisible();
     await page.locator("#quick-page-assistant-input").fill("Giá tối thiểu bao nhiêu tiền?");
@@ -33,33 +23,37 @@ test.describe("Hỏi nhanh trên thực thể công khai", () => {
     await expect(page.getByRole("region", { name: "Trợ lý trang" }).locator("div.mr-5").last()).toContainText("Mức ủng hộ tối thiểu công khai của “Bình nước tái sử dụng” là 150.000");
   });
 
-  test("hiển thị số liệu public của blog", async ({ page }) => {
-    await mockPublicEntity(page, "blog", "e2e-blog", {
-      title: "Nhật ký gieo mầm",
-      excerpt: "Cập nhật hành trình hoạt động cộng đồng.",
-      viewCount: 42,
-      likeCount: 5,
-      commentCount: 3,
-    });
-    await page.goto("/blog/e2e-blog");
+  test("blog công khai tải không cần đăng nhập và hiển thị số liệu public thật", async ({ page }) => {
+    await page.goto("/blog/e2e-nhat-ky-gieo-mam");
+    await expect(page).toHaveURL(/\/blog\/e2e-nhat-ky-gieo-mam$/);
+    await expect(page.getByRole("heading", { name: "Nhật ký gieo mầm" })).toBeVisible();
     await openAssistant(page);
     await expect(page.getByText("Lượt xem: 42", { exact: false })).toBeVisible();
     await expect(page.getByText("Lượt thích: 5", { exact: false })).toBeVisible();
     await expect(page.getByText("Bình luận: 3", { exact: false })).toBeVisible();
   });
 
-  test("trả lời số dự án public trên profile", async ({ page }) => {
-    await mockPublicEntity(page, "profile", "e2e-profile", {
-      displayName: "Lan Tử Tế",
-      bio: "Người khởi xướng các dự án cộng đồng.",
-      _count: { projects: 2 },
-      projects: [{ title: "Lớp học xanh" }, { title: "Nước sạch cho em" }],
-      publicStats: { campaignCount: 3, totalRaised: 800_000, totalBackers: 12 },
-    });
-    await page.goto("/profile/e2e-profile");
+  test("profile công khai tải không cần đăng nhập và trả lời dự án public thật", async ({ page }) => {
+    await page.goto("/profile/e2e-public-user");
+    await expect(page).toHaveURL(/\/profile\/e2e-public-user$/);
+    await expect(page.getByRole("heading", { name: "Lan Tử Tế" })).toBeVisible();
     await openAssistant(page);
     await page.locator("#quick-page-assistant-input").fill("Có bao nhiêu dự án?");
     await page.locator("#quick-page-assistant-input").press("Enter");
-    await expect(page.getByRole("region", { name: "Trợ lý trang" }).locator("div.mr-5").last()).toContainText("Lan Tử Tế có 2 dự án công khai. Dự án hiển thị: Lớp học xanh, Nước sạch cho em.");
+    await expect(page.getByRole("region", { name: "Trợ lý trang" }).locator("div.mr-5").last()).toContainText("Lan Tử Tế có 1 dự án công khai. Dự án hiển thị: Lớp học xanh.");
   });
+
+  for (const publicPage of publicPages) {
+    test(`${publicPage.label} hiển thị loading và lỗi khi API allowlist không khả dụng`, async ({ page }) => {
+      await page.route(`**${publicPage.entityPath}`, async route => {
+        await new Promise(resolve => setTimeout(resolve, 400));
+        await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ error: "unavailable" }) });
+      });
+      await page.goto(publicPage.path);
+      await expect(page).toHaveURL(new RegExp(`${publicPage.path}$`));
+      await page.getByRole("button", { name: "Mở trợ lý nhanh" }).click();
+      await expect(page.getByText("Đang đọc thông tin công khai…")).toBeVisible();
+      await expect(page.getByText("Không thể tải thông tin công khai của trang này.")).toBeVisible();
+    });
+  }
 });

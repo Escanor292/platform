@@ -24,6 +24,7 @@
     "test:functional": "jest __tests__/functional",
     "test:integration": "jest __tests__/integration",
     "test:e2e": "playwright test",
+    "seed:e2e": "node scripts/seed-e2e-public-assistant.mjs",
     "test:report": "tsx __tests__/run-tests-and-report.ts",
     "test:all": "npm test && npm run test:db",
     "mongo:init": "node scripts/init-mongodb.js",

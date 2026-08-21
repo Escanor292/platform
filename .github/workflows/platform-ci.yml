@@ -33,6 +33,20 @@ jobs:
   e2e-public-assistant:
     name: e2e-public-assistant
     runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: tutefund_platform_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d tutefund_platform_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/tutefund_platform_test
     steps:
@@ -45,6 +59,10 @@ jobs:
         run: npm ci
       - name: Generate Prisma client
         run: npx prisma generate
+      - name: Apply schema and seed E2E public data
+        run: |
+          npx prisma migrate deploy
+          npm run seed:e2e
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Run public assistant E2E
