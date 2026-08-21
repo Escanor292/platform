@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, User, Mail, Hash, Loader2 } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import Link from "next/link";
 
 interface SearchResult {
@@ -14,7 +14,6 @@ interface SearchResult {
 
 export default function UserSearchForm() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchType, setSearchType] = useState<"id" | "email" | "name">("id");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -22,14 +21,15 @@ export default function UserSearchForm() {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
+    const query = searchQuery.trim();
+    if (!query) return;
 
     setIsLoading(true);
     setSearched(true);
     setError(null);
 
     try {
-      const response = await fetch(`/api/users/search?type=${searchType}&query=${encodeURIComponent(searchQuery)}`);
+      const response = await fetch(`/api/users/search?query=${encodeURIComponent(query)}`);
       const data = await response.json();
 
       if (!response.ok) {
@@ -46,32 +46,6 @@ export default function UserSearchForm() {
     }
   };
 
-  const getHelperText = () => {
-    switch (searchType) {
-      case "id":
-        return "Nhập chính xác ID người dùng, ví dụ: cmph...";
-      case "email":
-        return "Nhập email người dùng cần tra cứu.";
-      case "name":
-        return "Nhập tên hoặc một phần tên hiển thị.";
-      default:
-        return "";
-    }
-  };
-
-  const getPlaceholder = () => {
-    switch (searchType) {
-      case "id":
-        return "Nhập ID người dùng...";
-      case "email":
-        return "Nhập email người dùng...";
-      case "name":
-        return "Nhập tên người dùng...";
-      default:
-        return "";
-    }
-  };
-
   const getRoleBadgeColor = (role: string) => {
     switch (role.toUpperCase()) {
       case "ADMIN":
@@ -85,7 +59,6 @@ export default function UserSearchForm() {
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
       <div className="mb-8 rounded-3xl border border-emerald-100 bg-white/80 p-8 shadow-sm backdrop-blur">
         <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">
           Kết nối cộng đồng
@@ -94,86 +67,37 @@ export default function UserSearchForm() {
           Tìm kiếm người dùng
         </h1>
         <p className="mt-3 max-w-2xl text-slate-600">
-          Tra cứu nhanh thông tin người dùng bằng ID, email hoặc tên hiển thị.
+          Tra cứu nhanh thông tin người dùng bằng một ô tìm kiếm duy nhất. Hệ thống tự tìm theo ID, email hoặc tên hiển thị.
         </p>
       </div>
 
-      {/* Search Card */}
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <form onSubmit={handleSearch} className="space-y-6">
-          {/* Search Type Tabs */}
+        <form onSubmit={handleSearch} className="space-y-5">
           <div>
-            <label className="block text-sm font-semibold text-slate-900 mb-3">
-              Phương thức tìm kiếm
-            </label>
-            <div className="grid grid-cols-3 gap-2 rounded-2xl bg-slate-100 p-1">
-              <button
-                type="button"
-                onClick={() => setSearchType("id")}
-                className={`rounded-xl px-4 py-2 text-sm font-medium transition flex items-center justify-center gap-2 ${searchType === "id"
-                  ? "bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-100"
-                  : "text-slate-600 hover:text-slate-900"
-                  }`}
-              >
-                <Hash size={16} />
-                # ID
-              </button>
-              <button
-                type="button"
-                onClick={() => setSearchType("email")}
-                className={`rounded-xl px-4 py-2 text-sm font-medium transition flex items-center justify-center gap-2 ${searchType === "email"
-                  ? "bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-100"
-                  : "text-slate-600 hover:text-slate-900"
-                  }`}
-              >
-                <Mail size={16} />
-                Email
-              </button>
-              <button
-                type="button"
-                onClick={() => setSearchType("name")}
-                className={`rounded-xl px-4 py-2 text-sm font-medium transition flex items-center justify-center gap-2 ${searchType === "name"
-                  ? "bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-100"
-                  : "text-slate-600 hover:text-slate-900"
-                  }`}
-              >
-                <User size={16} />
-                Tên
-              </button>
-            </div>
-          </div>
-
-          {/* Search Input */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-900 mb-3">
-              {searchType === "id" && "Nhập ID người dùng"}
-              {searchType === "email" && "Nhập email"}
-              {searchType === "name" && "Nhập tên người dùng"}
+            <label htmlFor="user-search" className="block text-sm font-semibold text-slate-900 mb-3">
+              Tìm theo ID, email hoặc tên hiển thị
             </label>
             <div className="relative">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <input
-                type="text"
+                id="user-search"
+                type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={getPlaceholder()}
-                className="h-12 w-full rounded-2xl border-slate-200 pl-11 pr-4 text-base focus:border-emerald-500 focus:ring-emerald-500"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleSearch(e);
-                  }
-                }}
+                placeholder="Nhập ID, email hoặc tên người dùng..."
+                autoComplete="off"
+                className="h-12 w-full rounded-2xl border border-slate-200 pl-11 pr-4 text-base outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
               />
             </div>
-            <p className="mt-2 text-sm text-slate-500">{getHelperText()}</p>
+            <p className="mt-2 text-sm text-slate-500">
+              Chỉ cần nhập một thông tin bất kỳ, hệ thống sẽ tự động đối chiếu cả ba trường.
+            </p>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading || !searchQuery.trim()}
-            className="h-12 w-full rounded-2xl bg-emerald-600 px-6 font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60 transition flex items-center justify-center gap-2"
+            className="h-12 w-full rounded-2xl bg-emerald-600 px-6 font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center gap-2"
           >
             {isLoading ? (
               <>
@@ -187,32 +111,26 @@ export default function UserSearchForm() {
         </form>
       </div>
 
-      {/* Results Section */}
       {searched && (
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-900">Kết quả tìm kiếm</h2>
               <p className="text-sm text-slate-500">
-                {results.length > 0
-                  ? `Tìm thấy ${results.length} người dùng`
-                  : "Thông tin người dùng sẽ hiển thị tại đây."
-                }
+                {results.length > 0 ? `Tìm thấy ${results.length} người dùng` : "Thông tin người dùng sẽ hiển thị tại đây."}
               </p>
             </div>
           </div>
 
           {error ? (
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-              {error}
-            </div>
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
           ) : results.length > 0 ? (
             <div className="space-y-4">
               {results.map((user) => (
                 <Link
                   key={user.id}
                   href={`/profile/${user.id}`}
-                  className="flex items-center gap-4 rounded-2xl border border-emerald-100 bg-emerald-50/40 p-5 hover:bg-emerald-50/60 transition group"
+                  className="flex items-center gap-4 rounded-2xl border border-emerald-100 bg-emerald-50/40 p-5 transition group hover:bg-emerald-50/60"
                 >
                   <div className="h-14 w-14 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-sm">
                     {user.image ? (
@@ -222,7 +140,7 @@ export default function UserSearchForm() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-slate-900 group-hover:text-emerald-700 transition">
+                    <div className="font-semibold text-slate-900 transition group-hover:text-emerald-700">
                       {user.name || "Người dùng ẩn danh"}
                     </div>
                     <div className="text-sm text-slate-600">{user.email}</div>
@@ -241,7 +159,7 @@ export default function UserSearchForm() {
               </div>
               <h3 className="text-base font-semibold text-slate-900">Không tìm thấy người dùng phù hợp</h3>
               <p className="mt-2 max-w-md text-sm text-slate-500">
-                Hãy kiểm tra lại ID, email hoặc tên đã nhập.
+                Hãy kiểm tra lại ID, email hoặc tên hiển thị đã nhập.
               </p>
             </div>
           )}
