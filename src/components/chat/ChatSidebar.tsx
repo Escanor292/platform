@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Search, Users, MessageSquarePlus, MoreVertical, Edit2, Clock } from 'lucide-react';
+import { Search, Users, MessageSquarePlus, Trash2, Edit2, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -341,7 +341,7 @@ export function ChatSidebar({
                                     className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-gray-200 opacity-0 group-hover:opacity-100 transition-opacity"
                                     title="Xóa cuộc trò chuyện"
                                 >
-                                    <MoreVertical className="h-4 w-4 text-gray-500" />
+                                    <Trash2 className="h-4 w-4 text-gray-500" />
                                 </button>
                             </div>
                         ))
