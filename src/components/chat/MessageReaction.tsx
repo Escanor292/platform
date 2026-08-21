@@ -88,8 +88,8 @@ export function ReactionRow({
             </div>
         );
     }
-    if (list.length === 0) return null;
-
+    // Khi picker đang mở nhưng tin nhắn chưa có reaction, vẫn phải giữ
+    // hàng reaction để hiển thị picker; không được return null ở đây.
     return (
         <div
             className={cn('relative inline-flex items-center gap-1 mt-1 self-end', alignment === 'left' ? 'self-start' : '')}
