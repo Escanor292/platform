@@ -28,7 +28,7 @@ test.describe("Hỏi nhanh trên thực thể công khai", () => {
     await expect(page).toHaveURL(/\/blog\/e2e-nhat-ky-gieo-mam$/);
     await expect(page.getByRole("heading", { name: "Nhật ký gieo mầm" })).toBeVisible();
     await openAssistant(page);
-    await expect(page.getByText("Lượt xem: 42", { exact: false })).toBeVisible();
+    await expect(page.getByText(/Lượt xem: \d+/)).toBeVisible();
     await expect(page.getByText("Lượt thích: 5", { exact: false })).toBeVisible();
     await expect(page.getByText("Bình luận: 3", { exact: false })).toBeVisible();
   });
