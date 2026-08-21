@@ -89,9 +89,6 @@ export default function UserSearchForm() {
                 className="h-12 w-full rounded-2xl border border-slate-200 pl-11 pr-4 text-base outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
               />
             </div>
-            <p className="mt-2 text-sm text-slate-500">
-              Chỉ cần nhập một thông tin bất kỳ, hệ thống sẽ tự động đối chiếu cả ba trường.
-            </p>
           </div>
 
           <button
