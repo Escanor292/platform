@@ -14,6 +14,16 @@ const publicUserSelect = {
   coverImage: true,
 } as const;
 
+const publicProfileSelect = {
+  ...publicUserSelect,
+  _count: { select: { projects: true } },
+  projects: {
+    orderBy: { createdAt: "desc" },
+    take: 6,
+    select: { id: true, slug: true, title: true, description: true, coverImage: true, createdAt: true },
+  },
+} as const;
+
 const responseHeaders = {
   "Cache-Control": "public, s-maxage=120, stale-while-revalidate=600",
   "X-Content-Type-Options": "nosniff",
@@ -73,7 +83,7 @@ export async function GET(_request: Request, context: { params: Promise<{ type: 
         return NextResponse.json({ type, data: project }, { headers: responseHeaders });
       }
       case "profile": {
-        const user = await prisma.users.findUnique({ where: { id }, select: publicUserSelect });
+        const user = await prisma.users.findUnique({ where: { id }, select: publicProfileSelect });
         if (!user) return notFound();
         return NextResponse.json({ type, data: user }, { headers: responseHeaders });
       }

@@ -44,6 +44,22 @@ function authorName(data: PublicRecord): string | null {
   return null;
 }
 
+function publicProjects(data: PublicRecord) {
+  if (!Array.isArray(data.projects)) return [];
+  return data.projects.flatMap(project => {
+    if (!project || typeof project !== "object") return [];
+    const record = project as PublicRecord;
+    const title = text(record.title);
+    return title ? [{ title }] : [];
+  }).slice(0, 6);
+}
+
+function publicProjectCount(data: PublicRecord) {
+  const count = data._count;
+  if (count && typeof count === "object" && typeof (count as PublicRecord).projects === "number") return (count as PublicRecord).projects as number;
+  return Array.isArray(data.projects) ? data.projects.length : null;
+}
+
 function formatMoney(value: unknown): string | null {
   const number = typeof value === "number" ? value : typeof value === "string" ? Number(value) : NaN;
   return Number.isFinite(number) ? new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(number) : null;
@@ -59,11 +75,15 @@ function buildQuickSummary(context: PageContext, data: PublicRecord): string {
   const goal = formatMoney(data.goalAmount);
   const raised = formatMoney(data.currentAmount);
   const tags = Array.isArray(data.tags) ? data.tags.filter((tag): tag is string => typeof tag === "string").slice(0, 4) : [];
+  const projectCount = context?.sourceType === "profile" ? publicProjectCount(data) : null;
+  const projects = context?.sourceType === "profile" ? publicProjects(data) : [];
   if (author) facts.push(`Người tạo: ${author}`);
   if (category) facts.push(`Danh mục: ${category}`);
   if (goal) facts.push(`Mục tiêu: ${goal}`);
   if (raised) facts.push(`Đã huy động: ${raised}`);
   if (tags.length) facts.push(`Chủ đề: ${tags.join(", ")}`);
+  if (projectCount !== null) facts.push(`Dự án công khai: ${projectCount}`);
+  if (projects.length) facts.push(`Dự án gần đây: ${projects.map(project => project.title).join(", ")}`);
   return [`${title}`, description ? description.slice(0, 420) : `Tôi đã nhận diện đây là ${typeLabels[context.sourceType]}.`, facts.length ? facts.join(" · ") : "Bạn có thể hỏi thêm về nội dung, tiến độ hoặc người tạo."].join("\n\n");
 }
 
@@ -74,6 +94,12 @@ function answerQuestion(question: string, context: PageContext, data: PublicReco
   const goal = formatMoney(data.goalAmount);
   const raised = formatMoney(data.currentAmount);
   const description = text(data.excerpt) ?? text(data.description) ?? text(data.longDescription) ?? text(data.content) ?? text(data.bio);
+  const projectCount = context?.sourceType === "profile" ? publicProjectCount(data) : null;
+  const projects = context?.sourceType === "profile" ? publicProjects(data) : [];
+  const asksAboutProjectCount = /(bao nhiêu|mấy|số lượng|có.*dự án|dự án.*có)/.test(normalized) && /(dự án|project)/.test(normalized);
+  const asksAboutProjectNames = /(dự án nào|tên dự án|liệt kê.*dự án)/.test(normalized);
+  if (asksAboutProjectCount && projectCount !== null) return `${title} có ${projectCount} dự án công khai.${projects.length ? ` Dự án hiển thị: ${projects.map(project => project.title).join(", ")}.` : ""}`;
+  if (asksAboutProjectNames && projects.length) return `Các dự án công khai đang hiển thị của ${title}: ${projects.map(project => project.title).join(", ")}.`;
   if (/(ai tạo|tác giả|người tạo|chủ dự án)/.test(normalized) && author) return `${author} là người được hiển thị công khai cho ${typeLabels[context!.sourceType]} “${title}”.`;
   if (/(mục tiêu|gây quỹ|tiến độ|đã huy động|ủng hộ)/.test(normalized) && (goal || raised)) return [`Tiến độ của “${title}”:`, raised ? `Đã huy động: ${raised}.` : null, goal ? `Mục tiêu: ${goal}.` : null].filter(Boolean).join(" ");
   if (/(tóm tắt|nói về|là gì|thông tin|mô tả)/.test(normalized)) return buildQuickSummary(context, data);

@@ -28,4 +28,23 @@ describe("QuickPageAssistant", () => {
     expect(within(panel).getByText("Hỏi nhanh")).toBeInTheDocument();
     expect(await within(panel).findByText(/Bảng tri ân xanh/)).toBeInTheDocument();
   });
+
+  it("trả lời số lượng dự án công khai trên trang profile", async () => {
+    mockUsePathname.mockReturnValue("/profile/cmphnhw8e0002so1uh16dwpvn");
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => ({ data: { displayName: "Test Creator Pro", bio: "Nhà sáng tạo nội dung", _count: { projects: 1 }, projects: [{ id: "project-public", slug: "du-an-xanh", title: "Dự án xanh" }] } }),
+    });
+
+    render(<QuickPageAssistant />);
+    fireEvent.click(screen.getByRole("button", { name: "Mở trợ lý nhanh" }));
+    const panel = screen.getByRole("region", { name: "Trợ lý trang" });
+    expect(await within(panel).findByText(/Dự án công khai: 1/)).toBeInTheDocument();
+
+    fireEvent.change(within(panel).getByPlaceholderText("Hỏi về trang này…"), { target: { value: "Coz bao nhiêu dự án?" } });
+    fireEvent.click(within(panel).getByRole("button", { name: "Gửi câu hỏi" }));
+
+    expect(within(panel).getByText(/Test Creator Pro có 1 dự án công khai/)).toBeInTheDocument();
+    expect(within(panel).getByText(/Dự án hiển thị: Dự án xanh/)).toBeInTheDocument();
+  });
 });
