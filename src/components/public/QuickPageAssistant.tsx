@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { Bot, ChevronDown, Loader2, Send, Sparkles, X } from "lucide-react";
+import { Bot, ChevronDown, Loader2, Send, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { type PublicAssistantContext, type PublicAssistantSourceType, resolvePublicAssistantContext } from "@/lib/public-page-assistant";
 
@@ -9,6 +9,16 @@ type SourceType = PublicAssistantSourceType;
 type PageContext = PublicAssistantContext | null;
 type PublicRecord = Record<string, unknown>;
 type ChatMessage = { id: string; role: "assistant" | "user"; content: string };
+
+function DropletRobotMark({ compact = false }: { compact?: boolean }) {
+  const size = compact ? "h-7 w-7" : "h-10 w-10";
+  const iconSize = compact ? 14 : 19;
+  return <span aria-hidden className={`relative grid ${size} rotate-45 place-items-center rounded-[50%_50%_50%_14%] border border-cyan-100 bg-gradient-to-br from-sky-400 via-cyan-500 to-blue-600 shadow-[0_5px_12px_rgba(14,116,144,0.32)]`}>
+    <span className="absolute inset-[18%] rounded-[42%] border border-white/50 bg-white/20" />
+    <Bot size={iconSize} strokeWidth={2.4} className="relative -rotate-45 text-white" />
+    <span className="absolute right-[19%] top-[19%] h-1.5 w-1.5 rounded-full bg-white shadow-sm" />
+  </span>;
+}
 
 const typeLabels: Record<SourceType, string> = {
   campaign: "chiến dịch",
@@ -130,9 +140,9 @@ export default function QuickPageAssistant() {
   const contextLabel = `Đang xem: ${typeLabels[context.sourceType]}`;
 
   return <div className="fixed bottom-20 right-4 z-[70] md:bottom-6 md:right-6">
-    {open && <section aria-label="Trợ lý trang" className="mb-3 flex h-[min(560px,calc(100vh-8rem))] w-[min(368px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.22)]">
+    {open && <section role="region" aria-label="Trợ lý trang" className="mb-3 flex h-[min(560px,calc(100vh-8rem))] w-[min(368px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.22)]">
       <header className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-emerald-50 to-white px-4 py-3">
-        <div className="flex min-w-0 items-center gap-2"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-emerald-600 text-white"><Sparkles size={16} /></span><div className="min-w-0"><p className="text-sm font-bold text-slate-900">Hỏi nhanh</p><p className="truncate text-xs text-slate-500">{contextLabel}</p></div></div>
+        <div className="flex min-w-0 items-center gap-2"><span className="grid h-8 w-8 shrink-0 place-items-center"><DropletRobotMark compact /></span><div className="min-w-0"><p className="text-sm font-bold text-slate-900">Hỏi nhanh</p><p className="truncate text-xs text-slate-500">{contextLabel}</p></div></div>
         <button type="button" onClick={() => setOpen(false)} aria-label="Đóng trợ lý" className="grid h-8 w-8 place-items-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"><X size={18} /></button>
       </header>
       <div className="flex-1 space-y-3 overflow-y-auto bg-slate-50/70 p-3">
@@ -142,6 +152,6 @@ export default function QuickPageAssistant() {
       </div>
       {context && data && <div className="border-t border-slate-100 bg-white p-3"><div className="mb-2 flex gap-2 overflow-x-auto pb-1"><button type="button" onClick={() => selectPrompt("Tóm tắt trang này")} className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">Tóm tắt</button><button type="button" onClick={() => selectPrompt("Thông tin người tạo")} className="shrink-0 rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600">Người tạo</button></div><form onSubmit={submit} className="flex items-center gap-2"><input id="quick-page-assistant-input" value={draft} onChange={event => setDraft(event.target.value)} placeholder="Hỏi về trang này…" className="min-w-0 flex-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100" /><button type="submit" disabled={!draft.trim()} aria-label="Gửi câu hỏi" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-emerald-600 text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-200"><Send size={16} /></button></form></div>}
     </section>}
-    <button type="button" onClick={() => setOpen(value => !value)} aria-expanded={open} aria-label={open ? "Thu gọn trợ lý" : "Mở trợ lý nhanh"} className="group grid h-14 w-14 place-items-center rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-[0_8px_24px_rgba(15,23,42,0.18)] transition hover:-translate-y-0.5 hover:border-emerald-300 hover:bg-emerald-50 focus:outline-none focus:ring-4 focus:ring-emerald-200"><span className="absolute -top-8 right-0 hidden whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-xs font-medium text-white group-hover:block">Hỏi nhanh</span>{open ? <ChevronDown size={23} /> : <Bot size={24} className="text-emerald-600" />}</button>
+    <button type="button" onClick={() => setOpen(value => !value)} aria-expanded={open} aria-label={open ? "Thu gọn trợ lý" : "Mở trợ lý nhanh"} className="group grid h-14 w-14 place-items-center rounded-2xl border border-cyan-100 bg-white text-slate-900 shadow-[0_8px_24px_rgba(14,116,144,0.18)] transition hover:-translate-y-0.5 hover:border-cyan-300 hover:bg-cyan-50 focus:outline-none focus:ring-4 focus:ring-cyan-200"><span className="absolute -top-8 right-0 hidden whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-xs font-medium text-white group-hover:block">Hỏi nhanh</span>{open ? <ChevronDown size={23} /> : <DropletRobotMark />}</button>
   </div>;
 }
