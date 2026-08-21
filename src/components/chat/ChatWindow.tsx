@@ -808,7 +808,7 @@ export function ChatWindow({
                                                 isCurrentUser ? 'justify-end' : 'justify-start'
                                             )}
                                         >
-                                            <div className={cn('flex flex-col min-w-0', isCurrentUser ? 'items-end' : 'items-start')}>
+                                            <div className={cn('flex w-fit max-w-[70%] min-w-0 flex-col', isCurrentUser ? 'items-end' : 'items-start')}>
                                             {!isCurrentUser && (
                                                 <Avatar className="h-8 w-8 flex-shrink-0">
                                                     {showAvatar ? (
@@ -826,7 +826,7 @@ export function ChatWindow({
 
                                             <div
                                                 className={cn(
-                                                    'max-w-[70%] rounded-2xl px-4 py-2',
+                                                    'w-fit max-w-full break-words rounded-2xl px-4 py-2',
                                                     isCurrentUser
                                                         ? 'bg-primary text-white'
                                                         : 'bg-gray-100 text-gray-900'
