@@ -4,7 +4,7 @@ import LeafIcon from "./LeafIcon";
 
 export default function FooterNew() {
   return (
-    <footer className="bg-dblue text-white py-12 px-6">
+    <footer id="ho-tro" className="bg-dblue text-white py-12 px-6">
       <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-8">
         {/* Brand */}
         <div>

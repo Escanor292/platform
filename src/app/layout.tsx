@@ -7,6 +7,7 @@ import FooterNew from "@/components/shared/FooterNew";
 import { Providers } from "@/components/shared/Providers";
 import { CartProvider } from "@/components/products/CartProvider";
 import QuickPageAssistant from "@/components/public/QuickPageAssistant";
+import PlatformHelpAssistant from "@/components/public/PlatformHelpAssistant";
 import { Toaster } from "sonner";
 
 const playfair = Playfair_Display({
@@ -62,6 +63,7 @@ export default function RootLayout({
             <FooterNew />
             <MobileBottomNav />
             <QuickPageAssistant />
+            <PlatformHelpAssistant />
           </div>
           </CartProvider>
         </Providers>
