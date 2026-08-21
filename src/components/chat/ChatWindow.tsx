@@ -872,21 +872,16 @@ export function ChatWindow({
                                                     </div>
                                                 ))}
 
-                                                {/* Timestamp and seen status */}
-                                                <div className="flex items-center justify-end gap-1 mt-1">
-                                                    <p
-                                                        className={cn(
-                                                            'text-xs',
-                                                            isCurrentUser ? 'text-white/70' : 'text-gray-500'
-                                                        )}
-                                                    >
-                                                        {formatMessageTime(message.createdAt)}
-                                                    </p>
-                                                    {isCurrentUser && message.readBy?.includes(currentUserId) && (
-                                                        <span className="text-xs text-white/70">Đã xem</span>
-                                                    )}
-                                                </div>
+                                            </div>
 
+                                            {/* Timestamp and seen status — nằm ngoài bong bóng chat */}
+                                            <div className={cn("flex items-center gap-1 mt-1", isCurrentUser ? "justify-end" : "justify-start")}>
+                                                <p className="text-[10px] text-gray-400">
+                                                    {formatMessageTime(message.createdAt)}
+                                                </p>
+                                                {isCurrentUser && message.readBy?.some(id => id !== currentUserId) && (
+                                                    <span className="text-[10px] text-blue-500 font-medium">Đã xem</span>
+                                                )}
                                             </div>
 
                                             {/* Reactions (thả cảm xúc) — nằm ngay dưới bong bóng tin nhắn */}
