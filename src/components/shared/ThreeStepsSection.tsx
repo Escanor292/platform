@@ -22,7 +22,7 @@ export default function ThreeStepsSection() {
       icon: Gift,
       number: 3,
       title: 'Nhận ủng hộ',
-      description: 'Tiền về minh bạch, an toàn, nhanh chóng vào tài khoản',
+      description: 'Minh bạch, an toàn, nhanh chóng',
       gradient: 'bg-gradient-to-br from-ebrown to-amber-600',
       delay: '0.4s'
     }
@@ -57,7 +57,7 @@ export default function ThreeStepsSection() {
                   <div className={`w-24 h-24 mx-auto rounded-3xl ${step.gradient} flex items-center justify-center shadow-xl group-hover:shadow-2xl group-hover:scale-105 transition-all duration-300`}>
                     <Icon className="w-11 h-11 text-white" />
                   </div>
-                  <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-white shadow-lg flex items-center justify-center font-display font-bold text-pgreen text-sm">
+                  <div className="absolute top-[5.5rem] -right-5 w-8 h-8 rounded-full bg-white shadow-lg flex items-center justify-center font-display font-bold text-pgreen text-sm z-10">
                     {step.number}
                   </div>
                 </div>
