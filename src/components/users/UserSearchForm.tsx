@@ -66,9 +66,6 @@ export default function UserSearchForm() {
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
           Tìm kiếm người dùng
         </h1>
-        <p className="mt-3 max-w-2xl text-slate-600">
-          Tra cứu nhanh thông tin người dùng bằng một ô tìm kiếm duy nhất. Hệ thống tự tìm theo ID, email hoặc tên hiển thị.
-        </p>
       </div>
 
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
