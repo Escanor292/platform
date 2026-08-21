@@ -23,8 +23,6 @@ describe('Kiểm thử tích hợp Stats Section', () => {
             successfulCampaigns: 200,
             activeCampaigns: 35,
             totalBackers: 8500,
-            transparencyRate: '99.8%',
-            transparencyRateRaw: 99.8
         }
 
         global.fetch = jest.fn().mockResolvedValue({
@@ -44,13 +42,11 @@ describe('Kiểm thử tích hợp Stats Section', () => {
         // Kiểm tra tất cả stats được hiển thị đúng
         expect(screen.getByText('200')).toBeInTheDocument()
         expect(screen.getByText('8.500')).toBeInTheDocument()
-        expect(screen.getByText('99.8%')).toBeInTheDocument()
 
         // Kiểm tra trend messages
         expect(screen.getByText('35 chiến dịch đang hoạt động')).toBeInTheDocument()
         expect(screen.getByText('Đã hoàn thành mục tiêu')).toBeInTheDocument()
         expect(screen.getByText('Cộng đồng đang phát triển')).toBeInTheDocument()
-        expect(screen.getByText('Zero hidden fees')).toBeInTheDocument()
 
         // Kiểm tra API được gọi đúng
         expect(global.fetch).toHaveBeenCalledWith('/api/stats', {
@@ -83,8 +79,6 @@ describe('Kiểm thử tích hợp Stats Section', () => {
             successfulCampaigns: 100,
             activeCampaigns: 20,
             totalBackers: 1000,
-            transparencyRate: '100%',
-            transparencyRateRaw: 100
         }
 
         global.fetch = jest.fn().mockResolvedValue({
@@ -101,13 +95,12 @@ describe('Kiểm thử tích hợp Stats Section', () => {
         })
 
         // Kiểm tra structure của stats cards
-        const statsCards = screen.getAllByText(/Tổng tiền gây quỹ|Chiến dịch thành công|Người ủng hộ|Tỷ lệ minh bạch/)
-        expect(statsCards).toHaveLength(4)
+        const statsCards = screen.getAllByText(/Tổng tiền gây quỹ|Chiến dịch thành công|Người ủng hộ/)
+        expect(statsCards).toHaveLength(3)
 
         // Kiểm tra mỗi stat có đầy đủ thông tin
         expect(screen.getByText('Tổng tiền gây quỹ')).toBeInTheDocument()
         expect(screen.getByText('Chiến dịch thành công')).toBeInTheDocument()
         expect(screen.getByText('Người ủng hộ')).toBeInTheDocument()
-        expect(screen.getByText('Tỷ lệ minh bạch')).toBeInTheDocument()
     })
 })

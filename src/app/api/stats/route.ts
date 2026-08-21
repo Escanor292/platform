@@ -77,20 +77,12 @@ export async function GET() {
             totalFundsFormatted = totalFunds.toLocaleString('vi-VN');
         }
 
-        // Calculate transparency rate (successful campaigns / total campaigns)
-        const totalCampaigns = await prisma.campaigns.count();
-        const transparencyRate = totalCampaigns > 0
-            ? ((successfulCampaigns / totalCampaigns) * 100).toFixed(1)
-            : '0.0';
-
         const statsData = {
             totalFunds: totalFundsFormatted,
             totalFundsRaw: totalFunds,
             successfulCampaigns,
             activeCampaigns,
-            totalBackers: uniqueBackersSet.size,
-            transparencyRate: `${transparencyRate}%`,
-            transparencyRateRaw: parseFloat(transparencyRate)
+            totalBackers: uniqueBackersSet.size
         };
 
         // Update Redis cache with 300s TTL (5 minutes)

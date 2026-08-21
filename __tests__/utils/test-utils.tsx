@@ -35,18 +35,14 @@ export const mockStatsData = {
         totalFundsRaw: 5000000000,
         successfulCampaigns: 500,
         activeCampaigns: 75,
-        totalBackers: 15000,
-        transparencyRate: '99.9%',
-        transparencyRateRaw: 99.9
+        totalBackers: 15000
     },
     empty: {
         totalFunds: '0 VNĐ',
         totalFundsRaw: 0,
         successfulCampaigns: 0,
         activeCampaigns: 0,
-        totalBackers: 0,
-        transparencyRate: '0%',
-        transparencyRateRaw: 0
+        totalBackers: 0
     }
 }
 

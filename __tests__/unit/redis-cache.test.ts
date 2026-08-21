@@ -7,7 +7,7 @@ describe('Redis Cache Integration', () => {
     });
 
     it('should have correct stats cache key', () => {
-        expect(STATS_CACHE_KEY).toBe('cfvn:stats');
+        expect(STATS_CACHE_KEY).toBe('cfvn:stats:v2');
     });
 
     it('should handle get, set and del without throwing errors', async () => {

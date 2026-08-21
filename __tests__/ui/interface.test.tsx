@@ -67,8 +67,6 @@ describe('Kiểm thử giao diện', () => {
                 successfulCampaigns: 150,
                 activeCampaigns: 25,
                 totalBackers: 5000,
-                transparencyRate: '99.9%',
-                transparencyRateRaw: 99.9
             }
 
             global.fetch = jest.fn().mockResolvedValue({
@@ -91,7 +89,7 @@ describe('Kiểm thử giao diện', () => {
             expect(screen.getByText('Tổng tiền gây quỹ')).toBeInTheDocument()
             expect(screen.getByText('Chiến dịch thành công')).toBeInTheDocument()
             expect(screen.getByText('Người ủng hộ')).toBeInTheDocument()
-            expect(screen.getByText('Tỷ lệ minh bạch')).toBeInTheDocument()
+            expect(screen.getAllByText(/Tổng tiền gây quỹ|Chiến dịch thành công|Người ủng hộ/)).toHaveLength(3)
         })
     })
 

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Rocket, Compass, Heart, ShieldCheck } from 'lucide-react';
+import { Rocket, Compass, Heart } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
 
@@ -15,7 +15,6 @@ interface PlatformStats {
   totalFunds: string;
   successfulCampaigns: number;
   totalBackers: number;
-  transparencyRate: string;
 }
 
 export default function HeroSection() {
@@ -52,7 +51,6 @@ export default function HeroSection() {
             totalFunds: "2.5 tỷ",
             successfulCampaigns: 1250,
             totalBackers: 15000,
-            transparencyRate: "98.5%"
           });
           return;
         }
@@ -74,7 +72,6 @@ export default function HeroSection() {
           totalFunds: "2.5 tỷ",
           successfulCampaigns: 1250,
           totalBackers: 15000,
-          transparencyRate: "98.5%"
         });
       }
     }
@@ -228,20 +225,6 @@ export default function HeroSection() {
               </div>
             </div>
 
-            <div
-              className="absolute -bottom-8 -left-8 rounded-2xl backdrop-blur-md bg-white/70 border border-white/80 px-6 py-5 shadow-2xl slide-up hover:shadow-3xl transition-all duration-300"
-              style={{ animationDelay: '0.5s' }}
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-tblue to-dblue flex items-center justify-center flex-shrink-0 shadow-lg">
-                  <ShieldCheck className="w-5.5 h-5.5 text-white" />
-                </div>
-                <div>
-                  <div className="text-xs font-semibold text-gray-500">Minh bạch</div>
-                  <div className="text-base font-display font-bold text-tblue">98.5%</div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
