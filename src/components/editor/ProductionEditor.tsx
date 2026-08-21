@@ -41,6 +41,7 @@ export function ProductionEditor({
   const [linkSavedSelection, setLinkSavedSelection] = useState<SavedSelection | null>(null);
   const [isVideoPopoverOpen, setIsVideoPopoverOpen] = useState(false);
   const [isProductPopoverOpen, setIsProductPopoverOpen] = useState(false);
+  const [productSavedSelection, setProductSavedSelection] = useState<SavedSelection | null>(null);
   const [productEditData, setProductEditData] = useState<{
     rewardId: string | null;
     title: string;
@@ -272,7 +273,8 @@ export function ProductionEditor({
   const handleProductBox = useCallback(() => {
     const currentEditor = editorRef.current;
     if (!currentEditor) return;
-    // New insert: position cursor selection
+    // Save the cursor before the popover takes focus.
+    setProductSavedSelection(saveSelection(currentEditor));
     setProductEditData(null);
     setIsProductPopoverOpen(true);
   }, []);
@@ -281,6 +283,7 @@ export function ProductionEditor({
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail;
+      setProductSavedSelection(null);
       setProductEditData(detail || null);
       setIsProductPopoverOpen(true);
     };
@@ -427,7 +430,11 @@ export function ProductionEditor({
           <ProductBoxPopover
             editor={editor}
             isOpen={isProductPopoverOpen}
-            onClose={() => setIsProductPopoverOpen(false)}
+            onClose={() => {
+              setProductSavedSelection(null);
+              setIsProductPopoverOpen(false);
+            }}
+            savedSelection={productSavedSelection}
             editData={productEditData}
             onCancelEdit={() => {
               setProductEditData(null);
