@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { cacheInvalidatePrefix, CAMPAIGNS_CACHE_PREFIX } from "@/lib/redis-cache";
+import { notificationService } from "@/services/mongodb/notification.service";
 
 const ALLOWED_STATUSES = new Set(["ACTIVE", "CANCELED"]);
 
@@ -26,7 +27,7 @@ export async function PATCH(
 
     const campaign = await prisma.campaigns.findUnique({
       where: { id },
-      select: { id: true, status: true, title: true },
+      select: { id: true, status: true, title: true, slug: true, creatorId: true },
     });
 
     if (!campaign) {
@@ -44,6 +45,16 @@ export async function PATCH(
       where: { id },
       data: { status: status as "ACTIVE" | "CANCELED" },
       select: { id: true, title: true, status: true, updatedAt: true },
+    });
+
+    notificationService.send({
+      userId: campaign.creatorId,
+      type: status === "ACTIVE" ? "CAMPAIGN_APPROVED" : "CAMPAIGN_REJECTED",
+      title: status === "ACTIVE" ? "Chiến dịch đã được duyệt" : "Chiến dịch chưa được duyệt",
+      message: status === "ACTIVE"
+        ? `Chiến dịch “${campaign.title}” đã được Admin phê duyệt và đang hoạt động.`
+        : `Chiến dịch “${campaign.title}” chưa được phê duyệt. Vui lòng kiểm tra và cập nhật lại nội dung.`,
+      payload: { href: `/campaigns/${campaign.slug}`, campaignId: campaign.id },
     });
 
     await cacheInvalidatePrefix(CAMPAIGNS_CACHE_PREFIX).catch((cacheError) => {

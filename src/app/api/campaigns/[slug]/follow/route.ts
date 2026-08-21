@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { notificationService } from "@/services/mongodb/notification.service";
 
 /**
  * POST /api/campaigns/[slug]/follow
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ slug: 
         // Get campaign
         const campaign = await prisma.campaigns.findUnique({
             where: { slug },
-            select: { id: true, title: true }
+            select: { id: true, title: true, slug: true, creatorId: true }
         });
 
         if (!campaign) {
@@ -52,6 +53,16 @@ export async function POST(req: NextRequest, context: { params: Promise<{ slug: 
                 email: !session?.user?.id ? email : null
             }
         });
+
+        if (session?.user?.id && session.user.id !== campaign.creatorId) {
+            notificationService.send({
+                userId: campaign.creatorId,
+                type: "CAMPAIGN_FOLLOWED",
+                title: "Có người quan tâm chiến dịch",
+                message: `${session.user.name || "Một người dùng"} đã thêm chiến dịch “${campaign.title}” vào danh sách quan tâm.`,
+                payload: { href: `/campaigns/${campaign.slug}`, campaignId: campaign.id },
+            });
+        }
 
         return NextResponse.json({
             message: "Đã thêm vào danh sách quan tâm",

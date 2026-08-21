@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Home, Compass, MessageCircle, User } from "lucide-react";
+import { Home, Compass, MessageCircle, User, Bell } from "lucide-react";
 import { ChatNotificationBadge } from "@/components/chat/ChatNotificationBadge";
 
 export default function MobileBottomNav() {
@@ -26,6 +26,11 @@ export default function MobileBottomNav() {
       href: session ? "/chat" : "/auth/login",
       icon: MessageCircle,
       hasBadge: true,
+    },
+    {
+      label: "Thông báo",
+      href: session ? "/notifications" : "/auth/login",
+      icon: Bell,
     },
     {
       label: "Cá nhân",

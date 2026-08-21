@@ -102,7 +102,11 @@ export type NotificationType =
   | 'PAYMENT_FAILED'     // Backer thanh toán thất bại
   | 'CAMPAIGN_APPROVED'  // Admin duyệt campaign
   | 'CAMPAIGN_REJECTED'  // Admin từ chối campaign
+  | 'BLOG_APPROVED'      // Admin duyệt bài blog
+  | 'BLOG_REJECTED'      // Admin từ chối bài blog
+  | 'CAMPAIGN_FOLLOWED'  // Có người quan tâm campaign
   | 'CAMPAIGN_UPDATE'    // Creator đăng bài update
+  | 'COMMENT_RECEIVED'   // Có bình luận mới trên bài viết của mình
   | 'COMMENT_REPLY'      // Có reply vào comment của mình
   | 'COMMENT_MENTION'    // Được @mention trong comment
   | 'CAMPAIGN_ENDING'    // Campaign sắp kết thúc (cho backer chưa donate)

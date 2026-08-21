@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { notificationService } from '@/services/mongodb/notification.service';
 
 export async function PATCH(
   request: NextRequest,
@@ -40,6 +41,15 @@ export async function PATCH(
       );
     }
 
+    const existingPost = await prisma.blog_posts.findUnique({
+      where: { id },
+      select: { id: true, slug: true, title: true, authorId: true },
+    });
+
+    if (!existingPost) {
+      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    }
+
     const post = await prisma.blog_posts.update({
       where: { id },
       data: {
@@ -48,7 +58,17 @@ export async function PATCH(
       },
     });
 
-    // TODO: Send notification to author
+    if (status === 'PUBLISHED' || status === 'REJECTED') {
+      notificationService.send({
+        userId: existingPost.authorId,
+        type: status === 'PUBLISHED' ? 'BLOG_APPROVED' : 'BLOG_REJECTED',
+        title: status === 'PUBLISHED' ? 'Bài viết đã được duyệt' : 'Bài viết chưa được duyệt',
+        message: status === 'PUBLISHED'
+          ? `Bài viết “${existingPost.title}” đã được Admin duyệt và có thể hiển thị công khai.`
+          : `Bài viết “${existingPost.title}” chưa được Admin duyệt. Vui lòng kiểm tra và cập nhật lại nội dung.`,
+        payload: { href: `/blog/${existingPost.slug}` },
+      });
+    }
 
     return NextResponse.json(post);
   } catch (error: any) {

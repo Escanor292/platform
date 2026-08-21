@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import LeafIcon from "../shared/LeafIcon";
 import { ChatNotificationBadge } from "@/components/chat/ChatNotificationBadge";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { CartDropdown } from "@/components/products/CartProvider";
 
 export default function NavbarNew() {
@@ -158,6 +159,9 @@ export default function NavbarNew() {
             <>
               {/* Giỏ hàng */}
               <CartDropdown />
+
+              {/* Personal notifications */}
+              <NotificationBell />
 
               {/* Chat Link */}
               <Link
