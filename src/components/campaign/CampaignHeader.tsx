@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Tag, Layers } from "lucide-react";
+import { FolderOpen } from "lucide-react";
 import { getCampaignTypeLabel } from "@/lib/campaign-helpers";
 import { CampaignType } from "@/types/campaign";
 
@@ -9,9 +9,13 @@ interface CampaignHeaderProps {
     title: string;
     description: string;
     campaignCode: string;
+    project?: {
+        id: string;
+        title: string;
+    } | null;
 }
 
-export default function CampaignHeader({ title, description, campaignCode }: CampaignHeaderProps) {
+export default function CampaignHeader({ title, description, campaignCode, project }: CampaignHeaderProps) {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {
@@ -45,6 +49,15 @@ export default function CampaignHeader({ title, description, campaignCode }: Cam
                         )}
                     </button>
                 </div>
+                {project && (
+                    <a
+                        href={`/projects/${project.id}`}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-100 rounded-lg text-xs font-semibold hover:bg-blue-100 hover:border-blue-200 transition-colors"
+                    >
+                        <FolderOpen size={13} />
+                        Dự án: {project.title}
+                    </a>
+                )}
             </div>
             <CampaignSubtitle description={description} />
         </div>

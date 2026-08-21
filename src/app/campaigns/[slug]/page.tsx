@@ -25,6 +25,7 @@ export default async function CampaignDetailPage({ params }: Params) {
       where: { OR: [{ slug }, { id: slug }] },
       include: {
          users: { select: { id: true, name: true, avatar: true, status: true } },
+         projects: { select: { id: true, title: true, slug: true } },
          rewards: { orderBy: { minAmount: "asc" } },
          pledges: {
             where: { status: "SUCCESS" },
@@ -139,6 +140,7 @@ export default async function CampaignDetailPage({ params }: Params) {
                      title={campaign.title}
                      description={campaign.description}
                      campaignCode={campaign.campaignCode}
+                     project={campaign.projects}
                   />
 
 

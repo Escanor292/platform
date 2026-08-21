@@ -94,6 +94,7 @@ export interface CreateBlogPostRequest {
   coverImage?: string;
   type: 'PLATFORM' | 'CAMPAIGN_UPDATE' | 'ANNOUNCEMENT' | 'STORY' | 'IMPACT_REPORT';
   campaignId?: string;
+  projectId?: string | null;
   visibility: 'PUBLIC' | 'BACKERS_ONLY' | 'OWNER_ONLY' | 'PRIVATE';
   categoryIds?: string[];
   tags?: string[];
@@ -109,6 +110,7 @@ export interface UpdateBlogPostRequest {
   };
   coverImage?: string;
   type?: 'PLATFORM' | 'CAMPAIGN_UPDATE' | 'ANNOUNCEMENT' | 'STORY' | 'IMPACT_REPORT';
+  projectId?: string | null;
   visibility?: 'PUBLIC' | 'BACKERS_ONLY' | 'OWNER_ONLY' | 'PRIVATE';
   categoryIds?: string[];
   tags?: string[];
@@ -133,6 +135,7 @@ export interface BlogPostResponse {
   id: string;
   authorId: string;
   campaignId?: string;
+  projectId?: string;
   title: string;
   slug: string;
   excerpt?: string;
@@ -159,6 +162,16 @@ export interface BlogPostResponse {
     id: string;
     title: string;
     slug: string;
+    project?: {
+      id: string;
+      title: string;
+      slug?: string | null;
+    } | null;
+  };
+  project?: {
+    id: string;
+    title: string;
+    slug?: string | null;
   };
   categories?: Array<{
     id: string;

@@ -82,6 +82,7 @@ export async function createBlogPost(
       id: crypto.randomUUID(),
       authorId: currentUserId,
       campaignId: data.campaignId,
+      projectId: data.projectId || undefined,
       title: data.title,
       slug,
       excerpt: data.excerpt,
@@ -118,6 +119,14 @@ export async function createBlogPost(
         select: { id: true, name: true, avatar: true },
       },
       campaigns: {
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          projects: { select: { id: true, title: true, slug: true } },
+        },
+      },
+      projects: {
         select: { id: true, title: true, slug: true },
       },
       blog_post_categories: {
@@ -259,6 +268,14 @@ export async function getBlogPostList(
           select: { id: true, name: true, avatar: true },
         },
         campaigns: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            projects: { select: { id: true, title: true, slug: true } },
+          },
+        },
+        projects: {
           select: { id: true, title: true, slug: true },
         },
         blog_post_categories: {
@@ -295,6 +312,14 @@ export async function getBlogPostBySlug(
         select: { id: true, name: true, avatar: true },
       },
       campaigns: {
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          projects: { select: { id: true, title: true, slug: true } },
+        },
+      },
+      projects: {
         select: { id: true, title: true, slug: true },
       },
       blog_post_categories: {
@@ -467,6 +492,7 @@ export async function updateBlogPost(
     data: {
       title: data.title,
       slug,
+      projectId: data.projectId,
       excerpt: data.excerpt,
       coverImage: data.coverImage,
       type: data.type as any,
@@ -498,6 +524,14 @@ export async function updateBlogPost(
         select: { id: true, name: true, avatar: true },
       },
       campaigns: {
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          projects: { select: { id: true, title: true, slug: true } },
+        },
+      },
+      projects: {
         select: { id: true, title: true, slug: true },
       },
       blog_post_categories: {
@@ -769,10 +803,14 @@ async function getOrCreateTag(name: string) {
 }
 
 function formatBlogPostResponse(post: any): BlogPostResponse {
+  const campaign = post.campaign || post.campaigns;
+  const project = post.project || post.projects || campaign?.projects;
+
   return {
     id: post.id,
     authorId: post.authorId,
     campaignId: post.campaignId,
+    projectId: post.projectId || project?.id,
     title: post.title,
     slug: post.slug,
     excerpt: post.excerpt,
@@ -790,9 +828,21 @@ function formatBlogPostResponse(post: any): BlogPostResponse {
     isFeatured: post.isFeatured,
     wordCount: post.wordCount,
     readingTimeMinutes: post.readingTimeMinutes,
-    author: post.author,
-    campaign: post.campaign,
-    categories: post.categories?.map((pc: any) => pc.category),
-    tags: post.tags?.map((pt: any) => pt.tag),
+    author: post.author || post.users,
+    campaign: campaign
+      ? {
+          id: campaign.id,
+          title: campaign.title,
+          slug: campaign.slug,
+          project: campaign.projects || campaign.project || null,
+        }
+      : undefined,
+    project: project
+      ? { id: project.id, title: project.title, slug: project.slug }
+      : undefined,
+    categories: post.categories?.map((pc: any) => pc.category) ||
+      post.blog_post_categories?.map((pc: any) => pc.blog_categories),
+    tags: post.tags?.map((pt: any) => pt.tag) ||
+      post.blog_post_tags?.map((pt: any) => pt.blog_tags),
   };
 }

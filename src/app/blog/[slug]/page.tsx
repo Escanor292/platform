@@ -169,6 +169,7 @@ export default async function BlogDetailPage({
   }
 
   const relatedPosts = await getRelatedPosts(post.id);
+  const relatedProject = post.project || post.campaign?.project;
 
   return (
     <BlogDetailPageClient post={post}>
@@ -200,13 +201,21 @@ export default async function BlogDetailPage({
               <span className="rounded-full bg-pgreen/10 px-3 py-1 text-sm font-medium text-pgreen">
                 {getTypeLabel(post.type)}
               </span>
-              {post.campaign && (
-                <a
-                  href={`/campaigns/${post.campaign.slug}`}
-                  className="text-sm text-gray-600 hover:text-pgreen"
+              {relatedProject && (
+                <Link
+                  href={`/projects/${relatedProject.id}`}
+                  className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
                 >
-                  → {post.campaign.title}
-                </a>
+                  → Dự án: {relatedProject.title}
+                </Link>
+              )}
+              {post.campaign && (
+                <Link
+                  href={`/campaigns/${post.campaign.slug}`}
+                  className="inline-flex items-center rounded-full bg-pgreen/10 px-3 py-1 text-sm font-medium text-pgreen hover:bg-pgreen/20 transition-colors"
+                >
+                  → Chiến dịch: {post.campaign.title}
+                </Link>
               )}
             </div>
 
