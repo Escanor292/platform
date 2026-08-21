@@ -6,7 +6,6 @@ import { toast } from 'sonner';
 import { X, Loader2, ImagePlus, FileText, Tag, Lock } from 'lucide-react';
 import { ProductionEditor } from '@/components/editor/ProductionEditor';
 import { ImageUpload } from '@/components/shared/ImageUpload';
-import OwnerEditPanel from '@/components/OwnerEditPanel';
 
 type BlogPost = {
   id: string;
@@ -88,17 +87,15 @@ export default function BlogDetailPageClient({ post, children }: Props) {
     <>
       {children}
 
-      {/* Panel chỉnh sửa nhanh */}
-      <OwnerEditPanel
-        isOwner={true}
-        blocks={[
-          {
-            label: 'Nội dung bài viết',
-            description: 'Tiêu đề, nội dung, ảnh bìa, thể loại',
-            onEdit: () => setEditing(true),
-          },
-        ]}
-      />
+      {/* Nút sửa trực tiếp: mở thẳng giao diện chỉnh sửa */}
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        className="fixed bottom-6 right-6 z-50 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-5 py-3 text-sm font-semibold text-white shadow-xl transition hover:from-blue-700 hover:to-purple-700"
+      >
+        <FileText className="h-4 w-4" />
+        Sửa ngay
+      </button>
 
       {/* Dialog sửa bài viết tại chỗ */}
       {editing && (
