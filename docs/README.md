@@ -2,12 +2,16 @@
 
 **TửTế Fund** là một nền tảng gọi vốn cộng đồng (crowdfunding) hiện đại, minh bạch và an toàn, được thiết kế dành riêng cho thị trường Việt Nam. Hệ thống cho phép các nhà sáng tạo (Creators) hiện thực hóa ý tưởng và những nhà tài trợ (Backers) ủng hộ các dự án ý nghĩa thông qua quy trình thanh toán trực tuyến tiện lợi.
 
+> **Tài liệu tra cứu hiện hành:** Hãy bắt đầu từ [bộ bản đồ hệ thống](./system-map/00-CHI-MUC-HE-THONG.md). File này giữ lại phần giới thiệu và lịch sử dự án; các số liệu version, số test, provider và mô hình dữ liệu bên dưới có thể thuộc mốc cũ và phải đối chiếu với mã nguồn hiện tại.
+
 ---
 
-## 🚀 Trạng thái dự án
-- **Phiên bản:** 1.0.0 (Production Ready)
-- **Tính năng cốt lõi:** ✅ Hoàn thành 100%
-- **Hệ thống kiểm thử:** ✅ 88 test cases (100% Pass)
+## 🚀 Trạng thái tài liệu
+
+Phần trạng thái dưới đây là **mô tả lịch sử** được giữ lại để truy nguyên, không phải chứng nhận runtime hiện tại. Trạng thái được đối chiếu mới nhất nằm ở [bộ bản đồ hệ thống](./system-map/00-CHI-MUC-HE-THONG.md) và source code.
+
+- **Phiên bản lịch sử:** 1.0.0 (Production Ready)
+- **Số test lịch sử:** 88 test cases (cần chạy lại để xác nhận)
 - **Triển khai:** Vercel (Next.js 15)
 
 ---
@@ -100,10 +104,15 @@ Tạo file `.env` dựa trên `.env.example` với các khóa sau:
 - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
 
 ### 3. Khởi tạo Database
+
+Với môi trường phát triển mới, có thể dùng các script khởi tạo phù hợp. Với staging/production, ưu tiên migration đã review và `pnpm vercel-build`/`prisma migrate deploy`; không dùng `db push` để thay thế quy trình migration production.
+
 ```bash
-npx prisma db push
-npm run blog:init
-npm run chat:init
+pnpm prisma validate
+pnpm prisma generate
+pnpm prisma migrate deploy
+pnpm run blog:init
+pnpm run chat:init
 ```
 
 ### 4. Chạy dự án
