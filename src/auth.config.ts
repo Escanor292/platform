@@ -32,8 +32,19 @@ export const authConfig = {
       if (isApiAuthRoute || isPublicApiRoute) return true;
 
       if (isAuthRoute) {
-        if (isLoggedIn) return Response.redirect(new URL("/dashboard", nextUrl));
-        return true;
+        if (!isLoggedIn) return true;
+        const callbackUrl = nextUrl.searchParams.get("callbackUrl");
+        if (callbackUrl && callbackUrl.startsWith("/") && !callbackUrl.startsWith("//")) {
+          try {
+            const parsedCallback = new URL(callbackUrl, nextUrl.origin);
+            if (parsedCallback.origin === nextUrl.origin) {
+              return Response.redirect(parsedCallback);
+            }
+          } catch {
+            // Fall through to the safe default below.
+          }
+        }
+        return Response.redirect(new URL("/dashboard", nextUrl));
       }
 
       if (!isLoggedIn && !isPublicRoute) return false;

@@ -3,200 +3,260 @@ import { prisma } from "@/lib/prisma";
 import { Decimal } from "@prisma/client/runtime/library";
 import { createPayOSPaymentLink } from "@/lib/payment/payos";
 
-export async function POST(request: NextRequest) {
-  console.log("[PAYMENTS_API] Request received");
+const MIN_DONATION_AMOUNT = 50_000;
+const MAX_TIP_PERCENT = 20;
 
+function getBaseUrl(request: NextRequest) {
+  return process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
+}
+
+function isValidInternalEmail(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0 && value.length <= 254 && /^\S+@\S+\.\S+$/.test(value.trim());
+}
+
+export async function POST(request: NextRequest) {
   try {
-    // Import auth dynamically để tránh lỗi
     const { auth } = await import("@/lib/auth");
     const session = await auth();
-
-    console.log("[PAYMENTS_API] Session:", session?.user?.id || "guest");
-
     const body = await request.json();
-    console.log("[PAYMENTS_API] Body:", JSON.stringify(body, null, 2));
-    const {
-      campaignId,
-      rewardId,
-      amount,
-      platformTipPercent,
-      isAnonymous,
-      displayName,
-      guestEmail,
-      shippingAddress,
-      paymentMethod,
-    } = body;
 
-    // 1. Validate đầu vào cơ bản
-    if (!campaignId || !amount || amount < 50000 || !paymentMethod) {
+    const campaignId = typeof body.campaignId === "string" ? body.campaignId.trim() : "";
+    const rewardId = typeof body.rewardId === "string" && body.rewardId.trim() ? body.rewardId.trim() : null;
+    const amount = typeof body.amount === "number" ? body.amount : Number(body.amount);
+    const platformTipPercent = typeof body.platformTipPercent === "number"
+      ? body.platformTipPercent
+      : Number(body.platformTipPercent || 0);
+    const paymentMethod = body.paymentMethod;
+    const paymentMethodId = typeof body.paymentMethodId === "string" && body.paymentMethodId.trim()
+      ? body.paymentMethodId.trim()
+      : null;
+    const quantity = Number.isInteger(body.quantity) ? body.quantity : 1;
+    const isAnonymous = body.isAnonymous === true;
+    const displayName = typeof body.displayName === "string" ? body.displayName.trim().slice(0, 120) : "";
+    const guestEmail = typeof body.guestEmail === "string" ? body.guestEmail.trim().slice(0, 254) : "";
+    const shippingAddress = typeof body.shippingAddress === "string" ? body.shippingAddress.trim().slice(0, 1000) : "";
+    const savePaymentMethod = body.savePaymentMethod === true;
+
+    if (!campaignId || !Number.isFinite(amount) || amount < MIN_DONATION_AMOUNT || !Number.isInteger(amount)) {
       return NextResponse.json({ error: "Thiếu thông tin hoặc số tiền không hợp lệ" }, { status: 400 });
     }
 
-    // 2. Thu thập metadata
-    const ipAddress = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
-
-    // 3. Tính toán số tiền
-    const tipAmount = Math.round((amount * (platformTipPercent || 0)) / 100);
-    const vatAmount = Math.round(tipAmount * 0.1);
-    const totalAmount = amount + tipAmount + vatAmount;
-
-    // 4. Tên hiển thị
-    const finalDisplayName = isAnonymous ? "Người dùng ẩn danh" : (displayName || "Khách");
-
-    // 5. Xử lý payment methods
-    if (paymentMethod === "PAYOS") {
-      // Tạo transaction ID
-      const transactionId = `PAYOS-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-      // Tạo pledge
-      const pledge = await prisma.pledges.create({
-        data: {
-          id: crypto.randomUUID(),
-          userId: session?.user?.id || null,
-          campaignId,
-          rewardId: rewardId || null,
-          amount: new Decimal(amount),
-          tipAmount: new Decimal(tipAmount),
-          vatAmount: new Decimal(vatAmount),
-          totalAmount: new Decimal(totalAmount),
-          email: guestEmail,
-          displayName: finalDisplayName,
-          shippingAddress: shippingAddress,
-          isAnonymous,
-          ipAddress,
-          paymentProvider: "PAYOS",
-          transactionId: transactionId,
-          status: "PENDING",
-          updatedAt: new Date(),
-        }
-      });
-
-      // Tạo orderCode
-      const orderCode = Number(Date.now());
-
-      console.log("[PAYOS CREATE] Creating payment link:", {
-        orderCode,
-        pledgeId: pledge.id,
-        amount: totalAmount
-      });
-
-      let paymentLinkRes;
-
-      // LUÔN DÙNG MOCK Ở MÔI TRƯỜNG DEV ĐỂ TEST KHÔNG TỐN TIỀN
-      if (process.env.NODE_ENV === 'development') {
-        console.log("[PAYOS CREATE] Development mode: Using local mock checkout.");
-        paymentLinkRes = {
-          checkoutUrl: `${process.env.NEXTAUTH_URL}/api/payment/payos/mock-checkout?orderCode=${orderCode}&amount=${totalAmount}&pledgeId=${pledge.id}`
-        };
-      } else {
-        // Môi trường Production sẽ gọi hàm thật
-        try {
-          paymentLinkRes = await createPayOSPaymentLink({
-            orderCode,
-            amount: Math.round(totalAmount),
-            description: `Ung ho du an ${campaignId.slice(0, 8)}`,
-            cancelUrl: `${process.env.NEXTAUTH_URL}/campaigns`,
-            returnUrl: `${process.env.NEXTAUTH_URL}/payment-success?status=success&ref=${pledge.id}`,
-          });
-        } catch (payosError: any) {
-          console.error("[PAYOS CREATE] PayOS API Error:", payosError);
-          throw new Error(`PayOS API failed: ${payosError.message}`);
-        }
-      }
-
-      // Cập nhật pledge với orderCode
-      await prisma.pledges.update({
-        where: { id: pledge.id },
-        data: {
-          payosOrderCode: orderCode.toString(),
-        }
-      });
-
-      console.log("[PAYOS CREATE] ✓ Payment link created:", {
-        pledgeId: pledge.id,
-        orderCode,
-        checkoutUrl: paymentLinkRes.checkoutUrl
-      });
-
-      return NextResponse.json({
-        message: "PayOS payment link created",
-        pledgeId: pledge.id,
-        paymentUrl: paymentLinkRes.checkoutUrl,
-        orderCode: orderCode,
-      });
-    } else if (paymentMethod === "VNPAY") {
-      // TODO: Implement VNPay
-      return NextResponse.json({ error: "VNPay chưa được triển khai" }, { status: 501 });
-    } else if (paymentMethod === "SEPAY") {
-      // Tạo transaction ID
-      const transactionId = `SEPAY-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-      // Tạo pledge
-      const pledge = await prisma.pledges.create({
-        data: {
-          id: crypto.randomUUID(),
-          userId: session?.user?.id || null,
-          campaignId,
-          rewardId: rewardId || null,
-          amount: new Decimal(amount),
-          tipAmount: new Decimal(tipAmount),
-          vatAmount: new Decimal(vatAmount),
-          totalAmount: new Decimal(totalAmount),
-          email: guestEmail,
-          displayName: finalDisplayName,
-          shippingAddress: shippingAddress,
-          isAnonymous,
-          ipAddress,
-          paymentProvider: "SEPAY",
-          transactionId: transactionId,
-          status: "PENDING",
-          updatedAt: new Date(),
-        },
-      });
-
-      // Import SePay helper
-      const { getSePay } = await import("@/lib/payment/sepay");
-      const sepay = getSePay();
-
-      // Tạo checkout fields
-      const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL;
-      const checkoutFields = sepay.createCheckoutFields({
-        orderInvoiceNumber: `INV-${pledge.id.slice(0, 8)}-${Date.now()}`,
-        orderAmount: totalAmount,
-        orderDescription: `Ủng hộ chiến dịch ${campaignId.slice(0, 8)}`,
-        customerId: session?.user?.id || pledge.id,
-        successUrl: `${baseUrl}/payment-success?status=success&ref=${pledge.id}`,
-        errorUrl: `${baseUrl}/payment-success?status=error&ref=${pledge.id}`,
-        cancelUrl: `${baseUrl}/campaigns`,
-        paymentMethod: "BANK_TRANSFER",
-      });
-
-      return NextResponse.json({
-        message: "SePay checkout created",
-        pledgeId: pledge.id,
-        paymentMethod: "SEPAY",
-        checkoutUrl: sepay.getCheckoutUrl(),
-        checkoutFields,
-      });
-    } else if (paymentMethod === "MOMO") {
-      // TODO: Implement MoMo
-      return NextResponse.json({ error: "MoMo chưa được triển khai" }, { status: 501 });
-    } else {
+    if (paymentMethod !== "ONLINE" && paymentMethod !== "COD") {
       return NextResponse.json({ error: "Phương thức thanh toán không hợp lệ" }, { status: 400 });
     }
 
-  } catch (error: any) {
-    console.error("[PAYMENTS_API] ERROR:", error);
-
-    let cleanErrorMessage = error.message || "Lỗi hệ thống khi tạo giao dịch";
-
-    // Check if error contains Cloudflare HTML (522, 502, etc.)
-    if (cleanErrorMessage.includes("522") || cleanErrorMessage.includes("cloudflare") || cleanErrorMessage.includes("<!DOCTYPE html>")) {
-      cleanErrorMessage = "Hệ thống cổng thanh toán PayOS đang bị gián đoạn máy chủ (Error 522). Vui lòng thử lại sau ít phút.";
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 99) {
+      return NextResponse.json({ error: "Số lượng sản phẩm không hợp lệ" }, { status: 400 });
     }
 
+    const campaign = await prisma.campaigns.findFirst({
+      where: { id: campaignId, status: "ACTIVE" },
+      select: { id: true, title: true },
+    });
+
+    if (!campaign) {
+      return NextResponse.json({ error: "Chiến dịch không tồn tại hoặc chưa mở nhận ủng hộ" }, { status: 404 });
+    }
+
+    const reward = rewardId
+      ? await prisma.rewards.findFirst({
+          where: { id: rewardId, campaignId, isActive: true },
+          select: {
+            id: true,
+            title: true,
+            minAmount: true,
+            maxAmount: true,
+            maxQuantity: true,
+            stock: true,
+            availability: true,
+          },
+        })
+      : null;
+
+    if (rewardId && !reward) {
+      return NextResponse.json({ error: "Phần quà không tồn tại, đã tắt hoặc không thuộc chiến dịch này" }, { status: 404 });
+    }
+
+    if (reward) {
+      const minimumRewardAmount = Math.max(MIN_DONATION_AMOUNT, Number(reward.minAmount));
+      if (amount < minimumRewardAmount) {
+        return NextResponse.json({ error: `Số tiền tối thiểu cho phần quà này là ${minimumRewardAmount.toLocaleString("vi-VN")}đ` }, { status: 400 });
+      }
+      if (reward.maxAmount && amount > Number(reward.maxAmount)) {
+        return NextResponse.json({ error: "Số tiền vượt quá mức tối đa của phần quà" }, { status: 400 });
+      }
+      if (reward.maxQuantity && quantity > reward.maxQuantity) {
+        return NextResponse.json({ error: "Số lượng vượt quá giới hạn của phần quà" }, { status: 400 });
+      }
+      if (paymentMethod === "COD" && reward.availability !== "AVAILABLE") {
+        return NextResponse.json({ error: "Thanh toán khi nhận hàng chỉ áp dụng cho sản phẩm có sẵn" }, { status: 400 });
+      }
+      if (reward.stock !== null && reward.stock < quantity) {
+        return NextResponse.json({ error: "Sản phẩm không đủ tồn kho" }, { status: 409 });
+      }
+      if (reward.availability === "AVAILABLE" && !shippingAddress && !((session?.user as { shippingAddress?: string } | undefined)?.shippingAddress)) {
+        return NextResponse.json({ error: "Vui lòng nhập địa chỉ nhận hàng" }, { status: 400 });
+      }
+    }
+
+    const authenticatedEmail = session?.user?.email?.trim() || "";
+    const finalEmail = authenticatedEmail || guestEmail;
+    if ((paymentMethod === "COD" || reward) && !isValidInternalEmail(finalEmail)) {
+      return NextResponse.json({ error: "Vui lòng cung cấp email hợp lệ để nhận xác nhận đơn hàng" }, { status: 400 });
+    }
+
+    if (paymentMethodId) {
+      if (!session?.user?.id) {
+        return NextResponse.json({ error: "Bạn cần đăng nhập để dùng phương thức đã liên kết" }, { status: 401 });
+      }
+      const linkedMethod = await prisma.payment_methods.findFirst({
+        where: { id: paymentMethodId, userId: session.user.id, status: "ACTIVE" },
+        select: { id: true, provider: true, methodType: true },
+      });
+      if (!linkedMethod) {
+        return NextResponse.json({ error: "Phương thức thanh toán đã liên kết không còn khả dụng" }, { status: 404 });
+      }
+      if (paymentMethod !== "ONLINE") {
+        return NextResponse.json({ error: "Phương thức liên kết chỉ dùng cho thanh toán trực tuyến" }, { status: 400 });
+      }
+      return NextResponse.json({
+        error: "Cổng thanh toán lưu token chưa được kích hoạt cho merchant này. Vui lòng chọn Tiếp tục thanh toán trực tuyến để mở hosted checkout.",
+        code: "LINKED_METHOD_ADAPTER_NOT_CONFIGURED",
+      }, { status: 503 });
+    }
+
+    const isReadyProduct = reward?.availability === "AVAILABLE";
+    const tipPercent = !isReadyProduct && paymentMethod === "ONLINE"
+      ? Math.min(Math.max(Number.isFinite(platformTipPercent) ? platformTipPercent : 0, 0), MAX_TIP_PERCENT)
+      : 0;
+    const tipAmount = Math.round((amount * tipPercent) / 100);
+    const vatAmount = Math.round(tipAmount * 0.1);
+    const totalAmount = amount + tipAmount + vatAmount;
+    const finalDisplayName = isAnonymous ? "Người dùng ẩn danh" : (displayName || session?.user?.name || "Khách hàng");
+    const ipAddress = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+      || request.headers.get("x-real-ip")
+      || "unknown";
+    const finalShippingAddress = shippingAddress || ((session?.user as { shippingAddress?: string } | undefined)?.shippingAddress ?? null);
+    const now = new Date();
+
+    if (paymentMethod === "COD") {
+      const transactionId = `COD-${crypto.randomUUID()}`;
+      try {
+        const pledge = await prisma.$transaction(async (tx) => {
+          if (!reward) {
+            throw new Error("COD chỉ áp dụng cho sản phẩm có sẵn");
+          }
+          if (reward.stock !== null) {
+            const stockUpdate = await tx.rewards.updateMany({
+              where: { id: reward.id, isActive: true, stock: { gte: quantity } },
+              data: { stock: { decrement: quantity }, updatedAt: now },
+            });
+            if (stockUpdate.count !== 1) {
+              throw new Error("Sản phẩm vừa hết tồn kho, vui lòng thử lại");
+            }
+          }
+          return tx.pledges.create({
+            data: {
+              id: crypto.randomUUID(),
+              userId: session?.user?.id || null,
+              campaignId,
+              rewardId: reward.id,
+              amount: new Decimal(amount),
+              tipAmount: new Decimal(0),
+              vatAmount: new Decimal(0),
+              totalAmount: new Decimal(amount),
+              email: finalEmail,
+              displayName: finalDisplayName,
+              shippingAddress: finalShippingAddress,
+              isAnonymous,
+              quantity,
+              isCashOnDelivery: true,
+              ipAddress,
+              paymentProvider: "COD",
+              transactionId,
+              status: "PENDING",
+              updatedAt: now,
+            },
+          });
+        });
+
+        const confirmationUrl = `/payment-success?status=cod&ref=${encodeURIComponent(pledge.transactionId)}`;
+        return NextResponse.json({
+          message: "Đã ghi nhận đơn hàng trả tiền khi nhận hàng",
+          pledgeId: pledge.id,
+          transactionId: pledge.transactionId,
+          status: "PENDING",
+          paymentProvider: "COD",
+          confirmationUrl,
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Không thể tạo đơn COD";
+        const status = message.includes("hết tồn kho") ? 409 : 400;
+        return NextResponse.json({ error: message }, { status });
+      }
+    }
+
+    const pledge = await prisma.pledges.create({
+      data: {
+        id: crypto.randomUUID(),
+        userId: session?.user?.id || null,
+        campaignId,
+        rewardId: reward?.id || null,
+        amount: new Decimal(amount),
+        tipAmount: new Decimal(tipAmount),
+        vatAmount: new Decimal(vatAmount),
+        totalAmount: new Decimal(totalAmount),
+        email: finalEmail || null,
+        displayName: finalDisplayName,
+        shippingAddress: finalShippingAddress,
+        isAnonymous,
+        quantity,
+        isCashOnDelivery: false,
+        ipAddress,
+        paymentProvider: "PAYOS",
+        transactionId: `ONLINE-${crypto.randomUUID()}`,
+        status: "PENDING",
+        updatedAt: now,
+      },
+    });
+
+    const orderCode = Number(`${Date.now()}${Math.floor(Math.random() * 10)}`.slice(-15));
+    const baseUrl = getBaseUrl(request);
+    let paymentUrl: string;
+
+    try {
+      if (process.env.NODE_ENV === "development") {
+        paymentUrl = `${baseUrl}/api/payment/payos/mock-checkout?orderCode=${orderCode}&amount=${totalAmount}&pledgeId=${encodeURIComponent(pledge.id)}`;
+      } else {
+        const paymentLink = await createPayOSPaymentLink({
+          orderCode,
+          amount: Math.round(totalAmount),
+          description: `Ung ho ${campaign.title.slice(0, 32)}`,
+          cancelUrl: `${baseUrl}/campaigns`,
+          returnUrl: `${baseUrl}/payment-success?status=success&ref=${encodeURIComponent(pledge.id)}`,
+        });
+        paymentUrl = paymentLink.checkoutUrl;
+      }
+    } catch (error) {
+      console.error("[PAYMENTS_API] Hosted checkout creation failed", error instanceof Error ? error.message : "unknown error");
+      return NextResponse.json({ error: "Cổng thanh toán trực tuyến chưa sẵn sàng. Vui lòng thử lại sau." }, { status: 503 });
+    }
+
+    await prisma.pledges.update({
+      where: { id: pledge.id },
+      data: { payosOrderCode: orderCode.toString(), updatedAt: new Date() },
+    });
+
     return NextResponse.json({
-      error: cleanErrorMessage
-    }, { status: 500 });
+      message: "Đã tạo phiên thanh toán trực tuyến",
+      pledgeId: pledge.id,
+      paymentUrl,
+      orderCode,
+      paymentProvider: "PAYOS_HOSTED",
+      paymentMethodSavePending: savePaymentMethod && Boolean(session?.user?.id),
+    });
+  } catch (error) {
+    console.error("[PAYMENTS_API] Request failed", error instanceof Error ? error.message : "unknown error");
+    return NextResponse.json({ error: "Lỗi hệ thống khi tạo giao dịch" }, { status: 500 });
   }
 }

@@ -11,6 +11,7 @@ function PaymentSuccessContent() {
   const router = useRouter();
   // Lấy mã giao dịch từ các biến có thể có trên URL
   const paymentId = searchParams.get("ref") || searchParams.get("transactionId") || searchParams.get("orderCode") || searchParams.get("code");
+  const isCodOrder = searchParams.get("status") === "cod";
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -55,9 +56,11 @@ function PaymentSuccessContent() {
           <CheckCircle2 size={48} strokeWidth={2.5} />
         </div>
 
-        <h1 className="text-3xl font-black text-gray-900 mb-2">Thanh toán thành công!</h1>
+          <h1 className="text-3xl font-black text-gray-900 mb-2">{isCodOrder ? "Đã ghi nhận đơn hàng!" : "Thanh toán thành công!"}</h1>
         <p className="text-gray-500 text-sm mb-10 leading-relaxed px-4">
-          Cảm ơn bạn đã đồng hành cùng dự án. Sự đóng góp của bạn là nguồn động lực to lớn cho nhà sáng tạo.
+          {isCodOrder
+            ? "Đơn hàng trả tiền khi nhận hàng đã được ghi nhận. Nhà sáng tạo sẽ liên hệ và giao sản phẩm theo thông tin bạn cung cấp."
+            : "Cảm ơn bạn đã đồng hành cùng dự án. Sự đóng góp của bạn là nguồn động lực to lớn cho nhà sáng tạo."}
         </p>
 
         {/* Transaction Card */}
@@ -83,7 +86,7 @@ function PaymentSuccessContent() {
               
               <div className="flex justify-between">
                  <span className="text-[10px] text-gray-400 font-bold uppercase">Phương thức</span>
-                 <span className="text-[10px] font-black text-gray-900 uppercase">{data?.paymentMethod || data?.method || "GATEWAY"}</span>
+                 <span className="text-[10px] font-black text-gray-900 uppercase">{isCodOrder ? "COD · CHỜ XỬ LÝ" : (data?.paymentMethod || data?.method || "GATEWAY")}</span>
               </div>
            </div>
         </div>
@@ -107,7 +110,7 @@ function PaymentSuccessContent() {
       </div>
       
       <p className="mt-8 text-center text-xs text-gray-400 max-w-xs leading-relaxed">
-        Hóa đơn điện tử và xác nhận đã được gửi tới email của bạn (nếu có cung cấp).
+        {isCodOrder ? "Thông tin đơn hàng đã được ghi nhận. Vui lòng giữ mã đơn để tra cứu." : "Hóa đơn điện tử và xác nhận đã được gửi tới email của bạn (nếu có cung cấp)."}
       </p>
     </div>
   );

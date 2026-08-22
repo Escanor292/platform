@@ -1,8 +1,8 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/PasswordInput";
@@ -10,8 +10,20 @@ import { Globe, Lock, Mail, AlertCircle, Loader2 } from "lucide-react";
 import LeafIcon from "@/components/shared/LeafIcon";
 import Link from "next/link";
 
+function getSafeCallbackUrl(value: string | null) {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/dashboard";
+  try {
+    const parsed = new URL(value, "http://localhost");
+    return parsed.origin === "http://localhost" ? value : "/dashboard";
+  } catch {
+    return "/dashboard";
+  }
+}
+
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = useMemo(() => getSafeCallbackUrl(searchParams.get("callbackUrl")), [searchParams]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -32,7 +44,7 @@ export default function LoginPage() {
       if (result?.error) {
         setError("Email hoặc mật khẩu không chính xác.");
       } else {
-        router.push("/dashboard");
+        router.replace(callbackUrl);
         router.refresh();
       }
     } catch (err) {
@@ -147,7 +159,7 @@ export default function LoginPage() {
           <Button
             variant="outline"
             className="w-full h-12 flex items-center justify-center gap-3 glass border border-gray-200 rounded-2xl font-semibold text-gray-700 hover:border-pgreen hover:text-pgreen transition-all"
-            onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+            onClick={() => signIn("google", { callbackUrl })}
           >
             <Globe className="h-5 w-5" />
             Tiếp tục với Google
@@ -155,7 +167,7 @@ export default function LoginPage() {
 
           <p className="text-center text-sm text-gray-500 mt-6">
             Bạn chưa có tài khoản?{" "}
-            <a href="/auth/register" className="text-pgreen font-semibold hover:underline">
+            <a href={`/auth/register?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="text-pgreen font-semibold hover:underline">
               Đăng ký miễn phí
             </a>
           </p>

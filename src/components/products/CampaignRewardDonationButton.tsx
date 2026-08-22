@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Heart } from "lucide-react";
 import Modal from "@/components/ui/Modal";
 import PledgeFormContent from "@/components/campaign/PledgeFormContent";
@@ -11,6 +13,7 @@ interface Reward {
   description?: string | null;
   minAmount: number;
   estimatedDelivery?: string | null;
+  availability?: "AVAILABLE" | "DEVELOPMENT";
 }
 
 interface CampaignRewardDonationButtonProps {
@@ -25,6 +28,51 @@ export default function CampaignRewardDonationButton({
   reward,
 }: CampaignRewardDonationButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { status: sessionStatus } = useSession();
+  const searchParams = useSearchParams();
+  const checkoutSessionId = searchParams.get("checkoutSessionId");
+  const [restoredSessionId, setRestoredSessionId] = useState<string | null>(null);
+  const [restoredPayload, setRestoredPayload] = useState<{
+    amount?: number;
+    platformTipPercent?: number;
+    isAnonymous?: boolean;
+    displayName?: string | null;
+    guestEmail?: string | null;
+    shippingAddress?: string | null;
+    paymentMethod?: "ONLINE" | "COD";
+    paymentMethodId?: string | null;
+    savePaymentMethod?: boolean;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!checkoutSessionId || sessionStatus !== "authenticated" || restoredSessionId === checkoutSessionId) return;
+    let cancelled = false;
+    fetch(`/api/checkout-sessions?id=${encodeURIComponent(checkoutSessionId)}`)
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Không thể khôi phục checkout");
+        return data;
+      })
+      .then((data) => {
+        if (cancelled) return;
+        if (data.campaignId !== campaignId || data.rewardId !== reward.id) {
+          throw new Error("Phiên checkout không thuộc sản phẩm này");
+        }
+        setRestoredPayload(data.payload ?? null);
+        setRestoredSessionId(checkoutSessionId);
+        setIsOpen(true);
+        window.history.replaceState({}, "", data.returnPath || window.location.pathname);
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          setRestoredSessionId(checkoutSessionId);
+          console.error("[PRODUCT_CHECKOUT_RESTORE]", error instanceof Error ? error.message : "unknown error");
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [campaignId, checkoutSessionId, reward.id, restoredSessionId, sessionStatus]);
 
   return (
     <>
@@ -54,6 +102,7 @@ export default function CampaignRewardDonationButton({
             rewards={[reward]}
             donationType="reward"
             preselectedReward={reward}
+            restoredPayload={restoredPayload}
             showHeader={false}
           />
         </div>

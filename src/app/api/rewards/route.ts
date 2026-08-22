@@ -23,7 +23,8 @@ export async function POST(req: NextRequest) {
             maxQuantity,
             deliveryDate,
             isActive,
-            isIncludedInProject
+            isIncludedInProject,
+            availability
         } = body;
 
         // Validate required fields
@@ -105,6 +106,7 @@ export async function POST(req: NextRequest) {
                 maxQuantity: maxQuantity ? parseInt(maxQuantity) : null,
                 deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
                 isActive: Boolean(isActive),
+                availability: availability === "DEVELOPMENT" ? "DEVELOPMENT" : "AVAILABLE",
                 updatedAt: new Date(),
             },
         });

@@ -468,6 +468,8 @@ model pledges {
   userId             String?
   displayName        String
   isAnonymous        Boolean          @default(false)
+  quantity           Int              @default(1)
+  isCashOnDelivery   Boolean          @default(false)
   email              String?
   phoneNumber        String?
   amount             Decimal
@@ -496,6 +498,43 @@ model pledges {
   rewards            rewards?         @relation(fields: [rewardId], references: [id])
   product_reviews    product_reviews?
   users              users?           @relation(fields: [userId], references: [id])
+}
+
+model payment_methods {
+  id                String              @id @default(cuid())
+  userId            String
+  provider          String
+  methodType        PaymentMethodType
+  label             String
+  brand             String?
+  last4             String?
+  providerMethodRef String?
+  status            PaymentMethodStatus @default(ACTIVE)
+  isDefault         Boolean             @default(false)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  users             users               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([provider, providerMethodRef])
+}
+
+model checkout_sessions {
+  id         String                @id @default(cuid())
+  userId     String?
+  campaignId String
+  rewardId   String?
+  payload    Json
+  returnPath String
+  status     CheckoutSessionStatus @default(ACTIVE)
+  expiresAt  DateTime
+  createdAt  DateTime              @default(now())
+  updatedAt  DateTime
+  users      users?                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([expiresAt, status])
+  @@index([campaignId, rewardId])
 }
 
 model reviews {
@@ -527,6 +566,7 @@ model rewards {
   productImages        String[]               @default([])
   productVideo         String?
   updatedAt            DateTime
+  availability         RewardAvailability   @default(AVAILABLE)
   pledges              pledges[]
   product_reviews      product_reviews[]
   campaigns            campaigns?             @relation(fields: [campaignId], references: [id], onDelete: Cascade)
@@ -637,6 +677,8 @@ model users {
   projects                                   projects[]
   reviews                                    reviews[]
   product_reviews                            product_reviews[]
+  payment_methods                            payment_methods[]
+  checkout_sessions                          checkout_sessions[]
   user_badges_user_badges_assigned_byTousers user_badges[]        @relation("user_badges_assigned_byTousers")
   user_badges_user_badges_revoked_byTousers  user_badges[]        @relation("user_badges_revoked_byTousers")
   user_badges_user_badges_user_idTousers     user_badges[]        @relation("user_badges_user_idTousers")
@@ -768,6 +810,30 @@ enum KYCStatus {
   VERIFIED
   REJECTED
   EXPIRED
+}
+
+enum RewardAvailability {
+  AVAILABLE
+  DEVELOPMENT
+}
+
+enum PaymentMethodType {
+  CARD
+  BANK_ACCOUNT
+  MOMO
+  ZALOPAY
+}
+
+enum PaymentMethodStatus {
+  ACTIVE
+  REVOKED
+}
+
+enum CheckoutSessionStatus {
+  ACTIVE
+  COMPLETED
+  EXPIRED
+  CANCELLED
 }
 
 enum PledgeStatus {

@@ -8,6 +8,7 @@ interface Reward {
     description?: string | null;
     minAmount: number;
     estimatedDelivery?: string | null;
+    availability?: 'AVAILABLE' | 'DEVELOPMENT';
 }
 
 type DonationType = 'general' | 'reward';
@@ -18,6 +19,7 @@ interface CampaignContextType {
     selectedReward: Reward | null;
     openGeneralDonation: () => void;
     openRewardDonation: (reward: Reward) => void;
+    restoreDonation: (donationType: DonationType, reward: Reward | null) => void;
     closeModal: () => void;
 }
 
@@ -52,6 +54,12 @@ export function CampaignProvider({ children }: CampaignProviderProps) {
         setShowPaymentModal(true);
     };
 
+    const restoreDonation = (type: DonationType, reward: Reward | null) => {
+        setDonationType(type);
+        setSelectedReward(type === 'reward' ? reward : null);
+        setShowPaymentModal(true);
+    };
+
     const closeModal = () => {
         setShowPaymentModal(false);
         setSelectedReward(null);
@@ -65,6 +73,7 @@ export function CampaignProvider({ children }: CampaignProviderProps) {
                 selectedReward,
                 openGeneralDonation,
                 openRewardDonation,
+                restoreDonation,
                 closeModal,
             }}
         >

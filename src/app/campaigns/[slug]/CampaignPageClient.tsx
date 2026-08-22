@@ -6,6 +6,8 @@ import Modal from "@/components/ui/Modal";
 import { useCampaignContext } from "@/contexts/CampaignContext";
 import { StartChatButton } from "@/components/chat/StartChatButton";
 import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 interface Reward {
     id: string;
@@ -13,6 +15,7 @@ interface Reward {
     description?: string | null;
     minAmount: number;
     estimatedDelivery?: string | null;
+    availability?: "AVAILABLE" | "DEVELOPMENT";
 }
 
 interface CampaignPageClientProps {
@@ -34,18 +37,66 @@ export default function CampaignPageClient({
     creatorName,
     campaignStatus
 }: CampaignPageClientProps) {
-    const { data: session } = useSession();
+    const { data: session, status: sessionStatus } = useSession();
+    const searchParams = useSearchParams();
+    const checkoutSessionId = searchParams.get("checkoutSessionId");
+    const [restoredPayload, setRestoredPayload] = useState<{
+        amount?: number;
+        platformTipPercent?: number;
+        isAnonymous?: boolean;
+        displayName?: string | null;
+        guestEmail?: string | null;
+        shippingAddress?: string | null;
+        paymentMethod?: "ONLINE" | "COD";
+        paymentMethodId?: string | null;
+        savePaymentMethod?: boolean;
+    } | null>(null);
+    const [restoredSessionId, setRestoredSessionId] = useState<string | null>(null);
     const {
         showPaymentModal,
         donationType,
         selectedReward,
         openGeneralDonation,
+        restoreDonation,
         closeModal
     } = useCampaignContext();
 
     const hasRewards = rewards && rewards.length > 0;
     const isCreator = session?.user?.id === creatorId;
     const canChat = !isCreator && campaignStatus === 'ACTIVE';
+
+    useEffect(() => {
+        if (!checkoutSessionId || sessionStatus !== "authenticated" || restoredSessionId === checkoutSessionId) return;
+        let cancelled = false;
+
+        fetch(`/api/checkout-sessions?id=${encodeURIComponent(checkoutSessionId)}`)
+            .then(async (response) => {
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || "Không thể khôi phục checkout");
+                return data;
+            })
+            .then((data) => {
+                if (cancelled) return;
+                if (data.campaignId !== campaignId) throw new Error("Phiên checkout không thuộc chiến dịch này");
+                const reward = data.rewardId ? rewards.find((item) => item.id === data.rewardId) : null;
+                if (data.rewardId && !reward) throw new Error("Phần quà trong phiên checkout không còn khả dụng");
+                setRestoredPayload(data.payload ?? null);
+                setRestoredSessionId(checkoutSessionId);
+                restoreDonation(data.rewardId ? "reward" : "general", reward ?? null);
+                const cleanPath = data.returnPath || window.location.pathname;
+                window.history.replaceState({}, "", cleanPath);
+            })
+            .catch((error) => {
+                if (!cancelled) {
+                    setRestoredSessionId(checkoutSessionId);
+                    console.error("[CHECKOUT_RESTORE]", error instanceof Error ? error.message : "unknown error");
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [campaignId, checkoutSessionId, restoreDonation, rewards, restoredSessionId, sessionStatus]);
 
     return (
         <>
@@ -115,6 +166,7 @@ export default function CampaignPageClient({
                         rewards={rewards}
                         donationType={donationType}
                         preselectedReward={selectedReward}
+                        restoredPayload={restoredPayload}
                         showHeader={false}
                     />
                 </div>

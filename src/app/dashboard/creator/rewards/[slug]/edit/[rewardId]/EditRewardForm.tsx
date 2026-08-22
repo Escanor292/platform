@@ -15,6 +15,7 @@ interface Reward {
     maxQuantity: number | null;
     deliveryDate: string | null;
     isActive: boolean;
+    availability?: "AVAILABLE" | "DEVELOPMENT";
     _count: {
         pledges: number;
     };
@@ -41,6 +42,7 @@ export default function EditRewardForm({ reward }: EditRewardFormProps) {
         maxQuantity: reward.maxQuantity?.toString() || "",
         deliveryDate: reward.deliveryDate || "",
         isActive: reward.isActive,
+        availability: reward.availability || "AVAILABLE",
     });
 
     const hasPledges = reward._count.pledges > 0;
@@ -60,8 +62,9 @@ export default function EditRewardForm({ reward }: EditRewardFormProps) {
                     description: formData.description || null,
                     minAmount: parseFloat(formData.minAmount),
                     maxQuantity: formData.maxQuantity ? parseInt(formData.maxQuantity) : null,
-                    deliveryDate: formData.deliveryDate ? new Date(formData.deliveryDate) : null,
+                    deliveryDate: formData.availability === "DEVELOPMENT" && formData.deliveryDate ? new Date(formData.deliveryDate) : null,
                     isActive: formData.isActive,
+                    availability: formData.availability,
                 }),
             });
 
@@ -155,6 +158,45 @@ export default function EditRewardForm({ reward }: EditRewardFormProps) {
                     />
                 </div>
 
+                {/* Product Type */}
+                <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                        Loại sản phẩm/quà tặng *
+                    </label>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                        <button
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, availability: "AVAILABLE", deliveryDate: "" }))}
+                            className={`rounded-2xl border p-4 text-left transition ${formData.availability === "AVAILABLE" ? "border-pgreen bg-fgreen/10 ring-2 ring-pgreen/20" : "border-gray-200 hover:border-pgreen/40"}`}
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-fgreen/15">
+                                    <Package className="text-pgreen" size={20} />
+                                </div>
+                                <div>
+                                    <div className="font-semibold text-gray-900">Có sẵn</div>
+                                    <div className="text-xs text-gray-500">Mua bán như sản phẩm thương mại điện tử</div>
+                                </div>
+                            </div>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, availability: "DEVELOPMENT" }))}
+                            className={`rounded-2xl border p-4 text-left transition ${formData.availability === "DEVELOPMENT" ? "border-dblue bg-blue-50 ring-2 ring-dblue/20" : "border-gray-200 hover:border-dblue/40"}`}
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50">
+                                    <FileText className="text-dblue" size={20} />
+                                </div>
+                                <div>
+                                    <div className="font-semibold text-gray-900">Đang phát triển</div>
+                                    <div className="text-xs text-gray-500">Ủng hộ trước, có thể cần ngày giao dự kiến</div>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
                 {/* Min Amount */}
                 <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -202,7 +244,7 @@ export default function EditRewardForm({ reward }: EditRewardFormProps) {
                 </div>
 
                 {/* Delivery Date */}
-                <div>
+                {formData.availability === "DEVELOPMENT" && <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
                         Ngày giao hàng dự kiến
                     </label>
@@ -215,7 +257,7 @@ export default function EditRewardForm({ reward }: EditRewardFormProps) {
                     <p className="text-xs text-gray-500 mt-1">
                         Ngày dự kiến giao quà tặng cho người ủng hộ
                     </p>
-                </div>
+                </div>}
 
                 {/* Status Toggle */}
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
