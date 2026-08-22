@@ -37,6 +37,7 @@ Repository hiện chưa thể bật **branch protection required status checks**
 | TypeScript Platform | Đạt sau `prisma generate` |
 | E2E Chromium route thật | 6 test đạt trong GitHub Actions run `32522102836` |
 | CI quality | Đạt trong GitHub Actions run `32522102836` |
+| Telemetry Production | Endpoint trả `401` khi thiếu Bearer; Vitest integration AI-BS xác minh Bearer cấu hình được chấp nhận và dashboard hiển thị trạng thái live rỗng |
 
 ## Tham chiếu
 
