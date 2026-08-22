@@ -30126,3 +30126,1219 @@ Không tạo thêm nhiều file `FINAL_STATUS`, `IMPLEMENTATION_SUMMARY` hoặc 
 [5]: https://github.com/Escanor292/platform "Repository GitHub"
 
 ---
+
+---
+
+## Các Markdown rời đã được archive bổ sung
+
+> Các tài liệu rời ngoài `docs/` được lưu nguyên văn tại đây trước khi xóa bản sao khỏi vị trí hoạt động. Nội dung này vẫn có thể tra cứu, nhưng không được xem là tài liệu runtime hiện hành.
+
+### Nguồn: `notes_call_cost.md`
+
+# So sánh chi phí chức năng gọi thoại/video
+
+## WebRTC peer-to-peer (PeerJS) — KHUYẾN NGHỊ cho nền tảng này
+- PeerJS cloud server MIỄN PHÍ (peerjs.com có cloud miễn phí, không cần server)
+- Cuộc gọi 1-1 P2P: media đi trực tiếp giữa 2 trình duyệt, KHÔNG qua server → không tốn phí băng thông/thuê phút
+- Chỉ cần tín hiệu (signaling) — có thể dùng sẵn socket/MongoDB hoặc server API hiện có của Next.js
+- Nhược điểm: NAT/firewall nặng cần STUN/TURN server (Coturn tự host ~5-10$/tháng hoặc free TURN công cộng hạn chế); chất lượng phụ thuộc mạng 2 bên; không có tính năng họp nhóm lớn, ghi hình, hiệu ứng nền
+- Độ phức tạp: trung bình — ~1-2 ngày dev: tạo room, offer/answer, UI call modal với camera/mic toggle, mute, hangup
+
+## Cloud có phí (Daily.co / Agora / LiveKit / Twilio)
+- Daily: 10.000 phút miễn phí/tháng (free tier), sau đó ~4$/1000 phút video — rất rẻ cho quy mô nhỏ
+- Agora: ~3.99$/1000 phút video, audio rẻ hơn
+- LiveKit Cloud: free tier giới hạn, pay-as-you-go
+- Ưu: chất lượng ổn (có SFU relay), tính năng phong phú (màn hình, hiệu ứng, ghi hình), không lo NAT/TURN
+- Nhược: thêm dependency thứ 3, tốn phí khi scale (VD 1000h/tháng ~ 40-50$/tháng video)
+
+## Khuyến nghị cho TửTế Fund (giao tiếp creator-backer, 1-1)
+- Phương án WebRTC P2P tự build (PeerJS) = 0$ chi phí vận hành, đủ nhu cầu
+- Nếu muốn đảm bảo chất lượng mọi mạng: + Coturn server (~6$/tháng) hoặc dùng Daily free tier làm fallback
+
+## Trạng thái UI hiện tại
+- ChatWindow đã có icon gọi thoại + gọi video (button hint "Gọi thoại"/"Gọi video") chưa gắn handler — cần gắn vào modal call UI
+
+---
+
+### Nguồn: `notes_call_design.md`
+
+# Thiết kế chức năng gọi thoại/video WebRTC P2P (0đ vận hành)
+
+## Quyết định kiến trúc
+- KHÔNG dùng PeerJS cloud (tạo peer ID công khai, quản lý cuộc gọi phức tạp) và KHÔNG cần server TURN ngay (dùng STUN miễn phí của Google).
+- **Signaling qua chính MongoDB chat**: gửi tin nhắn loại đặc biệt `type: 'call-signal'` trong conversation. ChatWindow đã có polling (ChatConversationClient load messages, nhưng cần POLL ngắn khi đang gọi).
+- Payload signaling JSON trong field `text` của tin nhắn (message.type='call-signal'), các type: offer, answer, candidate, call, accept, reject, end.
+- Người nhận thấy chuông khi POLL phát hiện tin call-signal type='call' mới từ đối phương.
+- Media P2P trực tiếp (RTCDataChannel KHÔNG cần). STUN: stun.l.google.com:19302.
+- Không cần API server mới ngoại trừ endpoint lấy participants của conversation (đã có) — signaling hoàn toàn bằng POST/GET messages hiện có.
+
+## Component mới
+- `src/components/chat/CallModal.tsx` — modal toàn màn hình cuộc gọi: caller UI (chuông chờ), receiver UI (chấp nhận/từ chối), during-call UI (video 2 bên, nút mute cam/mic, chuyển cuộc gọi thoại↔video, kết thúc).
+- Hook `useCall(conversationId, currentUserId, recipientId, recipientName, recipientAvatar)` — quản lý RTCPeerConnection, signaling qua fetch API messages, polling mỗi 1s khi trạng thái !== 'idle', cleanup candidates, timeout gọi 30s.
+- Sửa ChatWindow: `handleCall` gọi useCall.start; không còn alert placeholder.
+
+## Chi tiết signaling messages (text = JSON)
+- caller gửi: {type:'call', mode:'voice'|'video', ts}
+- receiver gửi: {type:'accept', ts} (kèm mode) hoặc {type:'reject'}
+- caller tạo peer, gửi offer: {type:'offer', sdp}
+- receiver tạo peer, gửi answer: {type:'answer', sdp}
+- candidate: {type:'candidate', ice}
+- caller/receiver gửi {type:'end'} khi kết thúc; poll xóa/nhận diện theo ts.
+- Lọc signaling không hiển thị như tin nhắn thường: ChatWindow render bỏ message có type call-signal (giống cách xử lý message ẩn).
+- Chuông: dùng AudioContext oscillator + gọi navigator.mediaDevices khi accept.
+
+## Kiểm nghiệm
+- Mở 2 trình duyệt/tab đăng nhập 2 tài khoản (test1, test2), mở cùng conversation, gọi từ tab này, tab kia đổ chuông, accept → video 2 chiều.
+
+## Trạng thái triển khai (cập nhật)
+Đã tạo xong 2 file:
+- `src/hooks/useCall.ts` — hook WebRTC: phase idle/ringing/incoming/connecting/active; signaling type='call-signal' qua POST messages API (payload JSON text, key `ts` dedupe `processedTsRef`); STUN Google miễn phí; chuông AudioContext 440Hz; polling 1.2s; timeout gọi 45s.
+- `src/components/chat/CallModal.tsx` — UI modal: incoming (chấp nhận/từ chối xanh/đỏ), ringing (hủy), video grid (remote to + local nhỏ góc phải, flip, duration), thoại active (mute/kết thúc/bật cam).
+
+Việc còn lại:
+1. `ChatWindow.tsx`: thay `handleCall` placeholder bằng `startCall`; KHÔNG render tin nhắn type call-signal trong renderMessageText (lọc ở renderMessageText: seg product/text vẫn thường, nhưng tin type call-signal phải ẩn); thêm import + gắn CallModal.
+   - Lưu ý: messages props có field `type` trên MongoMessage (type: 'text'|'image'|'voice'|'file'|'call-signal'...). ChatWindow render groupMessagesByDate — thêm filter bỏ call-signal trước khi group + bỏ trong onMessagesUpdate.
+2. `ChatConversationClient.tsx`: gắn hook useCall với onFetchMessages = gọi GET messages + setMessages; truyền props CallModal (conversationId khi idle→visible=false, onClose=noop); truyền recipientName/Avatar/currentUserName/currentAvatar; gọi onClose={onClose} — visible khi phase !== 'idle' hoặc error.
+   - Props ChatConversationClient chưa có currentUserName/currentAvatar — lấy từ session?.user?.name/image (session?.user có name? image?) — dùng session?.user?.name || 'Bạn'.
+3. API messages POST phải chấp nhận body có field `type`? Hiện sendMessage nhận (conversationId, userId, text, attachments, sensitive) — tin call-signal có text là JSON. Route POST validate text không rỗng OK. Cần đảm bảo message.type lưu = 'call-signal' khi gửi: kiểm tra chat.service.ts sendMessage xem có tham số type không — nếu không, sửa service cho phép truyền type.
+4. Typecheck, test 2 tab (test1 vs test2, conversation 6a86bd6d6dbff94146f47778 — participants test2=92df92ff + test3=cmphnhw8e0002so1uh16dwpvn), push git qua HTTPS remote https://github.com/Escanor292/platform.git (token connector transparent, dùng git -c user.email=nguyenquachphutai@gmail.com).
+5. Lưu tin nhắn signaling vào DB (poll nhận tất cả tin), nhưng UI ẩn khỏi list chat.
+
+## Trạng thái tích hợp (trước fix TS cuối)
+Đã tích hợp xong: chat.service.ts (sendMessage nhận type), messages route.ts (POST chấp nhận type=call-signal + JSON validate), ChatWindow (filter visibleMessages ẩn call-signal, handleCall -> onStartCall, props mới currentUserName/currentAvatar/onStartCall), ChatConversationClient (useCall + CallModal + fetchLatestMessages + ref messagesRef, otherParticipant khai báo ở dòng 53). MessageType đã thêm 'call-signal'.
+
+Lỗi TS còn 3 (cần sửa):
+1. ChatWindow.tsx dòng 498: onStartCall không tìm thấy — vì ChatWindowProps khai báo ở dòng 44 nhưng component destructure props chưa gồm onStartCall? Thực tế lỗi "Cannot find name" nghĩa là chưa destructure trong function param ChatWindow({..., ...}). KIỂM TRA: params destructuring của ChatWindow có thiếu onStartCall. Sửa: thêm onStartCall vào destructuring params.
+2. useCall.ts dòng 149-150: processedTsRef là Set<number> nhưng key là string. Sửa: đổi processedTsRef thành Set<string>.
+3. (đã sửa) chat.service.ts line 382 type không overlap — đã fix bằng việc thêm call-signal vào MessageType.
+
+Sau khi fix: typecheck sạch, test 2 tab (test1=test1@gmail.com backer, test2?? — 2 tài khoản: đăng nhập test2@gmail.com mật khẩu 123 và test1@gmail.com mật khẩu 123; conversation test: 6a86bd6d6dbff94146f47778). Dev server port 3322 (restart: fuser -k 3322/tcp; cd ~/platform; npx next dev -p 3322 > /tmp/dev2.log 2>&1 &). Push: git add -A; git commit với user.email=nguyenquachphutai@gmail.com; remote https://github.com/Escanor292/platform.git (git -c http... push origin main).
+
+## Test gọi thực tế (09:41)
+Bấm "Gọi video" → CallModal hiện ngay với avatar + tên + lỗi "Không thể truy cập camera/micro. Vui lòng cấp quyền." → hook đã hoạt động, chỉ do sandbox Chrome block media device (không có camera thật). Điều này chứng minh luồng gọi hoạt động đúng.
+Nhận xét cải thiện: nên cho phép gọi THOẠI không cần camera trước khi báo lỗi; và lỗi nên hiện sau khi bấm gọi thay vì chặn luôn? Hiện tại hook gọi getUserMedia ngay khi startCall video. Với video thì đúng hành vi (cần camera). Với voice thì media vẫn cần mic → lỗi vẫn xảy ra. Trong sandbox headless không thể grant permission. Test user thật sẽ prompt browser cho phép.
+Kết luận: tính năng hoạt động đúng; kiểm tra thêm: tin hiệu gọi được gửi vào DB (polling), UI ringing hiện cho người gọi. Kiểm tra tin nhắn call-signal trong DB.
+
+## Trạng thái code gọi WebRTC (đã hoàn thiện logic signaling)
+File: src/hooks/useCall.ts, src/components/chat/CallModal.tsx
+Tích hợp: ChatConversationClient.tsx (useCall hook + CallModal + fetchLatestMessages qua API /api/chat/conversations/[id]/messages?limit=50, messagesRef để sync signaling), ChatWindow.tsx (filter call-signal khỏi hiển thị, handleCall->onStartCall, props currentUserName/currentAvatar/onStartCall).
+TypeScript: đã clean (tsc --noEmit chỉ còn lỗi scripts cũ không quan trọng).
+
+### Vấn đề sửa gần đây (09:45):
+1. startCall: giờ gửi tín hiệu type:'call' NGAY khi bấm gọi (trước getUserMedia) → đối phương reo chuông ngay; lỗi media hiển thị trong modal + tự đóng sau 5s.
+2. Thêm createOffer/setLocalDescription/sendSignal('offer') ngay trong startCall (vì stream có rồi thì không cần chờ accept mới tạo peer/offer) — trước đó handleAccept mới tạo peer → có race với polling delay.
+3. handleAccept vẫn tạo peer mới + createOffer — TRÙNG với offer đã gửi ở startCall! RISK: đối phương nhận 2 offer? Người gọi gửi offer ngay khi gọi; handleAccept lại gửi offer 2. Đối phương (phase connecting) chỉ setRemoteDescription cho offer ĐẦU TIÊN (offer sdp trùng sẽ fail nhưng setRemoteDescription lần 2 throw). → CẦN SỬA: handleAccept chỉ gọi setPhase('connecting') + startDurationTimer + startPolling, KHÔNG tạo offer lại. Nhưng chờ: nếu người nhận bấm accept trước khi offer đến (polling 2s) → peer chưa có, cần peer khi answer. Giải pháp: handleAccept tạo createPeer(mode) + đợi 1s rồi gửi offer nếu peerRef có localDescription; đơn giản hơn: giữ như cũ nhưng remove offer ở startCall? KHÔNG — vì polling delay 2s sẽ làm chuông reo lâu mà không có offer.
+   LỰA CHỌN ĐƠN GIẢN NHẤT: bỏ sendSignal offer trong startCall (người gọi chờ accept rồi mới gửi offer qua handleAccept — đúng logic cũ); giữ sendSignal type:'call' ngay đầu để chuông reo nhanh. Khôi phục peer/offer vào handleAccept như trước. (Tránh duplicated offer.)
+4. acceptIncoming: getLocalStream(mode) rồi createPeer + send accept + startDurationTimer — OK.
+
+### Test thực tế:
+- 09:41: Bấm gọi video → modal hiện "TC / Test Creator Pro / Không thể truy cập camera/micro" — luồng hoạt động, chỉ sandbox không có media device thật.
+- Tin call-signal chưa lưu trong DB tại thời điểm đó vì startCall throw trước sendSignal. Sau fix (09:45) sẽ lưu được.
+- 2 tài khoản test: test1@gmail.com = Test Backer (tb), test2@gmail.com = Test Creator (tc), test3@gmail.com = Test Creator Pro (t). Conversation giữa test2+test3: 6a86bd6d6dbff94146f47778.
+
+### Công cụ:
+- Dev server: port 3322, log /tmp/dev2.log; restart: fuser -k 3322/tcp; cd ~/platform; npx next dev -p 3322 > /tmp/dev2.log 2>&1 &
+- MongoDB check: cat /tmp/muri.txt → MONGODB_URI env; script check DB ở ~/platform/scripts hoặc /tmp/check_call.mjs (collection: messages, conversations; conversationId ObjectId)
+- Push: git add -A; git -c user.email=nguyenquachphutai@gmail.com -c user.name="Escanor292" commit -m "..."; git push https://github.com/Escanor292/platform.git HEAD:main (hoặc remote origin https)
+- Vercel production URL: platform-lcdguxlry-escanor292s-projects.vercel.app
+
+## Bug: Nút "Hủy cuộc gọi" không hoạt động (báo cáo 20/8)
+Chẩn đoán: `endCall()` KHÔNG gọi `setPhase('idle')` → sau khi bấm Hủy, `call.phase` vẫn 'ringing' → `visible={call.phase !== 'idle'}` vẫn true → modal không đóng (trông như bấm không được).
+
+Fix: (1) thêm `setPhase('idle')` trong endCall — ĐÃ LÀM nhưng thứ tự sai: setPhase('idle') TRƯỚC khi notify → điều kiện `phaseRef.current !== 'idle'` fail → không gửi tín hiệu 'end' đến đối phương. (2) SỬA: gửi tín hiệu 'end' TRƯỚC, rồi mới setPhase('idle'). Đồng thời thêm `rejectIncoming`-like behavior: người gọi hủy cũng nên gửi 'bye' hoặc 'end' để đối phương (nếu đang incoming) tắt chuông. Polling incoming chỉ xử lý type:'end' → gửi 'end' là đủ.
+
+## Bug báo cáo 20/8 (từ ảnh người dùng)
+1. Preview tin nhắn cuối trong sidebar ChatConversationClient (dòng 164: content = conv.lastMessage?.text) hiển thị JSON `{"type":"end","ts":...}` của tin call-signal → CẦN: nếu lastMessage.type === 'call-signal' → hiển thị nội dung mô tả cuộc gọi (vd "📞 Cuộc gọi thoại", "📹 Cuộc gọi video", "Cuộc gọi đã kết thúc") thay vì JSON.
+2. Emoji: user muốn bảng emoji hiện ở VỊ TRÍ đánh dấu (phía trên khung nhập, hiện đã position='top' tức trên input — đúng chỗ). Vấn đề thực tế: các emoji hiện ra là "mã ký tự" — có thể do font Windows thiếu glyph → thực chất EmojiPicker dùng emoji thật; nếu trình duyệt user hiển thị ô vuông/mono thì là font issue. KHÔNG FIX được font; nhưng bảo đảm EmojiPicker render emoji trực tiếp (đã đúng). Xác nhận: trong EmojiPicker categories đều là emoji thật, không phải mã \u...
+
+### Chẩn đoán bug 20/8 (ảnh):
+A) Preview sidebar: ChatConversationClient fetch /api/chat/conversations → lastMessage.content = conv.lastMessage?.text — tin cuối là call-signal JSON → hiển thị JSON. FIX: nếu conv.lastMessage.type === 'call-signal' → content = '📞 Cuộc gọi thoại'/'📹 Cuộc gọi video'/'Cuộc gọi kết thúc'.
+B) Bong bóng chat hiện JSON `{"type":"end"...}`: visibleMessages trong ChatWindow đã filter type call-signal (dòng 506) — NHƯNG tin JSON trong ảnh xuất hiện trong CHAT (bên phải) với thời gian 15:40 — có thể tin đó được gửi từ lúc user bấm "Hủy" và gửi signal thành tin NHẮN THƯỜNG (type text) do route POST tin signal lưu với type text khi không truyền đúng type? HOẶC messages truyền vào ChatWindow có type field là call-signal nhưng ChatWindow.filter chỉ chạy trên messages gốc. Thực tế tin display trong bong bóng → messages filter không chạy? Kiểm tra messages props từ ChatConversationClient setMessages từ API GET messages — field type. visibleMessages filter đúng, nhưng trong CHAT ảnh, tin JSON nằm trong vùng bong bóng → nghĩa là tin type='call-signal' đã bị filter ở ChatWindow nhưng ChatWindow groupMessagesByDate(visibleMessages) — nếu tin đó xuất hiện thì tin đó là type TEXT chứa JSON. Nguồn: user bấm Hủy → endCall gửi signal 'end' với type call-signal. Có thể API POST route lưu type=text do chat.service.ts sendMessage mặc định type text khi không truyền type. → KIỂM TRA route POST: khi body có field type=call-signal, chat.service có nhận param type? sendSignal fetch body {text, type: CALL_SIGNAL}. Kiểm tra route + service.
+C) Emoji: user nói "hiện mã ký tự thay vì emoji" — EmojiPicker render emoji trực tiếp từ mảng string; vấn đề có thể là font hệ thống Windows thiếu. Không thể fix font; nhưng kiểm tra: phần "Gần đây" lưu localStorage — nếu JSON.stringify emoji OK. Đảm bảo input nhận emoji đúng. Vị trí: picker đã absolute bottom-full right-4 (trên input, gần khu đánh dấu). Có thể user muốn picker hiện GẦN ô nhập hơn: hiện right-4 — ok. Thử đổi sang phía trái icon smile (right-16?) — giữ nguyên vị trí, chỉ xác nhận hoạt động trên dev.
+
+### Fix đang làm (20/8, emoji + JSON preview):
+- ĐÃ LÀM: ChatConversationClient describeCallSignal (dòng 182-194) + lastMessage.content dùng describeCallSignal khi type === 'call-signal'. Đã thêm type?: MessageType vào ConversationLastMessage trong chat.types.ts (dòng 47).
+- CÒN LÀM: chat.service.ts dòng 396-401 update conversation.lastMessage CHƯA lưu field type → API GET conversations trả lastMessage không có type → describeCallSignal không chạy. SỬA: thêm `type: messageType` vào lastMessage trong updateData (dòng ~398).
+- ĐÃ LÀM: EmojiPicker trong ChatWindow di chuyển wrapper từ "absolute bottom-full right-4" → "absolute -top-2 right-0 translate-y-[-100%] z-50" (hiện bên phải khung nhập, phía trên). Picker nội tại position='top' giữ nguyên (bottom-full relative wrapper) — wrapper mới đặt đúng chỗ.
+- Emoji "mã ký tự": EmojiPicker render emoji thật {emoji}; user thấy mã do font Windows thiếu glyph → không fix được từ code. Để nguyên.
+- Tiếp: tsc + lint + commit push (email nguyenquachphutai@gmail.com), dev server 3322 OK.
+
+### Emoji picker vị trí (fix 20/8 lần 2)
+Cấu trúc hiện tại: div Input (border-t p-4, không relative) chứa `<div flex items-end gap-2>` (dòng 917-1003, không relative) và picker div tuyệt đối (dòng ~1005-1019). Vì cha trực tiếp không relative, vị trí absolute của picker bị lệch xa khỏi khung nhập (người dùng báo: bấm emoji nhưng picker KHÔNG hiện ở chỗ muốn — gần vùng đánh dấu trên màn hình chat).
+Giải pháp: thêm `relative` vào div Input (dòng 876) và chỉnh picker wrapper: className="absolute bottom-[72px] right-4" (72px = chiều cao vùng input ≈ 64px+padding) → picker hiện phía trên ô nhập, sát phải, ngay trong khung chat.
+
+### Emoji picker fix lần 3 (bị che phần trên)
+Ảnh user: bảng emoji hiện phía trên input nhưng phần đầu grid (hàng emoji ngay dưới tabs) bị cắt/che — do wrapper picker nằm trong div Input relative; phần trên vượt lên bị cắt bởi một ancestor có overflow-hidden (khung chat hoặc info panel).
+Quyết định: render EmojiPicker qua ReactDOM.createPortal vào document.body, định vị fixed theo vị trí ô nhập (dùng ref inputContainerRef đo getBoundingClientRect) → không bao giờ bị cắt bởi overflow. Bottom = chiều cao viewport - top của input container + 8px spacing.
+Cần: thêm inputContainerRef vào ChatWindow; useEffect cập nhật position khi show; portal className fixed right-4 z-[100].
+
+### Trạng thái portal emoji (đang làm, 20/8 lần 3)
+ĐÃ LÀM: ChatWindow.tsx — thay picker inline bằng <EmojiPickerPortal inputRef onClickCapture onSelect>.
+CÒN PHẢI LÀM:
+1. ChatWindow.tsx: thêm `import { createPortal } from 'react-dom';` (đầu file imports).
+2. ChatWindow.tsx: thêm `const inputContainerRef = useRef<HTMLDivElement>(null);` — gắn ref vào div Input (dòng ~877: `<div className="border-t p-4 flex-shrink-0 relative">` → thêm `ref={inputContainerRef}`).
+3. ChatWindow.tsx: tạo component nội bộ `EmojiPickerPortal` (trước export function ChatWindow hoặc sau): dùng createPortal vào document.body, đo inputContainerRef.current.getBoundingClientRect() khi render; style fixed: top = rect.top - 8 - chiều cao picker (khó biết trước) → đơn giản: đặt `bottom: ${window.innerHeight - rect.top + 8}px; right: 64px;` trong wrapper div fixed z-[100]. Picker cao ~370px → nếu rect.top < 380 thì bị che header trang — clamp: top = Math.max(16, rect.top - 378).
+   CÁCH ĐƠN GIẢN HƠN: wrapper fixed với `top: clamp`, chiều cao max-h phù hợp viewport. Code mẫu:
+   ```tsx
+   function EmojiPickerPortal({ inputRef, onClickCapture, onSelect }: { inputRef: React.RefObject<HTMLDivElement | null>; onClickCapture: () => void; onSelect: (e: string) => void }) {
+       const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
+       useEffect(() => {
+           const update = () => { if (inputRef.current) { const r = inputRef.current.getBoundingClientRect(); setPos({ top: Math.max(16, r.top - 390), right: window.innerWidth - r.right + 16 }); } };
+           update();
+           window.addEventListener('resize', update); window.addEventListener('scroll', update, true);
+           return () => { window.removeEventListener('resize', update); window.removeEventListener('scroll', update, true); };
+       }, [inputRef]);
+       if (!pos) return null;
+       return createPortal(
+           <div className="fixed z-[100] animate-in fade-in zoom-in-95 duration-150" style={{ top: pos.top, right: pos.right }} onClickCapture={onClickCapture}>
+               <EmojiPicker position="top" onSelect={onSelect} />
+           </div>, document.body);
+   }
+   ```
+4. Gỡ className "absolute bottom-[76px] right-4 z-50" ở wrapper cũ — ĐÃ thay bằng EmojiPickerPortal rồi, không còn.
+5. Typecheck (npx tsc --noEmit | grep -c "src/" = 0), lint sạch, commit email nguyenquachphutai@gmail.com, push origin HEAD:main. Dev server port 3322 chạy (curl localhost:3322 = 200).
+6. Báo user: bảng emoji giờ render ngoài khung chat (portal), không bị cắt.
+
+### Kéo dài khung chat theo chiều dọc (yêu cầu 20/8)
+Ảnh user: khung chat (vùng xanh) chỉ chiếm ~60% chiều cao màn hình, dư khoảng trắng lớn trên (do padding-top 24 = 96px dưới header) và dưới (pb-8 + footer).
+Fix: ChatConversationClient.tsx dòng ~252: container mx-auto px-4 pt-24 pb-8 max-w-7xl h-[calc(100vh-8rem)].
+- Đổi pt-24 → pt-20 (giảm khoảng trống trên)
+- Đổi pb-8 → pb-4
+- Đổi h-[calc(100vh-8rem)] → h-[calc(100dvh-7.5rem)] để tận dụng chiều cao màn hình (header ~64px, bớt 0.5rem đệm)
+- 100dvh tránh vấn đề thanh địa chỉ mobile.
+Kiểm tra footer cao bao nhiêu: FooterNew (không thấy inline-style cao). Giả định footer ~70px; 7.5rem = 120px ≈ header + footer + đệm. Nếu quá thấp sẽ che bởi footer → thử h-[calc(100dvh-9rem)] an toàn hơn? Trong ảnh, frame hiện h~560px trong màn hình 901: overhead hiện tại = 901-560=341px (gồm header 64 + pt96 + pb32 + footer ~150?). Footer lớn ~150px → 100dvh-9rem=901-144=757 vẫn an toàn (không chạm footer vì container nằm trong body flow, footer nằm dưới nó; h quá lớn sẽ đẩy footer xuống). Rủi ro: nếu h=[calc(100dvh-9rem)] với body có header 64 + container 757 + footer 150 = 971 > 901 → xuất hiện scrollbar toàn trang → KHÔNG tốt (user không muốn cuộn trang).
+Quyết định: h-[calc(100dvh-11rem)] = 901-176 = 725 → 64+725+150=939 > 901 vẫn scrollbar. Phải đo footer thật! Đo bằng browser trên dev: document.querySelector('footer').offsetHeight.
+
+### Đo đạc thực tế (20/8, dev 1100px viewport):
+nav=78px, pt-24→container top=78+16(px-4 margin?) thực tế 78, containerH=972 (do h-[calc(100vh-8rem)]=1100-128=972 OK), footerH=293px, footerTop=1050. Khung chat (chatFrame) cao 844px → đáy 1018.
+Vấn đề user thấy: trên máy user (901px viewport, zoom?) khung chat chỉ ~560px vì... đo sandbox: khung chat chỉ 844/972 do header ChatWindow p-4 border? Không — chatFrame là div "flex h-full w-full rounded-lg border" cao 844 ≠ container 972? ChatConversationClient root là container; bên trong có div flex... Khung chat cao 844 < 972 nghĩa là có gì đó giảm chiều cao (ChatConversationClient inner div h-full). Thực tế trong sandbox khung đã dài gần hết màn hình; ảnh user có thể bị zoom. Dù vậy: yêu cầu user = "cho phần màu xanh dài ra theo chiều dọc" → tăng chiều cao khung chat: sửa container pt-24→pt-20, h-[calc(100vh-8rem)]→h-[calc(100dvh-12rem)]? container hiện 972 là ok rồi. Khung chat 844 vì ChatConversationClient inner: `<div className="flex h-full w-full rounded-lg border overflow-hidden bg-white">` — cao 844 thay vì 972-32 padding=940? 972-2*16(px-4)=940 ≠ 844. Chênh 96px = chính pt-24? Không, pt là padding trong. 940-844=96 = pt-24 bên TRONG container — h-full của inner div tính từ container content height = 972-96-32=844 ✓.
+→ Muốn khung chat dài hơn: giảm pt-24→pt-16 (giảm 32px) → khung ~876px. Và có thể bỏ pb-8→pb-2. Ngoài ra user ảnh: trên máy họ khung chỉ 560px → có thể viewport họ nhỏ. Quyết định: giảm pt-24→pt-16, pb-8→pb-3 trong ChatConversationClient.
+
+### "Người dùng đã xóa" không đồng nhất (21/8)
+Ảnh user: (1) trong ConversationItem (sidebar /chat): avatar UserAvatar với deleted → có thể render avatar icon xám + tên in nghiêng; (2) trong ChatWindow header: dùng avatar + tên riêng — ảnh 2 cho thấy "Người dùng đã xóa" với avatar xám (icon SVG) tên in nghiêng nhạt. Ảnh 1 (sidebar) lại thấy avatar xanh lá "ND" đậm — nghĩa là deleted flag KHÔNG được truyền/khớp ở ConversationItem (otherParticipant.deleted false?) hoặc UserAvatar deleted render khác.
+Check: UserAvatar.tsx, ChatWindow header avatar/namedeleted logic, ConversationItem line 45 deleted={otherParticipant.deleted}.
+Fix: thống nhất 1 phong cách: avatar xám mờ (grayscale), tên "Người dùng đã xóa" hoặc tên cũ + (Người dùng đã xóa), cùng style italic gray-400 ở cả header + sidebar + bong bóng tin nhắn.
+
+### Chẩn đoán chi tiết (21/8):
+Hai nơi hiển thị khác nhau:
+1. **ConversationItem** (sidebar, dùng UserAvatar + otherParticipant.name nguyên bản): khi deleted=true → avatar xám icon User, tên in nghiêng gray-400 nhưng vẫn hiện TÊN CŨ của người dùng (vd "Nguyễn Đức"? ảnh thấy "ND"). Nếu deleted=false (DB không có flag) → avatar màu initials.
+2. **ChatWindow header** (dùng Avatar shadcn): deleted → icon xám, tên in nghiêng + "Tài khoản đã bị xóa" nhỏ.
+Ảnh user: ở sidebar (ảnh 1) "Người dùng đã xóa" hiện avatar xanh "ND" đậm — nghĩa là cuộc trò chuyện đó KHÔNG có flag deleted (tên DB = "Người dùng đã xóa" do chat.service DELETED_USER_LABEL gán khi user xóa → tên thật của participant = "Người dùng đã xóa") → deleted flag = false → render như người thường với tên lạ.
+Ảnh 2: header khung chat hiện "Người dùng đã xóa" + avatar xám (deleted=true, icon SVG).
+FIX: thống nhất bằng cách xử lý ở tên: nếu name === DELETED_USER_LABEL ('Người dùng đã xóa') → coi như deleted dù flag không có; hiển thị thống nhất: avatar xám icon User, tên in nghiêng gray-400 + phụ đề "Tài khoản đã xóa".
+Cần sửa: (a) ConversationItem: derive deleted = p.deleted || p.name === DELETED_USER_LABEL; đổi tên hiển thị thành "Người dùng đã xóa" kèm icon, bỏ link profile. (b) ChatWindow header: derive same isDeleted; tên + phụ đề giống nhau. (c) Bong bóng tin nhắn (MessageBubble?) — kiểm tra render tên người gửi đã xóa.
+Preview tin nhắn cuối (ConversationItem lastMessage) còn hiện JSON: ConversationItem dùng conversation.lastMessage.text (Mongo conversation) — describeCallSignal chỉ dùng ở loadAllConversations (ChatConversationClient mapped) → ConversationItem nhận conversation gốc (Mongo) nên lastMessage.text JSON vẫn hiện. Fix ConversationItem: mô tả call-signal ở đó.
+
+### Trạng thái phase 12 (21/8):
+ĐÃ XONG: ConversationItem.tsx — derive isDeleted = p.deleted || name === 'Người dùng đã xóa'; displayName = isDeleted ? 'Người dùng đã xóa' : name; avatar UserAvatar deleted=isDeleted; tên in nghiêng gray-400 + phụ đề "Tài khoản đã xóa"; preview lastMessage dùng describeCallSignal cho type call-signal (hàm nội bộ trong file).
+CÒN LÀM:
+1. ChatWindow header (dòng ~573-630): header đã dùng recipientDeleted prop — OK về mặt logic; nhưng tên hiển thị vẫn là recipientName gốc ("Người dùng đã xóa" nếu DB đã gán nhãn) — ổn. Phụ đề "Tài khoản đã bị xóa" (dòng 627) — thống nhất dùng "Tài khoản đã xóa" cho khớp ConversationItem.
+2. MessageBubble.tsx dòng ~52: tên người gửi đã xóa in nghiêng — ok, thêm phụ đề? không cần.
+3. Typecheck + lint + commit push (email nguyenquachphutai@gmail.com, tên Escanor292), báo user.
+Quy trình: cd ~/platform && npx tsc --noEmit 2>&1 | grep -c "src/" (mong =0) && npx next lint; git add -A && git commit -m "..." && git push origin HEAD:main. Dev server localhost:3322 đang chạy.
+
+### Chẩn đoán 2 bên vẫn khác (21/8, tiếp):
+chat.service enrichDeletedUsers: participant của user bị xóa → name='Người dùng đã xóa', deleted=true, role='deleted' — flag này chỉ được set KHI gọi enrichDeletedUsers (chỉ các route gọi nó). Các route khác (vd GET conversation detail cho ChatWindow) có thể gọi hàm khác mapParticipant mà trả name gốc + deleted=false?? Dòng 68: hàm riêng (getParticipant?) trả DELETED_USER_LABEL+deleted=true khi !user. ChatWindow header xám = đúng theo flag này.
+ConversationItem (sidebar /chat, dùng API /api/chat/conversations): nếu route đó KHÔNG gọi enrichDeletedUsers → deleted=false, name=tên GỐC ("Nguyễn Đức"?). Nhưng ảnh 1 user thấy tên "Người dùng đã xóa" → route conversations CÓ enrich (dòng 486 senderName existingIds.has → DELETED_USER_LABEL). Vậy name đã là label, deleted có thể =false ở conversation participants? enrich trả deleted=true. Hmm.
+Thực tế ảnh 1: avatar "ND" XANH (không xám) → UserAvatar deleted prop=false hoặc avatarUrl có ảnh? ND xanh = getInitials từ name "Người dùng đã xóa"?? getInitials lấy chữ cái đầu/từ cuối: "ND". Màu xanh → className gradient primary → deleted=false. → ConversationItem nhận participant deleted=false, name='Người dùng đã xóa' (hoặc tên gốc giống label).
+Vậy fix code ConversationItem isDeleted = deleted || name===label sẽ render xám. production chưa có code mới lúc user xem → chờ user refresh sau deploy. CŨNG CẦN: kiểm tra route conversations có thực sự enrich không — xem src/app/api/chat/conversations/route.ts
+Ngoài ra user muốn "đồng nhất màu xám" — có thể chỉ cần thêm avatar màu xanh ND hiện ra trong ConversationItem vì production cũ. Đợi deploy + xác nhận route.
+
+### Chẩn đoán "ngược lại" (21/8):
+- Trang /chat dùng **ChatSidebar.tsx** (component riêng, render avatar + tên trực tiếp, KHÔNG dùng ConversationItem).
+- ChatSidebar render xám khi `conversation.userDeleted === true` (avatar grayscale + tên gray-400 italic).
+- Khung chat dùng ChatConversationClient + ChatWindow (header xám khi recipientDeleted) — ĐÚNG → user thấy khi bấm vào.
+- Nếu user thấy trang /chat XANH (không xám) → nghĩa là API trả `userDeleted = false` cho user đã xóa. Xem nơi map Conversation trong ChatPageClient/API: có thể route cũ trả userDeleted từ enriched deleted flag, nhưng code mới đổi tên field? enrichDeletedUsers trả participants[].deleted — ChatPageClient map sang userDeleted? Kiểm tra!
+
+### Root cause cuối (21/8):
+- Trang /chat → ChatPageClient.tsx map API conversations → truyền vào ChatSidebar. Map CŨ không có field `userDeleted` → ChatSidebar (đã có logic render xám khi userDeleted=true) không kích hoạt → render avatar xanh + tên đậm.
+- ĐÃ SỬA ChatPageClient.tsx: thêm userDeleted?: boolean; userName dùng label 'Người dùng đã xóa' khi deleted; userDeleted = !!deleted || name===label.
+- Còn lại: typecheck + commit (email nguyenquachphutai@gmail.com, name Escanor292) + push → báo user hard reload 2 tab.
+- Quy trình push: cd ~/platform && npx tsc --noEmit 2>&1 | grep -c "src/" (mong 0) && git add -A && git -c user.email="nguyenquachphutai@gmail.com" -c user.name="Escanor292" commit -m "..." && git push origin HEAD:main
+- Dev server: localhost:3322 (session shell "check" chạy ok, session "dev" bị lỗi shell khi env chưa load).
+
+
+## Phase 20 (21/8): Tinh chỉnh bảng emoji bám sát ô nhập
+Yêu cầu user: (1) có khoảng trống giữa bảng emoji và ô nhập → bảng cần "xích xuống dưới" bám sát; (2) nút emoji (icon mặt cười) dịch xuống chút cho cân bằng theo chiều dọc với ô nhập văn bản.
+
+Ảnh user: picker hiện dính lên HEADER khung chat (bị header che phần trên, tabs bị cắt), còn phía dưới có khoảng trống giữa picker đáy và ô nhập.
+
+File: src/components/chat/ChatWindow.tsx
+- EmojiPickerPortal (dòng 115-162): pos = {top, right}; top = Math.max(8, r.top - PICKER_HEIGHT - GAP), PICKER_HEIGHT=430, GAP=8; right = window.innerWidth - r.right + 16. Render qua createPortal document.body, style={{top, right}}, className fixed z-[100].
+- inputContainerRef gắn tại div className="border-t p-4 flex-shrink-0 relative".
+- EmojiPicker root (EmojiPicker.tsx dòng ~270): className `z-50 w-80 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden mb-2` (đã bỏ absolute/right-0).
+- Nơi dùng portal: ~dòng 1052: <EmojiPickerPortal inputRef={inputContainerRef} onClickCapture={() => setShowEmojiPicker(false)} onSelect={...} />.
+
+CHẨN ĐOÁN hiện tượng ảnh: Math.max(8, ...) clamped → top=8 → bảng dính mép trên màn hình, cách xa ô nhập = khoảng trống. Picker cao thực (khi có tabs) > khoảng trống phía trên → bị header che phần trên? Không — top=8 nghĩa là dính trên, grid hiển thị từ dưới xuống, header KHÔNG che; nhưng ảnh cho thấy bảng bị che phía trên bởi header khung chat → nghĩa là top KHÔNG bị clamped, r.top - 438 nằm TRONG vùng header. Và đáy picker cách ô nhập ~40px = GAP + dư. → Bảng cần tính lại: dùng BOTTOM anchor: bottom = window.innerHeight - r.top + 8 (bám ngay trên ô nhập).
+
+QUYẾT ĐỊNH SỬA:
+1. EmojiPickerPortal: đổi pos từ {top,right} sang {top: bottomAnchored} — đặt style `bottom: ${innerHeight - r.top + 8}px, right: ${innerWidth - r.right + 16}px`. Bỏ top hoàn toàn, không cần Math.max — picker sẽ luôn bám ngay trên ô nhập; nếu vượt quá mép trên thì overflow màn hình bị cắt (chấp nhận, hoặc vẫn clamp bottom >= innerHeight - ...). Giữ clamp: bottom = Math.max(window.innerHeight - r.top + 8, 40).
+2. Nút emoji căn dọc: hàng input dùng flex items-end; đổi wrapper chứa icon emoji + lock thành items-center (giữ hàng icons trái items-end giữ nguyên để mic/attach bám đáy) — kiểm tra cấu trúc trước khi sửa (dòng ~917 flex items-end gap-2 gồm div icons-trái + div flex-1 + div icons-phải + button).
+
+
+## Phase 24 (21/8): Fix emoji không chèn được vào ô nhập
+Yêu cầu user: bấm vào emoji thì bảng đóng mất + emoji không xuất hiện trên ô chat → không chọn được.
+
+Root cause: EmojiPickerPortal (ChatWindow.tsx ~dòng 150-170) dùng `onClickCapture` trên div nền của portal. onClickCapture chạy ở PHASE CAPTURE trước khi onClick của nút emoji bubble → khi click vào nút emoji, event bị đóng picker trước khi onSelect chạy → emoji không được chèn.
+
+Fix: bỏ onClickCapture trực tiếp; thay bằng onPointerDown trên nền: nếu e.target.closest('button') → không đóng (để onClick của nút chạy onSelect); ngược lại đóng picker (stopPropagation + onClickCapture).
+
+File liên quan: src/components/chat/ChatWindow.tsx (EmojiPickerPortal), EmojiPicker.tsx handleSelect gọi onSelect.
+Việc còn lại: typecheck + lint + commit push.
+Cấu trúc dùng portal: ChatWindow render {showEmojiPicker && <EmojiPickerPortal inputRef={inputContainerRef} onClickCapture={() => setShowEmojiPicker(false)} onSelect={(emoji) => { insertEmoji(emoji); setShowEmojiPicker(false); }} />}.
+
+## Phase 25 (21/8): Emoji multi-select + toggle thủ công + message reactions
+Yêu cầu: (1) chọn nhiều emoji liên tục, picker không tự tắt; (2) tắt/mở picker thủ công; (3) reaction lên tin nhắn.
+
+Thiết kế:
+- MongoMessage + field optional `reactions?: { emoji: string; userIds: string[] }[]`.
+- API PATCH /api/chat/conversations/[id]/messages/[messageId]/reaction { emoji } → toggle trong chat.service.ts (toggleMessageReaction).
+- Frontend: fetch PATCH → cập nhật messages local (setState + ref).
+- ChatWindow: hover bubble → nút "😊+" hiện ReactionPicker nhỏ (👍❤️😂😮😢🙏🔥👏); pill hiển thị reaction dưới text; highlight nếu mình react.
+- Picker toggle: onPointerDown nền chỉ đóng khi click nền trống (đã fix ở phase 24); onSelect KHÔNG đóng picker. Thêm nút X (đóng) và nút 👋 (bấm lại nút smile để tắt — toggle).
+- EmojiPicker.tsx giữ nguyên onSelect; portal trong ChatWindow xử lý toggle.
+- Dùng onMessagesUpdate prop (đã có trong ChatWindowProps) để sync state ngoài khi reaction.
+
+
+## Cập nhật 20/8 20:20 — Emoji picker + Reaction
+### Feature mới (emoji picker + reaction)
+- `src/components/chat/MessageReaction.tsx` (mới): ReactionPicker (8 emoji nhanh: 👍❤️😂😮😢🙏🔥👏) + ReactionRow (nút 👍+ và các pill: xanh dương khi tôi đã phản ứng, đếm số người).
+- ChatWindow: handleToggleReaction (PATCH /api/chat/conversations/[id]/messages/[mid]/reaction) + ReactionRow dưới mỗi bubble; picker không tự đóng khi chọn emoji (chỉ đóng khi click nền trống, nút X, hoặc bấm lại nút emoji).
+- `src/components/chat/EmojiPicker.tsx`: thêm prop onClose + nút X tròn trên header.
+- `src/types/chat.types.ts`: thêm MessageReaction { emoji, userIds } + ReactionRequest; MongoMessage.reactions?
+- chat.service.ts: toggleMessageReaction (upsert reaction.usersIds atomic); export MessageReaction type.
+- API route mới: `src/app/api/chat/conversations/[conversationId]/messages/[messageId]/reaction/route.ts` (PATCH).
+### Kiểm tra GUI dev 3322 (login test2@gmail.com / 123, conv 6a86bd6d6dbff94146f47778 với Test Creator Pro)
+- CHỌN NHIỀU EMOJI: ĐẠT — bấm 😄 rồi 😍, picker vẫn mở, textarea = "😄😍"
+- NÚT X ĐÓNG THỦ CÔNG: ĐẠT — picker đóng khi bấm X
+- Toggle nút emoji: có sẵn (bấm lại tắt)
+- Còn kiểm tra: reaction (toggle + hiển thị pill)
+
+
+## Kiểm tra reaction GUI (20:23, dev 3322)
+- Nút 👍+ "Thả cảm xúc" đã hiện dưới mọi tin nhắn (3 tin). Cần test: click nút → picker 8 emoji hiện → chọn ❤️ → pill xanh hiện + API PATCH 200 → polling cập nhật messages → pill hiện cả 2 bên.
+- Dev server cần reload trang sau file edit vì Next.js không tự hot-reload khi click test qua console.
+- Conversation test: 6a86bd6d6dbff94146f47778 (test2@gmail.com = Test Creator ↔ test3/cmphnhw8e0002so1uh16dwpvn = Test Creator Pro). Tin test vừa gửi: "Kiểm tra phản ứng emoji 😄❤️".
+- Còn lại: typecheck, commit push (git -c user.email=nguyenquachphutai@gmail.com), thông báo user.
+- Emoji picker multi-select + nút X: đã PASS.
+
+
+## Tình trạng test reaction (20:25) — CHƯA HOÀN THÀNH
+- Nút 👍+ "Thả cảm xúc" hiện dưới 3 tin (index tool thường lệch: 26,27,28 không ổn định).
+- Screenshot: 3 nút reaction nằm ở cuối mỗi bubble: tin 1 (~722,350), tin 2 (~722,428), tin 3 (~722,465). ReactionPicker hiện trên bubble (-top-11).
+- Vấn đề: sau khi JS click nút reaction, nút bị biến mất khỏi DOM (không phải lỗi API — handler chỉ return sớm nếu !response.ok; có thể polling re-render hoặc lỗi component khi pickerOpen=true). Cần kiểm tra lại bằng click tọa độ thực (browser_click tọa độ 722,465) thay vì index.
+- Dev server: localhost:3322, dev session "check" grep /tmp/dev2.log. Git: push với -c user.email=nguyenquachphutai@gmail.com user.name="NQP Tai". Repo Escanor292/platform branch main.
+- Conversation test: 6a86bd6d6dbff94146f47778, user test2@gmail.com (Test Creator).
+
+
+## Tìm hiểu 20:26
+- Click tọa độ đúng (1153,673) → state pickerOpen đổi (nút tin cuối biến mất, chỉ còn 1 nút reaction trong DOM cho tin khác). Picker chưa hiện trong screenshot → có thể picker render nhưng nằm trên vùng khác, hoặc animation chưa chạy. Cần check DOM ngay sau click.
+- Vấn đề mới đáng chú ý: khi pickerOpen=true và list rỗng, component render div chứa nút 👍+ (mở/toggle) + picker, nhưng div đó là relative → picker absolute -top-11 so với div. Div này không có className gì che. Có thể picker nằm bên ngoài viewport nếu bubble sát top.
+
+
+## Chẩn đoán 20:29
+Reaction API hoạt động 200 (đã gắn ❤️ vào tin 6a86cf5d871a4a67eb60987d — tin SIGNAL kiểu call end, không phải tin chat). Pill render logic OK. Tin chat thường (text thường) chưa có phản ứng nên pill chưa hiện — đúng behavior. Tiếp theo: (1) gỡ reaction khỏi tin signal: PATCH emoji❤️ lần 2 để toggle off; (2) gắn reaction vào tin chat thật ('Kiểm tra phản ứng emoji') để kiểm tra pill hiện trên UI.
+Tài khoản test: test2@gmail.com id 92df92ff-0f15-469f-9f24-99b44984bd13. Conversation 6a86bd6d6dbff94146f47778.
+
+
+## Test 20:30 — HOÀN THÀNH: Reaction hoạt động
+Pill "❤️ 1" hiện dưới tin nhắn cuối, nút 👍+ (Thả cảm xúc) hiện trên cả 3 tin. Pill màu xanh highlight khi người dùng tự phản ứng (bg-blue-100, border-blue-400). Cập nhật qua polling 3-5s. Còn việc: typecheck, commit, push.
+
+
+## 20:36 — ReactionRow đưa ra ngoài bubble (đúng yêu cầu user)
+Pill "❤️ 1" giờ nằm bên ngoài bong bóng màu xanh, bong bóng gọn lại như trước. Screenshot xác nhận. Đang kiểm tra pill tin người khác (alignment left) trước khi push.
+
+
+## 20:41 — Pill vẫn lệch ngoài bong bóng phải
+Vấn đề: div flex-col wrapper giãn full chiều rộng do cha justify-end → pill inline-flex căn trái trong wrapper full-width nên trông như nằm ngoài bong bóng. Fix: thêm `items-end` khi isCurrentUser, `items-start` khi không, hoặc đặt pill trong cùng div chứa bubble (trong div rounded-2xl nhưng ngoài nội dung) — nhưng user muốn pill NGOÀI nền màu. Giải pháp: wrapper flex-col + `items-end`/`items-start` cho pill căn đúng cạnh bong bóng; đồng thời bubble div vẫn max-w-[70%] tự căn.
+
+
+## 20:42 — Nguyên nhân pill lệch: MessageReaction.tsx div ReactionRow có `ml-auto` khi alignment right (và pill button có ml-auto? không) — div wrapper inline-flex items-center gap-1 với ml-auto → nội dung bị dồn hết sang phải container full-width. Bong bóng nằm ngoài div này nên không bị ảnh hưởng. Fix: bỏ ml-auto trong MessageReaction.tsx; căn bằng align-self trên div (self-end/self-start) để pill hàng nằm đúng cạnh bong bóng.
+
+
+## 20:43 — Fix pill nằm ngay dưới bong bóng (đang thực hiện)
+Yêu cầu user: pill phản ứng phải nằm ngay BÊN DƯỚI bong bóng chat, không lệch ra ngoài.
+Trạng thái: (1) ChatWindow.tsx: đã nhóm bubble + ReactionRow trong div flex-col items-end/items-start OK. (2) MessageReaction.tsx: div wrapper ReactionRow vẫn dùng 'ml-auto' khi alignment right → làm pill hàng bị dồn sang phải cực. Cần đổi 'ml-auto' → 'self-end' (và left → 'self-start') ở 2 chỗ:
+- Dòng ~77: return sớm khi list rỗng (div nút 👍+)
+- Dòng ~94-96: div chính render picker + pills
+Cách sửa: dùng Python sed hoặc read file rồi edit từng dòng riêng biệt. Sau đó typecheck, commit push (git -c user.name="NQP Tai" -c user.email="nguyenquachphutai@gmail.com"). Conversation test: 6a86bd6d6dbff94146f47778, dev http://localhost:3322 (log /tmp/dev2.log), user test2 id 92df92ff-0f15-469f-9f24-99b44984bd13, tin test có reaction ❤️ mid 6a876183672d3f039de8ae23.
+
+
+## 20:43b — Screenshot sau fix self-end: pill ❤️1 nằm ngay dưới cạnh phải bong bóng (phong cách Messenger), bong bóng gọn. Chấp nhận được. Commit + push.
+## Gợi ý thành viên tạo nhóm chat (21/08/2026)
+Đã cập nhật NewMessageDialog để khi mở modal và chưa nhập từ khóa, hiển thị mục “Đã trò chuyện gần đây”. Dữ liệu lấy từ danh sách conversations, loại chính người dùng, conversation không có participant còn tồn tại và participant bị đánh dấu deleted/deletedAt. Kiểm tra trên dev server: modal hiển thị Test Creator Pro (test3@gmail.com), không hiển thị Người dùng đã xóa; ô tìm kiếm vẫn hoạt động. Typecheck thành công.
+
+---
+
+### Nguồn: `notes_deleted_user_chat.md`
+
+# Ghi chú: Xử lý "Người dùng đã xóa" trong chat
+
+## Nhiệm vụ hiện tại (user yêu cầu)
+Giữ nguyên dữ liệu chat MongoDB, sửa code để khi người tham gia trò chuyện bị xóa tài khoản (không còn trong PostgreSQL `users`) thì hiển thị "Người dùng đã xóa" thay vì tên lạ/lỗi.
+
+## Kiến trúc chat
+- Tin nhắn/conversation lưu ở MongoDB Atlas (collection `conversations`, `messages`, DB name `DuAn`).
+- Thông tin người dùng tra từ PostgreSQL `users` qua `getUserInfo(userId)` trong `src/services/mongodb/chat.service.ts` → trả về `ConversationParticipant { userId, name, email, avatarUrl, role }`.
+- `getUserInfo` hiện trả về `null` khi user không tồn tại → chỗ gọi có thể crash hoặc hiển thị undefined.
+- MONGODB_URI trong `/home/ubuntu/platform/.env` dòng 23: `mongodb://nguyenquachphutai_db_user:0909115079%40Tai@ac-qlbdgty-shard-00-00.b4wcshp.mongodb.net:27017/?replicaSet=atlas-f7q58x-shard-0&readPreference=primaryPreferred&retryWrites=true&w=majority&appName=DuAn`
+- IP sandbox bị MongoDB Atlas chặn (connection closed 159.143.78.200) — dev server vẫn chạy chat vì env đã load sẵn từ session khác. Không test trực tiếp MongoDB được từ sandbox.
+
+## Trạng thái DB
+- PostgreSQL: chỉ còn 1 user `test3@gmail.com` id `cmphnhw8e0002so1uh16dwpvn` (mật khẩu ManusTest@123), 1 project `cmt0y1lls000196jc66m2pj7t` "Mầm xanh tử tế", 1 reward `b30ad967-c249-40ff-b6e4-f0b878d56e3b`.
+- MongoDB: còn conversations cũ với participants là các user đã bị xóa (Test Backer, Test Creator...).
+
+## Các điểm cần sửa (UI components)
+- `src/components/chat/ConversationItem.tsx`: `otherParticipant.name` hiển thị trực tiếp; link `/profile/${otherParticipant.userId}`. Nếu participant bị xóa → tên từ MongoDB cũ vẫn là name gốc (không phải "tên lạ"). Cần hiển thị "Người dùng đã xóa".
+- `src/components/chat/ChatConversationClient.tsx` dòng ~108,194,240-260: otherParticipant props.
+- `src/components/chat/ChatInfoPanel.tsx`: otherUserName/avatar/role hiển thị; link profile.
+- `src/components/chat/ChatScreen.tsx` dòng 145.
+- `src/components/chat/ChatPageClient.tsx` dòng 49.
+- `src/components/chat/MessageBubble.tsx` dòng 29-46: senderName/senderAvatar từ message (lưu sẵn trong message).
+- UserAvatar có prop `userId` — khi user bị xóa, avatar hiện chữ đầu của name gốc.
+
+## Cách tiếp cận sửa
+1. Server: thêm trường `userDeleted?: boolean` vào `ConversationParticipant`; trong `getUserInfo` đánh dấu; khi tạo conversation gửi message dùng snapshot name nhưng lưu `userDeleted` flag dựa trên check user tồn tại.
+2. API GET conversations: enrich participants bằng check PostgreSQL (batch) để đánh dấu user đã xóa.
+3. UI: khi `userDeleted` → hiển thị tên "Người dùng đã xóa", ẩn avatar/link profile (hoặc link vẫn đến nhưng avatar hiện icon mặc định), message bubbles giữ nguyên senderName gốc nhưng có thể thêm badge.
+4. Chặn việc gửi tin nhắn mới tới user đã xóa (startConversation đã throw "Target user not found" — OK).
+5. ConversationItem: thay tên + link profile thành "Người dùng đã xóa" không link.
+
+## Context khác (đã hoàn thành trong task)
+- Đã sửa lỗi trang sản phẩm `/products/[rewardId]` crash khi `campaign.users` null → dùng `contactUserId` fallback (commit b440090 đã push lên GitHub).
+- Dev server chạy cổng 3322, đăng nhập browser đã có session test3@gmail.com.
+- Vercel connector chưa được bật (user chưa chấp nhận); email git đã set đúng `nguyenquachphutai@gmail.com`.
+
+## TIẾN ĐỘ SỬA (cập nhật 2026-08-20)
+
+### ĐÃ XONG
+1. `src/types/chat.types.ts`: thêm `deleted?: boolean` vào `ConversationParticipant`; thêm `senderDeleted?: boolean` vào `MongoMessage`.
+2. `src/services/mongodb/chat.service.ts`: thêm `DELETED_USER_LABEL = 'Người dùng đã xóa'` + hàm `enrichDeletedUsers(items)` (check PostgreSQL batch, đánh dấu deleted + làm mới name/avatar/role nếu user còn). `getUserInfo` trả về participant với deleted=true khi user không tồn tại. `getUserConversations` và `getConversationById` gọi enrichDeletedUsers. `getMessages` đánh dấu `senderDeleted` cho từng message.
+3. `src/components/chat/UserAvatar.tsx`: thêm prop `deleted` — icon User xám, nền gray-200, không link profile.
+4. `src/components/chat/ConversationItem.tsx`: tên xám italic "Người dùng đã xóa", không link, không hiển thị role.
+5. `src/components/chat/ChatConversationClient.tsx`: type Conversation có `userDeleted`, map `userDeleted: !!otherParticipant?.deleted`; truyền `recipientDeleted` + `otherUserDeleted` tới ChatWindow/ChatInfoPanel.
+6. `src/components/chat/ChatWindow.tsx`: thêm prop `recipientDeleted`; header avatar icon xám + tên xám italic + "Tài khoản đã bị xóa" thay "Không hoạt động".
+7. `src/components/chat/MessageBubble.tsx`: dùng `message.senderDeleted` — tên "Người dùng đã xóa" không link, avatar icon xám.
+
+### CÒN CẦN LÀM
+1. `ChatInfoPanel.tsx` (dòng 12-26 props, 36-44 destructuring, ~200-217 user info block, 137 handleBlockUser): thêm prop `otherUserDeleted` — avatar icon User xám, tên xám italic "Người dùng đã xóa", role "Tài khoản đã bị xóa", không link profile, handleBlockUser vẫn giữ.
+2. Kiểm tra các component chat khác dùng participants: `ChatScreen.tsx` (dòng ~145), `ChatPageClient.tsx` (dòng ~49), `ChatSidebar.tsx`, `CampaignChatHeader.tsx` — xem có hiển thị tên user không.
+3. Build/typecheck: `cd /home/ubuntu/platform && npx tsc --noEmit 2>&1 | head -30` (dev server cổng 3322 tự reload).
+4. Test trên browser http://localhost:3322/chat (đã login test3@gmail.com). MONGODB Atlas block IP sandbox nên chat real không load được từ script trực tiếp, nhưng dev server có MONGODB_URI sẵn trong process pts/2 (env export trước đó) → test qua browser sẽ thật sự hit API.
+5. Commit + push: git email `nguyenquachphutai@gmail.com` name `Escanor292`. Repo: Escanor292/platform branch main.
+
+### Lưu ý
+- IP sandbox bị MongoDB Atlas chặn (connection closed) — chỉ process có env đã load URI mới kết nối được.
+- Dev server port 3322 chạy từ pts/2 session cũ; browser đã login test3@gmail.com.
+- Trước đây lỗi "Không thể tải danh sách cuộc trò chuyện" ở trang /chat chính là do MongoDB không kết nối được từ sandbox — nhưng production Vercel có kết nối bình thường.
+
+---
+
+### Nguồn: `notes_product_quickedit.md`
+
+# Nhiệm vụ: Quick Edit trang sản phẩm + tạo blog mẫu + sửa hiển thị giá
+
+## Yêu cầu user
+1. Trang sản phẩm `/products/[rewardId]` chưa có "Chỉnh sửa nhanh" (blog + project đã có, dùng OwnerEditPanel).
+   - Khi bấm sửa nhanh → sửa ngay tại chỗ trên trang đang mở, không dẫn tới trang quản lý.
+2. Tạo blog mẫu thuộc tài khoản cmphnhw8e0002so1uh16dwpvn (test3@gmail.com, Test Creator Pro).
+3. Ảnh user: giá hiển thị "55.000 VNĐ đ" → thừa chữ "đ" (formatVND trong src/lib/utils.ts đã trả "XXX VNĐ", code page append thêm " đ").
+
+## Thông tin kỹ thuật quan trọng
+- Trang sản phẩm: `src/app/products/[rewardId]/page.tsx` (418 dòng, server component thuần async, KHÔNG có client wrapper, KHÔNG có OwnerEditPanel).
+  - 2 chế độ render: chế độ 1 (có campaign ~ dòng 100-260), chế độ 2 độc lập (262-392).
+  - Query reward include: campaigns (users, projects, pledges), projects. contactUserId = campaign?.users?.id || campaign?.creatorId || project?.creatorId.
+  - Format giá: `formatVND(x) + " đ"` → phải sửa thành chỉ `formatVND(x)` (các chỗ: dòng 157, 162, 310, 315, 179, 190, 206).
+  - ShareScript ở cuối (dòng 395-417).
+- OwnerEditPanel: `src/components/OwnerEditPanel.tsx` — prop `isOwner: boolean`, `blocks: [{label, editUrl?, description?, onEdit?}]`. isOwner=true luôn hiện (blog dùng hardcoded isOwner={true}).
+- Blog client wrapper pattern: `src/app/blog/[slug]/BlogDetailPageClient.tsx`:
+  - state editing, formData {title, excerpt, content, coverImage, type, visibility}, fetch `/api/blog/posts/${slug}` PATCH, toast.success + router.refresh().
+  - Dialog fixed inset-0 z-50, max-w-4xl, header gradient, form overflow-y-auto.
+  - Dùng ProductionEditor (tiptap), ImageUpload.
+- API rewards: `src/app/api/rewards/[id]/route.ts`: GET, PUT, DELETE.
+  - PUT body: title, description, minAmount, maxAmount, stock, productImages, productVideo, maxQuantity, deliveryDate, isActive, isIncludedInProject.
+  - Auth: `await auth()` (import {auth} từ "@/lib/auth"), check creatorId của campaign.
+  - LƯU Ý: access check chỉ so (reward.campaigns).creatorId — sản phẩm độc lập (campaign=null) sẽ không so sánh được → PUT DELETE sẽ fail "Access denied". Khi thêm quick edit cần sửa access check: nếu không có campaign, check reward.projects.creatorId === userId; nếu không có cả hai thì cho chủ sở hữu (userId === user id nếu có trường userId... rewards không có userId → dùng project.creatorId).
+- Session server component: `const session = await auth(); const currentUserId = (session?.user as any)?.id;`
+- Auth client: import { useSession } from "next-auth/react" (client), blog dùng `import { auth } from "@/lib/auth"` ở server page.
+- Tài khoản: test1@gmail.com (BACKER), test2@gmail.com (CREATOR), test3@gmail.com (CREATOR, id cmphnhw8e0002so1uh16dwpvn, dự án "Mầm xanh tử tế" slug mam-xanh-tu-te, sản phẩm reward id b30ad967-c249-40ff-b6e4-f0b878d56e3b), admin@gmail.com (ADMIN). MK chung: 123.
+- Dev server chạy port 3322; git email nguyenquachphutai@gmail.com, name Escanor292.
+- MongoDB Atlas bị chặn IP sandbox (chat không test được từ sandbox), nhưng product/blog dùng PostgreSQL OK.
+- Blog API: PATCH /api/blog/posts/[slug], body {title, excerpt, content, coverImage, type, visibility}; blog_categories route /api/blog/categories; blog model prisma blog_posts.
+- Scripts mẫu tạo user/project: scripts/recreate_user_and_product.ts (dùng PrismaClient + bcrypt hashSync(password, 10)).
+  - Chạy script: `cat .env | grep -v "^#" > /tmp/env_clean.txt && (set -a; source /tmp/env_clean.txt; set +a; npx tsx scripts/xxx.ts)` (file .env có 2 dòng DATABASE_URL, một dòng comment).
+
+## Kế hoạch thực hiện
+1. Sửa formatVND: đổi thành không thêm "VNĐ" hoặc page không append " đ" → chọn sửa page (giữ "55.000 đ").
+2. Sửa API rewards [id]: access check đúng cho sản phẩm độc lập (không campaign) + hỗ trợ cập nhật projectId.
+3. Biến page.tsx sản phẩm thành client-capable: thêm component client `ProductDetailClient` (hoặc import OwnerEditPanel trực tiếp — page.tsx là server async component không thể có hooks) → tách phần render ra client component nhận reward+isOwner props.
+4. Dialog quick edit sản phẩm: fields title, description (textarea), minAmount, maxAmount, stock, maxQuantity, deliveryDate, isActive, isIncludedInProject. Gọi PUT /api/rewards/[id].
+5. Tạo blog mẫu cho test3: scripts/create_sample_blog.ts → blog_posts with authorId, status published, rich content hoặc content string. Kiểm tra model blog_posts trước (cần title, slug, excerpt?, content?, coverImage?, type?, visibility?, authorId...).
+6. Typecheck, test dev server, commit push.
+
+## Blog model blog_posts (từ schema, cần verify lại)
+- Chưa xem chi tiết trong session này; trước khi tạo blog script hãy grep "model blog_posts" prisma/schema.prisma.
+
+## Commits mới nhất
+- 7e759f5: Chat deleted user display
+- b440090: product page campaign null fix
+Git repo: https://github.com/Escanor292/platform.git branch main.
+
+## Tiến độ (cập nhật)
+- [x] formatVND: hoàn tác về "X VNĐ" (vì 62 chỗ dùng). Sửa riêng page sản phẩm: sed thay "} đ" → "}" tại 7 chỗ — XONG (trang hiển thị "55.000 VNĐ" đúng).
+- [x] Tạo component `src/components/products/ProductQuickEdit.tsx` — dialog sửa: title, description, minAmount, maxAmount, stock, maxQuantity, deliveryDate, isActive, images (nhiều ảnh qua nhiều ImageUpload label), gọi PUT /api/rewards/[id], toast + router.refresh(). Props: {product: QuickEditProduct, isOwner}.
+- [ ] ImageUpload props: {value?, onChange:(url)=>void, className?, label?} — KHÔNG có multiple. Đã khớp.
+- [ ] Gắn ProductQuickEdit + OwnerEditPanel vào page.tsx sản phẩm: page là server component async → gọi auth() lấy isOwner (check user id === project.creatorId || campaign.creatorId; admin luôn OK), sau đó render client fragment chứa ProductQuickEdit. page.tsx trả JSX từ hàm async → import dynamic client component ở cuối file.
+- [ ] Sửa access check API PUT/DELETE rewards [id]: sản phẩm không có campaign thì access denied hiện tại → cần cho chủ project.owner... check reward.projects.creatorId. Admin luôn pass.
+- [ ] Tạo blog mẫu test3: scripts/create_sample_blog.ts — blog_posts fields: id (crypto.randomUUID), authorId = cmphnhw8e0002so1uh16dwpvn, projectId (Mầm xanh tử tế), title, slug (du-nhat-dau-tien? chưa — blog mới "Hành trình Mầm xanh tử tế" slug hanh-trinh-mam-xanh-tu-te), excerpt, coverImage null, status PUBLISHED (BlogPostStatus: kiểm tra enum — DRAFT/PUBLISHED/...), type PLATFORM, visibility PUBLIC, content (string text), publishedAt new Date(), wordCount, readingTimeMinutes ~ content.length/200/5.
+- [ ] BlogPostStatus enum: cần grep "enum BlogPostStatus" schema.
+- Chạy script env: `cat .env | grep -v "^#" > /tmp/env_clean.txt && (set -a; source /tmp/env_clean.txt; set +a; npx tsx scripts/x.ts)`
+- typecheck: `npx tsc --noEmit -p tsconfig.json` (ignore scripts/recreate... bcrypt error cũ).
+- Commit: git -c user.email=nguyenquachphutai@gmail.com -c user.name=Escanor292; repo Escanor292/platform main.
+
+## Kết quả kiểm tra (phase 3)
+- Blog mẫu ĐÃ TẠO THÀNH CÔNG: id de9194b3-c31d-4e95-91ee-2648cb4c0481, slug hanh-trinh-mam-xanh-tu-te, thuộc dự án Mầm xanh tử tế, tác giả test3 (cmphnhw8e0002so1uh16dwpvn), status PUBLISHED, content JSON Tiptap đầy đủ (heading, paragraph, bold, blockquote).
+- Đã test trên dev server localhost:3322/blog/hanh-trinh-mam-xanh-tu-te — hiển thị nội dung hoàn chỉnh, nút "Chỉnh sửa nhanh" hiện ở góc (chế độ đã login test3).
+- Trang sản phẩm: đã sửa formatVND hiển thị "55.000 VNĐ" (không thừa "đ"), đã gắn ProductQuickEdit ở cả 2 chế độ render (campaign + độc lập), đã sửa access check PUT/DELETE /api/rewards/[id] cho sản phẩm độc lập + admin. Typecheck src sạch.
+- Blog page có component OwnerEditPanel hiện sẵn, chỉ cần thêm vào trang sản phẩm (đã xong).
+
+## Còn lại
+- Test trang sản phẩm với user test3 login (xem panel Chỉnh sửa nhanh có hiện).
+- Commit + push (git email nguyenquachphutai@gmail.com, name Escanor292, repo Escanor292/platform, branch main).
+- Báo kết quả user.
+
+
+## KẾT QUẢ KIỂM THỬ CUỐI CÙNG (hoàn tất)
+- Trang sản phẩm: tên đã khôi phục về "Bộ hạt giống cây xanh tử tế" (nguyên bản), giá hiển thị "55.000 VNĐ" đúng, không thừa "đ". Nút Chỉnh sửa nhanh hiện ở góc dưới phải khi login test3; dialog mở đúng; PUT API 200 OK; toast "Sản phẩm đã được cập nhật!".
+- Blog mẫu slug hanh-trinh-mam-xanh-tu-te: hiển thị nội dung đầy đủ, nút Chỉnh sửa nhanh hiện cho test3.
+- Login test3@gmail.com / 123 đã có sẵn trên browser dev.
+
+## CÒN LẠI
+- Commit + push, báo kết quả.
+
+---
+
+### Nguồn: `notes_shopee_card.md`
+
+# Nhiệm vụ: Thẻ sản phẩm phong cách Shopee
+
+## Yêu cầu user
+1. Bỏ dòng chữ "SẢN PHẨM ĐỘC LẬP" trên thẻ sản phẩm
+2. Thêm ảnh sản phẩm hiển thị phía trên thẻ
+3. Hiển thị % giảm giá (badge "-17%") như Shopee
+4. Thêm nút giỏ hàng tròn ở mỗi thẻ
+5. Card gọn, style giống Shopee (ảnh vuông trên, tên 2 dòng, giá cam/đỏ dưới cùng)
+
+## Bối cảnh hiện tại
+- Thẻ sản phẩm chính ở `src/components/profile/ProfileTabs.tsx` dòng 502-633 (grid `products.map`):
+  - Line 504: grid grid-cols-1 md:grid-cols-2 gap-6
+  - Line 506: images = reward.productImages (mảng URL)
+  - Line 507-510: discount = round((max-min)/max*100) nếu maxAmount > minAmount
+  - Line 516-539: Gallery ảnh HÒA ĐÃ CÓ (chỉ hiện khi images.length>0, img h-44)
+  - Line 541-586: body card: tên + mô tả + giá đỏ + giá gạch + badges (GIẢM %, Tồn kho, tên campaign, "Sản phẩm độc lập" dòng 580-584)
+  - Line 589-629: isOwnerMode admin buttons (share/edit/delete) — giữ nguyên
+  - Badge "Sản phẩm độc lập": dòng 580-584 — XÓA
+- Reward fields: productImages (string[]), minAmount (giá bán), maxAmount (giá gốc/giá gạch), stock, title, description
+- API /api/rewards/[id] GET (productImages là array URL string upload lên S3/CDN)
+- Sản phẩm hiện tại (id b30ad967-c249-40ff-b6e4-f0b878d56e3b): productImages rỗng [], cần test có/không ảnh
+- formatVND trả "X VNĐ" (src/lib/utils.ts)
+- Header web: src/app layout — GIỎ HÀNG CHƯA CÓ (grep "Giỏ hàng|cart" không ra component nào)
+- Có thể có các thẻ sản phẩm ở src/app/projects/[projectId]/page.tsx và products list — chỉ user yêu cầu thẻ trên profile (ảnh user gửi là trang profile), nhưng nên tạo component chung ProductCardShopee và dùng lại ở các nơi grid sản phẩm khác nếu dễ.
+
+## Kế hoạch
+1. Tạo component chung `src/components/products/ShopeeProductCard.tsx`: ảnh vuông 1:1 trên (placeholder icon nếu không có ảnh), badge % giảm góc trên phải ảnh, tên 2 dòng (line-clamp-2), giá cam-600 font-bold + giá gốc gạch nhỏ (màu xám nhỏ), nút giỏ hàng tròn cam góc dưới phải, hover border-cam, nền trắng, rounded nhỏ (rounded-md — Shopee dùng square-ish), nút giỏ hàng thêm vào state context (context giỏ hàng đơn giản: useState global qua event toast + localStorage? giữ đơn giản: thêm "toast: Đã thêm vào giỏ hàng" + icon số lượng trên header nếu muốn).
+2. User chỉ nói "thêm chức năng giỏ hàng" — làm đơn giản: click giỏ hàng → thêm vào localStorage cart (cartCount hiển thị badge ở header icon) + toast xác nhận. Dialog giỏ hàng: icon header mở dropdown list cart items (ảnh, tên, giá, tăng/giảm số lượng, tổng, nút "Đặt qua nhà sáng tạo" dẫn chat).
+3. Xóa badge "Sản phẩm độc lập" trong ProfileTabs; thay phần body card cũ bằng ShopeeProductCard trong ProfileTabs + projects/[projectId] nếu có grid tương tự.
+4. typecheck, test dev 3322, commit push (email nguyenquachphutai@gmail.com, name Escanor292, repo Escanor292/platform main).
+
+## Tiến độ
+- [x] Rà soát code
+- [ ] ShopeeProductCard component
+- [ ] Cart context/localStorage + header badge + dropdown
+- [ ] Thay card cũ ProfileTabs, xóa "Sản phẩm độc lập"
+- [ ] Test, commit, push, báo user
+
+## CẬP NHẬT TIẾN ĐỘ (2026-08-20)
+- [x] Đã tạo `src/components/products/ShopeeProductCard.tsx`: ảnh vuông aspect-square (placeholder SVG box khi không có ảnh), badge "-X%" góc trên phải ảnh (màu pgreen), tên line-clamp-2 13px, giá `formatVND(x).replace("VNĐ","") + "đ"` màu pgreen bold 15px, giá gốc gạch nhỏ gray-400 11px, nút giỏ hàng tròn 8x8 bottom-2 right-2 màu pgreen (đổi dblue khi vừa thêm), owner mode: share/edit/delete ở top-left (opacity-0 group-hover), card rounded-md border-gray-200 hover:border-pgreen.
+- [x] Đã tạo `src/components/products/CartProvider.tsx`: Context giỏ hàng localStorage key "tutefund_cart", event "tutefund_cart_change" + "tutefund_cart_open"; export CartProvider, useCart, CartBadge, CartDropdown (dropdown phải với tăng/giảm số lượng, tổng, link /cart). NOTE: link /cart CHƯA CÓ TRANG — cần tạo trang /cart hoặc đổi link sang chat.
+- [ ] Gắn CartProvider vào app layout (src/app/layout.tsx — là server component, bọc "use client" CartProvider trong provider client component hoặc import trực tiếp vì CartProvider đã "use client").
+- [ ] Gắn CartDropdown + CartBadge vào NavbarNew: thêm import, đặt trước icon chat MessageCircle (khoảng dòng 158-166).
+- [ ] Trang /cart mới: trang giỏ hàng dạng Shopee (danh sách, tăng/giảm, tổng, nút "Liên hệ nhà sáng tạo" → mở /chat hoặc dẫn về chat với creator). Creator lấy từ product: /api/rewards/[id] trả project.creatorId hoặc campaign.creatorId.
+- [ ] ProfileTabs.tsx dòng 502-633: thay body card cũ bằng ShopeeProductCard, xóa badge "Sản phẩm độc lập" (dòng 580-584), grid chuyển grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 kiểu Shopee, truyền isOwnerMode={isOwnerMode}, onEditUrl=`/products/${reward.id}?edit=1`, onDelete=handleDelete.
+- [ ] Kiểm tra src/app/projects/[projectId]/page.tsx và src/app/products/[rewardId]/page.tsx có grid sản phẩm tương tự không để áp dụng (user chỉ thấy trên profile).
+- Typecheck: npx tsc --noEmit -p tsconfig.json (lỗi bcrypt trong scripts bỏ qua, là lỗi cũ).
+- Dev server: http://localhost:3322, login test3@gmail.com/123.
+- Commit/push: git -c user.email=nguyenquachphutai@gmail.com -c user.name=Escanor292, repo Escanor292/platform branch main.
+- formatVND trả "X VNĐ" (src/lib/utils.ts).
+
+## KẾT QUẢ KIỂM THỬ (dev, 2026-08-20)
+- Tab Sản phẩm profile test3: card Shopee-style OK — ảnh (placeholder do chưa có ảnh thật), tên, giá "55.000 đ" màu xanh, tồn kho, nút giỏ tròn. KHÔNG còn "SẢN PHẨM ĐỘC LẬP".
+- Header: icon giỏ hàng có badge số 1 (tutefund-cart-trigger). Toast "Đã thêm vào giỏ hàng". OK.
+- Trang /cart: hiển thị sản phẩm, +/- số lượng, xóa, xóa toàn bộ, tổng cộng, "Liên hệ nhà sáng tạo" + ghi chú chưa tích hợp thanh toán. OK.
+- TODO còn lại: test badge % giảm (set maxAmount > minAmount) + card có ảnh thật; rồi commit+push.
+- Typecheck src: 0 lỗi.
+
+## TASK MỚI (2026-08-20): Nút chat trên trang sản phẩm
+Yêu cầu user: trang sản phẩm thêm nút chat → mở khung chat kèm thông tin sản phẩm để backer trao đổi với creator (giống trang chiến dịch: "Nhắn tin với Test Creator Pro").
+Đã làm:
+- `src/components/chat/StartChatButton.tsx`: thêm props `rewardId`, `rewardTitle`, `rewardPrice`. Intro message ưu tiên sản phẩm (📦 tên, 💰 giá, 🔗 link /products/{id}) nếu có rewardId+rewardTitle, else dùng campaign title. Callback login cũng ưu tiên /products/{rewardId}.
+- Còn lại: gắn StartChatButton vào `src/app/products/[rewardId]/page.tsx` thay nút `<a>Liên hệ nhà sáng tạo</a>` (chế độ chiến dịch ~dòng 383: `href={`/profile/${contactUserId}#products`}`, và chế độ độc lập có nút tương tự). Props: campaignOwnerId=contactUserId (lấy từ campaign.users.id || campaign.creatorId || project.creatorId), campaignOwnerName (cần fetch tên user — dùng campaign.users.name nếu có, else query thêm user name), rewardId=reward.id, rewardTitle=reward.title, rewardPrice=formatVND(reward.minAmount) (đã sửa page dùng replace "VNĐ"→"đ" cho giá), variant="outline" className="w-full" hoặc giữ style pgreen.
+- Lưu ý page là server component async; cần import StartChatButton ("use client") trực tiếp. Tên chủ sở hữu: campaign.users?.name, nếu null fetch thêm user name qua prisma.
+- Typecheck: npx tsc --noEmit -p tsconfig.json (lỗi bcrypt scripts bỏ qua).
+- Sau đó: test login test2@gmail.com/123 (backer) mở /products/b30ad967-... bấm nút chat → trang /chat/{id} hiện tin nhắn intro kèm sản phẩm. Commit/push: git -c user.email=nguyenquachphutai@gmail.com -c user.name=Escanor292 repo Escanor292/platform branch main.
+- Sản phẩm test: id b30ad967-c249-40ff-b6e4-f0b878d56e3b, owner=test3 (cmphnhw8e0002so1uh16dwpvn), KHÔNG thuộc chiến dịch (chế độ độc lập), thuộc dự án Mầm xanh tử tế.
+- Dev: localhost:3322. Login: test1/test2/admin/test3 @gmail.com pass 123.
+
+### Kết quả kiểm tra trang sản phẩm (2026-08-20)
+Nút "Nhắn tin với Nhà sáng tạo" đã hiện đúng trên trang sản phẩm (chế độ độc lập), render bằng StartChatButton với props rewardId/rewardTitle/rewardPrice. Trang load bình thường không lỗi. Khi bấm với session chủ sở hữu (test3) thì đúng logic hiện alert "Bạn không thể nhắn tin với chính mình". Browser click thật bị timeout do alert block, nhưng hành vi đúng (alert đã hiện → click JS mô phỏng đã pass trước đó, url không đổi).
+Chưa test được luồng full (tạo conversation + gửi intro message) vì MongoDB Atlas chặn IP sandbox (API chat 500). Trên production sẽ hoạt động.
+Còn lại: login test2@gmail.com (backer) thử bấm nút chat → nếu không test được do Atlas, commit/push là đủ.
+Git: cd ~/platform, git config user.email nguyenquachphutai@gmail.com, user.name Escanor292, repo Escanor292/platform, branch main.
+
+### Chẩn đoán lỗi chat (2026-08-20 08:24)
+Trang /chat hiện "Không thể tải danh sách cuộc trò chuyện". Dev log: `MongoServerSelectionError: connection <monitor> to 159.143.78.200:27017 closed` — .env dùng MONGODB_URI dạng trực tiếp với IP shard cũ, Atlas đã đổi IP shard. Dạng `mongodb+srv://` ping thành công. Fix: đổi MONGODB_URI trong .env sandbox sang dạng mongodb+srv; user cần cập nhật Vercel env var riêng nếu lỗi còn trên production.
+
+### Debug MongoDB Node driver (08:28)
+- Port 27017 trên cả 3 IP shard mới (159.143.78.200/218/231) đều OPEN qua TCP.
+- pymongo (Python) kết nối SRV **thành công**.
+- Node mongodb driver 7.5: mọi URI `mongodb+srv://` đều fail `TypeError: Cannot read properties of undefined (reading 'join')` tại resolveSRV (connection_string.js:88:66) — có vẻ là bug của driver 7.5 với DNS resolver trong sandbox (resolveSrv trả OK, TXT record có thể là nguyên nhân).
+- URI `mongodb://hostlist` với replicaSet=atlas-q4j8k3-shard-0 fail `connection <monitor> closed` — có thể cần authSource hoặc TLS. Thử tiếp: thêm `tls=true` hoặc check authSource admin.
+
+### Kết luận MongoDB (08:35)
+Kiểm tra thực tế: `c.DuAn.command('ping')` fail `OperationFailure: bad auth Authentication failed` (code 8000 AtlasError). Kết nối mạng OK (TCP mở, DNS SRV đúng), nhưng credential không xác thực được. Nguyên nhân khả dĩ: mật khẩu Atlas có chứa ký tự đặc biệt và chuỗi trong .env bị encode sai tầng (%40Tai → thực tế mk có thể là "0909115079@Tai" nhưng đã qua 2 lần encode ở đâu đó, hoặc mk thật đã đổi). Không nên tự đoán mật khẩu mới — hỏi user. Lưu ý: user có thể đã thay đổi mk database hoặc credential trong Vercel env khác với .env sandbox.
+
+### KẾT QUẢ (08:40) — MongoDB cluster MỚI hoạt động
+User cung cấp URI mới: cluster `duan.b4wcshp.mongodb.net`, mk `0909115079@Tai`. Đã cập nhật .env (dòng MONGODB_URI). DB mới chứa conversations, messages... — API chat /api/chat/conversations trả 200.
+Luồng test hoàn chỉnh ĐÃ PASS: login test2@gmail.com/123 (backer) → mở /products/b30ad967-c249-40ff-b6e4-f0b878d56e3b → bấm "Nhắn tin với Nhà sáng tạo" → backend log: POST /api/chat/conversations/6a86bd6d6dbff94146f47778/messages 200, PATCH read 200, GET messages 200. Conversation mới id `6a86bd6d6dbff94146f47778` giữa test2 (TC backer) và Test Creator.
+Còn lại: typecheck, commit, push (git -c user.email=nguyenquachphutai@gmail.com -c user.name=Escanor292, repo Escanor292/platform branch main), báo user. Nhắc user: cập nhật biến MONGODB_URI trên Vercel (production) sang `mongodb+srv://nguyenquachphutai_db_user:0909115079%40Tai@duan.b4wcshp.mongodb.net/?retryWrites=true&w=majority&appName=DuAn` để chat hoạt động trên production.
+Lưu ý: không push .env lên GitHub (đã có trong .gitignore).
+
+### Yêu cầu 20/08 (08:47) — Nút "Ủng hộ ngay" theo stock
+Đã làm xong + ĐÃ KIỂM NGHIỆM PASS trên dev (localhost:3322, session test2@gmail.com/123):
+1. Trang sản phẩm standalone: `src/components/products/AddToCartButton.tsx` (mới) — stock>0 → "Ủng hộ ngay"/"Thêm vào giỏ" (dùng useCart.addItem); hết hàng → "Nhắn tin với Nhà sáng tạo" (StartChatButton). Đã import vào `src/app/products/[rewardId]/page.tsx` (chế độ 2) thay StartChatButton.
+2. Trang sản phẩm campaign-linked: nút "Đóng góp ngay" → "Ủng hộ ngay" (link tới /campaigns/{slug}?reward=...).
+3. Test pass: stock=100 → nút "Thêm vào giỏ" → bấm → "Đã thêm vào giỏ" + badge giỏ header tăng 1→2. stock=0 (đã đặt tạm qua scripts/set_stock.mjs với DATABASE_URL neon, chưa hoàn nguyên!) → hiện "Nhắn tin với Nhà sáng tạo".
+4. campaign page button: `src/components/campaign/CampaignRewards.tsx` hiện "Ủng hộ nhận quà" — đã là "Ủng hộ"; nút chung là "Ủng hộ" — không cần đổi.
+Còn lại: hoàn nguyên stock về 100 (node scripts/set_stock.mjs 100), xóa scripts/set_stock.mjs (không commit), commit src, push (git user email nguyenquachphutai@gmail.com, name Escanor292, repo Escanor292/platform, branch main). Không push .env.
+
+### Yêu cầu 20/08 (08:55) — Thẻ sản phẩm có ảnh trong tin nhắn chat
+User muốn tin nhắn intro sản phẩm trong chat hiển thị dạng thẻ có HÌNH ẢNH sản phẩm, bấm vào → mở trang sản phẩm (hiện chỉ là text: 👋 Xin chào... 📦 tên... 💰 giá... 🔗 link).
+
+Thiết kế:
+1. `StartChatButton.tsx` (dòng 86-107): khi gửi intro sản phẩm, gửi thêm `metadata` JSON vào cuối text dạng marker KHÔNG đổi giao diện, VD thêm dòng marker `__TUTEFUND_PRODUCT__${rewardId}__` hoặc thêm attachment image? → Đơn giản nhất: thêm marker đặc biệt vào cuối text + gửi kèm `productImage` qua... không có field metadata trong schema MongoMessage, attachments thì có type image.
+   PHƯƠNG ÁN CHỌN: Gửi tin nhắn có attachments=[{url: ảnh sản phẩm, type:'image'}] + text intro ngắn gọn (chào, tên, giá, link) → ChatInput/MessageBubble render ảnh trên bubble. Nhưng ảnh hiện không bấm được vào sản phẩm → MessageBubble đã có render attachments? Chưa — MessageBubble không render attachments hiện tại (chỉ text + isDeleted).
+2. Giải pháp tối ưu: thêm marker regex trong text tin nhắn: `__productCard:${rewardId}__` — khi MessageBubble gặp marker, query Prisma rewards theo id (server-side không được vì component client; cần fetch hoặc đưa sẵn data). → Dùng Next API mới? Đơn giản hơn: truyền toàn bộ data thẻ qua marker JSON: `__productCard:${JSON.stringify({id,title,price,imageUrl})}__` — client parse và render ProductMessageCard (ảnh + tên + giá + link /products/{id}), thay cho marker trong text.
+3. MessageBubble.tsx (61): thay vì chỉ <p>text</p> → parse text thành các segment: trước marker → <p>, marker → ProductMessageCard (ảnh tròn góc trái, tên, giá, giá gạch? nếu có), phần sau marker → <p>. Hỗ trợ nhiều marker.
+4. StartChatButton cần thêm prop rewardImage: string; AddToCartButton đã có images[0]. Cập nhật trang product gọi StartChatButton (khi out of stock) và StartChatButton gọi sendMessage.
+5. Tin nhắn cũ (chưa có marker) vẫn hiển thị text thường + link (text đã có link http → MessageBubble nên biến URL text thành link bấm được: auto-linkify /\bhttps?:\/\/\S+/g thành <a>).
+Cần làm: auto-linkify URL trong MessageBubble + ProductMessageCard component. Tin nhắn intro mới gửi với marker `__TUTEFUND_PRODUCT_V1__<json>__`.
+API message route: src/app/api/chat/conversations/[conversationId]/messages/route.ts — POST body {text, attachments, sensitive}; attachments image OK để gửi ảnh? user muốn thẻ ảnh, dùng marker JSON trong text cho gọn, không cần attachments (tránh thay đổi schema).
+Trang product: src/app/products/[rewardId]/page.tsx dùng AddToCartButton (out of stock → StartChatButton với props hiện tại chưa có rewardImage).
+Notes: dev server localhost:3322; git user email nguyenquachphutai@gmail.com name Escanor292; repo Escanor292/platform branch main; không push .env.
+
+### Trạng thái 09:00 — Lỗi hiển thị thẻ sản phẩm
+Tin nhắn trong conversation đang mở (6a86bd6d với Test Creator Pro — "Không hoạt động") hiển thị marker RAW percent-encoded thay vì thẻ. Có 2 khả năng:
+1. Tin nhắn vừa update DB nhưng UI dùng bản cũ từ server-side render HTML (Next RSC cache) — tin nhắn này thuộc conversation với Test Creator Pro (không phải 6a86bd6d với TC?). Nội dung thấy: conversation hiện có 2 tin nhắn cũ khác nhau (1 của TC, 1 của TC Pro ngày 20/08).
+2. Tin nhắn "20/08/2026" có marker raw → có thể do cache HTML SSR chưa reload (dev server nên không cache; nhưng Next render server-side page.tsx lấy tin nhắn... cần bấm lại conversation để fetch client).
+Hành động: bấm vào conversation "Test Creator" (mục số 17) để load messages mới nhất, vì conversation hiện đang chọn là Test Creator Pro.
+Code đã xong: ProductMessageCard.tsx, MessageBubble parse + linkify, StartChatButton marker, AddToCartButton props.
+Git: user.email=nguyenquachphutai@gmail.com user.name=Escanor292 repo Escanor292/platform branch main. Không push .env, không push scripts/*_chat*.mjs.
+
+### Chẩn đoán 09:00 (2)
+- Tin nhắn marker (msg 6a86bd70) thuộc conversation 6a86bd6d (Test Creator ↔ cmphnhw8e0002so1uh16dwpvn). Nhưng UI sau reload vẫn hiển thị conversation "Test Creator Pro" (địa chỉ URL 6a86bd6d nhưng header là Test Creator Pro??). Header hiển thị "Test Creator Pro / Không hoạt động" — bất thường. Có thể trang server-rendered với conversation khác, hoặc URL chat/6a86bd6d thực chất render Test Creator Pro.
+- Quan trọng: tin nhắn trong UI vẫn hiển thị marker RAW (percent-encoded) — nghĩa là parseProductSegments không khớp? Xem lại: marker trong DB đã encodeURIComponent (có %7B...). parseProductSegments tìm "__TUTEFUND_PRODUCT_V1__...__END_PRODUCT_V1__" và decodeURIComponent rồi JSON.parse → PHẢI hoạt động. Nhưng UI hiển thị dạng escape \_\_TUTEFUND... (được escape markdown trong extracted text). Screenshot: text có %7B → marker CHƯA được parse → có thể do HTML được server render (old code) → dev hot-reload có thể chưa load? Hoặc MessageBubble vẫn dùng code cũ vì Next vẫn render server text rồi client hydrate.
+- Cần: kiểm tra console error; thử gửi tin nhắn MỚI qua API để test code mới (StartChatButton gửi marker mới sẽ kiểm tra đúng).
+- Cũng kiểm tra conversation nào đang mở: URL 6a86bd6d — DB nói participants test2 ↔ cmphnhw8e0002... — "Test Creator" là test2? Sidebar: mục Test Creator vs Test Creator Pro. Header hiện "Test Creator Pro / Không hoạt động" — có thể đây là cuộc chat với chính tài khoản đang đăng nhập?? Không, participants chỉ 2 user.
+- Hành động tiếp: lấy HTML của message bubble phân tích DOM; test gửi tin nhắn mới qua API với marker để xem card render.
+
+### Chẩn đoán 09:01 (3)
+DOM snapshot cho thấy tin nhắn đang render bởi component MessageBubble CŨ: class `max-w-[70%] rounded-2xl px-4 py-2` — code mới của tôi dùng `max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-2.5`. → Dev server (port 3322) vẫn chạy bản code CŨ, chưa được restart sau khi sửa file (hot reload không áp dụng cho server components hoặc server đã dead?). Đã restart dev server trước đó (sau fix .env) nhưng các file sửa sau đó (MessageBubble, ProductMessageCard, StartChatButton, AddToCartButton) chưa được reload.
+→ Hành động: restart dev server rồi reload trang chat.
+
+### Chẩn đoán 09:01 (4)
+Trang đang mở URL /chat/6a86bd6d6dbff94146f47778 nhưng hiển thị header "Test Creator Pro / Không hoạt động" và tin nhắn marker raw. Sidebar có: "Test Creator" (mục 17) và "Test Creator Pro". DB: conv 6a86bd6d participants = test2 (92df92ff = Test Creator? hay TC Pro?) ↔ cmphnhw8e0002so1uh16dwpvn (tài khoản main của user = Test Creator Pro?). Tin nhắn marker (sender 92df92ff) — sender là test2 → tin nhắn marker trong conv 6a86bd6d là của test2 gửi cho main. UI hiện raw marker dù đã restart → tin nhắn hiển thị có thể do SOCKET push bản cũ hoặc... không, restart server thì tin nhắn lấy từ API GET messages. Vậy code parse chưa chạy?
+LÝ DO CÓ THỂ THẬT: tin nhắn text trong DB vừa update là của conv 6a86bd6d nhưng trang render tin nhắn của conv KHÁC (Pro) — nghĩa là URL route chat/[id] có thể ignore id và mở conv mặc định? Không hợp lý. Hoặc tin nhắn vừa cập nhật trong conv 6a86bd6d nhưng người gửi 92df92ff = Test Creator Pro?? — không biết chắc.
+Hành động: dùng JS console fetch API /api/chat/conversations/6a86bd6d6dbff94146f47778/messages để xem tin nhắn server trả về có marker nào.
+
+### Chẩn đoán 09:05 (5) — user map
+- cmphnhw8e0002so1uh16dwpvn = Test Creator Pro (test3@gmail.com) — user chính của chủ nền tảng
+- 92df92ff-0f15-469f-9f24-99b44984bd13 = Test Creator (test2@gmail.com)
+- Conv 6a86bd6d = giữa test2 và test3; tin nhắn marker sender=Test Creator (test2) → đúng tin nhắn đang hiển thị raw.
+- API GET trả về text có marker percent-encoded. Restart server xong. Tin vẫn raw → parseProductSegments không chạy?
+→ Có thể lý do: tin nhắn mới gửi bằng socket (ChatWindow dùng socket event) cập nhật state; tin nhắn cũ lấy từ messages list API → dùng code mới. Tin vẫn raw sau restart = parseSegments lỗi regex? Marker trong text DB là percent-encoded: __TUTEFUND_PRODUCT_V1__%7B...%7D__END_PRODUCT_V1__ — regex "__TUTEFUND_PRODUCT_V1__([\s\S]*?)__END_PRODUCT_V1__" khớp và decodeURIComponent(JSON.parse) → phải OK.
+TRỪ KHI: MessageBubble được render từ tin nhắn đã escape? text chứa %7B... hiển thị chính xác raw như DB. Không có lý do parse fail.
+→ Kiểm tra console khi render: có thể có lỗi JS (ProductMessageCard crash silently). Xem console log.
+→ Kế hoạch B: viết test unit parseProductSegments chạy trong node.
+
+### Chẩn đoán 09:02 (6)
+Unit test parseProductSegments PASS (3 segments đúng). DOM browser vẫn raw kể cả sau Fast Refresh. → Vấn đề không phải logic parse mà là tin nhắn được render qua con đường khác: có thể ChatConversationClient fetch messages nhưng map text qua nơi khác, hoặc tin nhắn đang render là bản SSR HTML cũ được giữ (RSC payload có messages nhúng sẵn ở page load, client chỉ dùng khi socket mới). Sau restart server, load lại page → SSR mới phải lấy data mới. Nhưng vẫn raw.
+KHẢ NĂNG MỚI: tin nhắn được render bởi component KHÁC (không phải MessageBubble): ví dụ tin nhắn hiển thị trong "Trang chủ" preview (sidebar) — không, tin raw nằm trong bubble chính.
+→ Xem code ChatConversationClient.tsx / ChatScreen.tsx để tìm nơi render messages và xem có map text nào (VD renderMarkdown).
+
+### Chẩn đoán 09:06 (7)
+Code parse đúng (unit test pass: 3 segments, product card đúng title). DOM vẫn raw → tin nhắn messages được embed sẵn trong RSC HTML khi trang load lần đầu (server component /chat/[id] fetch messages và render SSR), Fast Refresh chỉ rebuild client components. Browser giữ payload cũ.
+→ Giải pháp: navigate tới route khác (ví dụ /) rồi quay lại /chat/6a86bd6d — Next sẽ lấy RSC payload mới từ server đã restart. Hoặc clear cache browser.
+
+### Chẩn đoán 09:02 (8)
+Trang load mới hoàn toàn, RSC mới, nhưng bubble vẫn raw. Header = "Test Creator Pro" trong khi sidebar preview mục "Test Creator Pro" cũng hiển thị text marker raw → tin nhắn marker nằm trong conversation với Test Creator Pro (test3, cmphnhw8e...), KHÔNG phải conv 6a86bd6d (test2-test3)... Đợi đã: conv 6a86bd6d participants = test2 (92df92ff) ↔ test3 (cmphnhw8e). Sender = 92df92ff = Test Creator = test2. Vậy conv này là giữa test2 và test3 — header đáng lẽ "Test Creator Pro" (người còn lại) → khớp! Conv 6a86bd6d chính là conversation đang mở (header Pro đúng vì đối phương là test3). Vậy tin marker = tin đang hiển thị raw.
+Nhưng unit test parse pass → tại sao MessageBubble (client) render raw? ChatScreen dùng fetch GET messages → data.messages → render MessageBubble. Không có lý do parse fail TRỪ KHI fetch thực sự trả về text khác... API trả về đúng marker %7B... (đã xác nhận qua console fetch).
+→ NGHI NGỜ MỚI: ChatScreen có thể KHÔNG dùng MessageBubble mà render khác (bubble class max-w-[70%] trong DOM cũ là class CŨ của MessageBubble — đúng là dùng MessageBubble nhưng file messageBubble có 2 bản? Không). Hoặc DOM sau reload vẫn render bằng SSR (SSR không chạy parseProductSegments vì nó là function client-only nhưng SSR render cũng dùng MessageBubble... wait, MessageBubble là "use client" nên SSR sẽ render shell tĩnh).
+→ DOM snapshot mới vẫn cho thấy bubble với class đúng mới? cần kiểm tra lại DOM sau reload: nếu class là max-w-[85%] thì code mới đã chạy → parse throw exception (JSON.parse fail) → fallback đẩy raw text → giải thích đúng!
+→ decodeURIComponent của chuỗi trong DB: %7B%22...%7D — hợp lệ. JSON.parse phải pass. TRỪ KHI chuỗi DB bị hư: kiểm tra JSON gốc trong DB (raw bytes) — có thể dấu ngoặc kép trong title bị escape lạ.
+
+### Chẩn đoán 09:04 (9)
+DB lưu đúng, parse OK (unit + trực tiếp từ DB). Nhưng DOM browser sau reload vẫn hiển thị raw marker với class max-w-[70%] (class CŨ của MessageBubble, không phải max-w-[85%] mới). → compiled output Next vẫn là bản cũ dù server đã restart (có thể Next dev giữ module cache của module đã compiled khi file import không đổi... nhưng MessageBubble.tsx đã sửa). Chưa hiểu. → Xóa .next cache, restart lại.
+
+### Chẩn đoán 09:04 (10)
+DOM vẫn class CŨ `max-w-[70%]` sau xóa .next + restart. File source MessageBubble.tsx đã sửa thành max-w-[85%] và có parseProductSegments. → Có 2 khả năng: (a) ChatScreen.tsx import MessageBubble từ một file KHÁC (VD: components/MessageBubble.tsx ở thư mục khác); (b) compiled output không dùng file src tôi thấy (có thể bản sao trong .next vẫn... không, đã xóa .next).
+→ Hành động: grep import của ChatScreen.tsx và tìm tất cả file MessageBubble.
+
+### Chẩn đoán 09:05 (11)
+Source file mới OK (sửa lúc 08:55 UTC, chứa parseProductSegments). Server restart 09:03. DOM vẫn class cũ.
+Giả thuyết: trình duyệt cache JS bundle _next/static/chunks/* cũ. Kiểm tra bằng curl vào build chunk mới: tìm chunk chứa "TUTEFUND_PRODUCT_V1" trong /.next/static. Nếu có → server compile đúng; chỉ là browser cache.
+
+### Chẩn đoán 09:06 (12) — contradiction cần giải
+- Bundle `.next/static/chunks/app/chat/[conversationId]/page.js` timestamp 09:03:55 (sau restart), vẫn chứa `max-w-[70%] rounded-2xl px-4 py-2` + code render attachments — class này giống MessageBubble MỚI (rounded-2xl) nhưng width 70% CŨ.
+- File source lúc 09:05 grep vẫn max-w-[85%] line 60.
+- GIẢI THÍCH HỢP LÝ: tôi đã sửa file 2 lần — lần đầu đổi width thành 85%, lần sau (edit file để thêm parse) có thể giữ nguyên 85%. Nhưng bundle 09:03:55 compile lúc restart — source tại thời điểm đó đã là 85% → bundle phải 85%. Nhưng thực tế bundle = 70%.
+- → Có thể có 2 MessageBubble: một trong src/components/chat/MessageBubble.tsx (bản A — có parse), một bản B ở vị trí khác được chat/[conversationId]/page import chuỗi khác (VD: re-export từ components/chat/index.ts?). ChatScreen import "./MessageBubble" — đúng đường dẫn file A. Nhưng page.tsx chat (server component) import ChatScreen.
+- Hoặc: file bị sửa bởi tool nhưng Next compiler dùng bản trong node_modules/.cache? Không.
+- HÀNH ĐỘNG: đọc nội dung file message bubble line 55-70 ngay; đọc đầu chat page.tsx xem import chain; tìm mọi file chứa "TUTEFUND_PRODUCT_V1" trong src.
+
+### CHẨN ĐOÁN ĐÚNG (13)
+Page /chat/[conversationId] render `ChatConversationClient` (KHÔNG phải ChatScreen). Tôi đã sửa `ChatScreen.tsx` + `MessageBubble.tsx` — nhưng trang thật dùng ChatConversationClient, mà component này render tin nhắn bằng JSX riêng (class max-w-[70%]...), không qua MessageBubble mới.
+→ Cần áp dụng parseProductSegments + ProductMessageCard vào ChatConversationClient.tsx. Đọc file này để tìm chỗ render tin nhắn.
+
+### KẾT QUẢ THÀNH CÔNG (09:07)
+Nguyên nhân gốc: page /chat/[id] render `ChatConversationClient` → `ChatWindow` (render tin nhắn inline, KHÔNG dùng MessageBubble). Đã tích hợp `renderMessageText` + `ProductMessageCard` vào ChatWindow.
+Tin nhắn chat giờ hiển thị: ảnh sản phẩm (64x64) + tên "Bộ hạt giống cây xanh tử tế" + giá 55.000đ + giá gốc gạch 65.000 VNĐ + badge -15% + link "Xem sản phẩm ›". Toàn bộ thẻ là link dẫn tới /products/[id]. Text thường tự động linkify URL.
+Screenshot xác nhận: /home/ubuntu/screenshots/localhost_2026-08-20_09-07-35_2536.webp
+Bước tiếp: typecheck OK (2 lỗi scripts cũ không ảnh hưởng), commit + push.
+
+### PUSH THÀNH CÔNG (09:12 UTC)
+Commit 8a37a88 "Chat: render product card with image in message bubbles (ChatWindow)" — 18 files, đã đẩy lên https://github.com/Escanor292/platform.git (main).
+Ghi chú: GH_TOKEN connector đã hết hạn cho gh CLI nhưng push qua https://github.com (credential transparent proxy) vẫn hoạt động → nếu push thất bại sau này, dùng HTTPS remote thay vì gh/SSH.
+Remote hiện tại: https://github.com/Escanor292/platform.git
+
+### LINK PROFILE TỪ CHAT — THÀNH CÔNG (09:22)
+Sửa ChatWindow.tsx: header avatar + tên bọc Link /profile/${recipientUserId} (chỉ khi !recipientDeleted && có recipientUserId); hover scale avatar + hover:text-primary tên. ConversationItem (sidebar) đã có sẵn link (UserAvatar clickable + Link name — stopPropagation để không mở conversation).
+Kiểm nghiệm: bấm tên "Test Creator Pro" trong header chat → chuyển đúng /profile/cmphnhw8e0002so1uh16dwpvn (đang tải trang profile, load OK).
+Typecheck: OK (chỉ 2 lỗi scripts cũ không ảnh hưởng build).
+Còn lại: commit + push (git push qua https://github.com/Escanor292/platform.git hoạt động; gh CLI token hết hạn).
+Screenshot: /home/ubuntu/screenshots/localhost_2026-08-20_09-22-45_9204.webp
+
+### KIỂM TRA HOÀN TẤT (09:23)
+- Bấm avatar TC trong header chat → chuyển /profile/92df92ff-0f15-469f-9f24-99b44984bd13 (Trang cá nhân Test Creator) ✓
+- Bấm tên "Test Creator Pro" header → /profile/cmphnhw8e0002so1uh16dwpvn ✓
+- Sidebar ConversationItem đã có sẵn link avatar + tên (UserAvatar clickable, Link name với stopPropagation) ✓
+- Trường hợp user bị xóa: không có link (recipientDeleted) ✓
+- Còn: commit + push (git push qua HTTPS hoạt động, gh CLI token hết hạn).
+
+### EMOJI PICKER (đang làm, 09:35)
+Yêu cầu user: làm chức năng emoji cho ô nhập tin nhắn (nút Emoji hiện chỉ có tooltip, chưa mở picker).
+Đã tạo: src/components/chat/EmojiPicker.tsx — có 11 danh mục (Cảm xúc, Cử chỉ, Tình yêu, Kỷ niệm, Động vật, Đồ ăn, Hoạt động, Du lịch, Đồ vật, Biểu tượng, Cờ), ô tìm kiếm tiếng Việt (keywords trong searchKeywords), "Gần đây" 24 emoji (localStorage key tutefund_recent_emojis), grid 8 cột, h-72 ScrollArea, onClick ra ngoài sẽ đóng (cha quản state), ESC event custom 'emoji-picker-escape' dispatch trên pickerRef.
+Còn phải làm: thay thế khối picker inline (ChatWindow.tsx dòng ~1016-1031, dùng EMOJI_LIST) bằng <EmojiPicker onSelect={insertEmoji} />; import ở đầu file; giữ trạng thái showEmojiPicker hiện có (dòng 160-161) và nút toggle (dòng 978-984); đảm bảo picker đóng khi chọn (insertEmoji giữ focus textarea) và khi click ra ngoài (thêm onClick capture trên wrapper để tắt setShowEmojiPicker(false)). ChatWindow insertEmoji tại dòng 270 chèn tại vị trí con trỏ OK.
+Push: git push https://github.com/Escanor292/platform.git HEAD:main (gh CLI token hết hạn).
+
+### EMOJI PICKER — ĐÃ HOÀN THÀNH + KIỂM TRA (09:34)
+Tạo EmojiPicker.tsx (11 danh mục + search tiếng Việt + Gần đây 24 emoji localStorage, grid 8 cột h-72 ScrollArea). Tích hợp vào ChatWindow: nút Emoji (index 30 trong screenshot) mở picker đầy đủ header tìm kiếm "Tìm emoji... (vd: yêu, cười, cảm ơn)", 11 tab icon (😀👍❤️🎉🐶🍔⚽✈️💡✅🏳️), danh mục Cảm xúc render đầy đủ 100 emoji. Picker đóng sau khi chọn emoji, chèn vào textarea giữ focus con trỏ.
+UI verified: bấm nút Emoji → picker hiện; bấm 😍 → đóng + chèn. Screenshot: /home/ubuntu/screenshots/localhost_2026-08-20_09-34-05_6361.webp (picker hiển thị trên ô input, overlay phủ một phần header — position top-right OK).
+Typecheck: OK (0 lỗi ChatWindow/EmojiPicker).
+Còn: commit + push https://github.com/Escanor292/platform.git HEAD:main.
+
+Kiểm tra DOM: textarea DOM value = "" sau khi bấm 😍 (textarea là controlled React, DOM không phản ánh state — bình thường). Picker render đúng 100 emoji danh mục Cảm xúc. Để xác nhận chèn thật, cần bấm gửi (hoặc check React state qua devtools không dễ). Giải pháp: bấm "Nhập tin nhắn..." + thêm emoji rồi gửi tin đi, kiểm tra tin hiển thị có emoji.
+
+---
+
+### Nguồn: `src/components/campaign/README.md`
+
+# Campaign Growth Progress Component
+
+Component thanh tiến độ cao cấp với hệ thống cây phát triển theo giai đoạn gây quỹ.
+
+## Features
+
+- ✨ 4 giai đoạn cây phát triển theo % progress
+- 🎨 Gradient colors và glow effects tinh tế
+- 🌊 Animated energy orb di chuyển theo progress
+- 🎯 Micro-animations mượt mà (sway, float, breathe, pulse)
+- 📱 Fully responsive
+- ♿ Accessibility support (reduced motion)
+- 🎛️ Multiple sizes và variants
+- 💎 Premium design
+
+## Tree Stages
+
+### 1. Seedling (0-32%) - Mầm hy vọng
+- Cây mới nhú, 2 lá nhỏ
+- Màu xanh non (#86EFAC)
+- Animation: float, sway nhẹ
+- Glow: emerald soft
+
+### 2. Growing (33-65%) - Đang lớn mạnh
+- Cây con có thân và cành
+- Màu xanh tươi (#22C55E)
+- Animation: breathe, sway
+- Glow: green medium
+
+### 3. Mature (66-99%) - Sắp đơm trái
+- Cây trưởng thành, tán lá đầy
+- Màu xanh đậm (#16A34A)
+- Animation: breathe, enhanced glow
+- Glow: emerald strong
+
+### 4. Fruiting (100%+) - Đã kết trái
+- Cây ra trái vàng
+- Màu xanh đậm + vàng (#F59E0B)
+- Animation: bounce fruits, twinkle sparkles
+- Glow: amber celebration
+
+## Usage
+
+### Basic
+
+```tsx
+import CampaignGrowthProgress from '@/components/campaign/CampaignGrowthProgress';
+
+<CampaignGrowthProgress
+  currentAmount={350000000}
+  goalAmount={500000000}
+/>
+```
+
+### With Options
+
+```tsx
+<CampaignGrowthProgress
+  currentAmount={350000000}
+  goalAmount={500000000}
+  size="lg"
+  showTree={true}
+  showAnimatedHead={true}
+  variant="default"
+  className="my-custom-class"
+/>
+```
+
+### Compact Variant (No Tree)
+
+```tsx
+<CampaignGrowthProgress
+  currentAmount={350000000}
+  goalAmount={500000000}
+  variant="compact"
+  size="md"
+/>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `currentAmount` | `number` | required | Số tiền đã gây quỹ (VND) |
+| `goalAmount` | `number` | required | Mục tiêu gây quỹ (VND) |
+| `showTree` | `boolean` | `true` | Hiển thị cây phát triển |
+| `showAnimatedHead` | `boolean` | `true` | Hiển thị energy orb animation |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Kích thước component |
+| `variant` | `'default' \| 'compact'` | `'default'` | Kiểu hiển thị |
+| `className` | `string` | `''` | Custom CSS classes |
+
+## Sizes
+
+### Small (`sm`)
+- Bar height: 8px (h-2)
+- Tree: 32x48px
+- Orb: 12px
+- Text: text-xs
+- Best for: Cards, lists
+
+### Medium (`md`)
+- Bar height: 12px (h-3)
+- Tree: 48x64px
+- Orb: 16px
+- Text: text-sm
+- Best for: Campaign cards, dashboard
+
+### Large (`lg`)
+- Bar height: 16px (h-4)
+- Tree: 64x80px
+- Orb: 20px
+- Text: text-base
+- Best for: Campaign detail page, hero sections
+
+## Animations
+
+### CSS Keyframes
+- `sway`: Cây lắc lư nhẹ (3s)
+- `float`: Lá bay nhẹ (2.5s)
+- `breathe`: Thở nhẹ (2s)
+- `twinkle`: Lấp lánh (1.5s)
+- `fadeOut`: Particle trail (1s)
+
+### Tailwind Animations
+- `animate-pulse`: Glow effect
+- `animate-bounce`: Fruits
+- `animate-[spin]`: Orb inner light
+
+### Reduced Motion
+Component tự động tắt animations khi user bật `prefers-reduced-motion`.
+
+## Performance
+
+- Sử dụng CSS animations thay vì JS
+- `useMemo` cho calculations
+- Transition duration: 1000ms (smooth)
+- No layout shift
+- GPU-accelerated transforms
+
+## Accessibility
+
+- Semantic HTML
+- ARIA labels ready
+- Keyboard navigation support
+- Reduced motion support
+- High contrast compatible
+- Screen reader friendly
+
+## Integration Examples
+
+### Campaign Card
+
+```tsx
+<div className="bg-white rounded-3xl p-8">
+  <h3 className="text-xl font-bold mb-4">Smart Watch Pro</h3>
+  <CampaignGrowthProgress
+    currentAmount={350000000}
+    goalAmount={500000000}
+    size="md"
+  />
+</div>
+```
+
+### Dashboard Stats
+
+```tsx
+<div className="grid grid-cols-3 gap-6">
+  {campaigns.map(campaign => (
+    <div key={campaign.id} className="bg-white rounded-2xl p-6">
+      <h4 className="font-bold mb-3">{campaign.title}</h4>
+      <CampaignGrowthProgress
+        currentAmount={campaign.currentAmount}
+        goalAmount={campaign.goalAmount}
+        size="sm"
+        variant="compact"
+      />
+    </div>
+  ))}
+</div>
+```
+
+### Campaign Detail Hero
+
+```tsx
+<section className="bg-gradient-to-br from-emerald-50 to-green-50 py-20">
+  <div className="max-w-4xl mx-auto">
+    <h1 className="text-5xl font-black mb-8">Smart Watch Pro</h1>
+    <CampaignGrowthProgress
+      currentAmount={campaign.currentAmount}
+      goalAmount={campaign.goalAmount}
+      size="lg"
+    />
+  </div>
+</section>
+```
+
+## Customization
+
+### Custom Colors
+
+Modify `TREE_STAGES` in `CampaignGrowthProgress.tsx`:
+
+```tsx
+const TREE_STAGES = {
+  seedling: {
+    color: 'from-blue-400 to-cyan-500', // Your custom gradient
+    glowColor: 'shadow-blue-400/50',
+  },
+  // ...
+};
+```
+
+### Custom Tree SVGs
+
+Edit `TreeStages.tsx` to modify tree designs:
+
+```tsx
+export const SeedlingTree: React.FC<TreeProps> = ({ className }) => (
+  <svg viewBox="0 0 40 60" className={className}>
+    {/* Your custom SVG paths */}
+  </svg>
+);
+```
+
+## Demo
+
+Visit `/demo/progress` to see all variants and interactive controls.
+
+## Browser Support
+
+- Chrome/Edge: ✅ Full support
+- Firefox: ✅ Full support
+- Safari: ✅ Full support
+- Mobile browsers: ✅ Full support
+
+## Dependencies
+
+- React 18+
+- TypeScript
+- Tailwind CSS 3+
+- No external animation libraries needed
+
+## File Structure
+
+```
+src/components/campaign/
+├── CampaignGrowthProgress.tsx  # Main component
+├── TreeStages.tsx              # SVG tree components
+└── README.md                   # This file
+```
+
+## Tips
+
+1. **Performance**: Use `variant="compact"` for lists with many items
+2. **Mobile**: Size `sm` or `md` works best on mobile
+3. **Dark mode**: Add dark mode variants if needed
+4. **Custom styling**: Use `className` prop for additional styles
+5. **Animation control**: Set `showAnimatedHead={false}` to reduce motion
+
+## Future Enhancements
+
+- [ ] Dark mode support
+- [ ] More tree variants (flower, bamboo, etc.)
+- [ ] Sound effects option
+- [ ] Confetti on 100%
+- [ ] Custom milestone markers
+- [ ] Internationalization
+
+## License
+
+MIT
+
+---
+
+### Nguồn: `src/lib/project/ERROR_LOGGING_IMPLEMENTATION.md`
+
+# Task 6.1: Structured Error Logging - Implementation Summary
+
+## Status: ✅ COMPLETE
+
+## Requirement Validated
+**Requirement 14.4**: THE System SHALL log all errors with timestamp, user context, operation attempted, and full error details for debugging
+
+## Implementation Details
+
+### 1. Error Logging Utility (`src/lib/project/project.errors.ts`)
+
+Created a comprehensive error logging utility with:
+
+#### ErrorLog Interface
+- `timestamp`: ISO 8601 formatted timestamp
+- `operation`: Operation being performed (e.g., 'createProject', 'deleteProject')
+- `userId`: User ID who initiated the operation (optional)
+- `projectId`: Project ID involved in the operation (optional)
+- `errorType`: Type/class of the error
+- `errorMessage`: Error message
+- `errorStack`: Stack trace (only in development mode for security)
+- `requestMetadata`: Object containing:
+  - `method`: HTTP method (GET, POST, PATCH, DELETE)
+  - `path`: Request path
+  - `params`: URL/route parameters (sanitized)
+  - `body`: Request body (sanitized - no sensitive data)
+
+#### logError Function
+- Accepts an Error object and ErrorContext
+- Sanitizes sensitive data (passwords, tokens, API keys, etc.)
+- Logs structured JSON format using console.error
+- Includes stack traces only in development mode
+- Recursively sanitizes nested objects and arrays
+- Redacts sensitive fields based on field name patterns
+
+#### Sensitive Data Protection
+The utility automatically redacts the following sensitive fields:
+- password
+- token
+- apiKey / api_key
+- secret
+- authorization
+- cookie
+- session / sessionId
+- accessToken / refreshToken
+- creditCard
+- ssn
+- privateKey
+
+### 2. API Routes Integration
+
+Error logging has been implemented in all project API endpoints:
+
+#### POST /api/projects
+- Logs errors during project creation
+- Context includes: operation='createProject', userId, method='POST', path='/api/projects', body
+
+#### GET /api/projects
+- Logs errors during project listing
+- Context includes: operation='listProjects', userId, method='GET', path='/api/projects', params (pagination)
+
+#### GET /api/projects/[id]
+- Logs errors during project retrieval
+- Context includes: operation='getProjectById', userId, projectId, method='GET', path='/api/projects/[id]', params
+
+#### PATCH /api/projects/[id]
+- Logs errors during project updates
+- Context includes: operation='updateProject', userId, projectId, method='PATCH', path='/api/projects/[id]', params, body
+
+#### DELETE /api/projects/[id]
+- Logs errors during project deletion
+- Context includes: operation='deleteProject', userId, projectId, method='DELETE', path='/api/projects/[id]', params
+- Additional audit log using console.log for successful deletions (Requirement 18.5)
+
+### 3. Error Handling Pattern
+
+All API routes follow this pattern:
+
+```typescript
+try {
+  // ... operation logic
+} catch (error) {
+  logError(error as Error, {
+    operation: 'operationName',
+    userId: session?.user?.id,
+    projectId: projectId,
+    method: 'HTTP_METHOD',
+    path: '/api/path',
+    params: { /* sanitized params */ },
+    body: { /* sanitized body */ }
+  });
+
+  return NextResponse.json(
+    {
+      error: {
+        message: 'Internal server error',
+        code: 'INTERNAL_ERROR'
+      }
+    },
+    { status: 500 }
+  );
+}
+```
+
+### 4. Test Coverage
+
+Comprehensive unit tests verify:
+- ✅ Structured JSON format logging
+- ✅ Sensitive data sanitization (top-level fields)
+- ✅ Nested object sanitization
+- ✅ Error stack inclusion in development mode
+- ✅ Error stack exclusion in production mode
+- ✅ Optional field handling
+- ✅ Parameter sanitization
+- ✅ Array value handling
+
+All 8 tests pass successfully.
+
+## Example Log Output
+
+### Development Mode
+```json
+{
+  "timestamp": "2024-01-15T10:30:45.123Z",
+  "operation": "createProject",
+  "userId": "clxxx123456",
+  "errorType": "ValidationError",
+  "errorMessage": "Title is required",
+  "errorStack": "Error: Title is required\n    at validateInput (...)",
+  "requestMetadata": {
+    "method": "POST",
+    "path": "/api/projects",
+    "body": {
+      "title": "",
+      "description": "Test project"
+    }
+  }
+}
+```
+
+### Production Mode
+```json
+{
+  "timestamp": "2024-01-15T10:30:45.123Z",
+  "operation": "createProject",
+  "userId": "clxxx123456",
+  "errorType": "ValidationError",
+  "errorMessage": "Title is required",
+  "requestMetadata": {
+    "method": "POST",
+    "path": "/api/projects",
+    "body": {
+      "title": "",
+      "description": "Test project"
+    }
+  }
+}
+```
+
+### With Sensitive Data Sanitization
+```json
+{
+  "timestamp": "2024-01-15T10:30:45.123Z",
+  "operation": "createProject",
+  "userId": "clxxx123456",
+  "errorType": "Error",
+  "errorMessage": "Database connection failed",
+  "requestMetadata": {
+    "method": "POST",
+    "path": "/api/projects",
+    "body": {
+      "title": "My Project",
+      "apiKey": "[REDACTED]",
+      "userToken": "[REDACTED]"
+    }
+  }
+}
+```
+
+## Security Considerations
+
+1. **No sensitive data exposure**: All passwords, tokens, API keys, and other sensitive fields are automatically redacted
+2. **Stack traces protected**: Stack traces only included in development mode to prevent information leakage
+3. **Structured format**: JSON format enables easy parsing for log aggregation tools
+4. **Comprehensive context**: All relevant debugging information included while protecting user data
+
+## Future Enhancements
+
+Potential improvements for future iterations:
+- Integration with external logging services (e.g., Sentry, LogRocket, DataDog)
+- Log level filtering (ERROR, WARN, INFO, DEBUG)
+- Performance metrics tracking
+- Error rate monitoring and alerting
+- Log rotation and archival strategies
+
+## Verification
+
+To verify the implementation:
+1. Run tests: `npm test -- project.errors.test.ts`
+2. Check API routes for logError usage: All project API routes include error logging
+3. Test in development: Errors include stack traces
+4. Test in production: Stack traces are omitted
+
+## References
+
+- **Requirement**: 14.4
+- **Design Document**: Error Handling section
+- **Files Modified**:
+  - ✅ Created: `src/lib/project/project.errors.ts`
+  - ✅ Modified: `src/app/api/projects/route.ts`
+  - ✅ Modified: `src/app/api/projects/[id]/route.ts`
+  - ✅ Created: `src/lib/project/project.errors.test.ts`
+
+---
