@@ -27,7 +27,7 @@ Lượt xem blog có thể tăng khi trang được tải, vì vậy assertion c
 
 `Platform CI` chạy trên mọi `pull_request` vào `main` và mỗi lần push lên `main`. Job `quality` chạy `npm test -- --runInBand` và `npx tsc --noEmit`; job `e2e-public-assistant` chạy E2E Chromium sau migration/seed. Cách dùng `npm ci`, `actions/setup-node` và workflow Node.js này phù hợp khuyến nghị của GitHub cho build/test Node.[2]
 
-Repository hiện chưa thể bật **branch protection required status checks** vì GitHub trả về HTTP 403: repository private cần GitHub Pro hoặc phải chuyển public. Workflow đã được phát hành và kiểm chứng chạy thành công; để buộc chặn merge ở cấp GitHub, chủ sở hữu cần nâng cấp hoặc chuyển visibility theo chính sách tổ chức, rồi đặt hai check `quality` và `e2e-public-assistant` thành required.
+Khi repository được chuyển public tạm thời, branch protection của `main` đã được bật với hai check bắt buộc `quality` và `e2e-public-assistant`, yêu cầu branch cập nhật trước merge, áp dụng cả với administrator, chặn force-push/xóa nhánh và yêu cầu xử lý toàn bộ conversation. Workflow mới nhất đã đạt; trước khi đổi repository về private, chủ sở hữu nên kiểm tra lại trong GitHub Settings rằng protection vẫn được giữ theo chính sách gói đang dùng.
 
 ## Bằng chứng kiểm chứng
 
