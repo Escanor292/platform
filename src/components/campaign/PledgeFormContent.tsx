@@ -27,22 +27,10 @@ const PLATFORM_TIP_OPTIONS = [0, 5, 10, 15];
 
 // Payment methods configuration with brand colors
 const PAYMENT_METHODS = {
-    PAYOS: {
-        id: "PAYOS",
-        label: "🏦 PayOS",
-        description: "Ví điện tử & VietQR",
-        colors: {
-            border: "border-purple-500",
-            bg: "bg-purple-50",
-            text: "text-purple-700",
-            button: "from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800",
-            accent: "purple"
-        }
-    },
-    SEPAY: {
-        id: "SEPAY",
-        label: "📱 SePay (QR)",
-        description: "Chuyển khoản nhanh",
+    BANK: {
+        id: "BANK",
+        label: "🏦 Ngân hàng",
+        description: "Chuyển khoản QR Banking",
         colors: {
             border: "border-cyan-500",
             bg: "bg-cyan-50",
@@ -51,31 +39,19 @@ const PAYMENT_METHODS = {
             accent: "cyan"
         }
     },
-    VNPAY: {
-        id: "VNPAY",
-        label: "💳 VNPay",
-        description: "ATM & Visa/Master",
+    ZALOPAY: {
+        id: "ZALOPAY",
+        label: "🟢 ZaloPay",
+        description: "Ví ZaloPay",
         colors: {
-            border: "border-blue-600",
-            bg: "bg-blue-50",
-            text: "text-blue-700",
-            button: "from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800",
-            accent: "blue"
-        }
-    },
-    MOMO: {
-        id: "MOMO",
-        label: "🟣 MoMo",
-        description: "Ví MoMo",
-        colors: {
-            border: "border-pink-500",
-            bg: "bg-pink-50",
-            text: "text-pink-700",
-            button: "from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700",
-            accent: "pink"
+            border: "border-green-500",
+            bg: "bg-green-50",
+            text: "text-green-700",
+            button: "from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800",
+            accent: "green"
         }
     }
-} as const;
+};
 
 const PledgeFormContent = memo(function PledgeFormContent({
     campaignId,
@@ -109,7 +85,7 @@ const PledgeFormContent = memo(function PledgeFormContent({
     const [guestEmail, setGuestEmail] = useState("");
     const [shippingAddress, setShippingAddress] = useState("");
 
-    const [paymentMethod, setPaymentMethod] = useState<"VNPAY" | "MOMO" | "PAYOS" | "SEPAY">("PAYOS");
+    const [paymentMethod, setPaymentMethod] = useState<"BANK" | "ZALOPAY">("BANK");
 
     // Auth state checks
     const isAuthenticated = status === "authenticated" && session?.user;
@@ -237,8 +213,8 @@ const PledgeFormContent = memo(function PledgeFormContent({
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Có lỗi xảy ra");
 
-            // Xử lý SePay (hiển thị QR modal)
-            if (data.paymentMethod === "SEPAY") {
+            // Ngân hàng dùng QR Banking qua provider nội bộ SePay.
+            if (data.paymentMethod === "BANK") {
                 setSePayData(data);
                 setShowSePayModal(true);
                 return;

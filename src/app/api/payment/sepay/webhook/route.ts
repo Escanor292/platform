@@ -15,20 +15,14 @@ export async function POST(request: NextRequest) {
 
     console.log("[SEPAY WEBHOOK] Received:", JSON.stringify(body, null, 2));
 
-    // 1. Verify signature (nếu SePay gửi signature trong header hoặc body)
+    // 1. Production phải có chữ ký để tránh payload giả mạo.
     const signature = request.headers.get("x-sepay-signature") || body.signature;
-
-    if (signature) {
-      const sepay = getSePay();
-      const isValid = sepay.verifyIPNSignature(body, signature);
-
-      if (!isValid) {
-        console.error("[SEPAY WEBHOOK] Invalid signature");
-        return NextResponse.json(
-          { success: false, message: "Invalid signature" },
-          { status: 400 }
-        );
-      }
+    if (process.env.NODE_ENV === "production" && !signature) {
+      return NextResponse.json({ success: false, message: "Missing signature" }, { status: 401 });
+    }
+    if (signature && !getSePay().verifyIPNSignature(body, signature)) {
+      console.error("[SEPAY WEBHOOK] Invalid signature");
+      return NextResponse.json({ success: false, message: "Invalid signature" }, { status: 401 });
     }
 
     // 2. Parse data từ IPN
@@ -49,27 +43,18 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 3. Tìm pledge bằng order_invoice_number
-    // Format: INV-{pledgeId}-{timestamp}
+    // 3. Tìm pledge bằng transactionId duy nhất đã gửi khi khởi tạo checkout.
     const invoiceNumber = order.order_invoice_number;
-    const pledgeIdMatch = invoiceNumber.match(/INV-([a-z0-9]+)-/i);
-
-    if (!pledgeIdMatch) {
-      console.error("[SEPAY WEBHOOK] Cannot extract pledge ID from invoice:", invoiceNumber);
+    if (!invoiceNumber) {
+      console.error("[SEPAY WEBHOOK] Missing invoice number");
       return NextResponse.json(
-        { success: false, message: "Invalid invoice number format" },
+        { success: false, message: "Missing invoice number" },
         { status: 400 }
       );
     }
-
-    const pledgeIdPrefix = pledgeIdMatch[1];
-
-    // Tìm pledge có ID bắt đầu với prefix
     const pledge = await prisma.pledges.findFirst({
       where: {
-        id: {
-          startsWith: pledgeIdPrefix,
-        },
+        transactionId: invoiceNumber,
         paymentProvider: "SEPAY",
       },
       include: { campaigns: true },
