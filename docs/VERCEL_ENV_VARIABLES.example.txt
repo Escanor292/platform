@@ -1,0 +1,30 @@
+# Safe environment-variable template for Vercel
+# Never commit real secret values. Configure secrets in Vercel Project Settings.
+# Copy only the keys required by the deployed features.
+
+DATABASE_URL=<set-in-vercel>
+NEXTAUTH_URL=https://<production-domain>
+NEXT_PUBLIC_APP_URL=https://<production-domain>
+NEXTAUTH_SECRET=<set-in-vercel>
+GOOGLE_CLIENT_ID=<set-in-vercel-if-google-login-enabled>
+GOOGLE_CLIENT_SECRET=<set-in-vercel-if-google-login-enabled>
+MONGODB_URI=<set-in-vercel-if-chat-enabled>
+MONGODB_DB_NAME=<set-in-vercel-if-chat-enabled>
+REDIS_URL=<set-in-vercel-if-rate-limiting-enabled>
+CLOUDINARY_CLOUD_NAME=<set-in-vercel-if-media-upload-enabled>
+CLOUDINARY_API_KEY=<set-in-vercel-if-media-upload-enabled>
+CLOUDINARY_API_SECRET=<set-in-vercel-if-media-upload-enabled>
+PAYOS_CLIENT_ID=<set-in-vercel-if-hosted-checkout-enabled>
+PAYOS_API_KEY=<set-in-vercel-if-hosted-checkout-enabled>
+PAYOS_CHECKSUM_KEY=<set-in-vercel-if-hosted-checkout-enabled>
+RESEND_API_KEY=<set-in-vercel-if-password-reset-email-enabled>
+RESEND_FROM_EMAIL=no-reply@<verified-domain>
+EMAIL_FROM=<fallback-email-if-used-by-auth>
+
+# Optional/legacy provider keys only when their routes are intentionally enabled:
+MOMO_ACCESS_KEY=<set-in-vercel-if-enabled>
+MOMO_SECRET_KEY=<set-in-vercel-if-enabled>
+SEPAY_MERCHANT_ID=<set-in-vercel-if-enabled>
+SEPAY_SECRET_KEY=<set-in-vercel-if-enabled>
+VNPAY_TMN_CODE=<set-in-vercel-if-enabled>
+VNPAY_HASH_SECRET=<set-in-vercel-if-enabled>
