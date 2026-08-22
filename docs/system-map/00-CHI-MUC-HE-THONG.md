@@ -12,6 +12,7 @@ Bộ tài liệu này là bản đồ kỹ thuật ngắn gọn của hệ thố
 
 | File | Dùng khi |
 |---|---|
+| [`../SRS-TU-TE-FUND.md`](../SRS-TU-TE-FUND.md) | Đọc đặc tả yêu cầu phần mềm, actor, use case, acceptance checklist và backlog |
 | [`01-KIEN-TRUC-DU-LIEU.md`](./01-KIEN-TRUC-DU-LIEU.md) | Hiểu stack, source tree, domain và quan hệ database |
 | [`02-API-AUTH-THANH-TOAN.md`](./02-API-AUTH-THANH-TOAN.md) | Làm việc với API, quyền truy cập, auth, checkout và provider |
 | [`03-LUONG-UI-CHAT-NOI-DUNG.md`](./03-LUONG-UI-CHAT-NOI-DUNG.md) | Sửa giao diện, campaign, product, blog, chat và các luồng người dùng |
@@ -32,7 +33,7 @@ Các miền chính gồm identity/auth, project, campaign, reward/product, blog,
 
 ## Cách đọc và cập nhật
 
-Người mới đọc file này trước, sau đó đọc kiến trúc/dữ liệu, API/auth/payment, rồi UI/luồng và vận hành. Mỗi thay đổi lớn phải cập nhật đúng tài liệu chuyên đề thay vì tạo thêm một file `FINAL_STATUS` hoặc `IMPLEMENTATION_SUMMARY` mới.
+Người mới đọc SRS trước để nắm phạm vi và yêu cầu, sau đó đọc file này, kiến trúc/dữ liệu, API/auth/payment, rồi UI/luồng và vận hành. Mỗi thay đổi lớn phải cập nhật đúng tài liệu chuyên đề thay vì tạo thêm một file `FINAL_STATUS` hoặc `IMPLEMENTATION_SUMMARY` mới.
 
 Các nhãn trạng thái được dùng trong tài liệu:
 

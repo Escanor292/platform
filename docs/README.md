@@ -2,18 +2,21 @@
 
 ## Bắt đầu từ đây
 
+Tài liệu yêu cầu chi tiết nằm tại [`SRS-TU-TE-FUND.md`](./SRS-TU-TE-FUND.md). Đây là baseline SRS được đối chiếu với source hiện tại, gồm actor, yêu cầu chức năng/phi chức năng, use case, API surface, dữ liệu, state machine, acceptance checklist và backlog khoảng trống.
+
 Để tránh nhiều Markdown trùng nhau, tài liệu hệ thống hiện hành được tổ chức thành một bộ nhỏ dưới [`system-map/`](./system-map/):
 
-1. [`00-CHI-MUC-HE-THONG.md`](./system-map/00-CHI-MUC-HE-THONG.md) — phạm vi, nguồn sự thật và cách đọc.
-2. [`01-KIEN-TRUC-DU-LIEU.md`](./system-map/01-KIEN-TRUC-DU-LIEU.md) — stack, source tree, domain và quan hệ dữ liệu.
-3. [`02-API-AUTH-THANH-TOAN.md`](./system-map/02-API-AUTH-THANH-TOAN.md) — API, auth, forgot-password, checkout và provider.
-4. [`03-LUONG-UI-CHAT-NOI-DUNG.md`](./system-map/03-LUONG-UI-CHAT-NOI-DUNG.md) — giao diện, campaign, project, product, blog và chat.
-5. [`04-BAO-MAT-VAN-HANH-CAP-NHAT.md`](./system-map/04-BAO-MAT-VAN-HANH-CAP-NHAT.md) — bảo mật, migration, test, deployment và changelog.
-6. [`07-AUDIT-MD-TXT-VA-HE-THONG.md`](./system-map/07-AUDIT-MD-TXT-VA-HE-THONG.md) — audit độ chính xác, lỗi thời và khoảng trống tài liệu.
-7. [`DATABASE_SCHEMA_DBML.txt`](./DATABASE_SCHEMA_DBML.txt) — snapshot DBML PostgreSQL sinh từ `prisma/schema.prisma`.
-8. [`MONGODB_SCHEMA_DBML.txt`](./MONGODB_SCHEMA_DBML.txt) — snapshot collection/index MongoDB từ source runtime.
-9. [`VERCEL_ENV_VARIABLES.txt`](./VERCEL_ENV_VARIABLES.txt) — danh sách biến môi trường do chủ dự án yêu cầu giữ lại; không chia sẻ công khai.
-10. [`VERCEL_ENV_VARIABLES.example.txt`](./VERCEL_ENV_VARIABLES.example.txt) — template placeholder an toàn để tham khảo.
+1. [`SRS-TU-TE-FUND.md`](./SRS-TU-TE-FUND.md) — đặc tả yêu cầu phần mềm chi tiết và baseline nghiệm thu.
+2. [`00-CHI-MUC-HE-THONG.md`](./system-map/00-CHI-MUC-HE-THONG.md) — phạm vi, nguồn sự thật và cách đọc.
+3. [`01-KIEN-TRUC-DU-LIEU.md`](./system-map/01-KIEN-TRUC-DU-LIEU.md) — stack, source tree, domain và quan hệ dữ liệu.
+4. [`02-API-AUTH-THANH-TOAN.md`](./system-map/02-API-AUTH-THANH-TOAN.md) — API, auth, forgot-password, checkout và provider.
+5. [`03-LUONG-UI-CHAT-NOI-DUNG.md`](./system-map/03-LUONG-UI-CHAT-NOI-DUNG.md) — giao diện, campaign, project, product, blog và chat.
+6. [`04-BAO-MAT-VAN-HANH-CAP-NHAT.md`](./system-map/04-BAO-MAT-VAN-HANH-CAP-NHAT.md) — bảo mật, migration, test, deployment và changelog.
+7. [`07-AUDIT-MD-TXT-VA-HE-THONG.md`](./system-map/07-AUDIT-MD-TXT-VA-HE-THONG.md) — audit độ chính xác, lỗi thời và khoảng trống tài liệu.
+8. [`DATABASE_SCHEMA_DBML.txt`](./DATABASE_SCHEMA_DBML.txt) — snapshot DBML PostgreSQL sinh từ `prisma/schema.prisma`.
+9. [`MONGODB_SCHEMA_DBML.txt`](./MONGODB_SCHEMA_DBML.txt) — snapshot collection/index MongoDB từ source runtime.
+10. [`VERCEL_ENV_VARIABLES.txt`](./VERCEL_ENV_VARIABLES.txt) — danh sách biến môi trường do chủ dự án yêu cầu giữ lại; không chia sẻ công khai.
+11. [`VERCEL_ENV_VARIABLES.example.txt`](./VERCEL_ENV_VARIABLES.example.txt) — template placeholder an toàn để tham khảo.
 
 ## Bảo toàn Markdown cũ
 
