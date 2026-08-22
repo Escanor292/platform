@@ -679,9 +679,23 @@ model users {
   product_reviews                            product_reviews[]
   payment_methods                            payment_methods[]
   checkout_sessions                          checkout_sessions[]
+  password_reset_tokens                      password_reset_tokens[]
   user_badges_user_badges_assigned_byTousers user_badges[]        @relation("user_badges_assigned_byTousers")
   user_badges_user_badges_revoked_byTousers  user_badges[]        @relation("user_badges_revoked_byTousers")
   user_badges_user_badges_user_idTousers     user_badges[]        @relation("user_badges_user_idTousers")
+}
+
+model password_reset_tokens {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  users     users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@index([expiresAt, usedAt])
 }
 
 model assistant_telemetry_events {

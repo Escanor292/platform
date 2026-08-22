@@ -129,6 +129,11 @@ export default function LoginPage() {
                   />
                 </div>
               </div>
+              <div className="mt-2 text-right">
+                <Link href="/auth/forgot-password" className="text-sm font-semibold text-pgreen hover:underline">
+                  Quên mật khẩu?
+                </Link>
+              </div>
             </div>
 
             <Button
