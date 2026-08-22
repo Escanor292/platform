@@ -2,7 +2,7 @@
 
 **Ngày đối chiếu:** 22/08/2026
 **Repository:** [`Escanor292/platform`](https://github.com/Escanor292/platform)  
-**Nguồn code đối chiếu:** `origin/main` tại commit `d883807` trước commit audit này
+**Nguồn code đối chiếu:** `main` tại commit audit gần nhất; kiểm tra lại commit thực tế sau khi push
 
 ## Mục đích và nguồn sự thật
 
@@ -19,6 +19,10 @@ Bộ tài liệu này là bản đồ kỹ thuật ngắn gọn của hệ thố
 | [`../archive/LEGACY_MARKDOWN.md`](../archive/LEGACY_MARKDOWN.md) | Tìm lại toàn văn Markdown cũ đã được gộp |
 | [`../archive/LEGACY_TXT.md`](../archive/LEGACY_TXT.md) | Tìm lại TXT lịch sử đã redacted, không dùng làm nguồn runtime |
 | [`07-AUDIT-MD-TXT-VA-HE-THONG.md`](./07-AUDIT-MD-TXT-VA-HE-THONG.md) | Xem lỗi thời, thiếu thông tin, tham chiếu và khuyến nghị |
+| [`../DATABASE_SCHEMA_DBML.txt`](../DATABASE_SCHEMA_DBML.txt) | Snapshot 35 bảng PostgreSQL/Prisma hiện tại |
+| [`../MONGODB_SCHEMA_DBML.txt`](../MONGODB_SCHEMA_DBML.txt) | Snapshot collection, document shape, index và TTL MongoDB từ source |
+| [`../VERCEL_ENV_VARIABLES.txt`](../VERCEL_ENV_VARIABLES.txt) | Danh sách biến Vercel được giữ theo yêu cầu riêng; có thể chứa secret |
+| [`../VERCEL_ENV_VARIABLES.example.txt`](../VERCEL_ENV_VARIABLES.example.txt) | Template biến môi trường không chứa secret |
 
 ## Snapshot hệ thống
 
@@ -49,12 +53,14 @@ Các nhãn trạng thái được dùng trong tài liệu:
 | `2f2f80c` / PR #4 | Tài liệu hóa hệ thống; sau đó được tinh gọn ở `main` |
 | `fc70d2c` / `6680834` | Archive Markdown/TXT và loại file tài liệu rời |
 | `d883807` | Xóa TXT lịch sử rời sau khi đã redacted/archive |
+| `75a5f5d` | Audit MD/TXT, archive lịch sử và tạo template môi trường an toàn |
+| `working update` | Giữ lại Vercel environment list, xóa Seed report và tái tạo hai DBML từ source |
 
-Lần audit này đối chiếu `origin/main` tại `d883807`; các file TXT lịch sử đã được redacted/archive và không còn được coi là tài liệu hoạt động.
+Lần audit này giữ lại `docs/VERCEL_ENV_VARIABLES.txt` theo yêu cầu vận hành của chủ dự án, xóa `docs/SEED_COMPLETE.txt`, và tái tạo hai DBML từ schema/service hiện tại. File Vercel không phải nguồn runtime và không nên chia sẻ công khai.
 
 ## Quy tắc bảo toàn thông tin
 
-Các Markdown và TXT cũ đã được đọc, redacted khi cần và gộp vào archive trước khi loại khỏi vị trí rời. Vì vậy việc giảm số file không làm mất nội dung; chỉ thay đổi nơi tra cứu. SRS cũ, design system cũ, audit API, hướng dẫn chat, deployment note, DBML, provider note và các báo cáo tính năng đều nằm trong archive với tiêu đề nguồn riêng.
+Các Markdown và TXT cũ đã được đọc, redacted khi cần và gộp vào archive trước khi loại khỏi vị trí rời. Vì vậy việc giảm số file không làm mất nội dung; chỉ thay đổi nơi tra cứu. SRS cũ, design system cũ, audit API, hướng dẫn chat, deployment note, provider note và các báo cáo tính năng đều nằm trong archive với tiêu đề nguồn riêng; hai DBML hiện hành nằm trực tiếp dưới `docs/` và được xem là snapshot, không phải nguồn sự thật.
 
 > Tài liệu này không thay thế code review, test, migration review, kiểm tra production hoặc xác nhận pháp lý/provider.
 

@@ -1,0 +1,809 @@
+// GENERATED DOCUMENTATION SNAPSHOT — PostgreSQL/Prisma
+// Source: prisma/schema.prisma
+// Prisma schema is the source of truth; regenerate with:
+//   python3 scripts/generate_postgres_dbml.py
+// This file documents the current application model and is not a migration.
+
+Enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  REFUND
+  APPROVE
+  REJECT
+  CANCEL
+  LOGIN
+  LOGOUT
+  KYC_SUBMIT
+  KYC_APPROVE
+  KYC_REJECT
+}
+
+Enum BadgeRarity {
+  common
+  rare
+  epic
+  legendary
+}
+
+Enum BadgeType {
+  custom
+  achievement
+}
+
+Enum BlacklistType {
+  IP
+  EMAIL
+  PHONE
+  BANK_ACCOUNT
+  DEVICE_ID
+}
+
+Enum BlogCommentStatus {
+  VISIBLE
+  HIDDEN
+  DELETED
+  PENDING_REVIEW
+}
+
+Enum BlogPostStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  ARCHIVED
+  REJECTED
+}
+
+Enum BlogPostType {
+  PLATFORM
+  CAMPAIGN_UPDATE
+  ANNOUNCEMENT
+  STORY
+  IMPACT_REPORT
+}
+
+Enum BlogReportReason {
+  SPAM
+  ABUSE
+  MISINFORMATION
+  SCAM
+  INAPPROPRIATE
+  OTHER
+}
+
+Enum BlogVisibility {
+  PUBLIC
+  BACKERS_ONLY
+  OWNER_ONLY
+  PRIVATE
+}
+
+Enum CampaignReportReason {
+  FRAUD
+  INAPPROPRIATE
+  MISLEADING
+  SCAM
+  INTELLECTUAL_PROPERTY
+  OTHER
+}
+
+Enum CampaignStatus {
+  DRAFT
+  PENDING_REVIEW
+  ACTIVE
+  SUCCESS
+  FAILED
+  CANCELED
+}
+
+Enum CampaignType {
+  REWARD
+  DONATION
+}
+
+Enum IDCardType {
+  CMND
+  CCCD
+  PASSPORT
+}
+
+Enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+Enum KYCStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
+
+Enum RewardAvailability {
+  AVAILABLE
+  DEVELOPMENT
+}
+
+Enum PaymentMethodType {
+  CARD
+  BANK_ACCOUNT
+  MOMO
+  ZALOPAY
+}
+
+Enum PaymentMethodStatus {
+  ACTIVE
+  REVOKED
+}
+
+Enum CheckoutSessionStatus {
+  ACTIVE
+  COMPLETED
+  EXPIRED
+  CANCELLED
+}
+
+Enum PledgeStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+Enum RefundStatus {
+  NO_REFUND
+  REQUESTED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+Enum ReportStatus {
+  PENDING
+  REVIEWING
+  RESOLVED
+  DISMISSED
+}
+
+Enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+Enum UserRole {
+  ADMIN
+  BACKER
+  CREATOR_PENDING
+  CREATOR
+}
+
+Enum UserStatus {
+  NORMAL
+  PRO
+  BANNED
+}
+
+Table audit_logs {
+  id text [pk]
+  userId text
+  action AuditAction
+  entityType text
+  entityId text
+  oldValue jsonb
+  newValue jsonb
+  changes jsonb
+  ipAddress text
+  userAgent text
+  reason text
+  metadata jsonb
+  createdAt timestamp [default: now()]
+}
+
+Table backer_invoices {
+  id text [pk]
+  invoiceNumber text [unique]
+  pledgeId text [unique]
+  backerName text
+  backerEmail text
+  backerPhone text
+  backerAddress text
+  backerTaxCode text
+  companyName text
+  amount decimal
+  tipAmount decimal
+  platformFee decimal
+  vatAmount decimal
+  totalAmount decimal
+  campaignTitle text
+  paymentMethod text
+  transactionId text
+  status InvoiceStatus [default: PENDING]
+  issuedAt timestamp [default: now()]
+  pdfUrl text
+  sentAt timestamp
+  createdAt timestamp [default: now()]
+  updatedAt timestamp
+}
+
+Table badges {
+  id text [pk]
+  name varchar(100)
+  slug varchar(120) [unique]
+  description text
+  icon_url text
+  icon_name varchar(100)
+  color varchar(30)
+  background_color varchar(30)
+  type BadgeType
+  rarity BadgeRarity [default: common]
+  is_active boolean [default: true]
+  created_by text
+  created_at timestamp [default: now()]
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table blacklist {
+  id text [pk]
+  type BlacklistType
+  value text
+  reason text
+  addedBy text
+  isActive boolean [default: true]
+  expiresAt timestamp
+  createdAt timestamp [default: now()]
+  updatedAt timestamp
+}
+
+Table blog_bookmarks {
+  id text [pk]
+  postId text
+  userId text
+  createdAt timestamp [default: now()]
+}
+
+Table blog_categories {
+  id text [pk]
+  name varchar(100)
+  slug varchar(100) [unique]
+  description text
+  createdAt timestamp [default: now()]
+}
+
+Table blog_comments {
+  id text [pk]
+  postId text
+  userId text
+  parentId text
+  content text
+  status BlogCommentStatus [default: VISIBLE]
+  createdAt timestamp [default: now()]
+  updatedAt timestamp
+  deletedAt timestamp
+}
+
+Table blog_likes {
+  id text [pk]
+  postId text
+  userId text
+  createdAt timestamp [default: now()]
+}
+
+Table blog_post_categories {
+  postId text
+  categoryId text
+}
+
+Table blog_post_tags {
+  postId text
+  tagId text
+}
+
+Table blog_posts {
+  id text [pk]
+  authorId text
+  campaignId text
+  projectId text
+  mongoContentId text
+  title varchar(255)
+  slug varchar(255) [unique]
+  excerpt text
+  coverImage text
+  status BlogPostStatus [default: DRAFT]
+  type BlogPostType [default: PLATFORM]
+  visibility BlogVisibility [default: PUBLIC]
+  publishedAt timestamp
+  createdAt timestamp [default: now()]
+  updatedAt timestamp
+  deletedAt timestamp
+  viewCount int [default: 0]
+  likeCount int [default: 0]
+  commentCount int [default: 0]
+  bookmarkCount int [default: 0]
+  isFeatured boolean [default: false]
+  wordCount int [default: 0]
+  readingTimeMinutes int [default: 0]
+  content text
+}
+
+Table blog_reports {
+  id text [pk]
+  postId text
+  commentId text
+  reporterId text
+  reason BlogReportReason
+  description text
+  status ReportStatus [default: PENDING]
+  reviewedBy text
+  reviewedAt timestamp
+  createdAt timestamp [default: now()]
+}
+
+Table blog_tags {
+  id text [pk]
+  name varchar(100)
+  slug varchar(100) [unique]
+}
+
+Table campaign_blog_links {
+  id text [pk]
+  campaignId text
+  blogPostId text
+  order int [default: 0]
+  createdAt timestamp [default: now()]
+}
+
+Table campaign_followers {
+  id text [pk]
+  campaignId text
+  userId text
+  email text
+  createdAt timestamp [default: now()]
+}
+
+Table campaign_reports {
+  id text [pk]
+  campaignId text
+  userId text
+  reason CampaignReportReason
+  description text
+  status ReportStatus [default: PENDING]
+  resolvedAt timestamp
+  resolvedBy text
+  resolution text
+  createdAt timestamp [default: now()]
+  updatedAt timestamp
+}
+
+Table campaign_updates {
+  id text [pk]
+  campaignId text
+  title text
+  content text
+  imageUrl text
+  createdAt timestamp [default: now()]
+  isPinned boolean [default: false]
+  tags text[] [default: []]
+  updatedAt timestamp [default: now()]
+}
+
+Table campaigns {
+  id text [pk]
+  campaignCode text [unique]
+  slug text [unique]
+  title text
+  description text
+  longDescription text
+  videoUrl text
+  imageUrl text
+  type CampaignType [default: REWARD]
+  category text
+  tags text[] [default: []]
+  goalAmount decimal
+  currentAmount decimal [default: 0]
+  status CampaignStatus [default: DRAFT]
+  startDate timestamp
+  endDate timestamp
+  creatorId text
+  projectId text
+  feeRate double [default: 0.08]
+  createdAt timestamp [default: now()]
+  updatedAt timestamp
+  images text[] [default: []]
+}
+
+Table daily_tip_invoices {
+  id text [pk]
+  invoiceDate timestamp [unique]
+  totalTip decimal
+  totalVat decimal
+  status text [default: "PENDING"]
+  createdAt timestamp [default: now()]
+}
+
+Table kyc_info {
+  id text [pk]
+  userId text [unique]
+  fullName text
+  idCardNumber text [unique]
+  idCardType IDCardType
+  idCardFrontImage text
+  idCardBackImage text
+  idCardIssueDate timestamp
+  idCardIssuePlace text
+  dateOfBirth timestamp
+  placeOfBirth text
+  nationality text [default: "VN"]
+  permanentAddress text
+  currentAddress text
+  occupation text
+  monthlyIncome text
+  verificationStatus KYCStatus [default: PENDING]
+  verifiedAt timestamp
+  verifiedBy text
+  rejectedReason text
+  riskLevel RiskLevel [default: LOW]
+  createdAt timestamp [default: now()]
+  updatedAt timestamp
+}
+
+Table platform_invoices {
+  id text [pk]
+  invoiceNumber text [unique]
+  campaignId text
+  creatorId text
+  amount decimal
+  vatAmount decimal
+  totalAmount decimal
+  status InvoiceStatus [default: PENDING]
+  dueDate timestamp
+  paidAt timestamp
+  paymentMethod text
+  createdAt timestamp [default: now()]
+  updatedAt timestamp
+}
+
+Table projects {
+  id text [pk, default: cuid()]
+  creatorId text
+  title varchar(255)
+  slug varchar(255) [unique]
+  description text
+  coverImage varchar(512)
+  richDescription jsonb
+  heroBackgroundType varchar(16) [default: "image"]
+  heroBackgroundConfig jsonb
+  createdAt timestamp [default: now()]
+  updatedAt timestamp
+}
+
+Table project_blog_links {
+  id text [pk, default: cuid()]
+  projectId text
+  blogPostId text
+  order int [default: 0]
+  createdAt timestamp [default: now()]
+}
+
+Table project_reward_links {
+  id text [pk, default: cuid()]
+  projectId text
+  rewardId text
+  order int [default: 0]
+  createdAt timestamp [default: now()]
+}
+
+Table pledges {
+  id text [pk]
+  campaignId text
+  userId text
+  displayName text
+  isAnonymous boolean [default: false]
+  quantity int [default: 1]
+  isCashOnDelivery boolean [default: false]
+  email text
+  phoneNumber text
+  amount decimal
+  tipAmount decimal [default: 0]
+  platformFee decimal [default: 0]
+  vatAmount decimal [default: 0]
+  totalAmount decimal
+  paymentProvider text
+  transactionId text [unique]
+  ipAddress text
+  deviceInfo jsonb
+  status PledgeStatus [default: PENDING]
+  refundStatus RefundStatus [default: NO_REFUND]
+  refundedAt timestamp
+  invoiceGroupDate timestamp
+  createdAt timestamp [default: now()]
+  updatedAt timestamp
+  rewardId text
+  shippingAddress text
+  payosOrderCode text [unique]
+  webhookProcessedAt timestamp
+  receivedAt timestamp
+}
+
+Table payment_methods {
+  id text [pk, default: cuid()]
+  userId text
+  provider text
+  methodType PaymentMethodType
+  label text
+  brand text
+  last4 text
+  providerMethodRef text
+  status PaymentMethodStatus [default: ACTIVE]
+  isDefault boolean [default: false]
+  createdAt timestamp [default: now()]
+  updatedAt timestamp
+}
+
+Table checkout_sessions {
+  id text [pk, default: cuid()]
+  userId text
+  campaignId text
+  rewardId text
+  payload jsonb
+  returnPath text
+  status CheckoutSessionStatus [default: ACTIVE]
+  expiresAt timestamp
+  createdAt timestamp [default: now()]
+  updatedAt timestamp
+}
+
+Table reviews {
+  id text [pk]
+  userId text
+  campaignId text
+  rating int
+  comment text
+  imageUrl text
+  createdAt timestamp [default: now()]
+}
+
+Table rewards {
+  id text [pk]
+  campaignId text
+  projectId text
+  title text
+  description text
+  createdAt timestamp [default: now()]
+  deliveryDate timestamp
+  isActive boolean [default: true]
+  isIncludedInProject boolean [default: true]
+  maxQuantity int
+  minAmount decimal
+  maxAmount decimal
+  stock int
+  productImages text[] [default: []]
+  productVideo text
+  updatedAt timestamp
+  availability RewardAvailability [default: AVAILABLE]
+}
+
+Table product_reviews {
+  id text [pk]
+  rewardId text
+  pledgeId text [unique]
+  userId text
+  rating int
+  comment text
+  mediaUrls text[] [default: []]
+  createdAt timestamp [default: now()]
+  updatedAt timestamp
+}
+
+Table transaction_limits {
+  id text [pk]
+  userId text [unique]
+  kycStatus KYCStatus
+  maxPerTransaction decimal
+  maxPerDay decimal
+  maxPerMonth decimal
+  maxTransactionsPerDay int
+  isActive boolean [default: true]
+  createdAt timestamp [default: now()]
+  updatedAt timestamp
+}
+
+Table user_badges {
+  id text [pk]
+  user_id text
+  badge_id text
+  assigned_by text
+  reason text
+  note text
+  assigned_at timestamp [default: now()]
+  expires_at timestamp
+  revoked_at timestamp
+  revoked_by text
+  revoke_reason text
+  is_visible boolean [default: true]
+}
+
+Table users {
+  id text [pk]
+  email text [unique]
+  password text
+  name text
+  displayName text
+  avatar text
+  phone text
+  role UserRole [default: BACKER]
+  isOrganization boolean [default: false]
+  isAdmin boolean [default: false]
+  bio text
+  idCard text
+  businessLicense text
+  bankAccount text
+  bankName text
+  approvedAt timestamp
+  createdAt timestamp [default: now()]
+  updatedAt timestamp
+  image text
+  location text
+  website text
+  coverImage text
+  shippingAddress text
+  socialLinks jsonb
+  privacySettings jsonb
+  notificationSettings jsonb
+  status UserStatus [default: NORMAL]
+}
+
+Table password_reset_tokens {
+  id text [pk, default: cuid()]
+  userId text
+  tokenHash text [unique]
+  expiresAt timestamp
+  usedAt timestamp
+  createdAt timestamp [default: now()]
+}
+
+Table assistant_telemetry_events {
+  id text [pk, default: cuid()]
+  assistant varchar(64)
+  eventType varchar(64)
+  metadata jsonb
+  createdAt timestamp [default: now()]
+}
+
+Ref: audit_logs.entityId > pledges.id [delete: cascade]
+Ref: audit_logs.userId > users.id
+Ref: backer_invoices.pledgeId > pledges.id [delete: cascade]
+Ref: badges.created_by > users.id
+Ref: blog_bookmarks.postId > blog_posts.id [delete: cascade]
+Ref: blog_bookmarks.userId > users.id [delete: cascade]
+Ref: blog_comments.parentId > blog_comments.id [delete: cascade]
+Ref: blog_comments.postId > blog_posts.id [delete: cascade]
+Ref: blog_comments.userId > users.id [delete: cascade]
+Ref: blog_likes.postId > blog_posts.id [delete: cascade]
+Ref: blog_likes.userId > users.id [delete: cascade]
+Ref: blog_post_categories.categoryId > blog_categories.id [delete: cascade]
+Ref: blog_post_categories.postId > blog_posts.id [delete: cascade]
+Ref: blog_post_tags.postId > blog_posts.id [delete: cascade]
+Ref: blog_post_tags.tagId > blog_tags.id [delete: cascade]
+Ref: blog_posts.authorId > users.id [delete: cascade]
+Ref: blog_posts.campaignId > campaigns.id [delete: cascade]
+Ref: blog_posts.projectId > projects.id [delete: setnull]
+Ref: blog_reports.postId > blog_posts.id [delete: cascade]
+Ref: blog_reports.reporterId > users.id [delete: cascade]
+Ref: campaign_blog_links.blogPostId > blog_posts.id [delete: cascade]
+Ref: campaign_blog_links.campaignId > campaigns.id [delete: cascade]
+Ref: campaign_followers.campaignId > campaigns.id [delete: cascade]
+Ref: campaign_followers.userId > users.id [delete: cascade]
+Ref: campaign_reports.campaignId > campaigns.id [delete: cascade]
+Ref: campaign_reports.userId > users.id [delete: cascade]
+Ref: campaign_updates.campaignId > campaigns.id
+Ref: campaigns.creatorId > users.id
+Ref: campaigns.projectId > projects.id [delete: setnull]
+Ref: kyc_info.userId > users.id [delete: cascade]
+Ref: platform_invoices.campaignId > campaigns.id
+Ref: platform_invoices.creatorId > users.id
+Ref: projects.creatorId > users.id [delete: cascade]
+Ref: project_blog_links.projectId > projects.id [delete: cascade]
+Ref: project_blog_links.blogPostId > blog_posts.id [delete: cascade]
+Ref: project_reward_links.projectId > projects.id [delete: cascade]
+Ref: project_reward_links.rewardId > rewards.id [delete: cascade]
+Ref: pledges.campaignId > campaigns.id
+Ref: pledges.rewardId > rewards.id
+Ref: pledges.userId > users.id
+Ref: payment_methods.userId > users.id [delete: cascade]
+Ref: checkout_sessions.userId > users.id [delete: cascade]
+Ref: reviews.campaignId > campaigns.id
+Ref: reviews.userId > users.id
+Ref: rewards.campaignId > campaigns.id [delete: cascade]
+Ref: rewards.projectId > projects.id [delete: setnull]
+Ref: product_reviews.rewardId > rewards.id [delete: cascade]
+Ref: product_reviews.pledgeId > pledges.id [delete: cascade]
+Ref: product_reviews.userId > users.id [delete: cascade]
+Ref: user_badges.assigned_by > users.id
+Ref: user_badges.badge_id > badges.id [delete: cascade]
+Ref: user_badges.revoked_by > users.id
+Ref: user_badges.user_id > users.id [delete: cascade]
+Ref: password_reset_tokens.userId > users.id [delete: cascade]
+
+// Index: audit_logs(createdAt)
+// Index: audit_logs(entityType, entityId)
+// Index: audit_logs(userId)
+// Index: badges(deleted_at)
+// Index: badges(is_active)
+// Index: badges(slug)
+// Index: badges(type)
+// Composite unique: blacklist(type, value)
+// Index: blacklist(type, value, isActive)
+// Composite unique: blog_bookmarks(postId, userId)
+// Index: blog_bookmarks(postId)
+// Index: blog_bookmarks(userId)
+// Index: blog_comments(parentId)
+// Index: blog_comments(postId)
+// Index: blog_comments(userId)
+// Composite unique: blog_likes(postId, userId)
+// Index: blog_likes(postId)
+// Index: blog_likes(userId)
+// Composite primary key: blog_post_categories(postId, categoryId)
+// Composite primary key: blog_post_tags(postId, tagId)
+// Index: blog_posts(authorId)
+// Index: blog_posts(campaignId)
+// Index: blog_posts(projectId)
+// Index: blog_posts(deletedAt)
+// Index: blog_posts(isFeatured)
+// Index: blog_posts(publishedAt)
+// Index: blog_posts(slug)
+// Index: blog_posts(status)
+// Index: blog_posts(type)
+// Index: blog_posts(visibility)
+// Index: blog_reports(commentId)
+// Index: blog_reports(postId)
+// Index: blog_reports(reporterId)
+// Index: blog_reports(status)
+// Composite unique: campaign_blog_links(campaignId, blogPostId)
+// Index: campaign_blog_links(blogPostId)
+// Index: campaign_blog_links(campaignId)
+// Composite unique: campaign_followers(campaignId, email)
+// Composite unique: campaign_followers(campaignId, userId)
+// Index: campaign_followers(campaignId)
+// Index: campaign_followers(userId)
+// Composite unique: campaign_reports(campaignId, userId)
+// Index: campaign_reports(campaignId)
+// Index: campaign_reports(status)
+// Index: campaign_reports(userId)
+// Index: campaign_updates(campaignId, isPinned)
+// Index: campaign_updates(tags)
+// Index: campaigns(category)
+// Index: campaigns(projectId)
+// Index: campaigns(tags)
+// Index: projects(creatorId)
+// Index: projects(slug)
+// Composite unique: project_blog_links(projectId, blogPostId)
+// Index: project_blog_links(blogPostId)
+// Index: project_blog_links(projectId)
+// Composite unique: project_reward_links(projectId, rewardId)
+// Index: project_reward_links(rewardId)
+// Index: project_reward_links(projectId)
+// Index: payment_methods(userId, status)
+// Index: payment_methods(provider, providerMethodRef)
+// Index: checkout_sessions(userId, status)
+// Index: checkout_sessions(expiresAt, status)
+// Index: checkout_sessions(campaignId, rewardId)
+// Index: rewards(campaignId)
+// Index: rewards(projectId)
+// Index: product_reviews(rewardId, createdAt)
+// Index: product_reviews(userId)
+// Index: user_badges(assigned_by)
+// Index: user_badges(badge_id)
+// Index: user_badges(revoked_at)
+// Index: user_badges(user_id)
+// Index: password_reset_tokens(userId, expiresAt)
+// Index: password_reset_tokens(expiresAt, usedAt)
+// Index: assistant_telemetry_events(createdAt)
+// Index: assistant_telemetry_events(assistant, eventType, createdAt)
+
+// Composite @@id/@@unique/@@index declarations are retained as comments
+// because DBML column-level [pk]/[unique] cannot faithfully express them.

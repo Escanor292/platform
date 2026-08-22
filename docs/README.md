@@ -10,12 +10,16 @@
 4. [`03-LUONG-UI-CHAT-NOI-DUNG.md`](./system-map/03-LUONG-UI-CHAT-NOI-DUNG.md) — giao diện, campaign, project, product, blog và chat.
 5. [`04-BAO-MAT-VAN-HANH-CAP-NHAT.md`](./system-map/04-BAO-MAT-VAN-HANH-CAP-NHAT.md) — bảo mật, migration, test, deployment và changelog.
 6. [`07-AUDIT-MD-TXT-VA-HE-THONG.md`](./system-map/07-AUDIT-MD-TXT-VA-HE-THONG.md) — audit độ chính xác, lỗi thời và khoảng trống tài liệu.
+7. [`DATABASE_SCHEMA_DBML.txt`](./DATABASE_SCHEMA_DBML.txt) — snapshot DBML PostgreSQL sinh từ `prisma/schema.prisma`.
+8. [`MONGODB_SCHEMA_DBML.txt`](./MONGODB_SCHEMA_DBML.txt) — snapshot collection/index MongoDB từ source runtime.
+9. [`VERCEL_ENV_VARIABLES.txt`](./VERCEL_ENV_VARIABLES.txt) — danh sách biến môi trường do chủ dự án yêu cầu giữ lại; không chia sẻ công khai.
+10. [`VERCEL_ENV_VARIABLES.example.txt`](./VERCEL_ENV_VARIABLES.example.txt) — template placeholder an toàn để tham khảo.
 
 ## Bảo toàn Markdown cũ
 
 [`archive/LEGACY_MARKDOWN.md`](./archive/LEGACY_MARKDOWN.md) và [`archive/LEGACY_TXT.md`](./archive/LEGACY_TXT.md) chứa nội dung lịch sử đã được gộp lại. Archive chỉ phục vụ tra cứu lịch sử; không dùng làm nguồn sự thật runtime. Khi khác với code, ưu tiên `prisma/schema.prisma`, `src/`, migration, `package.json` và cấu hình runtime.
 
-Các tài liệu cũ về SRS, design system, chat, API audit, blog/product, deployment, testing, feature reports và TXT schema/provider đều nằm trong archive. Báo cáo lỗi thời và khoảng trống hiện tại nằm ở [`system-map/07-AUDIT-MD-TXT-VA-HE-THONG.md`](./system-map/07-AUDIT-MD-TXT-VA-HE-THONG.md). Các file Markdown dùng làm fixture trong `scripts/` hoặc tài liệu đặc thù của công cụ bên ngoài không thuộc bộ docs hoạt động này.
+Các tài liệu cũ về SRS, design system, chat, API audit, blog/product, deployment, testing, feature reports và TXT schema/provider đều nằm trong archive. Hai DBML trong danh sách trên là snapshot được cập nhật từ source hiện tại; source code/schema vẫn là nguồn sự thật. File Vercel giữ nguyên theo yêu cầu vận hành riêng và có thể chứa secret, còn template example không chứa secret. Báo cáo lỗi thời và khoảng trống hiện tại nằm ở [`system-map/07-AUDIT-MD-TXT-VA-HE-THONG.md`](./system-map/07-AUDIT-MD-TXT-VA-HE-THONG.md). Các file Markdown dùng làm fixture trong `scripts/` hoặc tài liệu đặc thù của công cụ bên ngoài không thuộc bộ docs hoạt động này.
 
 ## Quy tắc cập nhật
 

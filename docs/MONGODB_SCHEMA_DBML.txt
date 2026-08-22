@@ -1,0 +1,308 @@
+// GENERATED DOCUMENTATION SNAPSHOT — MongoDB application documents
+// Source of truth: TypeScript types/services and index bootstrap scripts, not this file.
+// Database: process.env.MONGODB_DB_NAME || "crowdfunding_vn" (src/lib/mongodb.ts)
+// Regenerate manually after changing the listed source files; verify against runtime before deployment.
+// MongoDB does not enforce these shapes like PostgreSQL does. _id is ObjectId unless noted.
+// Cross-store IDs (userId, campaignId, postId, etc.) are PostgreSQL string IDs.
+// No financial amount/payment data is defined for these MongoDB documents.
+//
+// Sources reviewed:
+//   src/types/mongodb.types.ts
+//   src/types/chat.types.ts
+//   src/types/blog.types.ts
+//   src/services/mongodb/*.service.ts
+//   scripts/init-mongodb.js
+//   scripts/init-chat-indexes.ts
+
+// -----------------------------------------------------------------------------
+// Generic hybrid-architecture collections
+// -----------------------------------------------------------------------------
+
+Table activity_logs {
+  _id objectId [pk]
+  legacyId text
+  userId text
+  action text
+  entityType text
+  entityId text
+  details json
+  metadata json // ipAddress, userAgent, sessionId, path
+  createdAt timestamp
+  updatedAt timestamp // written by activity-log.service.ts
+}
+
+Table audit_logs {
+  _id objectId [pk]
+  legacyId text
+  userId text
+  action text
+  entityType text
+  entityId text
+  oldValue json
+  newValue json
+  changes json
+  ipAddress text
+  userAgent text
+  reason text
+  metadata json
+  pgAuditLogId text
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table analytics_events {
+  _id objectId [pk]
+  legacyId text
+  eventName text
+  userId text
+  campaignId text
+  sessionId text
+  path text
+  payload json
+  device json // browser, os, type
+  createdAt timestamp
+  updatedAt timestamp // interface field; analytics.service.ts does not set it on insert
+}
+
+Table notifications {
+  _id objectId [pk]
+  legacyId text
+  userId text
+  type text
+  title text
+  message text
+  payload json // href, campaignId, pledgeId, commentId, amount, extra
+  isRead boolean
+  readAt timestamp
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table campaign_comments {
+  _id objectId [pk]
+  legacyId text
+  campaignId text
+  userId text
+  userName text
+  userAvatar text
+  content text
+  parentId text
+  depth int
+  reactions json // [{ type, userIds[] }]
+  editHistory json // [{ content, editedAt }]
+  isEdited boolean
+  isDeleted boolean
+  status text
+  replyCount int
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table campaign_updates {
+  _id objectId [pk]
+  legacyId text
+  campaignId text
+  creatorId text
+  title text
+  content text
+  type text
+  status text
+  isPinned boolean
+  tags json // string[]
+  media json // [{ url, type, caption, order }]
+  viewCount int
+  publishedAt timestamp
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table campaign_contents {
+  _id objectId [pk]
+  legacyId text
+  campaignId text
+  lastSavedBy text
+  version int
+  sections json // ordered ContentSection[]
+  mediaGallery json // [{ url, type, caption, order }]
+  customFields json
+  isDraft boolean
+  publishedAt timestamp
+  versionHistory json // max five historical versions by application contract
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table user_metadata {
+  _id objectId [pk]
+  legacyId text
+  userId text
+  preferences json // emailNotifications, pushNotifications, newsletterSubscribed, language, timezone
+  onboarding json // completedSteps, isCompleted, completedAt
+  stats json // totalDonations, campaignsFollowed, commentsPosted, lastActiveAt
+  tags json // string[]
+  customData json
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+// -----------------------------------------------------------------------------
+// Chat collections (src/types/chat.types.ts and chat.service.ts)
+// -----------------------------------------------------------------------------
+
+Table conversations {
+  _id objectId [pk]
+  conversationKey text
+  type text // direct | campaign | admin_support
+  participants json // [{ userId, name, email, avatarUrl, role, deleted }]
+  participantIds json // PostgreSQL user IDs
+  campaign json // campaignId, title, coverImage, currentAmount, goalAmount, ownerId
+  lastMessage json // text, senderId, createdAt, type
+  unreadCount json // { userId: number }
+  isActive boolean
+  isReported boolean
+  blockedBy json // user IDs
+  hiddenBy json // user IDs
+  typingBy json // { userId: timestamp }; app indicator expires after 5 seconds
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table messages {
+  _id objectId [pk]
+  conversationId objectId
+  senderId text
+  senderName text
+  senderAvatar text
+  text text
+  type text // text | image | file | voice | call-signal
+  attachments json // [{ url, type, filename, size, mimeType, duration, thumbnail }]
+  readBy json // user IDs
+  isDeleted boolean
+  senderDeleted boolean
+  sensitive boolean
+  revealedBy json // user IDs
+  reactions json // [{ emoji, userIds[] }]
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table chat_reports {
+  _id objectId [pk]
+  conversationId objectId
+  messageId objectId
+  reporterId text
+  reason text // spam | scam | abuse | other
+  description text
+  status text // pending | reviewed | rejected | resolved
+  reviewedAt timestamp
+  reviewedBy text
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table user_notes {
+  _id objectId [pk]
+  userId text
+  targetUserId text
+  note text
+  expiresAt timestamp
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+// -----------------------------------------------------------------------------
+// Blog Mongo collections (PostgreSQL blog_posts remains canonical metadata)
+// -----------------------------------------------------------------------------
+
+Table blog_contents {
+  _id objectId [pk]
+  postId text
+  format text // markdown | html | rich_json
+  content text
+  richContent json // { blocks: [{ id, type, data }] }
+  tableOfContents json // [{ id, text, level }]
+  media json // [{ type, url, alt, caption, width, height }]
+  wordCount int
+  readingTimeMinutes int
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table blog_drafts {
+  _id objectId [pk]
+  postId text
+  authorId text
+  titleSnapshot text
+  excerptSnapshot text
+  contentSnapshot text
+  richContentSnapshot json // { blocks: [{ id, type, data }] }
+  autosavedAt timestamp
+}
+
+Table blog_versions {
+  _id objectId [pk]
+  postId text
+  versionNumber int
+  authorId text
+  titleSnapshot text
+  excerptSnapshot text
+  contentSnapshot text
+  richContentSnapshot json // { blocks: [{ id, type, data }] }
+  changeNote text
+  createdAt timestamp
+}
+
+Table blog_view_logs {
+  _id objectId [pk]
+  postId text
+  userId text
+  ip text
+  userAgent text
+  viewedAt timestamp
+}
+
+// -----------------------------------------------------------------------------
+// Runtime indexes and retention — code-confirmed only
+// -----------------------------------------------------------------------------
+
+// scripts/init-mongodb.js:
+// activity_logs: userId; action; entityType+entityId; createdAt DESC; createdAt ASC TTL 90 days.
+// audit_logs: entityType+entityId+createdAt DESC; userId+createdAt DESC; action+createdAt DESC;
+//              sparse pgAuditLogId; createdAt ASC TTL 365 days.
+// analytics_events: eventName; userId; campaignId; campaignId+eventName+createdAt DESC;
+//                   createdAt DESC; createdAt ASC TTL 180 days.
+// notifications: userId+createdAt DESC; userId+isRead; createdAt ASC TTL 90 days.
+// campaign_comments: campaignId+createdAt DESC; campaignId+parentId+createdAt ASC;
+//                    parentId+createdAt ASC; userId+createdAt DESC; status.
+// campaign_updates: campaignId+status+publishedAt DESC; creatorId;
+//                   campaignId+isPinned DESC+publishedAt DESC; tags.
+// campaign_contents: UNIQUE campaignId+isDraft; lastSavedBy.
+// user_metadata: UNIQUE userId; tags.
+//
+// scripts/init-chat-indexes.ts:
+// conversations: UNIQUE conversationKey; participantIds; updatedAt DESC;
+//                participantIds+updatedAt DESC.
+// messages: conversationId+createdAt DESC; senderId; isDeleted.
+// chat_reports: status+createdAt DESC; conversationId; reporterId.
+//
+// src/services/mongodb/blog.service.ts:
+// blog_contents: UNIQUE postId.
+// blog_drafts: postId; authorId.
+// blog_versions: postId+versionNumber DESC.
+// blog_view_logs: postId+viewedAt DESC; userId.
+//
+// notification.service.ts repeats notification indexes and names TTL index ttl_90_days.
+// comment.service.ts repeats campaign_comments indexes. campaign-content.service.ts adds
+// campaignId+isDraft at service level. user-metadata.service.ts repeats UNIQUE userId and tags.
+//
+// user_notes has an expiresAt field and is filtered by application logic; no code-confirmed
+// TTL/index bootstrap exists for user_notes. typingBy is an in-document timestamp map and is
+// not a Mongo TTL index.
+//
+// Feature flags: BaseMongoService-backed services (activity, audit, analytics, notifications,
+// campaign updates/content, user metadata) require their ENABLE_* flag to equal the literal
+// string "true". Chat and blog services access their collections directly. Index scripts are
+// separate bootstrap operations and are not evidence that a live database has been initialized.
+//
+// No Ref declarations are emitted: MongoDB does not enforce cross-collection foreign keys;
+// relationships to PostgreSQL are application-level string references documented above.

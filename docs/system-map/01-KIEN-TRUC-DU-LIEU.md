@@ -60,7 +60,7 @@ User
  └─ Password reset tokens
 ```
 
-Các bảng junction cho project/campaign/blog/reward cho phép liên kết nội dung mà không biến project thành alias của campaign. Mọi thay đổi schema phải đi cùng migration tương ứng, regenerate Prisma client và cập nhật caller/type.
+Các bảng junction cho project/campaign/blog/reward cho phép liên kết nội dung mà không biến project thành alias của campaign. Snapshot DBML PostgreSQL nằm ở [`../DATABASE_SCHEMA_DBML.txt`](../DATABASE_SCHEMA_DBML.txt); snapshot MongoDB collection/index nằm ở [`../MONGODB_SCHEMA_DBML.txt`](../MONGODB_SCHEMA_DBML.txt). Hai file chỉ là tài liệu sinh/đối chiếu, không thay thế source. Mọi thay đổi schema phải đi cùng migration tương ứng, regenerate Prisma client và cập nhật caller/type.
 
 ## 4. Điểm cần kiểm tra trước khi sửa
 
