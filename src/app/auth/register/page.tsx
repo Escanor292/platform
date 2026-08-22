@@ -4,11 +4,23 @@ import { signIn } from "next-auth/react";
 import { Globe, Sparkles, Heart, Users, Building2, User as UserIcon, Eye, EyeOff } from "lucide-react";
 import LeafIcon from "@/components/shared/LeafIcon";
 import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+
+function getSafeCallbackUrl(value: string | null) {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/";
+  try {
+    const parsed = new URL(value, "http://localhost");
+    return parsed.origin === "http://localhost" ? value : "/";
+  } catch {
+    return "/";
+  }
+}
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = useMemo(() => getSafeCallbackUrl(searchParams.get("callbackUrl")), [searchParams]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [accountType, setAccountType] = useState<"individual" | "organization">("individual");
@@ -62,9 +74,9 @@ export default function RegisterPage() {
 
       if (result?.error) {
         setError("Đăng ký thành công nhưng đăng nhập thất bại. Vui lòng đăng nhập thủ công.");
-        setTimeout(() => router.push("/auth/login"), 2000);
+        setTimeout(() => router.replace(`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`), 2000);
       } else {
-        router.push("/");
+        router.replace(callbackUrl);
       }
     } catch (err: any) {
       setError(err.message);
@@ -269,7 +281,7 @@ export default function RegisterPage() {
               </div>
 
               <button
-                onClick={() => signIn("google", { callbackUrl: "/" })}
+                onClick={() => signIn("google", { callbackUrl })}
                 className="w-full h-14 bg-white hover:bg-gray-50 border-2 border-gray-200 rounded-2xl font-bold text-gray-900 flex items-center justify-center gap-3 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-95"
               >
                 <Globe size={20} className="text-blue-600" />
@@ -280,7 +292,7 @@ export default function RegisterPage() {
                 <p className="text-sm text-gray-600 font-medium">
                   Bạn đã có tài khoản?{" "}
                   <Link
-                    href="/auth/login"
+                    href={`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
                     className="text-pgreen font-black hover:text-fgreen transition-colors underline decoration-2 underline-offset-4"
                   >
                     Đăng nhập ngay

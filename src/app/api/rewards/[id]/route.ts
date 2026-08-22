@@ -79,7 +79,8 @@ export async function PUT(
             maxQuantity,
             deliveryDate,
             isActive,
-            isIncludedInProject
+            isIncludedInProject,
+            availability
         } = body;
 
         // Check if user owns the reward: chủ chiến dịch, chủ dự án hoặc admin
@@ -144,6 +145,7 @@ export async function PUT(
                 maxQuantity: maxQuantity !== undefined ? (maxQuantity ? parseInt(maxQuantity) : null) : undefined,
                 deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
                 isActive: isActive !== undefined ? Boolean(isActive) : undefined,
+                availability: availability !== undefined ? (availability === "DEVELOPMENT" ? "DEVELOPMENT" : "AVAILABLE") : undefined,
                 ...(updateIncludedInProject !== undefined ? { isIncludedInProject: updateIncludedInProject, projectId: updateProjectId } : {}),
             },
         });
