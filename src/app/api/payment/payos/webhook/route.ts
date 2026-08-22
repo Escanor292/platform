@@ -32,7 +32,11 @@ export async function POST(request: NextRequest) {
     // 1. VERIFY SIGNATURE
     // ============================================================
     const signature = request.headers.get("x-payos-signature");
-    if (process.env.PAYOS_CHECKSUM_KEY) {
+    const checksumKey = process.env.PAYOS_CHECKSUM_KEY;
+    if (process.env.NODE_ENV === "production" && !checksumKey) {
+      return NextResponse.json({ error: "PayOS webhook is not configured" }, { status: 503 });
+    }
+    if (checksumKey) {
       if (!signature) {
         console.error(`[PAYOS WEBHOOK ${requestId}] Missing signature header`);
         return NextResponse.json(
@@ -42,7 +46,7 @@ export async function POST(request: NextRequest) {
       }
 
       const dataString = JSON.stringify(body);
-      const hmac = crypto.createHmac("sha256", process.env.PAYOS_CHECKSUM_KEY);
+      const hmac = crypto.createHmac("sha256", checksumKey);
       const expectedSignature = hmac.update(dataString).digest("hex");
 
       if (signature !== expectedSignature) {
