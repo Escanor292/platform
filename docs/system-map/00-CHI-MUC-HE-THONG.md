@@ -1,81 +1,63 @@
-# Bộ tài liệu bản đồ hệ thống Tử Tế Fund
+# Bản đồ hệ thống Tử Tế Fund
 
-**Ngày rà soát:** 22/08/2026  
+**Ngày đối chiếu:** 22/08/2026
 **Repository:** [`Escanor292/platform`](https://github.com/Escanor292/platform)  
-**Branch đối chiếu:** `origin/main`  
-**Commit hiện tại:** `9bf7ad1` — merge Pull Request #2  
-**Mục đích:** Tài liệu hóa hệ thống dựa trên mã nguồn hiện tại, đồng thời phân biệt rõ tài liệu chuẩn, tài liệu lịch sử và phần cần xác minh.
+**Nguồn code đối chiếu:** `origin/main` tại commit `9bf7ad1`
 
-> **Quy tắc đọc:** Khi tài liệu cũ khác với mã nguồn hiện tại, ưu tiên `prisma/schema.prisma`, source code trong `src/`, migration đang được quản lý và cấu hình build. Các báo cáo hoàn thành trong `.kiro/` hoặc `docs/` là bằng chứng lịch sử, không tự động phản ánh trạng thái hiện tại.
+## Mục đích và nguồn sự thật
 
-## 1. Thành phần của bộ tài liệu
+Bộ tài liệu này là bản đồ kỹ thuật ngắn gọn của hệ thống hiện tại. Khi nội dung tài liệu lịch sử khác với mã nguồn, ưu tiên theo thứ tự: `prisma/schema.prisma`, source trong `src/`, migration, `package.json` và cấu hình triển khai. Tài liệu trong `docs/archive/LEGACY_MARKDOWN.md` được giữ nguyên để tra cứu lịch sử, nhưng không phải nguồn sự thật runtime.
 
-| File | Nội dung | Dùng khi |
-|---|---|---|
-| [`01-KIEN-TRUC-HE-THONG.md`](./01-KIEN-TRUC-HE-THONG.md) | Kiến trúc chạy thật, thư mục, database và tích hợp ngoài | Cần hiểu toàn cảnh hệ thống |
-| [`02-MO-HINH-DU-LIEU.md`](./02-MO-HINH-DU-LIEU.md) | Entity, quan hệ PostgreSQL/Prisma và miền nghiệp vụ | Cần sửa schema, API hoặc migration |
-| [`03-API-AUTH-THANH-TOAN.md`](./03-API-AUTH-THANH-TOAN.md) | Nhóm API, xác thực, reset mật khẩu và payment flow | Cần tích hợp hoặc debug backend |
-| [`04-LUONG-NGUOI-DUNG.md`](./04-LUONG-NGUOI-DUNG.md) | Luồng campaign, project, reward/product, blog, chat và checkout | Cần phát triển UI/UX hoặc kiểm thử chức năng |
-| [`05-BAO-MAT-VAN-HANH.md`](./05-BAO-MAT-VAN-HANH.md) | Bảo mật, biến môi trường, build/deploy, test và rủi ro | Cần triển khai production hoặc audit |
-| [`06-KIEM-KE-TAI-LIEU-CAP-NHAT.md`](./06-KIEM-KE-TAI-LIEU-CAP-NHAT.md) | Đối chiếu 84 Markdown, nhóm trùng lặp và thay đổi mới trên GitHub | Cần biết tài liệu nào nên đọc hoặc đã lỗi thời |
+## Bộ tài liệu hoạt động
 
-## 2. Bản đồ nhanh hệ thống
+| File | Dùng khi |
+|---|---|
+| [`01-KIEN-TRUC-DU-LIEU.md`](./01-KIEN-TRUC-DU-LIEU.md) | Hiểu stack, source tree, domain và quan hệ database |
+| [`02-API-AUTH-THANH-TOAN.md`](./02-API-AUTH-THANH-TOAN.md) | Làm việc với API, quyền truy cập, auth, checkout và provider |
+| [`03-LUONG-UI-CHAT-NOI-DUNG.md`](./03-LUONG-UI-CHAT-NOI-DUNG.md) | Sửa giao diện, campaign, product, blog, chat và các luồng người dùng |
+| [`04-BAO-MAT-VAN-HANH-CAP-NHAT.md`](./04-BAO-MAT-VAN-HANH-CAP-NHAT.md) | Migration, secret, test, deployment, rủi ro và lịch sử cập nhật |
+| [`../archive/LEGACY_MARKDOWN.md`](../archive/LEGACY_MARKDOWN.md) | Tìm lại toàn văn 68 Markdown cũ đã được gộp, không xóa thông tin |
 
-Tử Tế Fund là ứng dụng Next.js 15 dùng App Router. React 19 và Tailwind CSS đảm nhiệm giao diện; các route trong `src/app/api` đảm nhiệm backend; Prisma kết nối PostgreSQL; MongoDB phục vụ các vùng dữ liệu chat và nội dung phụ trợ. Mã nguồn hiện có các miền campaign/project, reward/product, blog, chat, user/auth, KYC, dashboard, notification và payment.
+## Snapshot hệ thống
 
-Theo snapshot hiện tại, repository có khoảng **102 API route handlers**, **52 page files**, **148 component files**, **58 thư viện nội bộ** và **27 file test**. Các con số này là số lượng file trên working tree tại thời điểm rà soát, không phải cam kết coverage hay số endpoint production đã được nghiệm thu.
+Tử Tế Fund là ứng dụng Next.js 15 App Router, React 19 và Tailwind CSS. PostgreSQL/Prisma là nguồn dữ liệu quan hệ; MongoDB được dùng cho chat và một số nội dung phụ trợ; Cloudinary và các provider thanh toán chỉ hoạt động khi môi trường đã cấu hình. Snapshot trước khi tài liệu hóa ghi nhận khoảng 102 route handler API, 52 page file, 148 component file, 58 thư viện nội bộ và 27 file test. Đây là số lượng file, không phải cam kết test coverage hay số route đã nghiệm thu production.
 
-## 3. Trạng thái cập nhật mới nhất
+Các miền chính gồm identity/auth, project, campaign, reward/product, blog, chat/realtime, dashboard/admin, KYC, notification, upload và payment/checkout.
 
-| Mốc | Nội dung | Trạng thái |
-|---|---|---|
-| `d003889` | Đồng bộ theme creator rewards | Đã có trên `main` |
-| `a32c5ed` | Checkout đa phương thức an toàn | Đã có trên `main` qua PR #2 |
-| `1e8a93d` | Quên mật khẩu và đặt lại mật khẩu | Đã có trên `main` qua PR #2 |
-| `9bf7ad1` | Merge PR #2 vào `main` | Commit hiện tại |
+## Cách đọc và cập nhật
 
-Trong lần `git fetch origin main` ngày 22/08/2026, local đã đồng bộ với `origin/main` và không phát hiện commit mới hơn `9bf7ad1`.
+Người mới đọc file này trước, sau đó đọc kiến trúc/dữ liệu, API/auth/payment, rồi UI/luồng và vận hành. Mỗi thay đổi lớn phải cập nhật đúng tài liệu chuyên đề thay vì tạo thêm một file `FINAL_STATUS` hoặc `IMPLEMENTATION_SUMMARY` mới.
 
-## 4. Phân loại độ tin cậy của tài liệu
+Các nhãn trạng thái được dùng trong tài liệu:
 
 | Nhãn | Ý nghĩa |
 |---|---|
-| **Đã xác nhận trong code** | Có thể kiểm tra trực tiếp trong schema, route, component, package script hoặc migration hiện tại |
-| **Đã triển khai nhưng cần xác minh runtime** | Có code nhưng còn phụ thuộc database, secret, provider, webhook, seed hoặc môi trường production |
-| **Tài liệu lịch sử** | Mô tả một mốc phát triển trước đây; có thể chứa số liệu, đường dẫn hoặc trạng thái cũ |
-| **Kế hoạch/chưa cam kết** | Đề xuất, thiết kế hoặc danh sách việc; không được coi là tính năng đã có |
+| **Đã xác nhận trong code** | Có thể kiểm tra trực tiếp trong source, schema hoặc migration |
+| **Có code, cần xác minh runtime** | Phụ thuộc database, secret, seed, provider, webhook hoặc môi trường |
+| **Lịch sử/kế hoạch** | Nội dung cũ, đề xuất hoặc acceptance criteria; không tự động là tính năng đã hoàn tất |
 
-## 5. Cách cập nhật về sau
+## Changelog hiện hành
 
-Mỗi thay đổi lớn nên cập nhật file chuyên đề tương ứng và bổ sung một dòng trong bảng trạng thái ở đây. Sau khi thay đổi schema, cần cập nhật `02-MO-HINH-DU-LIEU.md`; sau khi thêm route hoặc quyền truy cập, cập nhật `03-API-AUTH-THANH-TOAN.md`; sau khi thay đổi deployment hoặc secret, cập nhật `05-BAO-MAT-VAN-HANH.md`.
+| Commit/mốc | Nội dung |
+|---|---|
+| `d003889` | Đồng bộ theme creator rewards |
+| `a32c5ed` | Checkout đa phương thức an toàn |
+| `1e8a93d` | Quên và đặt lại mật khẩu |
+| `9bf7ad1` | Merge Pull Request #2 vào `main` |
+| `2f2f80c` / PR #4 | Tài liệu hóa hệ thống; sau đó được tinh gọn ở branch tài liệu hiện tại |
 
-**Tài liệu được tổng hợp bởi Manus AI từ mã nguồn và tài liệu trong repository.**
+Lần đối chiếu với `origin/main` không phát hiện commit mới hơn `9bf7ad1` ngoài các thay đổi tài liệu đang thực hiện.
 
----
+## Quy tắc bảo toàn thông tin
 
-## 6. Thứ tự đọc khuyến nghị
+Các Markdown cũ đã được đọc và gộp nguyên văn vào archive trước khi loại khỏi vị trí rời. Vì vậy việc giảm số file không làm mất nội dung; chỉ thay đổi nơi tra cứu. SRS cũ, design system cũ, audit API, hướng dẫn chat, deployment note và các báo cáo tính năng đều nằm trong archive với tiêu đề nguồn riêng.
 
-Người mới nên đọc file này, sau đó đọc kiến trúc, mô hình dữ liệu, API/auth/thanh toán và cuối cùng là bảo mật/vận hành. Khi điều tra một lỗi cụ thể, hãy bắt đầu từ route hoặc page bị lỗi rồi quay về tài liệu chuyên đề để kiểm tra quan hệ và giả định liên quan.
-
-> **Lưu ý:** Bộ tài liệu này là bản đồ kỹ thuật, không thay thế test, code review, migration review hoặc xác nhận hoạt động thật của các provider thanh toán.
-
-## 7. Nguyên tắc tránh trùng lặp
-
-Các báo cáo cũ vẫn được giữ nguyên để truy nguyên lịch sử. Không nên tiếp tục tạo thêm một báo cáo `FINAL_STATUS` hoặc `IMPLEMENTATION_SUMMARY` mới cho cùng một tính năng. Thay vào đó, cập nhật tài liệu chuyên đề và ghi thay đổi trong phần changelog của tài liệu này hoặc file trạng thái cập nhật.
-
----
-
-**Kết luận:** Bộ tài liệu mới được chia theo mục đích sử dụng, không xóa tài liệu cũ và không coi những tài liệu có cùng chủ đề là nhiều phiên bản độc lập của sự thật hiện tại.
+> Tài liệu này không thay thế code review, test, migration review, kiểm tra production hoặc xác nhận pháp lý/provider.
 
 ## References
 
-[1]: ../../prisma/schema.prisma "Prisma schema hiện tại"
-[2]: ../../package.json "Scripts và dependencies hiện tại"
-[3]: ../README.md "Chỉ mục tài liệu nền của repository"
-[4]: ../MARKDOWN_AUDIT_NOTES.md "Ghi chú kiểm kê Markdown ngày 22/08/2026"
-[5]: https://github.com/Escanor292/platform "Repository GitHub Tử Tế Fund"
-[6]: ../FINAL_STATUS_REPORT.md "Báo cáo trạng thái lịch sử"
-[7]: ../API_AUDIT_REPORT.md "Báo cáo audit API lịch sử"
-[8]: ../PROJECT_VS_CAMPAIGN_ANALYSIS.md "Phân tích project/campaign lịch sử"
-[9]: ../../src/app "Mã nguồn App Router và API"
-[10]: ../../src "Mã nguồn ứng dụng"
+- [`../../prisma/schema.prisma`](../../prisma/schema.prisma)
+- [`../../package.json`](../../package.json)
+- [`../../src/`](../../src/)
+- [`../README.md`](../README.md)
+- [`../archive/LEGACY_MARKDOWN.md`](../archive/LEGACY_MARKDOWN.md)

@@ -1,0 +1,30128 @@
+# Kho lưu trữ Markdown lịch sử
+
+> Tài liệu này giữ nguyên nội dung các Markdown cũ trước khi tinh gọn bộ tài liệu hoạt động. Không dùng làm nguồn sự thật hiện hành; hãy bắt đầu từ `../system-map/00-CHI-MUC-HE-THONG.md`.
+
+- Ngày tạo: 2026-08-22 11:39 UTC
+- Số file đã lưu: 60
+- Quy tắc: mỗi mục dưới đây chứa đường dẫn nguồn và toàn bộ nội dung nguyên văn.
+
+## Danh mục nguồn
+
+- `docs/3.1_KIEN_TRUC_HE_THONG.md` (571 dòng)
+- `docs/3.2_XAY_DUNG_FRONTEND.md` (775 dòng)
+- `docs/3.3_XAY_DUNG_BACKEND.md` (961 dòng)
+- `docs/3.4_KET_NOI_API.md` (794 dòng)
+- `docs/3.5_QUAN_LY_DU_LIEU.md` (645 dòng)
+- `docs/3.6.1_GIT_WORKFLOW.md` (127 dòng)
+- `docs/3.6.2_CICD_DEPLOYMENT.md` (193 dòng)
+- `docs/3.6.3_ENVIRONMENT.md` (38 dòng)
+- `docs/3.6_QUAN_LY_SOURCE_CODE.md` (1 dòng)
+- `docs/5_TONG_KET_VA_DANH_GIA.md` (541 dòng)
+- `docs/API_AUDIT_REPORT.md` (642 dòng)
+- `docs/BAO_CAO_CHI_TIET.md` (256 dòng)
+- `docs/BUGFIX_NESTED_LINKS_REPORT.md` (346 dòng)
+- `docs/CAU_TRUC_DU_AN.md` (143 dòng)
+- `docs/CHAT_COMPONENT_README.md` (236 dòng)
+- `docs/CHAT_SYSTEM.md` (395 dòng)
+- `docs/CHAT_SYSTEM_GUIDE.md` (393 dòng)
+- `docs/CONTRIBUTING.md` (137 dòng)
+- `docs/Cai_Tien_Cau_Truc_Ket_Noi.md` (407 dòng)
+- `docs/DATABASE_STRUCTURE_ANALYSIS.md` (291 dòng)
+- `docs/DEPLOY_INSTRUCTIONS.md` (109 dòng)
+- `docs/DESIGN_SYSTEM.md` (777 dòng)
+- `docs/DIAGRAM_DESCRIPTIONS.md` (86 dòng)
+- `docs/FEATURE_BLOG_LINKS_SUMMARY.md` (166 dòng)
+- `docs/FINAL_STATUS_REPORT.md` (204 dòng)
+- `docs/FULL_DATABASE_SCHEMA.md` (210 dòng)
+- `docs/HUONG_DAN_TAO_SO_DO_DATABASE.md` (987 dòng)
+- `docs/HYBRID_DATABASE_SUMMARY.md` (420 dòng)
+- `docs/MARKDOWN_AUDIT_NOTES.md` (27 dòng)
+- `docs/MARKDOWN_AUDIT_RAW.md` (3564 dòng)
+- `docs/MIGRATION_BLOG_LINKS.md` (71 dòng)
+- `docs/PLANTUML_USE_CASE.md` (84 dòng)
+- `docs/PRESENTATION_GUIDE.md` (87 dòng)
+- `docs/PROFILE_ANALYSIS_REPORT.md` (671 dòng)
+- `docs/PROFILE_BLOG_IMPLEMENTATION_REPORT.md` (424 dòng)
+- `docs/PROFILE_BLOG_INTEGRATION_ANALYSIS.md` (610 dòng)
+- `docs/PROFILE_TABS_IMPLEMENTATION_REPORT.md` (461 dòng)
+- `docs/PROJECT_VS_CAMPAIGN_ANALYSIS.md` (823 dòng)
+- `docs/REFACTOR_PHASE1_COMPLETION_REPORT.md` (377 dòng)
+- `docs/REFACTOR_PHASE2_PART1_COMPLETION_REPORT.md` (241 dòng)
+- `docs/REFACTOR_PHASE2_PART2_COMPLETION_REPORT.md` (263 dòng)
+- `docs/REFACTOR_PHASE3_COMPLETION_REPORT.md` (228 dòng)
+- `docs/SEPAY_INTEGRATION.md` (327 dòng)
+- `docs/SEPAY_QUICKSTART.md` (233 dòng)
+- `docs/SRS_CROWDFUNDING_VN.md` (1661 dòng)
+- `docs/TEMP_RICH_TEXT_SOURCE_EXPORT.md` (6541 dòng)
+- `docs/TERMINOLOGY_INCONSISTENCY_REPORT.md` (466 dòng)
+- `docs/TESTS_README.md` (204 dòng)
+- `docs/UI_TEXT_UPDATE_REPORT.md` (272 dòng)
+- `docs/UPGRADE_CREATOR_GUIDE.md` (177 dòng)
+- `docs/VERCEL_DEPLOYMENT_GUIDE.md` (179 dòng)
+- `docs/assistant-observability-and-quality.md` (46 dòng)
+- `docs/assistant-safety-audit.md` (25 dòng)
+- `docs/deployment-verification.md` (13 dòng)
+- `docs/public-project-assistant-verification.md` (11 dòng)
+- `docs/quick-assistant-verification.md` (5 dòng)
+- `docs/quick-page-assistant-verification.md` (5 dòng)
+- `docs/testing.md` (15 dòng)
+- `docs/zero-mem-research.md` (5 dòng)
+- `docs/zero-mem-verification.md` (17 dòng)
+
+---
+
+## Nguồn: `docs/3.1_KIEN_TRUC_HE_THONG.md`
+
+# 3.1. KIẾN TRÚC HỆ THỐNG
+
+## 📋 MỤC LỤC
+1. [Mô Hình Kết Nối](#mô-hình-kết-nối)
+2. [Kiến Trúc Thư Mục](#kiến-trúc-thư-mục)
+3. [Quy Trình Hoạt Động](#quy-trình-hoạt-động)
+
+---
+
+## 🏗️ MÔ HÌNH KẾT NỐI FRONT-END, BACK-END VÀ DATABASE
+
+### Kiến Trúc Tổng Quan
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        CLIENT LAYER                             │
+│                     (Browser / Mobile)                          │
+└────────────────────────┬────────────────────────────────────────┘
+                         │ HTTPS
+                         │
+┌────────────────────────▼────────────────────────────────────────┐
+│                    NEXT.JS APPLICATION                          │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │              FRONTEND (React 19)                         │  │
+│  │  • Pages & Components                                    │  │
+│  │  • Client Components (use client)                        │  │
+│  │  • Server Components (default)                           │  │
+│  │  • Hooks & Context                                       │  │
+│  │  • UI Library (Tailwind CSS, Radix UI)                  │  │
+│  └──────────────────────┬───────────────────────────────────┘  │
+│                         │                                       │
+│  ┌──────────────────────▼───────────────────────────────────┐  │
+│  │              BACKEND (API Routes)                        │  │
+│  │  • /api/campaigns                                        │  │
+│  │  • /api/users                                            │  │
+│  │  • /api/payment                                          │  │
+│  │  • /api/admin                                            │  │
+│  │  • Server Actions                                        │  │
+│  │  • Middleware (Auth, CORS)                               │  │
+│  └──────────────────────┬───────────────────────────────────┘  │
+└─────────────────────────┼───────────────────────────────────────┘
+                          │
+        ┌─────────────────┴─────────────────┐
+        │                                   │
+┌───────▼──────────┐              ┌────────▼──────────┐
+│   PostgreSQL     │              │     MongoDB       │
+│   (Prisma ORM)   │              │  (Native Driver)  │
+├──────────────────┤              ├───────────────────┤
+│ • users          │              │ • notifications   │
+│ • campaigns      │◄─────────────┤ • activity_logs   │
+│ • pledges        │   References │ • comments        │
+│ • rewards        │              │ • analytics       │
+│ • invoices       │              │ • audit_logs      │
+│ • kyc_info       │              │ • campaign_content│
+└──────────────────┘              └───────────────────┘
+        │                                   │
+        └─────────────────┬─────────────────┘
+                          │
+        ┌─────────────────┴─────────────────┐
+        │                                   │
+┌───────▼──────────┐              ┌────────▼──────────┐
+│  PayOS Payment   │              │   Cloudinary      │
+│    Gateway       │              │  Image Storage    │
+└──────────────────┘              └───────────────────┘
+```
+
+---
+
+## 📂 KIẾN TRÚC THƯ MỤC DỰ ÁN
+
+### Cấu Trúc Tổng Quan
+
+```
+crowdfunding-vn/
+├── 📁 prisma/                    # Database schema & migrations
+│   ├── schema.prisma             # Prisma schema (PostgreSQL)
+│   └── migrations/               # Database migrations
+│
+├── 📁 public/                    # Static assets
+│   ├── images/                   # Public images
+│   └── icons/                    # Icons & logos
+│
+├── 📁 src/                       # Source code
+│   ├── 📁 app/                   # Next.js App Router
+│   │   ├── 📁 (marketing)/       # Marketing pages group
+│   │   │   └── about/            # About page
+│   │   │
+│   │   ├── 📁 api/               # API Routes (Backend)
+│   │   │   ├── auth/             # Authentication
+│   │   │   ├── campaigns/        # Campaign APIs
+│   │   │   ├── users/            # User APIs
+│   │   │   ├── payment/          # Payment APIs
+│   │   │   ├── admin/            # Admin APIs
+│   │   │   ├── blog/             # Blog APIs
+│   │   │   ├── chat/             # Chat APIs
+│   │   │   └── upload/           # File upload
+│   │   │
+│   │   ├── 📁 campaigns/         # Campaign pages
+│   │   │   ├── [slug]/           # Dynamic campaign detail
+│   │   │   └── create/           # Create campaign
+│   │   │
+│   │   ├── 📁 dashboard/         # Dashboard pages
+│   │   │   ├── admin/            # Admin dashboard
+│   │   │   ├── campaigns/        # My campaigns
+│   │   │   └── pledges/          # My pledges
+│   │   │
+│   │   ├── 📁 auth/              # Auth pages
+│   │   │   ├── login/            # Login page
+│   │   │   └── register/         # Register page
+│   │   │
+│   │   ├── layout.tsx            # Root layout
+│   │   ├── page.tsx              # Homepage
+│   │   └── globals.css           # Global styles
+│   │
+│   ├── 📁 components/            # React Components
+│   │   ├── 📁 ui/                # Base UI components
+│   │   │   ├── button.tsx
+│   │   │   ├── dialog.tsx
+│   │   │   ├── input.tsx
+│   │   │   └── ...
+│   │   │
+│   │   ├── 📁 layout/            # Layout components
+│   │   │   ├── Navbar.tsx
+│   │   │   ├── Footer.tsx
+│   │   │   └── Sidebar.tsx
+│   │   │
+│   │   ├── 📁 campaign/          # Campaign components
+│   │   │   ├── CampaignCard.tsx
+│   │   │   ├── CampaignDetail.tsx
+│   │   │   └── CampaignForm.tsx
+│   │   │
+│   │   ├── 📁 payment/           # Payment components
+│   │   │   ├── PaymentModal.tsx
+│   │   │   └── PaymentForm.tsx
+│   │   │
+│   │   ├── 📁 admin/             # Admin components
+│   │   │   ├── UserTable.tsx
+│   │   │   └── StatsCard.tsx
+│   │   │
+│   │   └── 📁 shared/            # Shared components
+│   │       ├── LoadingSpinner.tsx
+│   │       └── ErrorBoundary.tsx
+│   │
+│   ├── 📁 lib/                   # Utility libraries
+│   │   ├── auth.ts               # NextAuth config
+│   │   ├── prisma.ts             # Prisma client
+│   │   ├── mongodb.ts            # MongoDB client
+│   │   ├── utils.ts              # Utility functions
+│   │   ├── audit.ts              # Audit logging
+│   │   ├── kyc.ts                # KYC utilities
+│   │   │
+│   │   ├── 📁 payment/           # Payment integrations
+│   │   │   ├── payos.ts
+│   │   │   └── vnpay.ts
+│   │   │
+│   │   └── 📁 actions/           # Server Actions
+│   │       ├── campaign.ts
+│   │       └── user.ts
+│   │
+│   ├── 📁 hooks/                 # Custom React Hooks
+│   │   ├── useAuth.ts            # Authentication hook
+│   │   ├── useCampaign.ts        # Campaign hook
+│   │   ├── usePledge.ts          # Pledge hook
+│   │   └── useDebounce.ts        # Debounce hook
+│   │
+│   ├── 📁 contexts/              # React Contexts
+│   │   └── CampaignContext.tsx   # Campaign context
+│   │
+│   ├── 📁 types/                 # TypeScript types
+│   │   ├── campaign.ts
+│   │   ├── user.ts
+│   │   ├── payment.ts
+│   │   ├── mongodb.types.ts
+│   │   └── index.ts
+│   │
+│   ├── 📁 services/              # Business logic services
+│   │   └── 📁 mongodb/           # MongoDB services
+│   │       ├── notification.service.ts
+│   │       ├── comment.service.ts
+│   │       ├── analytics.service.ts
+│   │       └── audit-log.service.ts
+│   │
+│   ├── 📁 middleware/            # Middleware functions
+│   │   └── checkUserStatus.ts
+│   │
+│   ├── auth.config.ts            # Auth configuration
+│   └── middleware.ts             # Next.js middleware
+│
+├── 📁 __tests__/                 # Test files
+│   ├── ui/                       # UI tests
+│   ├── integration/              # Integration tests
+│   └── functional/               # Functional tests
+│
+├── 📁 scripts/                   # Utility scripts
+│   ├── seed-data.js              # Seed database
+│   └── init-mongodb.js           # Init MongoDB
+│
+├── .env                          # Environment variables
+├── .env.example                  # Environment template
+├── package.json                  # Dependencies
+├── tsconfig.json                 # TypeScript config
+├── tailwind.config.ts            # Tailwind config
+├── next.config.ts                # Next.js config
+└── README.md                     # Documentation
+```
+
+---
+
+## 🔄 QUY TRÌNH HOẠT ĐỘNG
+
+### 1. Quy Trình Request-Response
+
+```
+┌─────────────┐
+│   Browser   │
+└──────┬──────┘
+       │ 1. User action (click, submit)
+       │
+       ▼
+┌─────────────────────────────────────────┐
+│         Next.js Frontend                │
+│  • React Component                      │
+│  • Event Handler                        │
+│  • Form Validation                      │
+└──────┬──────────────────────────────────┘
+       │ 2. API Call (fetch/axios)
+       │
+       ▼
+┌─────────────────────────────────────────┐
+│      Next.js Middleware                 │
+│  • Authentication Check                 │
+│  • Authorization Check                  │
+│  • Rate Limiting                        │
+└──────┬──────────────────────────────────┘
+       │ 3. Authorized request
+       │
+       ▼
+┌─────────────────────────────────────────┐
+│         API Route Handler               │
+│  • Parse request                        │
+│  • Validate input (Zod)                 │
+│  • Business logic                       │
+└──────┬──────────────────────────────────┘
+       │ 4. Database query
+       │
+       ▼
+┌──────────────────┬──────────────────────┐
+│   PostgreSQL     │      MongoDB         │
+│  (via Prisma)    │  (Native Driver)     │
+└──────┬───────────┴──────────┬───────────┘
+       │ 5. Data              │
+       │                      │
+       ▼                      ▼
+┌─────────────────────────────────────────┐
+│         API Route Handler               │
+│  • Process data                         │
+│  • Format response                      │
+│  • Error handling                       │
+└──────┬──────────────────────────────────┘
+       │ 6. JSON response
+       │
+       ▼
+┌─────────────────────────────────────────┐
+│         Next.js Frontend                │
+│  • Update UI                            │
+│  • Show success/error                   │
+│  • Trigger side effects                 │
+└──────┬──────────────────────────────────┘
+       │ 7. Render updated UI
+       │
+       ▼
+┌─────────────┐
+│   Browser   │
+└─────────────┘
+```
+
+---
+
+### 2. Quy Trình Tạo Chiến Dịch
+
+```
+User Action: Click "Tạo chiến dịch"
+    ↓
+Frontend: Navigate to /campaigns/create
+    ↓
+Component: CampaignForm.tsx renders
+    ↓
+User fills form:
+  - Title, Description
+  - Goal Amount
+  - Category, Tags
+  - Upload Images
+    ↓
+User clicks "Submit"
+    ↓
+Frontend Validation:
+  - Check required fields
+  - Validate formats
+  - Check file sizes
+    ↓
+API Call: POST /api/campaigns
+    ↓
+Middleware: Check authentication
+    ↓
+API Handler:
+  1. Validate input (Zod schema)
+  2. Upload images to Cloudinary
+  3. Create campaign in PostgreSQL
+  4. Create campaign_content in MongoDB
+  5. Create audit log
+    ↓
+PostgreSQL Transaction:
+  - INSERT INTO campaigns
+  - INSERT INTO rewards (if any)
+    ↓
+MongoDB Operations:
+  - INSERT campaign_content
+  - INSERT activity_log
+    ↓
+Response: { success: true, campaignId: "..." }
+    ↓
+Frontend:
+  - Show success message
+  - Redirect to campaign detail
+  - Update cache
+```
+
+---
+
+### 3. Quy Trình Thanh Toán
+
+```
+User: Click "Ủng hộ"
+    ↓
+Frontend: Open PaymentModal
+    ↓
+User:
+  - Select reward (optional)
+  - Enter amount
+  - Fill personal info
+  - Choose payment method
+    ↓
+Frontend: Validate form
+    ↓
+API Call: POST /api/payment/payos/create
+    ↓
+API Handler:
+  1. Validate input
+  2. Check campaign status
+  3. Check reward availability
+  4. Calculate fees (platform + VAT + tip)
+  5. Create pledge (PENDING)
+  6. Create PayOS payment link
+    ↓
+PostgreSQL:
+  - INSERT INTO pledges (status: PENDING)
+    ↓
+MongoDB:
+  - INSERT activity_log (DONATION_SUBMITTED)
+    ↓
+PayOS API:
+  - Create payment order
+  - Return payment URL
+    ↓
+Response: { paymentUrl: "https://..." }
+    ↓
+Frontend: Redirect to PayOS
+    ↓
+User: Complete payment on PayOS
+    ↓
+PayOS: Send webhook to /api/payment/payos/webhook
+    ↓
+Webhook Handler:
+  1. Verify signature
+  2. Check idempotency
+  3. Update pledge status
+  4. Update campaign amount
+  5. Create invoice
+  6. Send notification
+    ↓
+PostgreSQL Transaction:
+  - UPDATE pledges SET status = 'SUCCESS'
+  - UPDATE campaigns SET currentAmount += amount
+  - INSERT INTO backer_invoices
+    ↓
+MongoDB:
+  - INSERT notification (PAYMENT_SUCCESS)
+  - INSERT activity_log (PAYMENT_SUCCESS)
+  - INSERT analytics_event
+    ↓
+Response: 200 OK
+    ↓
+PayOS: Redirect user to success page
+    ↓
+Frontend: Show success message
+```
+
+---
+
+### 4. Quy Trình Authentication
+
+```
+User: Enter email & password
+    ↓
+Frontend: POST /api/auth/login
+    ↓
+NextAuth Handler:
+  1. Find user by email
+  2. Verify password (bcrypt)
+  3. Check user status (not BANNED)
+  4. Generate JWT token
+  5. Create session
+    ↓
+PostgreSQL:
+  - SELECT * FROM users WHERE email = ?
+    ↓
+MongoDB:
+  - INSERT activity_log (USER_LOGIN)
+    ↓
+Response: Set session cookie
+    ↓
+Frontend:
+  - Store session
+  - Redirect to dashboard
+  - Update auth state
+```
+
+---
+
+### 5. Quy Trình Admin Phê Duyệt
+
+```
+Admin: View pending campaigns
+    ↓
+API: GET /api/admin/campaigns?status=PENDING_REVIEW
+    ↓
+PostgreSQL:
+  - SELECT * FROM campaigns WHERE status = 'PENDING_REVIEW'
+    ↓
+Frontend: Display campaign list
+    ↓
+Admin: Click "Phê duyệt"
+    ↓
+API: POST /api/admin/campaigns/[id]/approve
+    ↓
+Middleware: Check admin role
+    ↓
+API Handler:
+  1. Validate admin permission
+  2. Update campaign status
+  3. Create audit log
+  4. Send notification to creator
+    ↓
+PostgreSQL Transaction:
+  - UPDATE campaigns SET status = 'ACTIVE'
+  - INSERT INTO audit_logs
+    ↓
+MongoDB:
+  - INSERT notification (CAMPAIGN_APPROVED)
+  - INSERT audit_log (parallel)
+  - INSERT activity_log
+    ↓
+Response: { success: true }
+    ↓
+Frontend:
+  - Update UI
+  - Show success message
+  - Refresh list
+```
+
+---
+
+## 🔐 SECURITY LAYERS
+
+### 1. Frontend Security
+```
+• Input Validation (Zod)
+• XSS Prevention (DOMPurify)
+• CSRF Protection (Next.js built-in)
+• Secure Storage (httpOnly cookies)
+```
+
+### 2. API Security
+```
+• Authentication (NextAuth.js)
+• Authorization (Role-based)
+• Rate Limiting
+• Input Sanitization
+• SQL Injection Prevention (Prisma)
+```
+
+### 3. Database Security
+```
+• Encrypted Connections (SSL/TLS)
+• Password Hashing (bcryptjs)
+• Prepared Statements (Prisma)
+• Access Control (User roles)
+```
+
+---
+
+## 📊 DATA FLOW PATTERNS
+
+### Pattern 1: Server-Side Rendering (SSR)
+```typescript
+// app/campaigns/[slug]/page.tsx
+export default async function CampaignPage({ params }) {
+  // Fetch data on server
+  const campaign = await prisma.campaign.findUnique({
+    where: { slug: params.slug }
+  });
+  
+  // Render with data
+  return <CampaignDetail campaign={campaign} />;
+}
+```
+
+### Pattern 2: Client-Side Fetching
+```typescript
+// components/CampaignList.tsx
+'use client';
+
+export function CampaignList() {
+  const [campaigns, setCampaigns] = useState([]);
+  
+  useEffect(() => {
+    fetch('/api/campaigns')
+      .then(res => res.json())
+      .then(data => setCampaigns(data));
+  }, []);
+  
+  return <div>{campaigns.map(c => <CampaignCard {...c} />)}</div>;
+}
+```
+
+### Pattern 3: Server Actions
+```typescript
+// lib/actions/campaign.ts
+'use server';
+
+export async function createCampaign(formData: FormData) {
+  const session = await auth();
+  if (!session) throw new Error('Unauthorized');
+  
+  const campaign = await prisma.campaign.create({
+    data: {
+      title: formData.get('title'),
+      creatorId: session.user.id
+    }
+  });
+  
+  revalidatePath('/campaigns');
+  return campaign;
+}
+```
+
+---
+
+## 🎯 KẾT LUẬN
+
+Kiến trúc hệ thống được thiết kế với:
+
+✅ **Separation of Concerns**: Frontend, Backend, Database tách biệt rõ ràng  
+✅ **Scalability**: Dễ dàng mở rộng theo chiều ngang  
+✅ **Maintainability**: Code tổ chức khoa học, dễ bảo trì  
+✅ **Security**: Nhiều lớp bảo mật  
+✅ **Performance**: Tối ưu với SSR, caching, hybrid database  
+
+---
+
+**File tiếp theo:** `3.2_XAY_DUNG_FRONTEND.md`
+
+---
+
+## Nguồn: `docs/3.2_XAY_DUNG_FRONTEND.md`
+
+# 3.2. XÂY DỰNG FRONT-END
+
+## 📋 MỤC LỤC
+1. [Tổng Quan Frontend](#tổng-quan-frontend)
+2. [Cấu Trúc Frontend](#cấu-trúc-frontend)
+3. [Components Chi Tiết](#components-chi-tiết)
+4. [Routing & Navigation](#routing--navigation)
+5. [State Management](#state-management)
+6. [Styling & UI](#styling--ui)
+
+---
+
+## 🎨 TỔNG QUAN FRONTEND
+
+### Tech Stack
+
+```
+┌─────────────────────────────────────────┐
+│         FRONTEND STACK                  │
+├─────────────────────────────────────────┤
+│ • Next.js 15 (App Router)               │
+│ • React 19                              │
+│ • TypeScript 5                          │
+│ • Tailwind CSS 3.4                      │
+│ • Radix UI (Components)                 │
+│ • Framer Motion (Animations)            │
+│ • Lucide React (Icons)                  │
+│ • Tiptap (Rich Text Editor)             │
+│ • Sonner (Toast Notifications)          │
+│ • Zod (Validation)                      │
+└─────────────────────────────────────────┘
+```
+
+### Đặc Điểm Chính
+
+✅ **Server Components**: Render trên server, giảm bundle size  
+✅ **Client Components**: Interactive UI với `'use client'`  
+✅ **File-based Routing**: Tự động routing từ cấu trúc thư mục  
+✅ **TypeScript**: Type-safe, giảm bugs  
+✅ **Responsive Design**: Mobile-first approach  
+✅ **Accessibility**: WAI-ARIA compliant  
+
+---
+
+## 📂 CẤU TRÚC FRONTEND
+
+### Thư Mục Components
+
+```
+src/components/
+├── 📁 ui/                        # Base UI Components (Radix UI)
+│   ├── button.tsx                # Button component
+│   ├── dialog.tsx                # Modal/Dialog
+│   ├── input.tsx                 # Input field
+│   ├── dropdown-menu.tsx         # Dropdown
+│   ├── progress.tsx              # Progress bar
+│   └── ...
+│
+├── 📁 layout/                    # Layout Components
+│   ├── Navbar.tsx                # Navigation bar
+│   ├── NavbarNew.tsx             # Updated navbar
+│   ├── Footer.tsx                # Footer
+│   ├── Sidebar.tsx               # Sidebar
+│   └── MobileMenu.tsx            # Mobile navigation
+│
+├── 📁 campaign/                  # Campaign Components
+│   ├── CampaignCard.tsx          # Campaign card
+│   ├── CampaignDetail.tsx        # Campaign detail view
+│   ├── CampaignForm.tsx          # Create/Edit form
+│   ├── CampaignGrid.tsx          # Grid layout
+│   ├── CampaignActions.tsx       # Action buttons
+│   ├── CampaignProgress.tsx      # Progress indicator
+│   ├── CampaignReportModal.tsx   # Report modal
+│   └── CampaignUpdateForm.tsx    # Update form
+│
+├── 📁 payment/                   # Payment Components
+│   ├── PaymentModal.tsx          # Payment modal
+│   ├── PaymentForm.tsx           # Payment form
+│   ├── RewardSelector.tsx        # Reward selection
+│   └── PaymentSuccess.tsx        # Success page
+│
+├── 📁 admin/                     # Admin Components
+│   ├── UserTable.tsx             # User management table
+│   ├── CampaignTable.tsx         # Campaign table
+│   ├── StatsCard.tsx             # Statistics card
+│   ├── ReportTable.tsx           # Reports table
+│   └── KYCVerification.tsx       # KYC verification
+│
+├── 📁 profile/                   # Profile Components
+│   ├── ProfileHeader.tsx         # Profile header
+│   ├── ProfileForm.tsx           # Edit profile form
+│   ├── AvatarUpload.tsx          # Avatar upload
+│   └── SocialLinks.tsx           # Social media links
+│
+├── 📁 shared/                    # Shared Components
+│   ├── LoadingSpinner.tsx        # Loading indicator
+│   ├── ErrorBoundary.tsx         # Error handling
+│   ├── Pagination.tsx            # Pagination
+│   ├── SearchBar.tsx             # Search input
+│   ├── FilterPanel.tsx           # Filter sidebar
+│   ├── StatsSection.tsx          # Statistics section
+│   └── EmptyState.tsx            # Empty state
+│
+└── 📁 editor/                    # Rich Text Editor
+    ├── TiptapEditor.tsx          # Main editor
+    ├── EditorToolbar.tsx         # Toolbar
+    └── EditorExtensions.ts       # Extensions config
+```
+
+---
+
+## 🧩 COMPONENTS CHI TIẾT
+
+### 1. Campaign Card Component
+
+**File:** `src/components/campaign/CampaignCard.tsx`
+
+```typescript
+'use client';
+
+import Image from 'next/image';
+import Link from 'next/link';
+import { Progress } from '@/components/ui/progress';
+import { formatCurrency } from '@/lib/utils';
+
+interface CampaignCardProps {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  goalAmount: number;
+  currentAmount: number;
+  creatorName: string;
+  creatorAvatar: string;
+  endDate: Date;
+  category: string;
+}
+
+export function CampaignCard({
+  slug,
+  title,
+  description,
+  imageUrl,
+  goalAmount,
+  currentAmount,
+  creatorName,
+  creatorAvatar,
+  endDate,
+  category
+}: CampaignCardProps) {
+  const progress = (currentAmount / goalAmount) * 100;
+  const daysLeft = Math.ceil(
+    (new Date(endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+  );
+
+  return (
+    <Link href={`/campaigns/${slug}`}>
+      <div className="group overflow-hidden rounded-lg border bg-card hover:shadow-lg transition-all">
+        {/* Image */}
+        <div className="relative aspect-video overflow-hidden">
+          <Image
+            src={imageUrl || '/images/default-campaign.jpg'}
+            alt={title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform"
+          />
+          <div className="absolute top-2 right-2">
+            <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs">
+              {category}
+            </span>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-4 space-y-3">
+          {/* Title */}
+          <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-primary transition-colors">
+            {title}
+          </h3>
+
+          {/* Description */}
+          <p className="text-sm text-muted-foreground line-clamp-2">
+            {description}
+          </p>
+
+          {/* Progress */}
+          <div className="space-y-2">
+            <Progress value={progress} className="h-2" />
+            <div className="flex justify-between text-sm">
+              <span className="font-semibold text-primary">
+                {formatCurrency(currentAmount)}
+              </span>
+              <span className="text-muted-foreground">
+                {progress.toFixed(0)}%
+              </span>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <span>Mục tiêu: {formatCurrency(goalAmount)}</span>
+            <span>{daysLeft > 0 ? `${daysLeft} ngày` : 'Đã kết thúc'}</span>
+          </div>
+
+          {/* Creator */}
+          <div className="flex items-center gap-2 pt-2 border-t">
+            <Image
+              src={creatorAvatar || '/images/default-avatar.png'}
+              alt={creatorName}
+              width={24}
+              height={24}
+              className="rounded-full"
+            />
+            <span className="text-sm text-muted-foreground">
+              {creatorName}
+            </span>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+```
+
+**Đặc điểm:**
+- ✅ Responsive design
+- ✅ Hover effects
+- ✅ Image optimization (Next.js Image)
+- ✅ Progress bar
+- ✅ Category badge
+- ✅ Creator info
+
+---
+
+### 2. Payment Modal Component
+
+**File:** `src/components/payment/PaymentModal.tsx`
+
+```typescript
+'use client';
+
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+
+interface PaymentModalProps {
+  open: boolean;
+  onClose: () => void;
+  campaignId: string;
+  campaignTitle: string;
+  rewards: Reward[];
+}
+
+export function PaymentModal({
+  open,
+  onClose,
+  campaignId,
+  campaignTitle,
+  rewards
+}: PaymentModalProps) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    amount: '',
+    rewardId: '',
+    displayName: '',
+    email: '',
+    phone: '',
+    tipAmount: 0
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // Validate
+      if (!formData.amount || parseFloat(formData.amount) < 10000) {
+        toast.error('Số tiền tối thiểu là 10,000 VND');
+        return;
+      }
+
+      // Call API
+      const response = await fetch('/api/payment/payos/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          campaignId,
+          ...formData,
+          amount: parseFloat(formData.amount)
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Có lỗi xảy ra');
+      }
+
+      // Redirect to payment
+      window.location.href = data.paymentUrl;
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Ủng hộ chiến dịch</DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Amount */}
+          <div>
+            <Label htmlFor="amount">Số tiền ủng hộ (VND) *</Label>
+            <Input
+              id="amount"
+              type="number"
+              min="10000"
+              step="1000"
+              value={formData.amount}
+              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+              placeholder="Nhập số tiền"
+              required
+            />
+          </div>
+
+          {/* Reward Selection */}
+          {rewards.length > 0 && (
+            <div>
+              <Label>Chọn phần thưởng (tùy chọn)</Label>
+              <div className="space-y-2 mt-2">
+                {rewards.map((reward) => (
+                  <label
+                    key={reward.id}
+                    className="flex items-start gap-2 p-3 border rounded cursor-pointer hover:bg-accent"
+                  >
+                    <input
+                      type="radio"
+                      name="reward"
+                      value={reward.id}
+                      onChange={(e) => setFormData({ ...formData, rewardId: e.target.value })}
+                    />
+                    <div className="flex-1">
+                      <p className="font-medium">{reward.title}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Tối thiểu: {formatCurrency(reward.minAmount)}
+                      </p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Personal Info */}
+          <div>
+            <Label htmlFor="displayName">Tên hiển thị *</Label>
+            <Input
+              id="displayName"
+              value={formData.displayName}
+              onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
+              placeholder="Tên của bạn"
+              required
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="email">Email *</Label>
+            <Input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              placeholder="email@example.com"
+              required
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="phone">Số điện thoại</Label>
+            <Input
+              id="phone"
+              type="tel"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              placeholder="0123456789"
+            />
+          </div>
+
+          {/* Tip */}
+          <div>
+            <Label>Tip cho nền tảng (tùy chọn)</Label>
+            <div className="flex gap-2 mt-2">
+              {[0, 5000, 10000, 20000].map((tip) => (
+                <Button
+                  key={tip}
+                  type="button"
+                  variant={formData.tipAmount === tip ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFormData({ ...formData, tipAmount: tip })}
+                >
+                  {tip === 0 ? 'Không' : formatCurrency(tip)}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Summary */}
+          <div className="bg-muted p-3 rounded space-y-1 text-sm">
+            <div className="flex justify-between">
+              <span>Số tiền ủng hộ:</span>
+              <span className="font-medium">{formatCurrency(parseFloat(formData.amount) || 0)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Tip:</span>
+              <span>{formatCurrency(formData.tipAmount)}</span>
+            </div>
+            <div className="flex justify-between font-semibold text-base pt-1 border-t">
+              <span>Tổng cộng:</span>
+              <span className="text-primary">
+                {formatCurrency((parseFloat(formData.amount) || 0) + formData.tipAmount)}
+              </span>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+              Hủy
+            </Button>
+            <Button type="submit" disabled={loading} className="flex-1">
+              {loading ? 'Đang xử lý...' : 'Tiếp tục thanh toán'}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+```
+
+**Đặc điểm:**
+- ✅ Form validation
+- ✅ Reward selection
+- ✅ Tip option
+- ✅ Summary calculation
+- ✅ Loading states
+- ✅ Error handling
+
+---
+
+### 3. Navbar Component
+
+**File:** `src/components/layout/NavbarNew.tsx`
+
+```typescript
+'use client';
+
+import Link from 'next/link';
+import { useSession, signOut } from 'next-auth/react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { User, LogOut, Settings, LayoutDashboard } from 'lucide-react';
+
+export function Navbar() {
+  const { data: session, status } = useSession();
+
+  return (
+    <nav className="border-b bg-background sticky top-0 z-50">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2">
+            <span className="text-2xl font-bold text-primary">TửTế Fund</span>
+          </Link>
+
+          {/* Navigation Links */}
+          <div className="hidden md:flex items-center gap-6">
+            <Link href="/campaigns" className="hover:text-primary transition-colors">
+              Chiến dịch
+            </Link>
+            <Link href="/about" className="hover:text-primary transition-colors">
+              Về chúng tôi
+            </Link>
+            <Link href="/blog" className="hover:text-primary transition-colors">
+              Blog
+            </Link>
+          </div>
+
+          {/* Auth Section */}
+          <div className="flex items-center gap-3">
+            {status === 'loading' ? (
+              <div className="h-8 w-20 bg-muted animate-pulse rounded" />
+            ) : session ? (
+              <>
+                <Button asChild variant="default">
+                  <Link href="/campaigns/create">Tạo chiến dịch</Link>
+                </Button>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <User className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard">
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile">
+                        <Settings className="mr-2 h-4 w-4" />
+                        Cài đặt
+                      </Link>
+                    </DropdownMenuItem>
+                    {session.user.role === 'ADMIN' && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/dashboard/admin">
+                          <LayoutDashboard className="mr-2 h-4 w-4" />
+                          Admin
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem onClick={() => signOut()}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Đăng xuất
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <>
+                <Button asChild variant="ghost">
+                  <Link href="/auth/login">Đăng nhập</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/auth/register">Đăng ký</Link>
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}
+```
+
+**Đặc điểm:**
+- ✅ Responsive
+- ✅ Authentication state
+- ✅ Dropdown menu
+- ✅ Role-based navigation
+- ✅ Sticky header
+
+---
+
+## 🛣️ ROUTING & NAVIGATION
+
+### App Router Structure
+
+```
+app/
+├── page.tsx                      # Homepage (/)
+├── layout.tsx                    # Root layout
+│
+├── (marketing)/                  # Marketing group
+│   └── about/page.tsx            # /about
+│
+├── campaigns/
+│   ├── page.tsx                  # /campaigns (list)
+│   ├── [slug]/page.tsx           # /campaigns/[slug] (detail)
+│   └── create/page.tsx           # /campaigns/create
+│
+├── dashboard/
+│   ├── page.tsx                  # /dashboard
+│   ├── campaigns/page.tsx        # /dashboard/campaigns
+│   ├── pledges/page.tsx          # /dashboard/pledges
+│   └── admin/
+│       ├── page.tsx              # /dashboard/admin
+│       ├── users/page.tsx        # /dashboard/admin/users
+│       └── reports/page.tsx      # /dashboard/admin/reports
+│
+├── auth/
+│   ├── login/page.tsx            # /auth/login
+│   └── register/page.tsx         # /auth/register
+│
+└── profile/
+    └── page.tsx                  # /profile
+```
+
+### Navigation Examples
+
+```typescript
+// Link navigation
+import Link from 'next/link';
+<Link href="/campaigns">Xem chiến dịch</Link>
+
+// Programmatic navigation
+import { useRouter } from 'next/navigation';
+const router = useRouter();
+router.push('/campaigns/create');
+
+// With query params
+router.push('/campaigns?category=tech&sort=popular');
+
+// Back navigation
+router.back();
+```
+
+---
+
+## 🔄 STATE MANAGEMENT
+
+### 1. React Hooks
+
+```typescript
+// useState - Local state
+const [count, setCount] = useState(0);
+
+// useEffect - Side effects
+useEffect(() => {
+  fetchData();
+}, [dependency]);
+
+// Custom hooks
+function useAuth() {
+  const { data: session } = useSession();
+  return {
+    user: session?.user,
+    isAuthenticated: !!session,
+    isAdmin: session?.user?.role === 'ADMIN'
+  };
+}
+```
+
+### 2. Context API
+
+```typescript
+// contexts/CampaignContext.tsx
+'use client';
+
+import { createContext, useContext, useState } from 'react';
+
+const CampaignContext = createContext(null);
+
+export function CampaignProvider({ children }) {
+  const [campaigns, setCampaigns] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchCampaigns = async () => {
+    setLoading(true);
+    const res = await fetch('/api/campaigns');
+    const data = await res.json();
+    setCampaigns(data);
+    setLoading(false);
+  };
+
+  return (
+    <CampaignContext.Provider value={{ campaigns, loading, fetchCampaigns }}>
+      {children}
+    </CampaignContext.Provider>
+  );
+}
+
+export const useCampaign = () => useContext(CampaignContext);
+```
+
+### 3. Server State (NextAuth)
+
+```typescript
+// Get session on client
+import { useSession } from 'next-auth/react';
+const { data: session, status } = useSession();
+
+// Get session on server
+import { auth } from '@/lib/auth';
+const session = await auth();
+```
+
+---
+
+## 🎨 STYLING & UI
+
+### Tailwind CSS Classes
+
+```typescript
+// Layout
+<div className="container mx-auto px-4">
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<div className="flex items-center justify-between">
+
+// Spacing
+<div className="p-4 m-2 space-y-4 gap-2">
+
+// Typography
+<h1 className="text-3xl font-bold text-primary">
+<p className="text-sm text-muted-foreground">
+
+// Colors
+<div className="bg-primary text-primary-foreground">
+<div className="bg-card border rounded-lg">
+
+// States
+<button className="hover:bg-accent active:scale-95 disabled:opacity-50">
+
+// Responsive
+<div className="hidden md:block lg:flex">
+```
+
+### Radix UI Components
+
+```typescript
+// Button
+import { Button } from '@/components/ui/button';
+<Button variant="default" size="lg">Click me</Button>
+
+// Dialog
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+<Dialog open={open} onOpenChange={setOpen}>
+  <DialogContent>...</DialogContent>
+</Dialog>
+
+// Dropdown
+import { DropdownMenu } from '@/components/ui/dropdown-menu';
+<DropdownMenu>...</DropdownMenu>
+```
+
+---
+
+## ✅ BEST PRACTICES
+
+1. **Component Organization**
+   - One component per file
+   - Co-locate related files
+   - Use barrel exports (index.ts)
+
+2. **Performance**
+   - Use Server Components by default
+   - Add `'use client'` only when needed
+   - Lazy load heavy components
+   - Optimize images with next/image
+
+3. **Accessibility**
+   - Semantic HTML
+   - ARIA labels
+   - Keyboard navigation
+   - Focus management
+
+4. **Type Safety**
+   - Define prop types
+   - Use TypeScript strictly
+   - Validate with Zod
+
+---
+
+**File tiếp theo:** `3.3_XAY_DUNG_BACKEND.md`
+
+---
+
+## Nguồn: `docs/3.3_XAY_DUNG_BACKEND.md`
+
+# 3.3. XÂY DỰNG BACK-END (API)
+
+## MỤC LỤC
+1. [Tổng quan Backend](#1-tổng-quan-backend)
+2. [Cấu trúc API Routes](#2-cấu-trúc-api-routes)  
+3. [Authentication & Authorization](#3-authentication--authorization)
+4. [API Endpoints Chi Tiết](#4-api-endpoints-chi-tiết)
+5. [Database Operations](#5-database-operations)
+6. [Error Handling & Validation](#6-error-handling--validation)
+7. [Payment Integration](#7-payment-integration)
+8. [MongoDB Integration](#8-mongodb-integration)
+
+---
+
+## 1. TỔNG QUAN BACKEND
+
+### 1.1. Công nghệ sử dụng
+
+**Framework & Runtime:**
+- **Next.js 15** - App Router với API Routes
+- **Node.js** - Runtime environment  
+- **TypeScript** - Type safety
+
+**Database & ORM:**
+- **PostgreSQL** - Relational database (giao dịch, users, campaigns)
+- **Prisma ORM** - Type-safe database client
+- **MongoDB** - NoSQL database (logs, analytics, chat)
+- **MongoDB Native Driver** - Direct MongoDB operations
+
+**Authentication:**
+- **NextAuth.js v5** - Authentication framework
+- **JWT** - Token-based authentication
+- **bcryptjs** - Password hashing
+
+**Payment Gateways:**
+- **PayOS** - Primary payment gateway
+- **VNPay** - Vietnamese payment gateway
+- **SePay** - Bank transfer gateway
+- **MoMo** - E-wallet integration
+
+**Validation & Security:**
+- **Zod** - Schema validation
+- **CORS** - Cross-origin resource sharing
+- **Rate Limiting** - API protection
+
+### 1.2. Kiến trúc Backend
+
+```
+src/
+├── app/
+│   └── api/                    # API Routes (Next.js App Router)
+│       ├── campaigns/          # Campaign management
+│       ├── users/              # User management
+│       ├── payments/           # Payment processing
+│       ├── admin/              # Admin operations
+│       ├── auth/               # Authentication
+│       ├── blog/               # Blog system
+│       ├── chat/               # Real-time chat
+│       └── stats/              # Statistics
+├── lib/
+│   ├── auth.ts                 # NextAuth configuration
+│   ├── prisma.ts               # Prisma client
+│   ├── mongodb.ts              # MongoDB connection
+│   ├── actions/                # Server Actions
+│   ├── payment/                # Payment integrations
+│   └── utils.ts                # Utility functions
+└── services/
+    └── mongodb/                # MongoDB services
+        ├── analytics.service.ts
+        ├── chat.service.ts
+        └── blog.service.ts
+```
+
+---
+
+## 2. CẤU TRÚC API ROUTES
+
+### 2.1. Danh sách API Endpoints (30+ endpoints)
+
+#### **Authentication APIs**
+```
+POST   /api/auth/register          # Đăng ký tài khoản mới
+POST   /api/auth/[...nextauth]     # NextAuth handlers (login, callback)
+GET    /api/auth/session           # Lấy session hiện tại
+```
+
+#### **Campaign APIs**
+```
+GET    /api/campaigns              # Danh sách campaigns (filter, search)
+POST   /api/campaigns              # Tạo campaign mới
+GET    /api/campaigns/[slug]       # Chi tiết campaign
+PUT    /api/campaigns/[slug]       # Cập nhật campaign
+DELETE /api/campaigns/[slug]       # Xóa campaign
+```
+
+#### **User APIs**
+```
+GET    /api/users                  # Danh sách users (admin only)
+PUT    /api/users                  # Cập nhật profile
+GET    /api/users/[userId]         # Chi tiết user
+GET    /api/users/search           # Tìm kiếm users
+```
+
+#### **Payment APIs**
+```
+POST   /api/payments               # Tạo payment/pledge
+POST   /api/payments/webhook       # Webhook từ payment gateway
+POST   /api/payments/refund        # Hoàn tiền
+GET    /api/payments-debug         # Debug payment info
+```
+
+#### **Admin APIs**
+```
+GET    /api/admin/users            # Quản lý users
+PUT    /api/admin/users/[id]       # Cập nhật user role/status
+GET    /api/admin/reports          # Báo cáo thống kê
+POST   /api/admin/badges           # Quản lý badges
+```
+
+#### **Upload APIs**
+```
+POST   /api/upload                 # Upload ảnh lên Cloudinary
+```
+
+#### **Stats APIs**
+```
+GET    /api/stats                  # Thống kê platform (cached)
+```
+
+---
+
+## 3. AUTHENTICATION & AUTHORIZATION
+
+### 3.1. NextAuth Configuration
+
+**File: `src/lib/auth.ts`**
+
+```typescript
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { prisma } from "./prisma";
+import bcrypt from "bcryptjs";
+
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  adapter: PrismaAdapter(prisma),
+  session: { strategy: "jwt" },
+  providers: [
+    Credentials({
+      name: "Đăng nhập với Email",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Mật khẩu", type: "password" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
+        
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email as string }
+        });
+        
+        if (!user || !user.password) return null;
+        
+        const isValid = await bcrypt.compare(
+          credentials.password as string,
+          user.password
+        );
+        
+        if (!isValid) return null;
+        return user;
+      }
+    })
+  ],
+  callbacks: {
+    async session({ session, token }) {
+      if (session.user && token) {
+        (session.user as any).id = token.id;
+        (session.user as any).role = token.role;
+        (session.user as any).isAdmin = !!token.isAdmin;
+      }
+      return session;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = (user as any).role;
+        token.isAdmin = (user as any).isAdmin;
+      }
+      return token;
+    }
+  },
+});
+```
+
+### 3.2. Authorization Middleware
+
+```typescript
+import { auth } from "@/lib/auth";
+import { NextResponse } from "next/server";
+
+// Kiểm tra authentication
+export async function requireAuth() {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  return session;
+}
+
+// Kiểm tra admin
+export async function requireAdmin() {
+  const session = await auth();
+  if (!session?.user || (session.user as any).role !== "ADMIN") {
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
+  }
+  return session;
+}
+```
+
+---
+
+## 4. API ENDPOINTS CHI TIẾT
+
+### 4.1. Campaign APIs
+
+**File: `src/app/api/campaigns/route.ts`**
+
+```typescript
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+
+// GET /api/campaigns - Danh sách campaigns
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const category = searchParams.get("category");
+    const status = searchParams.get("status") || "ACTIVE";
+    const q = searchParams.get("q");
+
+    const campaigns = await prisma.campaign.findMany({
+      where: {
+        status: status as any,
+        category: category || undefined,
+        OR: q ? [
+          { title: { contains: q, mode: 'insensitive' } },
+          { description: { contains: q, mode: 'insensitive' } }
+        ] : undefined
+      },
+      include: {
+        creator: { select: { name: true, avatar: true } }
+      },
+      orderBy: { createdAt: "desc" }
+    });
+
+    return NextResponse.json(campaigns);
+  } catch (error) {
+    console.error("[GET /api/campaigns]", error);
+    return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
+  }
+}
+
+// POST /api/campaigns - Tạo campaign mới
+export async function POST(req: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { title, description, goalAmount, category, imageUrl, endDate } = body;
+
+    const slug = title.toLowerCase()
+      .replace(/ /g, '-')
+      .replace(/[^\w-]+/g, '') + '-' + Date.now().toString().slice(-4);
+
+    const campaign = await prisma.campaign.create({
+      data: {
+        title,
+        description,
+        goalAmount,
+        category,
+        imageUrl,
+        endDate: new Date(endDate),
+        slug,
+        creatorId: (session.user as any).id,
+        currentAmount: 0,
+        status: "DRAFT"
+      }
+    });
+
+    return NextResponse.json(campaign);
+  } catch (error) {
+    console.error("[POST /api/campaigns]", error);
+    return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
+  }
+}
+```
+
+### 4.2. User APIs
+
+**File: `src/app/api/users/route.ts`**
+
+```typescript
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+
+// GET /api/users - Danh sách users (admin only)
+export async function GET(req: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user || (session.user as any).role !== "ADMIN") {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return NextResponse.json(users);
+  } catch (error) {
+    console.error("[GET /api/users]", error);
+    return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
+  }
+}
+
+// PUT /api/users - Cập nhật profile
+export async function PUT(req: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { name, avatar } = await req.json();
+
+    const updated = await prisma.user.update({
+      where: { id: session.user.id },
+      data: { name, avatar },
+    });
+
+    return NextResponse.json(updated);
+  } catch (error) {
+    console.error("[PUT /api/users]", error);
+    return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
+  }
+}
+```
+
+### 4.3. Payment APIs
+
+**File: `src/app/api/payments/route.ts`**
+
+```typescript
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { Decimal } from "@prisma/client/runtime/library";
+import { createPayOSPaymentLink } from "@/lib/payment/payos";
+
+export async function POST(request: NextRequest) {
+  try {
+    const { auth } = await import("@/lib/auth");
+    const session = await auth();
+
+    const body = await request.json();
+    const {
+      campaignId,
+      rewardId,
+      amount,
+      platformTipPercent,
+      isAnonymous,
+      displayName,
+      guestEmail,
+      shippingAddress,
+      paymentMethod,
+    } = body;
+
+    // Validate
+    if (!campaignId || !amount || amount < 50000 || !paymentMethod) {
+      return NextResponse.json(
+        { error: "Thiếu thông tin hoặc số tiền không hợp lệ" },
+        { status: 400 }
+      );
+    }
+
+    // Tính toán
+    const tipAmount = Math.round((amount * (platformTipPercent || 0)) / 100);
+    const vatAmount = Math.round(tipAmount * 0.1);
+    const totalAmount = amount + tipAmount + vatAmount;
+
+    const finalDisplayName = isAnonymous ? "Người dùng ẩn danh" : (displayName || "Khách");
+
+    if (paymentMethod === "PAYOS") {
+      const transactionId = `PAYOS-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      // Tạo pledge
+      const pledge = await prisma.pledge.create({
+        data: {
+          userId: session?.user?.id || null,
+          campaignId,
+          rewardId: rewardId || null,
+          amount: new Decimal(amount),
+          tipAmount: new Decimal(tipAmount),
+          vatAmount: new Decimal(vatAmount),
+          totalAmount: new Decimal(totalAmount),
+          email: guestEmail,
+          displayName: finalDisplayName,
+          shippingAddress,
+          isAnonymous,
+          paymentProvider: "PAYOS",
+          transactionId,
+          status: "PENDING",
+        }
+      });
+
+      const orderCode = Number(Date.now());
+
+      // Tạo payment link
+      const paymentLinkRes = await createPayOSPaymentLink({
+        orderCode,
+        amount: Math.round(totalAmount),
+        description: `Ung ho du an ${campaignId.slice(0, 8)}`,
+        cancelUrl: `${process.env.NEXTAUTH_URL}/campaigns`,
+        returnUrl: `${process.env.NEXTAUTH_URL}/payment-success?status=success&ref=${pledge.id}`,
+      });
+
+      await prisma.pledge.update({
+        where: { id: pledge.id },
+        data: { payosOrderCode: orderCode.toString() }
+      });
+
+      return NextResponse.json({
+        message: "PayOS payment link created",
+        pledgeId: pledge.id,
+        paymentUrl: paymentLinkRes.checkoutUrl,
+        orderCode,
+      });
+    }
+
+    return NextResponse.json(
+      { error: "Phương thức thanh toán không hợp lệ" },
+      { status: 400 }
+    );
+
+  } catch (error: any) {
+    console.error("[PAYMENTS_API] ERROR:", error);
+    return NextResponse.json(
+      { error: error.message || "Lỗi hệ thống" },
+      { status: 500 }
+    );
+  }
+}
+```
+
+### 4.4. Upload API
+
+**File: `src/app/api/upload/route.ts`**
+
+```typescript
+import { v2 as cloudinary } from "cloudinary";
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+export async function POST(req: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const formData = await req.formData();
+    const file = formData.get("file") as File;
+
+    if (!file) {
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    }
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      return NextResponse.json({ 
+        error: "Invalid file type" 
+      }, { status: 400 });
+    }
+
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      return NextResponse.json({ 
+        error: "File too large. Maximum size is 5MB." 
+      }, { status: 400 });
+    }
+
+    // Convert to buffer
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // Upload to Cloudinary
+    const result: any = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        { 
+          resource_type: "auto", 
+          folder: "crowdfund-vn",
+          transformation: [
+            { width: 1920, height: 1080, crop: "limit" },
+            { quality: "auto:good" },
+            { fetch_format: "auto" }
+          ]
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      ).end(buffer);
+    });
+
+    return NextResponse.json({ 
+      secure_url: result.secure_url,
+      url: result.secure_url,
+      publicId: result.public_id,
+      width: result.width,
+      height: result.height,
+      format: result.format
+    });
+  } catch (error: any) {
+    console.error("[CLOUDINARY_UPLOAD_ERROR]", error);
+    return NextResponse.json({ 
+      error: error.message || "Upload failed" 
+    }, { status: 500 });
+  }
+}
+```
+
+### 4.5. Stats API
+
+**File: `src/app/api/stats/route.ts`**
+
+```typescript
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+
+// Cache stats for 5 minutes
+let cachedStats: any = null;
+let cacheTimestamp = 0;
+const CACHE_DURATION = 5 * 60 * 1000;
+
+export async function GET() {
+  try {
+    const now = Date.now();
+    if (cachedStats && (now - cacheTimestamp) < CACHE_DURATION) {
+      return NextResponse.json(cachedStats);
+    }
+
+    // Total funds raised
+    const totalFundsResult = await prisma.pledge.aggregate({
+      where: { status: 'SUCCESS' },
+      _sum: { amount: true }
+    });
+
+    // Successful campaigns
+    const successfulCampaigns = await prisma.campaign.count({
+      where: { status: 'SUCCESS' }
+    });
+
+    // Total unique backers
+    const totalBackers = await prisma.pledge.findMany({
+      where: { status: 'SUCCESS' },
+      select: { userId: true, email: true },
+      distinct: ['userId', 'email']
+    });
+
+    const uniqueBackersSet = new Set<string>();
+    totalBackers.forEach(pledge => {
+      if (pledge.userId) uniqueBackersSet.add(pledge.userId);
+      else if (pledge.email) uniqueBackersSet.add(pledge.email);
+    });
+
+    // Active campaigns
+    const activeCampaigns = await prisma.campaign.count({
+      where: { status: 'ACTIVE' }
+    });
+
+    const totalFunds = Number(totalFundsResult._sum.amount || 0);
+
+    // Format funds
+    let totalFundsFormatted = '0';
+    if (totalFunds >= 1_000_000_000) {
+      totalFundsFormatted = `${(totalFunds / 1_000_000_000).toFixed(1)} tỷ`;
+    } else if (totalFunds >= 1_000_000) {
+      totalFundsFormatted = `${(totalFunds / 1_000_000).toFixed(1)} triệu`;
+    } else {
+      totalFundsFormatted = totalFunds.toLocaleString('vi-VN');
+    }
+
+    const statsData = {
+      totalFunds: totalFundsFormatted,
+      totalFundsRaw: totalFunds,
+      successfulCampaigns,
+      activeCampaigns,
+      totalBackers: uniqueBackersSet.size,
+    };
+
+    cachedStats = statsData;
+    cacheTimestamp = now;
+
+    return NextResponse.json(statsData);
+  } catch (error) {
+    console.error("[GET /api/stats]", error);
+    return NextResponse.json(
+      { error: "Lỗi server" },
+      { status: 500 }
+    );
+  }
+}
+```
+
+---
+
+## 5. DATABASE OPERATIONS
+
+### 5.1. Prisma Client Setup
+
+**File: `src/lib/prisma.ts`**
+
+```typescript
+import { PrismaClient } from "@prisma/client";
+
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
+
+export const prisma =
+  globalForPrisma.prisma ||
+  new PrismaClient({
+    log: ["query", "error", "warn"],
+  });
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+}
+
+export default prisma;
+```
+
+### 5.2. Common Database Patterns
+
+**Tạo record:**
+```typescript
+const campaign = await prisma.campaign.create({
+  data: {
+    title: "My Campaign",
+    goalAmount: 10000000,
+    creatorId: userId,
+  }
+});
+```
+
+**Đọc với relations:**
+```typescript
+const campaign = await prisma.campaign.findUnique({
+  where: { id: campaignId },
+  include: {
+    creator: true,
+    pledges: true,
+    rewards: true,
+  }
+});
+```
+
+**Cập nhật:**
+```typescript
+const updated = await prisma.campaign.update({
+  where: { id: campaignId },
+  data: { status: "ACTIVE" }
+});
+```
+
+**Xóa:**
+```typescript
+await prisma.campaign.delete({
+  where: { id: campaignId }
+});
+```
+
+**Transactions:**
+```typescript
+await prisma.$transaction(async (tx) => {
+  // Update pledge
+  await tx.pledge.update({
+    where: { id: pledgeId },
+    data: { status: "SUCCESS" }
+  });
+  
+  // Update campaign amount
+  await tx.campaign.update({
+    where: { id: campaignId },
+    data: {
+      currentAmount: { increment: amount }
+    }
+  });
+});
+```
+
+---
+
+## 6. ERROR HANDLING & VALIDATION
+
+### 6.1. Error Response Format
+
+```typescript
+// Success response
+return NextResponse.json({
+  success: true,
+  data: result
+});
+
+// Error response
+return NextResponse.json({
+  error: "Error message",
+  code: "ERROR_CODE"
+}, { status: 400 });
+```
+
+### 6.2. Validation với Zod
+
+```typescript
+import { z } from "zod";
+
+const campaignSchema = z.object({
+  title: z.string().min(10).max(100),
+  description: z.string().min(50),
+  goalAmount: z.number().min(1000000),
+  endDate: z.string().datetime(),
+});
+
+// Validate trong API
+const body = await req.json();
+const validated = campaignSchema.parse(body);
+```
+
+### 6.3. Try-Catch Pattern
+
+```typescript
+export async function POST(req: NextRequest) {
+  try {
+    // API logic here
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("[API_ERROR]", error);
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Validation failed", details: error.errors },
+        { status: 400 }
+      );
+    }
+    
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+```
+
+---
+
+## 7. PAYMENT INTEGRATION
+
+### 7.1. PayOS Integration
+
+**File: `src/lib/payment/payos.ts`**
+
+```typescript
+import { PayOS } from "@payos/node";
+
+const payos = new PayOS(
+  process.env.PAYOS_CLIENT_ID!,
+  process.env.PAYOS_API_KEY!,
+  process.env.PAYOS_CHECKSUM_KEY!
+);
+
+export async function createPayOSPaymentLink(params: {
+  orderCode: number;
+  amount: number;
+  description: string;
+  cancelUrl: string;
+  returnUrl: string;
+}) {
+  const paymentLinkRes = await payos.createPaymentLink({
+    orderCode: params.orderCode,
+    amount: params.amount,
+    description: params.description,
+    cancelUrl: params.cancelUrl,
+    returnUrl: params.returnUrl,
+  });
+
+  return paymentLinkRes;
+}
+
+export async function verifyPayOSWebhook(webhookData: any) {
+  return payos.verifyPaymentWebhookData(webhookData);
+}
+```
+
+### 7.2. Webhook Handler
+
+**File: `src/app/api/payments/webhook.ts`**
+
+```typescript
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { verifyPayOSWebhook } from "@/lib/payment/payos";
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    
+    // Verify webhook signature
+    const isValid = await verifyPayOSWebhook(body);
+    if (!isValid) {
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+    }
+
+    const { orderCode, status } = body.data;
+
+    // Find pledge
+    const pledge = await prisma.pledge.findFirst({
+      where: { payosOrderCode: orderCode.toString() }
+    });
+
+    if (!pledge) {
+      return NextResponse.json({ error: "Pledge not found" }, { status: 404 });
+    }
+
+    // Update pledge status
+    if (status === "PAID") {
+      await prisma.$transaction(async (tx) => {
+        await tx.pledge.update({
+          where: { id: pledge.id },
+          data: { status: "SUCCESS" }
+        });
+
+        await tx.campaign.update({
+          where: { id: pledge.campaignId },
+          data: {
+            currentAmount: { increment: Number(pledge.amount) }
+          }
+        });
+      });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("[WEBHOOK_ERROR]", error);
+    return NextResponse.json({ error: "Webhook failed" }, { status: 500 });
+  }
+}
+```
+
+---
+
+## 8. MONGODB INTEGRATION
+
+### 8.1. MongoDB Connection
+
+**File: `src/lib/mongodb.ts`**
+
+```typescript
+import { MongoClient, Db } from 'mongodb';
+
+const uri = process.env.MONGODB_URI!;
+const dbName = process.env.MONGODB_DB_NAME || 'crowdfunding_vn';
+
+let client: MongoClient;
+let clientPromise: Promise<MongoClient>;
+
+if (process.env.NODE_ENV === 'development') {
+  if (!(global as any)._mongoClientPromise) {
+    client = new MongoClient(uri);
+    (global as any)._mongoClientPromise = client.connect();
+  }
+  clientPromise = (global as any)._mongoClientPromise;
+} else {
+  client = new MongoClient(uri);
+  clientPromise = client.connect();
+}
+
+export async function getDb(): Promise<Db> {
+  const connectedClient = await clientPromise;
+  return connectedClient.db(dbName);
+}
+
+export default clientPromise;
+```
+
+### 8.2. Analytics Service
+
+**File: `src/services/mongodb/analytics.service.ts`**
+
+```typescript
+import { getDb } from '@/lib/mongodb';
+
+export const analyticsService = {
+  async track(event: {
+    eventName: string;
+    userId?: string;
+    campaignId?: string;
+    payload?: any;
+  }) {
+    try {
+      const db = await getDb();
+      await db.collection('analytics_events').insertOne({
+        ...event,
+        timestamp: new Date(),
+      });
+    } catch (error) {
+      console.error('[ANALYTICS_TRACK_ERROR]', error);
+    }
+  },
+
+  async getEventsByUser(userId: string) {
+    const db = await getDb();
+    return db.collection('analytics_events')
+      .find({ userId })
+      .sort({ timestamp: -1 })
+      .limit(100)
+      .toArray();
+  },
+};
+```
+
+---
+
+## KẾT LUẬN
+
+Backend của nền tảng crowdfunding được xây dựng với:
+
+✅ **Next.js API Routes** - RESTful APIs  
+✅ **NextAuth.js** - Authentication & Authorization  
+✅ **Prisma ORM** - Type-safe database operations  
+✅ **MongoDB** - Flexible data storage  
+✅ **Payment Gateways** - Multiple payment options  
+✅ **Error Handling** - Robust error management  
+✅ **Validation** - Input validation với Zod  
+✅ **Security** - JWT, CORS, Rate limiting  
+
+Backend cung cấp 30+ API endpoints để phục vụ toàn bộ chức năng của nền tảng.
+
+---
+
+## Nguồn: `docs/3.4_KET_NOI_API.md`
+
+﻿# 3.4. KẾT NỐI API VÀ XỬ LÝ DỮ LIỆU
+
+## MỤC LỤC
+1. [Tổng quan Kết nối API](#1-tổng-quan-kết-nối-api)
+2. [Fetch API vs Axios](#2-fetch-api-vs-axios)
+3. [API Calling Patterns](#3-api-calling-patterns)
+4. [Data Fetching Strategies](#4-data-fetching-strategies)
+5. [Error Handling](#5-error-handling)
+6. [Loading States](#6-loading-states)
+7. [Caching Strategies](#7-caching-strategies)
+8. [Custom Hooks](#8-custom-hooks)
+
+---
+
+## 1. TỔNG QUAN KẾT NỐI API
+
+### 1.1. Phương thức kết nối
+
+Nền tảng sử dụng **Fetch API** (native JavaScript) để gọi API:
+
+```
+┌─────────────────────────────────────────┐
+│         CLIENT COMPONENTS               │
+│  (Browser - use client)                 │
+└────────────┬────────────────────────────┘
+             │ fetch()
+             │
+┌────────────▼────────────────────────────┐
+│         API ROUTES                      │
+│  (/api/campaigns, /api/users, etc.)     │
+└────────────┬────────────────────────────┘
+             │ Prisma/MongoDB
+             │
+┌────────────▼────────────────────────────┐
+│         DATABASES                       │
+│  (PostgreSQL + MongoDB)                 │
+└─────────────────────────────────────────┘
+```
+
+### 1.2. Đặc điểm
+
+✅ **Fetch API** - Native, không cần thư viện  
+✅ **Async/Await** - Code dễ đọc, dễ maintain  
+✅ **Error Handling** - Try-catch pattern  
+✅ **TypeScript** - Type-safe responses  
+✅ **Custom Hooks** - Reusable logic  
+
+---
+
+## 2. FETCH API VS AXIOS
+
+### 2.1. Fetch API (Được sử dụng)
+
+**Ưu điểm:**
+- Native JavaScript, không cần install
+- Nhẹ, không tăng bundle size
+- Promise-based, dễ sử dụng với async/await
+- Đủ cho hầu hết use cases
+
+**Code mẫu:**
+```typescript
+const response = await fetch('/api/campaigns', {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+const data = await response.json();
+```
+
+### 2.2. Axios (Không sử dụng)
+
+**Tại sao không dùng:**
+- Tăng bundle size (~13KB)
+- Fetch API đã đủ mạnh
+- Next.js recommend dùng fetch()
+
+---
+
+## 3. API CALLING PATTERNS
+
+### 3.1. GET Request - Lấy dữ liệu
+
+**Ví dụ: Lấy danh sách campaigns**
+
+```typescript
+async function getCampaigns(filters?: {
+  category?: string;
+  status?: string;
+  q?: string;
+}) {
+  try {
+    const params = new URLSearchParams();
+    if (filters?.category) params.append('category', filters.category);
+    if (filters?.status) params.append('status', filters.status);
+    if (filters?.q) params.append('q', filters.q);
+
+    const response = await fetch(`/api/campaigns?${params.toString()}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch campaigns');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('[GET_CAMPAIGNS_ERROR]', error);
+    throw error;
+  }
+}
+```
+
+### 3.2. POST Request - Tạo dữ liệu mới
+
+**Ví dụ: Tạo campaign mới**
+
+```typescript
+async function createCampaign(campaignData: {
+  title: string;
+  description: string;
+  goalAmount: number;
+  category: string;
+  imageUrl: string;
+  endDate: string;
+}) {
+  try {
+    const response = await fetch('/api/campaigns', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(campaignData),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to create campaign');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('[CREATE_CAMPAIGN_ERROR]', error);
+    throw error;
+  }
+}
+```
+
+### 3.3. PUT Request - Cập nhật dữ liệu
+
+**Ví dụ: Cập nhật profile**
+
+```typescript
+async function updateProfile(profileData: {
+  name?: string;
+  avatar?: string;
+}) {
+  try {
+    const response = await fetch('/api/users', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(profileData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update profile');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('[UPDATE_PROFILE_ERROR]', error);
+    throw error;
+  }
+}
+```
+
+### 3.4. DELETE Request - Xóa dữ liệu
+
+**Ví dụ: Xóa campaign**
+
+```typescript
+async function deleteCampaign(campaignId: string) {
+  try {
+    const response = await fetch(`/api/campaigns/${campaignId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete campaign');
+    }
+
+    return true;
+  } catch (error) {
+    console.error('[DELETE_CAMPAIGN_ERROR]', error);
+    throw error;
+  }
+}
+```
+
+### 3.5. File Upload - Upload ảnh
+
+**Ví dụ: Upload ảnh lên Cloudinary**
+
+```typescript
+async function uploadImage(file: File) {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData, // Không set Content-Type, browser tự set
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Upload failed');
+    }
+
+    const data = await response.json();
+    return data.secure_url; // Cloudinary URL
+  } catch (error) {
+    console.error('[UPLOAD_IMAGE_ERROR]', error);
+    throw error;
+  }
+}
+```
+
+---
+
+## 4. DATA FETCHING STRATEGIES
+
+### 4.1. Server-Side Rendering (SSR)
+
+**Khi nào dùng:**
+- Dữ liệu thay đổi thường xuyên
+- Cần SEO tốt
+- Dữ liệu phụ thuộc vào user session
+
+**Code mẫu:**
+
+```typescript
+// app/campaigns/page.tsx
+import { auth } from "@/lib/auth";
+import prisma from "@/lib/prisma";
+
+export default async function CampaignsPage() {
+  const session = await auth();
+  
+  // Fetch data trên server
+  const campaigns = await prisma.campaign.findMany({
+    where: { status: 'ACTIVE' },
+    include: { creator: true },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return (
+    <div>
+      <h1>Campaigns</h1>
+      {campaigns.map(campaign => (
+        <CampaignCard key={campaign.id} campaign={campaign} />
+      ))}
+    </div>
+  );
+}
+```
+
+### 4.2. Client-Side Rendering (CSR)
+
+**Khi nào dùng:**
+- Dữ liệu cần real-time updates
+- Interactive features (search, filter)
+- Không cần SEO
+
+**Code mẫu:**
+
+```typescript
+"use client";
+
+import { useEffect, useState } from "react";
+
+export default function CampaignsClient() {
+  const [campaigns, setCampaigns] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchCampaigns() {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/campaigns');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch');
+        }
+        
+        const data = await response.json();
+        setCampaigns(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCampaigns();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
+  return (
+    <div>
+      {campaigns.map(campaign => (
+        <CampaignCard key={campaign.id} campaign={campaign} />
+      ))}
+    </div>
+  );
+}
+```
+
+### 4.3. Incremental Static Regeneration (ISR)
+
+**Khi nào dùng:**
+- Dữ liệu ít thay đổi
+- Cần performance cao
+- Static content với periodic updates
+
+**Code mẫu:**
+
+```typescript
+// app/campaigns/[slug]/page.tsx
+export const revalidate = 60; // Revalidate every 60 seconds
+
+export default async function CampaignDetailPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const campaign = await prisma.campaign.findUnique({
+    where: { slug: params.slug },
+    include: {
+      creator: true,
+      pledges: true,
+      rewards: true,
+    },
+  });
+
+  if (!campaign) {
+    return <div>Campaign not found</div>;
+  }
+
+  return <CampaignDetail campaign={campaign} />;
+}
+```
+
+---
+
+## 5. ERROR HANDLING
+
+### 5.1. Try-Catch Pattern
+
+```typescript
+async function fetchWithErrorHandling() {
+  try {
+    const response = await fetch('/api/campaigns');
+    
+    if (!response.ok) {
+      // HTTP error (4xx, 5xx)
+      const error = await response.json();
+      throw new Error(error.message || `HTTP ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    // Network error hoặc JSON parse error
+    console.error('[FETCH_ERROR]', error);
+    
+    if (error instanceof TypeError) {
+      // Network error
+      throw new Error('Không thể kết nối đến server');
+    }
+    
+    throw error;
+  }
+}
+```
+
+### 5.2. Error Display Component
+
+```typescript
+"use client";
+
+interface ErrorDisplayProps {
+  error: Error;
+  reset?: () => void;
+}
+
+export function ErrorDisplay({ error, reset }: ErrorDisplayProps) {
+  return (
+    <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+      <h3 className="text-red-800 font-semibold">Có lỗi xảy ra</h3>
+      <p className="text-red-600 text-sm mt-1">{error.message}</p>
+      {reset && (
+        <button
+          onClick={reset}
+          className="mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        >
+          Thử lại
+        </button>
+      )}
+    </div>
+  );
+}
+```
+
+### 5.3. Toast Notifications
+
+```typescript
+import { toast } from "sonner";
+
+async function handleSubmit() {
+  try {
+    await createCampaign(formData);
+    toast.success('Campaign created successfully!');
+  } catch (error) {
+    toast.error(error instanceof Error ? error.message : 'Failed to create campaign');
+  }
+}
+```
+
+---
+
+## 6. LOADING STATES
+
+### 6.1. Loading Component
+
+```typescript
+export function LoadingSpinner() {
+  return (
+    <div className="flex items-center justify-center p-8">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+  );
+}
+```
+
+### 6.2. Skeleton Loading
+
+```typescript
+export function CampaignCardSkeleton() {
+  return (
+    <div className="border rounded-lg p-4 animate-pulse">
+      <div className="h-48 bg-gray-200 rounded mb-4"></div>
+      <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+    </div>
+  );
+}
+```
+
+### 6.3. Loading State trong Component
+
+```typescript
+"use client";
+
+export function CampaignList() {
+  const [campaigns, setCampaigns] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCampaigns().then(data => {
+      setCampaigns(data);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-3 gap-4">
+        {[1, 2, 3, 4, 5, 6].map(i => (
+          <CampaignCardSkeleton key={i} />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-3 gap-4">
+      {campaigns.map(campaign => (
+        <CampaignCard key={campaign.id} campaign={campaign} />
+      ))}
+    </div>
+  );
+}
+```
+
+---
+
+## 7. CACHING STRATEGIES
+
+### 7.1. Next.js Cache (Server-side)
+
+```typescript
+// Cache for 1 hour
+export const revalidate = 3600;
+
+export default async function Page() {
+  const data = await fetch('https://api.example.com/data', {
+    next: { revalidate: 3600 } // Cache for 1 hour
+  });
+  
+  return <div>{/* render data */}</div>;
+}
+```
+
+### 7.2. React Query (Client-side)
+
+**Không sử dụng trong project này**, nhưng đây là pattern phổ biến:
+
+```typescript
+// Nếu dùng React Query
+import { useQuery } from '@tanstack/react-query';
+
+function useCampaigns() {
+  return useQuery({
+    queryKey: ['campaigns'],
+    queryFn: () => fetch('/api/campaigns').then(res => res.json()),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+```
+
+### 7.3. Manual Caching với useState
+
+```typescript
+"use client";
+
+const cache = new Map();
+
+export function useCachedFetch<T>(url: string) {
+  const [data, setData] = useState<T | null>(cache.get(url) || null);
+  const [loading, setLoading] = useState(!cache.has(url));
+
+  useEffect(() => {
+    if (cache.has(url)) return;
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        cache.set(url, data);
+        setData(data);
+        setLoading(false);
+      });
+  }, [url]);
+
+  return { data, loading };
+}
+```
+
+---
+
+## 8. CUSTOM HOOKS
+
+### 8.1. usePledge Hook
+
+**File: `src/hooks/usePledge.ts`**
+
+```typescript
+"use client";
+
+import { useCallback, useState } from "react";
+
+interface CreatePledgeInput {
+  campaignId: string;
+  amount: number;
+  rewardId?: string;
+  paymentMethod: string;
+  guestEmail?: string;
+  isAnonymous?: boolean;
+}
+
+export function usePledge() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+  const [pledgeId, setPledgeId] = useState<string | null>(null);
+
+  const submitPledge = useCallback(async (input: CreatePledgeInput) => {
+    setLoading(true);
+    setError(null);
+    setPaymentUrl(null);
+    setPledgeId(null);
+
+    try {
+      const res = await fetch("/api/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      });
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || "Có lỗi khi xử lý ủng hộ");
+      }
+
+      if (data.pledgeId) setPledgeId(data.pledgeId);
+      if (data.paymentUrl) {
+        setPaymentUrl(data.paymentUrl);
+        window.location.href = data.paymentUrl;
+      }
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Không thể kết nối");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const reset = useCallback(() => {
+    setLoading(false);
+    setError(null);
+    setPaymentUrl(null);
+    setPledgeId(null);
+  }, []);
+
+  return { loading, error, paymentUrl, pledgeId, submitPledge, reset };
+}
+```
+
+**Sử dụng:**
+
+```typescript
+"use client";
+
+import { usePledge } from "@/hooks/usePledge";
+
+export function PledgeForm({ campaignId }: { campaignId: string }) {
+  const { loading, error, submitPledge } = usePledge();
+  const [amount, setAmount] = useState(100000);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await submitPledge({
+      campaignId,
+      amount,
+      paymentMethod: "PAYOS",
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="number"
+        value={amount}
+        onChange={(e) => setAmount(Number(e.target.value))}
+        min={50000}
+      />
+      <button type="submit" disabled={loading}>
+        {loading ? "Đang xử lý..." : "Ủng hộ ngay"}
+      </button>
+      {error && <p className="text-red-600">{error}</p>}
+    </form>
+  );
+}
+```
+
+### 8.2. useDebounce Hook
+
+**File: `src/hooks/useDebounce.ts`**
+
+```typescript
+"use client";
+
+import { useEffect, useState } from "react";
+
+export function useDebounce<T>(value: T, delay: number = 500): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+```
+
+**Sử dụng cho Search:**
+
+```typescript
+"use client";
+
+import { useDebounce } from "@/hooks/useDebounce";
+import { useEffect, useState } from "react";
+
+export function SearchCampaigns() {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const debouncedQuery = useDebounce(query, 500);
+
+  useEffect(() => {
+    if (!debouncedQuery) {
+      setResults([]);
+      return;
+    }
+
+    fetch(`/api/campaigns?q=${debouncedQuery}`)
+      .then(res => res.json())
+      .then(data => setResults(data));
+  }, [debouncedQuery]);
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Tìm kiếm campaigns..."
+      />
+      <div>
+        {results.map(campaign => (
+          <div key={campaign.id}>{campaign.title}</div>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+### 8.3. useThrottle Hook
+
+**File: `src/hooks/useThrottle.ts`**
+
+```typescript
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
+export function useThrottle<T>(value: T, interval: number = 500): T {
+  const [throttledValue, setThrottledValue] = useState<T>(value);
+  const lastExecuted = useRef<number>(Date.now());
+
+  useEffect(() => {
+    if (Date.now() >= lastExecuted.current + interval) {
+      lastExecuted.current = Date.now();
+      setThrottledValue(value);
+    } else {
+      const timerId = setTimeout(() => {
+        lastExecuted.current = Date.now();
+        setThrottledValue(value);
+      }, interval);
+
+      return () => clearTimeout(timerId);
+    }
+  }, [value, interval]);
+
+  return throttledValue;
+}
+```
+
+---
+
+## KẾT LUẬN
+
+Kết nối API và xử lý dữ liệu trong nền tảng:
+
+✅ **Fetch API** - Native, không cần thư viện  
+✅ **Async/Await** - Code dễ đọc  
+✅ **Error Handling** - Robust error management  
+✅ **Loading States** - Better UX  
+✅ **Custom Hooks** - Reusable logic  
+✅ **Caching** - Performance optimization  
+✅ **TypeScript** - Type-safe  
+
+Tất cả API calls đều được xử lý với error handling, loading states, và type safety đầy đủ.
+
+---
+
+## Nguồn: `docs/3.5_QUAN_LY_DU_LIEU.md`
+
+# 3.5. QUẢN LÝ DỮ LIỆU NGƯỜI DÙNG
+
+## MỤC LỤC
+1. [Local Storage](#1-local-storage)
+2. [Session Storage](#2-session-storage)
+3. [Quản lý Token](#3-quản-lý-token)
+4. [Quản lý Session](#4-quản-lý-session)
+5. [Cookie Management](#5-cookie-management)
+6. [Security Best Practices](#6-security-best-practices)
+
+---
+
+## 1. LOCAL STORAGE
+
+### 1.1. Tổng quan
+
+Local Storage lưu trữ dữ liệu **vĩnh viễn** trên browser (không hết hạn).
+
+**Đặc điểm:**
+- Dung lượng: ~5-10MB
+- Scope: Per domain
+- Không tự động gửi lên server
+- Chỉ lưu string (cần JSON.stringify/parse)
+
+### 1.2. Use Cases
+
+```typescript
+// Lưu theme preference
+localStorage.setItem('theme', 'dark');
+
+// Lưu language
+localStorage.setItem('language', 'vi');
+
+// Lưu user preferences
+const prefs = {
+  notifications: true,
+  emailUpdates: false
+};
+localStorage.setItem('userPrefs', JSON.stringify(prefs));
+
+// Đọc
+const theme = localStorage.getItem('theme');
+const prefs = JSON.parse(localStorage.getItem('userPrefs') || '{}');
+
+// Xóa
+localStorage.removeItem('theme');
+localStorage.clear(); // Xóa tất cả
+```
+
+### 1.3. Helper Functions
+
+```typescript
+// src/lib/storage.ts
+
+export const storage = {
+  // Set item
+  set(key: string, value: any) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      console.error('LocalStorage set error:', error);
+    }
+  },
+
+  // Get item
+  get<T>(key: string, defaultValue?: T): T | null {
+    try {
+      const item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : defaultValue ?? null;
+    } catch (error) {
+      console.error('LocalStorage get error:', error);
+      return defaultValue ?? null;
+    }
+  },
+
+  // Remove item
+  remove(key: string) {
+    try {
+      localStorage.removeItem(key);
+    } catch (error) {
+      console.error('LocalStorage remove error:', error);
+    }
+  },
+
+  // Clear all
+  clear() {
+    try {
+      localStorage.clear();
+    } catch (error) {
+      console.error('LocalStorage clear error:', error);
+    }
+  }
+};
+```
+
+### 1.4. Sử dụng trong Components
+
+```typescript
+'use client';
+
+import { useEffect, useState } from 'react';
+import { storage } from '@/lib/storage';
+
+export function ThemeToggle() {
+  const [theme, setTheme] = useState('light');
+
+  useEffect(() => {
+    // Load theme from localStorage
+    const saved = storage.get<string>('theme', 'light');
+    setTheme(saved);
+    document.documentElement.classList.toggle('dark', saved === 'dark');
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    storage.set('theme', newTheme);
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+  };
+
+  return (
+    <button onClick={toggleTheme}>
+      {theme === 'light' ? '🌙' : '☀️'}
+    </button>
+  );
+}
+```
+
+---
+
+## 2. SESSION STORAGE
+
+### 2.1. Tổng quan
+
+Session Storage lưu trữ dữ liệu **tạm thời** (xóa khi đóng tab).
+
+**Đặc điểm:**
+- Dung lượng: ~5-10MB
+- Scope: Per tab/window
+- Tự động xóa khi đóng tab
+- Chỉ lưu string
+
+### 2.2. Use Cases
+
+```typescript
+// Lưu form draft
+sessionStorage.setItem('campaignDraft', JSON.stringify(formData));
+
+// Lưu scroll position
+sessionStorage.setItem('scrollPos', window.scrollY.toString());
+
+// Lưu filter state
+const filters = { category: 'tech', status: 'active' };
+sessionStorage.setItem('filters', JSON.stringify(filters));
+
+// Đọc
+const draft = JSON.parse(sessionStorage.getItem('campaignDraft') || '{}');
+
+// Xóa
+sessionStorage.removeItem('campaignDraft');
+sessionStorage.clear();
+```
+
+### 2.3. Helper Functions
+
+```typescript
+export const sessionStore = {
+  set(key: string, value: any) {
+    try {
+      sessionStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      console.error('SessionStorage set error:', error);
+    }
+  },
+
+  get<T>(key: string, defaultValue?: T): T | null {
+    try {
+      const item = sessionStorage.getItem(key);
+      return item ? JSON.parse(item) : defaultValue ?? null;
+    } catch (error) {
+      console.error('SessionStorage get error:', error);
+      return defaultValue ?? null;
+    }
+  },
+
+  remove(key: string) {
+    try {
+      sessionStorage.removeItem(key);
+    } catch (error) {
+      console.error('SessionStorage remove error:', error);
+    }
+  },
+
+  clear() {
+    try {
+      sessionStorage.clear();
+    } catch (error) {
+      console.error('SessionStorage clear error:', error);
+    }
+  }
+};
+```
+
+### 2.4. Form Draft Auto-save
+
+```typescript
+'use client';
+
+import { useEffect, useState } from 'react';
+import { sessionStore } from '@/lib/storage';
+
+export function CampaignForm() {
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    goalAmount: 0
+  });
+
+  // Load draft on mount
+  useEffect(() => {
+    const draft = sessionStore.get('campaignDraft');
+    if (draft) {
+      setFormData(draft);
+    }
+  }, []);
+
+  // Auto-save draft
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      sessionStore.set('campaignDraft', formData);
+    }, 1000); // Debounce 1s
+
+    return () => clearTimeout(timer);
+  }, [formData]);
+
+  const handleSubmit = async () => {
+    // Submit form
+    await submitCampaign(formData);
+    
+    // Clear draft after successful submit
+    sessionStore.remove('campaignDraft');
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* Form fields */}
+    </form>
+  );
+}
+```
+
+---
+
+## 3. QUẢN LÝ TOKEN
+
+### 3.1. JWT Token Structure
+
+```typescript
+// Token structure
+interface JWTPayload {
+  id: string;
+  email: string;
+  role: string;
+  iat: number;  // Issued at
+  exp: number;  // Expiration
+}
+```
+
+### 3.2. Token Storage
+
+**❌ KHÔNG nên:**
+- Lưu token trong localStorage (dễ bị XSS attack)
+- Lưu token trong sessionStorage
+
+**✅ NÊN:**
+- Sử dụng httpOnly cookies (NextAuth tự động xử lý)
+- Token được mã hóa và secure
+
+### 3.3. NextAuth Token Management
+
+NextAuth tự động quản lý token qua cookies:
+
+```typescript
+// src/lib/auth.ts
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = (user as any).role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        (session.user as any).id = token.id;
+        (session.user as any).role = token.role;
+      }
+      return session;
+    }
+  }
+});
+```
+
+### 3.4. Client-side Token Access
+
+```typescript
+'use client';
+
+import { useSession } from 'next-auth/react';
+
+export function UserProfile() {
+  const { data: session, status } = useSession();
+
+  if (status === 'loading') {
+    return <div>Loading...</div>;
+  }
+
+  if (status === 'unauthenticated') {
+    return <div>Please login</div>;
+  }
+
+  return (
+    <div>
+      <p>User ID: {(session?.user as any)?.id}</p>
+      <p>Role: {(session?.user as any)?.role}</p>
+    </div>
+  );
+}
+```
+
+### 3.5. Server-side Token Access
+
+```typescript
+// In API Route
+import { auth } from '@/lib/auth';
+
+export async function GET(req: Request) {
+  const session = await auth();
+  
+  if (!session?.user) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const userId = (session.user as any).id;
+  // Use userId...
+}
+```
+
+---
+
+## 4. QUẢN LÝ SESSION
+
+### 4.1. NextAuth Session
+
+NextAuth quản lý session tự động:
+
+```typescript
+// Check session in Client Component
+'use client';
+
+import { useSession } from 'next-auth/react';
+
+export function ProtectedComponent() {
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      // Redirect to login
+      window.location.href = '/login';
+    }
+  });
+
+  if (status === 'loading') {
+    return <div>Loading...</div>;
+  }
+
+  return <div>Protected content</div>;
+}
+```
+
+### 4.2. Session Refresh
+
+```typescript
+'use client';
+
+import { useSession } from 'next-auth/react';
+import { useEffect } from 'react';
+
+export function SessionRefresh() {
+  const { data: session, update } = useSession();
+
+  useEffect(() => {
+    // Refresh session every 5 minutes
+    const interval = setInterval(() => {
+      update();
+    }, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [update]);
+
+  return null;
+}
+```
+
+### 4.3. Logout Handler
+
+```typescript
+'use client';
+
+import { signOut } from 'next-auth/react';
+import { storage } from '@/lib/storage';
+
+export function LogoutButton() {
+  const handleLogout = async () => {
+    // Clear local data
+    storage.clear();
+    sessionStorage.clear();
+
+    // Sign out
+    await signOut({
+      callbackUrl: '/',
+      redirect: true
+    });
+  };
+
+  return (
+    <button onClick={handleLogout}>
+      Đăng xuất
+    </button>
+  );
+}
+```
+
+---
+
+## 5. COOKIE MANAGEMENT
+
+### 5.1. Cookie Types
+
+**Session Cookies:**
+- Tự động xóa khi đóng browser
+- Không có expiration date
+
+**Persistent Cookies:**
+- Có expiration date
+- Lưu trữ lâu dài
+
+### 5.2. NextAuth Cookies
+
+NextAuth tự động tạo cookies:
+
+```
+next-auth.session-token    # Session token (httpOnly, secure)
+next-auth.csrf-token       # CSRF protection
+next-auth.callback-url     # Redirect after login
+```
+
+### 5.3. Custom Cookie Helper
+
+```typescript
+// src/lib/cookies.ts
+
+export const cookies = {
+  set(name: string, value: string, days: number = 7) {
+    const expires = new Date();
+    expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+  },
+
+  get(name: string): string | null {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+      if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+  },
+
+  remove(name: string) {
+    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+  }
+};
+```
+
+### 5.4. Cookie Consent
+
+```typescript
+'use client';
+
+import { useState, useEffect } from 'react';
+import { cookies } from '@/lib/cookies';
+
+export function CookieConsent() {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const consent = cookies.get('cookie-consent');
+    if (!consent) {
+      setShow(true);
+    }
+  }, []);
+
+  const accept = () => {
+    cookies.set('cookie-consent', 'accepted', 365);
+    setShow(false);
+  };
+
+  if (!show) return null;
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white p-4">
+      <p>Chúng tôi sử dụng cookies để cải thiện trải nghiệm.</p>
+      <button onClick={accept}>Chấp nhận</button>
+    </div>
+  );
+}
+```
+
+---
+
+## 6. SECURITY BEST PRACTICES
+
+### 6.1. XSS Protection
+
+```typescript
+// ❌ KHÔNG làm thế này
+function UnsafeComponent({ userInput }: { userInput: string }) {
+  return <div dangerouslySetInnerHTML={{ __html: userInput }} />;
+}
+
+// ✅ Làm thế này
+import DOMPurify from 'dompurify';
+
+function SafeComponent({ userInput }: { userInput: string }) {
+  const clean = DOMPurify.sanitize(userInput);
+  return <div dangerouslySetInnerHTML={{ __html: clean }} />;
+}
+```
+
+### 6.2. CSRF Protection
+
+NextAuth tự động bảo vệ CSRF:
+
+```typescript
+// CSRF token được tự động thêm vào forms
+<form method="post" action="/api/auth/signin">
+  <input type="hidden" name="csrfToken" value={csrfToken} />
+</form>
+```
+
+### 6.3. Sensitive Data
+
+```typescript
+// ❌ KHÔNG lưu sensitive data trong localStorage
+localStorage.setItem('password', password); // NGUY HIỂM!
+localStorage.setItem('creditCard', cardNumber); // NGUY HIỂM!
+
+// ✅ Chỉ lưu non-sensitive data
+localStorage.setItem('theme', 'dark'); // OK
+localStorage.setItem('language', 'vi'); // OK
+```
+
+### 6.4. Input Validation
+
+```typescript
+import { z } from 'zod';
+
+const loginSchema = z.object({
+  email: z.string().email('Email không hợp lệ'),
+  password: z.string().min(8, 'Mật khẩu tối thiểu 8 ký tự')
+});
+
+function LoginForm() {
+  const handleSubmit = (data: any) => {
+    try {
+      const validated = loginSchema.parse(data);
+      // Submit validated data
+    } catch (error) {
+      // Handle validation errors
+    }
+  };
+}
+```
+
+### 6.5. Rate Limiting
+
+```typescript
+// Client-side rate limiting
+class RateLimiter {
+  private attempts: number[] = [];
+  private maxAttempts = 5;
+  private windowMs = 60000; // 1 minute
+
+  canAttempt(): boolean {
+    const now = Date.now();
+    this.attempts = this.attempts.filter(time => now - time < this.windowMs);
+    
+    if (this.attempts.length >= this.maxAttempts) {
+      return false;
+    }
+    
+    this.attempts.push(now);
+    return true;
+  }
+}
+
+const loginLimiter = new RateLimiter();
+
+function handleLogin() {
+  if (!loginLimiter.canAttempt()) {
+    alert('Quá nhiều lần thử. Vui lòng đợi 1 phút.');
+    return;
+  }
+  
+  // Proceed with login
+}
+```
+
+---
+
+## KẾT LUẬN
+
+Quản lý dữ liệu người dùng an toàn:
+
+✅ **Local Storage** - Preferences, theme, language  
+✅ **Session Storage** - Temporary data, form drafts  
+✅ **NextAuth** - Token & session management  
+✅ **httpOnly Cookies** - Secure token storage  
+✅ **Input Validation** - Zod schema validation  
+✅ **XSS Protection** - DOMPurify sanitization  
+✅ **CSRF Protection** - NextAuth automatic  
+✅ **Rate Limiting** - Prevent abuse  
+
+**Nguyên tắc vàng:**
+- Không bao giờ lưu password, credit card trong client storage
+- Sử dụng httpOnly cookies cho tokens
+- Validate tất cả user input
+- Sanitize HTML content
+- Implement rate limiting
+
+---
+
+## Nguồn: `docs/3.6.1_GIT_WORKFLOW.md`
+
+﻿# 3.6.1. GIT WORKFLOW & BRANCH STRATEGY
+
+## 1. GIT WORKFLOW
+- Clone, configure, daily workflow
+- Common git commands
+- Stash, rebase, merge strategies
+
+## 2. BRANCH STRATEGY  
+- main (production), develop (staging), feature branches
+- Branch naming: feature/, bugfix/, hotfix/, refactor/, docs/
+- Protected branches, PR approval required
+
+## 3. COMMIT CONVENTIONS
+- Format: <type>(<scope>): <subject>
+- Types: feat, fix, docs, style, refactor, test, chore
+- Examples with proper formatting
+
+## 4. CODE REVIEW PROCESS
+- PR template with checklist
+- Review checklist: code quality, functionality, security, performance
+- Merge strategies: squash and merge (recommended)
+
+---
+
+## CHI TIẾT GIT WORKFLOW
+
+### Setup Repository
+```bash
+git clone https://github.com/your-org/crowdfunding-vn.git
+cd crowdfunding-vn
+git config user.name "Your Name"
+git config user.email "your.email@example.com"
+```
+
+### Daily Workflow
+```bash
+# Pull latest
+git checkout main
+git pull origin main
+
+# Create feature branch
+git checkout -b feature/add-payment
+
+# Make changes
+git add .
+git commit -m "feat: add PayOS integration"
+
+# Push
+git push origin feature/add-payment
+```
+
+### Common Commands
+```bash
+git status                    # Check status
+git log --oneline --graph     # View history
+git stash / git stash pop     # Temporary save
+git rebase main               # Update branch
+git merge feature-branch      # Merge
+```
+
+---
+
+## BRANCH NAMING EXAMPLES
+
+- feature/user-authentication
+- feature/payment-integration
+- bugfix/fix-login-error
+- hotfix/critical-security-patch
+- refactor/optimize-database-queries
+- docs/update-api-documentation
+
+---
+
+## COMMIT MESSAGE EXAMPLES
+
+```bash
+# Good commits
+git commit -m "feat(auth): add Google OAuth login"
+git commit -m "fix(payment): resolve webhook timeout"
+git commit -m "docs: update README with setup instructions"
+git commit -m "refactor(api): extract payment logic to service"
+
+# Bad commits (avoid these)
+git commit -m "fix bug"
+git commit -m "update"
+git commit -m "changes"
+```
+
+---
+
+## CODE REVIEW CHECKLIST
+
+**Before Creating PR:**
+- [ ] Code compiles without errors
+- [ ] All tests pass
+- [ ] No console.log statements
+- [ ] No commented-out code
+- [ ] Environment variables in .env.example
+
+**During Review:**
+- [ ] Code is readable
+- [ ] No security vulnerabilities
+- [ ] Performance is acceptable
+- [ ] Documentation updated
+
+**After Approval:**
+- [ ] Squash and merge
+- [ ] Delete feature branch
+- [ ] Verify deployment successful
+
+---
+
+## MERGE STRATEGIES
+
+**Squash and Merge (Recommended):**
+- Combines all commits into one
+- Clean history
+- Easy to revert
+
+**Rebase and Merge:**
+- Linear history
+- Preserves individual commits
+
+**Merge Commit:**
+- Shows merge point
+- Preserves full history
+
+---
+
+## Nguồn: `docs/3.6.2_CICD_DEPLOYMENT.md`
+
+﻿# 3.6.2. CI/CD & DEPLOYMENT
+
+## 1. CI/CD PIPELINE
+- GitHub Actions workflow
+- Automated testing, linting, building
+- Deploy to staging (develop branch)
+- Deploy to production (main branch)
+
+## 2. VERCEL DEPLOYMENT
+- Automatic deployment on push
+- Preview URLs for PRs
+- Environment variables configuration
+- Custom domains
+
+## 3. DATABASE MIGRATIONS
+- Prisma migrate dev (development)
+- Prisma migrate deploy (production)
+- Migration best practices
+- Rollback strategies
+
+---
+
+## CHI TIẾT CI/CD PIPELINE
+
+### GitHub Actions Workflow
+
+**File: .github/workflows/ci.yml**
+
+```yaml
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test
+      - run: npm run build
+
+  deploy-production:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Vercel
+        run: vercel --prod
+```
+
+### Pipeline Stages
+
+1. **Lint** - Check code style
+2. **Test** - Run unit & integration tests
+3. **Build** - Compile Next.js app
+4. **Deploy** - Push to Vercel
+
+---
+
+## VERCEL DEPLOYMENT
+
+### Setup
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Login
+vercel login
+
+# Link project
+vercel link
+
+# Deploy preview
+vercel
+
+# Deploy production
+vercel --prod
+```
+
+### Automatic Deployment
+
+- **Push to develop** → Deploy to staging
+- **Push to main** → Deploy to production
+- **Pull Request** → Deploy preview URL
+
+### Environment Variables
+
+**Required in Vercel Dashboard:**
+- DATABASE_URL
+- MONGODB_URI
+- NEXTAUTH_URL
+- NEXTAUTH_SECRET
+- CLOUDINARY_CLOUD_NAME
+- CLOUDINARY_API_KEY
+- CLOUDINARY_API_SECRET
+- PAYOS_CLIENT_ID
+- PAYOS_API_KEY
+- PAYOS_CHECKSUM_KEY
+
+---
+
+## DATABASE MIGRATIONS
+
+### Development
+
+```bash
+# Create migration
+npx prisma migrate dev --name add_user_badges
+
+# Apply migration
+npx prisma migrate dev
+
+# Reset database
+npx prisma migrate reset
+```
+
+### Production
+
+```bash
+# Apply migrations
+npx prisma migrate deploy
+
+# Generate Prisma Client
+npx prisma generate
+```
+
+### Vercel Build Command
+
+```json
+{
+  "scripts": {
+    "vercel-build": "prisma generate && prisma migrate deploy && next build"
+  }
+}
+```
+
+### Migration Best Practices
+
+✅ **DO:**
+- Test migrations locally first
+- Backup database before migration
+- Use descriptive migration names
+- Review generated SQL
+
+❌ **DON'T:**
+- Skip migrations in production
+- Modify existing migrations
+- Delete migration files
+- Run migrations manually in production
+
+---
+
+## DEPLOYMENT CHECKLIST
+
+**Pre-deployment:**
+- [ ] All tests passing
+- [ ] Code reviewed and approved
+- [ ] Environment variables configured
+- [ ] Database migrations ready
+- [ ] Backup database (production)
+
+**Post-deployment:**
+- [ ] Verify deployment successful
+- [ ] Test critical features
+- [ ] Monitor error logs
+- [ ] Check performance metrics
+- [ ] Notify team
+
+---
+
+## ROLLBACK STRATEGY
+
+If deployment fails:
+
+```bash
+# Revert to previous deployment
+vercel rollback
+
+# Or redeploy previous commit
+git revert HEAD
+git push origin main
+```
+
+---
+
+## Nguồn: `docs/3.6.3_ENVIRONMENT.md`
+
+﻿# 3.6.3. ENVIRONMENT MANAGEMENT
+
+## 1. ENVIRONMENT FILES
+- .env.local (development, gitignored)
+- .env.example (template, committed)
+- .env.production (Vercel only)
+- .env.staging (Vercel only)
+
+## 2. ENVIRONMENT VARIABLES
+- DATABASE_URL, MONGODB_URI
+- NEXTAUTH_URL, NEXTAUTH_SECRET
+- CLOUDINARY credentials
+- Payment gateway keys (PayOS, VNPay, SePay)
+
+## 3. CONFIGURATION
+- Environment-specific config
+- Validation of required variables
+- Type-safe environment access
+
+## 4. MONITORING & LOGGING
+- Vercel Analytics
+- Error tracking
+- Performance monitoring
+- Custom logging service
+
+---
+
+## ENVIRONMENT VARIABLES
+
+Required variables: DATABASE_URL, MONGODB_URI, NEXTAUTH_URL, NEXTAUTH_SECRET, Cloudinary, PayOS
+
+## MONITORING
+
+Vercel Analytics, Custom Logger, Error Tracking
+
+## SECURITY
+
+Never commit .env files, Use strong secrets, Rotate regularly
+
+---
+
+## Nguồn: `docs/3.6_QUAN_LY_SOURCE_CODE.md`
+
+# 3.6 done
+
+---
+
+## Nguồn: `docs/5_TONG_KET_VA_DANH_GIA.md`
+
+# CHƯƠNG 5: TỔNG KẾT VÀ ĐÁNH GIÁ THÀNH VIÊN
+
+## 5.1. Kết luận
+
+### 5.1.1. Đánh giá kết quả so với mục tiêu ban đầu
+
+#### Mục tiêu đã đặt ra
+- ✅ Xây dựng nền tảng crowdfunding hoàn chỉnh với đầy đủ tính năng cơ bản
+- ✅ Triển khai hệ thống xác thực và phân quyền người dùng
+- ✅ Quản lý dự án, chiến dịch gây quỹ và đóng góp
+- ✅ Tích hợp thanh toán trực tuyến
+- ✅ Dashboard quản trị và báo cáo thống kê
+- ✅ Responsive design, tối ưu trải nghiệm người dùng
+- ✅ Deploy lên môi trường production
+
+#### Kết quả đạt được
+| Tiêu chí | Mục tiêu | Thực tế | Tỷ lệ hoàn thành |
+|----------|----------|---------|------------------|
+| Chức năng cốt lõi | 100% | 100% | ✅ 100% |
+| Giao diện người dùng | 100% | 100% | ✅ 100% |
+| Tích hợp thanh toán | 100% | 100% | ✅ 100% |
+| Bảo mật & Authentication | 100% | 100% | ✅ 100% |
+| Testing & Quality | 80% | 85% | ✅ 85% |
+| Documentation | 100% | 100% | ✅ 100% |
+| Deployment | 100% | 100% | ✅ 100% |
+
+**Tổng kết:** Dự án đạt **98%** mục tiêu đề ra, vượt kỳ vọng ban đầu.
+
+### 5.1.2. Điểm sáng trong kiến trúc mã nguồn
+
+#### 🌟 Kiến trúc tổng thể
+1. **Clean Architecture Pattern**
+   - Phân tách rõ ràng giữa các layer: Presentation, Business Logic, Data Access
+   - Dễ dàng mở rộng và bảo trì
+   - Code reusability cao
+
+2. **Monorepo Structure**
+   ```
+   crowdfunding-vn/
+   ├── src/
+   │   ├── app/              # Next.js App Router
+   │   ├── components/       # Reusable UI components
+   │   ├── lib/             # Business logic & utilities
+   │   ├── types/           # TypeScript definitions
+   │   └── styles/          # Global styles
+   ├── prisma/              # Database schema & migrations
+   └── __tests__/           # Comprehensive test suites
+   ```
+
+#### 🎯 Điểm mạnh kỹ thuật
+
+**1. Type Safety với TypeScript**
+- 100% TypeScript coverage
+- Strict mode enabled
+- Type inference tối ưu
+- Giảm thiểu runtime errors
+
+**2. Database Design**
+- Schema chuẩn hóa, tối ưu performance
+- Indexes được đặt đúng chỗ
+- Relationships rõ ràng
+- Migration history đầy đủ
+
+**3. API Design**
+- RESTful conventions
+- Consistent error handling
+- Request validation với Zod
+- Rate limiting & security headers
+
+**4. Component Architecture**
+- Atomic Design Pattern
+- Server Components & Client Components tách biệt
+- Reusable hooks
+- Optimized re-renders
+
+**5. State Management**
+- Server state với React Query
+- Client state với React hooks
+- Form state với React Hook Form
+- Optimistic updates
+
+**6. Security Implementation**
+- NextAuth.js với multiple providers
+- RBAC (Role-Based Access Control)
+- CSRF protection
+- SQL injection prevention
+- XSS protection
+
+**7. Performance Optimization**
+- Image optimization với next/image
+- Code splitting tự động
+- Dynamic imports
+- Caching strategies
+- Database query optimization
+
+**8. Testing Strategy**
+- Unit tests cho utilities
+- Integration tests cho API routes
+- Component tests với React Testing Library
+- E2E tests với Playwright (planned)
+
+**9. Developer Experience**
+- ESLint + Prettier configuration
+- Git hooks với Husky
+- Conventional commits
+- Comprehensive documentation
+- Development scripts
+
+**10. Deployment & DevOps**
+- Vercel deployment với CI/CD
+- Environment variables management
+- Database migrations automation
+- Monitoring & logging setup
+
+#### 💡 Innovations & Best Practices
+
+1. **Custom Hooks Library**
+   - `useAuth()` - Authentication state
+   - `useProject()` - Project data management
+   - `useContribution()` - Contribution handling
+   - `useDebounce()` - Performance optimization
+
+2. **Error Boundary Implementation**
+   - Graceful error handling
+   - User-friendly error messages
+   - Error logging & monitoring
+
+3. **Accessibility (a11y)**
+   - ARIA labels
+   - Keyboard navigation
+   - Screen reader support
+   - Color contrast compliance
+
+4. **Internationalization Ready**
+   - Structure sẵn sàng cho i18n
+   - Date/time formatting
+   - Currency formatting
+
+---
+
+## 5.2. Đánh giá mức độ hoàn thành
+
+### 5.2.1. Bảng phân chia nhiệm vụ và đóng góp
+
+| STT | Thành viên | Vai trò | Nhiệm vụ chính | Tỷ lệ hoàn thành | Điểm đóng góp | Chữ ký |
+|-----|------------|---------|----------------|------------------|---------------|--------|
+| 1 | [Tên thành viên 1] | Team Lead / Full-stack Developer | - Thiết kế kiến trúc tổng thể<br>- Setup project & infrastructure<br>- Authentication & Authorization<br>- API development<br>- Code review | 100% | 10/10 | _______ |
+| 2 | [Tên thành viên 2] | Frontend Developer | - UI/UX implementation<br>- Component development<br>- State management<br>- Responsive design<br>- Frontend testing | 100% | 10/10 | _______ |
+| 3 | [Tên thành viên 3] | Backend Developer | - Database design<br>- API endpoints<br>- Business logic<br>- Payment integration<br>- Backend testing | 100% | 10/10 | _______ |
+| 4 | [Tên thành viên 4] | DevOps / QA | - Deployment setup<br>- CI/CD pipeline<br>- Testing strategy<br>- Documentation<br>- Quality assurance | 100% | 10/10 | _______ |
+
+### 5.2.2. Chi tiết đóng góp theo module
+
+#### Module 1: Authentication & User Management
+| Thành viên | Công việc | Tỷ lệ đóng góp |
+|------------|-----------|----------------|
+| [Tên 1] | NextAuth setup, RBAC implementation | 60% |
+| [Tên 2] | Login/Register UI, Profile pages | 30% |
+| [Tên 3] | User API endpoints, validation | 10% |
+
+#### Module 2: Project & Campaign Management
+| Thành viên | Công việc | Tỷ lệ đóng góp |
+|------------|-----------|----------------|
+| [Tên 3] | Database schema, API logic | 50% |
+| [Tên 2] | Project creation UI, listing pages | 40% |
+| [Tên 1] | File upload, image optimization | 10% |
+
+#### Module 3: Contribution & Payment
+| Thành viên | Công việc | Tỷ lệ đóng góp |
+|------------|-----------|----------------|
+| [Tên 3] | Payment gateway integration | 50% |
+| [Tên 1] | Transaction handling, webhooks | 30% |
+| [Tên 2] | Contribution UI, confirmation flow | 20% |
+
+#### Module 4: Dashboard & Analytics
+| Thành viên | Công việc | Tỷ lệ đóng góp |
+|------------|-----------|----------------|
+| [Tên 2] | Dashboard UI, charts & graphs | 50% |
+| [Tên 3] | Statistics API, data aggregation | 40% |
+| [Tên 1] | Admin panel, user management | 10% |
+
+#### Module 5: Testing & Documentation
+| Thành viên | Công việc | Tỷ lệ đóng góp |
+|------------|-----------|----------------|
+| [Tên 4] | Test setup, test cases | 50% |
+| [Tên 1] | Documentation, code comments | 30% |
+| [Tên 2] | Component tests | 10% |
+| [Tên 3] | API tests | 10% |
+
+#### Module 6: Deployment & DevOps
+| Thành viên | Công việc | Tỷ lệ đóng góp |
+|------------|-----------|----------------|
+| [Tên 4] | Vercel deployment, environment setup | 60% |
+| [Tên 1] | Database migration, production config | 30% |
+| [Tên 3] | Monitoring setup | 10% |
+
+### 5.2.3. Thống kê đóng góp code
+
+```
+Contributor Statistics (Git Analysis)
+=====================================
+[Tên 1]: 450 commits, +15,234 lines, -8,456 lines
+[Tên 2]: 380 commits, +12,890 lines, -6,234 lines
+[Tên 3]: 420 commits, +14,567 lines, -7,890 lines
+[Tên 4]: 250 commits, +8,234 lines, -4,123 lines
+
+Total: 1,500 commits, +50,925 lines, -26,703 lines
+```
+
+### 5.2.4. Đánh giá kỹ năng và thái độ
+
+| Thành viên | Kỹ năng kỹ thuật | Teamwork | Giao tiếp | Chủ động | Đúng deadline | Tổng điểm |
+|------------|------------------|----------|-----------|----------|---------------|-----------|
+| [Tên 1] | 9.5/10 | 10/10 | 9.5/10 | 10/10 | 10/10 | **9.8/10** |
+| [Tên 2] | 9.0/10 | 9.5/10 | 9.0/10 | 9.5/10 | 10/10 | **9.4/10** |
+| [Tên 3] | 9.5/10 | 9.0/10 | 9.0/10 | 9.5/10 | 9.5/10 | **9.3/10** |
+| [Tên 4] | 8.5/10 | 10/10 | 9.5/10 | 9.0/10 | 10/10 | **9.4/10** |
+
+### 5.2.5. Xác nhận của thành viên
+
+**Tôi xác nhận rằng:**
+- Đã hoàn thành đầy đủ nhiệm vụ được giao
+- Thông tin đóng góp trên là chính xác
+- Đồng ý với đánh giá của nhóm
+
+| Thành viên | Chữ ký | Ngày |
+|------------|--------|------|
+| [Tên 1] | _____________ | ___/___/2026 |
+| [Tên 2] | _____________ | ___/___/2026 |
+| [Tên 3] | _____________ | ___/___/2026 |
+| [Tên 4] | _____________ | ___/___/2026 |
+
+**Xác nhận của giảng viên hướng dẫn:**
+
+Họ tên: _______________________
+
+Chữ ký: _______________________
+
+Ngày: ___/___/2026
+
+---
+
+## 5.3. Hướng phát triển tương lai
+
+### 5.3.1. Tính năng dự kiến bổ sung
+
+#### Phase 1: Ngắn hạn (1-3 tháng)
+
+**1. Social Features**
+- [ ] Comment & Discussion trên dự án
+- [ ] Share dự án lên social media
+- [ ] Follow/Unfollow creators
+- [ ] Activity feed & notifications
+- [ ] User reputation system
+
+**2. Advanced Payment**
+- [ ] Recurring donations (monthly supporters)
+- [ ] Multiple payment methods (MoMo, ZaloPay, Banking)
+- [ ] Cryptocurrency support
+- [ ] Refund management
+- [ ] Invoice generation
+
+**3. Enhanced Analytics**
+- [ ] Real-time dashboard updates
+- [ ] Advanced reporting (PDF/Excel export)
+- [ ] Funnel analysis
+- [ ] Conversion tracking
+- [ ] A/B testing framework
+
+**4. Mobile Experience**
+- [ ] Progressive Web App (PWA)
+- [ ] Push notifications
+- [ ] Offline mode
+- [ ] Mobile-optimized checkout
+
+#### Phase 2: Trung hạn (3-6 tháng)
+
+**1. AI & Machine Learning**
+- [ ] Project recommendation engine
+- [ ] Fraud detection system
+- [ ] Automated content moderation
+- [ ] Predictive analytics (success probability)
+- [ ] Smart pricing suggestions
+
+**2. Internationalization**
+- [ ] Multi-language support (EN, VI, etc.)
+- [ ] Multi-currency support
+- [ ] Localized content
+- [ ] Regional payment methods
+
+**3. Advanced Creator Tools**
+- [ ] Campaign templates
+- [ ] Email marketing integration
+- [ ] CRM for backers
+- [ ] Milestone tracking
+- [ ] Reward tier management
+
+**4. Community Features**
+- [ ] Forums & discussion boards
+- [ ] Live streaming for campaigns
+- [ ] Virtual events
+- [ ] Backer-only content
+- [ ] Polls & surveys
+
+#### Phase 3: Dài hạn (6-12 tháng)
+
+**1. Marketplace**
+- [ ] Reward fulfillment marketplace
+- [ ] Service marketplace (designers, marketers)
+- [ ] Template marketplace
+- [ ] Plugin ecosystem
+
+**2. Enterprise Features**
+- [ ] White-label solution
+- [ ] API for third-party integration
+- [ ] Custom branding
+- [ ] Advanced permissions
+- [ ] Multi-tenant architecture
+
+**3. Blockchain Integration**
+- [ ] NFT rewards
+- [ ] Smart contract for transparent funding
+- [ ] Decentralized governance
+- [ ] Token-based incentives
+
+**4. Advanced Security**
+- [ ] Two-factor authentication (2FA)
+- [ ] Biometric authentication
+- [ ] Advanced fraud detection
+- [ ] Security audit & penetration testing
+- [ ] GDPR compliance tools
+
+### 5.3.2. Cải thiện kiến trúc
+
+#### Performance Optimization
+```typescript
+// 1. Implement Redis caching
+- Cache frequently accessed data
+- Session storage
+- Rate limiting
+- Real-time features
+
+// 2. Database optimization
+- Read replicas for scaling
+- Connection pooling
+- Query optimization
+- Partitioning for large tables
+
+// 3. CDN integration
+- Static asset delivery
+- Image optimization
+- Edge caching
+- Global distribution
+```
+
+#### Scalability Improvements
+```typescript
+// 1. Microservices architecture
+- Payment service
+- Notification service
+- Analytics service
+- Search service
+
+// 2. Message queue
+- Background job processing
+- Email sending
+- Report generation
+- Data synchronization
+
+// 3. Load balancing
+- Horizontal scaling
+- Auto-scaling policies
+- Health checks
+- Failover mechanisms
+```
+
+#### Code Quality
+```typescript
+// 1. Enhanced testing
+- Increase test coverage to 90%+
+- Visual regression testing
+- Performance testing
+- Security testing
+
+// 2. Code organization
+- Feature-based folder structure
+- Shared component library
+- Design system implementation
+- Storybook for components
+
+// 3. Documentation
+- API documentation with Swagger
+- Component documentation
+- Architecture decision records (ADR)
+- Onboarding guides
+```
+
+### 5.3.3. Technical Debt & Refactoring
+
+**Priority 1: High Impact**
+- [ ] Migrate to React Server Components fully
+- [ ] Implement proper error boundaries
+- [ ] Optimize bundle size
+- [ ] Improve SEO & meta tags
+
+**Priority 2: Medium Impact**
+- [ ] Refactor legacy components
+- [ ] Standardize API response format
+- [ ] Improve type definitions
+- [ ] Add more unit tests
+
+**Priority 3: Low Impact**
+- [ ] Code style consistency
+- [ ] Remove unused dependencies
+- [ ] Update outdated packages
+- [ ] Improve code comments
+
+### 5.3.4. Infrastructure & DevOps
+
+**Monitoring & Observability**
+```yaml
+Tools to integrate:
+- Sentry: Error tracking
+- LogRocket: Session replay
+- Google Analytics: User behavior
+- Datadog: Infrastructure monitoring
+- Lighthouse CI: Performance monitoring
+```
+
+**CI/CD Enhancements**
+```yaml
+Pipeline improvements:
+- Automated testing on PR
+- Preview deployments
+- Automated rollback
+- Blue-green deployment
+- Canary releases
+```
+
+**Security Enhancements**
+```yaml
+Security measures:
+- Regular dependency audits
+- Automated security scanning
+- Penetration testing
+- Bug bounty program
+- Security headers optimization
+```
+
+### 5.3.5. Business & Growth
+
+**Marketing Features**
+- SEO optimization
+- Email marketing campaigns
+- Referral program
+- Affiliate system
+- Content marketing tools
+
+**Monetization**
+- Platform fee structure
+- Premium features for creators
+- Advertising options
+- Sponsored campaigns
+- Enterprise plans
+
+**Partnerships**
+- Payment gateway partnerships
+- NGO collaborations
+- Corporate sponsorships
+- Media partnerships
+- Educational institutions
+
+### 5.3.6. Timeline & Roadmap
+
+```mermaid
+gantt
+    title Development Roadmap
+    dateFormat  YYYY-MM
+    section Phase 1
+    Social Features           :2026-06, 2m
+    Advanced Payment         :2026-07, 2m
+    Enhanced Analytics       :2026-08, 1m
+    
+    section Phase 2
+    AI & ML Features         :2026-09, 3m
+    Internationalization     :2026-10, 2m
+    Creator Tools            :2026-11, 2m
+    
+    section Phase 3
+    Marketplace              :2027-01, 3m
+    Enterprise Features      :2027-03, 3m
+    Blockchain Integration   :2027-05, 2m
+```
+
+---
+
+## 5.4. Bài học kinh nghiệm
+
+### 5.4.1. Những gì làm tốt ✅
+1. **Lập kế hoạch chi tiết** từ đầu giúp tiết kiệm thời gian
+2. **Code review nghiêm ngặt** đảm bảo chất lượng code
+3. **Documentation đầy đủ** giúp onboarding nhanh
+4. **Testing từ sớm** phát hiện bug kịp thời
+5. **Communication thường xuyên** giữ team đồng bộ
+
+### 5.4.2. Những thách thức đã gặp ⚠️
+1. **Database migration** trong production
+2. **Payment integration** với nhiều provider
+3. **Performance optimization** với large dataset
+4. **Cross-browser compatibility** issues
+5. **Time management** với deadline chặt
+
+### 5.4.3. Khuyến nghị cho dự án tương lai 💡
+1. Đầu tư thời gian cho **architecture design**
+2. Setup **CI/CD** từ đầu dự án
+3. Viết **tests** song song với features
+4. **Document** mọi quyết định quan trọng
+5. **Refactor** thường xuyên, không để technical debt tích lũy
+6. Sử dụng **feature flags** cho deployment an toàn
+7. **Monitor** production từ ngày đầu
+8. **Backup** database thường xuyên
+
+---
+
+## 5.5. Lời cảm ơn
+
+Nhóm xin chân thành cảm ơn:
+- **Giảng viên hướng dẫn**: [Tên giảng viên] đã tận tình hướng dẫn và góp ý
+- **Khoa/Trường**: Đã tạo điều kiện và hỗ trợ trong quá trình thực hiện
+- **Các bạn trong nhóm**: Đã cùng nhau nỗ lực hoàn thành dự án
+- **Gia đình và bạn bè**: Đã động viên và ủng hộ trong suốt quá trình
+
+---
+
+**Ngày hoàn thành báo cáo:** ___/___/2026
+
+**Chữ ký nhóm trưởng:** _______________________
+
+---
+
+*Tài liệu này là phần kết của báo cáo dự án Crowdfunding Platform. Mọi thông tin trong tài liệu này là tài sản trí tuệ của nhóm và được bảo vệ bởi luật bản quyền.*
+
+---
+
+## Nguồn: `docs/API_AUDIT_REPORT.md`
+
+# BÁO CÁO KIỂM TOÁN API - CROWDFUNDING-VN
+**Ngày:** 2026-08-15  
+**Backend Engineer:** Senior Analysis  
+**Dự án:** Next.js 15 App Router + Prisma ORM
+
+---
+
+## TỔNG QUAN PHÂN TÍCH
+
+Đã phân tích **75+ API endpoints** trong thư mục `src/app/api/` với các phát hiện quan trọng về:
+- Dead API (API không được sử dụng)
+- Endpoint thiếu handler hoặc file trống
+- Client code gọi API sai URL
+- Lỗ hổng bảo mật (endpoint nhạy cảm không được bảo vệ)
+
+---
+
+## 1. DANH SÁCH TOÀN BỘ API ENDPOINTS
+
+### 1.1 Admin APIs (`/api/admin/*`)
+| Endpoint | Methods | Mô tả | Bảo vệ |
+|----------|---------|-------|--------|
+| `/api/admin/badges` | GET, POST | Quản lý huy hiệu | ✅ requireAdmin() |
+| `/api/admin/badges/[id]` | GET, PATCH, DELETE | Chi tiết huy hiệu | ✅ requireAdmin() |
+| `/api/admin/badges/[id]/assign` | POST | Gán huy hiệu cho user | ✅ requireAdmin() |
+| `/api/admin/user-badges/[id]/revoke` | POST | Thu hồi huy hiệu | ✅ requireAdmin() |
+| `/api/admin/users/[userId]/badges` | GET | Xem huy hiệu của user | ✅ requireAdmin() |
+| `/api/admin/reports` | GET | Xem báo cáo campaign | ✅ requireAdmin() |
+| `/api/admin/blog/posts` | GET | Danh sách bài viết (admin) | ⚠️ Chưa xác minh |
+| `/api/admin/blog/posts/[id]/review` | PATCH | Duyệt bài viết | ⚠️ Chưa xác minh |
+
+### 1.2 Authentication (`/api/auth/*`)
+| Endpoint | Methods | Mô tả | Bảo vệ |
+|----------|---------|-------|--------|
+| `/api/auth/[...nextauth]` | ALL | NextAuth handlers | ✅ NextAuth |
+
+### 1.3 Campaigns (`/api/campaigns/*`)
+| Endpoint | Methods | Mô tả | Bảo vệ |
+|----------|---------|-------|--------|
+| `/api/campaigns` | GET, POST | List/Create campaigns | 🔓 Public GET / ✅ Auth POST |
+| `/api/campaigns/[slug]` | GET, PUT, DELETE | CRUD campaign | 🔓 Public GET / ✅ Owner |
+| `/api/campaigns/[slug]/blog-posts` | GET | Blog posts liên kết | 🔓 Public |
+| `/api/campaigns/[slug]/cancel` | POST | Hủy campaign | ✅ Owner/Admin |
+| `/api/campaigns/[slug]/follow` | GET, POST, DELETE | Follow/unfollow | ✅ Auth |
+| `/api/campaigns/[slug]/reports` | GET, POST | Báo cáo vi phạm | ✅ Auth POST / Admin GET |
+| `/api/campaigns/[slug]/reviews` | GET, POST | Đánh giá | 🔓 Public GET / ✅ Auth POST |
+| `/api/campaigns/[slug]/updates` | GET, POST | Cập nhật tiến độ | 🔓 Public GET / ✅ Owner POST |
+| `/api/campaigns/[slug]/updates/[id]` | PUT, DELETE | Sửa/xóa update | ✅ Owner |
+
+### 1.4 Projects (`/api/projects/*`)
+| Endpoint | Methods | Mô tả | Bảo vệ |
+|----------|---------|-------|--------|
+| `/api/projects` | GET, POST | List/Create projects | ✅ Creator/Admin |
+| `/api/projects/[id]` | GET, PATCH, DELETE | CRUD project | 🔓 Public GET / ✅ Owner |
+
+### 1.5 Blog (`/api/blog/*`)
+| Endpoint | Methods | Mô tả | Bảo vệ |
+|----------|---------|-------|--------|
+| `/api/blog/posts` | GET, POST | List/Create posts | 🔓 Public GET / ✅ Auth POST |
+| `/api/blog/posts/[slug]` | GET, PUT, DELETE | CRUD post | 🔓 Public GET / ✅ Owner |
+| `/api/blog/posts/[slug]/publish` | PATCH | Publish draft | ✅ Owner |
+| `/api/blog/posts/[slug]/archive` | PATCH | Archive post | ✅ Owner |
+| `/api/blog/posts/[slug]/like` | POST | Like/unlike | ✅ Auth |
+| `/api/blog/posts/[slug]/bookmark` | POST | Bookmark/unbookmark | ✅ Auth |
+| `/api/blog/posts/[slug]/comments` | GET, POST | Comments | 🔓 Public GET / ✅ Auth POST |
+| `/api/blog/comments/[id]` | DELETE | Delete comment | ✅ Owner |
+| `/api/blog/categories` | GET | List categories | 🔓 Public |
+| `/api/blog/my-posts` | GET | User's own posts | ✅ Auth |
+
+### 1.6 Payments (`/api/payment/*` & `/api/payments`)
+| Endpoint | Methods | Mô tả | Bảo vệ |
+|----------|---------|-------|--------|
+| `/api/payments` | POST | Create payment | 🔓 Public (Guest/Auth) |
+| `/api/payment/payos/create` | POST | PayOS payment link | 🔓 Public |
+| `/api/payment/payos/webhook` | POST, GET | PayOS webhook | ✅ Signature verified |
+| `/api/payment/payos/mock-checkout` | GET | Dev mock checkout | 🔓 Dev only |
+| `/api/payment/payos/test-webhook` | POST | Test webhook | 🔓 Dev only |
+| `/api/payment/sepay/create` | POST | SePay checkout | 🔓 Public |
+| `/api/payment/sepay/webhook` | POST, GET | SePay webhook | ✅ Signature verified |
+| `/api/payment/sepay/status/[pledgeId]` | GET | Check payment status | 🔓 Public |
+| `/api/payment/vnpay/create` | POST | VNPay payment | ⚠️ Not implemented |
+| `/api/payment/vnpay/webhook` | GET | VNPay return URL | ⚠️ Not implemented |
+| `/api/payment/momo/create` | POST | MoMo payment | ⚠️ Not implemented |
+| `/api/payment/momo/webhook` | POST | MoMo webhook | ⚠️ Not implemented |
+
+### 1.7 Chat (`/api/chat/*`)
+| Endpoint | Methods | Mô tả | Bảo vệ |
+|----------|---------|-------|--------|
+| `/api/chat/conversations` | GET | List conversations | ✅ Auth |
+| `/api/chat/conversations/start` | POST | Start conversation | ✅ Auth |
+| `/api/chat/conversations/find-or-create` | POST | Find/create conversation | ✅ Auth |
+| `/api/chat/conversations/[id]/messages` | GET, POST | Get/Send messages | ✅ Auth |
+| `/api/chat/conversations/[id]/read` | PATCH | Mark as read | ✅ Auth |
+| `/api/chat/conversations/[id]/block` | POST, DELETE | Block/unblock | ✅ Auth |
+| `/api/chat/conversations/[id]/report` | POST | Report conversation | ✅ Auth |
+| `/api/chat/messages/[messageId]` | DELETE | Delete message | ✅ Owner |
+| `/api/chat/unread-count` | GET | Unread count | ✅ Auth |
+
+### 1.8 Users (`/api/users/*` & `/api/user/*`)
+| Endpoint | Methods | Mô tả | Bảo vệ |
+|----------|---------|-------|--------|
+| `/api/users` | GET, PUT | List users / Update profile | ✅ Admin GET / ✅ Auth PUT |
+| `/api/users/search` | GET | Search users | 🔓 Public |
+| `/api/users/[userId]` | GET | Get user profile | 🔓 Public |
+| `/api/users/[userId]/badges` | GET | Get user badges | 🔓 Public |
+| `/api/user/profile` | GET | Own profile | ✅ Auth |
+| `/api/user/upgrade-creator` | POST | Upgrade to creator | ✅ Auth |
+| `/api/profile/update` | POST | Update profile | ✅ Auth |
+
+### 1.9 Badges (`/api/badges/*` & `/api/me/badges`)
+| Endpoint | Methods | Mô tả | Bảo vệ |
+|----------|---------|-------|--------|
+| `/api/badges` | GET | List public badges | 🔓 Public |
+| `/api/me/badges` | GET | Current user's badges | ✅ Auth |
+
+### 1.10 Rewards (`/api/rewards/*`)
+| Endpoint | Methods | Mô tả | Bảo vệ |
+|----------|---------|-------|--------|
+| `/api/rewards` | POST | Create reward | ✅ Campaign Owner |
+| `/api/rewards/[id]` | GET, PUT, DELETE | CRUD reward | 🔓 Public GET / ✅ Owner |
+| `/api/rewards/[id]/toggle` | PATCH | Toggle availability | ✅ Owner |
+
+### 1.11 KYC (`/api/kyc/*`)
+| Endpoint | Methods | Mô tả | Bảo vệ |
+|----------|---------|-------|--------|
+| `/api/kyc/submit` | POST | Submit KYC | ✅ Auth |
+| `/api/kyc/status` | GET | Get KYC status | ✅ Auth |
+
+### 1.12 Utility (`/api/stats`, `/api/upload`, etc.)
+| Endpoint | Methods | Mô tả | Bảo vệ |
+|----------|---------|-------|--------|
+| `/api/stats` | GET | Platform stats | 🔓 Public |
+| `/api/upload` | POST | Upload image | ✅ Auth |
+| `/api/lookup` | GET | Lookup transaction | 🔓 Public |
+| `/api/transactions/[txId]` | GET | Get transaction | 🔓 Public |
+| `/api/taxonomy` | GET | Get taxonomy | 🔓 Public |
+| `/api/taxonomy/[category]` | GET | Get category | 🔓 Public |
+| `/api/taxonomy/search` | GET | Search tags | 🔓 Public |
+
+### 1.13 Cron (`/api/cron/*`)
+| Endpoint | Methods | Mô tả | Bảo vệ |
+|----------|---------|-------|--------|
+| `/api/cron/cleanup-payments` | GET | Clean stale payments | ❌ KHÔNG CÓ |
+| `/api/cron/update-campaign-status` | GET | Update campaign status | ❌ KHÔNG CÓ |
+
+### 1.14 Test/Debug (`/api/test-*`, `/api/simple-test`)
+| Endpoint | Methods | Mô tả | Bảo vệ |
+|----------|---------|-------|--------|
+| `/api/simple-test` | GET, POST | Health check | 🔓 Public |
+| `/api/test-payos` | GET | Test PayOS config | 🔓 Public |
+| `/api/payments-debug` | POST | Payment debug | 🔓 Public |
+
+---
+
+## 2. VẤN ĐỀ PHÁT HIỆN - BẢNG CHI TIẾT
+
+| # | File | Endpoint | Vấn đề | Mức độ | Gợi ý sửa |
+|---|------|----------|--------|--------|-----------|
+| 1 | `src/hooks/usePledge.ts:34` | `/api/payments/route` | ❌ **URL SAI**: `/route` không cần thiết trong Next.js App Router | 🔴 CAO | Sửa thành `/api/payments` |
+| 2 | `src/components/campaign/PledgeForm.tsx:83` | `/api/payments/route` | ❌ **URL SAI**: Tương tự #1 | 🔴 CAO | Sửa thành `/api/payments` |
+| 3 | `src/app/auth/register/page.tsx:41` | `/api/auth/register` | ❌ **ENDPOINT KHÔNG TỒN TẠI**: Thư mục `src/app/api/auth/register/` trống, không có `route.ts` | 🔴 CAO | Tạo handler hoặc xóa thư mục |
+| 4 | `src/app/api/admin/users/[userId]/toggle-pro/` | `/api/admin/users/[userId]/toggle-pro` | ❌ **THƯ MỤC TRỐNG**: Không có `route.ts` | 🟡 TRUNG BÌNH | Tạo handler hoặc xóa thư mục |
+| 5 | `src/app/api/admin/users/[userId]/update-status/` | `/api/admin/users/[userId]/update-status` | ❌ **THƯ MỤC TRỐNG**: Không có `route.ts` | 🟡 TRUNG BÌNH | Tạo handler hoặc xóa thư mục |
+| 6 | `src/app/api/campaigns/[slug]/[id]/` | Không rõ | ❌ **THƯ MỤC TRỐNG**: Không có `route.ts`, không rõ mục đích | 🟡 TRUNG BÌNH | Xóa thư mục hoặc tài liệu hóa |
+| 7 | `src/app/api/test-followers/` | `/api/test-followers` | ❌ **THƯ MỤC TRỐNG**: Test endpoint bỏ dở | 🟢 THẤP | Xóa thư mục test |
+| 8 | `src/app/api/admin/blog/posts/[id]/route.ts` | `/api/admin/blog/posts/[id]/review` | ❌ **FILE KHÔNG TỒN TẠI**: Sub-agent report nói có nhưng file không tồn tại | 🟡 TRUNG BÌNH | Kiểm tra lại hoặc tạo file |
+| 9 | `src/app/api/cron/cleanup-payments/route.ts` | `/api/cron/cleanup-payments` | 🔓 **KHÔNG BẢO VỆ**: Cron job public, không check API key | 🔴 CAO | Thêm API key check hoặc Vercel Cron Secret |
+| 10 | `src/app/api/cron/update-campaign-status/route.ts` | `/api/cron/update-campaign-status` | 🔓 **KHÔNG BẢO VỆ**: Tương tự #9 | 🔴 CAO | Thêm API key check |
+| 11 | `src/app/api/test-payos/route.ts` | `/api/test-payos` | 🔓 **DEBUG ENDPOINT PUBLIC**: Lộ thông tin cấu hình PayOS | 🟡 TRUNG BÌNH | Chỉ cho phép trong dev mode |
+| 12 | `src/app/api/payments-debug/route.ts` | `/api/payments-debug` | 🔓 **DEBUG ENDPOINT PUBLIC**: Debug payment không bảo vệ | 🟡 TRUNG BÌNH | Chỉ cho phép trong dev hoặc admin |
+| 13 | `src/app/api/simple-test/route.ts` | `/api/simple-test` | 🔓 **TEST ENDPOINT PUBLIC**: Health check không cần bảo vệ nhưng nên giới hạn data | 🟢 THẤP | Giới hạn info trả về |
+| 14 | `src/app/api/payments/refund.ts` | N/A | ⚠️ **FILE KHÔNG ĐÚNG VỊ TRÍ**: File `.ts` trong thư mục API phải là `route.ts` | 🟡 TRUNG BÌNH | Đổi tên thành `refund/route.ts` |
+| 15 | `src/app/api/payments/webhook.ts` | N/A | ⚠️ **FILE KHÔNG ĐÚNG VỊ TRÍ**: Tương tự #14 | 🟡 TRUNG BÌNH | Đổi tên thành `webhook/route.ts` |
+| 16 | `src/middleware.ts` | Middleware | ⚠️ **PUBLIC API QUÊN BẢO VỆ**: `/api/projects` là public nhưng POST cần auth | 🟡 TRUNG BÌNH | Middleware không check method |
+| 17 | `src/app/api/payment/payos/mock-checkout/route.ts:101` | Internal fetch | ⚠️ **STRING TEMPLATE SAI**: Dùng single quote + ${} không work | 🟡 TRUNG BÌNH | Sửa thành template literal đúng |
+
+---
+
+## 3. DEAD APIs - API KHÔNG ĐƯỢC SỬ DỤNG
+
+Dựa trên phân tích grep search, các API sau **KHÔNG** được frontend gọi:
+
+| API Endpoint | Trạng thái | Gợi ý |
+|--------------|-----------|--------|
+| `/api/admin/badges/[id]` (GET, PATCH, DELETE) | ❓ Chưa thấy client code | Kiểm tra xem có dashboard admin chưa implement |
+| `/api/admin/blog/posts` (GET) | ❓ Chưa thấy client code | Có thể feature chưa hoàn thiện |
+| `/api/campaigns/[slug]/blog-posts` | ❓ Chưa thấy client code | Kiểm tra có component nào dùng không |
+| `/api/campaigns/[slug]/reports` (GET) | ❓ Admin only, có thể chưa có UI | Cần dashboard admin |
+| `/api/campaigns/[slug]/updates/[id]` (PUT, DELETE) | ❓ Chưa thấy client code | Kiểm tra campaign update UI |
+| `/api/chat/conversations/find-or-create` | ❓ Duplicate với `start`? | Xem xét hợp nhất |
+| `/api/chat/conversations/[id]/block` | ❓ Chưa thấy UI | Feature chat chưa hoàn thiện |
+| `/api/chat/conversations/[id]/report` | ❓ Chưa thấy UI | Feature moderation chưa có |
+| `/api/kyc/submit` & `/api/kyc/status` | ❓ Chưa thấy UI | KYC flow chưa implement UI |
+| `/api/rewards/[id]/toggle` | ❓ Chưa thấy UI | Dashboard creator chưa có |
+| `/api/taxonomy/*` | ❓ Chưa thấy client code | Hệ thống tag có thể chưa dùng |
+| `/api/lookup` | ❓ Chưa thấy UI | Feature tra cứu chưa có |
+| `/api/transactions/[txId]` | ❓ Chưa thấy UI | Tương tự lookup |
+| `/api/users` (GET - Admin only) | ❓ Chưa có admin dashboard | Cần UI quản lý user |
+| `/api/payment/vnpay/*` | ⚠️ Not implemented | Xóa hoặc implement |
+| `/api/payment/momo/*` | ⚠️ Not implemented | Xóa hoặc implement |
+
+**LƯU Ý**: Một số API trên có thể:
+- Được dùng bởi external webhook (PayOS, SePay)
+- Được gọi server-side (không thấy trong client code)
+- Feature chưa hoàn thiện (admin dashboard, KYC, moderation)
+
+---
+
+## 4. LỖ HỔNG BẢO MẬT - PHÂN TÍCH CHI TIẾT
+
+### 4.1 🔴 NGHIÊM TRỌNG
+
+#### A. Cron Jobs Không Bảo Vệ
+**File:** `src/app/api/cron/cleanup-payments/route.ts`  
+**File:** `src/app/api/cron/update-campaign-status/route.ts`
+
+**Vấn đề:** 
+- Cả 2 cron job đều là GET endpoint public
+- Bất kỳ ai cũng có thể gọi và trigger cleanup/update
+- Có thể gây DoS hoặc thay đổi trạng thái campaign không mong muốn
+
+**Proof of Concept:**
+```bash
+# Ai cũng có thể gọi
+curl https://yourdomain.com/api/cron/cleanup-payments
+curl https://yourdomain.com/api/cron/update-campaign-status
+```
+
+**Giải pháp:**
+```typescript
+// src/app/api/cron/cleanup-payments/route.ts
+export async function GET(request: Request) {
+  // 1. Check Vercel Cron Secret
+  const authHeader = request.headers.get('authorization');
+  const cronSecret = process.env.CRON_SECRET;
+  
+  if (authHeader !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  // ... rest of code
+}
+```
+
+**Hoặc dùng API Key:**
+```typescript
+const apiKey = request.headers.get('x-api-key');
+if (apiKey !== process.env.CRON_API_KEY) {
+  return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+}
+```
+
+#### B. URL Sai Gây Thanh Toán Thất Bại
+**File:** `src/hooks/usePledge.ts:34`  
+**File:** `src/components/campaign/PledgeForm.tsx:83`
+
+**Vấn đề:**
+```typescript
+// ❌ SAI
+const res = await fetch("/api/payments/route", {
+  method: "POST",
+  // ...
+});
+```
+
+**Tác động:**
+- User pledge bị lỗi 404
+- Mất trải nghiệm người dùng
+- Mất doanh thu
+
+**Giải pháp:**
+```typescript
+// ✅ ĐÚNG
+const res = await fetch("/api/payments", {
+  method: "POST",
+  // ...
+});
+```
+
+#### C. Endpoint /api/auth/register Không Tồn Tại
+**File:** `src/app/auth/register/page.tsx:41`
+
+**Vấn đề:**
+- Frontend call `/api/auth/register` nhưng không có handler
+- User không thể đăng ký
+- Thư mục tồn tại nhưng trống: `src/app/api/auth/register/`
+
+**Giải pháp:**
+```typescript
+// Tạo file: src/app/api/auth/register/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import bcrypt from 'bcryptjs';
+
+export async function POST(request: NextRequest) {
+  try {
+    const { email, password, name } = await request.json();
+    
+    // Validate
+    if (!email || !password || !name) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+    
+    // Check existing
+    const existing = await prisma.users.findUnique({
+      where: { email }
+    });
+    
+    if (existing) {
+      return NextResponse.json(
+        { error: 'Email already exists' },
+        { status: 409 }
+      );
+    }
+    
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Create user
+    const user = await prisma.users.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name,
+        role: 'BACKER',
+        status: 'ACTIVE'
+      }
+    });
+    
+    return NextResponse.json({
+      message: 'User created successfully',
+      userId: user.id
+    }, { status: 201 });
+    
+  } catch (error: any) {
+    console.error('[POST /api/auth/register]', error);
+    return NextResponse.json(
+      { error: 'Registration failed' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+### 4.2 🟡 TRUNG BÌNH
+
+#### D. Debug/Test Endpoints Public
+**Files:**
+- `src/app/api/test-payos/route.ts`
+- `src/app/api/payments-debug/route.ts`
+- `src/app/api/simple-test/route.ts`
+
+**Vấn đề:**
+- Test endpoints lộ thông tin cấu hình
+- Có thể dùng để probe hệ thống
+
+**Giải pháp:**
+```typescript
+// Chỉ cho phép trong dev
+export async function GET() {
+  if (process.env.NODE_ENV !== 'development') {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+  // ... rest of code
+}
+```
+
+**Hoặc yêu cầu admin:**
+```typescript
+const session = await auth();
+if (!session?.user || !(session.user as any).isAdmin) {
+  return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+}
+```
+
+#### E. File Naming Không Đúng Convention
+**Files:**
+- `src/app/api/payments/refund.ts`
+- `src/app/api/payments/webhook.ts`
+
+**Vấn đề:**
+- Next.js App Router yêu cầu file phải tên `route.ts`
+- File `.ts` tên khác không được routing
+
+**Giải pháp:**
+```bash
+# Di chuyển và đổi tên
+mv src/app/api/payments/refund.ts src/app/api/payments/refund/route.ts
+mv src/app/api/payments/webhook.ts src/app/api/payments/webhook/route.ts
+```
+
+#### F. Middleware Không Check HTTP Method
+**File:** `src/middleware.ts`
+
+**Vấn đề:**
+```typescript
+const isPublicApiRoute =
+  pathname.startsWith("/api/projects") || // ❌ GET OK nhưng POST cần auth
+  pathname.startsWith("/api/campaigns"); // ❌ Tương tự
+```
+
+**Giải pháp:**
+```typescript
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const method = request.method;
+  
+  // Public READ-only API routes
+  const isPublicReadApi = 
+    (pathname.startsWith("/api/projects") && method === "GET") ||
+    (pathname.startsWith("/api/campaigns") && method === "GET");
+  
+  // Mutating operations need auth
+  const needsAuth = ["POST", "PUT", "PATCH", "DELETE"].includes(method);
+  
+  if (pathname.startsWith("/api/projects") && needsAuth) {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  }
+  
+  return NextResponse.next();
+}
+```
+
+### 4.3 🟢 THẤP - Code Quality Issues
+
+#### G. String Template Bug
+**File:** `src/app/api/payment/payos/mock-checkout/route.ts:101`
+
+**Vấn đề:**
+```typescript
+// ❌ SAI - single quote không parse ${} 
+const res = await fetch('/api/payment/payos/test-webhook?type=' + type + '&orderCode=${orderCode}&amount=${amount}', {
+  method: 'POST'
+});
+```
+
+**Giải pháp:**
+```typescript
+// ✅ ĐÚNG - dùng backtick
+const res = await fetch(`/api/payment/payos/test-webhook?type=${type}&orderCode=${orderCode}&amount=${amount}`, {
+  method: 'POST'
+});
+```
+
+---
+
+## 5. KHUYẾN NGHỊ HÀNH ĐỘNG
+
+### 5.1 Ưu Tiên Cao (Sửa Ngay)
+1. ✅ Sửa URL `/api/payments/route` → `/api/payments` (2 files)
+2. ✅ Tạo handler `/api/auth/register/route.ts`
+3. ✅ Bảo vệ cron jobs với API key hoặc Vercel Cron Secret
+4. ✅ Di chuyển `refund.ts` và `webhook.ts` vào thư mục con với `route.ts`
+
+### 5.2 Ưu Tiên Trung Bình (1-2 Tuần)
+5. ✅ Giới hạn debug endpoints chỉ dev mode hoặc admin
+6. ✅ Xóa các thư mục trống:
+   - `/api/admin/users/[userId]/toggle-pro/`
+   - `/api/admin/users/[userId]/update-status/`
+   - `/api/campaigns/[slug]/[id]/`
+   - `/api/test-followers/`
+   - `/api/auth/register/` (sau khi tạo route.ts)
+7. ✅ Cải thiện middleware check HTTP method
+8. ✅ Sửa string template bug
+
+### 5.3 Ưu Tiên Thấp (Backlog)
+9. 📝 Tài liệu hóa các API chưa có frontend (để xác định dead API thật sự)
+10. 📝 Implement hoặc xóa VNPay, MoMo endpoints
+11. 📝 Code review các handler chưa xác minh bảo mật (admin blog, etc.)
+12. 📝 Thêm rate limiting cho payment endpoints
+
+---
+
+## 6. CHECKLIST TRIỂN KHAI
+
+### Phase 1: Critical Fixes (1-2 ngày)
+- [ ] Sửa `src/hooks/usePledge.ts` line 34
+- [ ] Sửa `src/components/campaign/PledgeForm.tsx` line 83
+- [ ] Tạo `src/app/api/auth/register/route.ts`
+- [ ] Thêm API key check vào cron jobs
+- [ ] Test payment flow end-to-end
+- [ ] Test registration flow
+
+### Phase 2: Structure Cleanup (3-5 ngày)
+- [ ] Di chuyển `refund.ts` → `refund/route.ts`
+- [ ] Di chuyển `webhook.ts` → `webhook/route.ts`
+- [ ] Xóa thư mục trống (4 thư mục)
+- [ ] Giới hạn debug endpoints
+- [ ] Sửa middleware method check
+- [ ] Sửa template literal bug
+- [ ] Test toàn bộ API flow
+
+### Phase 3: Documentation & Optimization (1 tuần)
+- [ ] Viết docs cho tất cả API endpoints
+- [ ] Kiểm tra và đánh dấu dead APIs
+- [ ] Quyết định implement hay xóa VNPay/MoMo
+- [ ] Code review admin endpoints
+- [ ] Thêm integration tests
+- [ ] Setup rate limiting
+- [ ] Performance audit
+
+---
+
+## 7. MẪU CODE ĐỂ TRIỂN KHAI
+
+### 7.1 Cron Job Protection
+```typescript
+// src/lib/cron-auth.ts
+export function verifyCronAuth(request: Request): boolean {
+  const authHeader = request.headers.get('authorization');
+  const cronSecret = process.env.CRON_SECRET;
+  
+  if (!cronSecret) {
+    console.error('CRON_SECRET not configured');
+    return false;
+  }
+  
+  return authHeader === `Bearer ${cronSecret}`;
+}
+
+// Usage in cron routes:
+import { verifyCronAuth } from '@/lib/cron-auth';
+
+export async function GET(request: Request) {
+  if (!verifyCronAuth(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  // ... rest of code
+}
+```
+
+### 7.2 Development-Only Endpoints
+```typescript
+// src/lib/dev-only.ts
+export function requireDevelopment(): NextResponse | null {
+  if (process.env.NODE_ENV !== 'development') {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+  return null;
+}
+
+// Usage:
+export async function GET() {
+  const devCheck = requireDevelopment();
+  if (devCheck) return devCheck;
+  
+  // ... development code
+}
+```
+
+### 7.3 Method-Aware Middleware
+```typescript
+// src/middleware.ts (improved)
+const PUBLIC_READ_ONLY_APIS = [
+  '/api/campaigns',
+  '/api/projects',
+  '/api/blog/posts',
+  '/api/stats',
+];
+
+const PROTECTED_WRITE_APIS = [
+  '/api/campaigns',
+  '/api/projects',
+  '/api/blog/posts',
+];
+
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const method = request.method;
+  
+  // Allow public reads
+  const isPublicRead = PUBLIC_READ_ONLY_APIS.some(api => 
+    pathname.startsWith(api)
+  ) && method === 'GET';
+  
+  if (isPublicRead) {
+    return NextResponse.next();
+  }
+  
+  // Check auth for writes
+  const needsAuth = PROTECTED_WRITE_APIS.some(api =>
+    pathname.startsWith(api)
+  ) && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+  
+  if (needsAuth) {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+  }
+  
+  return NextResponse.next();
+}
+```
+
+---
+
+## 8. KẾT LUẬN
+
+### Tình Trạng Tổng Quan
+- ✅ **API Structure**: Tốt, tuân theo Next.js App Router conventions (ngoại trừ 2 file)
+- ✅ **Authorization**: Hầu hết endpoints có bảo vệ đúng với `requireAdmin()`, ownership checks
+- ⚠️ **Security**: Có 3-5 lỗ hổng nghiêm trọng cần sửa ngay
+- ⚠️ **Code Quality**: Có 2 URL sai, 1 template bug, 4 thư mục trống
+- ❓ **Dead APIs**: Khoảng 15-20 endpoints chưa có frontend (cần xác minh)
+
+### Điểm Mạnh
+1. Kiến trúc API rõ ràng, tuân theo REST
+2. Hệ thống auth/authz tốt với NextAuth + role-based
+3. Payment webhooks có signature verification
+4. Audit logging cho sensitive operations
+5. Error handling nhất quán
+
+### Điểm Yếu
+1. Thiếu API key protection cho cron jobs
+2. Một số endpoints test/debug public
+3. Frontend có URL lỗi gây payment thất bại
+4. Nhiều feature chưa hoàn thiện (admin UI, KYC, moderation)
+5. Thiếu documentation cho một số APIs
+
+### Risk Score: **6/10** (MEDIUM-HIGH)
+- Critical issues: 3
+- High issues: 2
+- Medium issues: 8
+- Low issues: 4
+
+**Khuyến nghị:** Ưu tiên sửa 5 critical/high issues trong 1 tuần để giảm risk score xuống 3-4/10.
+
+---
+
+**Người phân tích:** Senior Backend Engineer  
+**Ngày báo cáo:** 2026-08-15  
+**Công cụ:** Manual code review + grep analysis + Next.js expertise
+
+---
+
+## Nguồn: `docs/BAO_CAO_CHI_TIET.md`
+
+# 📊 BÁO CÁO CHI TIẾT DỰ ÁN TỬ TẾ FUND
+
+Dưới đây là báo cáo chi tiết về dự án **TửTế Fund** dựa trên các tiêu chí đánh giá yêu cầu.
+
+---
+
+## 0. Bối cảnh và Giải pháp (Vision & Solution)
+
+### 🚩 Thực trạng (Problem)
+Tại thị trường Việt Nam, các dự án khởi nghiệp (startup) hay dự án cộng đồng thường gặp khó khăn do thiếu một **quy trình triển khai chuyên nghiệp và minh bạch**. Các giai đoạn phát triển thường chồng chéo, không rõ ràng, dẫn đến lãng phí nguồn lực và khó tạo dựng niềm tin với nhà đầu tư/cộng đồng.
+
+### 💡 Giải pháp từ TửTế Fund
+Nền tảng được xây dựng để chuẩn hóa quy trình phát triển sản phẩm thương mại thông qua các giai đoạn khoa học:
+**Nghiên cứu ➔ Triển khai ➔ Sản xuất ➔ Marketing ➔ Tiếp cận thị trường ➔ Phân phối ➔ Thu hồi vốn ➔ Tái vòng lặp.**
+
+### 🚀 Giá trị cốt lõi
+*   **Tiếp cận sớm:** Cho phép nhà sáng tạo tiếp cận thị trường và cộng đồng ngay từ những bước đầu tiên.
+*   **Tối ưu nguồn lực:** Rút ngắn đáng kể chi phí và thời gian thử nghiệm sản phẩm (MVP).
+*   **Xây dựng uy tín:** Tạo dựng một lịch sử hoạt động minh bạch, giúp nhà sáng tạo tích lũy "vốn uy tín" cho các dự án dài hạn.
+
+### 🏆 Lợi thế cạnh tranh (Competitive Advantage)
+
+**So với các nền tảng quốc tế (Kickstarter, Indiegogo):**
+*   **Thanh toán nội địa hóa:** Các nền tảng quốc tế chủ yếu sử dụng cổng Payout phức tạp với người Việt. TửTế Fund tích hợp các phương thức thanh toán cực kỳ thân thiện như **VietQR (PayOS), Momo, VNPay**, giúp quy trình ủng hộ diễn ra chỉ trong vài giây.
+*   **Hỗ trợ ngôn ngữ & Pháp lý:** Tối ưu hóa hoàn toàn cho thị trường Việt Nam, hỗ trợ xuất hóa đơn theo đúng quy định tài chính trong nước.
+
+**So với các hệ thống trong nước:**
+*   **Tính hoàn thiện vượt trội:** Đây là hệ thống Crowdfunding toàn diện nhất hiện nay, tích hợp đầy đủ từ Quản lý chiến dịch, Blog System, Chat Real-time, KYC đến Hệ thống Huy hiệu và Hóa đơn tự động — những tính năng mà các nền tảng hiện có tại Việt Nam thường thiếu sót hoặc rời rạc.
+
+---
+
+## 1. Phân tích yêu cầu chức năng & phi chức năng (1.0đ)
+
+### ✅ Yêu cầu chức năng (Functional Requirements)
+*   **Quản lý Chiến dịch (Campaign Management):** Cho phép Creator tạo, chỉnh sửa và quản lý các dự án gọi vốn với nhiều trạng thái (Draft, Pending, Active, Success, Failed).
+*   **Hệ thống Thanh toán (Payment System):** Tích hợp cổng thanh toán **PayOS (VietQR)**, hỗ trợ xác thực Webhook và bảo mật chữ ký.
+*   **Hệ thống Blog & Cập nhật:** Nhà sáng tạo có thể đăng bài cập nhật tiến độ, Backer có thể theo dõi và bình luận.
+*   **Hệ thống Huy hiệu (Badge System):** Tự động ghi nhận đóng góp của người dùng thông qua các huy hiệu (Common, Rare, Epic, Legendary).
+*   **Trò chuyện trực tuyến (Chat 1-1):** Kết nối trực tiếp giữa Backer và Creator thông qua tin nhắn thời gian thực.
+*   **Xác minh danh tính (KYC):** Quy trình xác minh người dùng nghiêm ngặt để đảm bảo tính minh bạch và an toàn tài chính.
+*   **Báo cáo vi phạm (Reporting):** Hệ thống cho phép người dùng báo cáo các chiến dịch có dấu hiệu gian lận.
+*   **Cơ chế Quản lý rủi ro:** Bảo vệ nhà đầu tư qua các lớp xác thực và giữ tiền hộ từ bên thứ ba.
+
+### 🛡️ Yêu cầu phi chức năng (Non-functional Requirements)
+*   **Bảo mật:** Sử dụng NextAuth 5.0, Audit Logs truy vết hành động, và Rate Limiting chống tấn công.
+*   **Minh bạch tài chính:** Tích hợp tra cứu giao dịch chéo với các cổng thanh toán.
+*   **Hiệu năng:** Kiến trúc **Hybrid Database** (PostgreSQL + MongoDB) giúp tối ưu hóa tốc độ truy xuất dữ liệu.
+*   **Tính sẵn sàng:** Triển khai trên nền tảng Vercel với khả năng mở rộng tự động.
+*   **Trải nghiệm người dùng:** Giao diện mượt mà với Framer Motion, thiết kế Responsive hoàn hảo trên mọi thiết bị.
+
+---
+
+## 2. Xác định Actor & Đối tượng sử dụng (0.5đ)
+
+### 👥 Đối tượng sử dụng (Target Audience)
+Dự án tập trung vào việc kết nối hai nhóm đối tượng chính thông qua cơ chế minh bạch và tin cậy:
+
+*   **Người ủng hộ (Backer/Donor) - Cá nhân hoặc Tổ chức:**
+    *   Là những người mong muốn đóng góp cho các dự án ý nghĩa hoặc sản phẩm sáng tạo.
+    *   **Giá trị nhận được:** Có cơ sở để xem xét toàn bộ trang cá nhân, hồ sơ năng lực và lịch sử hoạt động của chủ dự án để đưa ra quyết định ủng hộ đúng người. Tiếp cận thông tin một cách minh bạch, dễ dàng theo dõi dòng tiền và tiến độ thực tế của dự án.
+
+*   **Người tạo dự án (Creator) - Cá nhân hoặc Tổ chức:**
+    *   Là các startup, nghệ sĩ hoặc tổ chức xã hội cần huy động nguồn lực từ cộng đồng.
+    *   **Giá trị nhận được:** Có không gian chuyên nghiệp để xây dựng hồ sơ cá nhân, lưu trữ lịch sử hoạt động và khẳng định uy tín thông qua các dự án đã thành công và các huy hiệu đạt được.
+
+### 🎭 Các Actor trong hệ thống
+Hệ thống quản lý tương tác giữa các bên thông qua các vai trò cụ thể:
+1.  **Guest (Khách):** Tìm hiểu thông tin, xem các chiến dịch và hồ sơ công khai của các bên trước khi quyết định tham gia.
+2.  **Backer (Người ủng hộ):** Thực hiện ủng hộ, tương tác trực tiếp với Creator, theo dõi tiến độ và đánh giá dự án dựa trên các bằng chứng minh bạch.
+3.  **Creator (Nhà sáng tạo):** Xây dựng uy tín thông qua việc cập nhật tiến độ dự án, quản lý phần quà và duy trì hồ sơ hoạt động tích cực.
+4.  **Admin (Quản trị viên):** Đóng vai trò là "người trung gian tin cậy", kiểm duyệt tính xác thực của hồ sơ (KYC) và các chiến dịch trước khi công bố.
+5.  **System (Hệ thống):** Tự động hóa việc ghi lại các hành động nhạy cảm (Audit Logs), đảm bảo mọi thay đổi về dữ liệu đều có thể truy vết.
+
+---
+
+## 3. Sơ đồ Use Case (0.5đ)
+
+```mermaid
+useCaseDiagram
+    actor "Guest" as G
+    actor "Backer" as B
+    actor "Creator" as C
+    actor "Admin" as A
+    actor "System" as S
+
+    package "Hệ thống TửTế Fund" {
+        usecase "Xem chiến dịch" as UC1
+        usecase "Ủng hộ dự án (Pledge)" as UC2
+        usecase "Tạo chiến dịch" as UC3
+        usecase "Kiểm duyệt dự án" as UC4
+        usecase "Xác minh KYC" as UC5
+        usecase "Chat trực tuyến" as UC6
+        usecase "Gửi hóa đơn tự động" as UC7
+        usecase "Quản lý Blog" as UC8
+    }
+
+    G --> UC1
+    G --> UC8
+    
+    B --> UC1
+    B --> UC2
+    B --> UC6
+    B --> UC8
+
+    C --> UC3
+    C --> UC6
+    C --> UC8
+
+    A --> UC4
+    A --> UC5
+    A --> UC8
+
+    S --> UC7
+    S --> UC4
+```
+
+*(Mô tả sơ đồ Use Case tổng quát)*
+*   **Nhóm Người dùng:** Đăng ký/Đăng nhập, Quản lý Profile, Xem Chiến dịch, Đọc Blog.
+*   **Nhóm Backer:** Ủng hộ dự án (Pledge), Chat với Creator, Nhận huy hiệu.
+*   **Nhóm Creator:** Tạo chiến dịch, Quản lý Rewards, Đăng bài Update.
+*   **Nhóm Admin:** Duyệt chiến dịch, Quản lý người dùng, Xem thống kê (Dashboard), Phê duyệt KYC.
+
+---
+
+## 4. Thiết kế CSDL & ER Diagram (1.0đ)
+
+```mermaid
+erDiagram
+    USER ||--o{ CAMPAIGN : "creates"
+    USER ||--o{ PLEDGE : "makes"
+    USER ||--o{ BLOG_POST : "writes"
+    USER ||--o| KYC_INFO : "has"
+    CAMPAIGN ||--o{ REWARD : "offers"
+    CAMPAIGN ||--o{ PLEDGE : "receives"
+    PLEDGE ||--o| REWARD : "selects"
+    PLEDGE ||--o| BACKER_INVOICE : "generates"
+    BLOG_POST ||--o{ COMMENT : "has"
+    USER ||--o{ USER_BADGE : "earns"
+    BADGE ||--o{ USER_BADGE : "assigned_to"
+
+    USER {
+        string id
+        string email
+        string role
+        string status
+    }
+    CAMPAIGN {
+        string id
+        string title
+        decimal goalAmount
+        string status
+    }
+    PLEDGE {
+        string id
+        decimal amount
+        string status
+        string transactionId
+    }
+```
+
+Hệ thống sử dụng mô hình **Hybrid Database** tiên tiến:
+
+### 🐘 PostgreSQL (Dữ liệu quan hệ - Prisma ORM)
+*   **User:** Lưu thông tin tài khoản, vai trò, trạng thái KYC.
+*   **Campaign:** Lưu thông tin dự án, mục tiêu, thời hạn và trạng thái.
+*   **Pledge & Reward:** Quản lý các khoản đóng góp và phần quà tương ứng.
+*   **Invoices:** Quản lý hóa đơn điện tử cho Backer và Platform.
+*   **Badges:** Quản lý danh mục và quyền sở hữu huy hiệu.
+
+### 🍃 MongoDB (Dữ liệu phi cấu trúc)
+*   **Blog Content:** Lưu trữ nội dung bài viết định dạng JSON (Rich Text).
+*   **Chat Messages:** Lưu trữ tin nhắn thời gian thực giúp giảm tải cho DB chính.
+*   **Audit Logs:** Ghi lại lịch sử chi tiết mọi hành động nhạy cảm trên hệ thống.
+
+---
+
+## 5. Frontend (2.0đ)
+
+*   **Màn hình chính:** Trang chủ, Danh sách chiến dịch, Chi tiết chiến dịch, Blog, Chat.
+*   **Màn hình quản trị:** Dashboard thống kê chuyên nghiệp cho cả Admin và Creator.
+*   **Bố cục (Layout):** Sử dụng **Tailwind CSS** cho giao diện hiện đại, sạch sẽ. Điều hướng rõ ràng qua Navbar và Sidebar thông minh.
+*   **Tính ổn định:** Hiển thị dữ liệu thời gian thực, xử lý Loading State và Error Boundary tốt.
+*   **Đa thiết bị:** Hoạt động hoàn hảo trên Desktop, Tablet và Mobile (Mobile-first design).
+
+---
+
+## 6. Backend (2.0đ)
+
+*   **Công nghệ:** Next.js API Routes (App Router), Server Actions.
+*   **Xử lý nghiệp vụ:** Logic phức tạp về tính toán phí nền tảng, VAT, đồng bộ trạng thái thanh toán tự động qua Webhook PayOS, momo, VNPay,....
+*   **Dữ liệu:** Thao tác CRUD chuẩn mực, hỗ trợ tìm kiếm nâng cao và lọc dữ liệu đa năng.
+*   **Kiến trúc:** Tổ chức mã nguồn theo module rõ ràng, dễ bảo trì và mở rộng.
+
+---
+
+## 7. Cơ chế Quản lý Rủi ro & Minh bạch (Risk Management)
+
+Hệ thống thiết lập các rào cản kỹ thuật để bảo vệ quyền lợi của tất cả các bên:
+
+### 🛡️ Quản lý dòng tiền qua Bên thứ ba (Escrow)
+Toàn bộ số tiền quyên góp không được lưu trữ trực tiếp trên hệ thống mà được giữ và xử lý bởi các đối tác trung gian thanh toán uy tín như **VNPay, Momo, PayOS** hoặc các ngân hàng đối tác. Điều này đảm bảo tiền chỉ được giải ngân khi chiến dịch đạt mục tiêu và tuân thủ các cam kết.
+
+### 🆔 Xác minh danh tính (KYC - Know Your Customer)
+Quy trình KYC nghiêm ngặt áp dụng cho tất cả các Nhà sáng tạo (Creators):
+*   Yêu cầu CMND/CCCD/Hộ chiếu.
+*   Đối với tổ chức: Yêu cầu giấy phép kinh doanh/hoạt động.
+*   Chỉ các tài khoản đã được Admin xác minh mới có quyền tạo chiến dịch gọi vốn.
+
+### 📑 Quản lý và Tra soát giao dịch
+*   **Lưu trữ chi tiết:** Mọi giao dịch đều được lưu trữ đầy đủ trong cả database hệ thống và nhật ký của cổng thanh toán.
+*   **Mã giao dịch thông minh:** Mỗi mã giao dịch chứa thông tin định danh chiến dịch, người đóng góp và thời điểm (ví dụ: `TTF-CAMP123-USER456`).
+*   **Khả năng tra soát:** Dữ liệu này cho phép bên thứ ba (ngân hàng/cổng thanh toán) dễ dàng tra cứu và đối soát lại khi có bất kỳ khiếu nại hoặc tranh chấp nào xảy ra, đảm bảo tính minh bạch tuyệt đối.
+
+---
+
+## 8. Kết nối Frontend-Backend (1.0đ)
+
+*   Sử dụng **Server Actions** giúp giảm thiểu độ trễ và tăng tính bảo mật cho các thao tác dữ liệu.
+*   Dữ liệu được đồng bộ liên tục giữa client và server thông qua cơ chế revalidation của Next.js.
+*   Xử lý lỗi Backend được hiển thị thân thiện trên Frontend qua hệ thống Toast thông báo.
+
+---
+
+## 9. Kiểm thử & Đánh giá (0.5đ)
+
+*   **Manual Test:** Đã thực hiện kiểm thử thủ công toàn bộ các luồng nghiệp vụ quan trọng (Tạo dự án -> Duyệt -> Ủng hộ -> Thanh toán -> Nhận hóa đơn).
+*   **Automated Test:** Hệ thống bao gồm **88 test cases** đảm bảo tính ổn định của các chức năng cốt lõi.
+
+---
+
+## 10. Fix Bug & Cải thiện (0.5đ)
+
+*   Thường xuyên cập nhật bản vá bảo mật cho các thư viện.
+*   Tối ưu hóa hình ảnh qua Cloudinary giúp tăng tốc độ tải trang.
+*   Cải thiện quy trình KYC (Know Your Customer) dựa trên phản hồi thực tế của người dùng.
+*   Cải thiện giao diện người dùng dựa trên phản hồi thực tế của người dùng.
+
+---
+
+## 11. Phân chia công việc (0.5đ)
+
+| Thành viên | Vai trò chính | Công việc cụ thể |
+| :--- | :--- | :--- |
+| **Nguyễn Quách Phú Tài** | Team Leader & Fullstack | Kiến trúc hệ thống, Backend API, Thanh toán PayOS, Admin Dashboard. |
+| **Trần Xuân Ân** | Frontend Developer | Giao diện người dùng, Blog System, Badge System, Hiệu ứng Framer Motion. |
+| **Bùi Đặng Quốc Khánh** | QA & Developer | Hệ thống Chat, Kiểm duyệt KYC, Viết Test cases, Tài liệu dự án. |
+
+---
+
+## 12. Đóng góp của thành viên (0.5đ)
+
+*   Tất cả các thành viên đều tham gia đầy đủ các buổi họp nhóm và hoàn thành tốt nhiệm vụ được giao.
+*   Sự phối hợp chặt chẽ giữa Backend và Frontend giúp dự án hoàn thành đúng tiến độ với chất lượng cao nhất.
+
+---
+**TửTế Fund - Nền tảng kiến tạo giá trị từ sự tử tế.** 🚀
+
+---
+
+## Nguồn: `docs/BUGFIX_NESTED_LINKS_REPORT.md`
+
+# Báo Cáo Sửa Lỗi: Nested Links Hydration Error
+
+**Ngày sửa:** 30/06/2026  
+**Trạng thái:** ✅ **FIXED**  
+**Severity:** 🔴 **CRITICAL** - Hydration error ảnh hưởng toàn bộ /projects page
+
+---
+
+## 🐛 MÔ TẢ LỖI
+
+### Error Message
+
+```
+Error: In HTML, <a> cannot be a descendant of <a>.
+This will cause a hydration error.
+
+<a> cannot contain a nested <a>.
+```
+
+### Stack Trace
+
+```
+at ProjectCard (src\components\projects\ProjectCard.tsx:43:5)
+  → Line 43: Outer <Link> wrapper
+at ProjectCard (src\components\projects\ProjectCard.tsx:133:5)
+  → Line 133: Inner <Link> button
+```
+
+---
+
+## 🔍 NGUYÊN NHÂN
+
+### Component Structure (BEFORE FIX)
+
+```tsx
+// src/components/projects/ProjectCard.tsx
+export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardProps) {
+  return (
+    <Link href={`/campaigns/${project.slug}`}>  {/* ❌ OUTER LINK */}
+      <div className="p-6">
+        {/* ... card content ... */}
+        
+        <div className="pt-2">
+          <Link href={`/campaigns/${project.slug}`}>  {/* ❌ INNER LINK - NESTED! */}
+            Xem chi tiết
+          </Link>
+        </div>
+      </div>
+    </Link>  {/* ❌ Creates <a><a></a></a> in HTML */}
+  );
+});
+```
+
+### HTML Output (Invalid)
+
+```html
+<a href="/campaigns/abc">
+  <div>
+    <!-- card content -->
+    <a href="/campaigns/abc">  <!-- ❌ NESTED <a> - INVALID HTML -->
+      Xem chi tiết
+    </a>
+  </div>
+</a>
+```
+
+### Vấn Đề
+
+1. **HTML Spec Violation:** HTML không cho phép `<a>` tag nested bên trong `<a>` tag khác
+2. **Hydration Error:** Server render khác client render → React hydration mismatch
+3. **User Experience:** Clicking vào button có thể trigger 2 navigation events
+4. **SEO Impact:** Invalid HTML structure ảnh hưởng SEO
+
+---
+
+## ✅ GIẢI PHÁP
+
+### Strategy
+
+**Remove inner `<Link>` component, keep only outer wrapper Link.**
+
+Lý do:
+- Toàn bộ card đã clickable (outer Link)
+- Inner button chỉ là visual decoration
+- Không cần 2 links dẫn đến cùng destination
+
+### Code Changes
+
+**File:** `src/components/projects/ProjectCard.tsx`
+
+```diff
+         {/* Action Button */}
+         <div className="pt-2">
+-          <Link
+-            href={`/campaigns/${project.slug}`}
+-            className="block w-full text-center px-4 py-2.5 rounded-xl gradient-green text-white font-bold text-sm hover:shadow-lg transition-all"
+-          >
++          <div className="block w-full text-center px-4 py-2.5 rounded-xl gradient-green text-white font-bold text-sm group-hover:shadow-lg transition-all">
+             Xem chi tiết
+-          </Link>
++          </div>
+         </div>
+```
+
+### Component Structure (AFTER FIX)
+
+```tsx
+// src/components/projects/ProjectCard.tsx
+export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardProps) {
+  return (
+    <Link href={`/campaigns/${project.slug}`}>  {/* ✅ SINGLE LINK */}
+      <div className="p-6">
+        {/* ... card content ... */}
+        
+        <div className="pt-2">
+          <div className="...">  {/* ✅ DIV instead of Link */}
+            Xem chi tiết
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+});
+```
+
+### HTML Output (Valid)
+
+```html
+<a href="/campaigns/abc">  <!-- ✅ SINGLE <a> tag -->
+  <div>
+    <!-- card content -->
+    <div>  <!-- ✅ DIV - No nested link -->
+      Xem chi tiết
+    </div>
+  </div>
+</a>
+```
+
+---
+
+## 🎨 UI/UX CONSIDERATIONS
+
+### Behavior Preserved
+
+- ✅ **Entire card clickable** - Outer Link still wraps everything
+- ✅ **Button styling** - Visual appearance unchanged (gradient-green)
+- ✅ **Hover effects** - `group-hover:shadow-lg` still works via outer Link's `group` class
+- ✅ **Accessibility** - Single link target, clearer for screen readers
+
+### Improvements
+
+1. **Better A11y:** Screen readers read as single link instead of nested links
+2. **Clearer Intent:** One click target per card
+3. **Better Performance:** Less DOM complexity
+4. **Valid HTML:** Passes HTML validation
+
+---
+
+## 🧪 VERIFICATION
+
+### 1. Build Test
+
+```bash
+npm run build
+```
+
+**Result:**
+- ✅ Compiled successfully
+- ✅ No hydration errors
+- ✅ No nested `<a>` warnings
+
+### 2. Runtime Test
+
+**Before:**
+- 🔴 Console error: "cannot be a descendant of <a>"
+- 🔴 Hydration mismatch warning
+
+**After:**
+- ✅ No console errors
+- ✅ Clean hydration
+- ✅ Valid HTML structure
+
+### 3. Manual Testing Checklist
+
+- [x] Card click navigates correctly
+- [x] Button visual style preserved
+- [x] Hover effects work properly
+- [x] Mobile touch targets work
+- [x] Keyboard navigation works (Tab + Enter)
+- [x] Screen reader announces link correctly
+
+---
+
+## 📊 IMPACT ANALYSIS
+
+### Affected Pages
+
+| Page | Status | Impact |
+|------|--------|--------|
+| `/projects` (Discovery page) | ✅ Fixed | All ProjectCard components |
+| `/campaigns/:slug` | ✅ Not affected | Different component |
+| `/dashboard/creator` | ✅ Not affected | Different card type |
+| Profile pages | ✅ Not affected | Different components |
+
+### Component Dependencies
+
+```
+ProjectsPage
+  └─ ProjectGrid
+      └─ ProjectCard  ← ✅ FIXED HERE
+```
+
+**Conclusion:** Isolated fix, no cascade effects
+
+---
+
+## 🔄 SIMILAR ISSUES CHECK
+
+### Search Results
+
+Searched for other potential nested Link issues:
+
+```bash
+grep -r "<Link.*<Link" src/components/projects/
+```
+
+**Result:** ✅ **NO OTHER INSTANCES FOUND**
+
+### Other Card Components
+
+Checked similar patterns in:
+- ✅ `CampaignCard` - Uses single Link wrapper pattern
+- ✅ `ProfileBlogCard` - Uses single Link wrapper pattern
+- ✅ `UserCard` - No nested links
+
+**Conclusion:** Issue was isolated to ProjectCard only
+
+---
+
+## 📝 LESSONS LEARNED
+
+### Root Cause
+
+**Developer added redundant CTA button without checking for wrapper Link.**
+
+Common pattern that causes this:
+```tsx
+// ❌ DON'T DO THIS
+<Link href="/detail">
+  <Card>
+    <Content />
+    <Link href="/detail">View More</Link>  {/* Redundant! */}
+  </Card>
+</Link>
+
+// ✅ DO THIS INSTEAD
+<Link href="/detail">
+  <Card>
+    <Content />
+    <div>View More</div>  {/* Visual only */}
+  </Card>
+</Link>
+```
+
+### Prevention
+
+1. **ESLint Rule:** Consider adding `jsx-a11y/anchor-is-valid` rules
+2. **Code Review:** Check for nested interactive elements
+3. **Component Audit:** Regular scan for nested `<a>` tags
+4. **Documentation:** Add comment explaining why button is `<div>`
+
+### Best Practices
+
+1. **Single Click Target:** One interactive element per card
+2. **Wrapper Pattern:** Entire card clickable via outer Link
+3. **Visual CTAs:** Use `<div>` or `<button>` for visual-only buttons inside links
+4. **Accessibility:** Prefer single link over multiple nested targets
+
+---
+
+## 🎯 RECOMMENDATION
+
+### Code Comment Added
+
+```tsx
+{/* Action Button - Visual only, click handled by outer Link */}
+<div className="pt-2">
+  <div className="block w-full text-center px-4 py-2.5 rounded-xl gradient-green text-white font-bold text-sm group-hover:shadow-lg transition-all">
+    Xem chi tiết
+  </div>
+</div>
+```
+
+### Future Prevention
+
+Add to component guidelines:
+- ✅ Always check for existing wrapper Links before adding CTAs
+- ✅ Use `<div>` for visual buttons inside clickable cards
+- ✅ Test for hydration errors in development mode
+- ✅ Run HTML validation on production builds
+
+---
+
+## ✅ SIGN-OFF
+
+**Status:** ✅ **FIXED AND VERIFIED**
+
+**Changes:**
+- 1 file modified
+- 7 lines changed (Link → div)
+- Zero behavior changes
+- Zero visual changes
+
+**Quality Checklist:**
+- [x] Fix applied correctly
+- [x] No nested links remain
+- [x] Build successful
+- [x] No hydration errors
+- [x] UI/UX preserved
+- [x] Accessibility improved
+- [x] Documentation updated
+
+**Approved for:** Production deployment ✅
+
+---
+
+## 🔗 RELATED ISSUES
+
+### Known Build Issues (Unrelated)
+
+The current build fails with:
+```
+Cannot find module for page: /api/admin/users/[userId]/update-status
+Cannot find module for page: /api/auth/register
+```
+
+**Status:** ⚠️ **SEPARATE ISSUE** - Missing API route files
+**Impact:** Build fails, but NOT related to nested link fix
+**Action Required:** Create missing API route files
+
+---
+
+**Generated by:** Kiro AI Assistant  
+**Reviewed by:** Development Team  
+**Date:** 30/06/2026  
+**Version:** 1.0
+
+---
+
+## Nguồn: `docs/CAU_TRUC_DU_AN.md`
+
+# CẤU TRÚC VÀ PHÂN TÍCH DỰ ÁN CROWDFUNDING-VN
+
+## I. Tổng Quan Dự Án
+**Crowdfunding-VN** là nền tảng gọi vốn cộng đồng dành cho thị trường Việt Nam. Dự án được xây dựng với kiến trúc hiện đại, kết hợp giữa RDBMS (PostgreSQL/MySQL qua Prisma ORM) và NoSQL (MongoDB cho tính năng chat/log real-time), cùng các tích hợp thanh toán ngân hàng (SePay/PayOS).
+
+* **Framework chính:** Next.js (App Router, React 19 / Next 15)
+* **Ngôn ngữ:** TypeScript
+* **Database & ORM:** Prisma ORM (Relational DB) + MongoDB Native Client (NoSQL)
+* **Styling:** Tailwind CSS + Radix UI / Shadcn UI components
+* **Cổng thanh toán:** SePay (QR Banking), PayOS
+* **Xác thực:** NextAuth.js / Custom Auth Middleware
+
+---
+
+## II. Sơ Đồ Cây Cấu Trúc Thư Mục (Project Tree)
+
+```text
+crowdfunding-vn/
+├── docs/                       # Tài liệu thiết kế, kiến trúc hệ thống, báo cáo & hướng dẫn
+├── prisma/                     # Cấu hình Prisma ORM & Database Schema
+│   ├── schema.prisma           # Cấu trúc bảng SQL (User, Campaign, Pledge, Transaction, v.v.)
+│   └── migrations/             # Lịch sử các bản migration cơ sở dữ liệu
+├── public/                     # Tài nguyên tĩnh (Hình ảnh, Logo, Icons, Fonts)
+├── scripts/                    # Scripts CLI hỗ trợ seed dữ liệu, bảo trì & test hệ thống
+├── __tests__/                  # Bộ kiểm thử tự động (Unit test, Integration test)
+├── src/                        # MÃ NGUỒN CHÍNH CỦA ỨNG DỤNG
+│   ├── app/                    # Next.js App Router (Pages, Layouts, API Routes)
+│   │   ├── (marketing)/        # Các trang Landing Page, Marketing
+│   │   ├── admin/              # Trang quản trị hệ thống (Admin Dashboard)
+│   │   ├── api/                # Các endpoint Backend (RESTful APIs)
+│   │   │   ├── admin/          # API dành cho Quản trị viên
+│   │   │   ├── auth/           # API đăng ký, đăng nhập, quên mật khẩu
+│   │   │   ├── campaigns/      # API tạo, sửa, xóa, duyệt dự án gọi vốn
+│   │   │   ├── chat/           # API tin nhắn & cuộc trò chuyện
+│   │   │   ├── kyc/            # API xác minh danh tính Creator
+│   │   │   ├── payment/        # API thanh toán & Webhook (SePay, PayOS)
+│   │   │   ├── profile/        # API quản lý hồ sơ cá nhân
+│   │   │   ├── projects/       # API thông tin dự án chi tiết
+│   │   │   ├── rewards/        # API gói phần thưởng ủng hộ
+│   │   │   └── users/          # API quản lý người dùng
+│   │   ├── auth/               # Trang Đăng nhập / Đăng ký / Xác thực
+│   │   ├── blog/               # Trang tin tức, bài viết cập nhật dự án
+│   │   ├── campaigns/          # Trang danh sách & chi tiết chiến dịch gọi vốn
+│   │   ├── chat/               # Giao diện trò chuyện real-time
+│   │   ├── dashboard/          # Bảng điều khiển dành cho Nhà sáng tạo (Creator)
+│   │   ├── gioi-thieu/         # Trang giới thiệu về nền tảng
+│   │   ├── lookup/             # Trang tra cứu giao dịch & ủng hộ
+│   │   ├── payment-success/    # Trang thông báo thanh toán thành công
+│   │   ├── policy/             # Trang điều khoản & chính sách bảo mật
+│   │   ├── profile/            # Trang cá nhân của người dùng
+│   │   ├── upgrade/            # Trang nâng cấp tài khoản lên Creator/Pro
+│   │   ├── globals.css         # CSS toàn cục (Tailwind Directives)
+│   │   └── layout.tsx          # Root Layout toàn dự án
+│   ├── components/             # Các UI Components tái sử dụng
+│   │   ├── admin/              # Components dành cho giao diện Admin
+│   │   ├── badge/              # Huy hiệu danh dự, danh hiệu nhà đầu tư
+│   │   ├── blog/               # Components danh sách & chi tiết bài viết
+│   │   ├── campaign/           # Components chi tiết chiến dịch (Progress bar, Form ủng hộ)
+│   │   ├── campaigns/          # Cards dự án, bộ lọc dự án
+│   │   ├── chat/               # Hộp thoại chat, danh sách tin nhắn
+│   │   ├── create-campaign/    # Form nhiều bước (Multi-step form) tạo dự án mới
+│   │   ├── dashboard/          # Thống kê, biểu đồ cho Creator Dashboard
+│   │   ├── editor/             # Trình soạn thảo văn bản phong phú (Rich Text Editor)
+│   │   ├── layout/             # Header, Navbar, Footer, Sidebar
+│   │   ├── payment/            # Modal thanh toán, QR code SePay/PayOS
+│   │   ├── profile/            # Form chỉnh sửa cá nhân, danh sách dự án đã tạo/đã ủng hộ
+│   │   ├── shared/             # Components chia sẻ (Modal, Toast, Loading Spinner)
+│   │   └── ui/                 # UI Primitives cơ bản (Button, Input, Card, Dialog, Badge,...)
+│   ├── contexts/               # React Context Providers (Auth, Notification, Socket)
+│   ├── hooks/                  # Custom React Hooks (useAuth, useCampaign, useDebounce,...)
+│   ├── lib/                    # Các module tiện ích & Kết nối tích hợp
+│   │   ├── actions/            # Next.js Server Actions
+│   │   ├── audit.ts            # Ghi log nhật ký hoạt động hệ thống
+│   │   ├── auth.ts             # Cấu hình xử lý Authentication & Tokens
+│   │   ├── kyc.ts              # Xử lý quy trình xác minh identity
+│   │   ├── mongodb.ts          # Kết nối MongoDB client
+│   │   ├── prisma.ts           # Singleton Prisma Client kết nối SQL DB
+│   │   ├── invoice-generator.ts# Tiện ích tạo hóa đơn tự động
+│   │   ├── campaign-utils.ts   # Helper tính phần trăm tiến độ, thời hạn gọi vốn
+│   │   └── payment/            # Cấu hình & Handler tích hợp SePay/PayOS
+│   ├── middleware/             # Các middleware hỗ trợ
+│   ├── services/               # Tầng giao tiếp API & MongoDB Data Services
+│   ├── types/                  # Khai báo TypeScript Interfaces & Types
+│   ├── auth.config.ts          # Cấu hình phân quyền & router protection
+│   └── middleware.ts           # Next.js Middleware kiểm tra quyền truy cập route
+├── .env.example                # File cấu hình biến môi trường mẫu
+├── deploy.sh                   # Script triển khai tự động lên server
+├── jest.config.js              # Cấu hình Jest cho Unit Test
+├── next.config.ts              # Cấu hình framework Next.js
+├── package.json                # Định nghĩa thư viện & lệnh chạy (scripts)
+├── tailwind.config.ts          # Cấu hình giao diện Tailwind CSS
+├── tsconfig.json               # Cấu hình trình biên dịch TypeScript
+└── vercel.json                 # Cấu hình Deployment trên Vercel
+```
+
+---
+
+## III. Mô Tả Chi Tiết Chức Năng Nổi Bật Theo Thư Mục
+
+### 1. `src/app/` (Next.js App Router - Routing & APIs)
+* **`api/`**: Chứa toàn bộ các RESTful API endpoints xử lý phía Server.
+  * `api/campaigns`: Quản lý các dự án gọi vốn (CRUD, tìm kiếm, lọc theo thể loại).
+  * `api/payment` & `api/payments`: Xử lý tạo link thanh toán, tạo mã QR ngân hàng và nhận **Webhook** xác nhận tiền về từ SePay/PayOS để cập nhật số tiền gọi vốn tức thì.
+  * `api/chat`: Xử lý lưu trữ và gửi/nhiệt tin nhắn giữa nhà đầu tư và creator.
+  * `api/kyc`: Tiếp nhận tài liệu xác minh danh tính người tạo dự án (CMND/CCCD, giấy phép).
+  * `api/admin`: Các API đặc quyền kiểm duyệt dự án, khóa tài khoản, báo cáo doanh thu.
+* **`campaigns/` & `projects/`**: Giao diện hiển thị danh sách các chiến dịch đang gọi vốn, trang chi tiết từng dự án (nội dung, hình ảnh, tiến độ %, danh sách quà đáp lễ - rewards).
+* **`dashboard/` & `admin/`**: Bảng điều khiển quản trị giúp Creator theo dõi số tiền gọi vốn, quản lý người ủng hộ (backers), và giúp Admin kiểm duyệt chiến dịch trước khi công khai.
+* **`auth/`**: Đăng nhập, đăng ký tài khoản (Hỗ trợ người dùng thông thường và Creator).
+
+### 2. `src/components/` (Tầng Giao Diện UI)
+* **`ui/`**: Các thành phần UI cơ bản chuẩn hóa (Design System), bao gồm nút bấm, ô nhập liệu, hộp thoại modal, tab, dropdown,...
+* **`create-campaign/`**: Bộ form nhiều bước hướng dẫn Creator điền thông tin dự án, mục tiêu tài chính, thời gian gọi vốn, các gói quà đáp lễ (Rewards) và tài liệu pháp lý.
+* **`payment/`**: Giao diện hiển thị phương thức thanh toán, mã QR quét chuyển khoản ngân hàng qua SePay/PayOS, hiển thị đếm ngược thời gian thanh toán và trạng thái thành công.
+* **`chat/`**: Giao diện tin nhắn giúp nhà đầu tư trực tiếp trao đổi với chủ dự án.
+
+### 3. `src/lib/` (Tầng Xử Lý Logic & Kết Nối)
+* **`prisma.ts` & `mongodb.ts`**: Đảm bảo khởi tạo kết nối Database duy nhất (Singleton pattern), tránh tràn connection.
+* **`payment/`**: Module tích hợp cổng thanh toán, xử lý tạo mã thanh toán duy nhất (checksum, signature verification), tự động kiểm tra cú pháp chuyển khoản để khớp đơn ủng hộ.
+* **`campaign-helpers.ts` / `campaign-filters.ts`**: Các hàm tính toán số ngày còn lại, phần trăm hoàn thành chỉ tiêu gọi vốn, lọc dự án theo chuyên mục (Công nghệ, Nghệ thuật, Cộng đồng,...).
+* **`invoice-generator.ts`**: Tự động xuất biên nhận/hóa đơn điện tử khi ủng hộ thành công.
+
+### 4. `prisma/` (Cơ Sở Dữ Liệu SQL)
+* **`schema.prisma`**: Mô hình hóa toàn bộ dữ liệu chính của hệ thống:
+  * `User`: Người dùng, Creator, Admin, trạng thái KYC.
+  * `Campaign`: Dự án gọi vốn, mục tiêu (target amount), số tiền hiện tại (current amount), trạng thái (DRAFT, PENDING, APPROVED, SUCCESS, FAILED).
+  * `Pledge` / `Transaction`: Thông tin các lượt ủng hộ, gói phần thưởng đã chọn, lịch sử thanh toán.
+  * `Reward`: Các mức quà đáp lễ dành cho người ủng hộ.
+  * `Badge`: Huy hiệu thưởng cho các nhà đầu tư tích cực.
+
+### 5. `docs/` & `scripts/` (Tài Liệu & Đồ Án Hỗ Trợ)
+* **`docs/`**: Chứa hơn 50+ tài liệu phân tích chi tiết về sơ đồ DB, tích hợp SePay/PayOS, kết quả kiểm thử, quy trình Git & CI/CD.
+* **`scripts/`**: Các script hữu ích bằng TypeScript/JavaScript dùng để nạp dữ liệu mẫu (`seed-campaigns.ts`), tạo tài khoản Admin thử nghiệm, kiểm tra kết nối MongoDB/PostgreSQL.
+
+---
+
+## IV. Luồng Hoạt Động Cốt Lõi (Core Workflow)
+
+1. **Luồng Tạo Dự Án (Creator):**
+   `Trang Create Campaign` ➔ `Nhập thông tin & Reward` ➔ `Nộp KYC` ➔ `Gửi duyệt (PENDING)` ➔ `Admin duyệt (APPROVED)` ➔ `Công khai gọi vốn`.
+
+2. **Luồng Úng Hộ Dự Án (Backer):**
+   `Xem chi tiết Campaign` ➔ `Chọn gói Reward / Ủng hộ tùy tâm` ➔ `Tạo đơn thanh toán (Pledge)` ➔ `Hiển thị QR SePay/PayOS` ➔ `Người dùng quét mã chuyển khoản` ➔ `Webhook SePay bắn về API` ➔ `Hệ thống xác thực & cộng tiền vào Campaign` ➔ `Gửi thông báo & Xuất hóa đơn`.
+
+---
+
+## Nguồn: `docs/CHAT_COMPONENT_README.md`
+
+# 💬 Chat System Components
+
+Hệ thống chat với sidebar hiển thị danh sách cuộc trò chuyện và cửa sổ chat chính.
+
+## 📁 Components
+
+### 1. ChatSidebar
+Sidebar trái hiển thị danh sách các cuộc trò chuyện.
+
+**Features:**
+- ✅ Hiển thị avatar người dùng
+- ✅ Tên người dùng
+- ✅ Tin nhắn cuối cùng (truncated)
+- ✅ Thời gian tin nhắn (relative time)
+- ✅ Badge số tin chưa đọc
+- ✅ Trạng thái online/offline
+- ✅ Tìm kiếm cuộc trò chuyện
+- ✅ Nút tạo cuộc trò chuyện mới
+- ✅ Highlight cuộc trò chuyện đang active
+
+**Props:**
+```typescript
+interface ChatSidebarProps {
+  conversations: Conversation[];
+  activeConversationId?: string;
+  onSelectConversation: (conversationId: string) => void;
+  onNewChat?: () => void;
+}
+```
+
+### 2. ChatWindow
+Cửa sổ chat chính để hiển thị và gửi tin nhắn.
+
+**Features:**
+- ✅ Header với thông tin người nhận
+- ✅ Hiển thị tin nhắn theo thời gian
+- ✅ Group tin nhắn theo ngày
+- ✅ Avatar cho tin nhắn
+- ✅ Phân biệt tin nhắn gửi/nhận
+- ✅ Typing indicator
+- ✅ Input với emoji, attachment
+- ✅ Gửi tin nhắn bằng Enter
+- ✅ Auto scroll to bottom
+
+**Props:**
+```typescript
+interface ChatWindowProps {
+  conversationId: string;
+  recipientName: string;
+  recipientAvatar?: string;
+  messages: Message[];
+  currentUserId: string;
+  onSendMessage: (content: string, attachments?: File[]) => void;
+  isOnline?: boolean;
+}
+```
+
+## 🚀 Usage
+
+### Basic Example
+
+```tsx
+import { ChatSidebar } from '@/components/chat/ChatSidebar';
+import { ChatWindow } from '@/components/chat/ChatWindow';
+
+export default function MessagesPage() {
+  const [activeConversationId, setActiveConversationId] = useState<string>();
+
+  return (
+    <div className="flex h-screen">
+      <ChatSidebar
+        conversations={conversations}
+        activeConversationId={activeConversationId}
+        onSelectConversation={setActiveConversationId}
+        onNewChat={() => console.log('New chat')}
+      />
+      
+      <ChatWindow
+        conversationId={activeConversationId}
+        recipientName="Nguyễn Văn A"
+        messages={messages}
+        currentUserId="currentUser"
+        onSendMessage={(content) => console.log(content)}
+      />
+    </div>
+  );
+}
+```
+
+## 📊 Data Types
+
+```typescript
+interface Message {
+  id: string;
+  content: string;
+  senderId: string;
+  createdAt: Date;
+  isRead: boolean;
+  attachments?: {
+    type: 'image' | 'file';
+    url: string;
+    name?: string;
+  }[];
+}
+
+interface Conversation {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  lastMessage: Message;
+  unreadCount: number;
+  isOnline?: boolean;
+}
+```
+
+## 🎨 Styling
+
+Components sử dụng Tailwind CSS và shadcn/ui components:
+- `Avatar` - Hiển thị avatar người dùng
+- `Badge` - Badge số tin chưa đọc
+- `Input` - Tìm kiếm
+- `Textarea` - Input tin nhắn
+- `ScrollArea` - Scroll area cho danh sách
+- `Button` - Các nút action
+
+## 🔧 Customization
+
+### Thay đổi màu sắc tin nhắn
+
+```tsx
+// Trong ChatWindow.tsx
+<div
+  className={cn(
+    'max-w-[70%] rounded-2xl px-4 py-2',
+    isCurrentUser
+      ? 'bg-green-600 text-white' // Thay đổi màu ở đây
+      : 'bg-gray-100 text-gray-900'
+  )}
+>
+```
+
+### Thay đổi kích thước sidebar
+
+```tsx
+// Trong ChatSidebar.tsx
+<div className="flex h-full w-96 flex-col"> {/* Thay w-80 thành w-96 */}
+```
+
+## 🔌 Integration với Backend
+
+### 1. Fetch Conversations
+
+```typescript
+// app/messages/page.tsx
+const { data: conversations } = await fetch('/api/conversations');
+```
+
+### 2. Fetch Messages
+
+```typescript
+const { data: messages } = await fetch(`/api/conversations/${conversationId}/messages`);
+```
+
+### 3. Send Message
+
+```typescript
+const handleSendMessage = async (content: string) => {
+  await fetch(`/api/conversations/${conversationId}/messages`, {
+    method: 'POST',
+    body: JSON.stringify({ content }),
+  });
+};
+```
+
+### 4. Real-time Updates (WebSocket/Pusher)
+
+```typescript
+// Sử dụng Pusher hoặc Socket.io
+useEffect(() => {
+  const channel = pusher.subscribe(`conversation-${conversationId}`);
+  
+  channel.bind('new-message', (message: Message) => {
+    setMessages(prev => [...prev, message]);
+  });
+  
+  return () => {
+    channel.unbind_all();
+    channel.unsubscribe();
+  };
+}, [conversationId]);
+```
+
+## 📱 Responsive Design
+
+Components đã được thiết kế responsive:
+- Desktop: Sidebar + Chat window
+- Tablet: Sidebar có thể collapse
+- Mobile: Full screen chat, sidebar overlay
+
+## ✨ Features Roadmap
+
+- [ ] Voice messages
+- [ ] Video messages
+- [ ] File attachments
+- [ ] Message reactions
+- [ ] Message forwarding
+- [ ] Message deletion
+- [ ] Read receipts
+- [ ] Typing indicators (real-time)
+- [ ] Message search
+- [ ] Archive conversations
+- [ ] Pin conversations
+- [ ] Mute notifications
+
+## 🐛 Known Issues
+
+- Auto-scroll cần cải thiện khi có tin nhắn mới
+- Textarea auto-resize chưa hoàn hảo
+- Cần thêm loading states
+
+## 📝 Notes
+
+- Mock data hiện tại, cần thay thế bằng API calls
+- Cần implement WebSocket cho real-time messaging
+- Cần thêm error handling
+- Cần thêm loading states
+- Cần implement pagination cho messages
+
+## 🔗 Related Files
+
+- `/app/messages/page.tsx` - Messages page
+- `/components/chat/ChatSidebar.tsx` - Sidebar component
+- `/components/chat/ChatWindow.tsx` - Chat window component
+- `/components/ui/textarea.tsx` - Textarea component
+- `/components/ui/scroll-area.tsx` - Scroll area component
+
+---
+
+## Nguồn: `docs/CHAT_SYSTEM.md`
+
+# 💬 Hệ Thống Chat 1-1
+
+## Tổng Quan
+
+Hệ thống chat 1-1 cho phép người dùng nhắn tin trực tiếp với chủ chiến dịch. Chat được lưu trữ trong MongoDB để tối ưu hiệu năng và linh hoạt.
+
+## Kiến Trúc
+
+### Database
+
+- **PostgreSQL**: Xác thực users, campaigns (validation only)
+- **MongoDB**: Lưu trữ conversations, messages, reports
+
+### Collections
+
+#### 1. `conversations`
+```typescript
+{
+  _id: ObjectId,
+  conversationKey: string, // Unique: "campaign_{campaignId}_{userId1}_{userId2}"
+  type: "direct" | "campaign" | "admin_support",
+  participants: [
+    {
+      userId: string, // PostgreSQL user.id
+      name: string,
+      email: string,
+      avatarUrl?: string,
+      role: string
+    }
+  ],
+  participantIds: string[], // For quick lookup
+  campaign?: {
+    campaignId: string,
+    title: string,
+    coverImage?: string,
+    currentAmount: number,
+    goalAmount: number,
+    ownerId: string
+  },
+  lastMessage?: {
+    text: string,
+    senderId: string,
+    createdAt: Date
+  },
+  unreadCount: { [userId: string]: number },
+  isActive: boolean,
+  isReported: boolean,
+  blockedBy: string[],
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+**Indexes:**
+- `conversationKey` (unique)
+- `participantIds`
+- `updatedAt` (desc)
+- `participantIds + updatedAt` (compound)
+
+#### 2. `messages`
+```typescript
+{
+  _id: ObjectId,
+  conversationId: ObjectId,
+  senderId: string, // PostgreSQL user.id
+  senderName: string,
+  senderAvatar?: string,
+  text: string,
+  type: "text" | "image" | "file",
+  attachments: [],
+  readBy: string[],
+  isDeleted: boolean,
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+**Indexes:**
+- `conversationId + createdAt` (compound, desc)
+- `senderId`
+- `isDeleted`
+
+#### 3. `chat_reports`
+```typescript
+{
+  _id: ObjectId,
+  conversationId: ObjectId,
+  messageId?: ObjectId,
+  reporterId: string,
+  reason: "spam" | "scam" | "abuse" | "other",
+  description: string,
+  status: "pending" | "reviewed" | "rejected" | "resolved",
+  createdAt: Date,
+  updatedAt: Date,
+  reviewedAt?: Date,
+  reviewedBy?: string
+}
+```
+
+**Indexes:**
+- `status + createdAt` (compound)
+- `conversationId`
+- `reporterId`
+
+## API Endpoints
+
+### 1. Start Conversation
+```
+POST /api/chat/conversations/start
+Body: {
+  targetUserId: string,
+  campaignId?: string
+}
+Response: {
+  conversation: MongoConversation,
+  isNew: boolean
+}
+```
+
+### 2. Get Conversations
+```
+GET /api/chat/conversations
+Response: {
+  conversations: MongoConversation[]
+}
+```
+
+### 3. Get Messages
+```
+GET /api/chat/conversations/[conversationId]/messages?limit=30&before=messageId
+Response: {
+  messages: MongoMessage[],
+  hasMore: boolean
+}
+```
+
+### 4. Send Message
+```
+POST /api/chat/conversations/[conversationId]/messages
+Body: {
+  text: string
+}
+Response: {
+  message: MongoMessage
+}
+```
+
+### 5. Mark as Read
+```
+PATCH /api/chat/conversations/[conversationId]/read
+Response: {
+  success: boolean
+}
+```
+
+### 6. Delete Message
+```
+DELETE /api/chat/messages/[messageId]
+Response: {
+  success: boolean
+}
+```
+
+### 7. Report Conversation
+```
+POST /api/chat/conversations/[conversationId]/report
+Body: {
+  messageId?: string,
+  reason: ChatReportReason,
+  description: string
+}
+Response: {
+  report: MongoChatReport
+}
+```
+
+### 8. Block/Unblock Conversation
+```
+POST /api/chat/conversations/[conversationId]/block
+DELETE /api/chat/conversations/[conversationId]/block
+Response: {
+  success: boolean
+}
+```
+
+### 9. Get Unread Count
+```
+GET /api/chat/unread-count
+Response: {
+  unreadCount: number
+}
+```
+
+## Components
+
+### Frontend Components
+
+1. **ConversationList** - Danh sách cuộc trò chuyện
+2. **ConversationItem** - Item trong danh sách
+3. **ChatScreen** - Màn hình chat chính
+4. **MessageBubble** - Bubble tin nhắn
+5. **ChatInput** - Input gửi tin nhắn
+6. **UserAvatar** - Avatar người dùng
+7. **UnreadBadge** - Badge số tin nhắn chưa đọc
+8. **CampaignChatHeader** - Header với thông tin campaign
+9. **StartChatButton** - Nút bắt đầu chat từ campaign detail
+10. **ChatNotificationBadge** - Badge thông báo trên navbar
+
+## Usage
+
+### 1. Thêm nút chat vào Campaign Detail
+
+```tsx
+import { StartChatButton } from "@/components/chat/StartChatButton";
+
+<StartChatButton
+  campaignId={campaign.id}
+  campaignOwnerId={campaign.creatorId}
+  campaignOwnerName={campaign.creator.name}
+  variant="default"
+/>
+```
+
+### 2. Thêm link Chat vào Navbar
+
+```tsx
+import { MessageCircle } from "lucide-react";
+import { ChatNotificationBadge } from "@/components/chat/ChatNotificationBadge";
+
+<Link href="/chat" className="relative">
+  <MessageCircle className="h-5 w-5" />
+  <ChatNotificationBadge />
+</Link>
+```
+
+### 3. Trang Chat
+
+- `/chat` - Danh sách conversations
+- `/chat/[conversationId]` - Màn hình chat
+
+## Security
+
+### Validation Rules
+
+1. **User Authentication**: Tất cả endpoints yêu cầu đăng nhập
+2. **Participant Check**: User chỉ truy cập conversations mà họ tham gia
+3. **Campaign Validation**: Validate campaign tồn tại và active
+4. **Owner Validation**: Chỉ chat với campaign owner
+5. **Text Validation**: 
+   - Không rỗng
+   - Max 2000 ký tự
+   - Trim whitespace
+6. **Block Check**: Không gửi message nếu conversation bị block
+7. **Delete Permission**: Chỉ sender xóa message của mình
+
+### Rate Limiting
+
+Khuyến nghị thêm rate limiting:
+- 20 messages/phút/user
+- 100 conversations/ngày/user
+
+## Setup
+
+### 1. Cài đặt MongoDB Indexes
+
+```bash
+npx tsx scripts/init-chat-indexes.ts
+```
+
+### 2. Environment Variables
+
+```env
+MONGODB_URI="mongodb+srv://..."
+MONGODB_DB_NAME="crowdfunding_vn"
+ENABLE_MONGO_CHAT=true
+```
+
+### 3. Test Chat System
+
+```bash
+# Start development server
+npm run dev
+
+# Navigate to campaign detail
+# Click "Nhắn tin với [Creator Name]"
+# Send messages
+# Check /chat for conversation list
+```
+
+## Features
+
+### ✅ Implemented
+
+- [x] 1-1 chat giữa backer và creator
+- [x] Chat gắn với campaign cụ thể
+- [x] Conversation list với unread count
+- [x] Message pagination
+- [x] Mark as read
+- [x] Soft delete messages
+- [x] Block/unblock conversations
+- [x] Report conversations
+- [x] Real-time unread count (polling)
+- [x] Campaign info trong chat header
+- [x] Responsive design
+- [x] MongoDB indexes
+
+### 🚧 Future Enhancements
+
+- [ ] Socket.IO for real-time messaging
+- [ ] Typing indicators
+- [ ] Image/file attachments
+- [ ] Message reactions
+- [ ] Search messages
+- [ ] Admin dashboard for reports
+- [ ] Push notifications
+- [ ] Message read receipts
+- [ ] Group chat support
+
+## Troubleshooting
+
+### Messages không load
+
+1. Check MongoDB connection
+2. Check indexes đã tạo chưa
+3. Check user authentication
+4. Check console logs
+
+### Unread count không cập nhật
+
+1. Check polling interval (30s)
+2. Check API endpoint `/api/chat/unread-count`
+3. Check session authentication
+
+### Không gửi được message
+
+1. Check text không rỗng
+2. Check conversation không bị block
+3. Check user là participant
+4. Check network requests
+
+## Performance
+
+### Optimization Tips
+
+1. **Pagination**: Load 30-50 messages mỗi lần
+2. **Polling**: 30s interval cho unread count
+3. **Indexes**: Đảm bảo tất cả indexes đã tạo
+4. **Caching**: Cache conversation list
+5. **Lazy Loading**: Load messages khi scroll
+
+### Monitoring
+
+Monitor các metrics:
+- Average message send time
+- Conversation load time
+- Unread count query time
+- MongoDB connection pool usage
+
+## Testing
+
+### Manual Testing Checklist
+
+- [ ] Tạo conversation mới
+- [ ] Gửi message
+- [ ] Nhận message
+- [ ] Mark as read
+- [ ] Unread count cập nhật
+- [ ] Delete message
+- [ ] Block conversation
+- [ ] Report conversation
+- [ ] Pagination hoạt động
+- [ ] Responsive trên mobile
+
+### API Testing
+
+```bash
+# Test start conversation
+curl -X POST http://localhost:3000/api/chat/conversations/start \
+  -H "Content-Type: application/json" \
+  -d '{"targetUserId":"user-id","campaignId":"campaign-id"}'
+
+# Test send message
+curl -X POST http://localhost:3000/api/chat/conversations/[id]/messages \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Hello!"}'
+```
+
+## Support
+
+Nếu gặp vấn đề, check:
+1. MongoDB connection string
+2. Indexes đã tạo
+3. Environment variables
+4. Console logs
+5. Network tab trong DevTools
+
+---
+
+## Nguồn: `docs/CHAT_SYSTEM_GUIDE.md`
+
+# 💬 Hướng Dẫn Hệ Thống Chat
+
+## 🎯 Tổng quan
+
+Hệ thống chat với đầy đủ tính năng:
+- ✅ Sidebar danh sách cuộc trò chuyện
+- ✅ Badge số tin chưa đọc
+- ✅ Trạng thái online/offline
+- ✅ Tìm kiếm cuộc trò chuyện
+- ✅ Cửa sổ chat với tin nhắn theo thời gian
+- ✅ Typing indicator
+- ✅ Gửi tin nhắn, emoji, file
+
+## 📁 Cấu trúc Files
+
+```
+src/
+├── app/
+│   └── messages/
+│       └── page.tsx              # Trang chat chính
+├── components/
+│   ├── chat/
+│   │   ├── ChatSidebar.tsx       # Sidebar trái
+│   │   ├── ChatWindow.tsx        # Cửa sổ chat
+│   │   └── README.md             # Hướng dẫn chi tiết
+│   └── ui/
+│       ├── textarea.tsx          # Textarea component
+│       └── scroll-area.tsx       # Scroll area component
+```
+
+## 🚀 Cách sử dụng
+
+### 1. Truy cập trang Messages
+
+```
+http://localhost:3000/messages
+```
+
+### 2. Features chính
+
+#### Sidebar (Bên trái)
+- **Danh sách cuộc trò chuyện**: Hiển thị tất cả conversations
+- **Avatar**: Ảnh đại diện người dùng với initials fallback
+- **Tên người dùng**: Tên đầy đủ
+- **Tin nhắn cuối**: Preview tin nhắn cuối cùng (truncated)
+- **Thời gian**: Relative time (5 phút trước, 1 giờ trước, etc.)
+- **Badge đỏ**: Số tin chưa đọc
+- **Chấm xanh**: Trạng thái online
+- **Tìm kiếm**: Search box ở đầu sidebar
+- **Nút +**: Tạo cuộc trò chuyện mới
+
+#### Chat Window (Bên phải)
+- **Header**: 
+  - Avatar + tên người nhận
+  - Trạng thái online/offline
+  - Nút gọi điện, video call, more options
+- **Messages**:
+  - Group theo ngày
+  - Tin nhắn gửi (màu xanh, bên phải)
+  - Tin nhắn nhận (màu xám, bên trái)
+  - Avatar cho tin nhắn nhận
+  - Thời gian mỗi tin nhắn
+- **Input**:
+  - Nút đính kèm file
+  - Nút đính kèm ảnh
+  - Textarea với auto-resize
+  - Nút emoji
+  - Nút gửi (Enter hoặc click)
+
+## 🎨 UI/UX Features
+
+### 1. Sidebar
+```typescript
+// Highlight conversation đang active
+activeConversationId === conversation.id && 'bg-blue-50'
+
+// Badge số tin chưa đọc
+{conversation.unreadCount > 0 && (
+  <Badge>{conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}</Badge>
+)}
+
+// Trạng thái online
+{conversation.isOnline && (
+  <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500" />
+)}
+```
+
+### 2. Chat Window
+```typescript
+// Phân biệt tin nhắn gửi/nhận
+isCurrentUser ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-900'
+
+// Group messages theo ngày
+const messageGroups = groupMessagesByDate(messages);
+
+// Typing indicator
+{isTyping && (
+  <div className="flex gap-1">
+    <span className="animate-bounce">•</span>
+    <span className="animate-bounce" style={{ animationDelay: '0.1s' }}>•</span>
+    <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>•</span>
+  </div>
+)}
+```
+
+## 🔌 Integration với Backend
+
+### API Endpoints cần tạo
+
+#### 1. Get Conversations
+```typescript
+// GET /api/conversations
+// Response:
+{
+  conversations: [
+    {
+      id: string;
+      userId: string;
+      userName: string;
+      userAvatar?: string;
+      lastMessage: {
+        id: string;
+        content: string;
+        createdAt: Date;
+        isRead: boolean;
+      };
+      unreadCount: number;
+      isOnline?: boolean;
+    }
+  ]
+}
+```
+
+#### 2. Get Messages
+```typescript
+// GET /api/conversations/:conversationId/messages
+// Response:
+{
+  messages: [
+    {
+      id: string;
+      content: string;
+      senderId: string;
+      createdAt: Date;
+      isRead: boolean;
+    }
+  ]
+}
+```
+
+#### 3. Send Message
+```typescript
+// POST /api/conversations/:conversationId/messages
+// Body:
+{
+  content: string;
+  attachments?: File[];
+}
+```
+
+#### 4. Mark as Read
+```typescript
+// PUT /api/conversations/:conversationId/read
+```
+
+### Database Schema
+
+```prisma
+model Conversation {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  participants ConversationParticipant[]
+  messages     Message[]
+}
+
+model ConversationParticipant {
+  id             String   @id @default(cuid())
+  conversationId String
+  userId         String
+  lastReadAt     DateTime?
+  
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+  
+  @@unique([conversationId, userId])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String   @db.Text
+  attachments    Json?
+  createdAt      DateTime @default(now())
+  
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  sender       User         @relation(fields: [senderId], references: [id])
+  
+  @@index([conversationId])
+  @@index([senderId])
+}
+```
+
+## 🔄 Real-time Updates
+
+### Sử dụng Pusher
+
+```typescript
+// Install
+npm install pusher-js
+
+// Setup
+import Pusher from 'pusher-js';
+
+const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
+  cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+});
+
+// Subscribe to conversation
+useEffect(() => {
+  const channel = pusher.subscribe(`conversation-${conversationId}`);
+  
+  channel.bind('new-message', (message: Message) => {
+    setMessages(prev => [...prev, message]);
+  });
+  
+  channel.bind('typing', (data: { userId: string; isTyping: boolean }) => {
+    setIsTyping(data.isTyping);
+  });
+  
+  return () => {
+    channel.unbind_all();
+    channel.unsubscribe();
+  };
+}, [conversationId]);
+```
+
+### Hoặc sử dụng Socket.io
+
+```typescript
+// Install
+npm install socket.io-client
+
+// Setup
+import { io } from 'socket.io-client';
+
+const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL!);
+
+useEffect(() => {
+  socket.emit('join-conversation', conversationId);
+  
+  socket.on('new-message', (message: Message) => {
+    setMessages(prev => [...prev, message]);
+  });
+  
+  socket.on('typing', (data: { userId: string; isTyping: boolean }) => {
+    setIsTyping(data.isTyping);
+  });
+  
+  return () => {
+    socket.emit('leave-conversation', conversationId);
+    socket.off('new-message');
+    socket.off('typing');
+  };
+}, [conversationId]);
+```
+
+## 📱 Responsive Design
+
+### Desktop (>1024px)
+```
+┌─────────────────────────────────────┐
+│  Sidebar (320px)  │  Chat Window    │
+│                   │                 │
+│  - Conversations  │  - Header       │
+│  - Search         │  - Messages     │
+│  - List           │  - Input        │
+└─────────────────────────────────────┘
+```
+
+### Tablet (768px - 1024px)
+```
+┌─────────────────────────────────────┐
+│  Sidebar (280px)  │  Chat Window    │
+│  (Collapsible)    │                 │
+└─────────────────────────────────────┘
+```
+
+### Mobile (<768px)
+```
+┌─────────────────┐
+│  Sidebar        │  (Full screen)
+│  - List only    │
+└─────────────────┘
+
+Hoặc
+
+┌─────────────────┐
+│  Chat Window    │  (Full screen)
+│  - Back button  │
+└─────────────────┘
+```
+
+## 🎯 Next Steps
+
+### 1. Tạo API Routes
+```bash
+# Tạo các file API
+src/app/api/conversations/route.ts
+src/app/api/conversations/[id]/messages/route.ts
+src/app/api/conversations/[id]/read/route.ts
+```
+
+### 2. Thêm Database Schema
+```bash
+# Thêm vào prisma/schema.prisma
+# Chạy migration
+npx prisma migrate dev --name add_chat_system
+```
+
+### 3. Setup Real-time
+```bash
+# Chọn một trong hai:
+npm install pusher-js
+# hoặc
+npm install socket.io-client
+```
+
+### 4. Test
+```bash
+# Chạy dev server
+npm run dev
+
+# Truy cập
+http://localhost:3000/messages
+```
+
+## 🐛 Troubleshooting
+
+### Lỗi: Module not found
+```bash
+# Cài đặt dependencies
+npm install date-fns
+npm install @radix-ui/react-scroll-area
+```
+
+### Lỗi: Textarea không auto-resize
+```typescript
+// Thêm vào Textarea component
+const handleInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
+  e.currentTarget.style.height = 'auto';
+  e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
+};
+```
+
+### Lỗi: Messages không scroll to bottom
+```typescript
+// Thêm useEffect
+useEffect(() => {
+  if (scrollAreaRef.current) {
+    scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+  }
+}, [messages]);
+```
+
+## 📚 Resources
+
+- [Radix UI ScrollArea](https://www.radix-ui.com/docs/primitives/components/scroll-area)
+- [date-fns Documentation](https://date-fns.org/)
+- [Pusher Documentation](https://pusher.com/docs)
+- [Socket.io Documentation](https://socket.io/docs/v4/)
+
+## ✅ Checklist
+
+- [x] ChatSidebar component
+- [x] ChatWindow component
+- [x] Textarea component
+- [x] ScrollArea component
+- [x] Messages page
+- [ ] API routes
+- [ ] Database schema
+- [ ] Real-time updates
+- [ ] File upload
+- [ ] Emoji picker
+- [ ] Responsive design
+- [ ] Testing
+
+---
+
+**Created**: 2026-05-23
+**Status**: ✅ Components ready, needs backend integration
+
+---
+
+## Nguồn: `docs/CONTRIBUTING.md`
+
+# Hướng dẫn đóng góp 🤝
+
+Cảm ơn bạn đã quan tâm đến CrowdFund VN! Tài liệu này hướng dẫn cách làm việc hiệu quả trong team.
+
+---
+
+## 🌿 Git Workflow
+
+### Quy tắc nhánh
+
+| Nhánh | Mục đích |
+|-------|----------|
+| `main` | Production — chỉ merge qua PR được review |
+| `develop` | Integration — merge feature branches vào đây |
+| `feature/ten-tinh-nang` | Tính năng mới |
+| `fix/ten-loi` | Sửa bug |
+| `hotfix/ten-loi` | Sửa khẩn cấp trên production |
+
+```bash
+# Tạo nhánh mới từ develop
+git checkout develop
+git pull origin develop
+git checkout -b feature/ten-tinh-nang
+```
+
+### Commit Message Convention
+
+Theo chuẩn [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+<type>(<scope>): <mô tả ngắn gọn>
+
+[body tùy chọn]
+```
+
+**Các type hợp lệ:**
+
+| Type | Ý nghĩa |
+|------|---------|
+| `feat` | Thêm tính năng mới |
+| `fix` | Sửa bug |
+| `refactor` | Refactor code (không thêm tính năng, không sửa bug) |
+| `style` | Sửa CSS/UI (không thay đổi logic) |
+| `docs` | Cập nhật tài liệu |
+| `test` | Thêm/sửa test |
+| `chore` | Cập nhật config, dependencies |
+| `perf` | Cải thiện hiệu năng |
+
+**Ví dụ:**
+```bash
+git commit -m "feat(campaign): thêm form tạo campaign với reward tiers"
+git commit -m "fix(payment): sửa lỗi VNPay không verify được chữ ký"
+git commit -m "docs(readme): cập nhật hướng dẫn cài đặt PayOS"
+```
+
+---
+
+## 🔀 Pull Request
+
+1. **Tạo PR vào `develop`** (không phải `main`)
+2. **Mô tả PR** phải có:
+   - Tóm tắt thay đổi
+   - Screenshots nếu có thay đổi UI
+   - Cách test
+3. **Ít nhất 1 reviewer** phải approve trước khi merge
+4. **Không self-merge** trừ hotfix khẩn cấp
+
+### Template PR
+```markdown
+## 📝 Thay đổi
+- Thêm ...
+- Sửa ...
+
+## 🧪 Cách test
+1. Chạy `npm run dev`
+2. Truy cập /campaigns/create
+3. ...
+
+## 📸 Screenshots
+[Đính kèm ảnh nếu thay đổi UI]
+```
+
+---
+
+## 📐 Code Style
+
+### TypeScript
+- **Luôn dùng TypeScript**, không dùng `any` nếu có thể thay thế
+- Đặt types trong `src/types/`, tái sử dụng giữa các file
+- Dùng `interface` cho objects, `type` cho unions/primitives
+
+### Next.js / React
+- **Server Components mặc định** — chỉ thêm `"use client"` khi cần hooks/events
+- **API Routes** đặt trong `src/app/api/`
+- **Server Actions** đặt trong `src/lib/actions/`
+- Components tái sử dụng → `src/components/`
+- Logic thuần (không render) → `src/lib/`
+
+### Naming
+```
+PascalCase   → Components (CampaignCard.tsx)
+camelCase    → Functions, variables, hooks (useCampaign.ts)
+kebab-case   → URL slugs, file names không phải component
+UPPER_SNAKE  → Constants, env variables
+```
+
+---
+
+## 🗄️ Database (Prisma)
+
+```bash
+# Sau khi sửa schema.prisma
+npx prisma migrate dev --name <ten-migration>
+npx prisma generate
+
+# Xem dữ liệu
+npx prisma studio
+```
+
+> **Lưu ý:** Không xóa hoặc đổi tên columns trực tiếp. Dùng migration để đảm bảo an toàn dữ liệu.
+
+---
+
+## 🔐 Quy tắc bảo mật
+
+- **Không commit** file `.env` hoặc bất kỳ secret nào
+- **Không hardcode** API keys trong source code
+- Dùng `process.env.TEN_BIEN` và khai báo trong `.env.example`
+- Payment logic phải luôn **verify signature** từ gateway
+
+---
+
+## 📞 Liên hệ
+
+- Slack: `#crowdfunding-vn-dev`
+- Email: `dev@crowdfund.vn`
+- Issues: Tạo GitHub Issue với label phù hợp
+
+---
+
+## Nguồn: `docs/Cai_Tien_Cau_Truc_Ket_Noi.md`
+
+# 🎯 Tại Sao Cần Project Hierarchy? - Giải Thích Dễ Hiểu
+
+> **Tóm tắt 1 dòng**: Biến nền tảng từ "nơi đăng chiến dịch" thành "portfolio chuyên nghiệp cho creators"
+
+---
+
+## 📖 Câu Chuyện: Trước và Sau
+
+### 🔴 **TRƯỚC ĐÂY** - Vấn Đề
+
+Tưởng tượng bạn là một creator có nhiều chiến dịch:
+
+```
+❌ Tôi đã tạo 5 campaigns về công nghệ
+❌ Mỗi campaign đứng riêng lẻ
+❌ Người ủng hộ không biết tôi có các dự án khác
+❌ Tôi phải giải thích lại background ở mỗi campaign
+❌ Không thể showcase được "portfolio" của mình
+```
+
+**Ví dụ thực tế:**
+- Campaign 1: "Smart Watch Gen 1" → Thành công
+- Campaign 2: "Smart Watch Gen 2" → Mới tạo
+- Vấn đề: Người mới không biết Gen 1 đã thành công, mất niềm tin!
+
+### 🟢 **BÂY GIỜ** - Giải Pháp
+
+Với Project Hierarchy:
+
+```
+✅ Tạo Project: "Smart Wearable Devices Series"
+   ├─ Campaign: Smart Watch Gen 1 (HOÀN THÀNH - Huy động được 500 triệu)
+   ├─ Campaign: Smart Watch Gen 2 (ĐANG CHẠY)
+   ├─ Campaign: Smart Band (CHUẨN BỊ)
+   ├─ Blog: "Hành trình phát triển sản phẩm"
+   └─ Blog: "Behind the scenes - Nhà máy sản xuất"
+
+✅ Người ủng hộ thấy được:
+   - Track record (Gen 1 thành công)
+   - Kế hoạch dài hạn (Gen 2, Smart Band)
+   - Tính chuyên nghiệp (blog updates đều đặn)
+   
+✅ Tăng niềm tin → Tăng conversion → Tăng doanh thu!
+```
+
+---
+
+## 💡 Giải Thích Bằng Ví Dụ Đời Thường
+
+### Ví dụ 1: YouTuber Làm Series
+
+**Không có Projects (Cách cũ):**
+```
+Video 1: "Du lịch Đà Lạt - Phần 1" 
+Video 2: "Du lịch Đà Lạt - Phần 2"
+Video 3: "Du lịch Đà Lạt - Phần 3"
+
+→ Người xem phải tự tìm các phần khác
+→ Dễ bỏ lỡ content
+```
+
+**Có Projects (Cách mới):**
+```
+Playlist/Series: "Hành Trình Đà Lạt 2025"
+  ├─ Video 1: Phần 1 - Khởi hành
+  ├─ Video 2: Phần 2 - Khám phá
+  └─ Video 3: Phần 3 - Kết thúc
+
+→ Người xem thấy toàn bộ series
+→ Watch time tăng
+→ Trải nghiệm tốt hơn
+```
+
+### Ví dụ 2: Nhà Hàng Có Set Menu
+
+**Không có Projects:**
+```
+- Món 1: Gỏi cuốn (30k)
+- Món 2: Phở (50k)
+- Món 3: Chả giò (25k)
+
+→ Khách gọi lẻ từng món
+→ Không biết nên kết hợp thế nào
+```
+
+**Có Projects:**
+```
+Set "Combo Ăn Vặt" (80k - tiết kiệm 25k):
+  ├─ Gỏi cuốn × 2
+  ├─ Chả giò × 3
+  └─ Nước chanh
+
+→ Khách dễ chọn
+→ Doanh thu tăng
+→ Trải nghiệm tốt hơn
+```
+
+---
+
+## 🎯 Use Cases Cụ Thể
+
+### Use Case 1: Series Phim Tài Liệu
+
+**Nhân vật:** Đạo diễn phim tài liệu
+
+**Tình huống:**
+```
+Muốn làm series 4 tập về động vật hoang dã:
+- Tập 1: Rừng Amazon
+- Tập 2: Đại dương Thái Bình Dương  
+- Tập 3: Sa mạc Sahara
+- Tập 4: Bắc Cực
+
+Vấn đề: Mỗi tập cần 200 triệu, tổng 800 triệu
+```
+
+**Giải pháp với Projects:**
+```
+Project: "Động Vật Hoang Dã Series - Mùa 1"
+  
+  Campaign 1: Tập 1 - Rừng Amazon
+  Status: HOÀN THÀNH ✅
+  Raised: 250 triệu / 200 triệu (125%)
+  
+  Campaign 2: Tập 2 - Thái Bình Dương  
+  Status: ĐANG CHẠY 🔥
+  Raised: 180 triệu / 200 triệu (90%)
+  
+  Campaign 3: Tập 3 - Sahara
+  Status: CHUẨN BỊ 📅
+  
+  Campaign 4: Tập 4 - Bắc Cực
+  Status: CHUẨN BỊ 📅
+  
+  + Blog: "Hậu trường quay Tập 1"
+  + Blog: "Những thử thách khi quay dưới nước"
+
+Lợi ích:
+✅ Người ủng hộ Tập 1 sẽ ủng hộ tiếp Tập 2 (repeat rate cao)
+✅ Thấy roadmap rõ ràng → Tăng niềm tin
+✅ Blog giữ engagement giữa các campaign
+✅ Showcase track record (Tập 1 overfunded 125%!)
+```
+
+---
+
+### Use Case 2: Startup Phát Triển Sản Phẩm
+
+**Nhân vật:** Founder startup hardware
+
+**Tình huống:**
+```
+Phát triển thiết bị nhà thông minh qua 3 giai đoạn:
+- Giai đoạn 1: Làm prototype (100 triệu)
+- Giai đoạn 2: Sản xuất hàng loạt (500 triệu)
+- Giai đoạn 3: App mobile (200 triệu)
+```
+
+**Giải pháp với Projects:**
+```
+Project: "SmartHome Assistant - From Idea to Product"
+
+  Campaign: Phase 1 - Prototype
+  Status: HOÀN THÀNH ✅ (3 tháng trước)
+  Raised: 120 triệu / 100 triệu
+  Result: ✅ Prototype hoàn thành, video demo đã có
+  
+  Campaign: Phase 2 - Manufacturing
+  Status: ĐANG CHẠY 🔥 (30 ngày còn lại)
+  Raised: 380 triệu / 500 triệu (76%)
+  
+  Campaign: Phase 3 - Mobile App
+  Status: COMING SOON (Q2 2025)
+  
+  Blog Updates:
+  ├─ "Week 1-4: Prototype design process"
+  ├─ "Manufacturing partner selection"
+  ├─ "Quality control standards"
+  └─ "Beta testers wanted!"
+
+Impact:
+✅ 80% backers từ Phase 1 quay lại ủng hộ Phase 2
+✅ Transparency → Trust → Higher conversion
+✅ Community engaged qua blog
+✅ Easier to attract new backers (thấy progress rõ ràng)
+```
+
+---
+
+### Use Case 3: Social Enterprise
+
+**Nhân vật:** Tổ chức xã hội
+
+**Tình huống:**
+```
+Xây dựng thư viện cho trẻ em vùng cao
+Nhiều địa điểm khác nhau, nhiều giai đoạn
+```
+
+**Giải pháp với Projects:**
+```
+Project: "Libraries for Mountain Kids 2025"
+
+  Campaign: Library #1 - Sapa, Lào Cai
+  Status: HOÀN THÀNH ✅
+  Raised: 80 triệu
+  Result: 500 đầu sách, 100 học sinh thụ hưởng
+  
+  Campaign: Library #2 - Mù Cang Chải
+  Status: ĐANG CHẠY 🔥
+  Raised: 65 triệu / 75 triệu
+  
+  Campaign: Library #3 - Cao Bằng
+  Status: PLANNED
+  
+  Blog/Updates:
+  ├─ "Opening ceremony - Library #1" (with photos)
+  ├─ "Student testimonials"
+  ├─ "Book donation from community"
+  └─ "Progress report - Library #2"
+
+Impact:
+✅ Minh bạch → Donors trust more
+✅ Visual proof (photos, videos) → Credibility
+✅ Repeat donors (thấy impact thực tế của Library #1)
+✅ Easier to scale to more locations
+```
+
+---
+
+## 📊 Lợi Ích Cụ Thể (Có Số Liệu)
+
+### Cho Creator:
+
+| Metric | Không Có Projects | Có Projects | Improvement |
+|--------|-------------------|-------------|-------------|
+| **Repeat Backer Rate** | 15% | 35-45% | **+133%** |
+| **Average Pledge** | 500k | 650k | **+30%** |
+| **Campaign Success Rate** | 60% | 78% | **+30%** |
+| **Time to Goal** | 45 days | 32 days | **-29%** |
+| **Community Engagement** | Low | High | **3x comments** |
+
+### Cho Người Ủng Hộ:
+
+```
+✅ Biết rõ creator có kinh nghiệm hay không
+✅ Thấy được track record (campaigns trước thành công không?)
+✅ Hiểu context của campaign (có phải isolated project?)
+✅ Dễ dàng theo dõi progress dài hạn
+✅ Cảm thấy là "part of something bigger"
+```
+
+### Cho Nền Tảng:
+
+```
+✅ Creator retention tăng (có lý do để stay long-term)
+✅ GMV tăng (mỗi creator tạo nhiều campaigns hơn)
+✅ Quality tăng (encourage professional behavior)
+✅ Differentiation vs competitors (unique feature)
+✅ Network effects (creators refer other creators)
+```
+
+---
+
+## 🎨 Minh Họa Trực Quan
+
+### Cấu Trúc Đơn Giản:
+
+```
+👤 CREATOR: Nguyễn Văn A
+    │
+    ├─ 📁 PROJECT: "Tech Innovation Series"
+    │   ├─ 🎯 Campaign: Smart Watch Gen 1 (DONE)
+    │   ├─ 🎯 Campaign: Smart Watch Gen 2 (ACTIVE)
+    │   ├─ 🎯 Campaign: Smart Band (DRAFT)
+    │   ├─ 📝 Blog: Development Journey
+    │   └─ 📝 Blog: Behind The Scenes
+    │
+    ├─ 📁 PROJECT: "Eco-Friendly Products"
+    │   ├─ 🎯 Campaign: Bamboo Toothbrush
+    │   └─ 📝 Blog: Sustainability Mission
+    │
+    └─ 🎯 Campaign: Random Standalone (không thuộc project nào)
+```
+
+### Luồng Người Dùng:
+
+```
+1. User landing → Campaign "Smart Watch Gen 2"
+   
+2. Thấy: "Part of Project: Tech Innovation Series" 
+   
+3. Click vào Project → Thấy:
+   ├─ Gen 1 đã thành công (250 triệu raised!)
+   ├─ Gen 2 đang chạy (hiện tại)
+   ├─ Blog updates (creator active & transparent)
+   └─ Roadmap rõ ràng (Smart Band coming soon)
+   
+4. User tin tưởng → Pledge $100 thay vì $50
+   
+5. User follow project → Quay lại khi Smart Band launch
+```
+
+---
+
+## 🚀 Tương Lai: Có Thể Làm Gì Tiếp?
+
+### Phase 2 (3-6 tháng):
+```
+✅ Project Analytics Dashboard
+   - Tổng tiền huy động của cả project
+   - Success rate các campaigns
+   - Repeat backer percentage
+   
+✅ Project-Level Rewards
+   - "Ủng hộ cả project" với giá ưu đãi
+   - Bundle nhiều campaigns lại
+   
+✅ Project Milestones
+   - Đạt 1 tỷ → Unlock bonus campaign
+   - 500 backers → Exclusive livestream
+```
+
+### Phase 3 (6-12 tháng):
+```
+✅ Collaborative Projects
+   - Nhiều creators cùng làm 1 project
+   - Ví dụ: Album nhạc với nhiều nghệ sĩ
+   
+✅ Project Subscriptions
+   - Ủng hộ hàng tháng cho project
+   - Giống Patreon nhưng project-based
+   
+✅ Project Templates
+   - "Film Documentary Series" template
+   - "Product Development" template
+   - Easy onboarding for new creators
+```
+
+---
+
+## 💰 ROI Analysis (Đơn Giản)
+
+### Kịch Bản: Creator làm 3 campaigns
+
+**Không có Projects:**
+```
+Campaign 1: 100 triệu (60 backers)
+Campaign 2: 80 triệu  (45 backers) → mất 25% backers
+Campaign 3: 60 triệu  (30 backers) → mất 50% vs Campaign 1
+
+Total: 240 triệu
+Avg: 80 triệu/campaign
+```
+
+**Có Projects:**
+```
+Project: "Series Name"
+  Campaign 1: 100 triệu (60 backers)
+  Campaign 2: 110 triệu (72 backers) → 20% repeat + 30% new
+  Campaign 3: 130 triệu (90 backers) → 40% repeat + 50% new
+
+Total: 340 triệu (+42% vs không có Projects!)
+Avg: 113 triệu/campaign
+
+Additional benefits:
++ Community của 90 backers cho Campaign 4
++ Strong brand identity → easier marketing
++ Higher trust → higher average pledge
+```
+
+---
+
+## ✅ Kết Luận: Tại Sao Quan Trọng?
+
+### Nói Đơn Giản:
+
+1. **Cho Creator:**
+   - Showcase portfolio chuyên nghiệp
+   - Tăng niềm tin → Tăng doanh thu
+   - Build community dài hạn
+
+2. **Cho Người Ủng Hộ:**
+   - Biết rõ creator có uy tín không
+   - Dễ dàng khám phá content liên quan
+   - Cảm giác "belong to something"
+
+3. **Cho Nền Tảng:**
+   - Giữ chân creator (stay longer)
+   - Tăng GMV (more campaigns per creator)
+   - Competitive advantage (unique feature)
+
+### Câu Nói Cuối:
+
+> **"Projects transform the platform from a 'campaign marketplace' into a 'creator career platform'. It's not just about one campaign anymore - it's about building a lasting creative business."**
+
+---
+
+## 📚 Đọc Thêm
+
+- `IMPLEMENTATION_COMPLETE.md` - Chi tiết technical
+- `requirements.md` - Yêu cầu chi tiết
+- `design.md` - Thiết kế hệ thống
+
+**Version:** 1.0  
+**Date:** 2025-01-07  
+**Status:** ✅ Production Ready
+
+---
+
+## Nguồn: `docs/DATABASE_STRUCTURE_ANALYSIS.md`
+
+# Phân Tích Cấu Trúc Database - Crowdfunding Platform
+
+**Ngày phân tích:** 30/06/2026  
+**Phiên bản schema:** Prisma PostgreSQL
+
+---
+
+## 📋 TÓM TẮT NHANH
+
+### Câu Trả Lời Cho Các Câu Hỏi
+
+| Câu hỏi | Trả lời |
+|---------|---------|
+| **1. Có entity Project thật không?** | ❌ **KHÔNG** - Không có entity `Project` trong schema |
+| **2. Có bảng Project trong Prisma không?** | ❌ **KHÔNG** - Không có model `Project` |
+| **3. Blog hiện tại có projectId?** | ❌ **KHÔNG** - Chỉ có `campaignId` |
+| **4. Blog hiện tại có campaignId?** | ✅ **CÓ** - `campaignId String?` (optional) |
+| **5. Campaign hiện tại có projectId?** | ❌ **KHÔNG** - Campaign không có `projectId` |
+| **6. Reward/Product hiện tại có projectId?** | ❌ **KHÔNG** - Chỉ có `campaignId` |
+| **7. Reward/Product hiện tại có campaignId?** | ✅ **CÓ** - `campaignId String` (required) |
+| **8. Đang dùng bảng liên kết nào?** | ✅ `campaign_blog_links` - Bảng many-to-many |
+| **9. Có campaign_blog_links hay không?** | ✅ **CÓ** - Đầy đủ với các field order, timestamps |
+
+---
+
+## 🗂️ CHI TIẾT CẤU TRÚC
+
+### 1. Model `blog_posts`
+
+```prisma
+model blog_posts {
+  id                   String                 @id
+  authorId             String                 // Link đến users
+  campaignId           String?                // ✅ CÓ - Optional link đến campaigns
+  mongoContentId       String?
+  title                String                 @db.VarChar(255)
+  slug                 String                 @unique @db.VarChar(255)
+  excerpt              String?
+  coverImage           String?
+  status               BlogPostStatus         @default(DRAFT)
+  type                 BlogPostType           @default(PLATFORM)
+  visibility           BlogVisibility         @default(PUBLIC)
+  publishedAt          DateTime?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime
+  deletedAt            DateTime?
+  viewCount            Int                    @default(0)
+  likeCount            Int                    @default(0)
+  commentCount         Int                    @default(0)
+  bookmarkCount        Int                    @default(0)
+  isFeatured           Boolean                @default(false)
+  wordCount            Int                    @default(0)
+  readingTimeMinutes   Int                    @default(0)
+  content              String?
+  
+  // Relations
+  users                users                  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  campaigns            campaigns?             @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaign_blog_links  campaign_blog_links[]  // ✅ Many-to-many relation
+  
+  @@index([campaignId])
+}
+```
+
+**Phân tích:**
+- ❌ **KHÔNG có** `projectId`
+- ✅ **CÓ** `campaignId` (optional)
+- ✅ **CÓ** relation với `campaign_blog_links`
+- 📝 Blog có thể tồn tại độc lập (platform blog) hoặc gắn với campaign
+
+---
+
+### 2. Model `campaigns`
+
+```prisma
+model campaigns {
+  id                  String                @id
+  campaignCode        String                @unique
+  slug                String                @unique
+  title               String
+  description         String
+  longDescription     String?
+  videoUrl            String?
+  imageUrl            String?
+  type                CampaignType          @default(REWARD)
+  category            String
+  tags                String[]              @default([])
+  goalAmount          Decimal
+  currentAmount       Decimal               @default(0)
+  status              CampaignStatus        @default(DRAFT)
+  startDate           DateTime?
+  endDate             DateTime?
+  creatorId           String                // ✅ Link đến users, KHÔNG phải projectId
+  feeRate             Float                 @default(0.08)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime
+  images              String[]              @default([])
+  
+  // Relations
+  users               users                 @relation(fields: [creatorId], references: [id])
+  blog_posts          blog_posts[]          // Direct relation
+  campaign_blog_links campaign_blog_links[] // ✅ Many-to-many relation
+  
+  @@index([category])
+}
+```
+
+**Phân tích:**
+- ❌ **KHÔNG có** `projectId`
+- ✅ **CÓ** `creatorId` (link trực tiếp đến `users`)
+- ✅ **CÓ** 2 loại quan hệ với blog:
+  - `blog_posts[]` - Direct relation (legacy)
+  - `campaign_blog_links[]` - Many-to-many relation (recommended)
+
+---
+
+### 3. Model `rewards`
+
+```prisma
+model rewards {
+  id           String    @id
+  campaignId   String    // ✅ Required, link đến campaigns
+  title        String
+  description  String?
+  createdAt    DateTime  @default(now())
+  deliveryDate DateTime?
+  isActive     Boolean   @default(true)
+  maxQuantity  Int?
+  minAmount    Decimal
+  updatedAt    DateTime
+  
+  // Relations
+  pledges      pledges[]
+  campaigns    campaigns @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  
+  @@index([campaignId])
+}
+```
+
+**Phân tích:**
+- ❌ **KHÔNG có** `projectId`
+- ✅ **CÓ** `campaignId` (required)
+- 📝 Reward thuộc về Campaign, không có concept Project
+
+---
+
+### 4. Model `campaign_blog_links` (Bảng Liên Kết)
+
+```prisma
+model campaign_blog_links {
+  id         String     @id
+  campaignId String     // ✅ Link đến campaigns
+  blogPostId String     // ✅ Link đến blog_posts
+  order      Int        @default(0)  // ✅ Thứ tự hiển thị
+  createdAt  DateTime   @default(now())
+  
+  // Relations
+  blog_posts blog_posts @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  campaigns  campaigns  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, blogPostId])  // ✅ Unique constraint
+  @@index([blogPostId])
+  @@index([campaignId])
+}
+```
+
+**Phân tích:**
+- ✅ Đây là bảng **many-to-many** chuẩn
+- ✅ Có field `order` để sắp xếp
+- ✅ Có unique constraint để tránh duplicate
+- ✅ Có cascade delete
+- 📝 Cho phép 1 campaign link nhiều blog posts và ngược lại
+
+---
+
+## 🔍 PHÂN TÍCH SÂU
+
+### Không Có Entity "Project"
+
+**Lý do có thể:**
+1. **Kiến trúc đơn giản hóa** - Hệ thống chỉ dùng `Campaign` làm entity chính
+2. **Campaign = Project** - Trong context này, Campaign đóng vai trò là Project
+3. **Direct ownership** - Campaign được sở hữu trực tiếp bởi User (creatorId)
+
+### Quan Hệ Blog - Campaign
+
+**2 cách liên kết:**
+
+1. **Direct Relation** (Legacy):
+   ```prisma
+   blog_posts.campaignId -> campaigns.id
+   campaigns.blog_posts[] 
+   ```
+   - Blog thuộc về 1 campaign cụ thể
+   - Optional (blog có thể độc lập)
+
+2. **Many-to-Many via campaign_blog_links** (Recommended):
+   ```prisma
+   campaign_blog_links.campaignId -> campaigns.id
+   campaign_blog_links.blogPostId -> blog_posts.id
+   ```
+   - 1 campaign có nhiều blog posts
+   - 1 blog post có thể link đến nhiều campaigns
+   - Có thứ tự hiển thị
+
+### Vấn Đề Tiềm Ẩn
+
+⚠️ **Dual Relationship Pattern** - Có 2 cách link blog với campaign:
+- `blog_posts.campaignId` (direct, 1-to-many)
+- `campaign_blog_links` (many-to-many)
+
+**Khuyến nghị:**
+- Nên chọn 1 trong 2 cách và deprecated cách còn lại
+- Hoặc define rõ use case cho mỗi cách:
+  - `campaignId` cho "primary campaign" của blog
+  - `campaign_blog_links` cho "featured in campaigns" list
+
+---
+
+## 📊 RELATIONSHIP DIAGRAM
+
+```
+users (creators)
+  └─ 1:n ─> campaigns
+              ├─ 1:n ─> blog_posts (via campaignId - optional)
+              ├─ 1:n ─> rewards
+              ├─ 1:n ─> pledges
+              └─ m:n ─> blog_posts (via campaign_blog_links)
+
+users (authors)
+  └─ 1:n ─> blog_posts
+```
+
+**Legend:**
+- `1:n` = One-to-Many
+- `m:n` = Many-to-Many
+- `optional` = Field nullable
+
+---
+
+## 🎯 KẾT LUẬN
+
+### Không Có Project Entity
+
+Hệ thống **KHÔNG** sử dụng concept "Project" riêng biệt. Thay vào đó:
+
+1. **Campaign** là entity chính đại diện cho dự án crowdfunding
+2. **Campaign** được sở hữu trực tiếp bởi **User** (creator)
+3. Tất cả relations (Blog, Reward, Pledge) đều link về **Campaign**, không phải Project
+
+### Cấu Trúc Blog-Campaign
+
+| Feature | Status | Note |
+|---------|--------|------|
+| blog_posts.campaignId | ✅ Có | Optional, direct relation |
+| campaign_blog_links | ✅ Có | Many-to-many với order |
+| blog_posts.projectId | ❌ Không | Không tồn tại |
+| Dual relation | ⚠️ Warning | Cần clarify use case |
+
+### Khuyến Nghị
+
+1. **Clarify Blog-Campaign Relationship**
+   - Document rõ khi nào dùng `campaignId` vs `campaign_blog_links`
+   - Xem xét deprecate 1 trong 2 cách nếu không cần thiết
+
+2. **Nếu Cần Thêm Project Entity**
+   - Tạo bảng `projects`
+   - Thêm `projectId` vào `campaigns`
+   - Migration data từ campaign sang project
+   - Update tất cả relations
+
+3. **Current Best Practice**
+   - Dùng `campaign_blog_links` cho featured blogs
+   - Dùng `blog_posts.campaignId` cho primary campaign owner
+   - Validate không conflict giữa 2 relations
+
+---
+
+## 📝 NOTES
+
+- Schema không có concept "Product" riêng biệt - dùng `rewards` thay thế
+- Tất cả monetary fields dùng `Decimal` type (safe cho currency)
+- Có soft delete pattern với `deletedAt` field
+- Rich indexing strategy cho performance
+- Cascade delete được config đúng chuẩn
+
+---
+
+**Generated by:** Kiro AI Assistant  
+**Date:** 30/06/2026  
+**Source:** `prisma/schema.prisma`
+
+---
+
+## Nguồn: `docs/DEPLOY_INSTRUCTIONS.md`
+
+# 🚀 Hướng dẫn Deploy lên Vercel
+
+## ⚠️ QUAN TRỌNG: Chạy Migration trên Production
+
+Trước khi deploy, bạn PHẢI chạy migration trên production database để tạo bảng `campaign_blog_links`.
+
+### Cách 1: Sử dụng Vercel CLI (Khuyến nghị)
+
+```bash
+# 1. Cài đặt Vercel CLI (nếu chưa có)
+npm i -g vercel
+
+# 2. Login vào Vercel
+vercel login
+
+# 3. Link project
+vercel link
+
+# 4. Pull environment variables
+vercel env pull .env.production
+
+# 5. Chạy migration với production database URL
+npx prisma migrate deploy
+```
+
+### Cách 2: Sử dụng Prisma Data Platform
+
+1. Truy cập: https://cloud.prisma.io/
+2. Chọn project của bạn
+3. Vào tab "Migrations"
+4. Click "Deploy pending migrations"
+
+### Cách 3: Chạy trực tiếp với DATABASE_URL
+
+```bash
+# Set DATABASE_URL từ Vercel
+$env:DATABASE_URL="postgresql://..."
+
+# Chạy migration
+npx prisma migrate deploy
+
+# Generate Prisma Client
+npx prisma generate
+```
+
+## 📋 Checklist Deploy
+
+- [ ] Code đã được push lên GitHub
+- [ ] Migration đã chạy trên production database
+- [ ] Vercel đã tự động trigger build
+- [ ] Kiểm tra build logs trên Vercel dashboard
+- [ ] Test tính năng trên production URL
+
+## 🔍 Kiểm tra sau khi Deploy
+
+1. **Vào trang tạo campaign**
+   - Kiểm tra phần "Bài viết blog liên quan" có hiển thị không
+   - Thử chọn blog posts
+
+2. **Vào trang chỉnh sửa campaign**
+   - Kiểm tra blog posts đã gắn có load không
+   - Thử thêm/xóa blog posts
+
+3. **Vào trang chi tiết campaign**
+   - Kiểm tra tab "Blog" có hiển thị không
+   - Click vào tab Blog
+   - Kiểm tra blog posts có hiển thị đúng không
+
+## 🐛 Troubleshooting
+
+### Lỗi: "Table campaign_blog_links does not exist"
+**Nguyên nhân:** Migration chưa chạy trên production database
+**Giải pháp:** Chạy `npx prisma migrate deploy` với production DATABASE_URL
+
+### Lỗi: "Cannot find module"
+**Nguyên nhân:** Build cache bị lỗi
+**Giải pháp:** 
+1. Vào Vercel Dashboard
+2. Settings → General → Clear Build Cache
+3. Redeploy
+
+### Tab Blog không hiển thị
+**Nguyên nhân:** 
+- Migration chưa chạy
+- linkedBlogs không được load trong query
+**Giải pháp:** 
+1. Kiểm tra migration đã chạy chưa
+2. Kiểm tra console logs
+3. Kiểm tra Vercel function logs
+
+## 📊 Database Migration Status
+
+Để kiểm tra migration status:
+
+```bash
+npx prisma migrate status
+```
+
+## 🔗 Links hữu ích
+
+- Vercel Dashboard: https://vercel.com/dashboard
+- Prisma Cloud: https://cloud.prisma.io/
+- GitHub Repository: https://github.com/Escanor292/platform.git
+
+## 📝 Notes
+
+- Migration file: `prisma/migrations/20260524015114_add_campaign_blog_links/migration.sql`
+- Bảng mới: `campaign_blog_links`
+- Relations mới: Campaign ↔ BlogPost (many-to-many)
+
+---
+
+## Nguồn: `docs/DESIGN_SYSTEM.md`
+
+# DESIGN_SYSTEM.md
+
+## 1. Nguồn chuẩn giao diện
+
+Trang chủ hiện tại là nguồn chuẩn giao diện gốc của TửTế Fund.
+
+Các file đại diện cho design system hiện tại:
+
+```txt
+src/app/page.tsx
+src/components/shared/HeroSection.tsx
+src/components/shared/StatsSection.tsx
+src/components/shared/WhyUsSection.tsx
+src/components/shared/ThreeStepsSection.tsx
+src/components/shared/TestimonialsSection.tsx
+src/components/shared/CTASection.tsx
+src/components/layout/NavbarNew.tsx
+src/components/shared/FooterNew.tsx
+src/app/globals.css
+tailwind.config.ts
+```
+
+Khi cải thiện UI, ưu tiên dùng lại các class đã có trong `globals.css` và `tailwind.config.ts`, không tự bịa style mới nếu không cần.
+
+---
+
+## 2. Bảng màu chính
+
+### Primary Green — `pgreen` 
+
+```txt
+Tên: Primary Green
+Tailwind class: pgreen
+HEX: #2E8B57
+Vai trò: Màu thương hiệu chính
+```
+
+Dùng cho:
+
+* CTA chính
+* Link hover
+* Icon chính
+* Badge tích cực
+* Progress chính
+* Các điểm nhấn liên quan đến hành động tử tế/gây quỹ
+
+Ví dụ class:
+
+```txt
+text-pgreen
+bg-pgreen
+border-pgreen
+hover:text-pgreen
+```
+
+---
+
+### Fresh Green — `fgreen` 
+
+```txt
+Tên: Fresh Green
+Tailwind class: fgreen
+HEX: #6BCB77
+Vai trò: Màu xanh phụ, tạo cảm giác tươi mới
+```
+
+Dùng cho:
+
+* Gradient phụ
+* Hover/active state
+* Icon trang trí
+* Progress bar
+* Thành phần thể hiện sự tăng trưởng, phát triển
+
+Ví dụ:
+
+```txt
+from-pgreen to-fgreen
+text-fgreen
+bg-fgreen
+```
+
+---
+
+### Trust Blue — `tblue` 
+
+```txt
+Tên: Trust Blue
+Tailwind class: tblue
+HEX: #2F80ED
+Vai trò: Màu phụ cho sự tin cậy, xác minh, bảo mật
+```
+
+Dùng cho:
+
+* Thông tin về minh bạch
+* Bảo mật
+* Xác minh
+* Dữ liệu phụ
+* Một số icon phụ nếu cần phân cấp màu
+
+Không dùng `tblue` để thay thế CTA chính.
+
+Ví dụ:
+
+```txt
+text-tblue
+bg-tblue
+from-tblue to-dblue
+```
+
+---
+
+### Dark Blue — `dblue` 
+
+```txt
+Tên: Dark Blue
+Tailwind class: dblue
+HEX: #1F4E79
+Vai trò: Màu chữ chính cho tiêu đề
+```
+
+Dùng cho:
+
+* Heading lớn
+* Tiêu đề section
+* Tên thương hiệu
+* Text quan trọng cần độ tin cậy cao
+
+Ví dụ:
+
+```txt
+text-dblue
+bg-dblue
+```
+
+---
+
+### Earth Brown — `ebrown` 
+
+```txt
+Tên: Earth Brown
+Tailwind class: ebrown
+HEX: #8B6B4A
+Vai trò: Màu nhấn ấm, nhân văn, gần gũi
+```
+
+Dùng cho:
+
+* Điểm nhấn phụ
+* Icon hoặc badge mang cảm giác ấm áp
+* Section liên quan câu chuyện, con người, cộng đồng
+* Một số trạng thái phụ không mang tính lỗi
+
+Ví dụ:
+
+```txt
+text-ebrown
+bg-ebrown
+from-ebrown to-amber-600
+```
+
+---
+
+### Cream — `cream` 
+
+```txt
+Tên: Cream
+Tailwind class: cream
+HEX: #F8F7F2
+Vai trò: Nền ấm, nhẹ, thân thiện
+```
+
+Dùng cho:
+
+* Background section
+* Trang public/marketing
+* Khoảng nghỉ thị giác giữa các section
+* Nền phụ cho card hoặc page wrapper
+
+Ví dụ:
+
+```txt
+bg-cream
+gradient-warm
+```
+
+---
+
+### Glass White
+
+```txt
+Tên: Glass White
+Class gốc: glass
+Giá trị chính: bg-white/70 backdrop-blur-xl border border-white/50 shadow-soft
+Vai trò: Card trong suốt nhẹ, hiện đại
+```
+
+Dùng cho:
+
+* Card thống kê
+* Card feature
+* Card testimonial
+* Floating card
+* Khu vực UI cần cảm giác mềm, hiện đại
+
+Ví dụ:
+
+```txt
+glass
+glass-morphism
+```
+
+---
+
+## 3. Quy tắc dùng màu
+
+### 3.1 CTA chính
+
+CTA chính phải dùng xanh thương hiệu.
+
+Ưu tiên:
+
+```txt
+gradient-green
+bg-pgreen
+from-pgreen to-fgreen
+```
+
+Ví dụ:
+
+```tsx
+className="rounded-2xl gradient-green text-white font-bold hover:shadow-lg"
+```
+
+Không dùng:
+
+```txt
+bg-blue-600
+bg-indigo-600
+bg-purple-600
+```
+
+cho CTA chính.
+
+---
+
+### 3.2 Tiêu đề
+
+Tiêu đề chính và section heading dùng:
+
+```txt
+text-dblue
+font-display
+font-bold hoặc font-black
+```
+
+Ví dụ:
+
+```tsx
+<h2 className="font-display font-bold text-3xl lg:text-4xl text-dblue">
+  Vì sao chọn TửTế Fund?
+</h2>
+```
+
+Không dùng đen tuyệt đối nếu không cần:
+
+```txt
+text-black
+text-neutral-950
+```
+
+---
+
+### 3.3 Text nội dung
+
+Text nội dung dùng slate/gray mềm:
+
+```txt
+text-gray-500
+text-gray-600
+text-gray-700
+text-slate-600
+```
+
+Không dùng text quá nhạt cho nội dung quan trọng:
+
+```txt
+text-gray-300
+text-slate-300
+```
+
+---
+
+### 3.4 Link
+
+Link thường:
+
+```txt
+text-pgreen
+hover:text-dblue
+hover:underline
+```
+
+Link trong navbar:
+
+```txt
+text-gray-600 hover:text-pgreen
+```
+
+Active/hover underline dùng:
+
+```txt
+bg-pgreen
+```
+
+---
+
+### 3.5 Trạng thái thành công
+
+Dùng xanh thương hiệu:
+
+```txt
+text-pgreen
+bg-pgreen/10
+border-pgreen/20
+```
+
+hoặc xanh tươi:
+
+```txt
+text-fgreen
+bg-fgreen/10
+```
+
+---
+
+### 3.6 Trạng thái tin cậy/bảo mật/xác minh
+
+Dùng:
+
+```txt
+text-tblue
+bg-tblue/10
+border-tblue/20
+```
+
+hoặc:
+
+```txt
+text-dblue
+```
+
+Không dùng blue mặc định nếu có thể dùng `tblue`.
+
+---
+
+### 3.7 Cảnh báo nhẹ
+
+Dùng vàng/nâu ấm:
+
+```txt
+text-ebrown
+bg-ebrown/10
+border-ebrown/20
+```
+
+hoặc amber nếu cần:
+
+```txt
+text-amber-700
+bg-amber-50
+border-amber-200
+```
+
+---
+
+### 3.8 Lỗi/nguy hiểm
+
+Được phép dùng red cho lỗi thật sự:
+
+```txt
+text-red-600
+bg-red-50
+border-red-200
+```
+
+Chỉ dùng red cho:
+
+* Xóa
+* Từ chối
+* Lỗi validate
+* Tài khoản bị khóa
+* Cảnh báo nguy hiểm
+
+Không dùng red để nhấn mạnh thông thường.
+
+---
+
+### 3.9 Background section
+
+Trang public nên xen kẽ:
+
+```txt
+bg-white
+bg-cream
+gradient-warm
+```
+
+Hero có thể dùng gradient mềm như trang chủ:
+
+```txt
+linear-gradient(180deg, #F8F7F2 0%, #f0f8f4 25%, #ecf2f9 55%, #f4f3f0 80%, #F8F7F2 100%)
+```
+
+Không dùng background xám lạnh quá nhiều:
+
+```txt
+bg-gray-100
+bg-slate-100
+```
+
+trừ dashboard/admin.
+
+---
+
+## 4. Quy tắc button
+
+### 4.1 Primary button
+
+Dùng cho hành động chính:
+
+* Bắt đầu gây quỹ
+* Tạo chiến dịch
+* Ủng hộ
+* Lưu thay đổi
+* Tìm kiếm chính
+
+Class khuyến nghị:
+
+```tsx
+className="rounded-2xl gradient-green px-6 py-3 font-bold text-white transition-all hover:shadow-lg hover:shadow-green-200"
+```
+
+Hoặc:
+
+```tsx
+className="rounded-2xl bg-pgreen px-6 py-3 font-bold text-white transition hover:bg-fgreen"
+```
+
+---
+
+### 4.2 Secondary button
+
+Dùng cho hành động phụ:
+
+* Khám phá chiến dịch
+* Xem thêm
+* Quay lại
+* Hủy
+
+Class khuyến nghị:
+
+```tsx
+className="rounded-2xl glass border border-white/70 px-6 py-3 font-bold text-dblue hover:bg-white/80"
+```
+
+Hoặc:
+
+```tsx
+className="rounded-2xl border border-gray-200 bg-white px-6 py-3 font-semibold text-dblue hover:border-pgreen/30 hover:text-pgreen"
+```
+
+---
+
+### 4.3 Danger button
+
+Dùng cho hành động nguy hiểm:
+
+```tsx
+className="rounded-2xl bg-red-600 px-6 py-3 font-semibold text-white hover:bg-red-700"
+```
+
+Chỉ dùng cho xóa/từ chối/khóa.
+
+---
+
+### 4.4 Disabled button
+
+Dùng:
+
+```txt
+disabled:cursor-not-allowed
+disabled:opacity-60
+```
+
+Không chỉ đổi màu mà không disable thật.
+
+---
+
+### 4.5 Loading button
+
+Khi loading:
+
+* Disable button
+* Hiển thị spinner nhỏ
+* Text đổi rõ ràng: "Đang xử lý...", "Đang tìm...", "Đang lưu..."
+
+---
+
+## 5. Quy tắc card
+
+### 5.1 Card public/marketing
+
+Ưu tiên dùng:
+
+```txt
+glass
+rounded-3xl
+p-6 hoặc p-8
+card-hover
+```
+
+Ví dụ:
+
+```tsx
+className="glass rounded-3xl p-8 card-hover"
+```
+
+Dùng cho:
+
+* Feature card
+* Stat card
+* Testimonial card
+* User search card
+* Blog card nhẹ
+
+---
+
+### 5.2 Card dữ liệu/campaign
+
+Ưu tiên:
+
+```txt
+bg-white
+rounded-3xl
+shadow-md
+hover:shadow-xl
+hover:-translate-y-1
+transition-all
+overflow-hidden
+```
+
+Ví dụ:
+
+```tsx
+className="rounded-3xl overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all bg-white"
+```
+
+---
+
+### 5.3 Card trong dashboard/admin
+
+Dashboard cần rõ ràng hơn glass quá nhiều.
+
+Dùng:
+
+```txt
+bg-white
+border border-gray-100
+rounded-2xl hoặc rounded-3xl
+shadow-sm
+```
+
+Không dùng quá nhiều blur nếu làm giảm độ đọc.
+
+---
+
+### 5.4 Card hover
+
+Hover nên nhẹ:
+
+```txt
+hover:-translate-y-1
+hover:shadow-xl
+transition-all duration-300
+```
+
+Không dùng hiệu ứng quá mạnh làm giật UI.
+
+---
+
+## 6. Quy tắc section
+
+### 6.1 Section public
+
+Các section public nên có spacing rộng:
+
+```txt
+py-20 px-6
+max-w-7xl mx-auto
+```
+
+Heading section:
+
+```txt
+font-display font-bold text-3xl lg:text-4xl text-dblue
+```
+
+Mô tả section:
+
+```txt
+text-gray-500 hoặc text-gray-600
+max-w-2xl mx-auto
+```
+
+---
+
+### 6.2 Section Hero
+
+Hero được phép nổi bật hơn:
+
+```txt
+pt-28 pb-24 px-6
+relative overflow-hidden
+```
+
+Có thể dùng gradient nền mềm, floating card, glass effect.
+
+Nhưng phải kiểm tra mobile để tránh chữ quá lớn hoặc card bị tràn.
+
+---
+
+### 6.3 Section Dashboard/Admin
+
+Dashboard/admin nên dùng layout sạch hơn:
+
+```txt
+bg-slate-50 hoặc bg-white
+rounded-2xl
+border-gray-100
+shadow-sm
+```
+
+Màu chính vẫn theo `pgreen`, `dblue`, nhưng không cần quá nhiều gradient.
+
+---
+
+### 6.4 Section CTA
+
+CTA cuối trang dùng:
+
+```txt
+gradient-green
+text-white
+rounded-3xl
+p-12 hoặc p-16
+```
+
+Nút phụ trên CTA dùng nền trắng:
+
+```txt
+bg-white text-pgreen
+```
+
+---
+
+## 7. Những màu không nên dùng
+
+### 7.1 Không dùng blue mặc định cho CTA chính
+
+Tránh:
+
+```txt
+bg-blue-600
+hover:bg-blue-700
+text-blue-600
+border-blue-600
+focus:ring-blue-500
+```
+
+Lý do: dễ lệch khỏi style trang chủ. Nếu cần màu xanh dương, dùng `tblue` hoặc `dblue`.
+
+---
+
+### 7.2 Không dùng indigo/purple làm màu chính
+
+Tránh:
+
+```txt
+bg-indigo-600
+text-indigo-600
+bg-purple-600
+text-purple-600
+```
+
+Lý do: không thuộc palette thương hiệu TửTế Fund.
+
+Chỉ dùng nếu có chức năng đặc biệt và được yêu cầu rõ.
+
+---
+
+### 7.3 Không dùng đen tuyệt đối quá nhiều
+
+Tránh:
+
+```txt
+text-black
+bg-black
+text-neutral-950
+```
+
+Ưu tiên:
+
+```txt
+text-dblue
+text-gray-900
+text-slate-900
+```
+
+---
+
+### 7.4 Không dùng gray lạnh quá nhiều ở trang public
+
+Tránh lạm dụng:
+
+```txt
+bg-gray-100
+bg-slate-100
+bg-zinc-100
+```
+
+Trang public nên ấm và nhân văn hơn:
+
+```txt
+bg-cream
+gradient-warm
+bg-white
+```
+
+---
+
+### 7.5 Không dùng màu neon/chói
+
+Tránh:
+
+```txt
+lime quá chói
+cyan quá sáng
+pink/magenta
+orange quá mạnh
+```
+
+trừ khi là icon nhỏ hoặc trạng thái đặc biệt.
+
+---
+
+## 8. Checklist trước khi sửa UI
+
+Trước khi sửa giao diện, kiểm tra:
+
+```txt
+[ ] Trang này có đang dùng màu blue mặc định không?
+[ ] Có thể đổi sang pgreen/fgreen/tblue/dblue không?
+[ ] CTA chính có dùng gradient-green hoặc pgreen không?
+[ ] Heading có dùng text-dblue không?
+[ ] Card có đồng bộ rounded-3xl/shadow/glass/card-hover không?
+[ ] Section spacing có đồng bộ py-20 px-6 không?
+[ ] Mobile có bị tràn chữ/card không?
+[ ] Có dùng lại class trong globals.css chưa?
+[ ] Có tránh sửa database/API khi chỉ sửa UI không?
+[ ] Có chạy npm run build sau khi sửa không?
+```
+
+## 9. Nguyên tắc cuối cùng
+
+Trang chủ là chuẩn gốc. Nếu một trang khác có style lệch khỏi trang chủ, ưu tiên điều chỉnh trang đó về gần style trang chủ thay vì đổi style trang chủ theo trang đó.
+
+---
+
+## Nguồn: `docs/DIAGRAM_DESCRIPTIONS.md`
+
+# 📖 MÔ TẢ CHI TIẾT SƠ ĐỒ USE CASE VÀ ER DIAGRAM - TỬ TẾ FUND
+
+Tài liệu này cung cấp mô tả chi tiết và chính xác về cấu trúc chức năng và cơ sở dữ liệu của hệ thống **TửTế Fund**, phục vụ cho việc lập tài liệu kỹ thuật và thuyết trình.
+
+---
+
+## I. MÔ TẢ CHI TIẾT SƠ ĐỒ USE CASE (USE CASE DESCRIPTIONS)
+
+### 1. Danh sách các Actor
+*   **Guest (Người dùng chưa đăng nhập):** Đối tượng tiềm năng muốn tìm hiểu dự án.
+*   **Backer (Người ủng hộ):** Cá nhân/tổ chức đóng góp tài chính để nhận lại các phần quà hoặc giá trị tinh thần.
+*   **Creator (Nhà sáng tạo):** Chủ dự án cần huy động vốn, chịu trách nhiệm triển khai ý tưởng.
+*   **Admin (Quản trị viên):** Người điều phối, kiểm duyệt và bảo vệ tính minh bạch của nền tảng.
+*   **System (Hệ thống):** Các tác vụ tự động hóa (gửi mail, xử lý thanh toán, lưu nhật ký).
+
+### 2. Các nhóm chức năng chính
+
+#### A. Nhóm Quản lý Tài khoản & Định danh
+*   **Đăng ký/Đăng nhập:** Hỗ trợ đăng nhập qua email/mật khẩu hoặc OAuth.
+*   **Xác minh KYC (Chỉ dành cho Creator):** Nhà sáng tạo phải cung cấp CCCD/Hộ chiếu và ảnh chân dung. Admin sẽ kiểm tra tính hợp lệ để cấp quyền tạo chiến dịch. Đây là chốt chặn quan trọng để chống gian lận.
+*   **Quản lý Hồ sơ cá nhân:** Nơi hiển thị uy tín, lịch sử các dự án đã thực hiện hoặc các dự án đã ủng hộ.
+
+#### B. Nhóm Quản lý Chiến dịch (Creator & Admin)
+*   **Tạo chiến dịch (Draft):** Creator soạn thảo nội dung, tải ảnh, video, thiết lập mục tiêu tài chính và các mức phần thưởng (Rewards).
+*   **Gửi duyệt (Pending Review):** Sau khi hoàn thiện, dự án được gửi đến Admin.
+*   **Phê duyệt dự án (Admin):** Admin kiểm tra nội dung có vi phạm chính sách hay không trước khi cho phép hiển thị công khai.
+*   **Đăng cập nhật (Project Updates):** Trong suốt quá trình gọi vốn, Creator đăng bài viết để báo cáo tiến độ cho Backer.
+
+#### C. Nhóm Ủng hộ & Thanh toán (Backer)
+*   **Chọn phần thưởng (Reward Selection):** Backer chọn mức ủng hộ tương ứng với quà tặng mong muốn.
+*   **Thanh toán trực tuyến:** Hệ thống kết nối với PayOS/VNPay/Momo. Tiền được chuyển qua bên thứ ba uy tín giữ hộ.
+*   **Nhận hóa đơn điện tử:** Sau khi thanh toán thành công, hệ thống tự động tạo file PDF hóa đơn và gửi về email người dùng.
+
+#### D. Nhóm Tương tác & Uy tín
+*   **Trò chuyện 1-1:** Kết nối trực tiếp giữa Backer và Creator để giải đáp thắc mắc.
+*   **Hệ thống Huy hiệu (Badges):** Tự động trao tặng huy hiệu cho người dùng tích cực dựa trên số tiền ủng hộ hoặc số dự án đã hoàn thành.
+*   **Báo cáo vi phạm (Report):** Backer có thể báo cáo dự án nếu thấy dấu hiệu không minh bạch.
+
+---
+
+## II. MÔ TẢ CHI TIẾT SƠ ĐỒ THỰC THỂ (ER DIAGRAM DESCRIPTIONS)
+
+Hệ thống được thiết kế theo kiến trúc **Hybrid Database** để tối ưu hiệu năng.
+
+### 1. Các thực thể cốt lõi (Core Entities - PostgreSQL)
+
+#### **1.1. Thực thể User (Người dùng)**
+*   **Vai trò:** Lưu trữ thông tin định danh và phân quyền.
+*   **Thuộc tính chính:** `id`, `email`, `role` (ADMIN, CREATOR, BACKER), `status` (NORMAL, BANNED), `isOrganization` (Cá nhân hay tổ chức).
+*   **Mối quan hệ:** 
+    *   1-N với `Campaign` (Một người dùng có thể tạo nhiều dự án).
+    *   1-N với `Pledge` (Một người dùng có thể ủng hộ nhiều lần).
+    *   1-1 với `KYCInfo` (Mỗi người dùng có một hồ sơ xác minh duy nhất).
+
+#### **1.2. Thực thể Campaign (Chiến dịch)**
+*   **Vai trò:** Trung tâm của hệ thống, chứa thông tin gọi vốn.
+*   **Thuộc tính chính:** `title`, `goalAmount` (Mục tiêu), `currentAmount` (Số tiền hiện có), `status` (DRAFT, ACTIVE, SUCCESS, FAILED), `endDate`.
+*   **Mối quan hệ:**
+    *   1-N với `Reward` (Một dự án có nhiều mức quà tặng).
+    *   1-N with `Pledge` (Nhận nhiều lượt ủng hộ).
+    *   1-N with `BlogPost` (Chứa các bài viết cập nhật).
+
+#### **1.3. Thực thể Pledge (Lượt ủng hộ)**
+*   **Vai trò:** Lưu vết mọi giao dịch tài chính.
+*   **Thuộc tính chính:** `amount`, `status` (SUCCESS, PENDING, REFUNDED), `transactionId` (Mã giao dịch từ ngân hàng), `payosOrderCode`.
+*   **Mối quan hệ:** Liên kết giữa `User`, `Campaign` và `Reward`.
+
+#### **1.4. Thực thể KYCInfo (Xác minh danh tính)**
+*   **Vai trò:** Lưu trữ tài liệu pháp lý của chủ dự án.
+*   **Thuộc tính chính:** `idCardNumber`, `idCardFrontImage`, `idCardBackImage`, `verificationStatus`.
+
+### 2. Các thực thể mở rộng (Extended Entities)
+*   **Badge (Huy hiệu):** Lưu định nghĩa về tên, icon và độ hiếm của huy hiệu.
+*   **UserBadge:** Bảng trung gian quản lý việc cấp phát huy hiệu cho người dùng.
+*   **AuditLog (Nhật ký hệ thống):** Lưu vết mọi hành động (Ai đã làm gì, lúc nào, giá trị cũ là gì, giá trị mới là gì).
+
+### 3. Thực thể tại MongoDB (Dữ liệu phi cấu trúc)
+*   **BlogContent:** Lưu trữ nội dung bài viết dài dưới dạng JSON (để hỗ trợ trình soạn thảo Rich Text).
+*   **ChatMessage:** Lưu trữ nội dung tin nhắn thời gian thực để đảm bảo tốc độ phản hồi cực nhanh và không làm nặng cơ sở dữ liệu quan hệ.
+
+---
+
+## III. QUY TẮC RÀNG BUỘC VÀ TÍNH TOÀN VẸN
+1.  **Tính duy nhất:** Mã giao dịch (`transactionId`) và số hóa đơn là duy nhất trên toàn hệ thống.
+2.  **Ràng buộc logic:** Chỉ khi `Campaign` ở trạng thái `ACTIVE` mới cho phép `Pledge`.
+3.  **Toàn vẹn dữ liệu:** Khi xóa một `User`, tất cả các `Pledge` của người đó sẽ được giữ lại (để đối soát tài chính) nhưng được đánh dấu ẩn danh, trong khi các `KYCInfo` nhạy cảm sẽ bị xóa bỏ theo chính sách bảo mật.
+
+---
+
+## Nguồn: `docs/FEATURE_BLOG_LINKS_SUMMARY.md`
+
+# ✅ Tính năng: Gắn Blog vào Campaign
+
+## 📋 Tổng quan
+Tính năng cho phép creator gắn các bài blog của họ vào dự án để người ủng hộ có thể tìm hiểu thêm về câu chuyện, tiến độ và thông tin chi tiết của dự án.
+
+## 🎯 Các tính năng chính
+
+### 1. Trong Form Tạo/Chỉnh sửa Campaign
+- ✅ Component chọn blog posts với giao diện thân thiện
+- ✅ Tìm kiếm blog posts theo tiêu đề
+- ✅ Hiển thị preview blog (ảnh bìa, tiêu đề, excerpt, ngày xuất bản)
+- ✅ Sắp xếp thứ tự hiển thị bằng drag & drop
+- ✅ Chỉ hiển thị blog posts đã PUBLISHED
+- ✅ Link đến trang tạo blog nếu chưa có bài viết nào
+
+### 2. Trong Trang Chi tiết Campaign
+- ✅ Tab "Blog" mới kế bên "Thảo luận cộng đồng"
+- ✅ Badge hiển thị số lượng blog posts
+- ✅ Danh sách blog posts với layout đẹp mắt
+- ✅ Hiển thị thông tin: ảnh bìa, tiêu đề, excerpt, ngày xuất bản
+- ✅ Hiển thị số lượt xem, like, comment
+- ✅ Link đến trang chi tiết blog post
+- ✅ Tab chỉ hiển thị khi có blog posts được gắn
+
+## 📁 Files đã tạo/cập nhật
+
+### Database Schema
+- ✅ `prisma/schema.prisma`
+  - Thêm model `CampaignBlogLink`
+  - Thêm relation `linkedBlogs` vào Campaign
+  - Thêm relation `linkedCampaigns` vào BlogPost
+
+### Components
+- ✅ `src/components/create-campaign/blog-selector.tsx` (MỚI)
+  - Component chọn blog posts
+  - Tìm kiếm và filter
+  - Drag & drop để sắp xếp
+  
+- ✅ `src/components/campaign/LinkedBlogsSection.tsx` (MỚI)
+  - Hiển thị danh sách blog posts
+  - Card layout với ảnh và thông tin
+  
+- ✅ `src/components/campaign/CampaignTabsWrapper.tsx` (CẬP NHẬT)
+  - Thêm tab Blog
+  - Hiển thị badge số lượng
+
+### API Routes
+- ✅ `src/app/api/blog/my-posts/route.ts` (MỚI)
+  - GET: Lấy blog posts của user hiện tại
+  - Filter theo status
+  
+- ✅ `src/app/api/campaigns/route.ts` (CẬP NHẬT)
+  - POST: Thêm hỗ trợ `linkedBlogIds`
+  - Tạo CampaignBlogLink khi tạo campaign
+  
+- ✅ `src/app/api/campaigns/[slug]/route.ts` (CẬP NHẬT)
+  - GET: Include linkedBlogs trong response
+  - PUT: Cập nhật linkedBlogIds
+
+### Pages
+- ✅ `src/app/campaigns/create/page.tsx` (CẬP NHẬT)
+  - Import BlogSelector
+  - Thêm linkedBlogIds vào formData
+  - Render BlogSelector trong form
+  
+- ✅ `src/components/campaign/CampaignEditForm.tsx` (CẬP NHẬT)
+  - Import BlogSelector
+  - Thêm linkedBlogIds vào formData
+  - Load linkedBlogIds từ campaign
+  - Render BlogSelector trong form
+
+## 🚀 Cách sử dụng
+
+### Cho Creator:
+
+#### 1. Tạo Campaign mới
+1. Vào trang "Tạo dự án"
+2. Điền thông tin dự án
+3. Trong phần "Phân loại dự án", kéo xuống phần "Bài viết blog liên quan"
+4. Click "Thêm bài viết blog"
+5. Chọn các blog posts muốn gắn
+6. Sắp xếp thứ tự nếu cần
+7. Submit form
+
+#### 2. Chỉnh sửa Campaign
+1. Vào trang chỉnh sửa campaign
+2. Kéo xuống phần "Bài viết blog liên quan"
+3. Thêm/xóa/sắp xếp blog posts
+4. Lưu thay đổi
+
+### Cho Người ủng hộ:
+1. Vào trang chi tiết campaign
+2. Click tab "Blog" (nếu có)
+3. Xem danh sách blog posts
+4. Click vào blog post để đọc chi tiết
+
+## 🔧 Migration
+
+### Chạy migration:
+```bash
+npx prisma migrate dev --name add_campaign_blog_links
+npx prisma generate
+```
+
+### Kiểm tra:
+```bash
+npx prisma studio
+```
+
+## 📊 Database Structure
+
+### Bảng: campaign_blog_links
+```
+- id: String (PK)
+- campaignId: String (FK -> campaigns.id)
+- blogPostId: String (FK -> blog_posts.id)
+- order: Int (thứ tự hiển thị)
+- createdAt: DateTime
+```
+
+### Indexes:
+- `campaignId` - Tìm blogs của campaign
+- `blogPostId` - Tìm campaigns của blog
+- `[campaignId, blogPostId]` - Unique constraint
+
+## 🎨 UI/UX Features
+
+### BlogSelector Component:
+- ✅ Search box để tìm kiếm
+- ✅ Preview card với ảnh, tiêu đề, excerpt
+- ✅ Drag handle để sắp xếp
+- ✅ Remove button khi hover
+- ✅ Empty state với link tạo blog
+- ✅ Loading state
+
+### LinkedBlogsSection Component:
+- ✅ Grid layout responsive
+- ✅ Card với ảnh bìa
+- ✅ Hover effects
+- ✅ Meta info (views, likes, comments)
+- ✅ Empty state
+- ✅ Badge số lượng trong tab
+
+## 🔒 Security & Validation
+
+- ✅ Chỉ creator mới có thể gắn blog vào campaign của họ
+- ✅ Chỉ blog posts đã PUBLISHED mới được hiển thị
+- ✅ Validate blog ownership khi gắn
+- ✅ Cascade delete khi xóa campaign hoặc blog
+
+## 📝 Notes
+
+- Tab Blog chỉ hiển thị khi campaign có ít nhất 1 blog được gắn
+- Blog posts được sắp xếp theo trường `order`
+- Có thể gắn nhiều blog posts vào 1 campaign
+- 1 blog post có thể được gắn vào nhiều campaigns
+- Khi update campaign, các blog links cũ sẽ bị xóa và tạo mới
+
+## 🐛 Known Issues
+Không có
+
+## 🔮 Future Enhancements
+- [ ] Thêm tính năng auto-suggest blog posts liên quan
+- [ ] Thêm analytics cho blog posts từ campaign
+- [ ] Cho phép gắn blog posts của người khác (với permission)
+- [ ] Thêm preview blog trong modal thay vì mở tab mới
+
+---
+
+## Nguồn: `docs/FINAL_STATUS_REPORT.md`
+
+# Báo Cáo Trạng Thái Cuối Cùng
+
+**Ngày:** 30/06/2026  
+**Tóm tắt:** Phase 1 Refactor + Nested Links Bugfix
+
+---
+
+## ✅ ĐÃ HOÀN THÀNH
+
+### 1. Phase 1: Terminology Inconsistency Fix ✅
+
+**Status:** ✅ **COMPLETED**
+
+**Changes:**
+- [x] Fixed UI text: "Dự án đã tạo" → "Chiến dịch đã tạo"
+- [x] Updated 3 documentation files
+- [x] Added deprecation warnings to 2 technical files
+- [x] All user-facing text now consistent
+
+**Files Modified:** 5 files
+**Report:** `docs/REFACTOR_PHASE1_COMPLETION_REPORT.md`
+
+---
+
+### 2. Critical Bug: Nested Links Hydration Error ✅
+
+**Status:** ✅ **FIXED**
+
+**Issue:** 
+- ProjectCard had nested `<Link>` components
+- Caused HTML validation error: `<a>` cannot contain `<a>`
+- Triggered React hydration mismatch
+
+**Solution:**
+- Removed inner Link button
+- Kept outer Link wrapper only
+- Changed button from `<Link>` to `<div>`
+- Zero visual/behavior changes
+
+**Files Modified:** 1 file (`src/components/projects/ProjectCard.tsx`)
+**Lines Changed:** 7 lines
+**Report:** `docs/BUGFIX_NESTED_LINKS_REPORT.md`
+
+---
+
+## ⚠️ KNOWN ISSUES (Không Liên Quan)
+
+### Build Errors (Pre-existing)
+
+Build hiện đang fail với lỗi:
+```
+Cannot find module for page: /api/admin/users/[userId]/update-status
+Cannot find module for page: /api/auth/register
+```
+
+**Phân tích:**
+- ⚠️ Thiếu 2 API route files
+- ⚠️ Lỗi này tồn tại TRƯỚC khi refactor
+- ✅ KHÔNG liên quan đến fixes đã thực hiện
+
+**Impact:**
+- Build fails locally
+- Needs API routes to be created
+- Separate task - not part of this refactor
+
+**Action Required:**
+- Create missing API route files
+- Or remove references to these endpoints
+- Coordinate with backend team
+
+---
+
+## 📊 SUMMARY
+
+### Files Changed
+
+| Category | Count | Status |
+|----------|-------|--------|
+| UI Components | 2 | ✅ Complete |
+| Documentation | 3 | ✅ Complete |
+| API Routes | 1 | ✅ Warning added |
+| Type Definitions | 1 | ✅ Warning added |
+| **TOTAL** | **7 files** | ✅ **All Done** |
+
+### Changes Breakdown
+
+| Type | Description | Impact |
+|------|-------------|--------|
+| String literals | "Dự án" → "Chiến dịch" | Zero risk |
+| Component structure | Removed nested Link | Zero behavior change |
+| Comments | Added deprecation warnings | Zero impact |
+
+---
+
+## ✅ VERIFICATION
+
+### What Was Tested
+
+1. **Terminology Consistency** ✅
+   - UI displays "Chiến dịch đã tạo"
+   - Documentation matches UI
+   - No remaining "Dự án đã tạo" instances
+
+2. **Nested Links Fix** ✅
+   - No more `<a>` inside `<a>`
+   - ProjectCard clickable as before
+   - Button styling preserved
+   - Hover effects work correctly
+
+### What Needs Testing (When Build Fixed)
+
+- [ ] Full build success
+- [ ] Runtime hydration test
+- [ ] E2E navigation tests
+- [ ] Accessibility audit
+
+---
+
+## 📝 NEXT STEPS
+
+### Immediate
+
+1. **Fix Build Issues** (Separate task)
+   - Create missing API route files
+   - OR remove dead code references
+   - Verify build passes
+
+2. **Deploy Phase 1 Changes**
+   - UI text fixes
+   - Nested links bugfix
+   - Safe to deploy once build fixed
+
+### Short-term (Next Sprint)
+
+3. **Phase 2: Technical Refactor** (Future)
+   - Rename `/api/projects` → `/api/campaigns`
+   - Rename types: `ProjectListItem` → `CampaignListItem`
+   - Rename component folders
+   - See: `docs/TERMINOLOGY_INCONSISTENCY_REPORT.md`
+
+---
+
+## 🎯 DELIVERABLES
+
+### Documentation Created
+
+1. ✅ `DATABASE_STRUCTURE_ANALYSIS.md` - Database schema analysis
+2. ✅ `TERMINOLOGY_INCONSISTENCY_REPORT.md` - Full inconsistency audit
+3. ✅ `REFACTOR_PHASE1_COMPLETION_REPORT.md` - Phase 1 completion report
+4. ✅ `BUGFIX_NESTED_LINKS_REPORT.md` - Nested links fix documentation
+5. ✅ `FINAL_STATUS_REPORT.md` - This file
+
+### Code Changes
+
+1. ✅ ProfileTabs.tsx - UI text fixed
+2. ✅ ProjectCard.tsx - Nested links removed
+3. ✅ 2 docs files - Updated terminology
+4. ✅ 2 code files - Deprecation warnings added
+
+---
+
+## ✅ QUALITY CHECKLIST
+
+- [x] All user-facing text consistent
+- [x] No nested HTML tags
+- [x] Zero breaking changes
+- [x] Zero behavior changes
+- [x] Documentation complete
+- [x] Changes well-documented
+- [x] Code comments added where needed
+- [ ] Build passes (blocked by unrelated issues)
+- [ ] E2E tests pass (pending build fix)
+
+---
+
+## 📞 CONTACT
+
+**Issues:**
+- Build errors: Contact backend team
+- Missing API routes: Create tickets
+- Phase 2 planning: Schedule with team lead
+
+**Questions:**
+- Technical: Check documentation in `docs/`
+- Implementation: Review commit messages
+- Future work: See Phase 2 roadmap
+
+---
+
+## ✅ SIGN-OFF
+
+**Phase 1 + Bugfix Status:** ✅ **COMPLETE**
+
+**Code Quality:** ✅ **APPROVED**
+
+**Documentation:** ✅ **COMPLETE**
+
+**Ready for:** Deployment (pending build fix)
+
+---
+
+**Generated by:** Kiro AI Assistant  
+**Date:** 30/06/2026  
+**Version:** Final
+
+---
+
+## Nguồn: `docs/FULL_DATABASE_SCHEMA.md`
+
+# 📊 FULL DATABASE SCHEMA - HYBRID ARCHITECTURE
+
+## 🎯 TÓM TẮT
+
+**Dự án sử dụng Hybrid Database:**
+- **PostgreSQL**: 15 tables (Prisma ORM)
+- **MongoDB**: 9 collections (Native Driver)
+- **Total**: 24 data structures
+
+---
+
+## 📁 FILES ĐÃ TẠO
+
+### 1. **DATABASE_SCHEMA_DBML.txt** ✅
+**Nội dung:** PostgreSQL (15 tables) + MongoDB (9 collections)
+**Dùng cho:** Tạo sơ đồ tổng hợp trên dbdiagram.io
+
+### 2. **MONGODB_SCHEMA_DBML.txt** ✅
+**Nội dung:** Chỉ MongoDB (9 collections) với chi tiết đầy đủ
+**Dùng cho:** Tạo sơ đồ riêng MongoDB
+
+---
+
+## 🗄️ POSTGRESQL (15 TABLES)
+
+| # | Table | Records | Purpose |
+|---|-------|---------|---------|
+| 1 | users | 10,000+ | Người dùng |
+| 2 | campaigns | 1,000+ | Chiến dịch |
+| 3 | pledges | 50,000+ | Ủng hộ/Giao dịch |
+| 4 | rewards | 5,000+ | Phần thưởng |
+| 5 | campaign_updates | 10,000+ | Cập nhật cơ bản |
+| 6 | reviews | 20,000+ | Đánh giá |
+| 7 | campaign_reports | 500+ | Báo cáo |
+| 8 | campaign_followers | 30,000+ | Theo dõi |
+| 9 | kyc_info | 5,000+ | KYC |
+| 10 | backer_invoices | 50,000+ | Hóa đơn backer |
+| 11 | platform_invoices | 1,000+ | Hóa đơn platform |
+| 12 | audit_logs | 100,000+ | Audit logs |
+| 13 | blacklist | 100+ | Danh sách đen |
+| 14 | transaction_limits | 100+ | Giới hạn GD |
+| 15 | daily_tip_invoices | 365+ | Hóa đơn tip |
+
+**Đặc điểm:**
+- ✅ ACID Compliance
+- ✅ Foreign Keys
+- ✅ Transactions
+- ✅ Complex Queries
+
+---
+
+## 🍃 MONGODB (9 COLLECTIONS)
+
+| # | Collection | Records | TTL | Purpose |
+|---|------------|---------|-----|---------|
+| 1 | campaign_updates | 20,000+ | ∞ | Rich content updates |
+| 2 | comments | 100,000+ | ∞ | Nested comments |
+| 3 | notifications | 500,000+ | 90d | User notifications |
+| 4 | activity_logs | 1M+ | 90d | Activity tracking |
+| 5 | audit_logs | 200,000+ | 365d | Audit logs (parallel) |
+| 6 | analytics_events | 5M+ | 180d | Analytics |
+| 7 | campaign_content | 1,000+ | ∞ | Rich campaign content |
+| 8 | user_metadata | 10,000+ | ∞ | User preferences |
+| 9 | report_metadata | 500+ | ∞ | Report evidence |
+
+**Đặc điểm:**
+- ✅ Flexible Schema
+- ✅ High Write Speed
+- ✅ TTL Auto-delete
+- ✅ Aggregation Pipeline
+
+---
+
+## 🔗 RELATIONSHIPS
+
+### PostgreSQL Internal:
+```
+users (1) ──► (n) campaigns
+campaigns (1) ──► (n) pledges
+campaigns (1) ──► (n) rewards
+pledges (n) ──► (1) rewards
+users (1) ──► (n) pledges
+users (1) ──► (1) kyc_info
+pledges (1) ──► (1) backer_invoices
+```
+
+### PostgreSQL → MongoDB:
+```
+users.id ──────► mongo_notifications.userId
+users.id ──────► mongo_user_metadata.userId
+users.id ──────► mongo_comments.userId
+campaigns.id ───► mongo_campaign_updates.campaignId
+campaigns.id ───► mongo_campaign_content.campaignId
+campaigns.id ───► mongo_comments.campaignId
+```
+
+---
+
+## 🎨 CÁCH TẠO SƠ ĐỒ
+
+### **Phương pháp 1: Sơ đồ tổng hợp (PostgreSQL + MongoDB)**
+
+1. Mở https://dbdiagram.io/
+2. Copy nội dung file **`DATABASE_SCHEMA_DBML.txt`**
+3. Paste vào editor
+4. Export PNG/PDF
+
+**Kết quả:** Sơ đồ có cả 2 databases (24 tables/collections)
+
+---
+
+### **Phương pháp 2: Sơ đồ riêng MongoDB**
+
+1. Mở https://dbdiagram.io/
+2. Copy nội dung file **`MONGODB_SCHEMA_DBML.txt`**
+3. Paste vào editor
+4. Export PNG/PDF
+
+**Kết quả:** Sơ đồ chỉ có MongoDB (9 collections)
+
+---
+
+### **Phương pháp 3: Sơ đồ riêng PostgreSQL**
+
+1. Mở https://dbdiagram.io/
+2. Copy phần PostgreSQL từ **`DATABASE_SCHEMA_DBML.txt`**
+3. Paste vào editor
+4. Export PNG/PDF
+
+**Kết quả:** Sơ đồ chỉ có PostgreSQL (15 tables)
+
+---
+
+## 📊 CÁC SƠ ĐỒ NÊN TẠO
+
+### 1. **ERD PostgreSQL** (Bắt buộc)
+- Hiển thị 15 tables
+- Relationships rõ ràng
+- Primary Keys & Foreign Keys
+
+### 2. **MongoDB Collections** (Bắt buộc)
+- Hiển thị 9 collections
+- Document structure
+- Indexes
+
+### 3. **Hybrid Architecture** (Bắt buộc)
+- Hiển thị cả 2 databases
+- Mối quan hệ giữa PostgreSQL ↔ MongoDB
+- Data flow
+
+### 4. **Data Flow Diagram** (Khuyên dùng)
+- User actions
+- Database operations
+- Integration points
+
+---
+
+## 🎯 CHECKLIST
+
+**Files:**
+- [x] DATABASE_SCHEMA_DBML.txt (PostgreSQL + MongoDB)
+- [x] MONGODB_SCHEMA_DBML.txt (MongoDB only)
+- [x] FULL_DATABASE_SCHEMA.md (This file)
+
+**Diagrams to create:**
+- [ ] ERD PostgreSQL (15 tables)
+- [ ] MongoDB Collections (9 collections)
+- [ ] Hybrid Architecture diagram
+- [ ] Data Flow diagram
+
+**Export formats:**
+- [ ] PNG (1920x1080) - Cho slide
+- [ ] PDF - Cho báo cáo
+- [ ] SVG - Chất lượng cao
+
+---
+
+## 💡 TIPS
+
+### Màu sắc đề xuất:
+- **PostgreSQL tables**: Xanh dương (#3B82F6)
+- **MongoDB collections**: Xanh lá (#10B981)
+- **Relationships**: Xám (#6B7280)
+
+### Layout:
+- PostgreSQL ở bên trái
+- MongoDB ở bên phải
+- Relationships ngang giữa
+
+### Font:
+- Tiêu đề: Arial Bold 14pt
+- Nội dung: Arial Regular 10pt
+
+---
+
+## 🚀 QUICK START
+
+**Tạo sơ đồ trong 5 phút:**
+
+1. Mở https://dbdiagram.io/
+2. Copy file `DATABASE_SCHEMA_DBML.txt`
+3. Paste vào editor
+4. Click Export → PNG
+5. Done! ✅
+
+---
+
+**Cập nhật:** 22/05/2026  
+**Version:** 1.0.0  
+**Status:** ✅ Complete
+
+---
+
+## Nguồn: `docs/HUONG_DAN_TAO_SO_DO_DATABASE.md`
+
+# 📊 HƯỚNG DẪN TẠO SƠ ĐỒ CƠ SỞ DỮ LIỆU
+
+## 🎯 CÁC PHƯƠNG PHÁP TẠO SƠ ĐỒ
+
+---
+
+## PHƯƠNG PHÁP 1: SỬ DỤNG DBDIAGRAM.IO ⭐ (KHUYÊN DÙNG)
+
+### Bước 1: Truy cập website
+```
+https://dbdiagram.io/
+```
+
+### Bước 2: Tạo tài khoản miễn phí
+- Đăng ký bằng email hoặc GitHub
+- Hoàn toàn miễn phí
+
+### Bước 3: Tạo diagram mới
+- Click "New Diagram"
+- Chọn "PostgreSQL" làm database type
+
+### Bước 4: Copy code DBML vào editor
+
+```dbml
+// ============================================================
+// CROWDFUNDING VN - DATABASE SCHEMA
+// ============================================================
+
+Table users {
+  id varchar [pk, note: 'CUID']
+  email varchar [unique, not null]
+  password varchar
+  name varchar [not null]
+  displayName varchar
+  avatar varchar
+  image varchar
+  coverImage varchar
+  phone varchar
+  shippingAddress text
+  role user_role [default: 'BACKER']
+  status user_status [default: 'NORMAL']
+  isOrganization boolean [default: false]
+  isAdmin boolean [default: false]
+  bio text
+  location varchar
+  website varchar
+  socialLinks json
+  idCard varchar
+  businessLicense varchar
+  bankAccount varchar
+  bankName varchar
+  approvedAt timestamp
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    email
+    role
+    status
+  }
+}
+
+Table campaigns {
+  id varchar [pk, note: 'CUID']
+  campaignCode varchar [unique, not null]
+  slug varchar [unique, not null]
+  title varchar [not null]
+  description text [not null]
+  longDescription text
+  videoUrl varchar
+  imageUrl varchar
+  images varchar[] [note: 'Array of image URLs']
+  type campaign_type [default: 'REWARD']
+  category varchar [not null]
+  tags varchar[] [note: 'Array of tags']
+  goalAmount decimal [not null]
+  currentAmount decimal [default: 0]
+  status campaign_status [default: 'DRAFT']
+  startDate timestamp
+  endDate timestamp
+  creatorId varchar [not null, ref: > users.id]
+  feeRate float [default: 0.08]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    category
+    tags
+    status
+    creatorId
+  }
+}
+
+Table rewards {
+  id varchar [pk, note: 'CUID']
+  campaignId varchar [not null, ref: > campaigns.id]
+  title varchar [not null]
+  description text
+  minAmount decimal [not null, note: 'Minimum pledge amount']
+  maxQuantity int [note: 'null = unlimited']
+  deliveryDate timestamp
+  isActive boolean [default: true]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    campaignId
+  }
+}
+
+Table pledges {
+  id varchar [pk, note: 'CUID']
+  campaignId varchar [not null, ref: > campaigns.id]
+  userId varchar [ref: > users.id]
+  rewardId varchar [ref: > rewards.id]
+  displayName varchar [not null]
+  isAnonymous boolean [default: false]
+  email varchar
+  phoneNumber varchar
+  shippingAddress text
+  amount decimal [not null]
+  tipAmount decimal [default: 0]
+  platformFee decimal [default: 0]
+  vatAmount decimal [default: 0]
+  totalAmount decimal [not null]
+  paymentProvider varchar [not null]
+  transactionId varchar [unique, not null]
+  payosOrderCode varchar [unique]
+  ipAddress varchar
+  deviceInfo json
+  status pledge_status [default: 'PENDING']
+  refundStatus refund_status [default: 'NO_REFUND']
+  refundedAt timestamp
+  invoiceGroupDate timestamp
+  webhookProcessedAt timestamp
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    campaignId
+    userId
+    status
+    transactionId
+  }
+}
+
+Table campaign_updates {
+  id varchar [pk, note: 'CUID']
+  campaignId varchar [not null, ref: > campaigns.id]
+  title varchar [not null]
+  content text [not null]
+  imageUrl varchar
+  tags varchar[]
+  isPinned boolean [default: false]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    (campaignId, isPinned)
+    tags
+  }
+}
+
+Table reviews {
+  id varchar [pk, note: 'CUID']
+  userId varchar [not null, ref: > users.id]
+  campaignId varchar [ref: > campaigns.id]
+  rating int [not null, note: '1-5 stars']
+  comment text [not null]
+  imageUrl varchar
+  createdAt timestamp [default: `now()`]
+  
+  indexes {
+    userId
+    campaignId
+  }
+}
+
+Table campaign_reports {
+  id varchar [pk, note: 'CUID']
+  campaignId varchar [not null, ref: > campaigns.id]
+  userId varchar [not null, ref: > users.id]
+  reason report_reason [not null]
+  description text [not null]
+  status report_status [default: 'PENDING']
+  resolvedAt timestamp
+  resolvedBy varchar
+  resolution text
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    campaignId
+    userId
+    status
+    (campaignId, userId) [unique]
+  }
+}
+
+Table campaign_followers {
+  id varchar [pk, note: 'CUID']
+  campaignId varchar [not null, ref: > campaigns.id]
+  userId varchar [ref: > users.id]
+  email varchar
+  createdAt timestamp [default: `now()`]
+  
+  indexes {
+    campaignId
+    userId
+    (campaignId, userId) [unique]
+    (campaignId, email) [unique]
+  }
+}
+
+Table kyc_info {
+  id varchar [pk, note: 'CUID']
+  userId varchar [unique, not null, ref: - users.id]
+  fullName varchar [not null]
+  idCardNumber varchar [unique, not null]
+  idCardType id_card_type [not null]
+  idCardFrontImage varchar
+  idCardBackImage varchar
+  idCardIssueDate timestamp
+  idCardIssuePlace varchar
+  dateOfBirth timestamp
+  placeOfBirth varchar
+  nationality varchar [default: 'VN']
+  permanentAddress text
+  currentAddress text
+  occupation varchar
+  monthlyIncome varchar
+  verificationStatus kyc_status [default: 'PENDING']
+  verifiedAt timestamp
+  verifiedBy varchar
+  rejectedReason text
+  riskLevel risk_level [default: 'LOW']
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    userId
+    verificationStatus
+  }
+}
+
+Table backer_invoices {
+  id varchar [pk, note: 'CUID']
+  invoiceNumber varchar [unique, not null]
+  pledgeId varchar [unique, not null, ref: - pledges.id]
+  backerName varchar [not null]
+  backerEmail varchar
+  backerPhone varchar
+  backerAddress text
+  backerTaxCode varchar
+  companyName varchar
+  amount decimal [not null]
+  tipAmount decimal [not null]
+  platformFee decimal [not null]
+  vatAmount decimal [not null]
+  totalAmount decimal [not null]
+  campaignTitle varchar [not null]
+  paymentMethod varchar [not null]
+  transactionId varchar [not null]
+  status invoice_status [default: 'PENDING']
+  issuedAt timestamp [default: `now()`]
+  pdfUrl varchar
+  sentAt timestamp
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    pledgeId
+    invoiceNumber
+  }
+}
+
+Table platform_invoices {
+  id varchar [pk, note: 'CUID']
+  invoiceNumber varchar [unique, not null]
+  campaignId varchar [not null, ref: > campaigns.id]
+  creatorId varchar [not null, ref: > users.id]
+  amount decimal [not null]
+  vatAmount decimal [not null]
+  totalAmount decimal [not null]
+  status invoice_status [default: 'PENDING']
+  dueDate timestamp [not null]
+  paidAt timestamp
+  paymentMethod varchar
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    campaignId
+    creatorId
+    status
+  }
+}
+
+Table audit_logs {
+  id varchar [pk, note: 'CUID']
+  userId varchar [ref: > users.id]
+  action audit_action [not null]
+  entityType varchar [not null]
+  entityId varchar [not null]
+  oldValue json
+  newValue json
+  changes json
+  ipAddress varchar
+  userAgent text
+  reason text
+  metadata json
+  createdAt timestamp [default: `now()`]
+  
+  indexes {
+    (entityType, entityId)
+    userId
+    createdAt
+  }
+}
+
+Table blacklist {
+  id varchar [pk, note: 'CUID']
+  type blacklist_type [not null]
+  value varchar [not null]
+  reason text [not null]
+  addedBy varchar
+  isActive boolean [default: true]
+  expiresAt timestamp
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    (type, value) [unique]
+    (type, value, isActive)
+  }
+}
+
+Table transaction_limits {
+  id varchar [pk, note: 'CUID']
+  userId varchar [unique, ref: > users.id]
+  kycStatus kyc_status
+  maxPerTransaction decimal [not null]
+  maxPerDay decimal [not null]
+  maxPerMonth decimal [not null]
+  maxTransactionsPerDay int [not null]
+  isActive boolean [default: true]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+Table daily_tip_invoices {
+  id varchar [pk, note: 'CUID']
+  invoiceDate timestamp [unique, not null]
+  totalTip decimal [not null]
+  totalVat decimal [not null]
+  status varchar [default: 'PENDING']
+  createdAt timestamp [default: `now()`]
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+Enum user_role {
+  ADMIN
+  BACKER
+  CREATOR_PENDING
+  CREATOR
+}
+
+Enum user_status {
+  NORMAL
+  PRO
+  BANNED
+}
+
+Enum campaign_type {
+  REWARD
+  DONATION
+}
+
+Enum campaign_status {
+  DRAFT
+  PENDING_REVIEW
+  ACTIVE
+  SUCCESS
+  FAILED
+  CANCELED
+}
+
+Enum pledge_status {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+Enum refund_status {
+  NO_REFUND
+  REQUESTED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+Enum invoice_status {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+Enum id_card_type {
+  CMND
+  CCCD
+  PASSPORT
+}
+
+Enum kyc_status {
+  PENDING
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
+
+Enum risk_level {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+Enum audit_action {
+  CREATE
+  UPDATE
+  DELETE
+  REFUND
+  APPROVE
+  REJECT
+  CANCEL
+  LOGIN
+  LOGOUT
+  KYC_SUBMIT
+  KYC_APPROVE
+  KYC_REJECT
+}
+
+Enum blacklist_type {
+  IP
+  EMAIL
+  PHONE
+  BANK_ACCOUNT
+  DEVICE_ID
+}
+
+Enum report_reason {
+  FRAUD
+  INAPPROPRIATE
+  MISLEADING
+  SCAM
+  INTELLECTUAL_PROPERTY
+  OTHER
+}
+
+Enum report_status {
+  PENDING
+  REVIEWING
+  RESOLVED
+  DISMISSED
+}
+```
+
+### Bước 5: Export sơ đồ
+- Click "Export" → Chọn định dạng:
+  - **PNG** (cho slide)
+  - **PDF** (cho báo cáo)
+  - **SVG** (chất lượng cao)
+
+---
+
+## PHƯƠNG PHÁP 2: SỬ DỤNG DRAW.IO / DIAGRAMS.NET
+
+### Bước 1: Truy cập
+```
+https://app.diagrams.net/
+```
+
+### Bước 2: Tạo diagram mới
+- Chọn "Create New Diagram"
+- Chọn template "Entity Relationship"
+
+### Bước 3: Vẽ các bảng
+**Các bảng chính cần vẽ:**
+1. users
+2. campaigns
+3. pledges
+4. rewards
+5. campaign_updates
+6. reviews
+7. campaign_reports
+8. kyc_info
+9. backer_invoices
+10. platform_invoices
+11. audit_logs
+12. blacklist
+
+### Bước 4: Vẽ quan hệ
+**Quan hệ chính:**
+- users → campaigns (1:n) - Creator
+- campaigns → pledges (1:n)
+- campaigns → rewards (1:n)
+- pledges → rewards (n:1)
+- users → pledges (1:n)
+- campaigns → campaign_updates (1:n)
+- users → reviews (1:n)
+- campaigns → reviews (1:n)
+- users → kyc_info (1:1)
+- pledges → backer_invoices (1:1)
+
+### Bước 5: Export
+- File → Export as → PNG/PDF/SVG
+
+---
+
+## PHƯƠNG PHÁP 3: SỬ DỤNG PRISMA STUDIO
+
+### Bước 1: Mở Prisma Studio
+```bash
+cd d:\Du_An\crowdfunding-vn
+npx prisma studio
+```
+
+### Bước 2: Chụp màn hình
+- Prisma Studio hiển thị các bảng và quan hệ
+- Chụp màn hình từng phần
+- Ghép lại bằng PowerPoint hoặc Photoshop
+
+---
+
+## PHƯƠNG PHÁP 4: SỬ DỤNG LUCIDCHART
+
+### Bước 1: Truy cập
+```
+https://www.lucidchart.com/
+```
+
+### Bước 2: Tạo tài khoản
+- Đăng ký miễn phí (có giới hạn)
+- Hoặc dùng tài khoản trường học
+
+### Bước 3: Tạo ERD
+- Chọn template "Entity Relationship Diagram"
+- Kéo thả các entity
+- Vẽ relationships
+
+### Bước 4: Export
+- File → Download → PNG/PDF
+
+---
+
+## PHƯƠNG PHÁP 5: SỬ DỤNG MERMAID (CODE)
+
+### Tạo file mermaid
+```mermaid
+erDiagram
+    users ||--o{ campaigns : creates
+    users ||--o{ pledges : makes
+    users ||--o{ reviews : writes
+    users ||--|| kyc_info : has
+    
+    campaigns ||--o{ pledges : receives
+    campaigns ||--o{ rewards : offers
+    campaigns ||--o{ campaign_updates : has
+    campaigns ||--o{ reviews : receives
+    campaigns ||--o{ campaign_reports : has
+    
+    pledges }o--|| rewards : selects
+    pledges ||--|| backer_invoices : generates
+    
+    users {
+        string id PK
+        string email UK
+        string name
+        string role
+        string status
+    }
+    
+    campaigns {
+        string id PK
+        string campaignCode UK
+        string title
+        decimal goalAmount
+        decimal currentAmount
+        string status
+        string creatorId FK
+    }
+    
+    pledges {
+        string id PK
+        string campaignId FK
+        string userId FK
+        string rewardId FK
+        decimal amount
+        decimal totalAmount
+        string status
+    }
+    
+    rewards {
+        string id PK
+        string campaignId FK
+        string title
+        decimal minAmount
+        int maxQuantity
+    }
+```
+
+### Render online
+- Truy cập: https://mermaid.live/
+- Paste code vào
+- Export PNG/SVG
+
+---
+
+## PHƯƠNG PHÁP 6: SỬ DỤNG MYSQL WORKBENCH
+
+### Bước 1: Cài đặt
+```
+https://dev.mysql.com/downloads/workbench/
+```
+
+### Bước 2: Reverse Engineer
+- Database → Reverse Engineer
+- Kết nối đến PostgreSQL database
+- Tạo ERD tự động
+
+### Bước 3: Export
+- File → Export → Export as PNG/PDF
+
+---
+
+## PHƯƠNG PHÁP 7: SỬ DỤNG DATAGRIP (JETBRAINS)
+
+### Bước 1: Cài đặt
+```
+https://www.jetbrains.com/datagrip/
+```
+
+### Bước 2: Kết nối database
+- Kết nối đến PostgreSQL
+- Right-click database → Diagrams → Show Visualization
+
+### Bước 3: Export
+- Right-click diagram → Export to File
+
+---
+
+## 🍃 MONGODB COLLECTIONS SCHEMA
+
+### Thêm vào dbdiagram.io (sau phần PostgreSQL)
+
+```dbml
+// ============================================================
+// MONGODB COLLECTIONS - HYBRID DATABASE
+// ============================================================
+
+Table mongo_campaign_updates {
+  _id objectid [pk, note: 'MongoDB ObjectId']
+  campaignId varchar [note: 'FK to PostgreSQL campaigns.id']
+  creatorId varchar [note: 'FK to PostgreSQL users.id']
+  title varchar [not null]
+  content text [not null, note: 'Rich text HTML/Markdown']
+  type varchar [note: 'TEXT, MILESTONE, MEDIA, ANNOUNCEMENT']
+  status varchar [default: 'PUBLISHED']
+  isPinned boolean [default: false]
+  tags varchar[]
+  media json [note: 'Array of media objects']
+  viewCount int [default: 0]
+  publishedAt timestamp
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  Note: 'Campaign updates with rich content'
+}
+
+Table mongo_comments {
+  _id objectid [pk, note: 'MongoDB ObjectId']
+  campaignId varchar [note: 'FK to PostgreSQL campaigns.id']
+  userId varchar [note: 'FK to PostgreSQL users.id']
+  userName varchar [not null]
+  userAvatar varchar
+  content text [not null]
+  parentId varchar [note: 'Parent comment _id for nested replies']
+  depth int [default: 0, note: 'Max depth = 2']
+  reactions json [note: 'Array of reaction objects']
+  editHistory json [note: 'Array of edit history']
+  isEdited boolean [default: false]
+  isDeleted boolean [default: false]
+  status varchar [default: 'APPROVED']
+  replyCount int [default: 0]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  Note: 'Nested comments with reactions'
+}
+
+Table mongo_notifications {
+  _id objectid [pk, note: 'MongoDB ObjectId']
+  userId varchar [not null, note: 'FK to PostgreSQL users.id']
+  type varchar [not null, note: 'PLEDGE_RECEIVED, PAYMENT_SUCCESS, etc.']
+  title varchar [not null]
+  message text [not null]
+  payload json [note: 'Notification data']
+  isRead boolean [default: false]
+  readAt timestamp
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  Note: 'User notifications with TTL 90 days'
+}
+
+Table mongo_activity_logs {
+  _id objectid [pk, note: 'MongoDB ObjectId']
+  userId varchar [note: 'FK to PostgreSQL users.id, nullable']
+  action varchar [not null, note: 'USER_LOGIN, CAMPAIGN_VIEW, etc.']
+  entityType varchar [not null]
+  entityId varchar [not null]
+  details json
+  metadata json [note: 'IP, userAgent, sessionId, path']
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  Note: 'User activity tracking with TTL 90 days'
+}
+
+Table mongo_audit_logs {
+  _id objectid [pk, note: 'MongoDB ObjectId']
+  userId varchar [note: 'FK to PostgreSQL users.id, nullable']
+  action varchar [not null, note: 'CREATE, UPDATE, DELETE, etc.']
+  entityType varchar [not null]
+  entityId varchar [not null]
+  oldValue json
+  newValue json
+  changes json
+  ipAddress varchar
+  userAgent text
+  reason text
+  metadata json
+  pgAuditLogId varchar [note: 'Cross-reference to PostgreSQL audit_logs']
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  Note: 'Parallel audit logs with PostgreSQL, TTL 365 days'
+}
+
+Table mongo_analytics_events {
+  _id objectid [pk, note: 'MongoDB ObjectId']
+  eventName varchar [not null, note: 'PAGE_VIEW, CAMPAIGN_VIEW, etc.']
+  userId varchar [note: 'FK to PostgreSQL users.id, nullable']
+  campaignId varchar [note: 'FK to PostgreSQL campaigns.id, nullable']
+  sessionId varchar
+  path varchar
+  payload json
+  device json [note: 'Browser, OS, device type']
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  Note: 'Analytics and tracking events, TTL 180 days'
+}
+
+Table mongo_campaign_content {
+  _id objectid [pk, note: 'MongoDB ObjectId']
+  campaignId varchar [unique, not null, note: 'FK to PostgreSQL campaigns.id']
+  lastSavedBy varchar [not null, note: 'FK to PostgreSQL users.id']
+  version int [default: 1]
+  sections json [note: 'Array of content sections']
+  mediaGallery json [note: 'Array of media objects']
+  customFields json
+  isDraft boolean [default: false]
+  publishedAt timestamp
+  versionHistory json [note: 'Max 5 versions']
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  Note: 'Rich campaign content with versioning'
+}
+
+Table mongo_user_metadata {
+  _id objectid [pk, note: 'MongoDB ObjectId']
+  userId varchar [unique, not null, note: 'FK to PostgreSQL users.id']
+  preferences json [note: 'Email, push, language, timezone']
+  onboarding json [note: 'Completed steps, status']
+  stats json [note: 'Denormalized counters']
+  tags varchar[] [note: 'User interest tags']
+  customData json
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  Note: 'Extended user profile and preferences'
+}
+
+Table mongo_report_metadata {
+  _id objectid [pk, note: 'MongoDB ObjectId']
+  pgReportId varchar [unique, not null, note: 'FK to PostgreSQL campaign_reports.id']
+  campaignId varchar [not null, note: 'FK to PostgreSQL campaigns.id']
+  userId varchar [not null, note: 'FK to PostgreSQL users.id']
+  evidence json [note: 'Array of evidence objects']
+  adminNotes json [note: 'Array of admin notes']
+  priority varchar [default: 'MEDIUM', note: 'LOW, MEDIUM, HIGH, CRITICAL']
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  Note: 'Extended report metadata and evidence'
+}
+
+// ============================================================
+// HYBRID DATABASE RELATIONSHIPS
+// ============================================================
+
+// MongoDB references PostgreSQL (via string IDs)
+// PostgreSQL campaigns.id → mongo_campaign_updates.campaignId
+// PostgreSQL campaigns.id → mongo_comments.campaignId
+// PostgreSQL users.id → mongo_notifications.userId
+// PostgreSQL users.id → mongo_user_metadata.userId
+// PostgreSQL campaign_reports.id → mongo_report_metadata.pgReportId
+```
+
+---
+
+## 📊 CÁC LOẠI SƠ ĐỒ CẦN TẠO
+
+### 1. ERD (Entity Relationship Diagram)
+**Mục đích:** Hiển thị các bảng và quan hệ
+
+**Nội dung:**
+- Tất cả 12 bảng chính
+- Primary Keys
+- Foreign Keys
+- Relationships (1:1, 1:n, n:m)
+
+### 2. Database Schema Diagram
+**Mục đích:** Chi tiết cấu trúc từng bảng
+
+**Nội dung:**
+- Tên bảng
+- Tất cả columns
+- Data types
+- Constraints
+- Indexes
+
+### 3. Hybrid Database Architecture
+**Mục đích:** Hiển thị kiến trúc Hybrid
+
+**Nội dung:**
+```
+┌─────────────────────────────────────────────────────────┐
+│              APPLICATION LAYER (Next.js)                │
+│         Frontend + API Routes + Server Actions          │
+└────────────────────┬────────────────────────────────────┘
+                     │
+        ┌────────────┴────────────┐
+        │                         │
+┌───────▼──────────┐    ┌────────▼──────────┐
+│   PostgreSQL     │    │     MongoDB       │
+│   (Prisma ORM)   │    │  (Native Driver)  │
+├──────────────────┤    ├───────────────────┤
+│ • users          │    │ • campaign_updates│
+│ • campaigns      │    │ • comments        │
+│ • pledges        │◄───┤ • notifications   │
+│ • rewards        │    │ • activity_logs   │
+│ • transactions   │    │ • audit_logs      │
+│ • invoices       │    │ • analytics       │
+│ • kyc_info       │    │ • campaign_content│
+│ • reviews        │    │ • user_metadata   │
+│ • reports        │───►│ • report_metadata │
+│ • audit_logs     │    │                   │
+└──────────────────┘    └───────────────────┘
+     │                           │
+     │  ACID Transactions        │  Flexible Schema
+     │  Relational Data          │  High Write Speed
+     │  Financial Data           │  Logs & Analytics
+```
+
+**Chi tiết phân chia:**
+
+**PostgreSQL (Prisma):**
+- ✅ Dữ liệu quan hệ chính
+- ✅ Giao dịch tài chính (ACID)
+- ✅ Users, Campaigns, Pledges
+- ✅ Foreign Keys & Constraints
+- ✅ 12 tables chính
+
+**MongoDB (Native Driver):**
+- ✅ Dữ liệu phi cấu trúc
+- ✅ Logs & Analytics
+- ✅ Rich content (blog, updates)
+- ✅ Real-time data (chat, notifications)
+- ✅ 9 collections chính
+
+### 4. Data Flow Diagram
+**Mục đích:** Hiển thị luồng dữ liệu
+
+**Nội dung:**
+- User → Campaign → Pledge → Invoice
+- Payment flow
+- Webhook flow
+
+---
+
+## 🎨 TIPS TẠO SƠ ĐỒ ĐẸP
+
+### 1. Màu sắc
+- **Users**: Xanh dương (#3B82F6)
+- **Campaigns**: Xanh lá (#10B981)
+- **Pledges**: Vàng (#F59E0B)
+- **Invoices**: Tím (#8B5CF6)
+- **Security**: Đỏ (#EF4444)
+
+### 2. Layout
+- Đặt bảng chính ở giữa
+- Bảng liên quan xung quanh
+- Relationships rõ ràng
+
+### 3. Font
+- **Tiêu đề**: Arial Bold 14pt
+- **Nội dung**: Arial Regular 10pt
+- **Ghi chú**: Arial Italic 8pt
+
+### 4. Kích thước
+- **Slide**: 1920x1080 (16:9)
+- **Báo cáo**: A4 (210x297mm)
+- **Poster**: A3 (297x420mm)
+
+---
+
+## 📁 FILE MẪU
+
+Tôi đã tạo sẵn code DBML ở trên, bạn chỉ cần:
+1. Copy code DBML
+2. Paste vào dbdiagram.io
+3. Export PNG/PDF
+
+---
+
+## ✅ CHECKLIST
+
+**PostgreSQL Diagrams:**
+- [ ] ERD diagram (12 bảng PostgreSQL)
+- [ ] Schema diagram (chi tiết columns)
+- [ ] Relationships diagram
+
+**MongoDB Diagrams:**
+- [ ] Collections diagram (9 collections)
+- [ ] Document structure examples
+- [ ] Indexes diagram
+
+**Hybrid Architecture:**
+- [ ] Hybrid architecture diagram (PostgreSQL + MongoDB)
+- [ ] Data flow diagram (cả 2 databases)
+- [ ] Integration points diagram
+
+**Export Formats:**
+- [ ] Export PNG (cho slide)
+- [ ] Export PDF (cho báo cáo)
+- [ ] Export SVG (chất lượng cao)
+
+---
+
+## 🚀 KHUYẾN NGHỊ
+
+**Cho slide thuyết trình:**
+- Dùng **dbdiagram.io** (nhanh, đẹp, chuyên nghiệp)
+- Export PNG 1920x1080
+- Màu sắc rõ ràng
+
+**Cho báo cáo:**
+- Dùng **Lucidchart** hoặc **Draw.io**
+- Export PDF
+- Chi tiết đầy đủ
+
+**Cho documentation:**
+- Dùng **Mermaid** (code-based)
+- Dễ maintain
+- Version control friendly
+
+---
+
+**Chúc bạn tạo sơ đồ thành công! 🎉**
+
+---
+
+## Nguồn: `docs/HYBRID_DATABASE_SUMMARY.md`
+
+# 🔄 HYBRID DATABASE ARCHITECTURE - TÓM TẮT
+
+## 📊 TỔNG QUAN
+
+Dự án sử dụng **Hybrid Database Architecture** kết hợp:
+- **PostgreSQL** (qua Prisma ORM) - Dữ liệu quan hệ
+- **MongoDB** (qua Native Driver) - Dữ liệu phi cấu trúc
+
+---
+
+## 🗄️ POSTGRESQL (12 TABLES)
+
+### Vai trò: **Source of Truth** - Dữ liệu chính
+
+| # | Table | Mô tả | Số Records (ước tính) |
+|---|-------|-------|----------------------|
+| 1 | **users** | Người dùng | 10,000+ |
+| 2 | **campaigns** | Chiến dịch gây quỹ | 1,000+ |
+| 3 | **pledges** | Ủng hộ/Giao dịch | 50,000+ |
+| 4 | **rewards** | Phần thưởng | 5,000+ |
+| 5 | **campaign_updates** | Cập nhật cơ bản | 10,000+ |
+| 6 | **reviews** | Đánh giá | 20,000+ |
+| 7 | **campaign_reports** | Báo cáo vi phạm | 500+ |
+| 8 | **campaign_followers** | Theo dõi chiến dịch | 30,000+ |
+| 9 | **kyc_info** | Xác minh danh tính | 5,000+ |
+| 10 | **backer_invoices** | Hóa đơn người ủng hộ | 50,000+ |
+| 11 | **platform_invoices** | Hóa đơn nền tảng | 1,000+ |
+| 12 | **audit_logs** | Lịch sử thay đổi | 100,000+ |
+| 13 | **blacklist** | Danh sách đen | 100+ |
+| 14 | **transaction_limits** | Giới hạn giao dịch | 100+ |
+| 15 | **daily_tip_invoices** | Hóa đơn tip hàng ngày | 365+ |
+
+### Đặc điểm:
+- ✅ **ACID Compliance** - Đảm bảo tính toàn vẹn
+- ✅ **Foreign Keys** - Ràng buộc quan hệ
+- ✅ **Transactions** - Rollback khi lỗi
+- ✅ **Complex Queries** - JOIN, GROUP BY, Aggregations
+- ✅ **Data Integrity** - Constraints, Unique, Not Null
+
+### Khi nào dùng PostgreSQL?
+- ✅ Dữ liệu tài chính (amount, payment)
+- ✅ Quan hệ phức tạp (users ↔ campaigns ↔ pledges)
+- ✅ Cần ACID (transactions, invoices)
+- ✅ Cần rollback (payment failures)
+- ✅ Dữ liệu cố định schema
+
+---
+
+## 🍃 MONGODB (9 COLLECTIONS)
+
+### Vai trò: **Performance & Flexibility** - Tối ưu hiệu năng
+
+| # | Collection | Mô tả | Số Documents (ước tính) | TTL |
+|---|------------|-------|------------------------|-----|
+| 1 | **campaign_updates** | Cập nhật chi tiết (rich content) | 20,000+ | ∞ |
+| 2 | **comments** | Bình luận (nested) | 100,000+ | ∞ |
+| 3 | **notifications** | Thông báo người dùng | 500,000+ | 90 days |
+| 4 | **activity_logs** | Hoạt động người dùng | 1,000,000+ | 90 days |
+| 5 | **audit_logs** | Lịch sử (song song PG) | 200,000+ | 365 days |
+| 6 | **analytics_events** | Tracking & Analytics | 5,000,000+ | 180 days |
+| 7 | **campaign_content** | Nội dung phong phú | 1,000+ | ∞ |
+| 8 | **user_metadata** | Metadata người dùng | 10,000+ | ∞ |
+| 9 | **report_metadata** | Metadata báo cáo | 500+ | ∞ |
+
+### Đặc điểm:
+- ✅ **Flexible Schema** - Không cần migration
+- ✅ **High Write Speed** - Logs, analytics
+- ✅ **Nested Documents** - Comments, content blocks
+- ✅ **TTL Indexes** - Tự động xóa dữ liệu cũ
+- ✅ **Aggregation Pipeline** - Analytics mạnh mẽ
+
+### Khi nào dùng MongoDB?
+- ✅ Logs (không cần rollback)
+- ✅ Analytics (query nhanh, aggregation)
+- ✅ Rich content (blog, campaign updates)
+- ✅ Real-time data (notifications, chat)
+- ✅ Flexible schema (user preferences, metadata)
+- ✅ High write volume (tracking events)
+
+---
+
+## 🔗 QUAN HỆ GIỮA 2 DATABASES
+
+### PostgreSQL → MongoDB (References)
+
+```
+PostgreSQL                    MongoDB
+─────────────────────────────────────────────
+users.id          ──────►    notifications.userId
+users.id          ──────►    user_metadata.userId
+users.id          ──────►    activity_logs.userId
+users.id          ──────►    comments.userId
+
+campaigns.id      ──────►    campaign_updates.campaignId
+campaigns.id      ──────►    campaign_content.campaignId
+campaigns.id      ──────►    comments.campaignId
+campaigns.id      ──────►    analytics_events.campaignId
+
+campaign_reports.id ─────►   report_metadata.pgReportId
+audit_logs.id     ──────►    audit_logs.pgAuditLogId (MongoDB)
+```
+
+### Cách Tham Chiếu:
+- MongoDB lưu **PostgreSQL IDs dạng string** (cuid)
+- **KHÔNG có Foreign Key constraints** giữa 2 databases
+- Application layer đảm bảo tính nhất quán
+
+---
+
+## 📈 SO SÁNH HIỆU NĂNG
+
+| Tiêu chí | PostgreSQL | MongoDB | Winner |
+|----------|-----------|---------|--------|
+| **Read Speed** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | MongoDB |
+| **Write Speed** | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | MongoDB |
+| **Complex Queries** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | PostgreSQL |
+| **Transactions** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | PostgreSQL |
+| **Data Integrity** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | PostgreSQL |
+| **Flexibility** | ⭐⭐ | ⭐⭐⭐⭐⭐ | MongoDB |
+| **Aggregation** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | MongoDB |
+| **Scalability** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | MongoDB |
+
+---
+
+## 🎯 USE CASES CỤ THỂ
+
+### PostgreSQL Examples:
+
+**1. Tạo Pledge (Ủng hộ)**
+```typescript
+// PostgreSQL - ACID transaction
+await prisma.$transaction([
+  prisma.pledge.create({ data: pledgeData }),
+  prisma.campaign.update({ 
+    where: { id: campaignId },
+    data: { currentAmount: { increment: amount } }
+  }),
+  prisma.backerInvoice.create({ data: invoiceData })
+]);
+```
+
+**2. Chuyển tiền cho Creator**
+```typescript
+// PostgreSQL - Financial transaction
+await prisma.$transaction([
+  prisma.pledge.update({ 
+    where: { id },
+    data: { status: 'SUCCESS' }
+  }),
+  prisma.platformInvoice.create({ data: invoiceData })
+]);
+```
+
+### MongoDB Examples:
+
+**1. Ghi Activity Log**
+```typescript
+// MongoDB - High write speed
+await activityLogService.log({
+  userId,
+  action: 'CAMPAIGN_VIEW',
+  entityType: 'CAMPAIGN',
+  entityId: campaignId,
+  metadata: { ipAddress, userAgent }
+});
+```
+
+**2. Tạo Notification**
+```typescript
+// MongoDB - Flexible schema
+await notificationService.create({
+  userId,
+  type: 'PLEDGE_RECEIVED',
+  title: 'Bạn nhận được ủng hộ mới!',
+  message: `${backerName} đã ủng hộ ${amount} VND`,
+  payload: { campaignId, pledgeId, amount }
+});
+```
+
+**3. Lưu Rich Content**
+```typescript
+// MongoDB - Nested documents
+await campaignContentService.save({
+  campaignId,
+  sections: [
+    { type: 'TEXT', content: '...', order: 1 },
+    { type: 'IMAGE_GALLERY', content: [...], order: 2 },
+    { type: 'VIDEO', content: { url: '...' }, order: 3 }
+  ]
+});
+```
+
+---
+
+## 🔄 DATA FLOW EXAMPLES
+
+### Flow 1: User Ủng Hộ Chiến Dịch
+
+```
+1. User click "Ủng hộ"
+   ↓
+2. PostgreSQL: Create Pledge (PENDING)
+   ↓
+3. MongoDB: Log activity (DONATION_MODAL_OPEN)
+   ↓
+4. Redirect to PayOS
+   ↓
+5. PayOS webhook callback
+   ↓
+6. PostgreSQL: Update Pledge (SUCCESS)
+   PostgreSQL: Update Campaign.currentAmount
+   PostgreSQL: Create BackerInvoice
+   ↓
+7. MongoDB: Create Notification (PAYMENT_SUCCESS)
+   MongoDB: Log activity (PAYMENT_SUCCESS)
+   MongoDB: Log analytics event
+```
+
+### Flow 2: Creator Đăng Cập Nhật
+
+```
+1. Creator viết bài update (rich text)
+   ↓
+2. MongoDB: Save campaign_updates (draft)
+   ↓
+3. Creator click "Publish"
+   ↓
+4. MongoDB: Update status = PUBLISHED
+   ↓
+5. PostgreSQL: Get all followers
+   ↓
+6. MongoDB: Create notifications (bulk insert)
+   ↓
+7. MongoDB: Log activity (UPDATE_PUBLISHED)
+```
+
+### Flow 3: Admin Xem Báo Cáo
+
+```
+1. Admin mở dashboard
+   ↓
+2. PostgreSQL: Get basic stats (campaigns, users, pledges)
+   ↓
+3. MongoDB: Aggregate analytics_events
+   MongoDB: Get activity_logs
+   ↓
+4. Combine data → Display charts
+```
+
+---
+
+## 🛠️ CÔNG CỤ QUẢN LÝ
+
+### PostgreSQL:
+- **Prisma Studio**: `npx prisma studio`
+- **pgAdmin**: GUI tool
+- **psql**: CLI tool
+
+### MongoDB:
+- **MongoDB Compass**: GUI tool
+- **mongo shell**: CLI tool
+- **Custom admin panel**: `/dashboard/admin/mongodb`
+
+---
+
+## 📊 INDEXES & OPTIMIZATION
+
+### PostgreSQL Indexes:
+```sql
+-- Users
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_role ON users(role);
+
+-- Campaigns
+CREATE INDEX idx_campaigns_status ON campaigns(status);
+CREATE INDEX idx_campaigns_creator ON campaigns(creatorId);
+
+-- Pledges
+CREATE INDEX idx_pledges_campaign ON pledges(campaignId);
+CREATE INDEX idx_pledges_user ON pledges(userId);
+CREATE INDEX idx_pledges_status ON pledges(status);
+```
+
+### MongoDB Indexes:
+```javascript
+// Notifications
+db.notifications.createIndex({ userId: 1, createdAt: -1 });
+db.notifications.createIndex({ createdAt: 1 }, { expireAfterSeconds: 7776000 }); // 90 days TTL
+
+// Activity Logs
+db.activity_logs.createIndex({ userId: 1, createdAt: -1 });
+db.activity_logs.createIndex({ createdAt: 1 }, { expireAfterSeconds: 7776000 }); // 90 days TTL
+
+// Comments
+db.comments.createIndex({ campaignId: 1, createdAt: -1 });
+db.comments.createIndex({ parentId: 1 });
+
+// Analytics
+db.analytics_events.createIndex({ eventName: 1, createdAt: -1 });
+db.analytics_events.createIndex({ campaignId: 1, eventName: 1 });
+```
+
+---
+
+## 🔐 BACKUP & RECOVERY
+
+### PostgreSQL:
+```bash
+# Backup
+pg_dump -U postgres crowdfunding_vn > backup.sql
+
+# Restore
+psql -U postgres crowdfunding_vn < backup.sql
+```
+
+### MongoDB:
+```bash
+# Backup
+mongodump --uri="mongodb://..." --out=./backup
+
+# Restore
+mongorestore --uri="mongodb://..." ./backup
+```
+
+---
+
+## 📈 SCALING STRATEGY
+
+### PostgreSQL:
+- **Vertical Scaling**: Tăng RAM, CPU
+- **Read Replicas**: Cho read-heavy queries
+- **Connection Pooling**: PgBouncer
+- **Partitioning**: Theo date (pledges, invoices)
+
+### MongoDB:
+- **Horizontal Scaling**: Sharding
+- **Replica Sets**: High availability
+- **Capped Collections**: Logs với size limit
+- **TTL Indexes**: Tự động xóa dữ liệu cũ
+
+---
+
+## ✅ LỢI ÍCH CỦA HYBRID
+
+1. **Best of Both Worlds**
+   - PostgreSQL: Tính nhất quán cho tài chính
+   - MongoDB: Hiệu năng cao cho logs & analytics
+
+2. **Separation of Concerns**
+   - Critical data → PostgreSQL
+   - Non-critical data → MongoDB
+
+3. **Performance Optimization**
+   - Giảm tải cho PostgreSQL
+   - MongoDB xử lý high-write workloads
+
+4. **Flexibility**
+   - PostgreSQL: Fixed schema
+   - MongoDB: Dynamic schema
+
+5. **Cost Effective**
+   - MongoDB TTL tự động xóa dữ liệu cũ
+   - Tiết kiệm storage
+
+---
+
+## ⚠️ CHALLENGES & SOLUTIONS
+
+### Challenge 1: Data Consistency
+**Problem:** Không có foreign keys giữa 2 databases
+
+**Solution:**
+- Application layer validation
+- Soft deletes thay vì hard deletes
+- Periodic sync jobs
+
+### Challenge 2: Complex Queries
+**Problem:** Không thể JOIN giữa 2 databases
+
+**Solution:**
+- Denormalization (lưu thông tin cần thiết)
+- Application-level joins
+- Caching layer (Redis)
+
+### Challenge 3: Transactions
+**Problem:** Không có distributed transactions
+
+**Solution:**
+- Saga pattern
+- Eventual consistency
+- Compensating transactions
+
+---
+
+## 🎓 KẾT LUẬN
+
+**Hybrid Database Architecture** là lựa chọn tối ưu cho dự án crowdfunding vì:
+
+✅ **PostgreSQL** đảm bảo tính toàn vẹn cho dữ liệu tài chính  
+✅ **MongoDB** tối ưu hiệu năng cho logs, analytics, rich content  
+✅ **Tách biệt rõ ràng** giữa critical và non-critical data  
+✅ **Scalable** - Dễ dàng mở rộng theo chiều ngang  
+✅ **Cost-effective** - TTL tự động quản lý storage  
+
+---
+
+**Tổng số:**
+- **PostgreSQL**: 15 tables
+- **MongoDB**: 9 collections
+- **Total**: 24 data structures
+
+**Tổng dung lượng ước tính:**
+- **PostgreSQL**: ~10 GB (production)
+- **MongoDB**: ~50 GB (với logs & analytics)
+- **Total**: ~60 GB
+
+---
+
+**Cập nhật:** 22/05/2026  
+**Version:** 1.0.0
+
+---
+
+## Nguồn: `docs/MARKDOWN_AUDIT_NOTES.md`
+
+# Ghi chú kiểm kê Markdown và GitHub
+
+Nguồn kiểm tra: repository `https://github.com/Escanor292/platform.git`, branch `origin/main`, kiểm tra ngày 2026-08-22.
+
+## Trạng thái GitHub
+
+Local HEAD và `origin/main` đều là `9bf7ad1`; `git log HEAD..origin/main` không có commit mới. Commit gần nhất là merge Pull Request #2, gồm checkout đa phương thức và password reset.
+
+## Kiểm kê
+
+Đã tìm thấy 74 file `.md` ngoài `.git`, `node_modules`, `.next`, tổng hợp vào `docs/MARKDOWN_AUDIT_RAW.md`. Không phát hiện exact duplicate theo SHA-256 trong báo cáo kiểm kê. Có nhiều nhóm nội dung chồng lặp theo tên/chủ đề:
+
+- Kiến trúc/database/API: `3.1_KIEN_TRUC_HE_THONG.md`, `3.3_XAY_DUNG_BACKEND.md`, `3.4_KET_NOI_API.md`, `3.5_QUAN_LY_DU_LIEU.md`, `HUONG_DAN_TAO_SO_DO_DATABASE.md`, `DATABASE_STRUCTURE_ANALYSIS.md`, `FULL_DATABASE_SCHEMA.md`, `HYBRID_DATABASE_SUMMARY.md`.
+- Báo cáo trạng thái tổng thể: `docs/README.md`, `docs/BAO_CAO_CHI_TIET.md`, `docs/FINAL_STATUS_REPORT.md`, các `REFACTOR_PHASE*_COMPLETION_REPORT.md`, cùng nhóm `.kiro/specs/project-hierarchy-management/*STATUS*`, `IMPLEMENTATION_*`, `REMAINING_TASKS_GUIDE.md`.
+- Project hierarchy: nhiều tài liệu `.kiro/specs/project-hierarchy-management/` mô tả cùng một feature ở các mốc khác nhau; `IMPLEMENTATION_COMPLETE.md` là bản muộn hơn nhưng vẫn có các số liệu/lỗi lịch sử cần đối chiếu code thực tế.
+- Chat: `CHAT_SYSTEM.md`, `CHAT_SYSTEM_GUIDE.md`, `CHAT_COMPONENT_README.md`, `notes_call_design.md`, `notes_call_cost.md`, `notes_deleted_user_chat.md`.
+- Profile/blog/product: `PROFILE_ANALYSIS_REPORT.md`, `PROFILE_BLOG_INTEGRATION_ANALYSIS.md`, `PROFILE_BLOG_IMPLEMENTATION_REPORT.md`, `PROFILE_TABS_IMPLEMENTATION_REPORT.md`, `FEATURE_BLOG_LINKS_SUMMARY.md`, `notes_product_quickedit.md`, `MIGRATION_BLOG_LINKS.md`.
+- Deployment/testing/security: `VERCEL_DEPLOYMENT_GUIDE.md`, `DEPLOY_INSTRUCTIONS.md`, `deployment-verification.md`, `3.6.1_GIT_WORKFLOW.md`, `3.6.2_CICD_DEPLOYMENT.md`, `3.6.3_ENVIRONMENT.md`, `API_AUDIT_REPORT.md`, `assistant-safety-audit.md`, `zero-mem-*`, `assistant-observability-and-quality.md`.
+- Payment: `SEPAY_INTEGRATION.md`, `SEPAY_QUICKSTART.md`; docs/README vẫn mô tả PayOS QR. Checkout mới và password reset chưa có tài liệu chính thức trong docs trước khi task này bắt đầu.
+
+## Mã nguồn hiện tại
+
+Các route/page hiện có bao gồm campaign, projects, rewards/products, blog, chat/messages, dashboards admin/creator/backer, cart, notifications, payment-success, lookup, auth login/register/forgot-password/reset-password. Prisma hiện có models campaigns, projects, rewards, pledges, payment_methods, checkout_sessions, users, password_reset_tokens cùng nhiều model blog/chat/admin.
+
+## Điểm cần ghi rõ trong tài liệu tổng hợp
+
+`docs/README.md` còn có tuyên bố lịch sử như phiên bản 1.0.0, 88 tests pass, PayOS QR và Cloudinary; phải ghi là tài liệu nền/lịch sử và đối chiếu với code hiện tại. `package.json` hiện dùng Next.js 15, Prisma migration deploy trong `vercel-build`, Jest/Playwright và nhiều script seed. Tài liệu hợp nhất cần có bảng phân biệt: đã xác nhận trong code, được tài liệu mô tả nhưng cần xác minh, và đã lỗi thời/chỉ là kế hoạch.
+
+---
+
+## Nguồn: `docs/MARKDOWN_AUDIT_RAW.md`
+
+# Markdown audit
+
+Files: 82
+
+## Inventory
+
+### `.kiro/specs/project-hierarchy-management/FINAL_STATUS_REPORT.md`
+- Size: 16899 bytes; lines: 662; SHA-256: `b803015512937a1dd727fbd5452a8ea4525a48342a5f771211fe08e61e77e667`
+- Headings:
+  - # Project Hierarchy Management - Final Status Report
+  - ## Executive Summary
+  - ## Progress Breakdown
+  - ### ✅ COMPLETED: 20/28 Tasks (71%)
+  - #### Phase 1: Database Schema (3 tasks) ✅
+  - #### Phase 2: Types & Validation (2 tasks) ✅
+  - #### Phase 3: Service Layer (3 tasks) ✅
+  - #### Phase 4: Checkpoint (1 task) ✅
+  - #### Phase 5: API Endpoints (5 tasks) ✅
+  - #### Phase 6: Error Handling (3 tasks) ✅
+  - ### 🔄 REMAINING: 8/28 Tasks (29%)
+  - #### Phase 7: Campaign Integration (3 tasks) - PRIORITY HIGH
+  - #### Phase 8: Blog Integration (3 tasks) - PRIORITY HIGH
+  - #### Phase 9: Final Polish (5 tasks) - PRIORITY MEDIUM/LOW
+  - ## What Has Been Built
+  - ### 1. Complete Database Infrastructure ✅
+  - ### 2. Complete Type System ✅
+  - ### 3. Complete Validation Layer ✅
+  - ### 4. Complete Service Layer ✅
+  - ### 5. Complete API Layer ✅
+  - ### 6. Complete Error Handling System ✅
+  - ## Test Summary
+  - ### Total Tests Passing: 79/79 ✅
+  - ## What Remains to Be Done
+  - ### Estimated Time: 3-4 hours
+  - ### 1. Campaign Integration (Tasks 8.1-8.3) - 1.5 hours
+  - ### 2. Blog Integration (Tasks 9.1-9.3) - 1.5 hours
+  - ### 3. Final Polish (Tasks 11, 14.1, 15.2, 17.2, 18) - 1 hour
+  - ## Architecture & Design Decisions
+  - ### 1. Backward Compatibility ✅
+  - ### 2. Data Integrity ✅
+  - ### 3. Security ✅
+  - ### 4. Performance Considerations ✅
+  - ### 5. Error Handling ✅
+  - ## API Documentation
+  - ### Base URL
+  - ### Authentication
+  - ### Endpoints
+  - #### POST /api/projects
+  - #### GET /api/projects
+  - #### GET /api/projects/[id]
+  - #### PATCH /api/projects/[id]
+  - #### DELETE /api/projects/[id]
+  - ### Error Response Format
+  - ## Files Created/Modified
+  - ### Created Files (21 total):
+  - ### Files To Be Modified (4 total):
+  - ## Next Steps
+  - ### Immediate Actions:
+  - ### Command to Resume Autopilot:
+  - ## Risk Assessment
+  - ## Success Metrics
+  - ### Completed ✅:
+  - ### To Verify:
+  - ## Conclusion
+
+### `.kiro/specs/project-hierarchy-management/IMPLEMENTATION_COMPLETE.md`
+- Size: 12034 bytes; lines: 404; SHA-256: `09736a8eee0a3566862742f3f4d2ef6f0e881000dfaa2236a7e777e9f962ea86`
+- Headings:
+  - # Project Hierarchy Management - Implementation Complete ✅
+  - ## 📊 Executive Summary
+  - ### ✅ Implementation Status
+  - ## 🎯 Completed Features
+  - ### 1. Database Schema (Phase 1) ✅
+  - ### 2. Types & Validation (Phase 2) ✅
+  - ### 3. Service Layer (Phase 3) ✅
+  - ### 4. Error Handling (Phase 6) ✅
+  - ### 5. API Endpoints (Phase 5) ✅
+  - ### 6. Campaign Integration (Phase 7) ✅
+  - ### 7. Blog Integration (Phase 8) ✅
+  - ## 📈 Test Results Summary
+  - ### Passing Tests (101 tests ✅)
+  - ### Known Issues (53 tests)
+  - ### Coverage
+  - ## 🚀 API Usage Examples
+  - ### Create Project
+  - ### Create Campaign with Project
+  - ### Filter Campaigns by Project
+  - ### Update Campaign Project Association
+  - ## 🔒 Security Features
+  - ## 📦 Files Created/Modified
+  - ### Created (13 files)
+  - ### Modified (5 files)
+  - ## ✨ Key Achievements
+  - ## 📋 Requirements Coverage
+  - ## 🎓 Technical Decisions
+  - ### Why SET NULL instead of CASCADE for content?
+  - ### Why CUID for IDs?
+  - ### Why Zod for validation?
+  - ## 🔮 Future Enhancements (Not in Scope)
+  - ## 🎯 Conclusion
+
+### `.kiro/specs/project-hierarchy-management/IMPLEMENTATION_SUMMARY.md`
+- Size: 12872 bytes; lines: 409; SHA-256: `fdf081852cfe6163a4cce1f62067e86181820be206891dce05b3da34796c5b09`
+- Headings:
+  - # Project Hierarchy Management - Implementation Summary
+  - ## Executive Summary
+  - ## What Has Been Built
+  - ### 1. Database Layer ✅
+  - ### 2. Type System & Validation ✅
+  - ### 3. Service Layer ✅
+  - ### 4. API Layer ✅
+  - #### POST /api/projects
+  - #### GET /api/projects
+  - #### GET /api/projects/[id]
+  - #### PATCH /api/projects/[id]
+  - #### DELETE /api/projects/[id]
+  - ### 5. Error Handling & Logging ✅
+  - ## What Remains to Be Built
+  - ### Phase 6: Error Response Standardization (2 tasks)
+  - ### Phase 7: Campaign Integration (3 tasks)
+  - ### Phase 8: Blog Integration (3 tasks)
+  - ### Phase 9: Polish & Testing (4 tasks)
+  - ## Testing Summary
+  - ### Unit Tests: 79/79 passing ✅
+  - ### Integration Tests: 0 (deferred to later phases)
+  - ## Architecture Decisions
+  - ### 1. Backward Compatibility
+  - ### 2. Orphaning vs Cascading
+  - ### 3. Authorization Model
+  - ### 4. Data Integrity
+  - ### 5. Error Handling
+  - ## Performance Considerations
+  - ### Database Efficiency
+  - ### Caching Strategy (To Be Implemented)
+  - ### Rate Limiting (To Be Implemented)
+  - ## Security Audit
+  - ### ✅ Implemented Security Measures:
+  - ### ⏳ Security To Be Added:
+  - ## API Documentation
+  - ### Base URL
+  - ### Authentication
+  - ### Request/Response Format
+  - ### Error Response Structure
+  - ### HTTP Status Codes
+  - ## Next Steps
+  - ### Immediate (Complete Core Feature)
+  - ### Short Term (Polish)
+  - ### Future Enhancements (Post-MVP)
+  - ## Files Modified/Created
+  - ### Created:
+  - ### To Be Modified:
+  - ## Conclusion
+
+### `.kiro/specs/project-hierarchy-management/REMAINING_TASKS_GUIDE.md`
+- Size: 10038 bytes; lines: 402; SHA-256: `4cc85a4f2bf14acf1a3a59c070a6e1d598233b81a07e04c73d13a77b04e88dbd`
+- Headings:
+  - # Project Hierarchy Management - Remaining Tasks Implementation Guide
+  - ## Progress: 64% Complete (18/28 required tasks done)
+  - ## ✅ Completed Tasks Summary
+  - ### Phase 1-5 (18 tasks completed):
+  - ## 🔄 Remaining Tasks (10 required tasks)
+  - ### **TASK 6.2: Implement error response handlers**
+  - #### What to implement:
+  - #### Testing:
+  - #### Integration:
+  - ### **TASK 7: Checkpoint - Verify API layer and error handling**
+  - #### What to verify:
+  - ### **TASK 8.1: Add projectId to campaign creation endpoint**
+  - #### What to implement:
+  - ### **TASK 8.2: Add projectId to campaign update endpoint**
+  - #### What to implement:
+  - ### **TASK 8.3: Add projectId filter to campaign query endpoint**
+  - #### What to implement:
+  - ### **TASK 9.1: Add projectId to blog post creation endpoint**
+  - #### What to implement:
+  - ### **TASK 9.2: Add projectId to blog post update endpoint**
+  - #### What to implement:
+  - ### **TASK 9.3: Add projectId filter to blog post query endpoint**
+  - #### What to implement:
+  - ### **TASK 11: Checkpoint - Verify association endpoints**
+  - #### What to verify:
+  - ### **TASK 14.1: Add rate limiting**
+  - #### What to implement:
+  - ### **TASK 15.2: Add response caching headers**
+  - #### What to implement:
+  - ### **TASK 17.2: Run full test suite**
+  - #### Commands:
+  - ### **TASK 18: Final checkpoint**
+  - #### Final verification:
+  - ## Quick Start Commands
+  - # Continue autopilot
+  - ## Manual Execution Order (if needed)
+  - ## Current Implementation Status
+  - ### Files Created:
+  - ### Test Results:
+  - ### API Endpoints Ready:
+  - ## Notes
+
+### `.kiro/specs/project-hierarchy-management/TASK_1.3_COMPLETION_SUMMARY.md`
+- Size: 8537 bytes; lines: 272; SHA-256: `cc5da3c58b74e5338e1c75aa74319d9d607a44a4ebe9d8ec15be1fd180568a88`
+- Headings:
+  - # Task 1.3 Completion Summary
+  - ## Task Details
+  - ## Deliverables
+  - ### 1. Rollback Migration Script ✅
+  - ### 2. Migration Idempotence Tests ✅
+  - ### 3. SQL-Level Idempotence Tests ✅
+  - ### 4. Migration Verification Report ✅
+  - ### 5. Rollback Procedure Guide ✅
+  - ## Test Results Summary
+  - ### Test Coverage by Category
+  - ## Requirements Validation
+  - ### Requirement 16.1: Migration Script Order ✅
+  - ### Requirement 16.2: Nullable ProjectId Columns ✅
+  - ### Requirement 16.3: Index Creation Timing ✅
+  - ### Requirement 16.4: Migration Idempotence ✅
+  - ### Requirement 16.5: Rollback Script ✅
+  - ## Foreign Key Constraint Verification
+  - ### CASCADE (users → projects) ✅
+  - ### SET NULL (projects → campaigns) ✅
+  - ### SET NULL (projects → blog_posts) ✅
+  - ## Migration Idempotence Verification
+  - ## Backward Compatibility
+  - ### Standalone Campaigns ✅
+  - ### Platform Blog Posts ✅
+  - ## Performance Validation
+  - ### Migration Execution ✅
+  - ### Test Performance ✅
+  - ## Files Created/Modified
+  - ### Created Files:
+  - ### No Files Modified:
+  - ## Rollback Readiness
+  - ### Rollback Script Features:
+  - ### Rollback Documentation:
+  - ### Rollback Safety:
+  - ## Recommendations
+  - ### For Production Deployment:
+  - ### For Future Migrations:
+  - ## Conclusion
+
+### `.kiro/specs/project-hierarchy-management/TASK_5.1_COMPLETION.md`
+- Size: 4829 bytes; lines: 153; SHA-256: `bb657cdb3637db1d7ddaf5ea130635dd2f10e3d5b600adf5a775afb736e6c618`
+- Headings:
+  - # Task 5.1 Completion Report
+  - ## Task: Create POST /api/projects endpoint
+  - ## Implementation Summary
+  - ### Files Modified
+  - ### Features Implemented
+  - #### 1. Authentication Check
+  - #### 2. Creator Role Validation
+  - #### 3. Request Body Validation
+  - #### 4. Project Creation
+  - #### 5. Response Format
+  - #### 6. Error Handling
+  - ### Requirements Validated
+  - ### Testing
+  - ### Code Quality
+  - ### Example Usage
+  - # Successful Request
+  - # Response (201 Created)
+  - # Validation Error
+  - # Response (400 Bad Request)
+  - ## Next Steps
+
+### `.kiro/specs/project-hierarchy-management/TASK_5.4_VERIFICATION.md`
+- Size: 7840 bytes; lines: 232; SHA-256: `6f4af317f47671cac4153f6b6b95668636926857f71a17eadd8f86b52a5d4acd`
+- Headings:
+  - # Task 5.4 Verification Report
+  - ## Task: Create PATCH /api/projects/[id] endpoint
+  - ## Implementation Details
+  - ### File Location
+  - ### PATCH Handler Implementation Checklist
+  - #### ✅ Authentication (Requirement 6.1)
+  - #### ✅ Request Validation (Requirements 6.1, 6.2)
+  - #### ✅ Ownership Validation (Requirement 6.4)
+  - #### ✅ Service Layer Integration (Requirements 6.2, 6.5)
+  - #### ✅ Response Format (Requirement 6.5)
+  - #### ✅ Automatic Timestamp Update (Requirement 6.6)
+  - #### ✅ Error Handling
+  - ## Test Coverage
+  - ### Service Layer Tests
+  - ### Validation Tests
+  - ## Requirements Validation
+  - ### Requirement 6.1: PATCH Endpoint Acceptance
+  - ### Requirement 6.2: Partial Updates
+  - ### Requirement 6.3: Not Found Error
+  - ### Requirement 6.4: Authorization Check
+  - ### Requirement 6.5: Success Response
+  - ### Requirement 6.6: Timestamp Update
+  - ## Code Quality
+  - ### TypeScript Type Safety
+  - ### Security
+  - ### Error Handling
+  - ### Code Organization
+  - ## Diagnostics Check
+  - ## Conclusion
+
+### `.kiro/specs/project-hierarchy-management/design.md`
+- Size: 44506 bytes; lines: 1530; SHA-256: `ee7a7bb190fed5db7bf38d0fe9c3cb4c383e23186342ccbc2ac0bbd619300302`
+- Headings:
+  - # Design Document: Project Hierarchy Management
+  - ## Overview
+  - ### Key Design Decisions
+  - ### Technology Stack
+  - ## Architecture
+  - ### System Components
+  - ### API Endpoint Structure
+  - ### Authentication Flow
+  - ## Components and Interfaces
+  - ### Database Layer (Prisma Schema)
+  - #### Projects Model
+  - #### Updated Campaigns Model
+  - #### Updated Blog Posts Model
+  - ### Service Layer
+  - #### Project Service Interface
+  - ### API Layer
+  - #### Request/Response Types
+  - #### Validation Schemas
+  - ## Data Models
+  - ### Entity Relationship Diagram
+  - ### Data Flow
+  - #### Project Creation Flow
+  - #### Project Deletion Flow
+  - ### Database Constraints and Indexes
+  - #### Projects Table
+  - #### Campaigns Table (Updated)
+  - #### Blog Posts Table (Updated)
+  - ## Correctness Properties
+  - #### Property Reflection
+  - ### Property 1: Automatic Timestamp Management
+  - ### Property 2: Project Deletion Orphans Campaigns
+  - ### Property 3: Project Deletion Orphans Blog Posts
+  - ### Property 4: Campaign Filtering by Project
+  - ### Property 5: Blog Post Filtering by Project
+  - ### Property 6: Unique CUID Generation
+  - ### Property 7: Authorization Enforcement
+  - ### Property 8: Project Creation with Valid Input
+  - ### Property 9: Partial Update Correctness
+  - ### Property 10: Successful Deletion Response
+  - ### Property 11: Input Validation and Normalization
+  - ### Property 12: Title Length Validation
+  - ### Property 13: Pagination Correctness
+  - ### Property 14: Pagination Boundary Validation
+  - ### Property 15: Campaign-Project Association Validation
+  - ### Property 16: Blog Post-Project Association Validation
+  - ### Property 17: Campaign Project Reassignment
+  - ### Property 18: Standalone Item Filtering
+  - ### Property 19: Associated Count Accuracy
+  - ### Property 20: Response Format Consistency
+  - ### Property 21: Error Response Structure
+  - ### Property 22: Validation Error Aggregation
+  - ### Property 23: Project Detail Completeness
+  - ### Property 24: Null ProjectId Representation
+  - ### Property 25: SQL Injection Protection
+  - ### Property 26: CUID Format Validation
+  - ### Property 27: Migration Idempotence
+  - ## Error Handling
+  - ### Error Categories and Responses
+  - #### 1. Authentication Errors (401 Unauthorized)
+  - #### 2. Authorization Errors (403 Forbidden)
+  - #### 3. Validation Errors (400 Bad Request)
+  - #### 4. Not Found Errors (404 Not Found)
+  - #### 5. Conflict Errors (409 Conflict)
+  - #### 6. Service Unavailable (503 Service Unavailable)
+  - #### 7. Internal Server Errors (500 Internal Server Error)
+  - ### Error Logging Strategy
+  - ### Resilience Patterns
+  - #### 1. Database Connection Retry
+  - #### 2. Graceful Degradation
+  - #### 3. Transaction Safety
+  - ## Testing Strategy
+  - ### Overview
+  - ### Testing Pyramid
+  - ### Property-Based Testing (PBT)
+  - #### Property Test Examples
+  - #### Custom Generators
+  - ### Unit Tests (Example-Based)
+  - #### Example Unit Tests
+  - ### Integration Tests
+  - ### E2E Tests
+
+### `.kiro/specs/project-hierarchy-management/requirements.md`
+- Size: 19513 bytes; lines: 273; SHA-256: `c55616948bbe40ab8af5e189cd1440d0cea7c92594f78f30ac39d4b463cd6001`
+- Headings:
+  - # Requirements Document
+  - ## Introduction
+  - ## Glossary
+  - ## Requirements
+  - ### Requirement 1: Project Database Schema
+  - #### Acceptance Criteria
+  - ### Requirement 2: Campaign-Project Relationship
+  - #### Acceptance Criteria
+  - ### Requirement 3: Blog Post-Project Relationship
+  - #### Acceptance Criteria
+  - ### Requirement 4: Project Creation API
+  - #### Acceptance Criteria
+  - ### Requirement 5: Project Retrieval API
+  - #### Acceptance Criteria
+  - ### Requirement 6: Project Update API
+  - #### Acceptance Criteria
+  - ### Requirement 7: Project Deletion API
+  - #### Acceptance Criteria
+  - ### Requirement 8: Campaign Creation with Project Association
+  - #### Acceptance Criteria
+  - ### Requirement 9: Campaign Update with Project Association
+  - #### Acceptance Criteria
+  - ### Requirement 10: Blog Post Project Association
+  - #### Acceptance Criteria
+  - ### Requirement 11: Project Query Filters
+  - #### Acceptance Criteria
+  - ### Requirement 12: Authorization and Ownership
+  - #### Acceptance Criteria
+  - ### Requirement 13: Data Validation and Constraints
+  - #### Acceptance Criteria
+  - ### Requirement 14: Error Handling and Resilience
+  - #### Acceptance Criteria
+  - ### Requirement 15: Performance and Scalability
+  - #### Acceptance Criteria
+  - ### Requirement 16: Database Migration
+  - #### Acceptance Criteria
+  - ### Requirement 17: Backward Compatibility
+  - #### Acceptance Criteria
+  - ### Requirement 18: Security Considerations
+  - #### Acceptance Criteria
+  - ### Requirement 19: API Response Format
+  - #### Acceptance Criteria
+  - ### Requirement 20: Project Detail Endpoint
+  - #### Acceptance Criteria
+
+### `.kiro/specs/project-hierarchy-management/tasks.md`
+- Size: 20785 bytes; lines: 378; SHA-256: `c8ee9c36a77dd11e368de8f3ed948039108e2385c870d9328ff5824a10c3551f`
+- Headings:
+  - # Implementation Plan: Project Hierarchy Management
+  - ## Overview
+  - ## Tasks
+  - ## Notes
+
+### `.windsurf/workflows/gioi-thieu.md`
+- Size: 0 bytes; lines: 0; SHA-256: `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+- Headings: none
+
+### `docs/3.1_KIEN_TRUC_HE_THONG.md`
+- Size: 20859 bytes; lines: 571; SHA-256: `7d50be5e9e47caec9a9fceb47443635ed0089cd3052b3cd5c478e6817f9a3273`
+- Headings:
+  - # 3.1. KIẾN TRÚC HỆ THỐNG
+  - ## 📋 MỤC LỤC
+  - ## 🏗️ MÔ HÌNH KẾT NỐI FRONT-END, BACK-END VÀ DATABASE
+  - ### Kiến Trúc Tổng Quan
+  - ## 📂 KIẾN TRÚC THƯ MỤC DỰ ÁN
+  - ### Cấu Trúc Tổng Quan
+  - ## 🔄 QUY TRÌNH HOẠT ĐỘNG
+  - ### 1. Quy Trình Request-Response
+  - ### 2. Quy Trình Tạo Chiến Dịch
+  - ### 3. Quy Trình Thanh Toán
+  - ### 4. Quy Trình Authentication
+  - ### 5. Quy Trình Admin Phê Duyệt
+  - ## 🔐 SECURITY LAYERS
+  - ### 1. Frontend Security
+  - ### 2. API Security
+  - ### 3. Database Security
+  - ## 📊 DATA FLOW PATTERNS
+  - ### Pattern 1: Server-Side Rendering (SSR)
+  - ### Pattern 2: Client-Side Fetching
+  - ### Pattern 3: Server Actions
+  - ## 🎯 KẾT LUẬN
+
+### `docs/3.2_XAY_DUNG_FRONTEND.md`
+- Size: 23404 bytes; lines: 775; SHA-256: `22f9a05dee8453fee7c6d144ae1379f69a4eace63e73d646fc44b53330300b70`
+- Headings:
+  - # 3.2. XÂY DỰNG FRONT-END
+  - ## 📋 MỤC LỤC
+  - ## 🎨 TỔNG QUAN FRONTEND
+  - ### Tech Stack
+  - ### Đặc Điểm Chính
+  - ## 📂 CẤU TRÚC FRONTEND
+  - ### Thư Mục Components
+  - ## 🧩 COMPONENTS CHI TIẾT
+  - ### 1. Campaign Card Component
+  - ### 2. Payment Modal Component
+  - ### 3. Navbar Component
+  - ## 🛣️ ROUTING & NAVIGATION
+  - ### App Router Structure
+  - ### Navigation Examples
+  - ## 🔄 STATE MANAGEMENT
+  - ### 1. React Hooks
+  - ### 2. Context API
+  - ### 3. Server State (NextAuth)
+  - ## 🎨 STYLING & UI
+  - ### Tailwind CSS Classes
+  - ### Radix UI Components
+  - ## ✅ BEST PRACTICES
+
+### `docs/3.3_XAY_DUNG_BACKEND.md`
+- Size: 24820 bytes; lines: 961; SHA-256: `761fb1a40de14206d2bcdd19b972a5eebe21759fa1f2bb9648e2e486b7691789`
+- Headings:
+  - # 3.3. XÂY DỰNG BACK-END (API)
+  - ## MỤC LỤC
+  - ## 1. TỔNG QUAN BACKEND
+  - ### 1.1. Công nghệ sử dụng
+  - ### 1.2. Kiến trúc Backend
+  - ## 2. CẤU TRÚC API ROUTES
+  - ### 2.1. Danh sách API Endpoints (30+ endpoints)
+  - #### **Authentication APIs**
+  - #### **Campaign APIs**
+  - #### **User APIs**
+  - #### **Payment APIs**
+  - #### **Admin APIs**
+  - #### **Upload APIs**
+  - #### **Stats APIs**
+  - ## 3. AUTHENTICATION & AUTHORIZATION
+  - ### 3.1. NextAuth Configuration
+  - ### 3.2. Authorization Middleware
+  - ## 4. API ENDPOINTS CHI TIẾT
+  - ### 4.1. Campaign APIs
+  - ### 4.2. User APIs
+  - ### 4.3. Payment APIs
+  - ### 4.4. Upload API
+  - ### 4.5. Stats API
+  - ## 5. DATABASE OPERATIONS
+  - ### 5.1. Prisma Client Setup
+  - ### 5.2. Common Database Patterns
+  - ## 6. ERROR HANDLING & VALIDATION
+  - ### 6.1. Error Response Format
+  - ### 6.2. Validation với Zod
+  - ### 6.3. Try-Catch Pattern
+  - ## 7. PAYMENT INTEGRATION
+  - ### 7.1. PayOS Integration
+  - ### 7.2. Webhook Handler
+  - ## 8. MONGODB INTEGRATION
+  - ### 8.1. MongoDB Connection
+  - ### 8.2. Analytics Service
+  - ## KẾT LUẬN
+
+### `docs/3.4_KET_NOI_API.md`
+- Size: 18259 bytes; lines: 794; SHA-256: `de1b9816af0fe839427eb169ab2744ed9dee5892fb8c1d7a0acf98b57a8c8ba0`
+- Headings:
+  - ## MỤC LỤC
+  - ## 1. TỔNG QUAN KẾT NỐI API
+  - ### 1.1. Phương thức kết nối
+  - ### 1.2. Đặc điểm
+  - ## 2. FETCH API VS AXIOS
+  - ### 2.1. Fetch API (Được sử dụng)
+  - ### 2.2. Axios (Không sử dụng)
+  - ## 3. API CALLING PATTERNS
+  - ### 3.1. GET Request - Lấy dữ liệu
+  - ### 3.2. POST Request - Tạo dữ liệu mới
+  - ### 3.3. PUT Request - Cập nhật dữ liệu
+  - ### 3.4. DELETE Request - Xóa dữ liệu
+  - ### 3.5. File Upload - Upload ảnh
+  - ## 4. DATA FETCHING STRATEGIES
+  - ### 4.1. Server-Side Rendering (SSR)
+  - ### 4.2. Client-Side Rendering (CSR)
+  - ### 4.3. Incremental Static Regeneration (ISR)
+  - ## 5. ERROR HANDLING
+  - ### 5.1. Try-Catch Pattern
+  - ### 5.2. Error Display Component
+  - ### 5.3. Toast Notifications
+  - ## 6. LOADING STATES
+  - ### 6.1. Loading Component
+  - ### 6.2. Skeleton Loading
+  - ### 6.3. Loading State trong Component
+  - ## 7. CACHING STRATEGIES
+  - ### 7.1. Next.js Cache (Server-side)
+  - ### 7.2. React Query (Client-side)
+  - ### 7.3. Manual Caching với useState
+  - ## 8. CUSTOM HOOKS
+  - ### 8.1. usePledge Hook
+  - ### 8.2. useDebounce Hook
+  - ### 8.3. useThrottle Hook
+  - ## KẾT LUẬN
+
+### `docs/3.5_QUAN_LY_DU_LIEU.md`
+- Size: 13782 bytes; lines: 645; SHA-256: `d2c7e789a7daed5cbed87b7ad677abb17a9c3b8eec8d12915fc9efe2fd2f89ce`
+- Headings:
+  - # 3.5. QUẢN LÝ DỮ LIỆU NGƯỜI DÙNG
+  - ## MỤC LỤC
+  - ## 1. LOCAL STORAGE
+  - ### 1.1. Tổng quan
+  - ### 1.2. Use Cases
+  - ### 1.3. Helper Functions
+  - ### 1.4. Sử dụng trong Components
+  - ## 2. SESSION STORAGE
+  - ### 2.1. Tổng quan
+  - ### 2.2. Use Cases
+  - ### 2.3. Helper Functions
+  - ### 2.4. Form Draft Auto-save
+  - ## 3. QUẢN LÝ TOKEN
+  - ### 3.1. JWT Token Structure
+  - ### 3.2. Token Storage
+  - ### 3.3. NextAuth Token Management
+  - ### 3.4. Client-side Token Access
+  - ### 3.5. Server-side Token Access
+  - ## 4. QUẢN LÝ SESSION
+  - ### 4.1. NextAuth Session
+  - ### 4.2. Session Refresh
+  - ### 4.3. Logout Handler
+  - ## 5. COOKIE MANAGEMENT
+  - ### 5.1. Cookie Types
+  - ### 5.2. NextAuth Cookies
+  - ### 5.3. Custom Cookie Helper
+  - ### 5.4. Cookie Consent
+  - ## 6. SECURITY BEST PRACTICES
+  - ### 6.1. XSS Protection
+  - ### 6.2. CSRF Protection
+  - ### 6.3. Sensitive Data
+  - ### 6.4. Input Validation
+  - ### 6.5. Rate Limiting
+  - ## KẾT LUẬN
+
+### `docs/3.6.1_GIT_WORKFLOW.md`
+- Size: 2743 bytes; lines: 127; SHA-256: `c718d41332561430913099859454cca7a42dd3cab3be9663b978f4f282364a27`
+- Headings:
+  - ## 1. GIT WORKFLOW
+  - ## 2. BRANCH STRATEGY
+  - ## 3. COMMIT CONVENTIONS
+  - ## 4. CODE REVIEW PROCESS
+  - ## CHI TIẾT GIT WORKFLOW
+  - ### Setup Repository
+  - ### Daily Workflow
+  - # Pull latest
+  - # Create feature branch
+  - # Make changes
+  - # Push
+  - ### Common Commands
+  - ## BRANCH NAMING EXAMPLES
+  - ## COMMIT MESSAGE EXAMPLES
+  - # Good commits
+  - # Bad commits (avoid these)
+  - ## CODE REVIEW CHECKLIST
+  - ## MERGE STRATEGIES
+
+### `docs/3.6.2_CICD_DEPLOYMENT.md`
+- Size: 3232 bytes; lines: 193; SHA-256: `9f1c862e5734313c68090ca6431f3961efe233398a1ae840670ddc648ceb447f`
+- Headings:
+  - ## 1. CI/CD PIPELINE
+  - ## 2. VERCEL DEPLOYMENT
+  - ## 3. DATABASE MIGRATIONS
+  - ## CHI TIẾT CI/CD PIPELINE
+  - ### GitHub Actions Workflow
+  - ### Pipeline Stages
+  - ## VERCEL DEPLOYMENT
+  - ### Setup
+  - # Install Vercel CLI
+  - # Login
+  - # Link project
+  - # Deploy preview
+  - # Deploy production
+  - ### Automatic Deployment
+  - ### Environment Variables
+  - ## DATABASE MIGRATIONS
+  - ### Development
+  - # Create migration
+  - # Apply migration
+  - # Reset database
+  - ### Production
+  - # Apply migrations
+  - # Generate Prisma Client
+  - ### Vercel Build Command
+  - ### Migration Best Practices
+  - ## DEPLOYMENT CHECKLIST
+  - ## ROLLBACK STRATEGY
+  - # Revert to previous deployment
+  - # Or redeploy previous commit
+
+### `docs/3.6.3_ENVIRONMENT.md`
+- Size: 855 bytes; lines: 38; SHA-256: `5330216569bfcfada562f4893044bf541deb58da0a3d666a951b9e3b2be3ae1d`
+- Headings:
+  - ## 1. ENVIRONMENT FILES
+  - ## 2. ENVIRONMENT VARIABLES
+  - ## 3. CONFIGURATION
+  - ## 4. MONITORING & LOGGING
+  - ## ENVIRONMENT VARIABLES
+  - ## MONITORING
+  - ## SECURITY
+
+### `docs/3.6_QUAN_LY_SOURCE_CODE.md`
+- Size: 10 bytes; lines: 1; SHA-256: `0e32ad797a024cd023f193d4ffa6bdea22837e707a8ee36b54f3384772060866`
+- Headings:
+  - # 3.6 done
+
+### `docs/5_TONG_KET_VA_DANH_GIA.md`
+- Size: 16395 bytes; lines: 541; SHA-256: `491126ac1f638b078c77d0160f77fcf9fa808a205ad745799faf39dffba13e51`
+- Headings:
+  - # CHƯƠNG 5: TỔNG KẾT VÀ ĐÁNH GIÁ THÀNH VIÊN
+  - ## 5.1. Kết luận
+  - ### 5.1.1. Đánh giá kết quả so với mục tiêu ban đầu
+  - #### Mục tiêu đã đặt ra
+  - #### Kết quả đạt được
+  - ### 5.1.2. Điểm sáng trong kiến trúc mã nguồn
+  - #### 🌟 Kiến trúc tổng thể
+  - #### 🎯 Điểm mạnh kỹ thuật
+  - #### 💡 Innovations & Best Practices
+  - ## 5.2. Đánh giá mức độ hoàn thành
+  - ### 5.2.1. Bảng phân chia nhiệm vụ và đóng góp
+  - ### 5.2.2. Chi tiết đóng góp theo module
+  - #### Module 1: Authentication & User Management
+  - #### Module 2: Project & Campaign Management
+  - #### Module 3: Contribution & Payment
+  - #### Module 4: Dashboard & Analytics
+  - #### Module 5: Testing & Documentation
+  - #### Module 6: Deployment & DevOps
+  - ### 5.2.3. Thống kê đóng góp code
+  - ### 5.2.4. Đánh giá kỹ năng và thái độ
+  - ### 5.2.5. Xác nhận của thành viên
+  - ## 5.3. Hướng phát triển tương lai
+  - ### 5.3.1. Tính năng dự kiến bổ sung
+  - #### Phase 1: Ngắn hạn (1-3 tháng)
+  - #### Phase 2: Trung hạn (3-6 tháng)
+  - #### Phase 3: Dài hạn (6-12 tháng)
+  - ### 5.3.2. Cải thiện kiến trúc
+  - #### Performance Optimization
+  - #### Scalability Improvements
+  - #### Code Quality
+  - ### 5.3.3. Technical Debt & Refactoring
+  - ### 5.3.4. Infrastructure & DevOps
+  - ### 5.3.5. Business & Growth
+  - ### 5.3.6. Timeline & Roadmap
+  - ## 5.4. Bài học kinh nghiệm
+  - ### 5.4.1. Những gì làm tốt ✅
+  - ### 5.4.2. Những thách thức đã gặp ⚠️
+  - ### 5.4.3. Khuyến nghị cho dự án tương lai 💡
+  - ## 5.5. Lời cảm ơn
+
+### `docs/API_AUDIT_REPORT.md`
+- Size: 25504 bytes; lines: 642; SHA-256: `4f5f9ad13d3a19cb20ee33088afdbc7533114a4cfa0ea5e176193ef1be934a8c`
+- Headings:
+  - # BÁO CÁO KIỂM TOÁN API - CROWDFUNDING-VN
+  - ## TỔNG QUAN PHÂN TÍCH
+  - ## 1. DANH SÁCH TOÀN BỘ API ENDPOINTS
+  - ### 1.1 Admin APIs (`/api/admin/*`)
+  - ### 1.2 Authentication (`/api/auth/*`)
+  - ### 1.3 Campaigns (`/api/campaigns/*`)
+  - ### 1.4 Projects (`/api/projects/*`)
+  - ### 1.5 Blog (`/api/blog/*`)
+  - ### 1.6 Payments (`/api/payment/*` & `/api/payments`)
+  - ### 1.7 Chat (`/api/chat/*`)
+  - ### 1.8 Users (`/api/users/*` & `/api/user/*`)
+  - ### 1.9 Badges (`/api/badges/*` & `/api/me/badges`)
+  - ### 1.10 Rewards (`/api/rewards/*`)
+  - ### 1.11 KYC (`/api/kyc/*`)
+  - ### 1.12 Utility (`/api/stats`, `/api/upload`, etc.)
+  - ### 1.13 Cron (`/api/cron/*`)
+  - ### 1.14 Test/Debug (`/api/test-*`, `/api/simple-test`)
+  - ## 2. VẤN ĐỀ PHÁT HIỆN - BẢNG CHI TIẾT
+  - ## 3. DEAD APIs - API KHÔNG ĐƯỢC SỬ DỤNG
+  - ## 4. LỖ HỔNG BẢO MẬT - PHÂN TÍCH CHI TIẾT
+  - ### 4.1 🔴 NGHIÊM TRỌNG
+  - #### A. Cron Jobs Không Bảo Vệ
+  - # Ai cũng có thể gọi
+  - #### B. URL Sai Gây Thanh Toán Thất Bại
+  - #### C. Endpoint /api/auth/register Không Tồn Tại
+  - ### 4.2 🟡 TRUNG BÌNH
+  - #### D. Debug/Test Endpoints Public
+  - #### E. File Naming Không Đúng Convention
+  - # Di chuyển và đổi tên
+  - #### F. Middleware Không Check HTTP Method
+  - ### 4.3 🟢 THẤP - Code Quality Issues
+  - #### G. String Template Bug
+  - ## 5. KHUYẾN NGHỊ HÀNH ĐỘNG
+  - ### 5.1 Ưu Tiên Cao (Sửa Ngay)
+  - ### 5.2 Ưu Tiên Trung Bình (1-2 Tuần)
+  - ### 5.3 Ưu Tiên Thấp (Backlog)
+  - ## 6. CHECKLIST TRIỂN KHAI
+  - ### Phase 1: Critical Fixes (1-2 ngày)
+  - ### Phase 2: Structure Cleanup (3-5 ngày)
+  - ### Phase 3: Documentation & Optimization (1 tuần)
+  - ## 7. MẪU CODE ĐỂ TRIỂN KHAI
+  - ### 7.1 Cron Job Protection
+  - ### 7.2 Development-Only Endpoints
+  - ### 7.3 Method-Aware Middleware
+  - ## 8. KẾT LUẬN
+  - ### Tình Trạng Tổng Quan
+  - ### Điểm Mạnh
+  - ### Điểm Yếu
+  - ### Risk Score: **6/10** (MEDIUM-HIGH)
+
+### `docs/BAO_CAO_CHI_TIET.md`
+- Size: 14830 bytes; lines: 256; SHA-256: `c0263628020038e22989956272568db96351842cb254e9fabddd7a25fadb848c`
+- Headings:
+  - # 📊 BÁO CÁO CHI TIẾT DỰ ÁN TỬ TẾ FUND
+  - ## 0. Bối cảnh và Giải pháp (Vision & Solution)
+  - ### 🚩 Thực trạng (Problem)
+  - ### 💡 Giải pháp từ TửTế Fund
+  - ### 🚀 Giá trị cốt lõi
+  - ### 🏆 Lợi thế cạnh tranh (Competitive Advantage)
+  - ## 1. Phân tích yêu cầu chức năng & phi chức năng (1.0đ)
+  - ### ✅ Yêu cầu chức năng (Functional Requirements)
+  - ### 🛡️ Yêu cầu phi chức năng (Non-functional Requirements)
+  - ## 2. Xác định Actor & Đối tượng sử dụng (0.5đ)
+  - ### 👥 Đối tượng sử dụng (Target Audience)
+  - ### 🎭 Các Actor trong hệ thống
+  - ## 3. Sơ đồ Use Case (0.5đ)
+  - ## 4. Thiết kế CSDL & ER Diagram (1.0đ)
+  - ### 🐘 PostgreSQL (Dữ liệu quan hệ - Prisma ORM)
+  - ### 🍃 MongoDB (Dữ liệu phi cấu trúc)
+  - ## 5. Frontend (2.0đ)
+  - ## 6. Backend (2.0đ)
+  - ## 7. Cơ chế Quản lý Rủi ro & Minh bạch (Risk Management)
+  - ### 🛡️ Quản lý dòng tiền qua Bên thứ ba (Escrow)
+  - ### 🆔 Xác minh danh tính (KYC - Know Your Customer)
+  - ### 📑 Quản lý và Tra soát giao dịch
+  - ## 8. Kết nối Frontend-Backend (1.0đ)
+  - ## 9. Kiểm thử & Đánh giá (0.5đ)
+  - ## 10. Fix Bug & Cải thiện (0.5đ)
+  - ## 11. Phân chia công việc (0.5đ)
+  - ## 12. Đóng góp của thành viên (0.5đ)
+
+### `docs/BUGFIX_NESTED_LINKS_REPORT.md`
+- Size: 8232 bytes; lines: 346; SHA-256: `507b0d10927b02332f64a5e3affec4382849cdb909b6be6b7d67a755bda159e5`
+- Headings:
+  - # Báo Cáo Sửa Lỗi: Nested Links Hydration Error
+  - ## 🐛 MÔ TẢ LỖI
+  - ### Error Message
+  - ### Stack Trace
+  - ## 🔍 NGUYÊN NHÂN
+  - ### Component Structure (BEFORE FIX)
+  - ### HTML Output (Invalid)
+  - ### Vấn Đề
+  - ## ✅ GIẢI PHÁP
+  - ### Strategy
+  - ### Code Changes
+  - ### Component Structure (AFTER FIX)
+  - ### HTML Output (Valid)
+  - ## 🎨 UI/UX CONSIDERATIONS
+  - ### Behavior Preserved
+  - ### Improvements
+  - ## 🧪 VERIFICATION
+  - ### 1. Build Test
+  - ### 2. Runtime Test
+  - ### 3. Manual Testing Checklist
+  - ## 📊 IMPACT ANALYSIS
+  - ### Affected Pages
+  - ### Component Dependencies
+  - ## 🔄 SIMILAR ISSUES CHECK
+  - ### Search Results
+  - ### Other Card Components
+  - ## 📝 LESSONS LEARNED
+  - ### Root Cause
+  - ### Prevention
+  - ### Best Practices
+  - ## 🎯 RECOMMENDATION
+  - ### Code Comment Added
+  - ### Future Prevention
+  - ## ✅ SIGN-OFF
+  - ## 🔗 RELATED ISSUES
+  - ### Known Build Issues (Unrelated)
+
+### `docs/CAU_TRUC_DU_AN.md`
+- Size: 12185 bytes; lines: 143; SHA-256: `0e38a7898359369b587c16d1ae78f2c34d14cf19ec2e4f415764ce1dd93df222`
+- Headings:
+  - # CẤU TRÚC VÀ PHÂN TÍCH DỰ ÁN CROWDFUNDING-VN
+  - ## I. Tổng Quan Dự Án
+  - ## II. Sơ Đồ Cây Cấu Trúc Thư Mục (Project Tree)
+  - ## III. Mô Tả Chi Tiết Chức Năng Nổi Bật Theo Thư Mục
+  - ### 1. `src/app/` (Next.js App Router - Routing & APIs)
+  - ### 2. `src/components/` (Tầng Giao Diện UI)
+  - ### 3. `src/lib/` (Tầng Xử Lý Logic & Kết Nối)
+  - ### 4. `prisma/` (Cơ Sở Dữ Liệu SQL)
+  - ### 5. `docs/` & `scripts/` (Tài Liệu & Đồ Án Hỗ Trợ)
+  - ## IV. Luồng Hoạt Động Cốt Lõi (Core Workflow)
+
+### `docs/CHAT_COMPONENT_README.md`
+- Size: 5599 bytes; lines: 236; SHA-256: `33951689373b44b58c9bf08fe8baca662df16f20ad91638a17826e83e1b6905d`
+- Headings:
+  - # 💬 Chat System Components
+  - ## 📁 Components
+  - ### 1. ChatSidebar
+  - ### 2. ChatWindow
+  - ## 🚀 Usage
+  - ### Basic Example
+  - ## 📊 Data Types
+  - ## 🎨 Styling
+  - ## 🔧 Customization
+  - ### Thay đổi màu sắc tin nhắn
+  - ### Thay đổi kích thước sidebar
+  - ## 🔌 Integration với Backend
+  - ### 1. Fetch Conversations
+  - ### 2. Fetch Messages
+  - ### 3. Send Message
+  - ### 4. Real-time Updates (WebSocket/Pusher)
+  - ## 📱 Responsive Design
+  - ## ✨ Features Roadmap
+  - ## 🐛 Known Issues
+  - ## 📝 Notes
+  - ## 🔗 Related Files
+
+### `docs/CHAT_SYSTEM.md`
+- Size: 8295 bytes; lines: 395; SHA-256: `70e9456d21e9a65ab79e298f2a4e3bf0b79dc2eb85825c8f30c1502ef6e36e40`
+- Headings:
+  - # 💬 Hệ Thống Chat 1-1
+  - ## Tổng Quan
+  - ## Kiến Trúc
+  - ### Database
+  - ### Collections
+  - #### 1. `conversations`
+  - #### 2. `messages`
+  - #### 3. `chat_reports`
+  - ## API Endpoints
+  - ### 1. Start Conversation
+  - ### 2. Get Conversations
+  - ### 3. Get Messages
+  - ### 4. Send Message
+  - ### 5. Mark as Read
+  - ### 6. Delete Message
+  - ### 7. Report Conversation
+  - ### 8. Block/Unblock Conversation
+  - ### 9. Get Unread Count
+  - ## Components
+  - ### Frontend Components
+  - ## Usage
+  - ### 1. Thêm nút chat vào Campaign Detail
+  - ### 2. Thêm link Chat vào Navbar
+  - ### 3. Trang Chat
+  - ## Security
+  - ### Validation Rules
+  - ### Rate Limiting
+  - ## Setup
+  - ### 1. Cài đặt MongoDB Indexes
+  - ### 2. Environment Variables
+  - ### 3. Test Chat System
+  - # Start development server
+  - # Navigate to campaign detail
+  - # Click "Nhắn tin với [Creator Name]"
+  - # Send messages
+  - # Check /chat for conversation list
+  - ## Features
+  - ### ✅ Implemented
+  - ### 🚧 Future Enhancements
+  - ## Troubleshooting
+  - ### Messages không load
+  - ### Unread count không cập nhật
+  - ### Không gửi được message
+  - ## Performance
+  - ### Optimization Tips
+  - ### Monitoring
+  - ## Testing
+  - ### Manual Testing Checklist
+  - ### API Testing
+  - # Test start conversation
+  - # Test send message
+  - ## Support
+
+### `docs/CHAT_SYSTEM_GUIDE.md`
+- Size: 9530 bytes; lines: 393; SHA-256: `a21cca771b1b2e8126ab98eef2b65e6cf73e0afa9be34920952a5ed12b024c45`
+- Headings:
+  - # 💬 Hướng Dẫn Hệ Thống Chat
+  - ## 🎯 Tổng quan
+  - ## 📁 Cấu trúc Files
+  - ## 🚀 Cách sử dụng
+  - ### 1. Truy cập trang Messages
+  - ### 2. Features chính
+  - #### Sidebar (Bên trái)
+  - #### Chat Window (Bên phải)
+  - ## 🎨 UI/UX Features
+  - ### 1. Sidebar
+  - ### 2. Chat Window
+  - ## 🔌 Integration với Backend
+  - ### API Endpoints cần tạo
+  - #### 1. Get Conversations
+  - #### 2. Get Messages
+  - #### 3. Send Message
+  - #### 4. Mark as Read
+  - ### Database Schema
+  - ## 🔄 Real-time Updates
+  - ### Sử dụng Pusher
+  - ### Hoặc sử dụng Socket.io
+  - ## 📱 Responsive Design
+  - ### Desktop (>1024px)
+  - ### Tablet (768px - 1024px)
+  - ### Mobile (<768px)
+  - ## 🎯 Next Steps
+  - ### 1. Tạo API Routes
+  - # Tạo các file API
+  - ### 2. Thêm Database Schema
+  - # Thêm vào prisma/schema.prisma
+  - # Chạy migration
+  - ### 3. Setup Real-time
+  - # Chọn một trong hai:
+  - # hoặc
+  - ### 4. Test
+  - # Chạy dev server
+  - # Truy cập
+  - ## 🐛 Troubleshooting
+  - ### Lỗi: Module not found
+  - # Cài đặt dependencies
+  - ### Lỗi: Textarea không auto-resize
+  - ### Lỗi: Messages không scroll to bottom
+  - ## 📚 Resources
+  - ## ✅ Checklist
+
+### `docs/CONTRIBUTING.md`
+- Size: 3556 bytes; lines: 137; SHA-256: `73870d61d3a36c343dba54fb73577c081f3ae396eaebb836d695d2b6e3e4864c`
+- Headings:
+  - # Hướng dẫn đóng góp 🤝
+  - ## 🌿 Git Workflow
+  - ### Quy tắc nhánh
+  - # Tạo nhánh mới từ develop
+  - ### Commit Message Convention
+  - ## 🔀 Pull Request
+  - ### Template PR
+  - ## 📝 Thay đổi
+  - ## 🧪 Cách test
+  - ## 📸 Screenshots
+  - ## 📐 Code Style
+  - ### TypeScript
+  - ### Next.js / React
+  - ### Naming
+  - ## 🗄️ Database (Prisma)
+  - # Sau khi sửa schema.prisma
+  - # Xem dữ liệu
+  - ## 🔐 Quy tắc bảo mật
+  - ## 📞 Liên hệ
+
+### `docs/Cai_Tien_Cau_Truc_Ket_Noi.md`
+- Size: 10962 bytes; lines: 407; SHA-256: `6a3f91e126b3bcd50ae001109bacdd9d7c85b562edfd27fe795c5af91995aa13`
+- Headings:
+  - # 🎯 Tại Sao Cần Project Hierarchy? - Giải Thích Dễ Hiểu
+  - ## 📖 Câu Chuyện: Trước và Sau
+  - ### 🔴 **TRƯỚC ĐÂY** - Vấn Đề
+  - ### 🟢 **BÂY GIỜ** - Giải Pháp
+  - ## 💡 Giải Thích Bằng Ví Dụ Đời Thường
+  - ### Ví dụ 1: YouTuber Làm Series
+  - ### Ví dụ 2: Nhà Hàng Có Set Menu
+  - ## 🎯 Use Cases Cụ Thể
+  - ### Use Case 1: Series Phim Tài Liệu
+  - ### Use Case 2: Startup Phát Triển Sản Phẩm
+  - ### Use Case 3: Social Enterprise
+  - ## 📊 Lợi Ích Cụ Thể (Có Số Liệu)
+  - ### Cho Creator:
+  - ### Cho Người Ủng Hộ:
+  - ### Cho Nền Tảng:
+  - ## 🎨 Minh Họa Trực Quan
+  - ### Cấu Trúc Đơn Giản:
+  - ### Luồng Người Dùng:
+  - ## 🚀 Tương Lai: Có Thể Làm Gì Tiếp?
+  - ### Phase 2 (3-6 tháng):
+  - ### Phase 3 (6-12 tháng):
+  - ## 💰 ROI Analysis (Đơn Giản)
+  - ### Kịch Bản: Creator làm 3 campaigns
+  - ## ✅ Kết Luận: Tại Sao Quan Trọng?
+  - ### Nói Đơn Giản:
+  - ### Câu Nói Cuối:
+  - ## 📚 Đọc Thêm
+
+### `docs/DATABASE_STRUCTURE_ANALYSIS.md`
+- Size: 9763 bytes; lines: 291; SHA-256: `501e0164af360f6b09ae1be24309c71e90226f7ee4d709bc6a6b6d53f72de6bd`
+- Headings:
+  - # Phân Tích Cấu Trúc Database - Crowdfunding Platform
+  - ## 📋 TÓM TẮT NHANH
+  - ### Câu Trả Lời Cho Các Câu Hỏi
+  - ## 🗂️ CHI TIẾT CẤU TRÚC
+  - ### 1. Model `blog_posts`
+  - ### 2. Model `campaigns`
+  - ### 3. Model `rewards`
+  - ### 4. Model `campaign_blog_links` (Bảng Liên Kết)
+  - ## 🔍 PHÂN TÍCH SÂU
+  - ### Không Có Entity "Project"
+  - ### Quan Hệ Blog - Campaign
+  - ### Vấn Đề Tiềm Ẩn
+  - ## 📊 RELATIONSHIP DIAGRAM
+  - ## 🎯 KẾT LUẬN
+  - ### Không Có Project Entity
+  - ### Cấu Trúc Blog-Campaign
+  - ### Khuyến Nghị
+  - ## 📝 NOTES
+
+### `docs/DEPLOY_INSTRUCTIONS.md`
+- Size: 2858 bytes; lines: 109; SHA-256: `154cd9cfa24122a3e6a8834021382e01475d033a550c0b59e757cb7831b0a92c`
+- Headings:
+  - # 🚀 Hướng dẫn Deploy lên Vercel
+  - ## ⚠️ QUAN TRỌNG: Chạy Migration trên Production
+  - ### Cách 1: Sử dụng Vercel CLI (Khuyến nghị)
+  - # 1. Cài đặt Vercel CLI (nếu chưa có)
+  - # 2. Login vào Vercel
+  - # 3. Link project
+  - # 4. Pull environment variables
+  - # 5. Chạy migration với production database URL
+  - ### Cách 2: Sử dụng Prisma Data Platform
+  - ### Cách 3: Chạy trực tiếp với DATABASE_URL
+  - # Set DATABASE_URL từ Vercel
+  - # Chạy migration
+  - # Generate Prisma Client
+  - ## 📋 Checklist Deploy
+  - ## 🔍 Kiểm tra sau khi Deploy
+  - ## 🐛 Troubleshooting
+  - ### Lỗi: "Table campaign_blog_links does not exist"
+  - ### Lỗi: "Cannot find module"
+  - ### Tab Blog không hiển thị
+  - ## 📊 Database Migration Status
+  - ## 🔗 Links hữu ích
+  - ## 📝 Notes
+
+### `docs/DESIGN_SYSTEM.md`
+- Size: 11375 bytes; lines: 777; SHA-256: `c4abe4898f993d34e25d2c025752e697768aa703a3087d48110425349bde9f4b`
+- Headings:
+  - # DESIGN_SYSTEM.md
+  - ## 1. Nguồn chuẩn giao diện
+  - ## 2. Bảng màu chính
+  - ### Primary Green — `pgreen`
+  - ### Fresh Green — `fgreen`
+  - ### Trust Blue — `tblue`
+  - ### Dark Blue — `dblue`
+  - ### Earth Brown — `ebrown`
+  - ### Cream — `cream`
+  - ### Glass White
+  - ## 3. Quy tắc dùng màu
+  - ### 3.1 CTA chính
+  - ### 3.2 Tiêu đề
+  - ### 3.3 Text nội dung
+  - ### 3.4 Link
+  - ### 3.5 Trạng thái thành công
+  - ### 3.6 Trạng thái tin cậy/bảo mật/xác minh
+  - ### 3.7 Cảnh báo nhẹ
+  - ### 3.8 Lỗi/nguy hiểm
+  - ### 3.9 Background section
+  - ## 4. Quy tắc button
+  - ### 4.1 Primary button
+  - ### 4.2 Secondary button
+  - ### 4.3 Danger button
+  - ### 4.4 Disabled button
+  - ### 4.5 Loading button
+  - ## 5. Quy tắc card
+  - ### 5.1 Card public/marketing
+  - ### 5.2 Card dữ liệu/campaign
+  - ### 5.3 Card trong dashboard/admin
+  - ### 5.4 Card hover
+  - ## 6. Quy tắc section
+  - ### 6.1 Section public
+  - ### 6.2 Section Hero
+  - ### 6.3 Section Dashboard/Admin
+  - ### 6.4 Section CTA
+  - ## 7. Những màu không nên dùng
+  - ### 7.1 Không dùng blue mặc định cho CTA chính
+  - ### 7.2 Không dùng indigo/purple làm màu chính
+  - ### 7.3 Không dùng đen tuyệt đối quá nhiều
+  - ### 7.4 Không dùng gray lạnh quá nhiều ở trang public
+  - ### 7.5 Không dùng màu neon/chói
+  - ## 8. Checklist trước khi sửa UI
+  - ## 9. Nguyên tắc cuối cùng
+
+### `docs/DIAGRAM_DESCRIPTIONS.md`
+- Size: 6520 bytes; lines: 86; SHA-256: `544dac24693743ca2adf3a331acfe35891072981cbf13c14da35840633920638`
+- Headings:
+  - # 📖 MÔ TẢ CHI TIẾT SƠ ĐỒ USE CASE VÀ ER DIAGRAM - TỬ TẾ FUND
+  - ## I. MÔ TẢ CHI TIẾT SƠ ĐỒ USE CASE (USE CASE DESCRIPTIONS)
+  - ### 1. Danh sách các Actor
+  - ### 2. Các nhóm chức năng chính
+  - #### A. Nhóm Quản lý Tài khoản & Định danh
+  - #### B. Nhóm Quản lý Chiến dịch (Creator & Admin)
+  - #### C. Nhóm Ủng hộ & Thanh toán (Backer)
+  - #### D. Nhóm Tương tác & Uy tín
+  - ## II. MÔ TẢ CHI TIẾT SƠ ĐỒ THỰC THỂ (ER DIAGRAM DESCRIPTIONS)
+  - ### 1. Các thực thể cốt lõi (Core Entities - PostgreSQL)
+  - #### **1.1. Thực thể User (Người dùng)**
+  - #### **1.2. Thực thể Campaign (Chiến dịch)**
+  - #### **1.3. Thực thể Pledge (Lượt ủng hộ)**
+  - #### **1.4. Thực thể KYCInfo (Xác minh danh tính)**
+  - ### 2. Các thực thể mở rộng (Extended Entities)
+  - ### 3. Thực thể tại MongoDB (Dữ liệu phi cấu trúc)
+  - ## III. QUY TẮC RÀNG BUỘC VÀ TÍNH TOÀN VẸN
+
+### `docs/FEATURE_BLOG_LINKS_SUMMARY.md`
+- Size: 5301 bytes; lines: 166; SHA-256: `6a7871010b86f654f3c3a4deea2bcd481b840cf01840ac3d8d97e5f93a96531b`
+- Headings:
+  - # ✅ Tính năng: Gắn Blog vào Campaign
+  - ## 📋 Tổng quan
+  - ## 🎯 Các tính năng chính
+  - ### 1. Trong Form Tạo/Chỉnh sửa Campaign
+  - ### 2. Trong Trang Chi tiết Campaign
+  - ## 📁 Files đã tạo/cập nhật
+  - ### Database Schema
+  - ### Components
+  - ### API Routes
+  - ### Pages
+  - ## 🚀 Cách sử dụng
+  - ### Cho Creator:
+  - #### 1. Tạo Campaign mới
+  - #### 2. Chỉnh sửa Campaign
+  - ### Cho Người ủng hộ:
+  - ## 🔧 Migration
+  - ### Chạy migration:
+  - ### Kiểm tra:
+  - ## 📊 Database Structure
+  - ### Bảng: campaign_blog_links
+  - ### Indexes:
+  - ## 🎨 UI/UX Features
+  - ### BlogSelector Component:
+  - ### LinkedBlogsSection Component:
+  - ## 🔒 Security & Validation
+  - ## 📝 Notes
+  - ## 🐛 Known Issues
+  - ## 🔮 Future Enhancements
+
+### `docs/FINAL_STATUS_REPORT.md`
+- Size: 4869 bytes; lines: 204; SHA-256: `b7c536a11e86b25c99cbaf9c2225b3d1048470dc78a25f635054380fe172f588`
+- Headings:
+  - # Báo Cáo Trạng Thái Cuối Cùng
+  - ## ✅ ĐÃ HOÀN THÀNH
+  - ### 1. Phase 1: Terminology Inconsistency Fix ✅
+  - ### 2. Critical Bug: Nested Links Hydration Error ✅
+  - ## ⚠️ KNOWN ISSUES (Không Liên Quan)
+  - ### Build Errors (Pre-existing)
+  - ## 📊 SUMMARY
+  - ### Files Changed
+  - ### Changes Breakdown
+  - ## ✅ VERIFICATION
+  - ### What Was Tested
+  - ### What Needs Testing (When Build Fixed)
+  - ## 📝 NEXT STEPS
+  - ### Immediate
+  - ### Short-term (Next Sprint)
+  - ## 🎯 DELIVERABLES
+  - ### Documentation Created
+  - ### Code Changes
+  - ## ✅ QUALITY CHECKLIST
+  - ## 📞 CONTACT
+  - ## ✅ SIGN-OFF
+
+### `docs/FULL_DATABASE_SCHEMA.md`
+- Size: 5352 bytes; lines: 210; SHA-256: `9117085403892984e23191ebfeb991ad915a55e9bdaebdabc4b6d9932ab4adbb`
+- Headings:
+  - # 📊 FULL DATABASE SCHEMA - HYBRID ARCHITECTURE
+  - ## 🎯 TÓM TẮT
+  - ## 📁 FILES ĐÃ TẠO
+  - ### 1. **DATABASE_SCHEMA_DBML.txt** ✅
+  - ### 2. **MONGODB_SCHEMA_DBML.txt** ✅
+  - ## 🗄️ POSTGRESQL (15 TABLES)
+  - ## 🍃 MONGODB (9 COLLECTIONS)
+  - ## 🔗 RELATIONSHIPS
+  - ### PostgreSQL Internal:
+  - ### PostgreSQL → MongoDB:
+  - ## 🎨 CÁCH TẠO SƠ ĐỒ
+  - ### **Phương pháp 1: Sơ đồ tổng hợp (PostgreSQL + MongoDB)**
+  - ### **Phương pháp 2: Sơ đồ riêng MongoDB**
+  - ### **Phương pháp 3: Sơ đồ riêng PostgreSQL**
+  - ## 📊 CÁC SƠ ĐỒ NÊN TẠO
+  - ### 1. **ERD PostgreSQL** (Bắt buộc)
+  - ### 2. **MongoDB Collections** (Bắt buộc)
+  - ### 3. **Hybrid Architecture** (Bắt buộc)
+  - ### 4. **Data Flow Diagram** (Khuyên dùng)
+  - ## 🎯 CHECKLIST
+  - ## 💡 TIPS
+  - ### Màu sắc đề xuất:
+  - ### Layout:
+  - ### Font:
+  - ## 🚀 QUICK START
+
+### `docs/HUONG_DAN_TAO_SO_DO_DATABASE.md`
+- Size: 24326 bytes; lines: 987; SHA-256: `c1dc9a8725b7e7fd185a85d652dc6bb92d82f47f5e1778aadb74f8b5ef0c5fa4`
+- Headings:
+  - # 📊 HƯỚNG DẪN TẠO SƠ ĐỒ CƠ SỞ DỮ LIỆU
+  - ## 🎯 CÁC PHƯƠNG PHÁP TẠO SƠ ĐỒ
+  - ## PHƯƠNG PHÁP 1: SỬ DỤNG DBDIAGRAM.IO ⭐ (KHUYÊN DÙNG)
+  - ### Bước 1: Truy cập website
+  - ### Bước 2: Tạo tài khoản miễn phí
+  - ### Bước 3: Tạo diagram mới
+  - ### Bước 4: Copy code DBML vào editor
+  - ### Bước 5: Export sơ đồ
+  - ## PHƯƠNG PHÁP 2: SỬ DỤNG DRAW.IO / DIAGRAMS.NET
+  - ### Bước 1: Truy cập
+  - ### Bước 2: Tạo diagram mới
+  - ### Bước 3: Vẽ các bảng
+  - ### Bước 4: Vẽ quan hệ
+  - ### Bước 5: Export
+  - ## PHƯƠNG PHÁP 3: SỬ DỤNG PRISMA STUDIO
+  - ### Bước 1: Mở Prisma Studio
+  - ### Bước 2: Chụp màn hình
+  - ## PHƯƠNG PHÁP 4: SỬ DỤNG LUCIDCHART
+  - ### Bước 1: Truy cập
+  - ### Bước 2: Tạo tài khoản
+  - ### Bước 3: Tạo ERD
+  - ### Bước 4: Export
+  - ## PHƯƠNG PHÁP 5: SỬ DỤNG MERMAID (CODE)
+  - ### Tạo file mermaid
+  - ### Render online
+  - ## PHƯƠNG PHÁP 6: SỬ DỤNG MYSQL WORKBENCH
+  - ### Bước 1: Cài đặt
+  - ### Bước 2: Reverse Engineer
+  - ### Bước 3: Export
+  - ## PHƯƠNG PHÁP 7: SỬ DỤNG DATAGRIP (JETBRAINS)
+  - ### Bước 1: Cài đặt
+  - ### Bước 2: Kết nối database
+  - ### Bước 3: Export
+  - ## 🍃 MONGODB COLLECTIONS SCHEMA
+  - ### Thêm vào dbdiagram.io (sau phần PostgreSQL)
+  - ## 📊 CÁC LOẠI SƠ ĐỒ CẦN TẠO
+  - ### 1. ERD (Entity Relationship Diagram)
+  - ### 2. Database Schema Diagram
+  - ### 3. Hybrid Database Architecture
+  - ### 4. Data Flow Diagram
+  - ## 🎨 TIPS TẠO SƠ ĐỒ ĐẸP
+  - ### 1. Màu sắc
+  - ### 2. Layout
+  - ### 3. Font
+  - ### 4. Kích thước
+  - ## 📁 FILE MẪU
+  - ## ✅ CHECKLIST
+  - ## 🚀 KHUYẾN NGHỊ
+
+### `docs/HYBRID_DATABASE_SUMMARY.md`
+- Size: 11818 bytes; lines: 420; SHA-256: `f0a9325490b84f0a44c80a999cd599d8f6168504063c47f67d57f09ef404bb7d`
+- Headings:
+  - # 🔄 HYBRID DATABASE ARCHITECTURE - TÓM TẮT
+  - ## 📊 TỔNG QUAN
+  - ## 🗄️ POSTGRESQL (12 TABLES)
+  - ### Vai trò: **Source of Truth** - Dữ liệu chính
+  - ### Đặc điểm:
+  - ### Khi nào dùng PostgreSQL?
+  - ## 🍃 MONGODB (9 COLLECTIONS)
+  - ### Vai trò: **Performance & Flexibility** - Tối ưu hiệu năng
+  - ### Đặc điểm:
+  - ### Khi nào dùng MongoDB?
+  - ## 🔗 QUAN HỆ GIỮA 2 DATABASES
+  - ### PostgreSQL → MongoDB (References)
+  - ### Cách Tham Chiếu:
+  - ## 📈 SO SÁNH HIỆU NĂNG
+  - ## 🎯 USE CASES CỤ THỂ
+  - ### PostgreSQL Examples:
+  - ### MongoDB Examples:
+  - ## 🔄 DATA FLOW EXAMPLES
+  - ### Flow 1: User Ủng Hộ Chiến Dịch
+  - ### Flow 2: Creator Đăng Cập Nhật
+  - ### Flow 3: Admin Xem Báo Cáo
+  - ## 🛠️ CÔNG CỤ QUẢN LÝ
+  - ### PostgreSQL:
+  - ### MongoDB:
+  - ## 📊 INDEXES & OPTIMIZATION
+  - ### PostgreSQL Indexes:
+  - ### MongoDB Indexes:
+  - ## 🔐 BACKUP & RECOVERY
+  - ### PostgreSQL:
+  - # Backup
+  - # Restore
+  - ### MongoDB:
+  - # Backup
+  - # Restore
+  - ## 📈 SCALING STRATEGY
+  - ### PostgreSQL:
+  - ### MongoDB:
+  - ## ✅ LỢI ÍCH CỦA HYBRID
+  - ## ⚠️ CHALLENGES & SOLUTIONS
+  - ### Challenge 1: Data Consistency
+  - ### Challenge 2: Complex Queries
+  - ### Challenge 3: Transactions
+  - ## 🎓 KẾT LUẬN
+
+### `docs/MIGRATION_BLOG_LINKS.md`
+- Size: 2443 bytes; lines: 71; SHA-256: `3ac11ab1fa5c60e5b78fa27537abaa30d39de2353a0f3f9cf64c819166af1a01`
+- Headings:
+  - # Migration: Thêm tính năng gắn Blog vào Campaign
+  - ## Mô tả
+  - ## Các thay đổi
+  - ### 1. Database Schema
+  - ### 2. Components mới
+  - ### 3. API Endpoints mới
+  - ### 4. API Endpoints đã cập nhật
+  - ### 5. Forms đã cập nhật
+  - ## Hướng dẫn Migration
+  - ### Bước 1: Chạy Prisma Migration
+  - ### Bước 2: Generate Prisma Client
+  - ### Bước 3: Kiểm tra Migration
+  - ### Bước 4: Test tính năng
+  - ## Rollback (nếu cần)
+  - ## Notes
+
+### `docs/PLANTUML_USE_CASE.md`
+- Size: 2546 bytes; lines: 84; SHA-256: `ce384f65813353f5b8cbeea8b0e32d31ad6d0941dd39343382c604ba7a4e2e5a`
+- Headings:
+  - # 📊 PLANTUML USE CASE DIAGRAM - TỬ TẾ FUND
+  - ### 💡 Hướng dẫn sử dụng:
+
+### `docs/PRESENTATION_GUIDE.md`
+- Size: 3806 bytes; lines: 87; SHA-256: `5d2b0319d543945015efdd3279551d459101847aab5565209afaf692dcf27696`
+- Headings:
+  - # 🎤 HƯỚNG DẪN THUYẾT TRÌNH & NỘI DUNG SLIDE
+  - ## 📋 Thông tin chung
+  - ## 📑 Cấu trúc Slide (13-15 Slide)
+  - ### Slide 1: Cover Slide
+  - ### Slide 2: Agenda (Nội dung trình bày)
+  - ### Slide 3: Giới thiệu & Bối cảnh
+  - ### Slide 4: Mục tiêu & Phạm vi
+  - ### Slide 5: Phương pháp thực hiện
+  - ### Slide 6: Kiến trúc hệ thống (Hybrid Database)
+  - ### Slide 7: Triển khai kỹ thuật & Công nghệ
+  - ### Slide 8: Thiết kế Cơ sở dữ liệu (ERD)
+  - ### Slide 9: Kết quả thực hiện & Demo
+  - ### Slide 10: Kiểm thử & Đánh giá (Testing)
+  - ### Slide 11: Thảo luận & Hạn chế
+  - ### Slide 12: Kết luận & Hướng phát triển
+  - ### Slide 13: Q&A
+  - ## 🛠️ Checklist chuẩn bị Demo
+
+### `docs/PROFILE_ANALYSIS_REPORT.md`
+- Size: 18686 bytes; lines: 671; SHA-256: `3fcdb26f05652b23a552a895feb7e78c470b887bd082fdf8ad80851c1bdeb654`
+- Headings:
+  - # BÁO CÁO PHÂN TÍCH HỆ THỐNG PROFILE - TỬ TẾ FUND
+  - ## 1. THÔNG TIN HỆ THỐNG HIỆN TẠI
+  - ### 1.1. Routes & Files
+  - ### 1.2. Database Tables Liên Quan
+  - ## 2. OWNER VIEW - PHÂN TÍCH CHI TIẾT
+  - ### 2.1. ✅ Những Gì Đã Tốt
+  - #### Header Section
+  - #### Stats Section
+  - #### Content Sections
+  - ### 2.2. ❌ Những Gì Còn Thiếu
+  - #### 2.2.1. Blog & Content
+  - #### 2.2.2. Campaign Details
+  - #### 2.2.3. Activity & Engagement
+  - #### 2.2.4. Stats & Analytics
+  - ### 2.3. 📊 Dữ Liệu Đang Bị Lãng Phí
+  - #### 2.3.1. Blog Ecosystem (QUAN TRỌNG)
+  - #### 2.3.2. Campaign - Blog Connection
+  - #### 2.3.3. Reviews & Ratings
+  - #### 2.3.4. Campaign Followers
+  - #### 2.3.5. User Metadata (MongoDB)
+  - ## 3. PUBLIC VIEW - PHÂN TÍCH CHI TIẾT
+  - ### 3.1. ✅ Những Gì Đã Tốt
+  - #### Visibility
+  - #### Design
+  - ### 3.2. ❌ Những Gì Còn Thiếu
+  - #### 3.2.1. Trust & Credibility
+  - #### 3.2.2. Content Showcase
+  - #### 3.2.3. Engagement Indicators
+  - ### 3.3. 🎯 Điểm Cần Cải Thiện Để Tăng Tin Cậy
+  - #### 3.3.1. Social Proof Elements (ƯU TIÊN CAO)
+  - #### 3.3.2. Content Portfolio (ƯU TIÊN CAO)
+  - ## 4. DỮ LIỆU ĐANG BỊ LÃNG PHÍ - TỔNG HỢP
+  - ### 4.1. 🔴 Mức Độ Cao (QUAN TRỌNG)
+  - #### Blog Posts Ecosystem
+  - #### Reviews & Ratings
+  - ### 4.2. 🟡 Mức Độ Trung Bình
+  - #### Campaign Followers
+  - #### Campaign Updates Count
+  - #### Activity Timeline
+  - ### 4.3. 🟢 Mức Độ Thấp (Nice to Have)
+  - ## 5. FILE CẦN SỬA - ROADMAP
+  - ### 5.1. 🔴 Phase 1: High Priority (Blog & Reviews)
+  - #### File cần tạo mới:
+  - #### File cần sửa:
+  - ### 5.2. 🟡 Phase 2: Medium Priority (Stats & Engagement)
+  - #### File cần tạo:
+  - #### File cần sửa:
+  - ### 5.3. 🟢 Phase 3: Low Priority (Polish & Enhancement)
+  - ## 6. MỨC ĐỘ RỦI RO
+  - ### 6.1. ✅ Rủi Ro Thấp - An Toàn Thực Hiện
+  - #### Thêm Blog Posts Section
+  - #### Thêm Trust Badges
+  - ### 6.2. ⚠️ Rủi Ro Trung Bình - Cần Test Kỹ
+  - #### Thêm Reviews System
+  - #### Campaign Engagement Metrics
+  - ### 6.3. 🔴 Rủi Ro Cao - Tránh Hoặc Làm Sau
+  - #### Activity Timeline từ MongoDB
+  - #### Real-time Stats (Profile views, Response time)
+  - ## 7. ĐỀ XUẤT ƯU TIÊN THỰC HIỆN
+  - ### 🎯 Sprint 1: Quick Wins (1-2 ngày)
+  - ### 🎯 Sprint 2: Content Showcase (2-3 ngày)
+  - ### 🎯 Sprint 3: Advanced Features (3-5 ngày)
+  - ## 8. KẾT LUẬN
+  - ### 8.1. Tóm Tắt Vấn Đề
+  - ### 8.2. Impact Estimation
+  - #### Nếu implement Phase 1 (Blog + Reviews):
+  - #### Effort vs Impact:
+  - ### 8.3. Recommended Action
+  - ## 9. TECHNICAL NOTES
+  - ### 9.1. API Routes Cần Tạo
+  - ### 9.2. Database Queries Needed
+  - ### 9.3. Components Architecture
+
+### `docs/PROFILE_BLOG_IMPLEMENTATION_REPORT.md`
+- Size: 10622 bytes; lines: 424; SHA-256: `37bb1f3fa1914318352556a3bd07894ff87f9aff7e6ed41d2aad55c06f647508`
+- Headings:
+  - # BÁO CÁO TRIỂN KHAI: TÍCH HỢP BLOG VÀO PROFILE
+  - ## 1. TÓM TẮT
+  - ## 2. FILES ĐÃ SỬA/TẠO
+  - ### 2.1. Files Mới
+  - ### 2.2. Files Đã Sửa
+  - ## 3. KHÔNG ĐỤNG GÌ
+  - ## 4. KIỂM TRA CHỨC NĂNG
+  - ### 4.1. Owner View (`isOwnProfile && !showAsPublic`)
+  - ### 4.2. Public View (`!isOwnProfile || showAsPublic`)
+  - ### 4.3. Preview Mode
+  - ## 5. DESIGN SYSTEM COMPLIANCE
+  - ### 5.1. Colors
+  - ### 5.2. Layout
+  - ### 5.3. Components
+  - ## 6. BUILD RESULTS
+  - ### 6.1. Build Status
+  - ### 6.2. Warnings
+  - ### 6.3. Profile Page Route
+  - ## 7. DATA FLOW
+  - ### 7.1. Query Flow
+  - ### 7.2. Component Flow
+  - ## 8. EDGE CASES HANDLED
+  - ### 8.1. No Blog Posts
+  - ### 8.2. No Cover Image
+  - ### 8.3. Status Badge Colors
+  - ### 8.4. Date Fallback
+  - ## 9. PERFORMANCE
+  - ### 9.1. Query Optimization
+  - ### 9.2. Component Optimization
+  - ## 10. TESTING CHECKLIST
+  - ### 10.1. Manual Tests
+  - ### 10.2. Automated Tests
+  - ## 11. KẾT LUẬN
+  - ### 11.1. Hoàn Thành
+  - ### 11.2. Metrics
+  - ### 11.3. Risk Assessment
+
+### `docs/PROFILE_BLOG_INTEGRATION_ANALYSIS.md`
+- Size: 17397 bytes; lines: 610; SHA-256: `2bbb3575c8924d08d235ef05153194aaf24291ec75bf2382cff9fd7e735ee83e`
+- Headings:
+  - # BÁO CÁO PHÂN TÍCH: TÍCH HỢP BLOG VÀO PROFILE
+  - ## 1. KIỂM TRA HỆ THỐNG HIỆN TẠI
+  - ### 1.1. ✅ Những Gì ĐÃ CÓ
+  - ### 1.2. 🔍 Cấu Trúc Dữ Liệu Blog
+  - ### 1.3. 📊 API Có Sẵn
+  - ## 2. PROFILE PAGE HIỆN TẠI
+  - ### 2.1. File Profile Page
+  - ### 2.2. Cấu Trúc Layout
+  - ## 3. YÊU CẦU TÍCH HỢP BLOG
+  - ### 3.1. Owner View
+  - ### 3.2. Public View
+  - ### 3.3. Thiết Kế UI
+  - ## 4. KẾ HOẠCH THỰC HIỆN
+  - ### 4.1. Option A: Query Trực Tiếp Trong Page (KHUYẾN NGHỊ)
+  - ### 4.2. Option B: Tạo API Mới (KHÔNG CẦN THIẾT)
+  - ## 5. COMPONENT MỚI CẦN TẠO
+  - ### 5.1. `<ProfileBlogCard />` Component
+  - ### 5.2. `<ProfileBlogSection />` Component (Optional)
+  - ## 6. FILES CẦN SỬA
+  - ### 6.1. File Chính
+  - ### 6.2. Không Đụng Các File Sau
+  - ## 7. KIỂM TRA XUNG ĐỘT
+  - ### 7.1. ✅ Không Có Xung Đột
+  - ### 7.2. 🔍 Điểm Cần Lưu Ý
+  - ## 8. PSEUDOCODE - IMPLEMENTATION
+  - ### 8.1. Update Profile Page Query
+  - ### 8.2. Add Blog Section to JSX
+  - ### 8.3. Create ProfileBlogCard Component
+  - ## 9. KẾT LUẬN
+  - ### 9.1. Tóm Tắt
+  - ### 9.2. Files Cần Sửa/Tạo
+  - ### 9.3. Effort Ước Tính
+  - ### 9.4. Next Steps
+
+### `docs/PROFILE_TABS_IMPLEMENTATION_REPORT.md`
+- Size: 10605 bytes; lines: 461; SHA-256: `ae46728f24e9e109fb0048adf8ef232692165d22e788e479d6527b66ce3f614b`
+- Headings:
+  - # BÁO CÁO TRIỂN KHAI: PROFILE TABS NAVIGATION
+  - ## 1. TÓM TẮT
+  - ## 2. FILES ĐÃ SỬA/TẠO
+  - ### 2.1. Files Mới
+  - ### 2.2. Files Đã Sửa
+  - ## 3. UI/UX CHANGES
+  - ### 3.1. Tab Navigation Design
+  - ### 3.2. Tab Content
+  - ## 4. TAB LOGIC
+  - ### 4.1. Default Tab Selection
+  - ### 4.2. Tab Visibility
+  - ### 4.3. Conditional Rendering
+  - ## 5. DATA FLOW
+  - ### 5.1. Props Passed to ProfileTabs
+  - ### 5.2. No API Changes
+  - ## 6. PERFORMANCE
+  - ### 6.1. Before (Vertical Layout)
+  - ### 6.2. After (Tabs Layout)
+  - ## 7. EDGE CASES
+  - ### 7.1. Empty Tabs
+  - ### 7.2. Preview Mode
+  - ### 7.3. Public View vs Owner View
+  - ## 8. RESPONSIVE
+  - ### 8.1. Tabs Navigation
+  - ### 8.2. Tab Content
+  - ## 9. BUILD RESULTS
+  - ### 9.1. Build Status
+  - ### 9.2. Profile Page Size
+  - ### 9.3. Warnings
+  - ## 10. TESTING CHECKLIST
+  - ### 10.1. Manual Tests
+  - ### 10.2. Automated Tests
+  - ## 11. SO SÁNH TRƯỚC/SAU
+  - ### 11.1. Profile Header
+  - ### 11.2. Main Content
+  - ### 11.3. Sidebar
+  - ## 12. KẾT LUẬN
+  - ### 12.1. Hoàn Thành
+  - ### 12.2. Metrics
+  - ### 12.3. Benefits
+
+### `docs/PROJECT_VS_CAMPAIGN_ANALYSIS.md`
+- Size: 21725 bytes; lines: 823; SHA-256: `316b5dbc581fba9565f8ecaf4f1fb88fc0730951f3c08e43bcebdcd117294916`
+- Headings:
+  - # BÁO CÁO PHÂN TÍCH: PROJECT VS CAMPAIGN - TỬ TẾ FUND
+  - ## 1. HIỆN TRẠNG HỆ THỐNG
+  - ### 1.1. ✅ Những Gì ĐÃ CÓ
+  - ### 1.2. 🔍 Phát Hiện Quan Trọng
+  - ## 2. QUAN HỆ HIỆN TẠI
+  - ### 2.1. Campaign - Blog Relationship
+  - ### 2.2. Campaign - Rewards Relationship
+  - ### 2.3. Sơ Đồ Quan Hệ Hiện Tại
+  - ## 3. KHÁI NIỆM MỤC TIÊU
+  - ### 3.1. Định Nghĩa Mong Muốn
+  - ### 3.2. Sơ Đồ Mong Muốn
+  - ## 4. PHÂN TÍCH KHẢ NĂNG THỰC HIỆN
+  - ### 4.1. Option 1: Tạo Entity "Project" Thật (PHỨC TẠP)
+  - #### 4.1.1. Database Changes Cần Thiết
+  - #### 4.1.2. Migration Required
+  - #### 4.1.3. API Changes Needed
+  - #### 4.1.4. Frontend Changes Needed
+  - #### 4.1.5. Mức Độ Rủi Ro
+  - ### 4.2. Option 2: Soft Grouping với Metadata (TRUNG BÌNH)
+  - #### 4.2.1. Concept
+  - #### 4.2.2. Implementation
+  - #### 4.2.3. Ưu Điểm
+  - #### 4.2.4. Nhược Điểm
+  - #### 4.2.5. Mức Độ Rủi Ro
+  - ### 4.3. Option 3: Virtual Grouping (UI Only) - THẤP
+  - #### 4.3.1. Concept
+  - #### 4.3.2. Implementation
+  - #### 4.3.3. Ưu Điểm
+  - #### 4.3.4. Nhược Điểm
+  - #### 4.3.5. Mức Độ Rủi Ro
+  - ## 5. PHÂN TÍCH USE CASES
+  - ### 5.1. Use Case: Creator Tạo Campaign Mới
+  - ### 5.2. Use Case: Hiển thị Profile
+  - ### 5.3. Use Case: Discovery/Browse
+  - ## 6. ĐỀ XUẤT KIẾN TRÚC TỐI ƯU
+  - ### 6.1. 🎯 Recommendation: Option 3 (Virtual Grouping) + Option 2 (Soft Grouping) - HYBRID
+  - ### 6.2. Lý Do Đề Xuất Hybrid Approach
+  - ## 7. IMPLEMENTATION PLAN - PHASE 1 (Virtual Grouping)
+  - ### 7.1. Step-by-Step
+  - ### 7.2. No Breaking Changes
+  - ## 8. KẾT LUẬN
+  - ### 8.1. Tóm Tắt Hiện Trạng
+  - ### 8.2. Đề Xuất Cuối Cùng
+  - ### 8.3. KHÔNG Làm Ngay
+
+### `docs/README.md`
+- Size: 5889 bytes; lines: 132; SHA-256: `08a21abc7d34344d1e22535016a84d260671d7959ab58400718adfb4b7f65ac8`
+- Headings:
+  - # 📚 TỬ TẾ FUND - NỀN TẢNG CROWDFUNDING VIỆT NAM
+  - ## 🚀 Trạng thái dự án
+  - ## 🏗️ Kiến trúc & Công nghệ
+  - ### 💻 Stack công nghệ
+  - ### 📐 Mô hình kiến trúc
+  - ## ✨ Các tính năng chính
+  - ### 1. Quản lý Chiến dịch (Campaigns)
+  - ### 2. Hệ thống Thanh toán & Ủng hộ
+  - ### 3. Blog System (Hybrid Storage)
+  - ### 4. Hệ thống Huy hiệu (Badge System)
+  - ### 5. Chat 1-1 (Real-time Experience)
+  - ### 6. Quản trị & Bảo mật (Admin Dashboard)
+  - ## 🗄️ Cấu trúc Database (Sơ lược)
+  - ### PostgreSQL (Prisma)
+  - ### MongoDB
+  - ## 🛠️ Cài đặt & Phát triển
+  - ### 1. Cài đặt môi trường
+  - ### 2. Cấu hình biến môi trường (.env)
+  - ### 3. Khởi tạo Database
+  - ### 4. Chạy dự án
+  - ## 🧪 Kiểm thử (Testing)
+  - ## 📞 Liên hệ & Hỗ trợ
+
+### `docs/REFACTOR_PHASE1_COMPLETION_REPORT.md`
+- Size: 9992 bytes; lines: 377; SHA-256: `18d3a2e23dc8348e9e24b7c3127fa006cf7616bbc1d7989420eb4d63ea63c4b7`
+- Headings:
+  - # Báo Cáo Hoàn Thành: Giai Đoạn 1 - Khắc Phục Bất Đồng Bộ Thuật Ngữ
+  - ## 🎯 MỤC TIÊU GIAI ĐOẠN 1
+  - ## ✅ CÁC THAY ĐỔI ĐÃ THỰC HIỆN
+  - ### 🔴 BƯỚC 1: SỬA USER-FACING TEXT & DOCUMENTATION (ƯU TIÊN 1)
+  - #### 1.1. File: `src/components/profile/ProfileTabs.tsx`
+  - #### 1.2. File: `docs/PROFILE_ANALYSIS_REPORT.md`
+  - #### Content Sections
+  - #### 1.3. File: `docs/PROFILE_BLOG_INTEGRATION_ANALYSIS.md`
+  - ### 🟡 BƯỚC 2: CẮM CỜ CẢNH BÁO (DEPRECATED WARNINGS - ƯU TIÊN 2)
+  - #### 2.1. File: `src/app/api/projects/route.ts`
+  - #### 2.2. File: `src/types/project.ts`
+  - ## 📊 TỔNG KẾT THAY ĐỔI
+  - ### Số Lượng Files Đã Sửa
+  - ### Scope of Changes
+  - ## 🧪 KIỂM TRA ĐÃ THỰC HIỆN
+  - ### 1. Build Test ✅
+  - ### 2. Consistency Check ✅
+  - ### 3. UI Consistency Verification ✅
+  - ## 📋 CHECKLIST COMPLETION
+  - ### Required Checks (Theo Yêu Cầu)
+  - ## 🎯 KẾT QUẢ ĐẠT ĐƯỢC
+  - ### Trước Refactor (BEFORE)
+  - ### Sau Refactor (AFTER)
+  - ## 📝 FILES CHANGED SUMMARY
+  - ## 🚀 GIAI ĐOẠN TIẾP THEO
+  - ### Phase 2: Technical Naming Refactor (TBD)
+  - ## 💡 LESSONS LEARNED
+  - ### What Went Well ✅
+  - ### Best Practices Applied ✅
+  - ### Recommendations for Phase 2 📋
+  - ## 📞 NEXT ACTIONS
+  - ### Immediate (Completed ✅)
+  - ### Short-term (Next Sprint)
+  - ### Long-term (Future)
+  - ## ✅ SIGN-OFF
+
+### `docs/REFACTOR_PHASE2_PART1_COMPLETION_REPORT.md`
+- Size: 8396 bytes; lines: 241; SHA-256: `5b31c6269be1e806bb50215b7b9a33b9c6773951dfb8af798c2a4715662e1313`
+- Headings:
+  - # Báo Cáo Hoàn Thành: Giai Đoạn 2 (Phần 1) - Refactor Technical Naming
+  - ## 📋 Tóm Tắt Thực Hiện
+  - ### ✅ Đã Hoàn Thành
+  - #### 1. **Refactor Type Definitions Layer**
+  - #### 2. **Cập Nhật Import Statements (13 files)**
+  - #### 3. **Function Renaming (Semantic Rename)**
+  - #### 4. **Type References Update (All Variable & Parameter Types)**
+  - #### 5. **API Route Migration**
+  - ## 🧪 Kiểm Tra Kỹ Thuật
+  - ### Build Status: ✅ PASS
+  - ### TypeScript Errors: ✅ NONE
+  - ## 📊 Thống Kê Thay Đổi
+  - ## 🔄 Backward Compatibility
+  - ### ✅ Đảm Bảo Tương Thích Ngược
+  - ## 📝 TODO: Phase 2 (Part 2) - Refactor Function Names
+  - ### Functions cần đổi tên:
+  - ### Files/Folders cần đổi tên:
+  - ## 🎯 Kết Luận
+  - ### Lợi Ích Đạt Được:
+  - ### Giai Đoạn Tiếp Theo:
+
+### `docs/REFACTOR_PHASE2_PART2_COMPLETION_REPORT.md`
+- Size: 8991 bytes; lines: 263; SHA-256: `83bec84605586e576bb9f7c77c553c3ccc5d4c7a0ca14b6cc24fa7bc5e0513aa`
+- Headings:
+  - # Báo Cáo Hoàn Thành: Giai đoạn 2 (Phần 2) - Refactor Function Names & File Renaming
+  - ## 📋 Tóm Tắt Thực Hiện
+  - ### ✅ Đã Hoàn Thành
+  - #### 1. **Semantic Rename Functions (Đổi Tên Hàm Logic)**
+  - #### 2. **File System Renaming (Đổi Tên File & Folder)**
+  - #### 3. **Import Path Updates (All Files Consuming Lib)**
+  - #### 4. **Class & Variable Renaming**
+  - #### 5. **Comment & Documentation Updates**
+  - ## 🧪 Kiểm Tra Kỹ Thuật
+  - ### Build Status: ✅ PASS
+  - ### TypeScript Errors: ✅ NONE
+  - ## 📊 Thống Kê Thay Đổi
+  - ## 🔄 Backward Compatibility
+  - ### ⚠️ Breaking Changes (Expected & Intentional)
+  - ## 📝 Files Changed Summary
+  - ### Created/Renamed Files (5):
+  - ### Modified Files (10+):
+  - ## 🎯 Kết Luận
+  - ### Lợi Ích Đạt Được:
+  - ### So Sánh Trước & Sau:
+  - ### Giai Đoạn Hoàn Tất:
+  - ### Next Steps (Optional):
+
+### `docs/REFACTOR_PHASE3_COMPLETION_REPORT.md`
+- Size: 8371 bytes; lines: 228; SHA-256: `d1ce751975d9b8a291f18422a1e42788873de064c35599880ccedfa0aec0ea8e`
+- Headings:
+  - # Báo Cáo Hoàn Thành: Giai đoạn 3 (Giai đoạn Cuối) - Component Folder Renaming & Final Cleanup
+  - ## 📋 Tóm Tắt Thực Hiện
+  - ### ✅ Đã Hoàn Thành
+  - #### 1. **Di Chuyển Folder Components (projects → campaigns)**
+  - #### 2. **Refactor Component Names (Interfaces & Exports)**
+  - #### 3. **Cập Nhật Import Paths (All Consuming Files)**
+  - #### 4. **Cleanup Deprecated Files (Single Source of Truth)**
+  - ## 🧪 Kiểm Tra Kỹ Thuật
+  - ### Build Status: ✅ PASS
+  - ### TypeScript Errors: ✅ NONE
+  - ## 📊 Thống Kê Thay Đổi
+  - ## 🔄 Breaking Changes
+  - ### ⚠️ Expected Breaking Changes (Intentional)
+  - ## 📝 Files Changed Summary
+  - ### Created/Moved Files (10):
+  - ### Modified Files (1):
+  - ### Deleted Files (1):
+  - ## 🎯 Kết Luận
+  - ### Lợi Ích Đạt Được:
+  - ### So Sánh Toàn Bộ Refactor:
+  - ### Giai Đoạn Hoàn Tất - Tổng Kết:
+  - ### 🎉 **REFACTOR HOÀN TOÀN THÀNH CÔNG!**
+
+### `docs/SEPAY_INTEGRATION.md`
+- Size: 8440 bytes; lines: 327; SHA-256: `aca38e9fc0172aa3af1ea00327f28f23bc8de795eda284c43e7b587c009e3959`
+- Headings:
+  - # Tích hợp SePay Payment Gateway
+  - ## Tổng quan
+  - ## Cấu hình
+  - ### 1. Biến môi trường
+  - # SePay Payment Gateway
+  - ### 2. Lấy thông tin tích hợp
+  - #### Sandbox (Test)
+  - #### Production (Live)
+  - ### 3. Cấu hình IPN (Webhook)
+  - ## Cấu trúc code
+  - ### 1. Helper Library (`src/lib/payment/sepay.ts`)
+  - ### 2. API Routes
+  - #### Create Payment (`src/app/api/payment/sepay/create/route.ts`)
+  - #### Webhook/IPN (`src/app/api/payment/sepay/webhook/route.ts`)
+  - ### 3. Frontend Integration
+  - #### CheckoutButton Component
+  - ## Luồng thanh toán
+  - ## Testing
+  - ### 1. Test tạo thanh toán
+  - ### 2. Test webhook (local)
+  - # Terminal 1: Start dev server
+  - # Terminal 2: Start ngrok
+  - # Cập nhật IPN URL trong SePay dashboard với ngrok URL
+  - # VD: https://abc123.ngrok.io/api/payment/sepay/webhook
+  - ### 3. Test webhook manually
+  - ## Xử lý lỗi
+  - ### 1. Signature không hợp lệ
+  - ### 2. Pledge không tìm thấy
+  - ### 3. Amount mismatch
+  - ## Go Live Checklist
+  - ## Tài liệu tham khảo
+  - ## Troubleshooting
+  - ### Webhook không được gọi
+  - ### Thanh toán thành công nhưng pledge vẫn PENDING
+  - ### Form không submit được
+
+### `docs/SEPAY_QUICKSTART.md`
+- Size: 5268 bytes; lines: 233; SHA-256: `82a3f5b4a50b1e2530320c834ba12121b10a705c56aeeef2032e111ffcff0799`
+- Headings:
+  - # SePay - Hướng dẫn nhanh
+  - ## Bước 1: Lấy thông tin tích hợp
+  - ### Sandbox (Test)
+  - ## Bước 2: Cấu hình môi trường
+  - # SePay Payment Gateway
+  - ## Bước 3: Cấu hình IPN (Webhook)
+  - ### Development (Local)
+  - # hoặc
+  - ### Production
+  - ## Bước 4: Test tích hợp
+  - ### Test 1: Chạy script test
+  - ### Test 2: Test qua UI
+  - ### Test 3: Kiểm tra webhook
+  - ## Bước 5: Go Live (Production)
+  - ### 5.1. Hoàn thành test ở Sandbox
+  - ### 5.2. Chuyển sang Production
+  - ## Troubleshooting
+  - ### Lỗi: "SePay credentials not configured"
+  - # Kiểm tra file .env
+  - # Đảm bảo có đủ 3 biến:
+  - ### Lỗi: "Invalid signature"
+  - ### Webhook không được gọi
+  - ### Pledge vẫn PENDING sau khi thanh toán
+  - ## Checklist hoàn chỉnh
+  - ### Development
+  - ### Production
+  - ## Liên hệ hỗ trợ
+  - ## Tài liệu liên quan
+
+### `docs/SRS_CROWDFUNDING_VN.md`
+- Size: 71152 bytes; lines: 1661; SHA-256: `ba0feb64e004e780f502988229fd272144101d5c8fb5cb17727227c0d3c06738`
+- Headings:
+  - # ĐẶC TẢ YÊU CẦU PHẦN MỀM (SRS)
+  - ## Hệ Thống Crowdfunding Việt Nam
+  - ## KIỂM TRA PHỦ SÓNG CHỨC NĂNG NGUỒN
+  - ### A. Người dùng & phân quyền
+  - ### B. Chiến dịch gọi vốn (Campaigns)
+  - ### C. Thanh toán & ủng hộ
+  - ### D. KYC (xác minh danh tính Creator)
+  - ### E. Phần thưởng (Rewards)
+  - ### F. Blog & tin tức
+  - ### G. Chat real-time
+  - ### H. Huy hiệu (Badges)
+  - ### I. Admin dashboard
+  - ### J. Đánh giá (reviews), social links (enum social-platforms), audit log toàn hệ thống (audit_logs + AuditAction enum)
+  - ### K. Hạ tầng & ràng buộc
+  - ## 1. GIỚI THIỆU
+  - ### 1.1 Mục đích
+  - ### 1.2 Phạm vi
+  - ### 1.3 Định nghĩa, thuật ngữ, viết tắt
+  - ## 2. MÔ TẢ TỔNG QUAN
+  - ### 2.1 Quan điểm sản phẩm
+  - ### 2.2 Actor và chức năng người dùng
+  - ### 2.3 Ràng buộc vận hành
+  - ### 2.4 Giả định và phụ thuộc
+  - ## 3. YÊU CẦU CỤ THỂ
+  - ### 3.1 Yêu cầu chức năng (FR)
+  - #### Module A: Người dùng & phân quyền
+  - #### Module B: Chiến dịch gọi vốn (Campaigns)
+  - #### Module C: Thanh toán & ủng hộ
+  - #### Module D: KYC (Xác minh danh tính Creator)
+  - #### Module E: Phần thưởng (Rewards)
+  - #### Module F: Blog & tin tức
+  - #### Module G: Chat real-time
+  - #### Module H: Huy hiệu (Badges)
+  - #### Module I: Admin dashboard
+  - #### Module J: Đánh giá, Social links, Audit log
+  - #### Module K: Hạ tầng & ràng buộc
+  - ### 3.2 Yêu cầu phi chức năng (NFR)
+  - ### 3.3 Yêu cầu dữ liệu (DR)
+  - ### 3.4 Use case
+  - ## 4. MA TRẬN TRUY VẾT (TRACEABILITY MATRIX)
+  - ## 5. PHỤ LỤC
+  - ### 5.1 Máy trạng thái chiến dịch (Campaign State Machine)
+  - ### 5.2 Máy trạng thái Pledge (Pledge State Machine)
+  - ### 5.3 Máy trạng thái KYC (KYC State Machine)
+  - ### 5.4 Enum Definitions
+
+### `docs/TEMP_RICH_TEXT_SOURCE_EXPORT.md`
+- Size: 209740 bytes; lines: 6541; SHA-256: `e97e4f6fd596208a21d64aec1c556555c29794e357ed211d9033e0cc41a609aa`
+- Headings:
+  - # TEMP RICH TEXT SOURCE EXPORT
+  - ## 1. Mục tiêu phân tích
+  - ## 2. Danh sách file đã gom
+  - ## 3. File không tìm thấy
+  - ## 4. Nơi Rich Text đang được dùng
+  - ## 5. Source Code
+  - ### 5.1 `src/components/editor/ProductionEditor.tsx`
+  - ### 5.2 `src/components/editor/RichTextEditor.tsx`
+  - ### 5.3 `src/components/editor/EditorToolbar.tsx`
+  - ### 5.4 `src/components/editor/EditorBubbleMenu.tsx`
+  - ### 5.5 `src/components/editor/LinkPopover.tsx`
+  - ### 5.6 `src/components/editor/VideoPopover.tsx`
+  - ### 5.7 `src/components/editor/editor.css`
+  - ### 5.8 `src/components/editor/extensions/index.ts`
+  - ### 5.9 `src/components/editor/extensions/callout.ts`
+  - ### 5.10 `src/components/editor/extensions/image-with-caption.ts`
+  - ### 5.11 `src/components/editor/extensions/video-embed.ts`
+  - ### 5.12 `src/components/editor/extensions/slash-command.tsx`
+  - ### 5.13 `src/components/editor/index.ts`
+  - ### 5.14 `src/components/shared/RichTextRenderer.tsx`
+  - ### 5.15 `src/app/campaigns/create/page.tsx`
+  - ### 5.16 `src/components/campaign/CampaignEditForm.tsx`
+  - ### 5.17 `src/components/campaign/UpdateSection.tsx`
+  - ### 5.18 `src/components/campaign/CampaignTabsWrapper.tsx`
+  - ### 5.19 `src/app/blog/editor/page.tsx`
+  - ### 5.20 `src/app/blog/[slug]/page.tsx`
+  - ### 5.21 `src/components/blog/BlogCard.tsx`
+  - ### 5.22 `src/lib/editor/constants.ts`
+  - ### 5.23 `src/types/editor.ts`
+  - ### 5.24 `src/lib/editor/link-validation.ts`
+  - ### 5.25 `src/lib/editor/link-commands.ts`
+  - ## Kết luận
+
+### `docs/TERMINOLOGY_INCONSISTENCY_REPORT.md`
+- Size: 12432 bytes; lines: 466; SHA-256: `293be16469ce3b6e03308c5094477bc1e5ebf828d424e8f9ff51b30af4092ca2`
+- Headings:
+  - # Báo Cáo: Vấn Đề Thuật Ngữ Không Nhất Quán Project vs Campaign
+  - ## 🚨 VẤN ĐỀ CHÍNH
+  - ### Hiện Trạng Mâu Thuẫn
+  - ### Ví Dụ Cụ Thể Trong ProfileTabs
+  - ## 📊 PHÂN TÍCH CHI TIẾT
+  - ### 1. Database Layer ✅ NHẤT QUÁN
+  - ### 2. API Layer ⚠️ KHÔNG NHẤT QUÁN
+  - ### 3. Type Definitions ❌ HOÀN TOÀN SAI
+  - ### 4. Component Layer ❌ MIX LẪN
+  - #### Folders và Files
+  - #### ProfileTabs Component
+  - ### 5. Page Routes ⚠️ KHÔNG NHẤT QUÁN
+  - ### 6. Utility Libraries ❌ HOÀN TOÀN SAI
+  - ## 📍 DANH SÁCH FILE CẦN SỬA
+  - ### 🔴 Priority 1: User-Facing Text (Gấp)
+  - ### 🟡 Priority 2: Technical Naming (Quan trọng)
+  - #### API Routes
+  - #### Type Files
+  - #### Lib Files (7 files)
+  - #### Component Folders
+  - #### Page Routes
+  - ### 🟢 Priority 3: Data Files
+  - ## 🎯 KHUYẾN NGHỊ GIẢI PHÁP
+  - ### Option 1: Đổi Hết Về "Campaign" (Recommended)
+  - ### Option 2: Tạo Entity "Project" Mới (Not Recommended)
+  - ### Option 3: Dual Naming Strategy (Không khuyến nghị)
+  - ## 📋 CHECKLIST SỬA NHANH (Quick Fix)
+  - ### Step 1: Sửa UI Text (5 phút)
+  - ### Step 2: Update Documentation (10 phút)
+  - ### Step 3: Add Comment Warning (5 phút)
+  - ## 🔍 CODE EXAMPLES
+  - ### Current State (Inconsistent)
+  - ### Recommended State (Consistent)
+  - ## 📊 IMPACT ANALYSIS
+  - ### Files Affected
+  - ### Breaking Changes
+  - ## 🎬 HÀNH ĐỘNG TIẾP THEO
+  - ### Immediate (Today)
+  - ### Short-term (This Week)
+  - ### Long-term (Next Sprint)
+  - ## 💡 KINH NGHIỆM RÚT RA
+  - ### Nguyên Nhân Gốc Rễ
+  - ### Best Practices Cho Tương Lai
+  - ## 📝 TERMINOLOGY MAPPING TABLE
+  - ## ✅ KẾT LUẬN
+  - ### Trả Lời Câu Hỏi Ban Đầu
+
+### `docs/TESTS_README.md`
+- Size: 5801 bytes; lines: 204; SHA-256: `3a7d8c2eb58348b9a4630c8226a88deb3a47d276ad9192e7eb66495461574f41`
+- Headings:
+  - # Hệ Thống Kiểm Thử Tự Động
+  - ## 📋 Cấu Trúc Thư Mục
+  - ## 🚀 Cách Sử Dụng
+  - ### Chạy Tất Cả Tests
+  - # Chạy tất cả tests và tạo báo cáo
+  - # Hoặc chỉ chạy tests
+  - ### Chạy Tests Theo Loại
+  - # Kiểm thử giao diện
+  - # Kiểm thử chức năng
+  - # Kiểm thử tích hợp
+  - ### Chạy Tests Với Watch Mode
+  - ### Tạo Coverage Report
+  - ## 📊 Báo Cáo Kiểm Thử
+  - ## 🧪 Test Cases Dựa Trên Bảng Kiểm Thử
+  - ### Kiểm Thử Giao Diện
+  - ### Kiểm Thử Chức Năng
+  - ## 🔧 Cấu Hình
+  - ### Jest Configuration
+  - ### Mock Setup
+  - ## 📝 Viết Test Cases Mới
+  - ### 1. Test Giao Diện
+  - ### 2. Test Chức Năng
+  - ### 3. Test Tích Hợp API
+  - ## 🎯 Best Practices
+  - ## 🐛 Troubleshooting
+  - ### Lỗi thường gặp:
+  - ### Debug tests:
+  - # Chạy test với debug info
+  - # Chạy một test file cụ thể
+  - # Chạy test với watch mode để debug
+  - ## 📚 Tài Liệu Tham Khảo
+  - ## 🔄 CI/CD Integration
+  - # GitHub Actions example
+
+### `docs/UI_TEXT_UPDATE_REPORT.md`
+- Size: 6054 bytes; lines: 272; SHA-256: `84d25b0007a9d1ede7ca7eb38fcbc693c892658f17261dcbf3830626402db681`
+- Headings:
+  - # Báo Cáo: Cập Nhật UI Text "Dự án" → "Chiến dịch"
+  - ## 🎯 MỤC TIÊU
+  - ## ✅ FILES ĐÃ SỬA
+  - ### 1. **Discovery Page** (`src/app/projects/page.tsx`)
+  - ### 2. **Search Bar** (`src/components/projects/ProjectSearchBar.tsx`)
+  - ### 3. **Results Header** (`src/components/projects/ProjectResultsHeader.tsx`)
+  - ### 4. **Empty State** (`src/components/projects/ProjectEmptyState.tsx`)
+  - ### 5. **Project Card** (`src/components/projects/ProjectCard.tsx`)
+  - ### 6. **Advanced Filters** (`src/components/projects/ProjectAdvancedFilters.tsx`)
+  - ### 7. **Favorites List** (`src/components/dashboard/FavoritesList.tsx`)
+  - ### 8. **Backer Dashboard** (`src/app/dashboard/backer/page.tsx`)
+  - ### 9. **Navbar** (`src/components/layout/NavbarNew.tsx`)
+  - ## 📊 TỔNG KẾT
+  - ### Files Modified
+  - ### Scope
+  - ## 🔍 REMAINING "DỰ ÁN" INSTANCES
+  - ### Technical (Comments/Code)
+  - ### Consider for Future
+  - ## ✅ VERIFICATION
+  - ### Visual Check
+  - ### Consistency Check
+  - ## 📝 IMPACT
+  - ### User Experience
+  - ### Technical
+  - ## 🎯 NEXT STEPS
+  - ### Completed ✅
+  - ### Future (Optional)
+  - ## ✅ SIGN-OFF
+
+### `docs/UPGRADE_CREATOR_GUIDE.md`
+- Size: 5313 bytes; lines: 177; SHA-256: `ae4fac803bf37dd4bbe7838c379878d1000cc79dc0fa9f4ef09d4f6c9710d8e0`
+- Headings:
+  - # Hướng dẫn triển khai hệ thống nâng cấp Creator
+  - ## ✅ Đã hoàn thành
+  - ### 1. Thêm nút "Nâng cấp Creator" vào menu
+  - ### 2. Trang nâng cấp cá nhân (`/upgrade/individual`)
+  - ## 🔨 Cần hoàn thành
+  - ### 3. Trang nâng cấp doanh nghiệp (`/upgrade/organization`)
+  - #### A. Thông tin pháp lý doanh nghiệp
+  - #### B. Giấy tờ doanh nghiệp
+  - #### C. Địa chỉ doanh nghiệp
+  - #### D. Người đại diện pháp luật
+  - #### E. Chủ sở hữu hưởng lợi / người kiểm soát
+  - #### F. Thông tin thanh toán / nhận tiền
+  - #### G. Thông tin Creator công khai
+  - ### 4. API Endpoint
+  - ### 5. API lấy thông tin profile
+  - ### 6. Cập nhật Prisma Schema (nếu cần)
+  - ### 7. Admin Dashboard - Duyệt Creator
+  - ### 8. Email Templates
+  - ### 9. Upload ảnh/file
+  - ## 📝 Notes
+  - ## 🔐 Security
+  - ## 🎨 UI/UX
+
+### `docs/VERCEL_DEPLOYMENT_GUIDE.md`
+- Size: 5042 bytes; lines: 179; SHA-256: `195485688824a1be43ee49cdac07233006379438118a09b2c46c5a8f6415271f`
+- Headings:
+  - # 🚀 Hướng dẫn Deploy lên Vercel
+  - ## ✅ Đã hoàn thành:
+  - ## 📋 Các bước tiếp theo:
+  - ### 1. Import Project vào Vercel
+  - ### 2. Cấu hình Environment Variables
+  - #### 🗄️ Database
+  - #### 🔐 Authentication
+  - #### 📸 Cloudinary
+  - #### 💳 Payment Gateways
+  - # PayOS
+  - # VNPay (nếu có)
+  - # SePay (nếu có)
+  - #### 🎛️ Feature Flags
+  - #### 🌐 App URL
+  - ### 3. Build Settings (Đã tự động cấu hình)
+  - ### 4. Deploy
+  - ### 5. Sau khi Deploy
+  - #### Kiểm tra các endpoint:
+  - #### Cập nhật Webhook URLs:
+  - #### Test Payment Flow:
+  - ### 6. Custom Domain (Tùy chọn)
+  - ## 🔧 Troubleshooting
+  - ### Lỗi Database Connection
+  - # Kiểm tra connection string có đúng format:
+  - ### Lỗi Build
+  - # Xem logs trong Vercel Dashboard → Deployments → [Your Deploy] → Build Logs
+  - ### Lỗi API Timeout
+  - # Tăng timeout trong vercel.json (đã set 30s)
+  - # Hoặc optimize API queries
+  - ### Lỗi Prisma Client
+  - # Đảm bảo postinstall script chạy:
+  - ## 📊 Monitoring
+  - ## 🔒 Security Checklist
+  - ## 📈 Performance Tips
+  - ## 🎯 Next Steps
+
+### `docs/assistant-observability-and-quality.md`
+- Size: 4268 bytes; lines: 46; SHA-256: `03226b41468f7d59a8b61ef2e073413041f7672595f5a566706387ebd8c86070`
+- Headings:
+  - # Telemetry trợ lý và quality gate Platform
+  - ## Mục tiêu
+  - ## Bật dashboard AI-BS
+  - ## E2E route công khai thật
+  - ## Quality gate GitHub
+  - ## Bằng chứng kiểm chứng
+  - ## Tham chiếu
+
+### `docs/assistant-safety-audit.md`
+- Size: 3180 bytes; lines: 25; SHA-256: `5198495158718ea2ed07b3b5945ff3de60d91ca2951f29e56d9dce774f430432`
+- Headings:
+  - # Rà soát Hỏi nhanh và trợ lý nền tảng
+  - ## Bằng chứng
+  - ## Xác minh deployment
+
+### `docs/deployment-verification.md`
+- Size: 2094 bytes; lines: 13; SHA-256: `85be3c0dfac3c68e51f0b2c6aa6090b42e1a2c13b9f4682608b0f4ed70e9a1cc`
+- Headings:
+  - # Xác minh deployment Platform
+  - ## 21/08/2026
+
+### `docs/public-project-assistant-verification.md`
+- Size: 1658 bytes; lines: 11; SHA-256: `b7aca5c77fc33e12cc51e68cd1ff6a65adf0f4915def60454b22cb65451502b0`
+- Headings:
+  - # Xác minh Hỏi nhanh với dự án công khai
+
+### `docs/quick-assistant-verification.md`
+- Size: 391 bytes; lines: 5; SHA-256: `c2ba949e43fec7018745ed8cf991bbeab40b5e56e9b5bce62fd271595bc79a57`
+- Headings:
+  - # Xác minh trợ lý nổi
+
+### `docs/quick-page-assistant-verification.md`
+- Size: 690 bytes; lines: 5; SHA-256: `171f6d08a97020c903698d41231a21700aaf70c281fc2f5d124796766d793d2e`
+- Headings:
+  - # Xác minh biểu tượng Hỏi nhanh
+
+### `docs/testing.md`
+- Size: 2270 bytes; lines: 15; SHA-256: `e655eb16823c850bb9cd9fb3353ac5f5a2569390e94696c520222ec776990027`
+- Headings:
+  - # Kiểm thử Platform
+  - ## Telemetry trợ lý
+
+### `docs/zero-mem-research.md`
+- Size: 962 bytes; lines: 5; SHA-256: `992135da2ca26271cdaf50fd10c412a9c5b2600dc5c9985123751b578c935733`
+- Headings:
+  - # Ghi chú nghiên cứu Zero-Mem
+
+### `docs/zero-mem-verification.md`
+- Size: 3131 bytes; lines: 17; SHA-256: `335b307e0f52af9d2dbdbcbf4c364e230a5d78dc785ee7fe85e55d56c85351d6`
+- Headings:
+  - # Xác minh Zero-Mem trên giao diện
+
+### `notes_call_cost.md`
+- Size: 1849 bytes; lines: 22; SHA-256: `da8fb98bcfd00515a05f0a61cba20d9c7fa1efd743b35f99f354f7b49bba4690`
+- Headings:
+  - # So sánh chi phí chức năng gọi thoại/video
+  - ## WebRTC peer-to-peer (PeerJS) — KHUYẾN NGHỊ cho nền tảng này
+  - ## Cloud có phí (Daily.co / Agora / LiveKit / Twilio)
+  - ## Khuyến nghị cho TửTế Fund (giao tiếp creator-backer, 1-1)
+  - ## Trạng thái UI hiện tại
+
+### `notes_call_design.md`
+- Size: 44511 bytes; lines: 305; SHA-256: `0ed6415388f203cc1e6faa6ee94f24644bc82a70cedd50f9388622186eaef485`
+- Headings:
+  - # Thiết kế chức năng gọi thoại/video WebRTC P2P (0đ vận hành)
+  - ## Quyết định kiến trúc
+  - ## Component mới
+  - ## Chi tiết signaling messages (text = JSON)
+  - ## Kiểm nghiệm
+  - ## Trạng thái triển khai (cập nhật)
+  - ## Trạng thái tích hợp (trước fix TS cuối)
+  - ## Test gọi thực tế (09:41)
+  - ## Trạng thái code gọi WebRTC (đã hoàn thiện logic signaling)
+  - ### Vấn đề sửa gần đây (09:45):
+  - ### Test thực tế:
+  - ### Công cụ:
+  - ## Bug: Nút "Hủy cuộc gọi" không hoạt động (báo cáo 20/8)
+  - ## Bug báo cáo 20/8 (từ ảnh người dùng)
+  - ### Chẩn đoán bug 20/8 (ảnh):
+  - ### Fix đang làm (20/8, emoji + JSON preview):
+  - ### Emoji picker vị trí (fix 20/8 lần 2)
+  - ### Emoji picker fix lần 3 (bị che phần trên)
+  - ### Trạng thái portal emoji (đang làm, 20/8 lần 3)
+  - ### Kéo dài khung chat theo chiều dọc (yêu cầu 20/8)
+  - ### Đo đạc thực tế (20/8, dev 1100px viewport):
+  - ### "Người dùng đã xóa" không đồng nhất (21/8)
+  - ### Chẩn đoán chi tiết (21/8):
+  - ### Trạng thái phase 12 (21/8):
+  - ### Chẩn đoán 2 bên vẫn khác (21/8, tiếp):
+  - ### Chẩn đoán "ngược lại" (21/8):
+  - ### Root cause cuối (21/8):
+  - ## Phase 20 (21/8): Tinh chỉnh bảng emoji bám sát ô nhập
+  - ## Phase 24 (21/8): Fix emoji không chèn được vào ô nhập
+  - ## Phase 25 (21/8): Emoji multi-select + toggle thủ công + message reactions
+  - ## Cập nhật 20/8 20:20 — Emoji picker + Reaction
+  - ### Feature mới (emoji picker + reaction)
+  - ### Kiểm tra GUI dev 3322 (login test2@gmail.com / 123, conv 6a86bd6d6dbff94146f47778 với Test Creator Pro)
+  - ## Kiểm tra reaction GUI (20:23, dev 3322)
+  - ## Tình trạng test reaction (20:25) — CHƯA HOÀN THÀNH
+  - ## Tìm hiểu 20:26
+  - ## Chẩn đoán 20:29
+  - ## Test 20:30 — HOÀN THÀNH: Reaction hoạt động
+  - ## 20:36 — ReactionRow đưa ra ngoài bubble (đúng yêu cầu user)
+  - ## 20:41 — Pill vẫn lệch ngoài bong bóng phải
+  - ## 20:42 — Nguyên nhân pill lệch: MessageReaction.tsx div ReactionRow có `ml-auto` khi alignment right (và pill button có ml-auto? không) — div wrapper inline-flex items-center gap-1 với ml-auto → nội dung bị dồn hết sang phải container full-width. Bong bóng nằm ngoài div này nên không bị ảnh hưởng. Fix: bỏ ml-auto trong MessageReaction.tsx; căn bằng align-self trên div (self-end/self-start) để pill hàng nằm đúng cạnh bong bóng.
+  - ## 20:43 — Fix pill nằm ngay dưới bong bóng (đang thực hiện)
+  - ## 20:43b — Screenshot sau fix self-end: pill ❤️1 nằm ngay dưới cạnh phải bong bóng (phong cách Messenger), bong bóng gọn. Chấp nhận được. Commit + push.
+  - ## Gợi ý thành viên tạo nhóm chat (21/08/2026)
+
+### `notes_deleted_user_chat.md`
+- Size: 6738 bytes; lines: 59; SHA-256: `d4f69acc388a6fa835add193f6e61fb4992d7ddfca679cd11a67e6557bdcf135`
+- Headings:
+  - # Ghi chú: Xử lý "Người dùng đã xóa" trong chat
+  - ## Nhiệm vụ hiện tại (user yêu cầu)
+  - ## Kiến trúc chat
+  - ## Trạng thái DB
+  - ## Các điểm cần sửa (UI components)
+  - ## Cách tiếp cận sửa
+  - ## Context khác (đã hoàn thành trong task)
+  - ## TIẾN ĐỘ SỬA (cập nhật 2026-08-20)
+  - ### ĐÃ XONG
+  - ### CÒN CẦN LÀM
+  - ### Lưu ý
+
+### `notes_product_quickedit.md`
+- Size: 9234 bytes; lines: 79; SHA-256: `6e5ef5e665a5eb98d64c012686cc0afd25cbbbf3514b596b02df39fdb4f61f4b`
+- Headings:
+  - # Nhiệm vụ: Quick Edit trang sản phẩm + tạo blog mẫu + sửa hiển thị giá
+  - ## Yêu cầu user
+  - ## Thông tin kỹ thuật quan trọng
+  - ## Kế hoạch thực hiện
+  - ## Blog model blog_posts (từ schema, cần verify lại)
+  - ## Commits mới nhất
+  - ## Tiến độ (cập nhật)
+  - ## Kết quả kiểm tra (phase 3)
+  - ## Còn lại
+  - ## KẾT QUẢ KIỂM THỬ CUỐI CÙNG (hoàn tất)
+  - ## CÒN LẠI
+
+### `notes_shopee_card.md`
+- Size: 35385 bytes; lines: 227; SHA-256: `3b71e0ee958a580777892b9b8af5177e7ffba07db95a438ffe1de9167a42036e`
+- Headings:
+  - # Nhiệm vụ: Thẻ sản phẩm phong cách Shopee
+  - ## Yêu cầu user
+  - ## Bối cảnh hiện tại
+  - ## Kế hoạch
+  - ## Tiến độ
+  - ## CẬP NHẬT TIẾN ĐỘ (2026-08-20)
+  - ## KẾT QUẢ KIỂM THỬ (dev, 2026-08-20)
+  - ## TASK MỚI (2026-08-20): Nút chat trên trang sản phẩm
+  - ### Kết quả kiểm tra trang sản phẩm (2026-08-20)
+  - ### Chẩn đoán lỗi chat (2026-08-20 08:24)
+  - ### Debug MongoDB Node driver (08:28)
+  - ### Kết luận MongoDB (08:35)
+  - ### KẾT QUẢ (08:40) — MongoDB cluster MỚI hoạt động
+  - ### Yêu cầu 20/08 (08:47) — Nút "Ủng hộ ngay" theo stock
+  - ### Yêu cầu 20/08 (08:55) — Thẻ sản phẩm có ảnh trong tin nhắn chat
+  - ### Trạng thái 09:00 — Lỗi hiển thị thẻ sản phẩm
+  - ### Chẩn đoán 09:00 (2)
+  - ### Chẩn đoán 09:01 (3)
+  - ### Chẩn đoán 09:01 (4)
+  - ### Chẩn đoán 09:05 (5) — user map
+  - ### Chẩn đoán 09:02 (6)
+  - ### Chẩn đoán 09:06 (7)
+  - ### Chẩn đoán 09:02 (8)
+  - ### Chẩn đoán 09:04 (9)
+  - ### Chẩn đoán 09:04 (10)
+  - ### Chẩn đoán 09:05 (11)
+  - ### Chẩn đoán 09:06 (12) — contradiction cần giải
+  - ### CHẨN ĐOÁN ĐÚNG (13)
+  - ### KẾT QUẢ THÀNH CÔNG (09:07)
+  - ### PUSH THÀNH CÔNG (09:12 UTC)
+  - ### LINK PROFILE TỪ CHAT — THÀNH CÔNG (09:22)
+  - ### KIỂM TRA HOÀN TẤT (09:23)
+  - ### EMOJI PICKER (đang làm, 09:35)
+  - ### EMOJI PICKER — ĐÃ HOÀN THÀNH + KIỂM TRA (09:34)
+
+### `scripts/sample-blog-posts/markdown/bai-viet-draft-chua-xuat-ban.md`
+- Size: 871 bytes; lines: 31; SHA-256: `077db87ab877a060e752540a071ead4491d8fd19137c9054a6cff56741e71734`
+- Headings:
+  - # Bài viết draft - Chưa xuất bản
+  - ## Nội dung test
+  - ### Mục đích
+  - ## Chú ý
+
+### `scripts/sample-blog-posts/markdown/cap-nhat-tinh-nang-moi-2024.md`
+- Size: 4144 bytes; lines: 125; SHA-256: `f72374faf27acbf2e8ab0be63fd274518b28a07fb2b8f5e1395e27f124c37390`
+- Headings:
+  - # Cập nhật tính năng mới trên TửTế Fund năm 2024
+  - ## 1. Giao diện người dùng được cải tiến
+  - ### Dashboard mới
+  - ### Mobile app
+  - ## 2. Tính năng Blog và Câu chuyện
+  - ### Blog system mới
+  - ### Rich text editor
+  - ## 3. Cải thiện thanh toán
+  - ### Đa dạng phương thức thanh toán
+  - ### Quản lý thanh toán tốt hơn
+  - ## 4. Tính năng cộng đồng
+  - ### Chat trực tiếp
+  - ### Badges và thành tựu
+  - ## 5. Công cụ phân tích
+  - ### Analytics cho creator
+  - ### SEO cải tiến
+  - ## 6. Bảo mật và an toàn
+  - ### KYC nâng cao
+  - ### Anti-fraud
+  - ## Lộ trình cập nhật tiếp theo
+  - ### Q1 2024
+  - ### Q2 2024
+  - ## Cách sử dụng tính năng mới
+  - ## Phản hồi của bạn
+  - ## Kết luận
+
+### `scripts/sample-blog-posts/markdown/huong-dan-tao-campaign-thanh-cong.md`
+- Size: 3905 bytes; lines: 87; SHA-256: `31d4a4c0bd603078d8dfea318a8e591284306e0b8a2a7194d91b890d4eaecc21`
+- Headings:
+  - # Hướng dẫn tạo chiến dịch crowdfunding thành công trên TửTế Fund
+  - ## 1. Chuẩn bị kỹ lưỡng
+  - ## 2. Xác định mục tiêu thực tế
+  - ## 3. Tạo câu chuyện hấp dẫn
+  - ## 4. Xây dựng cộng đồng trước khi ra mắt
+  - ## 5. Cung cấp phần thưởng hấp dẫn
+  - ## 6. Giữ liên lạc thường xuyên
+  - ## 7. Kết thúc chiến dịch mạnh mẽ
+  - ## Kết luận
+
+### `scripts/sample-blog-posts/markdown/lich-su-phat-trien-crowdfunding-viet-nam.md`
+- Size: 5264 bytes; lines: 141; SHA-256: `6f093742f26bcbe38591a1ad6e3a9a5b9ae1e73c5962533a9d34569bc5b996f7`
+- Headings:
+  - # Lịch sử phát triển crowdfunding tại Việt Nam
+  - ## Giai đoạn 1: Khởi đầu (2015-2017)
+  - ### Những nền tảng đầu tiên
+  - ### Thách thức ban đầu
+  - ## Giai đoạn 2: Tăng trưởng (2018-2020)
+  - ### Sự phát triển của thanh toán
+  - ### Nền tảng chuyên nghiệp
+  - ### Hiểu biết tăng lên
+  - ## Giai đoạn 3: Bùng nổ (2021-2023)
+  - ### Tác động của đại dịch
+  - ### Đa dạng hóa mô hình
+  - ### Hỗ trợ từ chính phủ
+  - ## Giai đoạn 4: Thành熟 (2024-nay)
+  - ### TửTế Fund ra đời
+  - ### Xu hướng hiện tại
+  - ### Thách thức mới
+  - ## Các dự án tiêu biểu
+  - ### Dự án giáo dục
+  - ### Dự án y tế
+  - ### Dự án nghệ thuật
+  - ### Dự án nông nghiệp
+  - ## Bài học từ Việt Nam
+  - ### 1. Cộng đồng là quan trọng nhất
+  - ### 2. Niềm tin cần thời gian
+  - ### 3. Cần giải pháp địa phương
+  - ### 4. Thanh toán là then chốt
+  - ## Tương lai của crowdfunding Việt Nam
+  - ### Dự đoán 2025-2030
+  - ### Cơ hội
+  - ### Thách thức
+  - ## Kết luận
+
+### `scripts/sample-blog-posts/markdown/top-5-du-an-thanh-cong-thang-1.md`
+- Size: 4461 bytes; lines: 83; SHA-256: `328a5aac3c819fabd74e242c3438b11cc76cf5b23001dddd3290af87b4589c18`
+- Headings:
+  - # Top 5 dự án crowdfunding thành công nhất tháng 1/2024
+  - ## 1. Dự án "Trường học cho trẻ em vùng cao"
+  - ## 2. Dự án "App học tiếng Việt cho người nước ngoài"
+  - ## 3. Dự án "Sản phẩm nông sản sạch từ nông dân"
+  - ## 4. Dự án "Khu vui chơi trẻ em khu vực công"
+  - ## 5. Dự án "Khởi nghiệp cho thanh niên nông thôn"
+  - ## Bài học từ những dự án thành công
+  - ### 1. Câu chuyện truyền cảm hứng
+  - ### 2. Minh bạch và tin cậy
+  - ### 3. Cộng đồng mạnh
+  - ### 4. Phần thưởng giá trị
+  - ## Kết luận
+
+### `src/components/campaign/README.md`
+- Size: 6139 bytes; lines: 271; SHA-256: `a92d51380dcca231d9483fddc3929fb0dfe6f14a92e145581e69b3044103d7fd`
+- Headings:
+  - # Campaign Growth Progress Component
+  - ## Features
+  - ## Tree Stages
+  - ### 1. Seedling (0-32%) - Mầm hy vọng
+  - ### 2. Growing (33-65%) - Đang lớn mạnh
+  - ### 3. Mature (66-99%) - Sắp đơm trái
+  - ### 4. Fruiting (100%+) - Đã kết trái
+  - ## Usage
+  - ### Basic
+  - ### With Options
+  - ### Compact Variant (No Tree)
+  - ## Props
+  - ## Sizes
+  - ### Small (`sm`)
+  - ### Medium (`md`)
+  - ### Large (`lg`)
+  - ## Animations
+  - ### CSS Keyframes
+  - ### Tailwind Animations
+  - ### Reduced Motion
+  - ## Performance
+  - ## Accessibility
+  - ## Integration Examples
+  - ### Campaign Card
+  - ### Dashboard Stats
+  - ### Campaign Detail Hero
+  - ## Customization
+  - ### Custom Colors
+  - ### Custom Tree SVGs
+  - ## Demo
+  - ## Browser Support
+  - ## Dependencies
+  - ## File Structure
+  - ## Tips
+  - ## Future Enhancements
+  - ## License
+
+### `src/lib/project/ERROR_LOGGING_IMPLEMENTATION.md`
+- Size: 6244 bytes; lines: 212; SHA-256: `114ea4d29cad093f21ab4b3ec94a7470fb955bfa7e5269be91f2f852a9af6073`
+- Headings:
+  - # Task 6.1: Structured Error Logging - Implementation Summary
+  - ## Status: ✅ COMPLETE
+  - ## Requirement Validated
+  - ## Implementation Details
+  - ### 1. Error Logging Utility (`src/lib/project/project.errors.ts`)
+  - #### ErrorLog Interface
+  - #### logError Function
+  - #### Sensitive Data Protection
+  - ### 2. API Routes Integration
+  - #### POST /api/projects
+  - #### GET /api/projects
+  - #### GET /api/projects/[id]
+  - #### PATCH /api/projects/[id]
+  - #### DELETE /api/projects/[id]
+  - ### 3. Error Handling Pattern
+  - ### 4. Test Coverage
+  - ## Example Log Output
+  - ### Development Mode
+  - ### Production Mode
+  - ### With Sensitive Data Sanitization
+  - ## Security Considerations
+  - ## Future Enhancements
+  - ## Verification
+  - ## References
+
+## Exact duplicates
+
+No exact duplicate files.
+
+## High-overlap pairs
+
+- 8.0% overlap (132 shared shingles): `docs/REFACTOR_PHASE2_PART2_COMPLETION_REPORT.md` ↔ `docs/REFACTOR_PHASE3_COMPLETION_REPORT.md`
+
+## File excerpts for synthesis
+
+### SOURCE: `.kiro/specs/project-hierarchy-management/FINAL_STATUS_REPORT.md`
+# Project Hierarchy Management - Final Status Report
+
+## Executive Summary
+
+**Date:** 2024
+**Feature:** Project Hierarchy Management - Portfolio organization for Campaigns and Blog Posts
+**Overall Progress:** 71% Complete (20/28 required tasks)
+**Status:** ✅ Core Feature Complete - Integration Tasks Remaining
+
+---
+
+### SOURCE: `.kiro/specs/project-hierarchy-management/IMPLEMENTATION_COMPLETE.md`
+# Project Hierarchy Management - Implementation Complete ✅
+
+**Date:** 2025-01-07  
+**Status:** COMPLETED  
+**Progress:** 100% Core Functionality
+
+---
+
+## 📊 Executive Summary
+
+### SOURCE: `.kiro/specs/project-hierarchy-management/IMPLEMENTATION_SUMMARY.md`
+# Project Hierarchy Management - Implementation Summary
+
+## Executive Summary
+
+**Feature:** Project Hierarchy Management - allows creators to organize Campaigns and Blog Posts under Projects
+
+**Progress:** 64% Complete (18/28 required tasks)
+
+### SOURCE: `.kiro/specs/project-hierarchy-management/REMAINING_TASKS_GUIDE.md`
+# Project Hierarchy Management - Remaining Tasks Implementation Guide
+
+## Progress: 64% Complete (18/28 required tasks done)
+
+## ✅ Completed Tasks Summary
+
+### Phase 1-5 (18 tasks completed):
+- ✅ Database schema and migrations (Tasks 1.1-1.3, Task 1)
+- ✅ TypeScript types and Zod validation (Tasks 2.1-2.2, Task 2)
+- ✅ Service layer CRUD operations (Tasks 3.1-3.3, Task 3)
+- ✅ Service layer checkpoint (Task 4)
+- ✅ All 5 project API endpoints (Tasks 5.1-5.5)
+- ✅ Structured error logging (Task 6.1)
+
+### SOURCE: `.kiro/specs/project-hierarchy-management/TASK_1.3_COMPLETION_SUMMARY.md`
+# Task 1.3 Completion Summary
+
+## Task Details
+
+**Task**: 1.3 Verify migration idempotence and rollback capability
+
+**Subtasks**:
+- Create rollback migration script to remove projectId columns and projects table
+- Test running migrations multiple times on clean database
+- Verify foreign key constraints work correctly (CASCADE for users, SET NULL for projects)
+
+### SOURCE: `.kiro/specs/project-hierarchy-management/TASK_5.1_COMPLETION.md`
+# Task 5.1 Completion Report
+
+## Task: Create POST /api/projects endpoint
+
+**Status:** ✅ COMPLETED
+
+## Implementation Summary
+
+### SOURCE: `.kiro/specs/project-hierarchy-management/TASK_5.4_VERIFICATION.md`
+# Task 5.4 Verification Report
+
+## Task: Create PATCH /api/projects/[id] endpoint
+
+**Status:** ✅ COMPLETED
+
+**Implementation Date:** Already implemented before task execution
+
+### SOURCE: `.kiro/specs/project-hierarchy-management/design.md`
+# Design Document: Project Hierarchy Management
+
+## Overview
+
+The Project Hierarchy Management feature introduces a new top-level entity called "Project" to the crowdfunding platform. This feature allows creators to organize multiple Campaigns and Blog Posts under a common portfolio umbrella, providing better content organization and creator workspace management.
+
+### Key Design Decisions
+
+### SOURCE: `.kiro/specs/project-hierarchy-management/requirements.md`
+# Requirements Document
+
+## Introduction
+
+The Project Hierarchy Management System introduces a new top-level entity called "Project" (Dự án) to organize and group multiple Campaigns and Blog Posts under a common portfolio item. This enhancement allows creators to manage their work more effectively by grouping related campaigns and content under broader project umbrellas.
+
+Currently, the system only supports Campaigns as the primary entity, with direct ownership by Users (creators). This feature adds an optional hierarchical layer where a Project can contain multiple Campaigns and Blog Posts, while maintaining backward compatibility for standalone campaigns.
+
+### SOURCE: `.kiro/specs/project-hierarchy-management/tasks.md`
+# Implementation Plan: Project Hierarchy Management
+
+## Overview
+
+This implementation plan adds a top-level "Project" entity to organize Campaigns and Blog Posts under common portfolio items. The feature uses TypeScript with Next.js 14+ App Router, Prisma ORM, and NextAuth.js for authentication. Implementation follows a bottom-up approach: database schema → service layer → API layer → testing.
+
+## Tasks
+
+### SOURCE: `.windsurf/workflows/gioi-thieu.md`
+
+
+### SOURCE: `docs/3.1_KIEN_TRUC_HE_THONG.md`
+# 3.1. KIẾN TRÚC HỆ THỐNG
+
+## 📋 MỤC LỤC
+1. [Mô Hình Kết Nối](#mô-hình-kết-nối)
+2. [Kiến Trúc Thư Mục](#kiến-trúc-thư-mục)
+3. [Quy Trình Hoạt Động](#quy-trình-hoạt-động)
+
+---
+
+## 🏗️ MÔ HÌNH KẾT NỐI FRONT-END, BACK-END VÀ DATABASE
+
+### SOURCE: `docs/3.2_XAY_DUNG_FRONTEND.md`
+# 3.2. XÂY DỰNG FRONT-END
+
+## 📋 MỤC LỤC
+1. [Tổng Quan Frontend](#tổng-quan-frontend)
+2. [Cấu Trúc Frontend](#cấu-trúc-frontend)
+3. [Components Chi Tiết](#components-chi-tiết)
+4. [Routing & Navigation](#routing--navigation)
+5. [State Management](#state-management)
+6. [Styling & UI](#styling--ui)
+
+---
+
+## 🎨 TỔNG QUAN FRONTEND
+
+### SOURCE: `docs/3.3_XAY_DUNG_BACKEND.md`
+# 3.3. XÂY DỰNG BACK-END (API)
+
+## MỤC LỤC
+1. [Tổng quan Backend](#1-tổng-quan-backend)
+2. [Cấu trúc API Routes](#2-cấu-trúc-api-routes)  
+3. [Authentication & Authorization](#3-authentication--authorization)
+4. [API Endpoints Chi Tiết](#4-api-endpoints-chi-tiết)
+5. [Database Operations](#5-database-operations)
+6. [Error Handling & Validation](#6-error-handling--validation)
+7. [Payment Integration](#7-payment-integration)
+8. [MongoDB Integration](#8-mongodb-integration)
+
+---
+
+## 1. TỔNG QUAN BACKEND
+
+### SOURCE: `docs/3.4_KET_NOI_API.md`
+﻿# 3.4. KẾT NỐI API VÀ XỬ LÝ DỮ LIỆU
+
+## MỤC LỤC
+1. [Tổng quan Kết nối API](#1-tổng-quan-kết-nối-api)
+2. [Fetch API vs Axios](#2-fetch-api-vs-axios)
+3. [API Calling Patterns](#3-api-calling-patterns)
+4. [Data Fetching Strategies](#4-data-fetching-strategies)
+5. [Error Handling](#5-error-handling)
+6. [Loading States](#6-loading-states)
+7. [Caching Strategies](#7-caching-strategies)
+8. [Custom Hooks](#8-custom-hooks)
+
+---
+
+## 1. TỔNG QUAN KẾT NỐI API
+
+### SOURCE: `docs/3.5_QUAN_LY_DU_LIEU.md`
+# 3.5. QUẢN LÝ DỮ LIỆU NGƯỜI DÙNG
+
+## MỤC LỤC
+1. [Local Storage](#1-local-storage)
+2. [Session Storage](#2-session-storage)
+3. [Quản lý Token](#3-quản-lý-token)
+4. [Quản lý Session](#4-quản-lý-session)
+5. [Cookie Management](#5-cookie-management)
+6. [Security Best Practices](#6-security-best-practices)
+
+---
+
+## 1. LOCAL STORAGE
+
+### SOURCE: `docs/3.6.1_GIT_WORKFLOW.md`
+﻿# 3.6.1. GIT WORKFLOW & BRANCH STRATEGY
+
+## 1. GIT WORKFLOW
+- Clone, configure, daily workflow
+- Common git commands
+- Stash, rebase, merge strategies
+
+## 2. BRANCH STRATEGY  
+- main (production), develop (staging), feature branches
+- Branch naming: feature/, bugfix/, hotfix/, refactor/, docs/
+- Protected branches, PR approval required
+
+## 3. COMMIT CONVENTIONS
+- Format: <type>(<scope>): <subject>
+- Types: feat, fix, docs, style, refactor, test, chore
+- Examples with proper formatting
+
+### SOURCE: `docs/3.6.2_CICD_DEPLOYMENT.md`
+﻿# 3.6.2. CI/CD & DEPLOYMENT
+
+## 1. CI/CD PIPELINE
+- GitHub Actions workflow
+- Automated testing, linting, building
+- Deploy to staging (develop branch)
+- Deploy to production (main branch)
+
+## 2. VERCEL DEPLOYMENT
+- Automatic deployment on push
+- Preview URLs for PRs
+- Environment variables configuration
+- Custom domains
+
+## 3. DATABASE MIGRATIONS
+- Prisma migrate dev (development)
+- Prisma migrate deploy (production)
+- Migration best practices
+- Rollback strategies
+
+### SOURCE: `docs/3.6.3_ENVIRONMENT.md`
+﻿# 3.6.3. ENVIRONMENT MANAGEMENT
+
+## 1. ENVIRONMENT FILES
+- .env.local (development, gitignored)
+- .env.example (template, committed)
+- .env.production (Vercel only)
+- .env.staging (Vercel only)
+
+## 2. ENVIRONMENT VARIABLES
+- DATABASE_URL, MONGODB_URI
+- NEXTAUTH_URL, NEXTAUTH_SECRET
+- CLOUDINARY credentials
+- Payment gateway keys (PayOS, VNPay, SePay)
+
+## 3. CONFIGURATION
+- Environment-specific config
+- Validation of required variables
+- Type-safe environment access
+
+### SOURCE: `docs/3.6_QUAN_LY_SOURCE_CODE.md`
+# 3.6 done
+
+### SOURCE: `docs/5_TONG_KET_VA_DANH_GIA.md`
+# CHƯƠNG 5: TỔNG KẾT VÀ ĐÁNH GIÁ THÀNH VIÊN
+
+## 5.1. Kết luận
+
+### 5.1.1. Đánh giá kết quả so với mục tiêu ban đầu
+
+#### Mục tiêu đã đặt ra
+- ✅ Xây dựng nền tảng crowdfunding hoàn chỉnh với đầy đủ tính năng cơ bản
+- ✅ Triển khai hệ thống xác thực và phân quyền người dùng
+- ✅ Quản lý dự án, chiến dịch gây quỹ và đóng góp
+- ✅ Tích hợp thanh toán trực tuyến
+- ✅ Dashboard quản trị và báo cáo thống kê
+- ✅ Responsive design, tối ưu trải nghiệm người dùng
+- ✅ Deploy lên môi trường production
+
+### SOURCE: `docs/API_AUDIT_REPORT.md`
+# BÁO CÁO KIỂM TOÁN API - CROWDFUNDING-VN
+**Ngày:** 2026-08-15  
+**Backend Engineer:** Senior Analysis  
+**Dự án:** Next.js 15 App Router + Prisma ORM
+
+---
+
+## TỔNG QUAN PHÂN TÍCH
+
+Đã phân tích **75+ API endpoints** trong thư mục `src/app/api/` với các phát hiện quan trọng về:
+- Dead API (API không được sử dụng)
+- Endpoint thiếu handler hoặc file trống
+- Client code gọi API sai URL
+- Lỗ hổng bảo mật (endpoint nhạy cảm không được bảo vệ)
+
+### SOURCE: `docs/BAO_CAO_CHI_TIET.md`
+# 📊 BÁO CÁO CHI TIẾT DỰ ÁN TỬ TẾ FUND
+
+Dưới đây là báo cáo chi tiết về dự án **TửTế Fund** dựa trên các tiêu chí đánh giá yêu cầu.
+
+---
+
+## 0. Bối cảnh và Giải pháp (Vision & Solution)
+
+### SOURCE: `docs/BUGFIX_NESTED_LINKS_REPORT.md`
+# Báo Cáo Sửa Lỗi: Nested Links Hydration Error
+
+**Ngày sửa:** 30/06/2026  
+**Trạng thái:** ✅ **FIXED**  
+**Severity:** 🔴 **CRITICAL** - Hydration error ảnh hưởng toàn bộ /projects page
+
+---
+
+## 🐛 MÔ TẢ LỖI
+
+### SOURCE: `docs/CAU_TRUC_DU_AN.md`
+# CẤU TRÚC VÀ PHÂN TÍCH DỰ ÁN CROWDFUNDING-VN
+
+## I. Tổng Quan Dự Án
+**Crowdfunding-VN** là nền tảng gọi vốn cộng đồng dành cho thị trường Việt Nam. Dự án được xây dựng với kiến trúc hiện đại, kết hợp giữa RDBMS (PostgreSQL/MySQL qua Prisma ORM) và NoSQL (MongoDB cho tính năng chat/log real-time), cùng các tích hợp thanh toán ngân hàng (SePay/PayOS).
+
+* **Framework chính:** Next.js (App Router, React 19 / Next 15)
+* **Ngôn ngữ:** TypeScript
+* **Database & ORM:** Prisma ORM (Relational DB) + MongoDB Native Client (NoSQL)
+* **Styling:** Tailwind CSS + Radix UI / Shadcn UI components
+* **Cổng thanh toán:** SePay (QR Banking), PayOS
+* **Xác thực:** NextAuth.js / Custom Auth Middleware
+
+---
+
+### SOURCE: `docs/CHAT_COMPONENT_README.md`
+# 💬 Chat System Components
+
+Hệ thống chat với sidebar hiển thị danh sách cuộc trò chuyện và cửa sổ chat chính.
+
+## 📁 Components
+
+### 1. ChatSidebar
+Sidebar trái hiển thị danh sách các cuộc trò chuyện.
+
+### SOURCE: `docs/CHAT_SYSTEM.md`
+# 💬 Hệ Thống Chat 1-1
+
+## Tổng Quan
+
+Hệ thống chat 1-1 cho phép người dùng nhắn tin trực tiếp với chủ chiến dịch. Chat được lưu trữ trong MongoDB để tối ưu hiệu năng và linh hoạt.
+
+## Kiến Trúc
+
+### SOURCE: `docs/CHAT_SYSTEM_GUIDE.md`
+# 💬 Hướng Dẫn Hệ Thống Chat
+
+## 🎯 Tổng quan
+
+Hệ thống chat với đầy đủ tính năng:
+- ✅ Sidebar danh sách cuộc trò chuyện
+- ✅ Badge số tin chưa đọc
+- ✅ Trạng thái online/offline
+- ✅ Tìm kiếm cuộc trò chuyện
+- ✅ Cửa sổ chat với tin nhắn theo thời gian
+- ✅ Typing indicator
+- ✅ Gửi tin nhắn, emoji, file
+
+## 📁 Cấu trúc Files
+
+### SOURCE: `docs/CONTRIBUTING.md`
+# Hướng dẫn đóng góp 🤝
+
+Cảm ơn bạn đã quan tâm đến CrowdFund VN! Tài liệu này hướng dẫn cách làm việc hiệu quả trong team.
+
+---
+
+## 🌿 Git Workflow
+
+### SOURCE: `docs/Cai_Tien_Cau_Truc_Ket_Noi.md`
+# 🎯 Tại Sao Cần Project Hierarchy? - Giải Thích Dễ Hiểu
+
+> **Tóm tắt 1 dòng**: Biến nền tảng từ "nơi đăng chiến dịch" thành "portfolio chuyên nghiệp cho creators"
+
+---
+
+## 📖 Câu Chuyện: Trước và Sau
+
+### SOURCE: `docs/DATABASE_STRUCTURE_ANALYSIS.md`
+# Phân Tích Cấu Trúc Database - Crowdfunding Platform
+
+**Ngày phân tích:** 30/06/2026  
+**Phiên bản schema:** Prisma PostgreSQL
+
+---
+
+## 📋 TÓM TẮT NHANH
+
+### SOURCE: `docs/DEPLOY_INSTRUCTIONS.md`
+# 🚀 Hướng dẫn Deploy lên Vercel
+
+## ⚠️ QUAN TRỌNG: Chạy Migration trên Production
+
+Trước khi deploy, bạn PHẢI chạy migration trên production database để tạo bảng `campaign_blog_links`.
+
+### Cách 1: Sử dụng Vercel CLI (Khuyến nghị)
+
+### SOURCE: `docs/DESIGN_SYSTEM.md`
+# DESIGN_SYSTEM.md
+
+## 1. Nguồn chuẩn giao diện
+
+Trang chủ hiện tại là nguồn chuẩn giao diện gốc của TửTế Fund.
+
+Các file đại diện cho design system hiện tại:
+
+### SOURCE: `docs/DIAGRAM_DESCRIPTIONS.md`
+# 📖 MÔ TẢ CHI TIẾT SƠ ĐỒ USE CASE VÀ ER DIAGRAM - TỬ TẾ FUND
+
+Tài liệu này cung cấp mô tả chi tiết và chính xác về cấu trúc chức năng và cơ sở dữ liệu của hệ thống **TửTế Fund**, phục vụ cho việc lập tài liệu kỹ thuật và thuyết trình.
+
+---
+
+## I. MÔ TẢ CHI TIẾT SƠ ĐỒ USE CASE (USE CASE DESCRIPTIONS)
+
+### SOURCE: `docs/FEATURE_BLOG_LINKS_SUMMARY.md`
+# ✅ Tính năng: Gắn Blog vào Campaign
+
+## 📋 Tổng quan
+Tính năng cho phép creator gắn các bài blog của họ vào dự án để người ủng hộ có thể tìm hiểu thêm về câu chuyện, tiến độ và thông tin chi tiết của dự án.
+
+## 🎯 Các tính năng chính
+
+### 1. Trong Form Tạo/Chỉnh sửa Campaign
+- ✅ Component chọn blog posts với giao diện thân thiện
+- ✅ Tìm kiếm blog posts theo tiêu đề
+- ✅ Hiển thị preview blog (ảnh bìa, tiêu đề, excerpt, ngày xuất bản)
+- ✅ Sắp xếp thứ tự hiển thị bằng drag & drop
+- ✅ Chỉ hiển thị blog posts đã PUBLISHED
+- ✅ Link đến trang tạo blog nếu chưa có bài viết nào
+
+### SOURCE: `docs/FINAL_STATUS_REPORT.md`
+# Báo Cáo Trạng Thái Cuối Cùng
+
+**Ngày:** 30/06/2026  
+**Tóm tắt:** Phase 1 Refactor + Nested Links Bugfix
+
+---
+
+## ✅ ĐÃ HOÀN THÀNH
+
+### SOURCE: `docs/FULL_DATABASE_SCHEMA.md`
+# 📊 FULL DATABASE SCHEMA - HYBRID ARCHITECTURE
+
+## 🎯 TÓM TẮT
+
+**Dự án sử dụng Hybrid Database:**
+- **PostgreSQL**: 15 tables (Prisma ORM)
+- **MongoDB**: 9 collections (Native Driver)
+- **Total**: 24 data structures
+
+---
+
+### SOURCE: `docs/HUONG_DAN_TAO_SO_DO_DATABASE.md`
+# 📊 HƯỚNG DẪN TẠO SƠ ĐỒ CƠ SỞ DỮ LIỆU
+
+## 🎯 CÁC PHƯƠNG PHÁP TẠO SƠ ĐỒ
+
+---
+
+## PHƯƠNG PHÁP 1: SỬ DỤNG DBDIAGRAM.IO ⭐ (KHUYÊN DÙNG)
+
+### SOURCE: `docs/HYBRID_DATABASE_SUMMARY.md`
+# 🔄 HYBRID DATABASE ARCHITECTURE - TÓM TẮT
+
+## 📊 TỔNG QUAN
+
+Dự án sử dụng **Hybrid Database Architecture** kết hợp:
+- **PostgreSQL** (qua Prisma ORM) - Dữ liệu quan hệ
+- **MongoDB** (qua Native Driver) - Dữ liệu phi cấu trúc
+
+---
+
+### SOURCE: `docs/MIGRATION_BLOG_LINKS.md`
+# Migration: Thêm tính năng gắn Blog vào Campaign
+
+## Mô tả
+Tính năng này cho phép creator gắn các bài blog của họ vào dự án để người ủng hộ có thể tìm hiểu thêm về câu chuyện, tiến độ và thông tin chi tiết.
+
+## Các thay đổi
+
+### 1. Database Schema
+- Thêm model `CampaignBlogLink` để tạo many-to-many relationship giữa Campaign và BlogPost
+- Thêm relation `linkedBlogs` vào Campaign model
+- Thêm relation `linkedCampaigns` vào BlogPost model
+
+### SOURCE: `docs/PLANTUML_USE_CASE.md`
+# 📊 PLANTUML USE CASE DIAGRAM - TỬ TẾ FUND
+
+Bạn có thể sao chép mã dưới đây vào các trình chỉnh sửa PlantUML (như [PlantText](https://www.planttext.com/) hoặc extension trong VS Code) để vẽ sơ đồ.
+
+```plantuml
+@startuml
+header Dự án Crowdfunding - TửTế Fund
+title Sơ đồ Use Case Tổng quát
+
+left to right direction
+skinparam packageStyle rectangle
+
+### SOURCE: `docs/PRESENTATION_GUIDE.md`
+# 🎤 HƯỚNG DẪN THUYẾT TRÌNH & NỘI DUNG SLIDE
+
+Tài liệu này tổng hợp cấu trúc bài thuyết trình và nội dung chi tiết cho từng slide của dự án **TửTế Fund**.
+
+---
+
+## 📋 Thông tin chung
+- **Tên đề tài:** CROWDFUNDING PLATFORM - TửTế Fund
+- **Môn học:** Lập trình ứng dụng web
+- **Giảng viên hướng dẫn:** Lương Trường An
+- **Nhóm thực hiện:** Nhóm 5
+- **Thành viên:** 
+    - Nguyễn Quách Phú Tài (123000609)
+    - Trần Xuân Ân (123001127)
+    - Bùi Đặng Quốc Khánh (123001005)
+
+### SOURCE: `docs/PROFILE_ANALYSIS_REPORT.md`
+# BÁO CÁO PHÂN TÍCH HỆ THỐNG PROFILE - TỬ TẾ FUND
+
+**Ngày phân tích:** June 30, 2026  
+**Phạm vi:** Owner View & Public View  
+**Mục tiêu:** Cải thiện giao diện profile hiện có KHÔNG tạo lại
+
+---
+
+## 1. THÔNG TIN HỆ THỐNG HIỆN TẠI
+
+### SOURCE: `docs/PROFILE_BLOG_IMPLEMENTATION_REPORT.md`
+# BÁO CÁO TRIỂN KHAI: TÍCH HỢP BLOG VÀO PROFILE
+
+**Ngày triển khai:** June 30, 2026  
+**Trạng thái:** ✅ HOÀN THÀNH  
+**Build status:** ✅ PASS
+
+---
+
+## 1. TÓM TẮT
+
+### SOURCE: `docs/PROFILE_BLOG_INTEGRATION_ANALYSIS.md`
+# BÁO CÁO PHÂN TÍCH: TÍCH HỢP BLOG VÀO PROFILE
+
+**Ngày phân tích:** June 30, 2026  
+**Scope:** Thêm section Blog vào Profile (Owner View & Public View)  
+**Mục tiêu:** Hiển thị bài viết của user trên trang cá nhân
+
+---
+
+## 1. KIỂM TRA HỆ THỐNG HIỆN TẠI
+
+### SOURCE: `docs/PROFILE_TABS_IMPLEMENTATION_REPORT.md`
+# BÁO CÁO TRIỂN KHAI: PROFILE TABS NAVIGATION
+
+**Ngày triển khai:** June 30, 2026  
+**Trạng thái:** ✅ HOÀN THÀNH  
+**Build status:** ✅ PASS
+
+---
+
+## 1. TÓM TẮT
+
+### SOURCE: `docs/PROJECT_VS_CAMPAIGN_ANALYSIS.md`
+# BÁO CÁO PHÂN TÍCH: PROJECT VS CAMPAIGN - TỬ TẾ FUND
+
+**Ngày phân tích:** June 30, 2026  
+**Scope:** Kiểm tra entity Project, đề xuất kiến trúc phù hợp  
+**Mục tiêu:** Phân biệt rõ Project (Dự án) và Campaign (Chiến dịch gây quỹ)
+
+---
+
+## 1. HIỆN TRẠNG HỆ THỐNG
+
+### SOURCE: `docs/README.md`
+# 📚 TỬ TẾ FUND - NỀN TẢNG CROWDFUNDING VIỆT NAM
+
+**TửTế Fund** là một nền tảng gọi vốn cộng đồng (crowdfunding) hiện đại, minh bạch và an toàn, được thiết kế dành riêng cho thị trường Việt Nam. Hệ thống cho phép các nhà sáng tạo (Creators) hiện thực hóa ý tưởng và những nhà tài trợ (Backers) ủng hộ các dự án ý nghĩa thông qua quy trình thanh toán trực tuyến tiện lợi.
+
+---
+
+## 🚀 Trạng thái dự án
+- **Phiên bản:** 1.0.0 (Production Ready)
+- **Tính năng cốt lõi:** ✅ Hoàn thành 100%
+- **Hệ thống kiểm thử:** ✅ 88 test cases (100% Pass)
+- **Triển khai:** Vercel (Next.js 15)
+
+### SOURCE: `docs/REFACTOR_PHASE1_COMPLETION_REPORT.md`
+# Báo Cáo Hoàn Thành: Giai Đoạn 1 - Khắc Phục Bất Đồng Bộ Thuật Ngữ
+
+**Ngày thực hiện:** 30/06/2026  
+**Trạng thái:** ✅ **HOÀN THÀNH**  
+**Build status:** ✅ **SUCCESS** (No errors, only ESLint warnings không liên quan)
+
+---
+
+## 🎯 MỤC TIÊU GIAI ĐOẠN 1
+
+### SOURCE: `docs/REFACTOR_PHASE2_PART1_COMPLETION_REPORT.md`
+# Báo Cáo Hoàn Thành: Giai Đoạn 2 (Phần 1) - Refactor Technical Naming
+
+**Ngày hoàn thành:** 2024  
+**Mục tiêu:** Refactor các tên kỹ thuật từ "Project" sang "Campaign" cho Type Definitions và API Routes để đồng bộ hoàn toàn với Database Schema.
+
+---
+
+## 📋 Tóm Tắt Thực Hiện
+
+### SOURCE: `docs/REFACTOR_PHASE2_PART2_COMPLETION_REPORT.md`
+# Báo Cáo Hoàn Thành: Giai đoạn 2 (Phần 2) - Refactor Function Names & File Renaming
+
+**Ngày hoàn thành:** 2024  
+**Mục tiêu:** Refactor các tên hàm logic và đổi tên file/folder từ "Project" sang "Campaign" ở tầng Utility (src/lib) để đồng bộ hoàn toàn với Database Schema.
+
+---
+
+## 📋 Tóm Tắt Thực Hiện
+
+### SOURCE: `docs/REFACTOR_PHASE3_COMPLETION_REPORT.md`
+# Báo Cáo Hoàn Thành: Giai đoạn 3 (Giai đoạn Cuối) - Component Folder Renaming & Final Cleanup
+
+**Ngày hoàn thành:** 2024  
+**Mục tiêu:** Di chuyển và đổi tên thư mục Components từ "projects" sang "campaigns", refactor tên Component, và dọn dẹp hoàn toàn các file deprecated để đạt Single Source of Truth.
+
+---
+
+## 📋 Tóm Tắt Thực Hiện
+
+### SOURCE: `docs/SEPAY_INTEGRATION.md`
+# Tích hợp SePay Payment Gateway
+
+## Tổng quan
+
+SePay là cổng thanh toán hỗ trợ nhiều phương thức thanh toán bao gồm:
+- Chuyển khoản ngân hàng qua QR code
+- NAPAS QR
+- Thẻ quốc tế
+
+## Cấu hình
+
+### SOURCE: `docs/SEPAY_QUICKSTART.md`
+# SePay - Hướng dẫn nhanh
+
+## Bước 1: Lấy thông tin tích hợp
+
+### Sandbox (Test)
+
+1. Truy cập: https://my.sepay.vn/register
+2. Đăng ký tài khoản mới
+3. Vào **Cổng thanh toán** → **Đăng ký**
+4. Chọn **Quét mã QR chuyển khoản ngân hàng** → **Bắt đầu ngay**
+5. Chọn **Sandbox** và làm theo hướng dẫn
+6. Sao chép thông tin:
+   - `MERCHANT ID`: SP-TEST-XXXXXXXX
+   - `SECRET KEY`: spsk_test_xxxxxxxxxxxx
+
+### SOURCE: `docs/SRS_CROWDFUNDING_VN.md`
+# ĐẶC TẢ YÊU CẦU PHẦN MỀM (SRS)
+## Hệ Thống Crowdfunding Việt Nam
+
+**Phiên bản:** 1.0  
+**Ngày:** 17/08/2026  
+**Chuẩn:** IEEE 830  
+**Ngôn ngữ:** Tiếng Việt
+
+---
+
+## KIỂM TRA PHỦ SÓNG CHỨC NĂNG NGUỒN
+
+### SOURCE: `docs/TEMP_RICH_TEXT_SOURCE_EXPORT.md`
+# TEMP RICH TEXT SOURCE EXPORT
+
+File này là bản tổng hợp mã nguồn Rich Text Editor/Renderer của TửTế Fund để gửi cho ChatGPT phân tích.
+Không phải tài liệu chính thức.
+Có thể xóa sau khi dùng xong.
+
+## 1. Mục tiêu phân tích
+
+Rich Text cần được cải thiện cho:
+- Tạo chiến dịch
+- Chỉnh sửa chiến dịch
+- Cập nhật chiến dịch
+- Viết blog
+- Hiển thị nội dung đã lưu
+- Chèn link/ảnh/video
+- Toolbar/bubble menu
+- Mobile/responsive
+- Creator UX
+
+### SOURCE: `docs/TERMINOLOGY_INCONSISTENCY_REPORT.md`
+# Báo Cáo: Vấn Đề Thuật Ngữ Không Nhất Quán Project vs Campaign
+
+**Ngày phân tích:** 30/06/2026  
+**Người báo cáo:** Kiro AI Assistant  
+**Mức độ nghiêm trọng:** 🔴 **CRITICAL** - Gây nhầm lẫn cho người dùng
+
+---
+
+## 🚨 VẤN ĐỀ CHÍNH
+
+### SOURCE: `docs/TESTS_README.md`
+# Hệ Thống Kiểm Thử Tự Động
+
+Hệ thống kiểm thử được xây dựng dựa trên bảng kiểm thử giao diện và chức năng, sử dụng Jest và React Testing Library.
+
+## 📋 Cấu Trúc Thư Mục
+
+```
+__tests__/
+├── ui/                     # Kiểm thử giao diện
+│   └── interface.test.tsx  # Test cases cho UI components
+├── functional/             # Kiểm thử chức năng
+│   └── features.test.tsx   # Test cases cho các chức năng
+├── integration/            # Kiểm thử tích hợp
+│   └── stats.test.tsx      # Test tích hợp API và components
+├── utils/                  # Utilities cho testing
+│   └── test-utils.tsx      # Helper functions và mock data
+├── reports/                # Tạo báo cáo
+│   └── test-report-generator.ts
+├── run-tests-and-report.ts # Test runner chính
+└── README.md              # Tài liệu này
+```
+
+### SOURCE: `docs/UI_TEXT_UPDATE_REPORT.md`
+# Báo Cáo: Cập Nhật UI Text "Dự án" → "Chiến dịch"
+
+**Ngày:** 30/06/2026  
+**Trạng thái:** ✅ **HOÀN THÀNH**  
+**Phạm vi:** Discovery page và các UI text chính
+
+---
+
+## 🎯 MỤC TIÊU
+
+### SOURCE: `docs/UPGRADE_CREATOR_GUIDE.md`
+# Hướng dẫn triển khai hệ thống nâng cấp Creator
+
+## ✅ Đã hoàn thành
+
+### 1. Thêm nút "Nâng cấp Creator" vào menu
+- ✅ Hiển thị cho tài khoản BACKER
+- ✅ Tự động phân luồng: cá nhân → `/upgrade/individual`, doanh nghiệp → `/upgrade/organization`
+- ✅ Vị trí: Dropdown menu trong NavbarNew.tsx
+
+### 2. Trang nâng cấp cá nhân (`/upgrade/individual`)
+- ✅ Tạo file: `src/app/upgrade/individual/page.tsx`
+- ✅ Kiểm tra quyền: chỉ BACKER mới truy cập được
+- ✅ Pre-fill dữ liệu đã có từ profile
+- ✅ Form bao gồm:
+  - Thông tin cá nhân (họ tên, ngày sinh, CCCD, ảnh CCCD)
+  - Địa chỉ (thường trú, hiện tại)
+  - Liên hệ (phone, email)
+  - Thông tin Creator công khai (tên hiển thị, bio, website)
+  - Thông tin thanh toán (tài khoản ngân hàng, mã số thuế)
+
+### SOURCE: `docs/VERCEL_DEPLOYMENT_GUIDE.md`
+# 🚀 Hướng dẫn Deploy lên Vercel
+
+## ✅ Đã hoàn thành:
+- [x] Tạo Neon PostgreSQL database (Singapore region)
+- [x] Deploy database schema (15 migrations)
+- [x] Kiểm tra kết nối thành công
+
+## 📋 Các bước tiếp theo:
+
+### 1. Import Project vào Vercel
+
+### SOURCE: `docs/assistant-observability-and-quality.md`
+# Telemetry trợ lý và quality gate Platform
+
+## Mục tiêu
+
+Tài liệu này mô tả hai ranh giới vận hành cho các trợ lý công khai của Platform: **quan sát an toàn** đối với sự kiện `command_rejected` và **hồi quy bắt buộc trong CI** cho Hỏi nhanh. Cả hai cơ chế chỉ dùng dữ liệu tối thiểu cần thiết; không đưa nội dung hội thoại, lệnh người dùng hay dữ liệu nhận diện người dùng sang AI-BS.
+
+| Hạng mục | Cơ chế | Dữ liệu/kiểm tra |
+| --- | --- | --- |
+| Tổng hợp từ chối lệnh | `GET /api/internal/assistant-telemetry` | Tổng số, ngày UTC và thời điểm mới nhất của `command_rejected` trong cửa sổ 1–168 giờ |
+| Xác thực liên dịch vụ | Bearer token | Chỉ AI-BS server dùng khóa đọc; không có quyền ghi |
+| E2E Hỏi nhanh | Playwright + PostgreSQL service | Product, blog và profile công khai thật; happy path, loading và error state |
+| Chất lượng mã nguồn | GitHub Actions `Platform CI` | Jest, TypeScript và E2E Chromium |
+
+### SOURCE: `docs/assistant-safety-audit.md`
+# Rà soát Hỏi nhanh và trợ lý nền tảng
+
+Ngày 22/08/2026, toàn bộ route nhận diện của Hỏi nhanh được đối chiếu với allowlist public gồm `campaign`, `product`, `blog`, `project` và `profile`. Phần tóm tắt hiện chỉ dùng các trường đã chọn công khai: nội dung, người tạo, mục tiêu/tiến độ, đếm quan hệ, số liệu public, giá/mức ủng hộ và các liên kết hiển thị. Không bổ sung bất kỳ quyền ghi, định danh riêng, credential hoặc dữ liệu thanh toán nào.
+
+Mọi input chat của **Hỏi nhanh** và **Trợ lý nền tảng** đều được kiểm tra theo chính sách command-like. Các đoạn code fence, lệnh shell/phần mềm và yêu cầu chạy/thực thi lệnh nhận phản hồi từ chối cố định; trợ lý không thực thi, không mô phỏng thực thi, không làm theo và không lưu lệnh vào Zero-Mem. Khi người dùng đã opt-in telemetry, hệ thống chỉ ghi event `command_rejected` cùng metadata tổng hợp, không ghi nội dung lệnh.
+
+Rà soát cũng phát hiện `richDescription` TipTap có thể đến client dưới dạng JSON object và bị React ép thành `[object Object]`. Renderer hiện chuẩn hóa object sang JSON trước khi parse/render/sanitize, vì vậy trang dự án không còn hiển thị chuỗi lỗi này.
+
+### SOURCE: `docs/deployment-verification.md`
+# Xác minh deployment Platform
+
+## 21/08/2026
+
+Commit `0c8e40e` đã được đẩy lên nhánh `main` để kích hoạt deployment tự động. Lần truy cập thụ động đầu tiên đến `/gioi-thieu` trả về trang Platform; phiên trình duyệt tương tác sau đó bị khởi tạo lại về trang trống trước khi có thể mở panel. Cần thực hiện lại kiểm tra tương tác sau khi deployment mới ổn định, gồm xác minh telemetry opt-in và hồi quy Zero-Mem TTL.
+
+Lần kiểm tra tương tác lại cho thấy nút trợ lý mở được và panel hiển thị lời chào mặc định không có ngữ cảnh cũ, cùng cảnh báo Zero-Mem TTL 30 phút. Tuy nhiên control telemetry opt-in của commit `0c8e40e` chưa xuất hiện tại URL production, vì vậy deployment mới chưa được coi là đã phát hành; kiểm tra hồi quy cuối cùng sẽ chỉ thực hiện sau khi giao diện telemetry xuất hiện.
+
+### SOURCE: `docs/public-project-assistant-verification.md`
+# Xác minh Hỏi nhanh với dự án công khai
+
+Ngày 22/08/2026, profile công khai `cmphnhw8e0002so1uh16dwpvn` mở trực tiếp trên deployment mà không yêu cầu đăng nhập. Giao diện profile hiển thị một dự án công khai “Mầm xanh tử tế”.
+
+Khi mở Hỏi nhanh, phần tóm tắt hiển thị “Dự án công khai: 1” và “Dự án gần đây: Mầm xanh tử tế”. Dữ liệu được lấy từ endpoint allowlist công khai; response chỉ chọn trường profile, `_count.projects` và tối đa sáu dự án với metadata hiển thị công khai, không gồm email, mật khẩu, tài khoản ngân hàng hoặc dữ liệu ghi.
+
+Trên cùng deployment, câu hỏi “Coz bao nhiêu dự án?” nhận phản hồi: “Test Creator Pro có 1 dự án công khai. Dự án hiển thị: Mầm xanh tử tế.” Điều này xác nhận Hỏi nhanh dùng đúng số liệu và tên dự án đã công khai, không cần đăng nhập.
+
+### SOURCE: `docs/quick-assistant-verification.md`
+# Xác minh trợ lý nổi
+
+- Trên route chiến dịch công khai, nút nổi được hiển thị ở góc dưới với nhãn truy cập `Hỏi nhanh`.
+- Nút mở được panel gọn có tiêu đề `Hỏi nhanh`, không có tên hoặc liên kết đến AI-BS.
+- Khi dữ liệu trang đang tải, widget giữ trạng thái chờ và không hiển thị dữ liệu nhạy cảm.
+
+### SOURCE: `docs/quick-page-assistant-verification.md`
+# Xác minh biểu tượng Hỏi nhanh
+
+Ngày 21/08/2026, trigger Hỏi nhanh được thay bằng mascot robot hình giọt nước màu xanh cyan, khác biệt trực quan với trợ lý robot/lá màu emerald. Kiểm thử component xác nhận trigger có hình giọt nước, mở panel đúng và vẫn tải tóm tắt dữ liệu công khai.
+
+Đường dẫn sản phẩm trong ảnh tham chiếu hiện chuyển sang đăng nhập trên deployment đang hoạt động; vì vậy không sử dụng route đó để xác nhận trực quan trên production. Thay đổi không làm nới quyền truy cập: logic Hỏi nhanh và allowlist dữ liệu công khai giữ nguyên.
+
+### SOURCE: `docs/testing.md`
+# Kiểm thử Platform
+
+`npm test` chạy các kiểm thử unit, component và integration không cần database. Các suite truy cập Prisma trực tiếp được tách riêng để chúng không bao giờ vô tình sử dụng `DATABASE_URL` phát hành trong môi trường phát triển hoặc CI không có database test.
+
+Để chạy toàn bộ kiểm thử, tạo một PostgreSQL database **riêng** có tên chứa `test` (ví dụ `tutefund_platform_test`) rồi cấu hình biến môi trường `JEST_DATABASE_URL` chỉ cho CI/test. Chạy `npm run test:db` để áp dụng migration vào database test rồi chạy các suite database tuần tự. `npm run test:all` ghép hai đường chạy này.
+
+> Không đặt `JEST_DATABASE_URL` trỏ tới database phát hành. Script kiểm tra giao thức PostgreSQL và yêu cầu tên database chứa `test` trước khi áp dụng migration.
+
+### SOURCE: `docs/zero-mem-research.md`
+# Ghi chú nghiên cứu Zero-Mem
+
+Bài báo [Zero-Mem: Zero-Token Memory Operations for LLM Agents](https://arxiv.org/abs/2607.29377) mô tả bộ nhớ giữ nguyên interaction trace làm nguồn chứng cứ, không dùng LLM trong các thao tác ghi, tổ chức hoặc truy hồi bộ nhớ. Kiến trúc kết hợp entity-context graph để truy hồi quan hệ và temporal hierarchy để giữ locality, session state; kết quả từ hai view được phối hợp, mở rộng evidence closure và hiệu chỉnh bằng quy tắc xác định trước final QA.
+
+Repository chính thức [Zero-Mem/Zero-mem](https://github.com/Zero-Mem/Zero-mem) hiện chỉ có README và nêu rằng mã nguồn cùng chi tiết triển khai sẽ được phát hành sau peer review. Vì vậy, việc triển khai Platform sẽ là bản tái thực hiện độc lập theo mô tả trong bài báo, không sao chép mã nguồn chưa được phát hành.
+
+### SOURCE: `docs/zero-mem-verification.md`
+# Xác minh Zero-Mem trên giao diện
+
+Ngày kiểm tra: 21/08/2026.
+
+Trợ lý robot/lá xuất hiện ở góc phải và mở được panel hỗ trợ gọn trên trang `/gioi-thieu`. Panel hiển thị đúng nhãn **Zero-Mem cục bộ**, nội dung giới hạn bộ nhớ trên thiết bị trong phiên, TTL 30 phút, cảnh báo không nhập mật khẩu/OTP/token/dữ liệu thẻ, và có nút xóa bộ nhớ riêng. Các kết quả này được kiểm tra trực quan tại preview local sau khi thay bộ nhớ phiên cũ bằng bản tái triển khai Zero-Mem.
+
+Đã gửi câu hỏi “Tôi muốn tạo chiến dịch” bằng chip gợi ý. Trợ lý hiển thị hướng dẫn phù hợp cùng liên kết `/campaigns/create`; trace câu hỏi và phản hồi được ghi vào bộ nhớ phiên cục bộ qua Zero-Mem. Các kiểm thử đơn vị riêng bao phủ truy hồi theo thời gian, TTL, xóa bộ nhớ và chặn chuỗi nhạy cảm.
+
+### SOURCE: `notes_call_cost.md`
+# So sánh chi phí chức năng gọi thoại/video
+
+## WebRTC peer-to-peer (PeerJS) — KHUYẾN NGHỊ cho nền tảng này
+- PeerJS cloud server MIỄN PHÍ (peerjs.com có cloud miễn phí, không cần server)
+- Cuộc gọi 1-1 P2P: media đi trực tiếp giữa 2 trình duyệt, KHÔNG qua server → không tốn phí băng thông/thuê phút
+- Chỉ cần tín hiệu (signaling) — có thể dùng sẵn socket/MongoDB hoặc server API hiện có của Next.js
+- Nhược điểm: NAT/firewall nặng cần STUN/TURN server (Coturn tự host ~5-10$/tháng hoặc free TURN công cộng hạn chế); chất lượng phụ thuộc mạng 2 bên; không có tính năng họp nhóm lớn, ghi hình, hiệu ứng nền
+- Độ phức tạp: trung bình — ~1-2 ngày dev: tạo room, offer/answer, UI call modal với camera/mic toggle, mute, hangup
+
+## Cloud có phí (Daily.co / Agora / LiveKit / Twilio)
+- Daily: 10.000 phút miễn phí/tháng (free tier), sau đó ~4$/1000 phút video — rất rẻ cho quy mô nhỏ
+- Agora: ~3.99$/1000 phút video, audio rẻ hơn
+- LiveKit Cloud: free tier giới hạn, pay-as-you-go
+- Ưu: chất lượng ổn (có SFU relay), tính năng phong phú (màn hình, hiệu ứng, ghi hình), không lo NAT/TURN
+- Nhược: thêm dependency thứ 3, tốn phí khi scale (VD 1000h/tháng ~ 40-50$/tháng video)
+
+## Khuyến nghị cho TửTế Fund (giao tiếp creator-backer, 1-1)
+- Phương án WebRTC P2P tự build (PeerJS) = 0$ chi phí vận hành, đủ nhu cầu
+- Nếu muốn đảm bảo chất lượng mọi mạng: + Coturn server (~6$/tháng) hoặc dùng Daily free tier làm fallback
+
+### SOURCE: `notes_call_design.md`
+# Thiết kế chức năng gọi thoại/video WebRTC P2P (0đ vận hành)
+
+## Quyết định kiến trúc
+- KHÔNG dùng PeerJS cloud (tạo peer ID công khai, quản lý cuộc gọi phức tạp) và KHÔNG cần server TURN ngay (dùng STUN miễn phí của Google).
+- **Signaling qua chính MongoDB chat**: gửi tin nhắn loại đặc biệt `type: 'call-signal'` trong conversation. ChatWindow đã có polling (ChatConversationClient load messages, nhưng cần POLL ngắn khi đang gọi).
+- Payload signaling JSON trong field `text` của tin nhắn (message.type='call-signal'), các type: offer, answer, candidate, call, accept, reject, end.
+- Người nhận thấy chuông khi POLL phát hiện tin call-signal type='call' mới từ đối phương.
+- Media P2P trực tiếp (RTCDataChannel KHÔNG cần). STUN: stun.l.google.com:19302.
+- Không cần API server mới ngoại trừ endpoint lấy participants của conversation (đã có) — signaling hoàn toàn bằng POST/GET messages hiện có.
+
+## Component mới
+- `src/components/chat/CallModal.tsx` — modal toàn màn hình cuộc gọi: caller UI (chuông chờ), receiver UI (chấp nhận/từ chối), during-call UI (video 2 bên, nút mute cam/mic, chuyển cuộc gọi thoại↔video, kết thúc).
+- Hook `useCall(conversationId, currentUserId, recipientId, recipientName, recipientAvatar)` — quản lý RTCPeerConnection, signaling qua fetch API messages, polling mỗi 1s khi trạng thái !== 'idle', cleanup candidates, timeout gọi 30s.
+- Sửa ChatWindow: `handleCall` gọi useCall.start; không còn alert placeholder.
+
+## Chi tiết signaling messages (text = JSON)
+- caller gửi: {type:'call', mode:'voice'|'video', ts}
+- receiver gửi: {type:'accept', ts} (kèm mode) hoặc {type:'reject'}
+- caller tạo peer, gửi offer: {type:'offer', sdp}
+- receiver tạo peer, gửi answer: {type:'answer', sdp}
+- candidate: {type:'candidate', ice}
+- caller/receiver gửi {type:'end'} khi kết thúc; poll xóa/nhận diện theo ts.
+- Lọc signaling không hiển thị như tin nhắn thường: ChatWindow render bỏ message có type call-signal (giống cách xử lý message ẩn).
+- Chuông: dùng AudioContext oscillator + gọi navigator.mediaDevices khi accept.
+
+### SOURCE: `notes_deleted_user_chat.md`
+# Ghi chú: Xử lý "Người dùng đã xóa" trong chat
+
+## Nhiệm vụ hiện tại (user yêu cầu)
+Giữ nguyên dữ liệu chat MongoDB, sửa code để khi người tham gia trò chuyện bị xóa tài khoản (không còn trong PostgreSQL `users`) thì hiển thị "Người dùng đã xóa" thay vì tên lạ/lỗi.
+
+## Kiến trúc chat
+- Tin nhắn/conversation lưu ở MongoDB Atlas (collection `conversations`, `messages`, DB name `DuAn`).
+- Thông tin người dùng tra từ PostgreSQL `users` qua `getUserInfo(userId)` trong `src/services/mongodb/chat.service.ts` → trả về `ConversationParticipant { userId, name, email, avatarUrl, role }`.
+- `getUserInfo` hiện trả về `null` khi user không tồn tại → chỗ gọi có thể crash hoặc hiển thị undefined.
+- MONGODB_URI trong `/home/ubuntu/platform/.env` dòng 23: `mongodb://nguyenquachphutai_db_user:0909115079%40Tai@ac-qlbdgty-shard-00-00.b4wcshp.mongodb.net:27017/?replicaSet=atlas-f7q58x-shard-0&readPreference=primaryPreferred&retryWrites=true&w=majority&appName=DuAn`
+- IP sandbox bị MongoDB Atlas chặn (connection closed 159.143.78.200) — dev server vẫn chạy chat vì env đã load sẵn từ session khác. Không test trực tiếp MongoDB được từ sandbox.
+
+## Trạng thái DB
+- PostgreSQL: chỉ còn 1 user `test3@gmail.com` id `cmphnhw8e0002so1uh16dwpvn` (mật khẩu ManusTest@123), 1 project `cmt0y1lls000196jc66m2pj7t` "Mầm xanh tử tế", 1 reward `b30ad967-c249-40ff-b6e4-f0b878d56e3b`.
+- MongoDB: còn conversations cũ với participants là các user đã bị xóa (Test Backer, Test Creator...).
+
+### SOURCE: `notes_product_quickedit.md`
+# Nhiệm vụ: Quick Edit trang sản phẩm + tạo blog mẫu + sửa hiển thị giá
+
+## Yêu cầu user
+1. Trang sản phẩm `/products/[rewardId]` chưa có "Chỉnh sửa nhanh" (blog + project đã có, dùng OwnerEditPanel).
+   - Khi bấm sửa nhanh → sửa ngay tại chỗ trên trang đang mở, không dẫn tới trang quản lý.
+2. Tạo blog mẫu thuộc tài khoản cmphnhw8e0002so1uh16dwpvn (test3@gmail.com, Test Creator Pro).
+3. Ảnh user: giá hiển thị "55.000 VNĐ đ" → thừa chữ "đ" (formatVND trong src/lib/utils.ts đã trả "XXX VNĐ", code page append thêm " đ").
+
+## Thông tin kỹ thuật quan trọng
+- Trang sản phẩm: `src/app/products/[rewardId]/page.tsx` (418 dòng, server component thuần async, KHÔNG có client wrapper, KHÔNG có OwnerEditPanel).
+  - 2 chế độ render: chế độ 1 (có campaign ~ dòng 100-260), chế độ 2 độc lập (262-392).
+  - Query reward include: campaigns (users, projects, pledges), projects. contactUserId = campaign?.users?.id || campaign?.creatorId || project?.creatorId.
+  - Format giá: `formatVND(x) + " đ"` → phải sửa thành chỉ `formatVND(x)` (các chỗ: dòng 157, 162, 310, 315, 179, 190, 206).
+  - ShareScript ở cuối (dòng 395-417).
+- OwnerEditPanel: `src/components/OwnerEditPanel.tsx` — prop `isOwner: boolean`, `blocks: [{label, editUrl?, description?, onEdit?}]`. isOwner=true luôn hiện (blog dùng hardcoded isOwner={true}).
+- Blog client wrapper pattern: `src/app/blog/[slug]/BlogDetailPageClient.tsx`:
+  - state editing, formData {title, excerpt, content, coverImage, type, visibility}, fetch `/api/blog/posts/${slug}` PATCH, toast.success + router.refresh().
+  - Dialog fixed inset-0 z-50, max-w-4xl, header gradient, form overflow-y-auto.
+  - Dùng ProductionEditor (tiptap), ImageUpload.
+- API rewards: `src/app/api/rewards/[id]/route.ts`: GET, PUT, DELETE.
+  - PUT body: title, description, minAmount, maxAmount, stock, productImages, productVideo, maxQuantity, deliveryDate, isActive, isIncludedInProject.
+  - Auth: `await auth()` (import {auth} từ "@/lib/auth"), check creatorId của campaign.
+  - LƯU Ý: access check chỉ so (reward.campaigns).creatorId — sản phẩm độc lập (campaign=null) sẽ không so sánh được → PUT DELETE sẽ fail "Access denied". Khi thêm quick edit cần sửa access check: nếu không có campaign, check reward.projects.creatorId === userId; nếu không có cả hai thì cho chủ sở hữu (userId === user id nếu có trường userId... rewards không có userId → dùng project.creatorId).
+- Session server component: `const session = await auth(); const currentUserId = (session?.user as any)?.id;`
+- Auth
+
+### SOURCE: `notes_shopee_card.md`
+# Nhiệm vụ: Thẻ sản phẩm phong cách Shopee
+
+## Yêu cầu user
+1. Bỏ dòng chữ "SẢN PHẨM ĐỘC LẬP" trên thẻ sản phẩm
+2. Thêm ảnh sản phẩm hiển thị phía trên thẻ
+3. Hiển thị % giảm giá (badge "-17%") như Shopee
+4. Thêm nút giỏ hàng tròn ở mỗi thẻ
+5. Card gọn, style giống Shopee (ảnh vuông trên, tên 2 dòng, giá cam/đỏ dưới cùng)
+
+## Bối cảnh hiện tại
+- Thẻ sản phẩm chính ở `src/components/profile/ProfileTabs.tsx` dòng 502-633 (grid `products.map`):
+  - Line 504: grid grid-cols-1 md:grid-cols-2 gap-6
+  - Line 506: images = reward.productImages (mảng URL)
+  - Line 507-510: discount = round((max-min)/max*100) nếu maxAmount > minAmount
+  - Line 516-539: Gallery ảnh HÒA ĐÃ CÓ (chỉ hiện khi images.length>0, img h-44)
+  - Line 541-586: body card: tên + mô tả + giá đỏ + giá gạch + badges (GIẢM %, Tồn kho, tên campaign, "Sản phẩm độc lập" dòng 580-584)
+  - Line 589-629: isOwnerMode admin buttons (share/edit/delete) — giữ nguyên
+  - Badge "Sản phẩm độc lập": dòng 580-584 — XÓA
+- Reward fields: productImages (string[]), minAmount (giá bán), maxAmount (giá gốc/giá gạch), stock, title, description
+- API /api/rewards/[id] GET (productImages là array URL string upload lên S3/CDN)
+- Sản phẩm hiện tại (id b30ad967-c249-40ff-b6e4-f0b878d56e3b): productImages rỗng [], cần test có/không ảnh
+- formatVND trả "X VNĐ" (src/lib/utils.ts)
+- Header web: src/app layout — GIỎ HÀNG CHƯA CÓ (grep "Giỏ hàng|cart" không ra component nào)
+- Có thể có các thẻ sản phẩm ở src/app/projects/[projectId]/page.tsx và products list — chỉ user yêu cầu thẻ trên profile (ảnh user gửi là trang profile), nhưng nên tạo component chung ProductCardShopee và dùng lại ở các nơi grid sản phẩm khác nếu dễ.
+
+## Kế hoạch
+1. Tạo component chung `src/components/products/ShopeeProductCard.tsx`: ảnh vuông 1:1 trên (placeholder icon nếu không có ảnh), badge % giảm góc trên phải ảnh, tên 2 dòng (line-clamp-2), giá cam-600 font-bold + giá gốc gạch nhỏ (màu xám nhỏ), nút giỏ hàng tròn cam góc dưới phải, hover border-cam, nền trắng, rounded nhỏ (rounded-md — Shopee dùng square-ish), nút giỏ hàng thêm vào state context (context giỏ hàng đơn giản: useState global qua event toast + localStorage? giữ đơn giản: thêm "toast: Đã thêm vào giỏ hàng" + icon số lượng trên header nếu muốn).
+2. User chỉ nói "thêm chức năng giỏ hàng" — làm đơn giản: click giỏ hàng → thêm vào localStorage cart (cartCount hiển thị badge ở header icon) + toast xác nhận. Dialog giỏ hàng: icon header mở dropdown list cart items (ảnh, tên, giá, tăng/giảm số lượng,
+
+### SOURCE: `scripts/sample-blog-posts/markdown/bai-viet-draft-chua-xuat-ban.md`
+---
+title: "Bài viết draft - Chưa xuất bản"
+slug: "bai-viet-draft-chua-xuat-ban"
+excerpt: "Đây là bài viết draft để test chức năng draft của hệ thống blog."
+coverImageUrl: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=1200&h=630&fit=crop"
+status: "DRAFT"
+type: "PLATFORM"
+visibility: "PUBLIC"
+authorId: "cmphnhw8e0002so1uh16dwpvn"
+publishedAt: null
+readingTime: 3
+tags: ["draft", "test"]
+categories: ["Test"]
+---
+
+# Bài viết draft - Chưa xuất bản
+
+Đây là bài viết draft để test chức năng draft của hệ thống blog.
+
+## Nội dung test
+
+### SOURCE: `scripts/sample-blog-posts/markdown/cap-nhat-tinh-nang-moi-2024.md`
+---
+title: "Cập nhật tính năng mới trên TửTế Fund năm 2024"
+slug: "cap-nhat-tinh-nang-moi-2024"
+excerpt: "Khám phá những tính năng mới và cải tiến trên nền tảng TửTế Fund trong năm 2024 để nâng cao trải nghiệm crowdfunding."
+coverImageUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=630&fit=crop"
+status: "PUBLISHED"
+type: "ANNOUNCEMENT"
+visibility: "PUBLIC"
+authorId: "cmphnhw8e0002so1uh16dwpvn"
+publishedAt: "2024-01-10T10:00:00.000Z"
+readingTime: 4
+tags: ["tính năng", "cập nhật", "2024"]
+categories: ["Thông báo"]
+---
+
+# Cập nhật tính năng mới trên TửTế Fund năm 2024
+
+Chào mừng năm mới! Đội ngũ TửTế Fund đã làm việc chăm chỉ để mang đến những trải nghiệm tốt hơn cho cộng đồng crowdfunding Việt Nam. Dưới đây là những cập nhật quan trọng trong năm 2024.
+
+## 1. Giao diện người dùng được cải tiến
+
+### SOURCE: `scripts/sample-blog-posts/markdown/huong-dan-tao-campaign-thanh-cong.md`
+---
+title: "Hướng dẫn tạo chiến dịch crowdfunding thành công trên TửTế Fund"
+slug: "huong-dan-tao-campaign-thanh-cong"
+excerpt: "Khám phá bí quyết để tạo chiến dịch crowdfunding hiệu quả và thu hút nhiều nhà đầu tư trên nền tảng TửTế Fund."
+coverImageUrl: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=1200&h=630&fit=crop"
+status: "PUBLISHED"
+type: "PLATFORM"
+visibility: "PUBLIC"
+authorId: "cmphnhw8e0002so1uh16dwpvn"
+publishedAt: "2024-01-15T08:00:00.000Z"
+readingTime: 5
+tags: ["crowdfunding", "hướng dẫn", "tips"]
+categories: ["Hướng dẫn"]
+---
+
+# Hướng dẫn tạo chiến dịch crowdfunding thành công trên TửTế Fund
+
+Crowdfunding đã trở thành một cách phổ biến để huy động vốn cho các dự án sáng tạo. Trên nền tảng TửTế Fund, chúng tôi cung cấp công cụ và nguồn lực để giúp bạn hiện thực hóa ý tưởng của mình.
+
+## 1. Chuẩn bị kỹ lưỡng
+
+### SOURCE: `scripts/sample-blog-posts/markdown/lich-su-phat-trien-crowdfunding-viet-nam.md`
+---
+title: "Lịch sử phát triển crowdfunding tại Việt Nam"
+slug: "lich-su-phat-trien-crowdfunding-viet-nam"
+excerpt: "Tổng quan về sự phát triển của crowdfunding tại Việt Nam từ những ngày đầu đến hiện tại và xu hướng tương lai."
+coverImageUrl: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=1200&h=630&fit=crop"
+status: "PUBLISHED"
+type: "STORY"
+visibility: "PUBLIC"
+authorId: "cmphnhw8e0002so1uh16dwpvn"
+publishedAt: "2024-01-20T14:00:00.000Z"
+readingTime: 7
+tags: ["lịch sử", "crowdfunding", "Việt Nam"]
+categories: ["Câu chuyện"]
+---
+
+# Lịch sử phát triển crowdfunding tại Việt Nam
+
+Crowdfunding đã trở thành một phần quan trọng của hệ sinh thái khởi nghiệp Việt Nam trong những năm gần đây. Hãy cùng nhìn lại hành trình phát triển của mô hình này tại Việt Nam.
+
+## Giai đoạn 1: Khởi đầu (2015-2017)
+
+### SOURCE: `scripts/sample-blog-posts/markdown/top-5-du-an-thanh-cong-thang-1.md`
+---
+title: "Top 5 dự án crowdfunding thành công nhất tháng 1/2024"
+slug: "top-5-du-an-thanh-cong-thang-1"
+excerpt: "Tổng hợp những dự án crowdfunding xuất sắc nhất trên TửTế Fund trong tháng 1, với những câu chuyện truyền cảm hứng và kết quả ấn tượng."
+coverImageUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=630&fit=crop"
+status: "PUBLISHED"
+type: "PLATFORM"
+visibility: "PUBLIC"
+authorId: "cmphnhw8e0002so1uh16dwpvn"
+publishedAt: "2024-02-01T09:00:00.000Z"
+readingTime: 6
+tags: ["thành công", "dự án", "top"]
+categories: ["Tin tức"]
+---
+
+# Top 5 dự án crowdfunding thành công nhất tháng 1/2024
+
+Tháng 1/2024 đã chứng kiến nhiều dự án xuất sắc trên nền tảng TửTế Fund. Hãy cùng nhìn lại những chiến dịch thành công nhất và học hỏi từ他们的经验。
+
+## 1. Dự án "Trường học cho trẻ em vùng cao"
+
+### SOURCE: `src/components/campaign/README.md`
+# Campaign Growth Progress Component
+
+Component thanh tiến độ cao cấp với hệ thống cây phát triển theo giai đoạn gây quỹ.
+
+## Features
+
+- ✨ 4 giai đoạn cây phát triển theo % progress
+- 🎨 Gradient colors và glow effects tinh tế
+- 🌊 Animated energy orb di chuyển theo progress
+- 🎯 Micro-animations mượt mà (sway, float, breathe, pulse)
+- 📱 Fully responsive
+- ♿ Accessibility support (reduced motion)
+- 🎛️ Multiple sizes và variants
+- 💎 Premium design
+
+### SOURCE: `src/lib/project/ERROR_LOGGING_IMPLEMENTATION.md`
+# Task 6.1: Structured Error Logging - Implementation Summary
+
+## Status: ✅ COMPLETE
+
+## Requirement Validated
+**Requirement 14.4**: THE System SHALL log all errors with timestamp, user context, operation attempted, and full error details for debugging
+
+## Implementation Details
+
+---
+
+## Nguồn: `docs/MIGRATION_BLOG_LINKS.md`
+
+# Migration: Thêm tính năng gắn Blog vào Campaign
+
+## Mô tả
+Tính năng này cho phép creator gắn các bài blog của họ vào dự án để người ủng hộ có thể tìm hiểu thêm về câu chuyện, tiến độ và thông tin chi tiết.
+
+## Các thay đổi
+
+### 1. Database Schema
+- Thêm model `CampaignBlogLink` để tạo many-to-many relationship giữa Campaign và BlogPost
+- Thêm relation `linkedBlogs` vào Campaign model
+- Thêm relation `linkedCampaigns` vào BlogPost model
+
+### 2. Components mới
+- `src/components/create-campaign/blog-selector.tsx` - Component chọn blog posts
+- `src/components/campaign/LinkedBlogsSection.tsx` - Component hiển thị linked blogs
+
+### 3. API Endpoints mới
+- `GET /api/blog/my-posts` - Lấy danh sách blog posts của user hiện tại
+
+### 4. API Endpoints đã cập nhật
+- `POST /api/campaigns` - Thêm hỗ trợ `linkedBlogIds`
+- `PUT /api/campaigns/[slug]` - Thêm hỗ trợ cập nhật `linkedBlogIds`
+- `GET /api/campaigns/[slug]` - Include `linkedBlogs` trong response
+
+### 5. Forms đã cập nhật
+- `src/app/campaigns/create/page.tsx` - Thêm BlogSelector
+- `src/components/campaign/CampaignEditForm.tsx` - Thêm BlogSelector
+- `src/components/campaign/CampaignTabsWrapper.tsx` - Thêm tab Blog
+
+## Hướng dẫn Migration
+
+### Bước 1: Chạy Prisma Migration
+```bash
+npx prisma migrate dev --name add_campaign_blog_links
+```
+
+### Bước 2: Generate Prisma Client
+```bash
+npx prisma generate
+```
+
+### Bước 3: Kiểm tra Migration
+```bash
+npx prisma studio
+```
+
+Kiểm tra xem bảng `campaign_blog_links` đã được tạo chưa.
+
+### Bước 4: Test tính năng
+1. Đăng nhập với tài khoản Creator
+2. Tạo một số blog posts (nếu chưa có)
+3. Tạo hoặc chỉnh sửa campaign
+4. Thêm blog posts vào campaign
+5. Xem trang chi tiết campaign và kiểm tra tab Blog
+
+## Rollback (nếu cần)
+Nếu cần rollback migration:
+```bash
+npx prisma migrate resolve --rolled-back add_campaign_blog_links
+```
+
+Sau đó xóa các thay đổi trong schema.prisma và chạy lại:
+```bash
+npx prisma migrate dev
+```
+
+## Notes
+- Tính năng này chỉ hiển thị blog posts đã được PUBLISHED
+- Creator chỉ có thể gắn blog posts của chính họ
+- Thứ tự hiển thị blog posts được lưu trong trường `order`
+- Tab Blog chỉ hiển thị khi campaign có ít nhất 1 blog post được gắn
+
+---
+
+## Nguồn: `docs/PLANTUML_USE_CASE.md`
+
+# 📊 PLANTUML USE CASE DIAGRAM - TỬ TẾ FUND
+
+Bạn có thể sao chép mã dưới đây vào các trình chỉnh sửa PlantUML (như [PlantText](https://www.planttext.com/) hoặc extension trong VS Code) để vẽ sơ đồ.
+
+```plantuml
+@startuml
+header Dự án Crowdfunding - TửTế Fund
+title Sơ đồ Use Case Tổng quát
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Guest" as Guest
+actor "Backer (Người ủng hộ)" as Backer
+actor "Creator (Nhà sáng tạo)" as Creator
+actor "Admin (Quản trị viên)" as Admin
+actor "System (Hệ thống)" as System
+
+rectangle "TửTế Fund Platform" {
+  ' Nhóm chức năng chung
+  usecase "Đăng ký / Đăng nhập" as UC_Auth
+  usecase "Xem & Tìm kiếm chiến dịch" as UC_Browse
+  usecase "Đọc Blog & Tin tức" as UC_ReadBlog
+  
+  ' Nhóm chức năng Backer
+  usecase "Ủng hộ dự án (Pledge)" as UC_Pledge
+  usecase "Chọn phần thưởng (Rewards)" as UC_Rewards
+  usecase "Nhắn tin trực tiếp" as UC_Chat
+  
+  ' Nhóm chức năng Creator
+  usecase "Tạo & Quản lý chiến dịch" as UC_Create
+  usecase "Đăng bài cập nhật (Update)" as UC_PostBlog
+  usecase "Quản lý danh sách ủng hộ" as UC_ManagePledges
+  
+  ' Nhóm chức năng Admin
+  usecase "Kiểm duyệt chiến dịch" as UC_Approve
+  usecase "Xác minh KYC" as UC_KYC
+  usecase "Quản lý Huy hiệu (Badges)" as UC_Badges
+  usecase "Xem Dashboard thống kê" as UC_Stats
+  usecase "Xử lý báo cáo vi phạm" as UC_Report
+  
+  ' Nhóm chức năng Hệ thống
+  usecase "Tự động xuất hóa đơn" as UC_Invoice
+  usecase "Ghi nhật ký Audit Logs" as UC_Audit
+}
+
+' Mối quan hệ Guest
+Guest --> UC_Auth
+Guest --> UC_Browse
+Guest --> UC_ReadBlog
+
+' Mối quan hệ Backer
+Backer --|> Guest
+Backer --> UC_Pledge
+Backer --> UC_Rewards
+Backer --> UC_Chat
+
+' Mối quan hệ Creator
+Creator --|> Guest
+Creator --> UC_Create
+Creator --> UC_PostBlog
+Creator --> UC_Chat
+Creator --> UC_ManagePledges
+
+' Mối quan hệ Admin
+Admin --> UC_Approve
+Admin --> UC_KYC
+Admin --> UC_Badges
+Admin --> UC_Stats
+Admin --> UC_Report
+
+' Mối quan hệ System
+System --> UC_Invoice
+System --> UC_Audit
+UC_Pledge ..> UC_Invoice : <<include>>
+@enduml
+```
+
+---
+
+### 💡 Hướng dẫn sử dụng:
+1.  **Cài đặt:** Cài đặt Extension **PlantUML** trên VS Code.
+2.  **Xem trước:** Nhấn `Alt + D` để xem bản vẽ trực tiếp.
+3.  **Xuất ảnh:** Bạn có thể xuất ra định dạng `.png` hoặc `.svg` để chèn vào báo cáo.
+
+---
+
+## Nguồn: `docs/PRESENTATION_GUIDE.md`
+
+# 🎤 HƯỚNG DẪN THUYẾT TRÌNH & NỘI DUNG SLIDE
+
+Tài liệu này tổng hợp cấu trúc bài thuyết trình và nội dung chi tiết cho từng slide của dự án **TửTế Fund**.
+
+---
+
+## 📋 Thông tin chung
+- **Tên đề tài:** CROWDFUNDING PLATFORM - TửTế Fund
+- **Môn học:** Lập trình ứng dụng web
+- **Giảng viên hướng dẫn:** Lương Trường An
+- **Nhóm thực hiện:** Nhóm 5
+- **Thành viên:** 
+    - Nguyễn Quách Phú Tài (123000609)
+    - Trần Xuân Ân (123001127)
+    - Bùi Đặng Quốc Khánh (123001005)
+
+---
+
+## 📑 Cấu trúc Slide (13-15 Slide)
+
+### Slide 1: Cover Slide
+- **Tiêu đề:** CROWDFUNDING PLATFORM
+- **Nội dung:** Tên trường, khoa, thông tin nhóm và giảng viên.
+- **Thông điệp:** "Lấy sự tử tế trồng tương lai".
+
+### Slide 2: Agenda (Nội dung trình bày)
+1. Giới thiệu và bối cảnh.
+2. Mục tiêu và phạm vi.
+3. Phương pháp thực hiện.
+4. Kiến trúc hệ thống & Công nghệ.
+5. Triển khai và kết quả (Demo).
+6. Kiểm thử và kết luận.
+
+### Slide 3: Giới thiệu & Bối cảnh
+- **Vấn đề:** Các startup và dự án cộng đồng tại Việt Nam khó tiếp cận nguồn vốn. Nhu cầu minh bạch trong quyên góp từ thiện.
+- **Giải pháp:** Xây dựng nền tảng nội địa, tích hợp thanh toán dễ dàng, quy trình xác minh chặt chẽ.
+
+### Slide 4: Mục tiêu & Phạm vi
+- **Mục tiêu:** Xây dựng web fullstack hiện đại, hỗ trợ thanh toán QR, quản lý chiến dịch chuyên nghiệp.
+- **Phạm vi:** Tập trung vào nền tảng Web Responsive (Next.js), tích hợp PayOS, xác minh KYC.
+
+### Slide 5: Phương pháp thực hiện
+- **Mô hình:** Agile Development, MVC Architecture.
+- **Quy trình:** Phân tích ➔ Thiết kế DB ➔ Phát triển Backend/Frontend ➔ Tích hợp Thanh toán ➔ Kiểm thử ➔ Triển khai.
+
+### Slide 6: Kiến trúc hệ thống (Hybrid Database)
+- **Mô hình:** Client (Next.js) ➔ Server (API Routes) ➔ Hybrid DB.
+- **Điểm nhấn:** 
+    - **PostgreSQL:** Dữ liệu quan hệ (Tài chính, User).
+    - **MongoDB:** Dữ liệu phi cấu trúc (Nội dung blog, Chat, Logs).
+
+### Slide 7: Triển khai kỹ thuật & Công nghệ
+- **Next.js 15, React 19, TypeScript.**
+- **Prisma, NextAuth, PayOS SDK, Cloudinary.**
+- **Tiptap Editor** (Rich Text).
+
+### Slide 8: Thiết kế Cơ sở dữ liệu (ERD)
+- Giải thích các thực thể chính: User, Campaign, Pledge, Reward, Blog.
+- Mối quan hệ giữa Creator - Campaign và Backer - Pledge.
+
+### Slide 9: Kết quả thực hiện & Demo
+- Hiển thị các tính năng đã hoàn thành 100%.
+- Screenshot các trang chính: Home, Campaign Detail, Admin Dashboard.
+
+### Slide 10: Kiểm thử & Đánh giá (Testing)
+- **Thông số:** 88 test cases, 100% Pass Rate.
+- **Code Coverage:** >90%.
+- **Hiệu năng:** Page load < 3s, Lighthouse Score > 90.
+
+### Slide 11: Thảo luận & Hạn chế
+- **Khó khăn:** Tích hợp Webhook đồng bộ trạng thái thanh toán.
+- **Hạn chế:** Chưa có Mobile App native, chưa tích hợp AI gợi ý dự án.
+
+### Slide 12: Kết luận & Hướng phát triển
+- **Kết luận:** Dự án đạt 100% mục tiêu, sẵn sàng cho thực tế.
+- **Phát triển:** Mobile App, AI Fraud Detection, Blockchain Transparency.
+
+### Slide 13: Q&A
+- Lời cảm ơn và mời đặt câu hỏi.
+
+---
+
+## 🛠️ Checklist chuẩn bị Demo
+1. Đảm bảo server local hoặc staging đang chạy ổn định.
+2. Chuẩn bị tài khoản: Admin, Creator, và Backer.
+3. Tài khoản test PayOS/Ngân hàng để demo thanh toán.
+4. Một chiến dịch mẫu đã có dữ liệu (Ví dụ: Dự án năng lượng xanh).
+
+---
+
+## Nguồn: `docs/PROFILE_ANALYSIS_REPORT.md`
+
+# BÁO CÁO PHÂN TÍCH HỆ THỐNG PROFILE - TỬ TẾ FUND
+
+**Ngày phân tích:** June 30, 2026  
+**Phạm vi:** Owner View & Public View  
+**Mục tiêu:** Cải thiện giao diện profile hiện có KHÔNG tạo lại
+
+---
+
+## 1. THÔNG TIN HỆ THỐNG HIỆN TẠI
+
+### 1.1. Routes & Files
+
+| Component | Path | Loại |
+|-----------|------|------|
+| **Profile Page** | `src/app/profile/[userId]/page.tsx` | Server Component |
+| **Edit Profile** | `src/app/profile/[userId]/edit/page.tsx` | Server Component |
+| **User API** | `src/app/api/users/[userId]/route.ts` | API Route |
+| **User Badges API** | `src/app/api/users/[userId]/badges/route.ts` | API Route |
+| **Components** | `src/components/profile/*` | React Components |
+
+### 1.2. Database Tables Liên Quan
+
+**PostgreSQL:**
+- `users` - Thông tin user cơ bản
+- `campaigns` - Các chiến dịch đã tạo
+- `pledges` - Lịch sử ủng hộ
+- `rewards` - Phần thưởng của campaigns
+- `campaign_followers` - Người theo dõi campaigns
+- `reviews` - Đánh giá của user
+- `badges` - Huy hiệu hệ thống
+- `user_badges` - Huy hiệu của user
+
+**MongoDB:**
+- `blog_posts` - Bài viết blog
+- `blog_comments` - Bình luận blog
+- `blog_likes` - Lượt thích
+- `blog_bookmarks` - Bookmark
+- `mongo_activity_logs` - Hoạt động user
+- `mongo_notifications` - Thông báo
+
+---
+
+## 2. OWNER VIEW - PHÂN TÍCH CHI TIẾT
+
+### 2.1. ✅ Những Gì Đã Tốt
+
+#### Header Section
+- ✅ Cover image (user.coverImage)
+- ✅ Avatar (user.image)
+- ✅ Tên người dùng (user.name)
+- ✅ Pro badge (user.status === "PRO")
+- ✅ Admin badge (user.role === "ADMIN")
+- ✅ Location (user.location)
+- ✅ Join date (user.createdAt)
+- ✅ Bio (user.bio)
+- ✅ Social links (user.socialLinks)
+- ✅ User ID display
+- ✅ Nút "Chỉnh sửa"
+- ✅ Nút "Quản lý dự án" (Creator)
+- ✅ Nút "Quản trị" (Admin)
+- ✅ Nút "Chế độ xem" (Preview as Public)
+
+#### Stats Section
+- ✅ Số dự án (user._count.campaigns)
+- ✅ Tổng tiền huy động (totalRaised)
+- ✅ Số người ủng hộ (totalBackers)
+- ✅ Số lần ủng hộ (user._count.pledges)
+- ✅ Tổng đóng góp (totalSupported)
+
+#### Content Sections
+- ✅ **Chiến dịch đã tạo** (campaigns)
+  - Campaign title, image, status
+  - Category, type (Reward/Donation)
+  - Progress bar
+  - Số người ủng hộ
+- ✅ **Đã ủng hộ** (pledges)
+  - Campaign title, image
+  - Số tiền đóng góp
+  - Ngày ủng hộ
+- ✅ **Huy hiệu** (UserBadgeList component)
+- ✅ **Thành tích** (Achievements sidebar)
+  - Dự án thành công
+  - Người ủng hộ tích cực
+  - Milestone 10M+
+
+### 2.2. ❌ Những Gì Còn Thiếu
+
+#### 2.2.1. Blog & Content
+| Dữ liệu | Có trong DB | Hiện trên Profile | Mức độ ưu tiên |
+|---------|-------------|-------------------|----------------|
+| **Blog Posts** | ✅ `blog_posts` | ❌ Không có | 🔴 **CAO** |
+| Blog likes count | ✅ `blog_likes._count` | ❌ | 🟡 Trung bình |
+| Blog comments count | ✅ `blog_comments._count` | ❌ | 🟡 Trung bình |
+| Blog bookmarks | ✅ `blog_bookmarks` | ❌ | 🟢 Thấp |
+
+**Tác động:** Creator không thể showcase blog content của mình trên profile
+
+#### 2.2.2. Campaign Details
+| Dữ liệu | Có trong DB | Hiện trên Profile | Mức độ ưu tiên |
+|---------|-------------|-------------------|----------------|
+| **Campaign Reviews** | ✅ `reviews` | ❌ Không có | 🔴 **CAO** |
+| Campaign followers count | ✅ `campaign_followers` | ❌ | 🟡 Trung bình |
+| Campaign updates count | ✅ `campaign_updates` | ❌ | 🟡 Trung bình |
+| Rewards offered | ✅ `rewards` | ❌ | 🟢 Thấp |
+
+**Tác động:** Không thể thấy rating/review của campaigns
+
+#### 2.2.3. Activity & Engagement
+| Dữ liệu | Có trong DB | Hiện trên Profile | Mức độ ưu tiên |
+|---------|-------------|-------------------|----------------|
+| **Activity Timeline** | ✅ `mongo_activity_logs` | ❌ Không có | 🟡 Trung bình |
+| Recent donations | ✅ `pledges` | ❌ Chỉ show 10 | 🟢 Thấp |
+| Campaign following | ✅ `campaign_followers` | ❌ | 🟡 Trung bình |
+
+**Tác động:** Owner không thấy hoạt động gần đây của mình
+
+#### 2.2.4. Stats & Analytics
+| Metric | Có trong DB | Hiện trên Profile | Mức độ ưu tiên |
+|---------|-------------|-------------------|----------------|
+| Total blog views | ✅ Có thể tính | ❌ | 🟡 Trung bình |
+| Average pledge amount | ✅ Có thể tính | ❌ | 🟢 Thấp |
+| Success rate | ✅ Có thể tính | ❌ | 🟡 Trung bình |
+| Response rate | ✅ Có thể tính | ❌ | 🟢 Thấp |
+
+### 2.3. 📊 Dữ Liệu Đang Bị Lãng Phí
+
+#### 2.3.1. Blog Ecosystem (QUAN TRỌNG)
+```prisma
+blog_posts {
+  authorId -> users.id  // ✅ Có relation
+  title, excerpt, content
+  status, viewCount
+  publishedAt
+  featuredImage
+  // ❌ HOÀN TOÀN KHÔNG HIỂN THỊ
+}
+
+blog_post_categories {
+  // Phân loại blog
+  // ❌ Không dùng để filter
+}
+
+blog_likes, blog_comments, blog_bookmarks {
+  // Engagement metrics
+  // ❌ Không hiển thị stats
+}
+```
+
+**Đề xuất:**
+- Thêm tab "Blog Posts" trên profile
+- Hiển thị 3-6 bài viết mới nhất
+- Stats: Total posts, total views, avg likes
+
+#### 2.3.2. Campaign - Blog Connection
+```typescript
+// Campaign có thể có blog posts liên kết
+campaigns.id -> blog_posts.metadata.campaignId (nếu có)
+// ❌ Không có UI để showcase
+
+// Blog có thể reference campaign
+blog_posts.content -> có link đến campaigns
+// ❌ Không có visual link
+```
+
+**Đề xuất:**
+- Campaign card có badge "Có blog updates"
+- Click vào xem blog posts của campaign đó
+
+#### 2.3.3. Reviews & Ratings
+```prisma
+reviews {
+  userId, campaignId
+  rating (1-5), comment
+  imageUrl
+  // ❌ Không hiển thị trên creator profile
+}
+```
+
+**Đề xuất:**
+- Section "Reviews Received" cho Creator
+- Average rating across all campaigns
+- Recent reviews với 5 sao
+
+#### 2.3.4. Campaign Followers
+```prisma
+campaign_followers {
+  campaignId, userId
+  // ❌ Không show "X people following"
+}
+```
+
+**Đề xuất:**
+- Badge trên campaign card: "👥 125 followers"
+- Section "Most followed campaigns"
+
+#### 2.3.5. User Metadata (MongoDB)
+```typescript
+mongo_user_metadata {
+  userId
+  preferences: {
+    favoriteCategories: []
+    interests: []
+  }
+  stats: {
+    totalViews
+    profileCompleteness
+  }
+  // ❌ Không dùng để personalize
+}
+```
+
+---
+
+## 3. PUBLIC VIEW - PHÂN TÍCH CHI TIẾT
+
+### 3.1. ✅ Những Gì Đã Tốt
+
+#### Visibility
+- ✅ Tất cả thông tin cơ bản (name, bio, avatar, cover)
+- ✅ Social links
+- ✅ Huy hiệu công khai
+- ✅ Stats (campaigns, raised, backers)
+- ✅ Danh sách campaigns
+- ✅ Danh sách pledges (nếu không anonymous)
+- ✅ Achievements
+- ✅ Nút "Nhắn tin" cho logged-in users
+
+#### Design
+- ✅ Clean, professional layout
+- ✅ Clear hierarchy
+- ✅ Good use of colors
+- ✅ Responsive design
+
+### 3.2. ❌ Những Gì Còn Thiếu
+
+#### 3.2.1. Trust & Credibility
+| Element | Có trong DB | Hiện trên Profile | Mức độ ưu tiên |
+|---------|-------------|-------------------|----------------|
+| **Verification badge** | ✅ `kyc_info.verificationStatus` | ❌ | 🔴 **CAO** |
+| Total reviews count | ✅ `reviews._count` | ❌ | 🔴 **CAO** |
+| Average rating | ✅ `reviews.rating` | ❌ | 🔴 **CAO** |
+| Years active | ✅ `users.createdAt` | ❌ Chỉ show tháng | 🟢 Thấp |
+
+**Tác động:** Khách không thể đánh giá độ tin cậy của creator
+
+#### 3.2.2. Content Showcase
+| Content | Có trong DB | Hiện trên Profile | Mức độ ưu tiên |
+|---------|-------------|-------------------|----------------|
+| **Blog posts** | ✅ `blog_posts` | ❌ | 🔴 **CAO** |
+| Featured campaign | ✅ | ❌ | 🟡 Trung bình |
+| Success stories | ✅ Campaigns SUCCESS | ❌ Không highlight | 🟡 Trung bình |
+| Testimonials | ✅ `reviews.comment` | ❌ | 🟡 Trung bình |
+
+**Tác động:** Khách không thấy được portfolio/content của creator
+
+#### 3.2.3. Engagement Indicators
+| Indicator | Có trong DB | Hiện trên Profile | Mức độ ưu tiên |
+|---------|-------------|-------------------|----------------|
+| Response time | ✅ Có thể tính từ messages | ❌ | 🟡 Trung bình |
+| Total supporters | ✅ Unique pledges | ❌ Chỉ show total pledges | 🟢 Thấp |
+| Repeat backers % | ✅ Có thể tính | ❌ | 🟢 Thấp |
+
+### 3.3. 🎯 Điểm Cần Cải Thiện Để Tăng Tin Cậy
+
+#### 3.3.1. Social Proof Elements (ƯU TIÊN CAO)
+```
+❌ Thiếu:
+- "Verified Creator" badge
+- "⭐ 4.8/5 from 45 reviews"
+- "🏆 100% success rate"
+- "✅ KYC Verified"
+```
+
+**Đề xuất UI:**
+```
+[Avatar] John Doe ✅ Verified
+         ⭐ 4.8 (45 reviews) · 🏆 5 successful projects
+```
+
+#### 3.3.2. Content Portfolio (ƯU TIÊN CAO)
+```
+❌ Thiếu section:
+- "Recent Blog Posts"
+- "Featured Work"
+- "Success Stories"
+```
+
+**Đề xuất:** Tab system hoặc sections:
+- About (hiện tại)
+- Campaigns (hiện tại)
+- Blog Posts (MỚI)
+- Reviews (MỚI)
+
+---
+
+## 4. DỮ LIỆU ĐANG BỊ LÃNG PHÍ - TỔNG HỢP
+
+### 4.1. 🔴 Mức Độ Cao (QUAN TRỌNG)
+
+#### Blog Posts Ecosystem
+**Dữ liệu có sẵn:**
+```sql
+SELECT 
+  bp.id, bp.title, bp.excerpt, bp.featuredImage,
+  bp.viewCount, bp.publishedAt,
+  COUNT(DISTINCT bl.id) as likes,
+  COUNT(DISTINCT bc.id) as comments
+FROM blog_posts bp
+LEFT JOIN blog_likes bl ON bl.postId = bp.id
+LEFT JOIN blog_comments bc ON bc.postId = bp.id
+WHERE bp.authorId = [userId] AND bp.status = 'PUBLISHED'
+GROUP BY bp.id
+ORDER BY bp.publishedAt DESC
+```
+
+**Hiện tại:** ❌ HOÀN TOÀN KHÔNG DÙNG trên profile
+
+**Đề xuất implementation:**
+- Component: `<UserBlogPosts userId={userId} maxDisplay={6} />`
+- API: Đã có `/api/blog/posts?authorId={userId}`
+- Effort: 🟢 Thấp (API đã sẵn)
+
+#### Reviews & Ratings
+**Dữ liệu có sẵn:**
+```sql
+SELECT 
+  AVG(r.rating) as avgRating,
+  COUNT(r.id) as totalReviews,
+  r.comment, r.rating, r.createdAt,
+  u.name as reviewerName, u.image as reviewerAvatar
+FROM reviews r
+JOIN users u ON u.id = r.userId
+JOIN campaigns c ON c.id = r.campaignId
+WHERE c.creatorId = [userId]
+ORDER BY r.createdAt DESC
+```
+
+**Hiện tại:** ❌ KHÔNG HIỂN THỊ
+
+**Đề xuất implementation:**
+- Component: `<CreatorReviews userId={userId} />`
+- API: Cần tạo `/api/users/[userId]/reviews`
+- Effort: 🟡 Trung bình
+
+### 4.2. 🟡 Mức Độ Trung Bình
+
+#### Campaign Followers
+```sql
+SELECT c.id, c.title, COUNT(cf.id) as followers
+FROM campaigns c
+LEFT JOIN campaign_followers cf ON cf.campaignId = c.id
+WHERE c.creatorId = [userId]
+GROUP BY c.id
+```
+
+**Đề xuất:** Badge "👥 125 followers" trên campaign card
+
+#### Campaign Updates Count
+```sql
+SELECT c.id, COUNT(cu.id) as updates
+FROM campaigns c
+LEFT JOIN campaign_updates cu ON cu.campaignId = c.id
+WHERE c.creatorId = [userId]
+GROUP BY c.id
+```
+
+**Đề xuất:** Badge "📝 12 updates" trên campaign card
+
+#### Activity Timeline
+```mongodb
+db.mongo_activity_logs.find({
+  userId: userId,
+  action: { $in: ['CAMPAIGN_CREATED', 'PLEDGE_MADE', 'BLOG_PUBLISHED'] }
+}).sort({ createdAt: -1 }).limit(20)
+```
+
+**Đề xuất:** Section "Recent Activity" (Owner only)
+
+### 4.3. 🟢 Mức Độ Thấp (Nice to Have)
+
+- Repeat backers percentage
+- Average response time
+- Profile completeness score
+- Total profile views
+- Favorite categories
+
+---
+
+## 5. FILE CẦN SỬA - ROADMAP
+
+### 5.1. 🔴 Phase 1: High Priority (Blog & Reviews)
+
+#### File cần tạo mới:
+```
+src/components/profile/
+├── UserBlogPosts.tsx          [MỚI] Blog posts section
+├── CreatorReviews.tsx          [MỚI] Reviews & ratings
+└── TrustBadges.tsx             [MỚI] Verification, rating badges
+
+src/app/api/users/[userId]/
+├── reviews/route.ts            [MỚI] Get creator reviews
+└── blog-posts/route.ts         [MỚI] Get user blog posts
+```
+
+#### File cần sửa:
+```
+src/app/profile/[userId]/page.tsx
+  - Thêm query cho reviews
+  - Thêm query cho blog posts
+  - Thêm sections mới
+  
+Ước tính: 300-400 dòng code thêm vào
+```
+
+### 5.2. 🟡 Phase 2: Medium Priority (Stats & Engagement)
+
+#### File cần tạo:
+```
+src/components/profile/
+├── CampaignEngagement.tsx      [MỚI] Followers, updates badges
+├── ActivityTimeline.tsx        [MỚI] Recent activity
+└── AdvancedStats.tsx           [MỚI] Advanced metrics
+
+src/lib/
+└── profile-stats.ts            [MỚI] Stats calculation utilities
+```
+
+#### File cần sửa:
+```
+src/app/profile/[userId]/page.tsx
+  - Thêm query campaign_followers
+  - Thêm query campaign_updates count
+  - Thêm advanced stats calculation
+```
+
+### 5.3. 🟢 Phase 3: Low Priority (Polish & Enhancement)
+
+- Profile views counter
+- Repeat backers analysis
+- Response time calculation
+- Profile completeness indicator
+
+---
+
+## 6. MỨC ĐỘ RỦI RO
+
+### 6.1. ✅ Rủi Ro Thấp - An Toàn Thực Hiện
+
+#### Thêm Blog Posts Section
+**Lý do an toàn:**
+- ✅ API `/api/blog/posts` đã tồn tại
+- ✅ Component chỉ cần query với `authorId`
+- ✅ Không ảnh hưởng logic hiện tại
+- ✅ Không sửa database
+- ✅ Có thể làm từng bước
+
+**Implementation:**
+1. Tạo component `<UserBlogPosts />`
+2. Thêm vào profile page
+3. Style theo design system hiện tại
+
+#### Thêm Trust Badges
+**Lý do an toàn:**
+- ✅ Dữ liệu đã có (KYC, reviews count)
+- ✅ Chỉ cần conditional rendering
+- ✅ Không query mới
+- ✅ Pure UI component
+
+### 6.2. ⚠️ Rủi Ro Trung Bình - Cần Test Kỹ
+
+#### Thêm Reviews System
+**Rủi ro:**
+- ⚠️ Cần tạo API route mới
+- ⚠️ Join nhiều bảng (reviews, campaigns, users)
+- ⚠️ Cần pagination
+- ⚠️ Có thể ảnh hưởng performance nếu user có nhiều reviews
+
+**Mitigation:**
+- Limit kết quả (5-10 reviews)
+- Cache với revalidate
+- Index database cho query
+
+#### Campaign Engagement Metrics
+**Rủi Ro:**
+- ⚠️ COUNT queries có thể chậm
+- ⚠️ Cần join campaign_followers, campaign_updates
+- ⚠️ Scale với users có nhiều campaigns
+
+**Mitigation:**
+- Query song song với Promise.all
+- Cache results
+- Chỉ query cho campaigns đang hiển thị
+
+### 6.3. 🔴 Rủi Ro Cao - Tránh Hoặc Làm Sau
+
+#### Activity Timeline từ MongoDB
+**Rủi Ro:**
+- 🔴 Cross-database query (PostgreSQL + MongoDB)
+- 🔴 Có thể chậm với users active cao
+- 🔴 Phức tạp để maintain
+- 🔴 Cần thêm infrastructure code
+
+**Khuyến nghị:** Làm sau cùng, chỉ khi có yêu cầu cụ thể
+
+#### Real-time Stats (Profile views, Response time)
+**Rủi Ro:**
+- 🔴 Cần tracking system mới
+- 🔴 Cần thêm database fields
+- 🔴 Performance overhead
+- 🔴 Privacy concerns
+
+**Khuyến nghị:** Tránh, không cần thiết cho MVP
+
+---
+
+## 7. ĐỀ XUẤT ƯU TIÊN THỰC HIỆN
+
+### 🎯 Sprint 1: Quick Wins (1-2 ngày)
+```
+1. ✅ Trust Badges (KYC Verified, Pro)
+2. ✅ Average Rating Display
+3. ✅ Blog Posts Section
+4. ✅ Campaign Stats Enhancement (followers, updates count)
+```
+
+**Lý do:** Tác động cao, rủi ro thấp, dễ implement
+
+### 🎯 Sprint 2: Content Showcase (2-3 ngày)
+```
+1. Creator Reviews Component
+2. Featured Campaigns
+3. Success Stories Section
+4. Testimonials Display
+```
+
+**Lý do:** Tăng trust & credibility đáng kể
+
+### 🎯 Sprint 3: Advanced Features (3-5 ngày)
+```
+1. Activity Timeline
+2. Advanced Stats
+3. Campaign Engagement Metrics
+4. Profile Completeness Indicator
+```
+
+**Lý do:** Polish và enhance UX
+
+---
+
+## 8. KẾT LUẬN
+
+### 8.1. Tóm Tắt Vấn Đề
+
+**Profile hiện tại:**
+- ✅ Có foundation tốt
+- ✅ Design đẹp, clean
+- ✅ Performance ổn định
+
+**Nhưng:**
+- ❌ Lãng phí **blog ecosystem** hoàn toàn (dữ liệu có nhưng không dùng)
+- ❌ Thiếu **trust indicators** (reviews, ratings, verification)
+- ❌ Không tận dụng **engagement metrics** (followers, updates)
+- ❌ Owner View thiếu **content management** overview
+
+### 8.2. Impact Estimation
+
+#### Nếu implement Phase 1 (Blog + Reviews):
+- 📈 **Trust score:** +40% (từ reviews display)
+- 📈 **Content discovery:** +60% (từ blog posts)
+- 📈 **Creator engagement:** +30% (có showcase portfolio)
+- 🎯 **Conversion rate:** Dự kiến +15-20%
+
+#### Effort vs Impact:
+```
+High Impact, Low Effort:
+  ✅ Blog Posts Section
+  ✅ Trust Badges
+  ✅ Reviews Display
+  
+Medium Impact, Medium Effort:
+  ⚠️ Campaign Engagement Metrics
+  ⚠️ Activity Timeline
+  
+Low Impact, High Effort:
+  ❌ Real-time Analytics
+  ❌ Cross-DB Complex Queries
+```
+
+### 8.3. Recommended Action
+
+**NGAY LẬP TỨC:**
+1. Thêm Blog Posts section
+2. Thêm Trust badges (KYC, Rating)
+3. Hiển thị Reviews
+
+**TRONG 1 TUẦN:**
+4. Campaign engagement badges
+5. Featured content
+6. Advanced stats
+
+**SAU ĐÓ:**
+7. Activity timeline
+8. Nice-to-have features
+
+---
+
+## 9. TECHNICAL NOTES
+
+### 9.1. API Routes Cần Tạo
+
+```typescript
+// GET /api/users/[userId]/reviews
+// Response: { avgRating, totalReviews, reviews: [...] }
+
+// GET /api/users/[userId]/blog-posts
+// Response: { posts: [...], totalViews, totalLikes }
+
+// GET /api/users/[userId]/stats
+// Response: { advanced stats }
+```
+
+### 9.2. Database Queries Needed
+
+```sql
+-- Reviews aggregate
+SELECT AVG(rating), COUNT(*) 
+FROM reviews r
+JOIN campaigns c ON c.id = r.campaignId
+WHERE c.creatorId = ?
+
+-- Blog stats
+SELECT COUNT(*), SUM(viewCount)
+FROM blog_posts
+WHERE authorId = ? AND status = 'PUBLISHED'
+
+-- Campaign engagement
+SELECT 
+  c.id,
+  COUNT(DISTINCT cf.id) as followers,
+  COUNT(DISTINCT cu.id) as updates
+FROM campaigns c
+LEFT JOIN campaign_followers cf ON cf.campaignId = c.id
+LEFT JOIN campaign_updates cu ON cu.campaignId = c.id
+WHERE c.creatorId = ?
+GROUP BY c.id
+```
+
+### 9.3. Components Architecture
+
+```
+Profile Page
+├── ProfileHeader (existing)
+│   ├── TrustBadges (new)
+│   └── Stats (enhanced)
+├── ProfileContent
+│   ├── AboutTab (existing)
+│   ├── CampaignsTab (existing, enhanced)
+│   ├── BlogPostsTab (NEW)
+│   └── ReviewsTab (NEW)
+└── ProfileSidebar
+    ├── Achievements (existing)
+    ├── QuickStats (enhanced)
+    └── ActivityTimeline (NEW)
+```
+
+---
+
+**Người phân tích:** Kiro AI  
+**Công cụ:** Database Schema Analysis + Code Review  
+**Thời gian:** 45 phút  
+**Kết luận:** Có rất nhiều dữ liệu quý giá đang bị lãng phí, đặc biệt là blog ecosystem và reviews system. Recommend implement blog + reviews trước tiên.
+
+---
+
+## Nguồn: `docs/PROFILE_BLOG_IMPLEMENTATION_REPORT.md`
+
+# BÁO CÁO TRIỂN KHAI: TÍCH HỢP BLOG VÀO PROFILE
+
+**Ngày triển khai:** June 30, 2026  
+**Trạng thái:** ✅ HOÀN THÀNH  
+**Build status:** ✅ PASS
+
+---
+
+## 1. TÓM TẮT
+
+Đã triển khai thành công Blog section vào Profile page với đầy đủ chức năng:
+- ✅ Owner View: Hiển thị tất cả bài viết, có nút Sửa
+- ✅ Public View: Chỉ hiển thị bài PUBLISHED + PUBLIC
+- ✅ Preview Mode: Hoạt động đúng với `?preview=public`
+- ✅ Responsive: Card grid 2 cột desktop, 1 cột mobile
+- ✅ Design System: Dùng màu pgreen/fgreen, rounded corners, shadows
+
+---
+
+## 2. FILES ĐÃ SỬA/TẠO
+
+### 2.1. Files Mới
+
+**1. `src/components/profile/ProfileBlogCard.tsx`** (Tạo mới)
+- Component hiển thị blog card
+- Props: `post` object + `isOwner` boolean
+- Features:
+  - Cover image với placeholder nếu không có ảnh
+  - Status badge (chỉ Owner view)
+  - Title (line-clamp-2)
+  - Date display (updatedAt cho Owner, publishedAt cho Public)
+  - Stats: View count, Like count, Comment count
+  - Actions: Nút [Xem] cho tất cả, nút [Sửa] chỉ cho Owner
+- Design:
+  - Màu: pgreen/fgreen gradient cho nút Xem
+  - Rounded: `rounded-2xl`
+  - Hover: `hover:shadow-lg`, `group-hover:scale-105` cho ảnh
+  - Icons: Eye, Heart, MessageCircle, Edit, FileText từ lucide-react
+
+### 2.2. Files Đã Sửa
+
+**1. `src/app/profile/[userId]/page.tsx`** (Sửa)
+
+**Changes:**
+1. ✅ Import `ProfileBlogCard` component
+2. ✅ Thêm `blog_posts` vào Prisma query:
+   ```typescript
+   blog_posts: {
+     where: {
+       deletedAt: null,
+       ...(isOwnProfile && !showAsPublic
+         ? {} // Owner: tất cả status
+         : {
+             status: 'PUBLISHED',
+             visibility: 'PUBLIC'
+           })
+     },
+     orderBy: isOwnProfile && !showAsPublic
+       ? { updatedAt: 'desc' }
+       : { publishedAt: 'desc' },
+     take: 5,
+     select: {
+       id: true,
+       slug: true,
+       title: true,
+       coverImage: true,
+       status: true,
+       publishedAt: true,
+       createdAt: true,
+       updatedAt: true,
+       viewCount: true,
+       likeCount: true,
+       commentCount: true,
+     }
+   }
+   ```
+
+3. ✅ Thêm Blog section vào JSX (sau Created Campaigns, trước Supported Campaigns):
+   ```tsx
+   {user.blog_posts && user.blog_posts.length > 0 && (
+     <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
+       <h2 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2">
+         <MessageCircle size={24} className="text-pgreen" />
+         {isOwnProfile && !showAsPublic ? "Blog của tôi" : "Bài viết"} 
+         ({user.blog_posts.length})
+       </h2>
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+         {user.blog_posts.map((post) => (
+           <ProfileBlogCard
+             key={post.id}
+             post={post}
+             isOwner={isOwnProfile && !showAsPublic}
+           />
+         ))}
+       </div>
+     </div>
+   )}
+   ```
+
+---
+
+## 3. KHÔNG ĐỤNG GÌ
+
+❌ **Không sửa:**
+- Database schema (`prisma/schema.prisma`)
+- Blog API (`src/app/api/blog/**`)
+- Blog service (`src/lib/blog/blog.service.ts`)
+- Campaign section
+- Badge section
+- Achievements section
+- Pledge section
+- Chat, Auth, Admin modules
+
+✅ **Chỉ thêm UI**, không có breaking changes
+
+---
+
+## 4. KIỂM TRA CHỨC NĂNG
+
+### 4.1. Owner View (`isOwnProfile && !showAsPublic`)
+
+**Query:**
+- ✅ Lấy tất cả blog posts (không filter status)
+- ✅ Sắp xếp theo `updatedAt DESC`
+- ✅ Tối đa 5 bài
+
+**UI:**
+- ✅ Hiển thị title: "Blog của tôi (X)"
+- ✅ Status badge: PUBLISHED (green), DRAFT (gray), PENDING_REVIEW (yellow)
+- ✅ Date: "Cập nhật: [date]"
+- ✅ Nút [Xem] + [Sửa]
+
+### 4.2. Public View (`!isOwnProfile || showAsPublic`)
+
+**Query:**
+- ✅ Chỉ lấy blog posts có `status: 'PUBLISHED'` và `visibility: 'PUBLIC'`
+- ✅ Sắp xếp theo `publishedAt DESC`
+- ✅ Tối đa 5 bài
+
+**UI:**
+- ✅ Hiển thị title: "Bài viết (X)"
+- ✅ Không có status badge
+- ✅ Date: "[publishedAt]"
+- ✅ Chỉ có nút [Xem]
+
+### 4.3. Preview Mode
+
+**Test case:**
+1. Owner vào `/profile/[userId]` → Thấy "Blog của tôi" + nút Sửa
+2. Owner click "Chế độ xem" (Eye icon) → Redirect `/profile/[userId]?preview=public`
+3. Thấy "Bài viết" + không có nút Sửa (giống Public view)
+4. Click "Chế độ khách" (EyeOff icon) → Quay về Owner view
+
+✅ **Hoạt động đúng**
+
+---
+
+## 5. DESIGN SYSTEM COMPLIANCE
+
+### 5.1. Colors
+
+✅ **Dùng đúng màu homepage:**
+- `pgreen` (#00D084) - Primary green
+- `fgreen` (Forest green) - Secondary green
+- Gradient: `from-pgreen to-fgreen`
+
+❌ **Không dùng:**
+- Blue cũ (`bg-blue-600`, `text-blue-600`)
+
+### 5.2. Layout
+
+✅ **Tuân thủ Campaign section:**
+- Container: `bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8`
+- Title: `text-2xl font-black text-gray-900 mb-6 flex items-center gap-2`
+- Grid: `grid grid-cols-1 md:grid-cols-2 gap-6`
+
+✅ **Blog card nhỏ hơn Campaign card:**
+- Cover image: `h-32` (Campaign: `h-40`)
+- Content padding: `p-4` (Campaign: `p-4`)
+- Font sizes nhỏ hơn: `text-xs` cho stats, `text-[10px]` cho date
+
+### 5.3. Components
+
+✅ **Buttons:**
+- Primary: `bg-gradient-to-r from-pgreen to-fgreen text-white rounded-xl`
+- Secondary: `bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300`
+
+✅ **Transitions:**
+- `transition-all` cho cards
+- `hover:shadow-lg` cho elevation
+- `group-hover:scale-105` cho images
+
+---
+
+## 6. BUILD RESULTS
+
+### 6.1. Build Status
+
+```
+✓ Linting and checking validity of types 
+✓ Collecting page data    
+✓ Generating static pages (80/80)
+✓ Collecting build traces    
+✓ Finalizing page optimization    
+
+Exit Code: 0
+```
+
+✅ **BUILD PASS** - Không có lỗi
+
+### 6.2. Warnings
+
+**React Hooks warnings:** (Existing, không liên quan đến Blog integration)
+- `useEffect` dependencies
+- `setState` in effect
+
+**Edge Runtime warnings:** (Existing, không liên quan đến Blog integration)
+- bcryptjs, jose modules
+
+⚠️ **Tất cả warnings đã tồn tại từ trước**, không phải do Blog integration gây ra
+
+### 6.3. Profile Page Route
+
+```
+ƒ /profile/[userId]     1.33 kB  492 kB
+```
+
+✅ **Page size tốt** - Chỉ tăng 1.33 kB cho dynamic content
+
+---
+
+## 7. DATA FLOW
+
+### 7.1. Query Flow
+
+```
+User visits /profile/[userId]
+  ↓
+Page component await prisma.users.findUnique()
+  ↓
+Include: campaigns, pledges, blog_posts, _count
+  ↓
+blog_posts query filtered by:
+  - Owner View: all statuses
+  - Public View: status='PUBLISHED' + visibility='PUBLIC'
+  ↓
+Take 5 most recent posts
+  ↓
+Pass to ProfileBlogCard component
+```
+
+### 7.2. Component Flow
+
+```
+ProfilePage
+  ↓
+blog_posts.map()
+  ↓
+<ProfileBlogCard 
+  post={post} 
+  isOwner={isOwnProfile && !showAsPublic}
+/>
+  ↓
+Render:
+  - Cover image or placeholder
+  - Title (line-clamp-2)
+  - Status badge (if Owner)
+  - Date
+  - Stats (views, likes, comments)
+  - Actions (View, Edit if Owner)
+```
+
+---
+
+## 8. EDGE CASES HANDLED
+
+### 8.1. No Blog Posts
+
+**Behavior:** Section không hiển thị
+```typescript
+{user.blog_posts && user.blog_posts.length > 0 && (
+  // Blog section
+)}
+```
+
+✅ **Không hiển thị section rỗng** - UX tốt hơn
+
+### 8.2. No Cover Image
+
+**Behavior:** Hiển thị placeholder với FileText icon
+```typescript
+{post.coverImage ? (
+  <img src={post.coverImage} ... />
+) : (
+  <div className="flex items-center justify-center">
+    <FileText size={48} className="text-pgreen/30" />
+  </div>
+)}
+```
+
+✅ **Graceful fallback**
+
+### 8.3. Status Badge Colors
+
+**Logic:**
+- PUBLISHED → Green (`bg-green-500`)
+- DRAFT → Gray (`bg-gray-500`)
+- PENDING_REVIEW → Yellow (`bg-yellow-500`)
+- Others → Blue (`bg-blue-500`)
+
+✅ **Clear visual distinction**
+
+### 8.4. Date Fallback
+
+**Logic:**
+```typescript
+const displayDate = isOwner 
+  ? post.updatedAt 
+  : (post.publishedAt || post.createdAt);
+```
+
+✅ **Always has a date to display**
+
+---
+
+## 9. PERFORMANCE
+
+### 9.1. Query Optimization
+
+✅ **Efficient query:**
+- `take: 5` - Giới hạn kết quả
+- `select: {...}` - Chỉ lấy fields cần thiết
+- `where: { deletedAt: null }` - Filter soft deletes
+- Index trên `authorId`, `status`, `visibility`, `publishedAt`, `updatedAt`
+
+### 9.2. Component Optimization
+
+✅ **Lightweight component:**
+- Không có client-side fetching
+- Không có state management
+- Pure rendering từ props
+- Server component - no hydration cost
+
+---
+
+## 10. TESTING CHECKLIST
+
+### 10.1. Manual Tests
+
+- [x] Owner view hiển thị đúng blog posts (all status)
+- [x] Public view chỉ hiển thị PUBLISHED + PUBLIC
+- [x] Preview mode hoạt động đúng
+- [x] Status badge chỉ hiển thị trong Owner view
+- [x] Nút Sửa chỉ hiển thị trong Owner view
+- [x] Stats (views, likes, comments) hiển thị đúng
+- [x] Cover image + placeholder hoạt động đúng
+- [x] Responsive: 2 columns desktop, 1 column mobile
+- [x] Hover effects hoạt động mượt
+- [x] Link to blog detail page đúng (`/blog/[slug]`)
+- [x] Link to edit page đúng (`/blog/[slug]/edit`)
+
+### 10.2. Automated Tests
+
+**Build test:**
+```bash
+npm run build
+✅ PASS
+```
+
+---
+
+## 11. KẾT LUẬN
+
+### 11.1. Hoàn Thành
+
+✅ **100% yêu cầu:**
+1. ✅ Chỉ thêm Blog section (không thêm Reviews, Activity Timeline, etc.)
+2. ✅ Giữ nguyên Campaign section
+3. ✅ Giữ nguyên Badge section
+4. ✅ Giữ nguyên Achievements section
+5. ✅ Owner View: Hiển thị tất cả trạng thái, có nút Sửa
+6. ✅ Public View: Chỉ PUBLISHED + PUBLIC, không có nút Sửa
+7. ✅ Card nhỏ hơn Campaign card
+8. ✅ Đồng bộ DESIGN_SYSTEM.md
+9. ✅ Dùng màu homepage (pgreen/fgreen)
+10. ✅ Không tạo API mới
+11. ✅ Không tạo migration
+12. ✅ Không sửa database
+13. ✅ Build pass
+
+### 11.2. Metrics
+
+**Files changed:**
+- ✏️ Sửa: 1 file (`src/app/profile/[userId]/page.tsx`)
+- ➕ Tạo mới: 1 file (`src/components/profile/ProfileBlogCard.tsx`)
+
+**Code added:**
+- ~120 lines total (component + integration)
+
+**Build impact:**
+- ✅ No breaking changes
+- ✅ No new warnings
+- ✅ Build time: ~34.5s (normal)
+
+**Performance:**
+- ✅ Query optimized (take 5, select fields)
+- ✅ Server component (no client JS overhead)
+- ✅ Page size: +1.33 kB
+
+### 11.3. Risk Assessment
+
+🟢 **RỦI RO THẤP:**
+- Không sửa database
+- Không sửa API
+- Chỉ thêm UI
+- Backward compatible
+- Zero breaking changes
+
+---
+
+**Người triển khai:** Kiro AI  
+**Trạng thái:** ✅ READY FOR PRODUCTION  
+**Next action:** Deploy và monitor
+
+---
+
+## Nguồn: `docs/PROFILE_BLOG_INTEGRATION_ANALYSIS.md`
+
+# BÁO CÁO PHÂN TÍCH: TÍCH HỢP BLOG VÀO PROFILE
+
+**Ngày phân tích:** June 30, 2026  
+**Scope:** Thêm section Blog vào Profile (Owner View & Public View)  
+**Mục tiêu:** Hiển thị bài viết của user trên trang cá nhân
+
+---
+
+## 1. KIỂM TRA HỆ THỐNG HIỆN TẠI
+
+### 1.1. ✅ Những Gì ĐÃ CÓ
+
+| Thành phần | Đã có | File/Path | Ghi chú |
+|------------|-------|-----------|---------|
+| **Table blog_posts** | ✅ CÓ | `prisma/schema.prisma` | Line 172-217 |
+| **Relation User -> Blog** | ✅ CÓ | `blog_posts.authorId -> users.id` | Cascade delete |
+| **Relation Blog -> Campaign** | ✅ CÓ | `blog_posts.campaignId -> campaigns.id` | Optional |
+| **API GET /api/blog/posts** | ✅ CÓ | `src/app/api/blog/posts/route.ts` | List all posts |
+| **API GET /api/blog/posts/[slug]** | ✅ CÓ | `src/app/api/blog/posts/[slug]/route.ts` | Get post detail |
+| **API GET /api/blog/my-posts** | ✅ CÓ | `src/app/api/blog/my-posts/route.ts` | Get user's own posts |
+| **Blog Service** | ✅ CÓ | `src/lib/blog/blog.service.ts` | Business logic |
+| **Blog Detail Page** | ✅ CÓ | `src/app/blog/[slug]/page.tsx` | Public post view |
+| **Profile Page** | ✅ CÓ | `src/app/profile/[userId]/page.tsx` | Owner & Public view |
+
+### 1.2. 🔍 Cấu Trúc Dữ Liệu Blog
+
+```typescript
+// From prisma/schema.prisma
+model blog_posts {
+  id                   String           @id
+  authorId             String           // ✅ Foreign key to users
+  campaignId           String?          // ✅ Optional link to campaign
+  title                String
+  slug                 String           @unique
+  excerpt              String?
+  coverImage           String?
+  status               BlogPostStatus   // DRAFT, PENDING_REVIEW, PUBLISHED, ARCHIVED
+  type                 BlogPostType     // PLATFORM, CAMPAIGN_UPDATE, GENERAL, ANNOUNCEMENT
+  visibility           BlogVisibility   // PUBLIC, PRIVATE, UNLISTED
+  publishedAt          DateTime?
+  createdAt            DateTime
+  updatedAt            DateTime
+  deletedAt            DateTime?
+  viewCount            Int              @default(0)
+  likeCount            Int              @default(0)
+  commentCount         Int              @default(0)
+  bookmarkCount        Int              @default(0)
+  isFeatured           Boolean          @default(false)
+  wordCount            Int              @default(0)
+  readingTimeMinutes   Int              @default(0)
+  
+  // Relations
+  users                users            @relation(...)
+  campaigns            campaigns?       @relation(...)
+  blog_comments        blog_comments[]
+  blog_likes           blog_likes[]
+  blog_post_categories blog_post_categories[]
+  blog_post_tags       blog_post_tags[]
+}
+```
+
+### 1.3. 📊 API Có Sẵn
+
+**GET /api/blog/posts**
+- Query params: page, limit, search, category, tag, type, campaignId, featured, sort
+- Trả về: `{ posts: BlogPost[], total: number, page: number, limit: number }`
+- Public endpoint (có filter visibility)
+
+**GET /api/blog/my-posts**
+- Auth required
+- Lấy posts của chính user đang login
+- Trả về tất cả status (DRAFT, PUBLISHED, etc.)
+
+**GET /api/blog/posts/[slug]**
+- Lấy chi tiết 1 post theo slug
+- Check visibility và permissions
+
+---
+
+## 2. PROFILE PAGE HIỆN TẠI
+
+### 2.1. File Profile Page
+
+**Path:** `src/app/profile/[userId]/page.tsx`
+
+**Sections hiện có:**
+1. ✅ Profile Header (Cover + Avatar + Info)
+2. ✅ Stats (Campaigns, Total Raised, Backers, etc.)
+3. ✅ Badges Section
+4. ✅ Created Campaigns Section (Owner: có Edit, Public: chỉ View)
+5. ✅ Supported Campaigns Section (Pledges)
+6. ✅ Achievements Sidebar
+
+**Chế độ hiển thị:**
+- ✅ Owner View: `isOwnProfile && !showAsPublic`
+- ✅ Public View: `!isOwnProfile || showAsPublic`
+- ✅ Preview Toggle: Query param `?preview=public`
+
+### 2.2. Cấu Trúc Layout
+
+```typescript
+<div className="max-w-6xl mx-auto space-y-8">
+  {/* Profile Header */}
+  <div className="bg-white rounded-[3rem]">...</div>
+  
+  {/* Tabs Content */}
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    {/* Main Content (lg:col-span-2) */}
+    <div className="lg:col-span-2 space-y-8">
+      {/* Created Campaigns */}
+      {isCreator && user.campaigns.length > 0 && (...)}
+      
+      {/* Supported Campaigns */}
+      {isBacker && user.pledges.length > 0 && (...)}
+      
+      {/* Empty State */}
+      {!isCreator && !isBacker && (...)}
+    </div>
+    
+    {/* Sidebar (lg:col-span-1) */}
+    <div className="space-y-6">
+      {/* Achievements */}
+    </div>
+  </div>
+</div>
+```
+
+---
+
+## 3. YÊU CẦU TÍCH HỢP BLOG
+
+### 3.1. Owner View
+
+**Hiển thị:**
+- Section title: "Bài viết" hoặc "Blog của tôi"
+- Tối đa 5 bài mới nhất (tất cả status: DRAFT, PUBLISHED, etc.)
+- Sắp xếp: `updatedAt DESC`
+
+**Mỗi Blog Card:**
+- ✅ Ảnh bìa (`coverImage`)
+- ✅ Tiêu đề (`title`)
+- ✅ Ngày đăng (`publishedAt` hoặc `createdAt`)
+- ✅ Trạng thái (`status` - PUBLISHED, DRAFT, PENDING_REVIEW, ARCHIVED)
+- ✅ Lượt xem (`viewCount`)
+- ✅ Lượt thích (`likeCount`)
+- ✅ Số bình luận (`commentCount`)
+
+**Actions (Owner only):**
+- ✅ Nút [Xem] - Link to `/blog/[slug]`
+- ✅ Nút [Sửa] - Link to `/blog/[slug]/edit` (hoặc API route)
+
+### 3.2. Public View
+
+**Hiển thị:**
+- Section title: "Bài viết"
+- Tối đa 5 bài mới nhất **CHỈ status PUBLISHED & visibility PUBLIC**
+- Sắp xếp: `publishedAt DESC`
+
+**Mỗi Blog Card:**
+- ✅ Ảnh bìa (`coverImage`)
+- ✅ Tiêu đề (`title`)
+- ✅ Ngày đăng (`publishedAt`)
+- ✅ Lượt xem (`viewCount`)
+- ✅ Lượt thích (`likeCount`)
+- ✅ Số bình luận (`commentCount`)
+
+**Actions (Public):**
+- ✅ Nút [Xem bài viết] - Link to `/blog/[slug]`
+- ❌ KHÔNG có nút Sửa
+
+### 3.3. Thiết Kế UI
+
+**Tuân thủ:**
+- ✅ `DESIGN_SYSTEM.md`
+- ✅ Colors: pgreen (#00D084), dblue (#1E3A8A), cream (#FAF8F3)
+- ✅ Rounded corners: Theo style hiện tại (`rounded-2xl`, `rounded-[2.5rem]`)
+- ✅ Shadows: `shadow-sm`, `hover:shadow-lg`
+- ✅ Transitions: smooth hover effects
+
+**Layout:**
+- ✅ Dùng cùng phong cách với section "Chiến dịch đã tạo" (Campaigns)
+- ✅ Blog card nhỏ gọn hơn Campaign card (tập trung vào title + metadata)
+- ✅ Grid layout: 2 columns trên desktop, 1 column trên mobile
+
+---
+
+## 4. KẾ HOẠCH THỰC HIỆN
+
+### 4.1. Option A: Query Trực Tiếp Trong Page (KHUYẾN NGHỊ)
+
+**Ưu điểm:**
+- ✅ Không cần API mới
+- ✅ Server component - fetch data trực tiếp
+- ✅ Tận dụng Prisma query hiện có
+- ✅ Không breaking changes
+
+**Implementation:**
+
+```typescript
+// Trong src/app/profile/[userId]/page.tsx
+
+// Thêm vào include của prisma.users.findUnique:
+include: {
+  // ... existing includes ...
+  blog_posts: {
+    where: isOwnProfile && !showAsPublic
+      ? { deletedAt: null } // Owner: all posts
+      : { 
+          deletedAt: null,
+          status: 'PUBLISHED',
+          visibility: 'PUBLIC'
+        }, // Public: only published
+    orderBy: isOwnProfile && !showAsPublic
+      ? { updatedAt: 'desc' }
+      : { publishedAt: 'desc' },
+    take: 5,
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      excerpt: true,
+      coverImage: true,
+      status: true,
+      publishedAt: true,
+      createdAt: true,
+      updatedAt: true,
+      viewCount: true,
+      likeCount: true,
+      commentCount: true,
+    }
+  }
+}
+```
+
+### 4.2. Option B: Tạo API Mới (KHÔNG CẦN THIẾT)
+
+**Path:** `/api/users/[userId]/blog-posts`
+
+**Lý do KHÔNG làm:**
+- ❌ Redundant với `/api/blog/posts?authorId=xxx`
+- ❌ Thêm maintenance overhead
+- ❌ Profile page là Server Component - có thể query trực tiếp
+
+---
+
+## 5. COMPONENT MỚI CẦN TẠO
+
+### 5.1. `<ProfileBlogCard />` Component
+
+**Path:** `src/components/profile/ProfileBlogCard.tsx`
+
+**Props:**
+```typescript
+interface ProfileBlogCardProps {
+  post: {
+    slug: string;
+    title: string;
+    excerpt?: string;
+    coverImage?: string;
+    status: string;
+    publishedAt?: Date;
+    createdAt: Date;
+    updatedAt: Date;
+    viewCount: number;
+    likeCount: number;
+    commentCount: number;
+  };
+  isOwner: boolean; // Show edit button
+}
+```
+
+**UI Structure:**
+```
+<div className="card">
+  {coverImage && <img />}
+  <div className="content">
+    <h3>{title}</h3>
+    <div className="meta">
+      <span>{date}</span>
+      {isOwner && <span className="status-badge">{status}</span>}
+    </div>
+    <div className="stats">
+      <ViewIcon /> {viewCount}
+      <HeartIcon /> {likeCount}
+      <CommentIcon /> {commentCount}
+    </div>
+    <div className="actions">
+      <Link href={`/blog/${slug}`}>Xem</Link>
+      {isOwner && <Link href={`/blog/${slug}/edit`}>Sửa</Link>}
+    </div>
+  </div>
+</div>
+```
+
+### 5.2. `<ProfileBlogSection />` Component (Optional)
+
+**Path:** `src/components/profile/ProfileBlogSection.tsx`
+
+**Hoặc viết inline trong page.tsx** (đơn giản hơn)
+
+---
+
+## 6. FILES CẦN SỬA
+
+### 6.1. File Chính
+
+| File | Action | Lý do |
+|------|--------|-------|
+| `src/app/profile/[userId]/page.tsx` | ✏️ Sửa | Thêm blog query + section |
+| `src/components/profile/ProfileBlogCard.tsx` | ➕ Tạo mới | Blog card component |
+
+### 6.2. Không Đụng Các File Sau
+
+❌ **KHÔNG SỬA:**
+- `src/app/api/campaigns/**` - Campaign API
+- `src/app/api/pledges/**` - Donation API
+- `src/app/api/chat/**` - Chat system
+- `src/app/api/auth/**` - Authentication
+- `src/app/dashboard/admin/**` - Admin dashboard
+- `src/components/badge/**` - Badge system
+- `prisma/schema.prisma` - Database schema
+- `src/lib/blog/blog.service.ts` - Blog service (đã có, chỉ dùng)
+
+---
+
+## 7. KIỂM TRA XUNG ĐỘT
+
+### 7.1. ✅ Không Có Xung Đột
+
+**Blog system:**
+- ✅ Hoàn toàn độc lập
+- ✅ Có database table riêng
+- ✅ Có API riêng
+- ✅ Không ảnh hưởng Campaign, Payment, Chat
+
+**Profile page:**
+- ✅ Chỉ thêm section mới
+- ✅ Không sửa Campaign section
+- ✅ Không sửa Pledge section
+- ✅ Không sửa Badge section
+
+### 7.2. 🔍 Điểm Cần Lưu Ý
+
+**Status filter logic:**
+```typescript
+// Owner View
+where: { deletedAt: null }
+// Tất cả status: DRAFT, PENDING_REVIEW, PUBLISHED, ARCHIVED
+
+// Public View
+where: { 
+  deletedAt: null,
+  status: 'PUBLISHED',
+  visibility: 'PUBLIC'
+}
+// Chỉ Published + Public
+```
+
+**Date display:**
+```typescript
+// Owner View
+{isOwner ? (
+  <span>{formatDate(post.updatedAt)}</span> // "Cập nhật: ..."
+) : (
+  <span>{formatDate(post.publishedAt || post.createdAt)}</span>
+)}
+```
+
+**Link to edit:**
+```typescript
+// Cần kiểm tra xem có route /blog/[slug]/edit chưa
+// Nếu chưa: Chỉ link to /blog/[slug] cho nút Sửa
+// Hoặc: Link to /dashboard/blog/edit/[slug] (nếu có)
+```
+
+---
+
+## 8. PSEUDOCODE - IMPLEMENTATION
+
+### 8.1. Update Profile Page Query
+
+```typescript
+// src/app/profile/[userId]/page.tsx
+
+const user = await prisma.users.findUnique({
+  where: { id: userId },
+  include: {
+    // ... existing includes (campaigns, pledges, _count) ...
+    
+    // NEW: Add blog_posts
+    blog_posts: {
+      where: {
+        deletedAt: null,
+        ...(isOwnProfile && !showAsPublic
+          ? {} // Owner: all statuses
+          : {
+              status: 'PUBLISHED',
+              visibility: 'PUBLIC'
+            })
+      },
+      orderBy: isOwnProfile && !showAsPublic
+        ? { updatedAt: 'desc' }
+        : { publishedAt: 'desc' },
+      take: 5,
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        excerpt: true,
+        coverImage: true,
+        status: true,
+        publishedAt: true,
+        createdAt: true,
+        updatedAt: true,
+        viewCount: true,
+        likeCount: true,
+        commentCount: true,
+      }
+    }
+  }
+});
+```
+
+### 8.2. Add Blog Section to JSX
+
+```typescript
+// Đặt TRƯỚC section "Supported Campaigns" hoặc SAU section "Created Campaigns"
+
+{/* Blog Posts Section */}
+{user.blog_posts && user.blog_posts.length > 0 && (
+  <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
+    <h2 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2">
+      <BookOpen size={24} className="text-pgreen" />
+      {isOwnProfile && !showAsPublic ? "Blog của tôi" : "Bài viết"}
+      ({user.blog_posts.length})
+    </h2>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {user.blog_posts.map((post) => (
+        <ProfileBlogCard
+          key={post.id}
+          post={post}
+          isOwner={isOwnProfile && !showAsPublic}
+        />
+      ))}
+    </div>
+  </div>
+)}
+```
+
+### 8.3. Create ProfileBlogCard Component
+
+```typescript
+// src/components/profile/ProfileBlogCard.tsx
+
+import Link from 'next/link';
+import { Eye, Heart, MessageCircle, Edit } from 'lucide-react';
+import { formatDate } from '@/lib/utils';
+
+interface ProfileBlogCardProps {
+  post: {
+    slug: string;
+    title: string;
+    excerpt?: string;
+    coverImage?: string;
+    status: string;
+    publishedAt?: Date;
+    createdAt: Date;
+    updatedAt: Date;
+    viewCount: number;
+    likeCount: number;
+    commentCount: number;
+  };
+  isOwner: boolean;
+}
+
+export function ProfileBlogCard({ post, isOwner }: ProfileBlogCardProps) {
+  return (
+    <div className="group bg-gray-50 rounded-2xl overflow-hidden hover:shadow-lg transition-all">
+      {/* Cover Image */}
+      {post.coverImage && (
+        <div className="relative h-32 overflow-hidden">
+          <img
+            src={post.coverImage}
+            alt={post.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+          />
+          {/* Status Badge - Owner only */}
+          {isOwner && (
+            <div className="absolute top-2 left-2">
+              <span className={`px-2 py-1 rounded-lg text-[8px] font-black uppercase ${
+                post.status === 'PUBLISHED' 
+                  ? 'bg-green-500 text-white'
+                  : post.status === 'DRAFT'
+                  ? 'bg-gray-500 text-white'
+                  : 'bg-yellow-500 text-white'
+              }`}>
+                {post.status}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+      
+      {/* Content */}
+      <div className="p-4 space-y-3">
+        {/* Title */}
+        <h3 className="font-bold text-gray-900 line-clamp-2 group-hover:text-pgreen transition">
+          {post.title}
+        </h3>
+        
+        {/* Excerpt */}
+        {post.excerpt && (
+          <p className="text-xs text-gray-500 line-clamp-2">{post.excerpt}</p>
+        )}
+        
+        {/* Date */}
+        <div className="text-[10px] text-gray-400 font-bold uppercase">
+          {isOwner
+            ? `Cập nhật: ${formatDate(post.updatedAt)}`
+            : formatDate(post.publishedAt || post.createdAt)
+          }
+        </div>
+        
+        {/* Stats */}
+        <div className="flex items-center gap-4 text-xs text-gray-400">
+          <span className="flex items-center gap-1">
+            <Eye size={12} /> {post.viewCount}
+          </span>
+          <span className="flex items-center gap-1">
+            <Heart size={12} /> {post.likeCount}
+          </span>
+          <span className="flex items-center gap-1">
+            <MessageCircle size={12} /> {post.commentCount}
+          </span>
+        </div>
+        
+        {/* Actions */}
+        <div className="flex gap-2 pt-2">
+          <Link
+            href={`/blog/${post.slug}`}
+            className="flex-1 px-3 py-2 bg-pgreen text-white rounded-xl text-xs font-bold hover:bg-fgreen transition text-center"
+          >
+            Xem
+          </Link>
+          {isOwner && (
+            <Link
+              href={`/blog/${post.slug}/edit`}
+              className="px-3 py-2 bg-gray-200 text-gray-700 rounded-xl text-xs font-bold hover:bg-gray-300 transition flex items-center gap-1"
+            >
+              <Edit size={12} /> Sửa
+            </Link>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+---
+
+## 9. KẾT LUẬN
+
+### 9.1. Tóm Tắt
+
+**Hệ thống hiện tại:**
+- ✅ Blog đã có đầy đủ: Database, API, Service, UI
+- ✅ Profile page đã có: Owner View, Public View, Preview mode
+- ✅ Không xung đột với Campaign, Badge, Donation, Chat
+
+**Tích hợp:**
+- ✅ Chỉ cần thêm query `blog_posts` vào Profile page
+- ✅ Tạo 1 component mới: `<ProfileBlogCard />`
+- ✅ Không cần API mới
+- ✅ Không cần migration
+- ✅ Không sửa logic Blog hiện có
+
+### 9.2. Files Cần Sửa/Tạo
+
+**Sửa:**
+1. `src/app/profile/[userId]/page.tsx` - Thêm blog query + section
+
+**Tạo mới:**
+1. `src/components/profile/ProfileBlogCard.tsx` - Blog card component
+
+**Không đụng:**
+- ❌ Database schema
+- ❌ Blog API
+- ❌ Blog service
+- ❌ Campaign, Badge, Chat, Auth
+
+### 9.3. Effort Ước Tính
+
+- **Time:** 1-2 giờ
+- **Risk:** Rất thấp (chỉ thêm UI, không sửa logic)
+- **Testing:** Kiểm tra Owner View vs Public View, Preview mode
+
+### 9.4. Next Steps
+
+1. ✅ **DONE:** Phân tích hệ thống (báo cáo này)
+2. ⏭️ **NEXT:** Implement `ProfileBlogCard` component
+3. ⏭️ **THEN:** Update Profile page query + JSX
+4. ⏭️ **FINALLY:** Test + Build
+
+---
+
+**Người phân tích:** Kiro AI  
+**Kết luận:** Sẵn sàng implement - không có xung đột, chỉ cần thêm UI.  
+**Risk Level:** 🟢 RẤT THẤP
+
+---
+
+## Nguồn: `docs/PROFILE_TABS_IMPLEMENTATION_REPORT.md`
+
+# BÁO CÁO TRIỂN KHAI: PROFILE TABS NAVIGATION
+
+**Ngày triển khai:** June 30, 2026  
+**Trạng thái:** ✅ HOÀN THÀNH  
+**Build status:** ✅ PASS
+
+---
+
+## 1. TÓM TẮT
+
+Đã chuyển đổi Profile page từ layout dọc (vertical sections) sang giao diện Tabs ngang (horizontal tabs) với conditional rendering:
+
+✅ **Owner View Tabs:**
+1. Chiến dịch
+2. Blog
+3. Đã ủng hộ
+4. Huy hiệu
+
+✅ **Public View Tabs:**
+1. Chiến dịch
+2. Blog
+3. Huy hiệu
+
+✅ **Chỉ render tab đang active** - Không render tất cả sections cùng lúc
+
+---
+
+## 2. FILES ĐÃ SỬA/TẠO
+
+### 2.1. Files Mới
+
+**1. `src/components/profile/ProfileTabs.tsx`** (Tạo mới - 250 lines)
+- Client Component với useState
+- Tab navigation với pill style
+- Conditional rendering cho từng tab
+- Dynamic tabs dựa trên Owner/Public view
+
+**Features:**
+- ✅ State management cho active tab
+- ✅ Auto-select default tab (campaigns → blog → pledges → badges)
+- ✅ Tab visibility logic (Owner vs Public)
+- ✅ Conditional content rendering
+- ✅ Reuse existing components (ProfileBlogCard, UserBadgeList, CampaignGrowthProgress)
+
+### 2.2. Files Đã Sửa
+
+**1. `src/app/profile/[userId]/page.tsx`**
+
+**Changes:**
+1. ✅ Import `ProfileTabs` component
+2. ✅ **REMOVED** Badge section từ Profile Header (di chuyển vào tab)
+3. ✅ **REMOVED** toàn bộ sections render dọc:
+   - Campaign section (inline JSX)
+   - Blog section (inline JSX)  
+   - Pledges section (inline JSX)
+   - Empty state
+   - Sidebar Achievements
+4. ✅ **REPLACED** với single `<ProfileTabs />` component
+5. ✅ **MOVED** Achievements section ra ngoài tabs (vẫn hiển thị dưới tabs)
+
+**Structure Before:**
+```tsx
+<ProfileHeader>
+  <Badges section /> ← Trong header
+</ProfileHeader>
+
+<MainContent>
+  <CampaignSection /> ← Vertical
+  <BlogSection />     ← Vertical
+  <PledgesSection />  ← Vertical
+</MainContent>
+
+<Sidebar>
+  <Achievements />
+</Sidebar>
+```
+
+**Structure After:**
+```tsx
+<ProfileHeader>
+  {/* No badges here */}
+</ProfileHeader>
+
+<ProfileTabs
+  campaigns={...}
+  blogPosts={...}
+  pledges={...}
+  badges via userId ← Tab content
+/>
+
+<Achievements /> ← Outside tabs
+```
+
+---
+
+## 3. UI/UX CHANGES
+
+### 3.1. Tab Navigation Design
+
+✅ **Tuân thủ DESIGN_SYSTEM.md:**
+
+**Tab Active:**
+- `bg-gradient-to-r from-pgreen to-fgreen` - Gradient green
+- `text-white` - White text
+- `shadow-lg` - Elevated shadow
+- `rounded-[1.5rem]` - Pill style
+
+**Tab Inactive:**
+- `bg-white` - White background
+- `text-gray-700` - Gray text
+- `border border-gray-200` - Light border
+- `hover:border-pgreen hover:text-pgreen` - Green on hover
+- `rounded-[1.5rem]` - Pill style
+
+**Container:**
+- `bg-white rounded-[2rem] border border-gray-100 shadow-sm p-2` - Card container
+- `flex flex-wrap gap-2` - Responsive flex layout
+
+### 3.2. Tab Content
+
+**Each tab renders in:**
+```tsx
+<div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
+  {/* Tab-specific content */}
+</div>
+```
+
+✅ **Same styling as before** - Consistent design
+
+---
+
+## 4. TAB LOGIC
+
+### 4.1. Default Tab Selection
+
+```typescript
+const getDefaultTab = (): TabType => {
+  if (isCreator && campaigns.length > 0) return 'campaigns';
+  if (blogPosts.length > 0) return 'blog';
+  if (isBacker && pledges.length > 0 && isOwnProfile && !showAsPublic) return 'pledges';
+  return 'badges';
+};
+```
+
+**Priority:**
+1. Campaigns (if creator has campaigns)
+2. Blog (if has blog posts)
+3. Pledges (if backer has pledges AND owner view)
+4. Badges (fallback)
+
+### 4.2. Tab Visibility
+
+**Owner View (`isOwnProfile && !showAsPublic`):**
+```typescript
+[
+  { id: 'campaigns', show: isCreator && campaigns.length > 0 },
+  { id: 'blog', show: blogPosts.length > 0 },
+  { id: 'pledges', show: isBacker && pledges.length > 0 }, ← Only owner
+  { id: 'badges', show: true },
+]
+```
+
+**Public View (`!isOwnProfile || showAsPublic`):**
+```typescript
+[
+  { id: 'campaigns', show: isCreator && campaigns.length > 0 },
+  { id: 'blog', show: blogPosts.length > 0 },
+  { id: 'badges', show: true },
+]
+// No pledges tab
+```
+
+### 4.3. Conditional Rendering
+
+```typescript
+{activeTab === 'campaigns' && (
+  <div>{/* Campaign content */}</div>
+)}
+
+{activeTab === 'blog' && (
+  <div>{/* Blog content */}</div>
+)}
+
+{activeTab === 'pledges' && (
+  <div>{/* Pledges content */}</div>
+)}
+
+{activeTab === 'badges' && (
+  <div>{/* Badges content */}</div>
+)}
+```
+
+✅ **Chỉ 1 tab render tại một thời điểm** - Performance optimized
+
+---
+
+## 5. DATA FLOW
+
+### 5.1. Props Passed to ProfileTabs
+
+```typescript
+<ProfileTabs
+  userId={userId}                    // For UserBadgeList
+  isOwnProfile={isOwnProfile}        // View mode detection
+  showAsPublic={showAsPublic}        // Preview mode
+  campaigns={user.campaigns}         // Campaign data
+  blogPosts={user.blog_posts}        // Blog data
+  pledges={user.pledges}             // Pledge data
+  isCreator={isCreator}              // Role check
+  isBacker={isBacker}                // Role check
+/>
+```
+
+### 5.2. No API Changes
+
+✅ **Query vẫn giữ nguyên:**
+- Campaign query: `where: { status: { in: ["ACTIVE", "SUCCESS"] } }`
+- Blog query: Filter by Owner/Public view
+- Pledge query: `where: { status: "SUCCESS" }`
+
+✅ **Không tạo API mới**  
+✅ **Không sửa database**
+
+---
+
+## 6. PERFORMANCE
+
+### 6.1. Before (Vertical Layout)
+
+❌ **Render all sections:**
+- Campaign section (if has campaigns)
+- Blog section (if has blogs)
+- Pledges section (if has pledges)
+- Achievements sidebar
+- Empty state (if no activity)
+
+**Total DOM:** Tất cả sections cùng lúc
+
+### 6.2. After (Tabs Layout)
+
+✅ **Render only active tab:**
+- 1 tab navigation
+- 1 tab content (campaigns OR blog OR pledges OR badges)
+- Achievements (outside tabs)
+
+**Total DOM:** 1 tab content tại một thời điểm
+
+✅ **Better performance** - Ít DOM nodes hơn
+
+---
+
+## 7. EDGE CASES
+
+### 7.1. Empty Tabs
+
+**Scenario:** User không có campaigns, blogs, pledges
+
+**Behavior:**
+- Default tab: "Huy hiệu"
+- Chỉ hiển thị 1 tab "Huy hiệu"
+
+✅ **Graceful degradation**
+
+### 7.2. Preview Mode
+
+**Scenario:** Owner click "Chế độ xem" → `?preview=public`
+
+**Behavior:**
+- Tab "Đã ủng hộ" bị ẩn (chỉ hiện trong Owner view)
+- Nếu đang ở tab "Đã ủng hộ" → auto-switch sang tab khác
+
+✅ **Handled by default tab logic**
+
+### 7.3. Public View vs Owner View
+
+**Public User:**
+- Không thấy tab "Đã ủng hộ"
+- Không thấy status badge trong Blog tab
+- Không thấy nút "Sửa" trong Blog tab
+
+**Owner:**
+- Thấy tất cả tabs
+- Thấy status badge
+- Thấy nút "Sửa"
+
+✅ **Consistent với yêu cầu**
+
+---
+
+## 8. RESPONSIVE
+
+### 8.1. Tabs Navigation
+
+```tsx
+<div className="flex flex-wrap gap-2">
+  {/* Tabs wrap on mobile */}
+</div>
+```
+
+✅ **Mobile:** Tabs wrap xuống dòng mới  
+✅ **Desktop:** Tabs nằm ngang
+
+### 8.2. Tab Content
+
+**Campaign/Blog grids:**
+```tsx
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  {/* 1 column mobile, 2 columns desktop */}
+</div>
+```
+
+✅ **Responsive grid** - Giữ nguyên logic cũ
+
+---
+
+## 9. BUILD RESULTS
+
+### 9.1. Build Status
+
+```
+✓ Linting and checking validity of types 
+✓ Collecting page data    
+✓ Generating static pages (80/80)
+✓ Collecting build traces    
+✓ Finalizing page optimization
+
+Exit Code: 0
+```
+
+✅ **BUILD PASS** - Không có lỗi
+
+### 9.2. Profile Page Size
+
+**Before:**
+```
+ƒ /profile/[userId]  1.33 kB  492 kB
+```
+
+**After:**
+```
+ƒ /profile/[userId]  3.19 kB  494 kB
+```
+
+**Delta:** +1.86 kB (do thêm ProfileTabs client component)
+
+✅ **Acceptable** - Client interactivity cần client component
+
+### 9.3. Warnings
+
+⚠️ **Chỉ có warnings cũ** (React hooks, Edge Runtime) - không liên quan đến Tabs implementation
+
+---
+
+## 10. TESTING CHECKLIST
+
+### 10.1. Manual Tests
+
+- [x] Owner view hiển thị 4 tabs (Chiến dịch, Blog, Đã ủng hộ, Huy hiệu)
+- [x] Public view chỉ hiển thị 3 tabs (không có Đã ủng hộ)
+- [x] Tab active có màu green gradient
+- [x] Tab inactive có màu white với border
+- [x] Click tab chuyển content đúng
+- [x] Chỉ render 1 tab content tại một thời điểm
+- [x] Default tab selection logic đúng
+- [x] Preview mode (`?preview=public`) hoạt động đúng
+- [x] Badge section đã di chuyển vào tab
+- [x] Achievements vẫn hiển thị dưới tabs
+- [x] Responsive: tabs wrap trên mobile
+- [x] Campaign card/Blog card/Pledge list render đúng
+- [x] UserBadgeList render đúng trong Badges tab
+
+### 10.2. Automated Tests
+
+**Build test:**
+```bash
+npm run build
+✅ PASS
+```
+
+---
+
+## 11. SO SÁNH TRƯỚC/SAU
+
+### 11.1. Profile Header
+
+| Before | After |
+|--------|-------|
+| Có Badge section inline | KHÔNG có Badge section |
+| Badge luôn hiển thị | Badge trong tab "Huy hiệu" |
+
+### 11.2. Main Content
+
+| Before | After |
+|--------|-------|
+| Vertical sections (Campaign, Blog, Pledges) | Horizontal tabs |
+| Render all sections cùng lúc | Chỉ render tab active |
+| Grid layout (2 columns main + 1 sidebar) | Single column với tabs |
+
+### 11.3. Sidebar
+
+| Before | After |
+|--------|-------|
+| Achievements trong sidebar | Achievements dưới tabs |
+| Grid 3 columns | Full width |
+
+---
+
+## 12. KẾT LUẬN
+
+### 12.1. Hoàn Thành
+
+✅ **100% yêu cầu:**
+1. ✅ Chuyển từ layout dọc sang Tabs ngang
+2. ✅ Owner View: 4 tabs (Chiến dịch, Blog, Đã ủng hộ, Huy hiệu)
+3. ✅ Public View: 3 tabs (Chiến dịch, Blog, Huy hiệu)
+4. ✅ Chỉ render tab đang active
+5. ✅ Tab active: bg-pgreen, text-white
+6. ✅ Tab inactive: bg-white, border-gray-200
+7. ✅ Rounded pill style
+8. ✅ Không sửa dữ liệu/API/query
+9. ✅ Build pass
+
+### 12.2. Metrics
+
+**Files changed:**
+- ➕ Tạo mới: 1 file (`ProfileTabs.tsx`)
+- ✏️ Sửa: 1 file (`src/app/profile/[userId]/page.tsx`)
+
+**Code:**
+- New component: ~250 lines
+- Profile page: Simplified (removed ~150 lines inline JSX, added ~20 lines ProfileTabs usage)
+
+**Build impact:**
+- ✅ No breaking changes
+- ✅ No new warnings
+- ✅ Build time: ~32.9s (normal)
+- ✅ Page size: +1.86 kB (client component overhead)
+
+### 12.3. Benefits
+
+✅ **Better UX:**
+- Cleaner interface
+- Easier navigation
+- Focused content
+
+✅ **Better Performance:**
+- Conditional rendering
+- Smaller DOM
+- Faster initial render
+
+✅ **Better Maintainability:**
+- Centralized tab logic
+- Reusable component
+- Easier to add new tabs
+
+---
+
+**Người triển khai:** Kiro AI  
+**Trạng thái:** ✅ READY FOR PRODUCTION  
+**Next action:** Test user experience với tabs navigation
+
+---
+
+## Nguồn: `docs/PROJECT_VS_CAMPAIGN_ANALYSIS.md`
+
+# BÁO CÁO PHÂN TÍCH: PROJECT VS CAMPAIGN - TỬ TẾ FUND
+
+**Ngày phân tích:** June 30, 2026  
+**Scope:** Kiểm tra entity Project, đề xuất kiến trúc phù hợp  
+**Mục tiêu:** Phân biệt rõ Project (Dự án) và Campaign (Chiến dịch gây quỹ)
+
+---
+
+## 1. HIỆN TRẠNG HỆ THỐNG
+
+### 1.1. ✅ Những Gì ĐÃ CÓ
+
+| Thành phần | Đã có | File/Path | Ghi chú |
+|------------|-------|-----------|---------|
+| **Entity "Project"** | ❌ KHÔNG | - | Chỉ là naming convention |
+| **Table "projects"** | ❌ KHÔNG | `prisma/schema.prisma` | Không tồn tại |
+| **Table "campaigns"** | ✅ CÓ | `prisma/schema.prisma` | Entity chính |
+| **Type "Project"** | ⚠️ CÓ (alias) | `src/types/project.ts` | Chỉ là wrapper cho Campaign |
+| **API /projects** | ✅ CÓ | `src/app/api/projects/route.ts` | Query từ table `campaigns` |
+| **Page /projects** | ✅ CÓ | `src/app/projects/page.tsx` | Discovery page |
+| **Relation Project->Campaign** | ❌ KHÔNG | - | Không có foreign key |
+| **Relation Project->Blog** | ❌ KHÔNG | - | Không có foreign key |
+
+### 1.2. 🔍 Phát Hiện Quan Trọng
+
+**"Project" hiện tại CHỈ LÀ ALIAS của "Campaign":**
+
+```typescript
+// src/types/project.ts
+export interface ProjectListItem {
+  id: string;              // = campaigns.id
+  campaignCode: string;    // = campaigns.campaignCode
+  slug: string;            // = campaigns.slug
+  // ... tất cả fields là của campaigns
+}
+```
+
+**API `/api/projects` query trực tiếp từ `campaigns` table:**
+
+```typescript
+// src/app/api/projects/route.ts
+const campaigns = await prisma.campaigns.findMany({
+  where, include, orderBy
+});
+
+// Transform campaigns -> ProjectListItem
+const items: ProjectListItem[] = campaigns.map((campaign) => {
+  // Direct mapping
+});
+```
+
+**Kết luận:** 
+- ❌ Không có entity "Project" độc lập
+- ❌ Không có database table "projects"
+- ✅ "Project" chỉ là tên gọi khác của "Campaign" ở UI layer
+- ✅ Tất cả dữ liệu đều từ table `campaigns`
+
+---
+
+## 2. QUAN HỆ HIỆN TẠI
+
+### 2.1. Campaign - Blog Relationship
+
+**Đã có relation:**
+
+```prisma
+model campaigns {
+  id String @id
+  // ...
+  blog_posts blog_posts[]  // ✅ One-to-Many
+  campaign_blog_links campaign_blog_links[]  // ✅ Many-to-Many
+}
+
+model blog_posts {
+  id String @id
+  campaignId String?  // ✅ Foreign key
+  campaigns campaigns? @relation(...)
+  campaign_blog_links campaign_blog_links[]  // ✅ Many-to-Many
+}
+```
+
+**Hiện tại:**
+- ✅ Blog có thể belong to một Campaign (campaignId)
+- ✅ Campaign có thể có nhiều blog posts
+- ✅ Có bảng junction `campaign_blog_links` cho many-to-many
+
+### 2.2. Campaign - Rewards Relationship
+
+```prisma
+model campaigns {
+  rewards rewards[]  // ✅ One-to-Many
+}
+
+model rewards {
+  campaignId String
+  campaigns campaigns @relation(...)
+}
+```
+
+**Hiện tại:**
+- ✅ Reward thuộc về một Campaign
+- ✅ Campaign có thể có nhiều rewards
+
+### 2.3. Sơ Đồ Quan Hệ Hiện Tại
+
+```
+users (Creator)
+  |
+  ├─── campaigns (1:N)
+  │      ├─── blog_posts (1:N)
+  │      ├─── rewards (1:N)
+  │      ├─── pledges (1:N)
+  │      ├─── campaign_followers (1:N)
+  │      ├─── campaign_updates (1:N)
+  │      └─── reviews (1:N)
+  │
+  └─── blog_posts (1:N) [không thuộc campaign]
+```
+
+**Vấn đề:**
+- ❌ Không có entity "Project" cấp cao hơn
+- ❌ Blog posts độc lập (không thuộc campaign) không được group
+- ❌ Không thể group nhiều campaigns vào một "dự án lớn"
+
+---
+
+## 3. KHÁI NIỆM MỤC TIÊU
+
+### 3.1. Định Nghĩa Mong Muốn
+
+**Project (Dự án)** = Entity cấp cao, portfolio item
+- Một creator có thể có nhiều Projects
+- Một Project là một "tập hợp công việc" hoặc "mảng hoạt động"
+
+**Campaign (Chiến dịch gây quỹ)** = Đợt gây quỹ cụ thể trong Project
+- Một Project có thể có nhiều Campaigns (đợt 1, đợt 2, ...)
+- Campaign có startDate, endDate, goalAmount
+
+**Ví dụ:**
+
+```
+Project: "Năng lượng xanh vùng cao"
+├── Campaign 1: "Lắp đặt đợt 1 - 10 trường"
+├── Campaign 2: "Mở rộng đợt 2 - 15 trường"
+├── Blog 1: "Tiến độ tháng 1"
+├── Blog 2: "Kết quả sau 6 tháng"
+└── Products: Panel năng lượng, Inverter, ...
+```
+
+### 3.2. Sơ Đồ Mong Muốn
+
+```
+User (Creator)
+  |
+  ├─── Projects (1:N)  [NEW]
+  │      ├─── Campaigns (1:N)
+  │      │      ├─── Pledges
+  │      │      ├─── Rewards
+  │      │      └─── Reviews
+  │      │
+  │      ├─── Blog Posts (1:N)
+  │      │      ├─── Comments
+  │      │      └─── Likes
+  │      │
+  │      └─── Products (1:N)  [if needed]
+  │
+  └─── Standalone Campaigns (campaigns without project)
+```
+
+---
+
+## 4. PHÂN TÍCH KHẢ NĂNG THỰC HIỆN
+
+### 4.1. Option 1: Tạo Entity "Project" Thật (PHỨC TẠP)
+
+#### 4.1.1. Database Changes Cần Thiết
+
+**Tạo table mới:**
+
+```prisma
+model projects {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String
+  imageUrl    String?
+  
+  creatorId   String
+  creator     users    @relation(fields: [creatorId], references: [id])
+  
+  status      String   @default("ACTIVE")  // ACTIVE, ARCHIVED, COMPLETED
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  campaigns   campaigns[]
+  blog_posts  blog_posts[]
+  products    products[]  // if needed
+  
+  @@index([creatorId])
+  @@index([status])
+}
+```
+
+**Sửa table campaigns:**
+
+```prisma
+model campaigns {
+  // ... existing fields ...
+  
+  projectId  String?  // ⚠️ BREAKING CHANGE
+  project    projects? @relation(fields: [projectId], references: [id])
+  
+  @@index([projectId])  // New index
+}
+```
+
+**Sửa table blog_posts:**
+
+```prisma
+model blog_posts {
+  // ... existing fields ...
+  
+  projectId  String?  // ⚠️ BREAKING CHANGE
+  project    projects? @relation(fields: [projectId], references: [id])
+  
+  @@index([projectId])  // New index
+}
+```
+
+#### 4.1.2. Migration Required
+
+**Bước 1: Tạo table projects**
+
+```sql
+CREATE TABLE projects (
+  id VARCHAR PRIMARY KEY,
+  slug VARCHAR UNIQUE NOT NULL,
+  title VARCHAR NOT NULL,
+  description TEXT,
+  imageUrl VARCHAR,
+  creatorId VARCHAR NOT NULL REFERENCES users(id),
+  status VARCHAR DEFAULT 'ACTIVE',
+  createdAt TIMESTAMP DEFAULT NOW(),
+  updatedAt TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_projects_creatorId ON projects(creatorId);
+```
+
+**Bước 2: Add column projectId**
+
+```sql
+ALTER TABLE campaigns ADD COLUMN projectId VARCHAR;
+ALTER TABLE blog_posts ADD COLUMN projectId VARCHAR;
+
+CREATE INDEX idx_campaigns_projectId ON campaigns(projectId);
+CREATE INDEX idx_blog_posts_projectId ON blog_posts(projectId);
+```
+
+**Bước 3: Data migration (QUAN TRỌNG)**
+
+```sql
+-- Option A: Tự động tạo project cho mỗi campaign
+INSERT INTO projects (id, slug, title, description, creatorId, createdAt)
+SELECT 
+  'proj_' || c.id,
+  c.slug,
+  c.title,
+  c.description,
+  c.creatorId,
+  c.createdAt
+FROM campaigns c;
+
+UPDATE campaigns c
+SET projectId = 'proj_' || c.id;
+
+-- Option B: Group campaigns cùng creator và category
+-- (Phức tạp hơn, cần logic business)
+```
+
+**Bước 4: Add foreign key constraints**
+
+```sql
+ALTER TABLE campaigns 
+  ADD CONSTRAINT fk_campaigns_projectId 
+  FOREIGN KEY (projectId) REFERENCES projects(id);
+
+ALTER TABLE blog_posts 
+  ADD CONSTRAINT fk_blog_posts_projectId 
+  FOREIGN KEY (projectId) REFERENCES projects(id);
+```
+
+#### 4.1.3. API Changes Needed
+
+**Tạo mới:**
+- `GET /api/projects` - List projects (KHÁC với current)
+- `GET /api/projects/[slug]` - Get project detail
+- `POST /api/projects` - Create project
+- `PATCH /api/projects/[id]` - Update project
+- `DELETE /api/projects/[id]` - Delete project
+- `GET /api/projects/[id]/campaigns` - Get campaigns của project
+- `GET /api/projects/[id]/blog-posts` - Get blogs của project
+
+**Sửa hiện tại:**
+- `GET /api/campaigns` - Thêm filter by projectId
+- `POST /api/campaigns` - Require projectId
+- `GET /api/blog/posts` - Thêm filter by projectId
+
+#### 4.1.4. Frontend Changes Needed
+
+**Pages mới:**
+- `/projects` - Discovery (RENAME from current?)
+- `/projects/[slug]` - Project detail page
+- `/projects/create` - Create project
+- `/projects/[slug]/edit` - Edit project
+- `/projects/[slug]/campaigns` - List campaigns
+- `/projects/[slug]/blog` - List blog posts
+
+**Components mới:**
+- `<ProjectCard />` - Display project
+- `<ProjectDetail />` - Project detail view
+- `<ProjectForm />` - Create/edit project
+- `<ProjectCampaignsList />` - Campaigns trong project
+- `<ProjectBlogList />` - Blogs trong project
+
+**Components cần sửa:**
+- `<CampaignForm />` - Add project selector
+- `<BlogEditor />` - Add project selector
+- Profile page - Show projects instead of campaigns
+
+#### 4.1.5. Mức Độ Rủi Ro
+
+🔴 **RỦI RO CỰC KỲ CAO:**
+
+| Rủi ro | Mức độ | Chi tiết |
+|---------|--------|----------|
+| **Breaking changes** | 🔴 Cao | Thay đổi schema, foreign keys |
+| **Data migration** | 🔴 Cao | Phải migrate existing campaigns |
+| **API incompatibility** | 🔴 Cao | Current `/api/projects` sẽ bị conflict |
+| **Frontend refactor** | 🔴 Cao | Phải refactor nhiều pages, components |
+| **Testing effort** | 🔴 Cao | Phải test toàn bộ flows |
+| **Production downtime** | ⚠️ Trung bình | Migration có thể gây downtime |
+| **User confusion** | ⚠️ Trung bình | UI/UX thay đổi đáng kể |
+
+**Effort ước tính:** 2-3 tuần (full-time)
+
+---
+
+### 4.2. Option 2: Soft Grouping với Metadata (TRUNG BÌNH)
+
+#### 4.2.1. Concept
+
+**KHÔNG tạo table mới, dùng metadata JSON:**
+
+```prisma
+model campaigns {
+  // ... existing fields ...
+  
+  projectMetadata Json? // ⚠️ Thêm field mới
+  //  {
+  //    "projectId": "energy-highland-2024",
+  //    "projectTitle": "Năng lượng xanh vùng cao",
+  //    "projectPhase": 1,
+  //    "isProjectLead": true
+  //  }
+}
+
+model blog_posts {
+  // ... existing fields ...
+  
+  projectMetadata Json? // ⚠️ Thêm field mới
+}
+```
+
+#### 4.2.2. Implementation
+
+**Migration (đơn giản):**
+
+```sql
+ALTER TABLE campaigns ADD COLUMN projectMetadata JSONB;
+ALTER TABLE blog_posts ADD COLUMN projectMetadata JSONB;
+
+CREATE INDEX idx_campaigns_projectMetadata ON campaigns USING GIN (projectMetadata);
+CREATE INDEX idx_blog_posts_projectMetadata ON blog_posts USING GIN (projectMetadata);
+```
+
+**Query campaigns theo project:**
+
+```typescript
+const campaigns = await prisma.campaigns.findMany({
+  where: {
+    projectMetadata: {
+      path: ['projectId'],
+      equals: 'energy-highland-2024'
+    }
+  }
+});
+```
+
+**API changes (nhỏ):**
+
+```typescript
+// GET /api/campaigns?projectId=energy-highland-2024
+// GET /api/blog/posts?projectId=energy-highland-2024
+```
+
+#### 4.2.3. Ưu Điểm
+
+- ✅ Không cần table mới
+- ✅ Không breaking changes (chỉ thêm field nullable)
+- ✅ Flexible - có thể thêm metadata khác
+- ✅ Migration đơn giản
+- ✅ Backward compatible
+
+#### 4.2.4. Nhược Điểm
+
+- ❌ Không có referential integrity (không có foreign key)
+- ❌ Project không phải entity độc lập
+- ❌ Khó enforce rules (VD: projectId format)
+- ❌ Performance có thể chậm hơn với JSONB queries
+- ❌ Không có project detail page thật sự
+
+#### 4.2.5. Mức Độ Rủi Ro
+
+🟡 **RỦI RO TRUNG BÌNH:**
+
+| Rủi ro | Mức độ | Chi tiết |
+|---------|--------|----------|
+| **Breaking changes** | ✅ Thấp | Chỉ thêm field nullable |
+| **Data migration** | ✅ Thấp | Không cần migrate data cũ |
+| **API changes** | 🟡 Trung bình | Thêm filter, không break existing |
+| **Frontend changes** | 🟡 Trung bình | Thêm grouping logic |
+| **Data integrity** | 🟡 Trung bình | Không có foreign key constraint |
+| **Performance** | 🟡 Trung bình | JSONB query có thể chậm |
+
+**Effort ước tính:** 3-5 ngày
+
+---
+
+### 4.3. Option 3: Virtual Grouping (UI Only) - THẤP
+
+#### 4.3.1. Concept
+
+**KHÔNG sửa database, chỉ group ở frontend:**
+
+```typescript
+// Frontend logic
+interface VirtualProject {
+  id: string;  // Generated from campaigns
+  title: string;  // Từ campaign đầu tiên
+  campaigns: Campaign[];  // Group by creator + category
+  blogPosts: BlogPost[];  // Filter by campaignIds
+}
+
+function groupCampaignsIntoProjects(campaigns: Campaign[]): VirtualProject[] {
+  // Group logic:
+  // - Cùng creator
+  // - Cùng category
+  // - Similar title (fuzzy match)
+  // - Gần nhau về thời gian
+}
+```
+
+#### 4.3.2. Implementation
+
+**Không cần migration**
+
+**API changes:**
+
+```typescript
+// GET /api/users/[userId]/virtual-projects
+// -> Query campaigns, group ở server, return grouped data
+```
+
+**Frontend:**
+
+```typescript
+// Profile page
+const virtualProjects = groupCampaignsIntoProjects(user.campaigns);
+
+// Display:
+// - Project title (từ campaign đầu tiên)
+// - Số campaigns con
+// - Tổng tiền huy động
+// - Click vào -> expand list campaigns
+```
+
+#### 4.3.3. Ưu Điểm
+
+- ✅ KHÔNG CẦN sửa database
+- ✅ KHÔNG CẦN migration
+- ✅ KHÔNG CẦN API mới
+- ✅ Zero risk cho production
+- ✅ Có thể implement nhanh (1-2 ngày)
+- ✅ Có thể test trước khi commit schema
+
+#### 4.3.4. Nhược Điểm
+
+- ❌ Không có project entity thật
+- ❌ Grouping logic có thể không chính xác
+- ❌ Không có project slug/URL
+- ❌ Không thể create project độc lập
+- ❌ Phức tạp khi maintain grouping logic
+
+#### 4.3.5. Mức Độ Rủi Ro
+
+✅ **RỦI RO THẤP:**
+
+| Rủi ro | Mức độ | Chi tiết |
+|---------|--------|----------|
+| **Breaking changes** | ✅ Không có | Zero database changes |
+| **Data migration** | ✅ Không có | Không cần |
+| **API changes** | ✅ Thấp | Chỉ thêm endpoint mới |
+| **Frontend changes** | 🟡 Trung bình | Thêm grouping UI |
+| **Data integrity** | ✅ Không ảnh hưởng | Không sửa data |
+| **Performance** | ✅ Thấp | Grouping ở memory |
+
+**Effort ước tính:** 1-2 ngày
+
+---
+
+## 5. PHÂN TÍCH USE CASES
+
+### 5.1. Use Case: Creator Tạo Campaign Mới
+
+**Hiện tại:**
+```
+1. Creator click "Tạo chiến dịch"
+2. Điền form campaign
+3. Submit -> tạo campaign
+```
+
+**Nếu có Project entity (Option 1):**
+```
+1. Creator click "Tạo dự án"
+2. Điền form project (title, description)
+3. Submit -> tạo project
+4. Trong project, click "Tạo chiến dịch"
+5. Điền form campaign
+6. Submit -> tạo campaign thuộc project
+```
+
+⚠️ **Phức tạp hơn, nhiều bước hơn**
+
+**Nếu có Soft Grouping (Option 2):**
+```
+1. Creator click "Tạo chiến dịch"
+2. Điền form campaign
+3. Optional: Chọn "Thuộc dự án" -> nhập projectId
+4. Submit -> tạo campaign (có projectMetadata)
+```
+
+✅ **Tương tự hiện tại, thêm option**
+
+**Nếu Virtual Grouping (Option 3):**
+```
+1. Creator click "Tạo chiến dịch"
+2. Điền form campaign
+3. Submit -> tạo campaign
+4. System tự động group sau (hoặc creator group manual)
+```
+
+✅ **Giống hiện tại hoàn toàn**
+
+### 5.2. Use Case: Hiển thị Profile
+
+**Hiện tại:**
+```
+Profile
+├── Chiến dịch đã tạo (danh sách campaigns)
+└── Blog posts (nếu thêm)
+```
+
+**Option 1 - Project Entity:**
+```
+Profile
+├── Dự án (danh sách projects)
+│   └── Click -> Project detail
+│       ├── Campaigns của project
+│       ├── Blog posts của project
+│       └── Stats tổng hợp
+└── Chiến dịch độc lập (campaigns không thuộc project)
+```
+
+**Option 2 - Soft Grouping:**
+```
+Profile
+├── Dự án (group campaigns có cùng projectId)
+│   └── Click -> Filtered campaign list
+└── Chiến dịch khác
+```
+
+**Option 3 - Virtual Grouping:**
+```
+Profile
+├── Dự án (auto-grouped campaigns)
+│   └── Click -> Expand campaigns list
+└── Các chiến dịch khác
+```
+
+### 5.3. Use Case: Discovery/Browse
+
+**Hiện tại:**
+```
+/projects page
+- List tất cả campaigns
+- Filter by category, status, etc.
+```
+
+**Nếu có Project:**
+```
+Conflict URL: /projects vs /campaigns?
+
+Option A:
+- /projects -> List projects
+- /campaigns -> List campaigns
+- /projects/[slug] -> Project detail
+- /campaigns/[slug] -> Campaign detail
+
+Option B:
+- /discover -> List projects
+- /campaigns -> List campaigns  
+```
+
+⚠️ **Cần refactor routes**
+
+---
+
+## 6. ĐỀ XUẤT KIẾN TRÚC TỐI ƯU
+
+### 6.1. 🎯 Recommendation: Option 3 (Virtual Grouping) + Option 2 (Soft Grouping) - HYBRID
+
+**Phase 1: Implement Option 3 (1-2 ngày)**
+
+✅ **Lợi ích:**
+- Không risk
+- Test được concept
+- User feedback sớm
+- Có thể rollback dễ dàng
+
+**Implementation:**
+1. Tạo util `groupCampaignsIntoVirtualProjects()`
+2. Thêm section "Dự án" trên Profile (UI only)
+3. Auto-group campaigns theo:
+   - Creator
+   - Category
+   - Time proximity
+   - Title similarity
+4. Display với expand/collapse UI
+
+**Phase 2: Nếu concept tốt, migrate sang Option 2 (3-5 ngày)**
+
+**Implementation:**
+1. Add `projectMetadata` JSONB column
+2. Migration script: Populate projectMetadata từ grouping logic
+3. Update API: Filter by projectId từ metadata
+4. Update UI: Use real projectId thay vì virtual grouping
+5. Add admin UI: Manage project grouping
+
+**Phase 3: Nếu cần full Project entity, consider Option 1 (2-3 tuần)**
+
+Chỉ khi:
+- Có nhiều use cases cần project entity độc lập
+- Cần project-level permissions
+- Cần project-level analytics
+- Có resources để migrate toàn bộ
+
+### 6.2. Lý Do Đề Xuất Hybrid Approach
+
+| Tiêu chí | Virtual (Phase 1) | Soft (Phase 2) | Full Entity (Phase 3) |
+|----------|-------------------|----------------|------------------------|
+| **Time to market** | ✅ 1-2 ngày | 🟡 3-5 ngày | 🔴 2-3 tuần |
+| **Risk** | ✅ Rất thấp | 🟡 Trung bình | 🔴 Cao |
+| **Flexibility** | ✅ Cao | ✅ Cao | 🟡 Trung bình |
+| **Scalability** | 🟡 Trung bình | ✅ Tốt | ✅ Rất tốt |
+| **Data integrity** | ✅ Không ảnh hưởng | 🟡 No FK | ✅ Full FK |
+| **Rollback ease** | ✅ Dễ | 🟡 Khó hơn | 🔴 Rất khó |
+
+**Progressive Enhancement Strategy:**
+- Start small, validate concept
+- Gather user feedback
+- Iterate based on real needs
+- Scale up when proven valuable
+
+---
+
+## 7. IMPLEMENTATION PLAN - PHASE 1 (Virtual Grouping)
+
+### 7.1. Step-by-Step
+
+**Step 1: Create Grouping Utility (1 giờ)**
+
+```typescript
+// src/lib/virtual-project-grouping.ts
+
+export interface VirtualProject {
+  id: string;  // Generated: `vp_${creatorId}_${category}_${index}`
+  title: string;
+  description: string;
+  category: string;
+  campaigns: Campaign[];
+  totalRaised: number;
+  totalBackers: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export function groupCampaignsIntoProjects(
+  campaigns: Campaign[]
+): VirtualProject[] {
+  // 1. Group by creator + category
+  // 2. Further group by title similarity
+  // 3. Generate project metadata
+  // 4. Return virtual projects
+}
+```
+
+**Step 2: Add UI Component (2 giờ)**
+
+```typescript
+// src/components/profile/VirtualProjectsSection.tsx
+
+export function VirtualProjectsSection({ campaigns }) {
+  const projects = groupCampaignsIntoProjects(campaigns);
+  
+  return (
+    <div>
+      {projects.map(project => (
+        <VirtualProjectCard 
+          key={project.id}
+          project={project}
+        />
+      ))}
+    </div>
+  );
+}
+```
+
+**Step 3: Update Profile Page (1 giờ)**
+
+```typescript
+// src/app/profile/[userId]/page.tsx
+
+// Add section
+<VirtualProjectsSection campaigns={user.campaigns} />
+```
+
+**Step 4: Test & Polish (2 giờ)**
+
+- Test grouping logic
+- UI/UX polish
+- Edge cases
+
+**Total:** 6 giờ = 1 ngày công
+
+### 7.2. No Breaking Changes
+
+- ✅ Database: Không đổi
+- ✅ API: Không đổi
+- ✅ Existing features: Không ảnh hưởng
+- ✅ Rollback: Xóa component là xong
+
+---
+
+## 8. KẾT LUẬN
+
+### 8.1. Tóm Tắt Hiện Trạng
+
+**"Project" hiện tại:**
+- ❌ Không phải entity thật
+- ❌ Chỉ là naming convention
+- ❌ Alias của "Campaign" ở UI layer
+- ✅ API `/api/projects` query từ `campaigns` table
+
+**Campaign - Blog - Reward:**
+- ✅ Có relations trong database
+- ✅ Blog có thể belong to Campaign
+- ✅ Reward belong to Campaign
+- ❌ Nhưng không có "Project" cấp cao hơn để group
+
+### 8.2. Đề Xuất Cuối Cùng
+
+**🎯 KHUYẾN NGHỊ: Hybrid Approach (Phase-by-Phase)**
+
+**Phase 1: Virtual Grouping (START HERE)**
+- Time: 1-2 ngày
+- Risk: Rất thấp
+- Value: Test concept, user feedback
+
+**Phase 2: Soft Grouping (IF VALIDATED)**
+- Time: 3-5 ngày
+- Risk: Trung bình
+- Value: Persistent grouping, better scalability
+
+**Phase 3: Full Project Entity (ONLY IF NECESSARY)**
+- Time: 2-3 tuần
+- Risk: Cao
+- Value: Complete project management
+
+**LÝ DO:**
+- ✅ Minimize risk
+- ✅ Fast time to market
+- ✅ Validate before big investment
+- ✅ Can rollback easily
+- ✅ Progressive enhancement
+
+### 8.3. KHÔNG Làm Ngay
+
+❌ **KHÔNG tạo table `projects` ngay**
+❌ **KHÔNG migration schema ngay**
+❌ **KHÔNG refactor toàn bộ API ngay**
+
+✅ **START với Virtual Grouping UI-only**
+✅ **Gather feedback**
+✅ **Iterate based on real needs**
+
+---
+
+**Người phân tích:** Kiro AI  
+**Kết luận:** Bắt đầu với Virtual Grouping (low-risk, fast), sau đó scale up dần nếu cần.  
+**Next action:** Implement Phase 1 Virtual Grouping trên Profile page để test concept.
+
+---
+
+## Nguồn: `docs/REFACTOR_PHASE1_COMPLETION_REPORT.md`
+
+# Báo Cáo Hoàn Thành: Giai Đoạn 1 - Khắc Phục Bất Đồng Bộ Thuật Ngữ
+
+**Ngày thực hiện:** 30/06/2026  
+**Trạng thái:** ✅ **HOÀN THÀNH**  
+**Build status:** ✅ **SUCCESS** (No errors, only ESLint warnings không liên quan)
+
+---
+
+## 🎯 MỤC TIÊU GIAI ĐOẠN 1
+
+Khắc phục lỗi bất đồng bộ thuật ngữ nghiêm trọng (CRITICAL Inconsistency) giữa:
+- Database Layer: Sử dụng thực thể `campaigns` (Chiến dịch)
+- UI & Documentation: Nhầm lẫn hiển thị "Dự án" (Project)
+
+**Phạm vi:** Chỉ refactor UI text và documentation - KHÔNG thay đổi cấu trúc database, API route hay tên biến.
+
+---
+
+## ✅ CÁC THAY ĐỔI ĐÃ THỰC HIỆN
+
+### 🔴 BƯỚC 1: SỬA USER-FACING TEXT & DOCUMENTATION (ƯU TIÊN 1)
+
+#### 1.1. File: `src/components/profile/ProfileTabs.tsx`
+
+**Thay đổi:** Dòng 106
+
+```diff
+- <h2>Dự án đã tạo ({campaigns.length})</h2>
++ <h2>Chiến dịch đã tạo ({campaigns.length})</h2>
+```
+
+**Kết quả:**
+- ✅ Tab label: "Chiến dịch" 
+- ✅ Section title: "Chiến dịch đã tạo"
+- ✅ Variable: `campaigns`
+- ✅ **NHẤT QUÁN HOÀN TOÀN**
+
+---
+
+#### 1.2. File: `docs/PROFILE_ANALYSIS_REPORT.md`
+
+**Thay đổi:** Dòng 71
+
+```diff
+#### Content Sections
+- ✅ **Dự án đã tạo** (campaigns)
++ ✅ **Chiến dịch đã tạo** (campaigns)
+```
+
+**Mục đích:** Đồng bộ documentation với UI thực tế
+
+---
+
+#### 1.3. File: `docs/PROFILE_BLOG_INTEGRATION_ANALYSIS.md`
+
+**Thay đổi:** Dòng 181
+
+```diff
+**Layout:**
+- ✅ Dùng cùng phong cách với section "Dự án đã tạo" (Campaigns)
++ ✅ Dùng cùng phong cách với section "Chiến dịch đã tạo" (Campaigns)
+```
+
+**Mục đích:** Đồng bộ terminology trong tài liệu kỹ thuật
+
+---
+
+### 🟡 BƯỚC 2: CẮM CỜ CẢNH BÁO (DEPRECATED WARNINGS - ƯU TIÊN 2)
+
+Chuẩn bị cho Giai đoạn 2 (Đổi tên API/Folder từ project → campaign)
+
+#### 2.1. File: `src/app/api/projects/route.ts`
+
+**Thêm JSDoc warning:**
+
+```typescript
+/**
+ * GET /api/projects
+ * Search and filter projects from database
+ * 
+ * @deprecated Tên endpoint này nên được đổi thành /api/campaigns để khớp với bảng 'campaigns' trong DB.
+ * TODO: Tiến hành rename file và cập nhật route sang /api/campaigns ở Giai đoạn 2.
+ * Hiện tại giữ nguyên để đảm bảo tính tương thích ngược (backward compatibility) cho Frontend.
+ */
+export async function GET(req: NextRequest) { ... }
+```
+
+**Mục đích:**
+- ⚠️ Cảnh báo developers về naming issue
+- 📋 Documented plan cho Giai đoạn 2
+- 🔒 Giải thích lý do giữ nguyên tạm thời
+
+---
+
+#### 2.2. File: `src/types/project.ts`
+
+**Thêm warning comment:**
+
+```typescript
+/**
+ * Project/Campaign Types for Discovery Page
+ * 
+ * ⚠️ WARNING: File này đang định nghĩa các Types cho Campaign (Chiến dịch) nhưng đặt tên là 'project.ts'.
+ * TODO: Sẽ đổi tên file thành 'campaign.ts' và refactor các interface (ProjectListItem -> CampaignListItem) ở giai đoạn sau.
+ */
+```
+
+**Mục đích:**
+- ⚠️ Clear warning về file naming issue
+- 📋 TODO rõ ràng cho refactor phase sau
+- 📝 Prevent future confusion
+
+---
+
+## 📊 TỔNG KẾT THAY ĐỔI
+
+### Số Lượng Files Đã Sửa
+
+| Category | Files | Lines Changed | Status |
+|----------|-------|---------------|--------|
+| UI Components | 1 | 1 line | ✅ Done |
+| Documentation | 2 | 2 lines | ✅ Done |
+| API Routes | 1 | +3 lines (comment) | ✅ Done |
+| Type Definitions | 1 | +2 lines (comment) | ✅ Done |
+| **TOTAL** | **5 files** | **8 changes** | ✅ **ALL DONE** |
+
+### Scope of Changes
+
+| Change Type | Count | Impact Level |
+|-------------|-------|--------------|
+| String literals (UI text) | 3 | ✅ Zero risk |
+| JSDoc comments | 2 | ✅ Zero risk |
+| Code logic | 0 | ✅ No changes |
+| API endpoints | 0 | ✅ No changes |
+| Database schema | 0 | ✅ No changes |
+
+---
+
+## 🧪 KIỂM TRA ĐÃ THỰC HIỆN
+
+### 1. Build Test ✅
+
+```bash
+npm run build
+```
+
+**Kết quả:**
+```
+✓ Compiled successfully in 15.7s
+✓ Linting and checking validity of types
+✓ Collecting page data
+✓ Generating static pages (80/80)
+✓ Collecting build traces
+✓ Finalizing page optimization
+```
+
+**Status:** ✅ **SUCCESS** - No errors
+
+**ESLint Warnings:**
+- Only pre-existing warnings (không liên quan đến thay đổi)
+- Không có warning mới nào được tạo ra
+
+---
+
+### 2. Consistency Check ✅
+
+**Kiểm tra:** Rà soát toàn bộ codebase tìm "Dự án đã tạo"
+
+```bash
+grep -r "Dự án đã tạo"
+```
+
+**Kết quả:**
+- ✅ Không còn instance nào trong UI components
+- ✅ Không còn instance nào trong active documentation
+- ⚠️ Còn trong `TERMINOLOGY_INCONSISTENCY_REPORT.md` (là file báo cáo lỗi, OK)
+- ⚠️ Còn trong `seed-test3-campaigns.js` (console.log trong seed script, OK)
+
+---
+
+### 3. UI Consistency Verification ✅
+
+**ProfileTabs component:**
+- ✅ Tab button: "Chiến dịch"
+- ✅ Section heading: "Chiến dịch đã tạo"
+- ✅ Variable name: `campaigns`
+- ✅ Data source: `prisma.campaigns`
+
+**Kết luận:** **HOÀN TOÀN NHẤT QUÁN**
+
+---
+
+## 📋 CHECKLIST COMPLETION
+
+### Required Checks (Theo Yêu Cầu)
+
+- [x] ✅ Giao diện Tab Profile hiển thị đồng bộ
+  - [x] Nút bấm ghi "Chiến dịch"
+  - [x] Tiêu đề vùng hiển thị ghi "Chiến dịch đã tạo"
+- [x] ✅ Dự án không bị lỗi compile/build
+  - [x] Build successful
+  - [x] No new errors
+  - [x] No breaking changes
+- [x] ✅ Không thay đổi logic code
+  - [x] Chỉ thay đổi string literals
+  - [x] Chỉ thêm comments
+- [x] ✅ Không thay đổi API routes
+- [x] ✅ Không thay đổi database schema
+- [x] ✅ Documentation updated
+- [x] ✅ Deprecated warnings added
+
+---
+
+## 🎯 KẾT QUẢ ĐẠT ĐƯỢC
+
+### Trước Refactor (BEFORE)
+
+```typescript
+// ❌ INCONSISTENT
+{
+  id: 'campaigns',           // ✅ OK
+  label: 'Chiến dịch',       // ✅ OK
+}
+
+<h2>Dự án đã tạo ({campaigns.length})</h2>  // ❌ WRONG
+```
+
+**Vấn đề:** Tab ghi "Chiến dịch", section ghi "Dự án"
+
+---
+
+### Sau Refactor (AFTER)
+
+```typescript
+// ✅ CONSISTENT
+{
+  id: 'campaigns',           // ✅ OK
+  label: 'Chiến dịch',       // ✅ OK
+}
+
+<h2>Chiến dịch đã tạo ({campaigns.length})</h2>  // ✅ FIXED
+```
+
+**Kết quả:** Hoàn toàn đồng bộ
+
+---
+
+## 📝 FILES CHANGED SUMMARY
+
+```
+Modified Files (5):
+├── src/
+│   ├── components/profile/ProfileTabs.tsx      [1 line changed]
+│   ├── app/api/projects/route.ts               [+3 lines comment]
+│   └── types/project.ts                        [+2 lines comment]
+└── docs/
+    ├── PROFILE_ANALYSIS_REPORT.md              [1 line changed]
+    └── PROFILE_BLOG_INTEGRATION_ANALYSIS.md    [1 line changed]
+```
+
+---
+
+## 🚀 GIAI ĐOẠN TIẾP THEO
+
+### Phase 2: Technical Naming Refactor (TBD)
+
+**Scope:** Đổi tên files, folders, types, API routes
+
+**Estimated effort:** 2-3 days
+
+**Files to refactor (~39 files):**
+
+1. **API Routes**
+   - `src/app/api/projects/` → `campaigns/`
+   - Endpoint: `/api/projects` → `/api/campaigns`
+   - Add redirect for backward compatibility
+
+2. **Type Definitions**
+   - `src/types/project.ts` → `campaign.ts` or `discovery.ts`
+   - `ProjectListItem` → `CampaignListItem`
+   - `ProjectFilters` → `CampaignFilters`
+   - `ProjectListResponse` → `CampaignListResponse`
+
+3. **Component Folders**
+   - `src/components/projects/` → `campaigns/` or `discovery/`
+   - Update all component names (15+ components)
+
+4. **Lib Files (7 files)**
+   - `src/lib/project-*.ts` → `campaign-*.ts`
+   - Update all imports (~100+ files)
+
+5. **Page Routes**
+   - `src/app/projects/` → Consider keeping or redirect
+   - URL strategy decision needed
+
+6. **Data Files**
+   - `src/data/mock-projects.ts` → `mock-campaigns.ts`
+
+7. **Tests**
+   - Update all test files referencing "project"
+
+**Blockers:**
+- Need decision on URL strategy (/projects vs /campaigns)
+- Need backward compatibility plan
+- Need deployment coordination
+
+---
+
+## 💡 LESSONS LEARNED
+
+### What Went Well ✅
+
+1. **Minimal scope** - Chỉ sửa string literals và comments
+2. **Zero risk** - Không thay đổi logic code
+3. **Quick execution** - Hoàn thành trong < 1 giờ
+4. **Build verified** - Đảm bảo không break anything
+
+### Best Practices Applied ✅
+
+1. **User-facing first** - Ưu tiên sửa UI trước
+2. **Documentation sync** - Đồng bộ docs ngay lập tức
+3. **Deprecation warnings** - Chuẩn bị cho phase sau
+4. **Build verification** - Kiểm tra ngay sau mỗi thay đổi
+
+### Recommendations for Phase 2 📋
+
+1. **Create feature branch** - Separate branch cho major refactor
+2. **Update in batches** - Group related files together
+3. **Add redirects** - Ensure backward compatibility
+4. **Update tests** - Don't forget test files
+5. **Coordinate deployment** - Plan for zero-downtime
+
+---
+
+## 📞 NEXT ACTIONS
+
+### Immediate (Completed ✅)
+- [x] Fix UI text inconsistencies
+- [x] Update documentation
+- [x] Add deprecation warnings
+- [x] Verify build success
+
+### Short-term (Next Sprint)
+- [ ] Get approval for Phase 2 scope
+- [ ] Create detailed refactor plan
+- [ ] Setup feature branch
+- [ ] Plan backward compatibility strategy
+
+### Long-term (Future)
+- [ ] Complete Phase 2 refactor
+- [ ] Update all documentation
+- [ ] Remove deprecated code
+- [ ] Final consistency audit
+
+---
+
+## ✅ SIGN-OFF
+
+**Phase 1 Status:** ✅ **COMPLETE AND VERIFIED**
+
+**Quality Checklist:**
+- [x] All user-facing text updated
+- [x] All documentation updated  
+- [x] Deprecation warnings added
+- [x] Build successful
+- [x] No breaking changes
+- [x] No new errors introduced
+- [x] Consistency verified
+
+**Approval:** Ready for deployment ✅
+
+---
+
+**Generated by:** Kiro AI Assistant  
+**Reviewed by:** Development Team  
+**Date:** 30/06/2026  
+**Version:** 1.0
+
+---
+
+## Nguồn: `docs/REFACTOR_PHASE2_PART1_COMPLETION_REPORT.md`
+
+# Báo Cáo Hoàn Thành: Giai Đoạn 2 (Phần 1) - Refactor Technical Naming
+
+**Ngày hoàn thành:** 2024  
+**Mục tiêu:** Refactor các tên kỹ thuật từ "Project" sang "Campaign" cho Type Definitions và API Routes để đồng bộ hoàn toàn với Database Schema.
+
+---
+
+## 📋 Tóm Tắt Thực Hiện
+
+### ✅ Đã Hoàn Thành
+
+#### 1. **Refactor Type Definitions Layer**
+
+**File mới tạo:**
+- `src/types/campaign.ts` (✨ NEW)
+  - `ProjectListItem` → `CampaignListItem`
+  - `ProjectFilters` → `CampaignFilters`
+  - `ProjectListResponse` → `CampaignListResponse`
+
+**File giữ lại để backward compatibility:**
+- `src/types/project.ts` (KEPT)
+  - Export lại các types cũ từ `campaign.ts` với `@deprecated` tags
+  - Đảm bảo code cũ vẫn hoạt động trong quá trình chuyển đổi
+
+#### 2. **Cập Nhật Import Statements (13 files)**
+
+Tất cả các file đã được cập nhật để import từ `@/types/campaign`:
+
+**Lib Files:**
+- ✅ `src/lib/project-cache.ts`
+- ✅ `src/lib/project-query-params.ts`
+- ✅ `src/lib/project-filters.ts`
+- ✅ `src/lib/project-helpers.ts`
+
+**Data Files:**
+- ✅ `src/data/mock-projects.ts`
+
+**Component Files:**
+- ✅ `src/components/projects/ProjectFilterChips.tsx`
+- ✅ `src/components/projects/ProjectAdvancedFilters.tsx`
+- ✅ `src/components/projects/ProjectGrid.tsx`
+- ✅ `src/components/projects/ProjectCard.tsx`
+- ✅ `src/components/campaign/CampaignHeader.tsx`
+
+**Page Files:**
+- ✅ `src/app/projects/page.tsx`
+
+**API Files:**
+- ✅ `src/app/api/projects/route.ts` (đã migrate)
+- ✅ `src/app/api/campaigns/route.ts` (✨ NEW)
+
+#### 3. **Function Renaming (Semantic Rename)**
+
+**Functions đã đổi tên:**
+- `parseProjectFilters()` → `parseCampaignFilters()` (3 references updated)
+- `sortProjects()` → `sortCampaigns()` (1 reference updated)
+- `paginateProjects()` → `paginateCampaigns()` (1 reference updated)
+
+**Functions giữ nguyên tên (chưa refactor):**
+- `applyProjectFilters()` - TODO: Rename to `applyCampaignFilters()` in Phase 2 Part 2
+
+#### 4. **Type References Update (All Variable & Parameter Types)**
+
+**Lib Layer:**
+- `src/lib/project-filters.ts`:
+  - ✅ `getActiveFilters()` signature: `ProjectFilters` → `CampaignFilters`
+  - ✅ `getFilterDisplayLabel()` parameter: `keyof ProjectFilters` → `keyof CampaignFilters`
+
+**Component Props Interfaces:**
+- `src/components/projects/ProjectFilterChips.tsx`:
+  - ✅ `ProjectFilterChipsProps.filters`: `ProjectFilters` → `CampaignFilters`
+  - ✅ `onRemoveFilter` parameter: `keyof ProjectFilters` → `keyof CampaignFilters`
+
+- `src/components/projects/ProjectAdvancedFilters.tsx`:
+  - ✅ `ProjectAdvancedFiltersProps.filters`: `ProjectFilters` → `CampaignFilters`
+  - ✅ `onApply` parameter: `Partial<ProjectFilters>` → `Partial<CampaignFilters>`
+  - ✅ `localFilters` state: `Partial<ProjectFilters>` → `Partial<CampaignFilters>`
+
+- `src/components/projects/ProjectGrid.tsx`:
+  - ✅ `ProjectGridProps.projects`: `ProjectListItem[]` → `CampaignListItem[]`
+
+- `src/components/projects/ProjectCard.tsx`:
+  - ✅ `ProjectCardProps.project`: `ProjectListItem` → `CampaignListItem`
+
+**Page Component:**
+- `src/app/projects/page.tsx`:
+  - ✅ `data` state: `ProjectListResponse` → `CampaignListResponse`
+  - ✅ `updateFilters` parameter: `Partial<ProjectFilters>` → `Partial<CampaignFilters>`
+  - ✅ `handleRemoveFilter` parameter: `keyof ProjectFilters` → `keyof CampaignFilters`
+  - ✅ `handleApplyAdvancedFilters` parameter: `Partial<ProjectFilters>` → `Partial<CampaignFilters>`
+  - ✅ `hasActiveFilters` type assertion: `keyof ProjectFilters` → `keyof CampaignFilters`
+
+**API Route:**
+- `src/app/api/campaigns/route.ts`:
+  - ✅ `items` variable: `ProjectListItem[]` → `CampaignListItem[]`
+  - ✅ `response` variable: `ProjectListResponse` → `CampaignListResponse`
+
+**Mock Data:**
+- `src/data/mock-projects.ts`:
+  - ✅ Array type: `ProjectListItem[]` → `CampaignListItem[]`
+
+#### 5. **API Route Migration**
+
+**New Endpoint Created:**
+- ✅ `src/app/api/campaigns/route.ts` (✨ NEW)
+  - Endpoint mới: `GET /api/campaigns`
+  - Logic hoàn toàn giống với endpoint cũ
+  - Comments đã cập nhật loại bỏ `@deprecated`
+
+**Backward Compatibility Proxy:**
+- ✅ `src/app/api/projects/route.ts` (CONVERTED TO PROXY)
+  - Endpoint cũ: `GET /api/projects` vẫn hoạt động
+  - Import và gọi `GET` function từ `../campaigns/route`
+  - Có `@deprecated` warning rõ ràng
+  - TODO comment cho việc xóa trong tương lai
+
+**Frontend API Call Update:**
+- ✅ `src/app/projects/page.tsx`:
+  - Đổi từ: `fetch('/api/projects?${queryString}')`
+  - Thành: `fetch('/api/campaigns?${queryString}')`
+
+---
+
+## 🧪 Kiểm Tra Kỹ Thuật
+
+### Build Status: ✅ PASS
+
+```bash
+npm run build
+```
+
+**Kết quả:**
+- ✅ Compiled successfully in 11.7s
+- ✅ TypeScript validation passed
+- ✅ No breaking errors
+- ⚠️ ESLint warnings (pre-existing, không liên quan đến refactor này)
+
+### TypeScript Errors: ✅ NONE
+
+Không có lỗi TypeScript nào liên quan đến type definitions sau khi refactor.
+
+---
+
+## 📊 Thống Kê Thay Đổi
+
+| Loại Thay Đổi | Số Lượng |
+|---------------|----------|
+| Files Created | 2 |
+| Files Modified | 13 |
+| Type Definitions Renamed | 3 |
+| Function Renamed | 3 |
+| Import Statements Updated | 13 |
+| Interface Props Updated | 5 |
+| Variable Type Annotations Updated | 11 |
+| API Endpoints Created | 1 |
+| API Endpoints Converted to Proxy | 1 |
+
+---
+
+## 🔄 Backward Compatibility
+
+### ✅ Đảm Bảo Tương Thích Ngược
+
+1. **Type Definitions:**
+   - File `src/types/project.ts` vẫn tồn tại
+   - Export lại tất cả types từ `campaign.ts`
+   - Code cũ sử dụng `@/types/project` vẫn hoạt động
+
+2. **API Endpoints:**
+   - `/api/projects` vẫn hoạt động thông qua proxy
+   - Trả về response format giống hệt như trước
+   - Clients cũ không bị break
+
+3. **Function Names:**
+   - Các functions cũ vẫn accessible thông qua backward compat exports
+   - Không có breaking changes trong public API
+
+---
+
+## 📝 TODO: Phase 2 (Part 2) - Refactor Function Names
+
+### Functions cần đổi tên:
+
+**In `src/lib/project-filters.ts`:**
+- [ ] `applyProjectFilters()` → `applyCampaignFilters()`
+
+**In `src/lib/project-helpers.ts`:**
+- [ ] `looksLikeProjectCode()` → `looksLikeCampaignCode()` (nếu có)
+- [ ] Các helper functions khác liên quan
+
+**In component files:**
+- [ ] Review và đổi tên các internal helper functions nếu cần
+
+### Files/Folders cần đổi tên:
+
+**Folders:**
+- [ ] `src/components/projects/` → `src/components/campaigns/` (hoặc giữ nguyên)
+- [ ] Cân nhắc: Folder `projects` có thể giữ vì đó là tên page route `/projects`
+
+**Lib files:**
+- [ ] `src/lib/project-filters.ts` → `src/lib/campaign-filters.ts`
+- [ ] `src/lib/project-query-params.ts` → `src/lib/campaign-query-params.ts`
+- [ ] `src/lib/project-cache.ts` → `src/lib/campaign-cache.ts`
+- [ ] `src/lib/project-helpers.ts` → `src/lib/campaign-helpers.ts`
+
+**Component files:**
+- [ ] Review tất cả `Project*` component names
+- [ ] Cân nhắc đổi tên hoặc giữ nguyên (vì component name không ảnh hưởng runtime)
+
+---
+
+## 🎯 Kết Luận
+
+**Status:** ✅ **HOÀN THÀNH THÀNH CÔNG**
+
+Giai đoạn 2 (Phần 1) đã hoàn thành với:
+- ✅ Zero breaking changes
+- ✅ Build pass
+- ✅ Backward compatibility maintained
+- ✅ Type system fully refactored từ Project → Campaign
+- ✅ API routes migrated với proxy cho tương thích ngược
+- ✅ Frontend đã chuyển sang sử dụng endpoint mới
+
+### Lợi Ích Đạt Được:
+
+1. **Consistency với Database:** Code types giờ đã khớp 100% với tên bảng `campaigns`
+2. **Type Safety:** TypeScript compiler đảm bảo không có mismatched types
+3. **Maintainability:** Dễ hiểu hơn khi đọc code (campaigns ở mọi nơi)
+4. **No Downtime:** Old API endpoint vẫn hoạt động, không gián đoạn service
+
+### Giai Đoạn Tiếp Theo:
+
+**Phase 2 Part 2** sẽ tập trung vào:
+- Refactor function names (low priority, không urgent)
+- Cân nhắc đổi tên files/folders (optional)
+- Review và cleanup deprecated exports
+
+---
+
+**Người thực hiện:** Kiro AI Assistant  
+**Review:** Đang chờ user review
+
+---
+
+## Nguồn: `docs/REFACTOR_PHASE2_PART2_COMPLETION_REPORT.md`
+
+# Báo Cáo Hoàn Thành: Giai đoạn 2 (Phần 2) - Refactor Function Names & File Renaming
+
+**Ngày hoàn thành:** 2024  
+**Mục tiêu:** Refactor các tên hàm logic và đổi tên file/folder từ "Project" sang "Campaign" ở tầng Utility (src/lib) để đồng bộ hoàn toàn với Database Schema.
+
+---
+
+## 📋 Tóm Tắt Thực Hiện
+
+### ✅ Đã Hoàn Thành
+
+#### 1. **Semantic Rename Functions (Đổi Tên Hàm Logic)**
+
+**Function đã đổi tên bằng Semantic Rename Tool:**
+- ✅ `applyProjectFilters()` → `applyCampaignFilters()` (1 reference updated automatically)
+  - File: `src/lib/campaign-filters.ts` (renamed from project-filters.ts)
+
+**Functions trong project-helpers.ts:**
+- ✅ Đã kiểm tra - Không cần đổi tên vì đã đúng:
+  - `calculateCompletionState()` ✓
+  - `getCompletionStateLabel()` ✓
+  - `getCampaignTypeLabel()` ✓
+  - `getStatusLabel()` ✓
+  - `getCompletionStateColor()` ✓
+  - `matchesCampaignCode()` ✓
+  - `looksLikeCampaignCode()` ✓
+  - `getDaysRemaining()` ✓
+  - `formatDaysRemaining()` ✓
+  - All helper functions already use "Campaign" terminology ✓
+
+#### 2. **File System Renaming (Đổi Tên File & Folder)**
+
+**Lib Files Renamed (4 files):**
+- ✅ `src/lib/project-filters.ts` → `src/lib/campaign-filters.ts`
+- ✅ `src/lib/project-query-params.ts` → `src/lib/campaign-query-params.ts`
+- ✅ `src/lib/project-cache.ts` → `src/lib/campaign-cache.ts`
+- ✅ `src/lib/project-helpers.ts` → `src/lib/campaign-helpers.ts`
+
+**Data Files Renamed (1 file):**
+- ✅ `src/data/mock-projects.ts` → `src/data/mock-campaigns.ts`
+
+**Total Files Renamed:** 5
+
+#### 3. **Import Path Updates (All Files Consuming Lib)**
+
+**Files Updated to Use New Import Paths:**
+
+**Component Files:**
+- ✅ `src/components/dashboard/CreatorCampaignCard.tsx`
+  - `@/lib/project-helpers` → `@/lib/campaign-helpers`
+
+- ✅ `src/components/projects/ProjectFilterChips.tsx`
+  - `@/lib/project-filters` → `@/lib/campaign-filters`
+
+- ✅ `src/components/projects/ProjectCard.tsx`
+  - `@/lib/project-helpers` → `@/lib/campaign-helpers`
+
+- ✅ `src/components/profile/ProfileTabs.tsx`
+  - `@/lib/project-helpers` → `@/lib/campaign-helpers`
+
+- ✅ `src/components/campaign/CampaignHeader.tsx`
+  - `@/lib/project-helpers` → `@/lib/campaign-helpers`
+
+**Page Files:**
+- ✅ `src/app/projects/page.tsx`
+  - `@/lib/project-query-params` → `@/lib/campaign-query-params`
+  - `@/lib/project-cache` → `@/lib/campaign-cache`
+  - `projectCache` → `campaignCache` (variable usage)
+
+- ✅ `src/app/profile/[userId]/page.tsx`
+  - `@/lib/project-helpers` → `@/lib/campaign-helpers`
+
+- ✅ `src/app/campaigns/[slug]/page.tsx`
+  - `@/lib/project-helpers` → `@/lib/campaign-helpers`
+
+- ✅ `src/app/campaigns/page.tsx`
+  - `@/lib/project-helpers` → `@/lib/campaign-helpers`
+
+**API Files:**
+- ✅ `src/app/api/campaigns/route.ts`
+  - `@/lib/project-query-params` → `@/lib/campaign-query-params`
+  - `@/lib/project-helpers` → `@/lib/campaign-helpers`
+
+**Internal Lib Files (Self-imports):**
+- ✅ `src/lib/campaign-filters.ts`
+  - `./project-helpers` → `./campaign-helpers`
+
+**Total Import Statements Updated:** 10+
+
+#### 4. **Class & Variable Renaming**
+
+**In `src/lib/campaign-cache.ts`:**
+- ✅ Class name: `ProjectCache` → `CampaignCache`
+- ✅ Export variable: `projectCache` → `campaignCache`
+
+**In `src/data/mock-campaigns.ts`:**
+- ✅ Export variable: `mockProjects` → `mockCampaigns`
+
+**Variable Usage Updated:**
+- ✅ `src/app/projects/page.tsx`:
+  - `projectCache.get()` → `campaignCache.get()`
+  - `projectCache.set()` → `campaignCache.set()`
+
+#### 5. **Comment & Documentation Updates**
+
+**Header Comments Updated:**
+- ✅ `src/lib/campaign-filters.ts`:
+  - "Project Filtering and Sorting Logic" → "Campaign Filtering and Sorting Logic"
+  - "Apply all filters to project list" → "Apply all filters to campaign list"
+
+- ✅ `src/lib/campaign-helpers.ts`:
+  - "Project Helper Functions" → "Campaign Helper Functions"
+
+- ✅ `src/lib/campaign-query-params.ts`:
+  - "Query Params Helpers for Project Filters" → "Query Params Helpers for Campaign Filters"
+
+- ✅ `src/lib/campaign-cache.ts`:
+  - "Simple in-memory cache for project data" → "Simple in-memory cache for campaign data"
+
+- ✅ `src/data/mock-campaigns.ts`:
+  - "Mock Project Data for Testing" → "Mock Campaign Data for Testing"
+
+---
+
+## 🧪 Kiểm Tra Kỹ Thuật
+
+### Build Status: ✅ PASS
+
+```bash
+npm run build
+```
+
+**Kết quả:**
+- ✅ Compiled successfully in 13.3s
+- ✅ TypeScript validation passed
+- ✅ No breaking errors
+- ✅ All imports resolved correctly
+- ⚠️ ESLint warnings (pre-existing, không liên quan đến refactor này)
+
+### TypeScript Errors: ✅ NONE
+
+Không có lỗi TypeScript nào sau khi refactor functions và file renaming.
+
+---
+
+## 📊 Thống Kê Thay Đổi
+
+| Loại Thay Đổi | Số Lượng |
+|---------------|----------|
+| Files Renamed | 5 |
+| Functions Renamed (Semantic) | 1 |
+| Class Renamed | 1 |
+| Export Variables Renamed | 2 |
+| Import Statements Updated | 10+ |
+| Variable Usages Updated | 2 |
+| Comment Headers Updated | 5 |
+| Internal Lib Imports Updated | 1 |
+
+---
+
+## 🔄 Backward Compatibility
+
+### ⚠️ Breaking Changes (Expected & Intentional)
+
+**Files Removed (Renamed):**
+- ❌ `src/lib/project-filters.ts` (now `campaign-filters.ts`)
+- ❌ `src/lib/project-query-params.ts` (now `campaign-query-params.ts`)
+- ❌ `src/lib/project-cache.ts` (now `campaign-cache.ts`)
+- ❌ `src/lib/project-helpers.ts` (now `campaign-helpers.ts`)
+- ❌ `src/data/mock-projects.ts` (now `mock-campaigns.ts`)
+
+**Exports Changed:**
+- ❌ `applyProjectFilters()` → `applyCampaignFilters()`
+- ❌ `projectCache` → `campaignCache`
+- ❌ `mockProjects` → `mockCampaigns`
+
+**Lưu ý quan trọng:**
+- Đây là breaking changes có chủ đích, không có backward compatibility
+- Tất cả internal usages đã được cập nhật
+- Build pass nghĩa là không còn reference nào tới tên cũ
+
+---
+
+## 📝 Files Changed Summary
+
+### Created/Renamed Files (5):
+1. ✅ `src/lib/campaign-filters.ts` (from project-filters.ts)
+2. ✅ `src/lib/campaign-query-params.ts` (from project-query-params.ts)
+3. ✅ `src/lib/campaign-cache.ts` (from project-cache.ts)
+4. ✅ `src/lib/campaign-helpers.ts` (from project-helpers.ts)
+5. ✅ `src/data/mock-campaigns.ts` (from mock-projects.ts)
+
+### Modified Files (10+):
+1. ✅ `src/components/dashboard/CreatorCampaignCard.tsx`
+2. ✅ `src/components/projects/ProjectFilterChips.tsx`
+3. ✅ `src/components/projects/ProjectCard.tsx`
+4. ✅ `src/components/profile/ProfileTabs.tsx`
+5. ✅ `src/components/campaign/CampaignHeader.tsx`
+6. ✅ `src/app/projects/page.tsx`
+7. ✅ `src/app/profile/[userId]/page.tsx`
+8. ✅ `src/app/campaigns/[slug]/page.tsx`
+9. ✅ `src/app/campaigns/page.tsx`
+10. ✅ `src/app/api/campaigns/route.ts`
+11. ✅ `src/lib/campaign-filters.ts` (internal import)
+
+---
+
+## 🎯 Kết Luận
+
+**Status:** ✅ **HOÀN THÀNH THÀNH CÔNG**
+
+Giai đoạn 2 (Phần 2) đã hoàn thành với:
+- ✅ All lib files renamed successfully
+- ✅ All imports updated correctly
+- ✅ All function names refactored
+- ✅ All class & variable names updated
+- ✅ Build pass
+- ✅ Zero TypeScript errors
+
+### Lợi Ích Đạt Được:
+
+1. **Complete Consistency:** Toàn bộ codebase giờ sử dụng terminology "Campaign" đồng nhất
+2. **Better Code Organization:** File names phản ánh đúng business domain
+3. **Maintainability:** Dễ hiểu hơn khi đọc code, không còn confusion giữa Project vs Campaign
+4. **Clean Architecture:** Lib layer giờ có naming convention rõ ràng và nhất quán
+
+### So Sánh Trước & Sau:
+
+**TRƯỚC:**
+```
+src/lib/project-filters.ts        → export applyProjectFilters()
+src/lib/project-query-params.ts   → export parseCampaignFilters()
+src/lib/project-cache.ts          → export projectCache
+src/lib/project-helpers.ts        → export getCampaignTypeLabel()
+src/data/mock-projects.ts         → export mockProjects
+```
+
+**SAU:**
+```
+src/lib/campaign-filters.ts       → export applyCampaignFilters()
+src/lib/campaign-query-params.ts  → export parseCampaignFilters()
+src/lib/campaign-cache.ts         → export campaignCache
+src/lib/campaign-helpers.ts       → export getCampaignTypeLabel()
+src/data/mock-campaigns.ts        → export mockCampaigns
+```
+
+### Giai Đoạn Hoàn Tất:
+
+**✅ Phase 1 (UI Text & Documentation):** DONE  
+**✅ Phase 2 Part 1 (Types & API Routes):** DONE  
+**✅ Phase 2 Part 2 (Functions & File Renaming):** DONE  
+
+### Next Steps (Optional):
+
+**Phase 3 (Component Names)** - Optional, không urgent:
+- Cân nhắc đổi tên component files từ `Project*` thành `Campaign*`
+- Ví dụ: `ProjectCard.tsx` → `CampaignCard.tsx`
+- **Lưu ý:** Đây là low-priority vì component names không ảnh hưởng runtime
+
+---
+
+**Người thực hiện:** Kiro AI Assistant  
+**Review:** Đang chờ user review
+
+---
+
+## Nguồn: `docs/REFACTOR_PHASE3_COMPLETION_REPORT.md`
+
+# Báo Cáo Hoàn Thành: Giai đoạn 3 (Giai đoạn Cuối) - Component Folder Renaming & Final Cleanup
+
+**Ngày hoàn thành:** 2024  
+**Mục tiêu:** Di chuyển và đổi tên thư mục Components từ "projects" sang "campaigns", refactor tên Component, và dọn dẹp hoàn toàn các file deprecated để đạt Single Source of Truth.
+
+---
+
+## 📋 Tóm Tắt Thực Hiện
+
+### ✅ Đã Hoàn Thành
+
+#### 1. **Di Chuyển Folder Components (projects → campaigns)**
+
+**Folder đã di chuyển:**
+- ✅ `src/components/projects/` → `src/components/campaigns/`
+
+**10 files đã được di chuyển và đổi tên:**
+
+| Old File Name | New File Name | Status |
+|--------------|---------------|--------|
+| `ProjectCard.tsx` | `CampaignCard.tsx` | ✅ |
+| `ProjectGrid.tsx` | `CampaignGrid.tsx` | ✅ |
+| `ProjectFilterChips.tsx` | `CampaignFilterChips.tsx` | ✅ |
+| `ProjectAdvancedFilters.tsx` | `CampaignAdvancedFilters.tsx` | ✅ |
+| `ProjectSearchBar.tsx` | `CampaignSearchBar.tsx` | ✅ |
+| `ProjectSortSelect.tsx` | `CampaignSortSelect.tsx` | ✅ |
+| `ProjectCardSkeleton.tsx` | `CampaignCardSkeleton.tsx` | ✅ |
+| `ProjectEmptyState.tsx` | `CampaignEmptyState.tsx` | ✅ |
+| `ProjectResultsHeader.tsx` | `CampaignResultsHeader.tsx` | ✅ |
+| `ProjectPagination.tsx` | `CampaignPagination.tsx` | ✅ |
+
+#### 2. **Refactor Component Names (Interfaces & Exports)**
+
+**Interfaces đã đổi tên:**
+- ✅ `ProjectCardProps` → `CampaignCardProps`
+- ✅ `ProjectGridProps` → `CampaignGridProps`
+- ✅ `ProjectFilterChipsProps` → `CampaignFilterChipsProps`
+- ✅ `ProjectAdvancedFiltersProps` → `CampaignAdvancedFiltersProps`
+- ✅ `ProjectSearchBarProps` → `CampaignSearchBarProps`
+- ✅ `ProjectSortSelectProps` → `CampaignSortSelectProps`
+- ✅ `ProjectEmptyStateProps` → `CampaignEmptyStateProps`
+- ✅ `ProjectResultsHeaderProps` → `CampaignResultsHeaderProps`
+- ✅ `ProjectPaginationProps` → `CampaignPaginationProps`
+
+**Export Functions đã đổi tên:**
+- ✅ `ProjectCard` → `CampaignCard`
+- ✅ `ProjectGrid` → `CampaignGrid`
+- ✅ `ProjectFilterChips` → `CampaignFilterChips`
+- ✅ `ProjectAdvancedFilters` → `CampaignAdvancedFilters`
+- ✅ `ProjectSearchBar` → `CampaignSearchBar`
+- ✅ `ProjectSortSelect` → `CampaignSortSelect`
+- ✅ `ProjectCardSkeleton` → `CampaignCardSkeleton`
+- ✅ `ProjectGridSkeleton` → `CampaignGridSkeleton`
+- ✅ `ProjectEmptyState` → `CampaignEmptyState`
+- ✅ `ProjectResultsHeader` → `CampaignResultsHeader`
+- ✅ `ProjectPagination` → `CampaignPagination`
+
+#### 3. **Cập Nhật Import Paths (All Consuming Files)**
+
+**Files đã cập nhật import paths:**
+- ✅ `src/app/projects/page.tsx` (10 imports updated)
+  - All imports changed from `@/components/projects/` to `@/components/campaigns/`
+  
+**Internal imports updated:**
+- ✅ `src/components/campaigns/CampaignGrid.tsx`
+  - Import `./ProjectCard` → `./CampaignCard`
+  
+- ✅ `src/components/campaigns/CampaignCardSkeleton.tsx`
+  - Usage of `ProjectCardSkeleton` → `CampaignCardSkeleton` in `CampaignGridSkeleton`
+
+#### 4. **Cleanup Deprecated Files (Single Source of Truth)**
+
+**Files đã xóa:**
+- ✅ `src/types/project.ts` (Deprecated backward compatibility file)
+
+**Verification:**
+- ✅ Checked for remaining imports from `@/types/project` - **NONE FOUND**
+- ✅ Checked for remaining imports from `@/components/projects/` - **NONE FOUND**
+
+---
+
+## 🧪 Kiểm Tra Kỹ Thuật
+
+### Build Status: ✅ PASS
+
+```bash
+npm run build
+```
+
+**Kết quả:**
+- ✅ Compiled successfully in 13.4s
+- ✅ TypeScript validation passed
+- ✅ No breaking errors
+- ✅ All imports resolved correctly
+- ⚠️ ESLint warnings (pre-existing, không liên quan đến refactor này)
+
+### TypeScript Errors: ✅ NONE
+
+Không có lỗi TypeScript nào sau khi refactor components và cleanup deprecated files.
+
+---
+
+## 📊 Thống Kê Thay Đổi
+
+| Loại Thay Đổi | Số Lượng |
+|---------------|----------|
+| Component Files Moved & Renamed | 10 |
+| Interfaces Renamed | 9 |
+| Export Functions Renamed | 11 |
+| Import Paths Updated | 11 |
+| Deprecated Files Deleted | 1 |
+| Internal Component Imports Updated | 2 |
+
+---
+
+## 🔄 Breaking Changes
+
+### ⚠️ Expected Breaking Changes (Intentional)
+
+**Folder Removed:**
+- ❌ `src/components/projects/` (now `src/components/campaigns/`)
+
+**Deprecated File Removed:**
+- ❌ `src/types/project.ts` (completely removed, no backward compatibility)
+
+**Component Names Changed:**
+- All `Project*` components renamed to `Campaign*`
+- All consumers updated to use new names
+
+**Lưu ý:**
+- Đây là breaking changes có chủ đích
+- Tất cả internal usages đã được cập nhật
+- Build pass nghĩa là không còn reference nào tới tên cũ
+
+---
+
+## 📝 Files Changed Summary
+
+### Created/Moved Files (10):
+1. ✅ `src/components/campaigns/CampaignCard.tsx` (from ProjectCard.tsx)
+2. ✅ `src/components/campaigns/CampaignGrid.tsx` (from ProjectGrid.tsx)
+3. ✅ `src/components/campaigns/CampaignFilterChips.tsx` (from ProjectFilterChips.tsx)
+4. ✅ `src/components/campaigns/CampaignAdvancedFilters.tsx` (from ProjectAdvancedFilters.tsx)
+5. ✅ `src/components/campaigns/CampaignSearchBar.tsx` (from ProjectSearchBar.tsx)
+6. ✅ `src/components/campaigns/CampaignSortSelect.tsx` (from ProjectSortSelect.tsx)
+7. ✅ `src/components/campaigns/CampaignCardSkeleton.tsx` (from ProjectCardSkeleton.tsx)
+8. ✅ `src/components/campaigns/CampaignEmptyState.tsx` (from ProjectEmptyState.tsx)
+9. ✅ `src/components/campaigns/CampaignResultsHeader.tsx` (from ProjectResultsHeader.tsx)
+10. ✅ `src/components/campaigns/CampaignPagination.tsx` (from ProjectPagination.tsx)
+
+### Modified Files (1):
+1. ✅ `src/app/projects/page.tsx` (all component imports and usages updated)
+
+### Deleted Files (1):
+1. ✅ `src/types/project.ts` (deprecated file removed)
+
+---
+
+## 🎯 Kết Luận
+
+**Status:** ✅ **HOÀN THÀNH THÀNH CÔNG**
+
+Giai đoạn 3 (Giai đoạn Cuối) đã hoàn thành với:
+- ✅ All component files moved and renamed successfully
+- ✅ All component names refactored (interfaces & exports)
+- ✅ All import paths updated correctly
+- ✅ Deprecated files completely removed
+- ✅ Build pass
+- ✅ Zero TypeScript errors
+- ✅ **Single Source of Truth achieved**
+
+### Lợi Ích Đạt Được:
+
+1. **Complete Naming Consistency:** 
+   - Toàn bộ hệ thống giờ sử dụng "Campaign" terminology đồng nhất 100%
+   - From database → types → lib → components → pages
+
+2. **Clean Architecture:** 
+   - Component folder structure phản ánh đúng business domain
+   - No more confusion between Project vs Campaign
+   - Easier onboarding for new developers
+
+3. **Single Source of Truth:** 
+   - Removed all backward compatibility layers
+   - No deprecated files
+   - Clean codebase ready for production
+
+4. **Maintainability:**
+   - Easier to understand codebase
+   - Clear naming conventions throughout
+   - Reduced cognitive load when reading code
+
+### So Sánh Toàn Bộ Refactor:
+
+**TRƯỚC (Ban đầu):**
+```
+Database:           campaigns table
+Types:             @/types/project.ts (ProjectListItem, ProjectFilters)
+Lib:               @/lib/project-filters.ts (applyProjectFilters)
+Components:        @/components/projects/ProjectCard.tsx
+UI Text:           "Dự án đã tạo"
+```
+
+**SAU (Hoàn thành):**
+```
+Database:           campaigns table ✅
+Types:             @/types/campaign.ts (CampaignListItem, CampaignFilters) ✅
+Lib:               @/lib/campaign-filters.ts (applyCampaignFilters) ✅
+Components:        @/components/campaigns/CampaignCard.tsx ✅
+UI Text:           "Chiến dịch đã tạo" ✅
+```
+
+### Giai Đoạn Hoàn Tất - Tổng Kết:
+
+**✅ Phase 1 (UI Text & Documentation):** DONE  
+**✅ Phase 2 Part 1 (Types & API Routes):** DONE  
+**✅ Phase 2 Part 2 (Functions & File Renaming):** DONE  
+**✅ Phase 3 (Components & Final Cleanup):** DONE  
+
+### 🎉 **REFACTOR HOÀN TOÀN THÀNH CÔNG!**
+
+Hệ thống đã được refactor hoàn toàn từ "Project" sang "Campaign" terminology, đồng bộ 100% với Database Schema. Không còn backward compatibility code, không còn deprecated files. Clean, consistent, và production-ready!
+
+---
+
+**Người thực hiện:** Kiro AI Assistant  
+**Review:** Đang chờ user review  
+**Status:** ✅ **PRODUCTION READY**
+
+---
+
+## Nguồn: `docs/SEPAY_INTEGRATION.md`
+
+# Tích hợp SePay Payment Gateway
+
+## Tổng quan
+
+SePay là cổng thanh toán hỗ trợ nhiều phương thức thanh toán bao gồm:
+- Chuyển khoản ngân hàng qua QR code
+- NAPAS QR
+- Thẻ quốc tế
+
+## Cấu hình
+
+### 1. Biến môi trường
+
+Thêm các biến sau vào file `.env`:
+
+```env
+# SePay Payment Gateway
+SEPAY_MERCHANT_ID="SP-TEST-NQ27239A"           # Merchant ID từ SePay
+SEPAY_SECRET_KEY="spsk_test_w25k96kmb1ZgHQGVBfYDqoWk4giLHaMB"  # Secret Key từ SePay
+SEPAY_ENV="sandbox"                             # sandbox hoặc production
+```
+
+### 2. Lấy thông tin tích hợp
+
+#### Sandbox (Test)
+1. Đăng ký tài khoản tại: https://my.sepay.vn/register
+2. Vào mục "Cổng thanh toán" → "Đăng ký"
+3. Chọn "Quét mã QR chuyển khoản ngân hàng" → "Bắt đầu ngay"
+4. Chọn "Sandbox" và làm theo hướng dẫn
+5. Sao chép `MERCHANT ID` và `SECRET KEY`
+
+#### Production (Live)
+1. Hoàn thành tích hợp và test ở Sandbox
+2. Liên kết tài khoản ngân hàng thật
+3. Chuyển sang Production từ dashboard
+4. Cập nhật `MERCHANT ID` và `SECRET KEY` mới
+5. Đổi `SEPAY_ENV` thành `production`
+
+### 3. Cấu hình IPN (Webhook)
+
+Cấu hình IPN URL trong SePay dashboard:
+
+```
+Production: https://yourdomain.com/api/payment/sepay/webhook
+Development: https://your-ngrok-url.ngrok.io/api/payment/sepay/webhook
+```
+
+**Lưu ý:** Để test webhook ở local, sử dụng ngrok hoặc localtunnel:
+```bash
+npx ngrok http 3000
+```
+
+## Cấu trúc code
+
+### 1. Helper Library (`src/lib/payment/sepay.ts`)
+
+Thư viện helper xử lý:
+- Tạo chữ ký HMAC SHA256
+- Verify signature từ IPN
+- Tạo checkout form fields
+- Generate HTML form (optional)
+
+### 2. API Routes
+
+#### Create Payment (`src/app/api/payment/sepay/create/route.ts`)
+
+Tạo giao dịch thanh toán mới:
+
+```typescript
+POST /api/payment/sepay/create
+
+Body:
+{
+  "amount": 100000,
+  "campaignId": "campaign-id",
+  "tipAmount": 10000,
+  "vatAmount": 0,
+  "guestEmail": "user@example.com",
+  "displayName": "Nguyen Van A",
+  "isAnonymous": false,
+  "ipAddress": "1.2.3.4"
+}
+
+Response:
+{
+  "checkoutUrl": "https://pay-sandbox.sepay.vn/v1/checkout/init",
+  "checkoutFields": {
+    "merchant": "SP-TEST-...",
+    "currency": "VND",
+    "order_amount": "110000",
+    "operation": "PURCHASE",
+    "order_description": "...",
+    "order_invoice_number": "INV-...",
+    "success_url": "...",
+    "error_url": "...",
+    "cancel_url": "...",
+    "signature": "..."
+  },
+  "pledgeId": "pledge-id",
+  "transactionId": "SEPAY-..."
+}
+```
+
+#### Webhook/IPN (`src/app/api/payment/sepay/webhook/route.ts`)
+
+Nhận thông báo từ SePay khi thanh toán thành công/thất bại:
+
+```typescript
+POST /api/payment/sepay/webhook
+
+Headers:
+{
+  "Content-Type": "application/json",
+  "x-sepay-signature": "optional_signature"
+}
+
+Body (từ SePay):
+{
+  "timestamp": 1759134682,
+  "notification_type": "ORDER_PAID",
+  "order": {
+    "id": "e2c195be-c721-47eb-b323-99ab24e52d85",
+    "order_status": "CAPTURED",
+    "order_amount": "100000.00",
+    "order_invoice_number": "INV-1759134677",
+    ...
+  },
+  "transaction": {
+    "id": "384c66dd-41e6-4316-a544-b4141682595c",
+    "transaction_status": "APPROVED",
+    "transaction_id": "68da43da2d9de",
+    ...
+  }
+}
+```
+
+### 3. Frontend Integration
+
+#### CheckoutButton Component
+
+Component đã được cập nhật để hỗ trợ SePay:
+
+```tsx
+// src/app/campaigns/[slug]/CheckoutButton.tsx
+
+const handleCreatePayment = async (method: string) => {
+  const res = await fetch(`/api/payment/${method.toLowerCase()}/create`, {
+    method: "POST",
+    body: JSON.stringify({ amount, campaignId, ... })
+  });
+  
+  const data = await res.json();
+  
+  // SePay trả về checkoutFields, cần submit form
+  if (data.checkoutFields && data.checkoutUrl) {
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = data.checkoutUrl;
+    
+    Object.entries(data.checkoutFields).forEach(([key, value]) => {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = key;
+      input.value = String(value);
+      form.appendChild(input);
+    });
+    
+    document.body.appendChild(form);
+    form.submit();
+  }
+};
+```
+
+## Luồng thanh toán
+
+```mermaid
+sequenceDiagram
+    participant User as Người dùng
+    participant Frontend as Frontend
+    participant API as API Create
+    participant SePay as SePay Gateway
+    participant Webhook as Webhook Handler
+    participant DB as Database
+
+    User->>Frontend: Chọn SePay & Submit
+    Frontend->>API: POST /api/payment/sepay/create
+    API->>DB: Tạo Pledge (PENDING)
+    API->>API: Generate signature
+    API-->>Frontend: Return checkoutFields + URL
+    Frontend->>Frontend: Create & submit form
+    Frontend->>SePay: POST form to SePay
+    SePay-->>User: Hiển thị QR code
+    User->>SePay: Quét QR & thanh toán
+    SePay->>Webhook: POST IPN notification
+    Webhook->>Webhook: Verify signature
+    Webhook->>DB: Update Pledge (SUCCESS)
+    Webhook->>DB: Update Campaign amount
+    Webhook-->>SePay: Return 200 OK
+    SePay-->>User: Redirect to success_url
+```
+
+## Testing
+
+### 1. Test tạo thanh toán
+
+```bash
+curl -X POST http://localhost:3000/api/payment/sepay/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 100000,
+    "campaignId": "your-campaign-id",
+    "tipAmount": 10000
+  }'
+```
+
+### 2. Test webhook (local)
+
+Sử dụng ngrok để expose local server:
+
+```bash
+# Terminal 1: Start dev server
+npm run dev
+
+# Terminal 2: Start ngrok
+npx ngrok http 3000
+
+# Cập nhật IPN URL trong SePay dashboard với ngrok URL
+# VD: https://abc123.ngrok.io/api/payment/sepay/webhook
+```
+
+### 3. Test webhook manually
+
+```bash
+curl -X POST http://localhost:3000/api/payment/sepay/webhook \
+  -H "Content-Type: application/json" \
+  -d '{
+    "timestamp": 1759134682,
+    "notification_type": "ORDER_PAID",
+    "order": {
+      "id": "test-order-id",
+      "order_status": "CAPTURED",
+      "order_amount": "100000.00",
+      "order_invoice_number": "INV-pledgeid-123456"
+    },
+    "transaction": {
+      "id": "test-transaction-id",
+      "transaction_status": "APPROVED",
+      "transaction_id": "test-txn-123"
+    }
+  }'
+```
+
+## Xử lý lỗi
+
+### 1. Signature không hợp lệ
+
+```
+[SEPAY WEBHOOK] Invalid signature
+```
+
+**Giải pháp:**
+- Kiểm tra `SEPAY_SECRET_KEY` trong `.env`
+- Đảm bảo secret key khớp với dashboard
+- Kiểm tra format của signature
+
+### 2. Pledge không tìm thấy
+
+```
+[SEPAY WEBHOOK] Pledge not found for invoice: INV-...
+```
+
+**Giải pháp:**
+- Kiểm tra format của `order_invoice_number`
+- Đảm bảo pledge đã được tạo trước khi webhook được gọi
+- Kiểm tra database có pledge với ID tương ứng
+
+### 3. Amount mismatch
+
+```
+[SEPAY WEBHOOK] Amount mismatch: expected 100000, received 90000
+```
+
+**Giải pháp:**
+- Kiểm tra logic tính toán `totalAmount`
+- Đảm bảo `tipAmount` và `vatAmount` được tính đúng
+- Kiểm tra currency (VND)
+
+## Go Live Checklist
+
+- [ ] Test đầy đủ ở Sandbox
+- [ ] Liên kết tài khoản ngân hàng thật
+- [ ] Cập nhật `SEPAY_MERCHANT_ID` production
+- [ ] Cập nhật `SEPAY_SECRET_KEY` production
+- [ ] Đổi `SEPAY_ENV` thành `production`
+- [ ] Cập nhật IPN URL thành production URL
+- [ ] Cập nhật callback URLs (success_url, error_url, cancel_url)
+- [ ] Test webhook với production credentials
+- [ ] Monitor logs trong 24h đầu
+
+## Tài liệu tham khảo
+
+- [SePay Documentation](https://docs.sepay.vn)
+- [SePay Dashboard](https://my.sepay.vn)
+- [SePay Support](https://sepay.vn/support)
+
+## Troubleshooting
+
+### Webhook không được gọi
+
+1. Kiểm tra IPN URL đã cấu hình đúng chưa
+2. Kiểm tra server có thể truy cập từ internet không (dùng ngrok cho local)
+3. Kiểm tra logs trong SePay dashboard
+4. Đảm bảo endpoint trả về status 200
+
+### Thanh toán thành công nhưng pledge vẫn PENDING
+
+1. Kiểm tra webhook có được gọi không (check logs)
+2. Kiểm tra signature verification
+3. Kiểm tra logic xử lý trong webhook handler
+4. Kiểm tra database transaction
+
+### Form không submit được
+
+1. Kiểm tra `checkoutFields` có đầy đủ không
+2. Kiểm tra `signature` có được generate đúng không
+3. Kiểm tra console browser có lỗi không
+4. Thử submit form manually để debug
+
+---
+
+## Nguồn: `docs/SEPAY_QUICKSTART.md`
+
+# SePay - Hướng dẫn nhanh
+
+## Bước 1: Lấy thông tin tích hợp
+
+### Sandbox (Test)
+
+1. Truy cập: https://my.sepay.vn/register
+2. Đăng ký tài khoản mới
+3. Vào **Cổng thanh toán** → **Đăng ký**
+4. Chọn **Quét mã QR chuyển khoản ngân hàng** → **Bắt đầu ngay**
+5. Chọn **Sandbox** và làm theo hướng dẫn
+6. Sao chép thông tin:
+   - `MERCHANT ID`: SP-TEST-XXXXXXXX
+   - `SECRET KEY`: spsk_test_xxxxxxxxxxxx
+
+## Bước 2: Cấu hình môi trường
+
+Thêm vào file `.env`:
+
+```env
+# SePay Payment Gateway
+SEPAY_MERCHANT_ID="SP-TEST-NQ27239A"
+SEPAY_SECRET_KEY="spsk_test_w25k96kmb1ZgHQGVBfYDqoWk4giLHaMB"
+SEPAY_ENV="sandbox"
+```
+
+## Bước 3: Cấu hình IPN (Webhook)
+
+### Development (Local)
+
+1. Cài đặt ngrok:
+```bash
+npm install -g ngrok
+# hoặc
+npx ngrok http 3000
+```
+
+2. Chạy ngrok:
+```bash
+ngrok http 3000
+```
+
+3. Copy URL từ ngrok (VD: `https://abc123.ngrok.io`)
+
+4. Vào SePay dashboard → Cấu hình IPN:
+```
+https://abc123.ngrok.io/api/payment/sepay/webhook
+```
+
+### Production
+
+Cấu hình IPN URL:
+```
+https://yourdomain.com/api/payment/sepay/webhook
+```
+
+## Bước 4: Test tích hợp
+
+### Test 1: Chạy script test
+
+```bash
+npx tsx scripts/test-sepay.ts
+```
+
+Kết quả mong đợi:
+```
+✅ SePay client initialized successfully
+✅ Checkout fields generated successfully
+✅ Checkout URL: https://pay-sandbox.sepay.vn/v1/checkout/init
+✅ All tests passed!
+```
+
+### Test 2: Test qua UI
+
+1. Start dev server:
+```bash
+npm run dev
+```
+
+2. Truy cập một campaign: `http://localhost:3000/campaigns/[slug]`
+
+3. Click **Ủng hộ dự án ngay**
+
+4. Chọn số tiền và điền thông tin
+
+5. Chọn **SePay (QR Banking)**
+
+6. Bạn sẽ được chuyển đến trang thanh toán SePay
+
+7. Quét QR code để thanh toán (sandbox)
+
+### Test 3: Kiểm tra webhook
+
+1. Mở terminal mới và theo dõi logs:
+```bash
+npm run dev
+```
+
+2. Sau khi thanh toán, kiểm tra logs:
+```
+[SEPAY WEBHOOK] Received: {...}
+[SEPAY WEBHOOK] Payment successful: pledge-id
+```
+
+3. Kiểm tra database:
+```bash
+npx prisma studio
+```
+
+Tìm pledge vừa tạo và kiểm tra:
+- `status`: SUCCESS
+- `paymentProvider`: SEPAY
+- `transactionId`: có giá trị
+
+## Bước 5: Go Live (Production)
+
+### 5.1. Hoàn thành test ở Sandbox
+
+Đảm bảo:
+- ✅ Tạo payment thành công
+- ✅ Webhook nhận được và xử lý đúng
+- ✅ Pledge status cập nhật thành SUCCESS
+- ✅ Campaign amount tăng đúng
+
+### 5.2. Chuyển sang Production
+
+1. Vào SePay dashboard → Chọn **Chuyển sang Production**
+
+2. Liên kết tài khoản ngân hàng thật
+
+3. Nhận `MERCHANT ID` và `SECRET KEY` mới
+
+4. Cập nhật `.env`:
+```env
+SEPAY_MERCHANT_ID="SP-PROD-XXXXXXXX"
+SEPAY_SECRET_KEY="spsk_live_xxxxxxxxxxxx"
+SEPAY_ENV="production"
+```
+
+5. Cập nhật IPN URL thành production:
+```
+https://yourdomain.com/api/payment/sepay/webhook
+```
+
+6. Deploy lên production
+
+7. Test lại với số tiền nhỏ (VD: 10,000 VNĐ)
+
+## Troubleshooting
+
+### Lỗi: "SePay credentials not configured"
+
+**Nguyên nhân:** Thiếu biến môi trường
+
+**Giải pháp:**
+```bash
+# Kiểm tra file .env
+cat .env | grep SEPAY
+
+# Đảm bảo có đủ 3 biến:
+SEPAY_MERCHANT_ID="..."
+SEPAY_SECRET_KEY="..."
+SEPAY_ENV="sandbox"
+```
+
+### Lỗi: "Invalid signature"
+
+**Nguyên nhân:** Secret key không đúng hoặc format signature sai
+
+**Giải pháp:**
+1. Kiểm tra `SEPAY_SECRET_KEY` trong `.env`
+2. Đảm bảo copy đúng từ dashboard (không có khoảng trắng)
+3. Restart dev server sau khi thay đổi `.env`
+
+### Webhook không được gọi
+
+**Nguyên nhân:** IPN URL không accessible từ internet
+
+**Giải pháp:**
+1. Dùng ngrok cho local development
+2. Kiểm tra firewall/security group cho production
+3. Đảm bảo endpoint trả về status 200
+
+### Pledge vẫn PENDING sau khi thanh toán
+
+**Nguyên nhân:** Webhook không xử lý được hoặc có lỗi
+
+**Giải pháp:**
+1. Kiểm tra logs: `[SEPAY WEBHOOK]`
+2. Kiểm tra signature verification
+3. Kiểm tra format của `order_invoice_number`
+4. Test webhook manually:
+```bash
+curl -X POST http://localhost:3000/api/payment/sepay/webhook \
+  -H "Content-Type: application/json" \
+  -d @test-webhook-payload.json
+```
+
+## Checklist hoàn chỉnh
+
+### Development
+- [ ] Đăng ký tài khoản SePay
+- [ ] Lấy Sandbox credentials
+- [ ] Cấu hình `.env`
+- [ ] Setup ngrok
+- [ ] Cấu hình IPN URL
+- [ ] Chạy test script thành công
+- [ ] Test thanh toán qua UI
+- [ ] Webhook nhận được và xử lý đúng
+- [ ] Pledge status cập nhật SUCCESS
+
+### Production
+- [ ] Liên kết tài khoản ngân hàng
+- [ ] Lấy Production credentials
+- [ ] Cập nhật `.env` production
+- [ ] Cập nhật IPN URL production
+- [ ] Deploy code
+- [ ] Test với số tiền nhỏ
+- [ ] Monitor logs 24h đầu
+- [ ] Backup database trước khi go live
+
+## Liên hệ hỗ trợ
+
+- **Documentation:** https://docs.sepay.vn
+- **Dashboard:** https://my.sepay.vn
+- **Support:** https://sepay.vn/support
+- **Email:** support@sepay.vn
+
+## Tài liệu liên quan
+
+- [Chi tiết tích hợp](./SEPAY_INTEGRATION.md)
+- [API Reference](https://docs.sepay.vn/api-reference)
+- [Webhook Guide](https://docs.sepay.vn/webhooks)
+
+---
+
+## Nguồn: `docs/SRS_CROWDFUNDING_VN.md`
+
+# ĐẶC TẢ YÊU CẦU PHẦN MỀM (SRS)
+## Hệ Thống Crowdfunding Việt Nam
+
+**Phiên bản:** 1.0  
+**Ngày:** 17/08/2026  
+**Chuẩn:** IEEE 830  
+**Ngôn ngữ:** Tiếng Việt
+
+---
+
+## KIỂM TRA PHỦ SÓNG CHỨC NĂNG NGUỒN
+
+### A. Người dùng & phân quyền
+- ✅ 4 vai trò: ADMIN, BACKER, CREATOR_PENDING, CREATOR
+- ✅ Đăng ký, đăng nhập, quên mật khẩu qua NextAuth.js 5 (JWT & Session); middleware bảo vệ route theo vai trò
+- ✅ Nâng cấp tài khoản: BACKER → CREATOR_PENDING → CREATOR; trang /upgrade
+- ✅ Hồ sơ cá nhân: xem/sửa profile, tab dự án đã tạo, dự án đã ủng hộ
+- ✅ Tìm kiếm người dùng (api/users/search), xem chi tiết user
+
+### B. Chiến dịch gọi vốn (Campaigns)
+- ✅ 2 loại chiến dịch: REWARD (có phần thưởng) và DONATION (ủng hộ tùy tâm)
+- ✅ 6 trạng thái: DRAFT → PENDING_REVIEW → ACTIVE → SUCCESS/FAILED/CANCELED
+- ✅ Tạo chiến dịch qua form nhiều bước: thông tin, mục tiêu tài chính, thời hạn, gói rewards, tài liệu pháp lý; slug URL riêng
+- ✅ Admin duyệt chiến dịch trước khi công khai; kiểm duyệt qua api/admin
+- ✅ Cập nhật tiến độ dạng blog/update (campaign_updates); liên kết campaign ↔ blog (campaign_blog_links)
+- ✅ Theo dõi chiến dịch (campaign_followers); báo cáo chiến dịch vi phạm (campaign_reports, có enum lý do)
+- ✅ Danh mục/phân loại (taxonomy), tìm kiếm theo category
+
+### C. Thanh toán & ủng hộ
+- ✅ Pledge với 4 trạng thái: PENDING, SUCCESS, FAILED, REFUNDED
+- ✅ 4 cổng thanh toán có thật: PayOS (VietQR), SePay (QR Banking), MoMo, VNPay
+- ✅ Webhook xác nhận tiền về + xác minh chữ ký (checksum/signature); đếm ngược thời gian thanh toán
+- ✅ Escrow (giữ tiền) và hoàn tiền (refund) có module riêng
+- ✅ Giới hạn giao dịch (transaction_limits), kiểm tra blacklist (blacklist, enum BlacklistType), cron tự dọn giao dịch thừa hạn (cron/cleanup-payments)
+- ✅ Cron tự cập nhật trạng thái chiến dịch hết hạn (cron/update-campaign-status)
+- ✅ Hóa đơn: biên nhận backer (backer_invoices), hóa đơn nền tảng (platform_invoices), hóa đơn "tip" hàng ngày (daily_tip_invoices); tool tạo hóa đơn tự động
+- ✅ Trang payment-success, tra cứu giao dịch (api/lookup, api/transactions)
+
+### D. KYC (xác minh danh tính Creator)
+- ✅ Nộp hồ sơ: CMND/CCCD/CCCD gắn chip (enum IDCardType), giấy phép kinh doanh
+- ✅ 4 trạng thái: PENDING, VERIFIED, REJECTED, EXPIRED
+
+### E. Phần thưởng (Rewards)
+- ✅ CRUD nhiều mức ủng hộ gắn với chiến dịch
+
+### F. Blog & tin tức
+- ✅ Bài viết có trạng thái, phân loại, tag, bình luận (có trạng thái duyệt), like, bookmark, báo cáo bài viết, admin duyệt
+- ✅ Tác giả Creator đăng cập nhật dự án
+
+### G. Chat real-time
+- ✅ Hội thoại (conversations), tin nhắn (messages), đếm tin chưa đọc — lưu MongoDB
+
+### H. Huy hiệu (Badges)
+- ✅ Badge có loại (BadgeType) và độ hiếm (BadgeRarity); gán cho user (user_badges); admin quản lý
+
+### I. Admin dashboard
+- ✅ Duyệt chiến dịch/KYC/blog, khóa tài khoản, quản lý user/badge, báo cáo doanh thu/thống kê (api/stats), xét xử báo cáo vi phạm (ReportStatus enum)
+
+### J. Đánh giá (reviews), social links (enum social-platforms), audit log toàn hệ thống (audit_logs + AuditAction enum)
+- ✅ Đánh giá (reviews)
+- ✅ Social links (enum social-platforms)
+- ✅ Audit log toàn hệ thống (audit_logs + AuditAction enum)
+
+### K. Hạ tầng & ràng buộc
+- ✅ Next.js 15 App Router + React 19, TypeScript strict 100%, Tailwind CSS
+- ✅ PostgreSQL (Prisma) cho dữ liệu quan hệ; MongoDB cho chat/blog/audit
+- ✅ Ảnh qua Cloudinary; upload qua api/upload
+- ✅ Deploy Vercel; rate limiting; security headers; singleton DB connection
+- ✅ Hệ thống kiểm thử: 88 test cases (100% pass) với Jest + React Testing Library, coverage, test report HTML/JSON
+
+---
+
+## 1. GIỚI THIỆU
+
+### 1.1 Mục đích
+Tài liệu này đặc tả các yêu cầu chức năng và phi chức năng cho hệ thống Crowdfunding Việt Nam - nền tảng gọi vốn cộng đồng cho các dự án sáng tạo, doanh nghiệp khởi nghiệp, và các hoạt động thiện nguyện tại Việt Nam. Hệ thống cho phép Creator tạo chiến dịch gọi vốn, Backer ủng hộ tài chính, và Admin quản lý toàn bộ quy trình.
+
+### 1.2 Phạm vi
+Hệ thống bao gồm:
+- Quản lý người dùng với 4 vai trò phân quyền
+- Quản lý chiến dịch gọi vốn với 2 loại (REWARD, DONATION) và 6 trạng thái
+- Hệ thống thanh toán tích hợp 4 cổng: PayOS, SePay, MoMo, VNPay
+- Xác minh danh tính (KYC) cho Creator
+- Hệ thống blog và cập nhật chiến dịch
+- Chat real-time giữa người dùng
+- Hệ thống huy hiệu (badges) gamification
+- Dashboard quản trị cho Admin
+- Hệ thống hóa đơn tự động
+- Audit log toàn hệ thống
+
+**Phạm vi loại trừ:** Không bao gồm đăng nhập mạng xã hội (ngoài Google OAuth), không có AI, không có NFT, không có mobile app native.
+
+### 1.3 Định nghĩa, thuật ngữ, viết tắt
+
+| Thuật ngữ | Định nghĩa |
+|-----------|------------|
+| **users** | Bảng người dùng trong PostgreSQL, chứa thông tin tài khoản |
+| **campaigns** | Bảng chiến dịch gọi vốn trong PostgreSQL |
+| **pledges** | Bảng giao dịch ủng hộ trong PostgreSQL |
+| **kyc_info** | Bảng thông tin xác minh danh tính trong PostgreSQL |
+| **rewards** | Bảng phần thưởng cho các mức ủng hộ trong PostgreSQL |
+| **blog_posts** | Bảng bài viết blog trong PostgreSQL |
+| **badges** | Bảng huy hiệu trong PostgreSQL |
+| **user_badges** | Bảng gán huy hiệu cho người dùng trong PostgreSQL |
+| **audit_logs** | Bảng log kiểm tra toàn hệ thống trong PostgreSQL |
+| **conversations** | Collection hội thoại chat trong MongoDB |
+| **messages** | Collection tin nhắn chat trong MongoDB |
+| **ADMIN** | Vai trò quản trị viên toàn hệ thống |
+| **BACKER** | Vai trò người ủng hộ (người dùng mặc định) |
+| **CREATOR_PENDING** | Vai trò người tạo chiến dịch đang chờ duyệt |
+| **CREATOR** | Vai trò người tạo chiến dịch đã được duyệt |
+| **REWARD** | Loại chiến dịch có phần thưởng cho backer |
+| **DONATION** | Loại chiến dịch ủng hộ tùy tâm, không có phần thưởng |
+| **KYC** | Know Your Customer - Xác minh danh tính |
+| **Escrow** | Cơ chế giữ tiền trung gian |
+| **Webhook** | API callback từ cổng thanh toán |
+
+---
+
+## 2. MÔ TẢ TỔNG QUAN
+
+### 2.1 Quan điểm sản phẩm
+Hệ thống là nền tảng web-based cho phép:
+- Creator đăng ký, xác minh danh tính, tạo chiến dịch gọi vốn
+- Backer duyệt chiến dịch, ủng hộ tài chính qua nhiều cổng thanh toán
+- Admin quản lý nội dung, duyệt chiến dịch, xử lý vi phạm
+- Tích hợp blog, chat, gamification để tăng tương tác
+
+### 2.2 Actor và chức năng người dùng
+
+| Actor | Chức năng chính |
+|-------|-----------------|
+| **Khách (Guest)** | Xem chiến dịch công khai, xem blog, tìm kiếm người dùng |
+| **BACKER** | Đăng ký/đăng nhập, ủng hộ chiến dịch, theo dõi chiến dịch, chat, xem profile |
+| **CREATOR_PENDING** | Nộp hồ sơ KYC, chờ duyệt để trở thành CREATOR |
+| **CREATOR** | Tạo chiến dịch, quản lý chiến dịch, đăng cập nhật, nhận tiền, chat với backer |
+| **ADMIN** | Duyệt chiến dịch/KYC/blog, khóa tài khoản, quản lý badges, xem thống kê, xử lý báo cáo |
+
+### 2.3 Ràng buộc vận hành
+- Hệ thống phải tuân thủ luật pháp Việt Nam về giao dịch điện tử và gọi vốn cộng đồng
+- Giới hạn giao dịch theo quy định: 20 triệu/giao dịch cho khách chưa KYC, 500 triệu cho user đã KYC
+- Dữ liệu người dùng phải được bảo mật theo luật bảo vệ dữ liệu cá nhân
+- Hệ thống phải hoạt động 24/7 với uptime tối thiểu 99.5%
+
+### 2.4 Giả định và phụ thuộc
+- Người dùng có kết nối internet ổn định
+- Cổng thanh toán (PayOS, SePay, MoMo, VNPay) hoạt động bình thường
+- Cloudinary service hoạt động để lưu trữ ảnh
+- MongoDB và PostgreSQL database hoạt động ổn định
+
+---
+
+## 3. YÊU CẦU CỤ THỂ
+
+### 3.1 Yêu cầu chức năng (FR)
+
+#### Module A: Người dùng & phân quyền
+
+**FR-A-001: Đăng ký tài khoản**
+- **Mô tả:** Người dùng có thể đăng ký tài khoản mới với email và mật khẩu
+- **Actor:** Guest
+- **Input:** Email, password, name, displayName (tùy chọn)
+- **Output:** Tài khoản mới được tạo với vai trò mặc định BACKER
+- **Acceptance Criteria:**
+  - Email phải là định dạng hợp lệ và chưa tồn tại trong hệ thống
+  - Password phải tối thiểu 8 ký tự
+  - Tài khoản được tạo với role = BACKER, status = NORMAL
+  - Gửi email xác nhận (nếu có cấu hình)
+
+**FR-A-002: Đăng nhập**
+- **Mô tả:** Người dùng có thể đăng nhập bằng email/password hoặc Google OAuth
+- **Actor:** Guest, BACKER, CREATOR_PENDING, CREATOR, ADMIN
+- **Input:** Email + password HOẶC Google OAuth token
+- **Output:** Session được tạo, JWT token được trả về
+- **Acceptance Criteria:**
+  - Hỗ trợ NextAuth.js 5 với cả JWT và Session strategy
+  - Google OAuth được cấu hình qua auth.config.ts
+  - Session được lưu trữ an toàn
+  - Redirect về dashboard sau khi đăng nhập thành công
+
+**FR-A-003: Quên mật khẩu**
+- **Mô tả:** Người dùng có thể yêu cầu đặt lại mật khẩu qua email
+- **Actor:** BACKER, CREATOR_PENDING, CREATOR, ADMIN
+- **Input:** Email
+- **Output:** Email chứa link reset mật khẩu được gửi
+- **Acceptance Criteria:**
+  - Email phải tồn tại trong hệ thống
+  - Link reset có hạn sử dụng (ví dụ: 24 giờ)
+  - [cần xác nhận với developer] Cơ chế gửi email cụ thể
+
+**FR-A-004: Bảo vệ route theo vai trò**
+- **Mô tả:** Middleware bảo vệ các route dựa trên trạng thái đăng nhập và vai trò
+- **Actor:** Hệ thống
+- **Input:** Request URL và session
+- **Output:** Cho phép truy cập hoặc redirect
+- **Acceptance Criteria:**
+  - Route công khai: /, /campaigns, /lookup, /policy, /gioi-thieu, /blog, /projects, /profile/[id] (view only), /users/search
+  - Route API công khai: /api/auth, /api/stats, /api/projects, /api/campaigns, /api/lookup, /api/users/search, /api/blog
+  - Route yêu cầu đăng nhập: Dashboard, tạo chiến dịch, chỉnh sửa profile
+  - Redirect về /auth/login nếu chưa đăng nhập
+  - Redirect về /dashboard nếu đã đăng nhập và truy cập /auth/login hoặc /auth/register
+
+**FR-A-005: Nâng cấp tài khoản BACKER → CREATOR_PENDING**
+- **Mô tả:** BACKER có thể yêu cầu nâng cấp lên CREATOR_PENDING để tạo chiến dịch
+- **Actor:** BACKER
+- **Input:** Yêu cầu nâng cấp qua trang /upgrade
+- **Output:** Role được cập nhật thành CREATOR_PENDING
+- **Acceptance Criteria:**
+  - User phải có role = BACKER
+  - Sau khi nâng cấp, role = CREATOR_PENDING
+  - Redirect về trang nộp hồ sơ KYC
+
+**FR-A-006: Nâng cấp tài khoản CREATOR_PENDING → CREATOR**
+- **Mô tả:** CREATOR_PENDING được nâng cấp thành CREATOR sau khi KYC được duyệt
+- **Actor:** ADMIN
+- **Input:** User ID, phê duyệt KYC
+- **Output:** Role được cập nhật thành CREATOR
+- **Acceptance Criteria:**
+  - KYC phải có status = VERIFIED
+  - Admin có quyền duyệt nâng cấp
+  - Gửi thông báo cho user khi nâng cấp thành công
+
+**FR-A-007: Xem hồ sơ cá nhân**
+- **Mô tả:** Người dùng có thể xem hồ sơ cá nhân của mình
+- **Actor:** BACKER, CREATOR_PENDING, CREATOR, ADMIN
+- **Input:** User ID (từ session)
+- **Output:** Thông tin profile: name, displayName, avatar, bio, location, website, socialLinks, coverImage
+- **Acceptance Criteria:**
+  - Hiển thị tab "Dự án đã tạo" cho CREATOR
+  - Hiển thị tab "Dự án đã ủng hộ" cho BACKER
+  - Hiển thị badges đã được gán
+
+**FR-A-008: Chỉnh sửa hồ sơ cá nhân**
+- **Mô tả:** Người dùng có thể cập nhật thông tin profile
+- **Actor:** BACKER, CREATOR_PENDING, CREATOR, ADMIN
+- **Input:** Các field profile (name, displayName, avatar, bio, location, website, socialLinks, coverImage, shippingAddress)
+- **Output:** Profile được cập nhật trong bảng users
+- **Acceptance Criteria:**
+  - Avatar và coverImage được upload qua Cloudinary
+  - socialLinks lưu dưới dạng JSON với enum social-platforms
+  - Ghi audit log khi có thay đổi
+
+**FR-A-009: Tìm kiếm người dùng**
+- **Mô tả:** Người dùng có thể tìm kiếm user khác theo tên hoặc email
+- **Actor:** BACKER, CREATOR_PENDING, CREATOR, ADMIN
+- **Input:** Từ khóa tìm kiếm
+- **Output:** Danh sách user khớp với từ khóa
+- **Acceptance Criteria:**
+  - API endpoint: /api/users/search
+  - Tìm kiếm theo name, displayName, email
+  - Phân trang kết quả
+  - Chỉ trả về thông tin công khai (không bao gồm password, sensitive data)
+
+**FR-A-010: Xem chi tiết user**
+- **Mô tả:** Người dùng có thể xem profile công khai của user khác
+- **Actor:** Guest, BACKER, CREATOR_PENDING, CREATOR, ADMIN
+- **Input:** User ID hoặc slug
+- **Output:** Thông tin công khai của user
+- **Acceptance Criteria:**
+  - Route: /profile/[id]
+  - Chỉ hiển thị thông tin công khai
+  - Hiển thị danh sách chiến dịch đã tạo (nếu là CREATOR)
+  - Hiển thị badges công khai
+
+#### Module B: Chiến dịch gọi vốn (Campaigns)
+
+**FR-B-001: Tạo chiến dịch DRAFT**
+- **Mô tả:** CREATOR có thể tạo chiến dịch mới với trạng thái DRAFT
+- **Actor:** CREATOR
+- **Input:** Form nhiều bước: thông tin cơ bản, mục tiêu tài chính, thời hạn, gói rewards, tài liệu pháp lý
+- **Output:** Campaign mới được tạo với status = DRAFT
+- **Acceptance Criteria:**
+  - Campaign có slug URL duy nhất
+  - Type = REWARD hoặc DONATION
+  - GoalAmount > 0
+  - EndDate > StartDate
+  - Images được upload qua Cloudinary
+  - Tạo campaignCode duy nhất
+  - Ghi audit log action = CREATE
+
+**FR-B-002: Chỉnh sửa chiến dịch DRAFT**
+- **Mô tả:** CREATOR có thể chỉnh sửa chiến dịch khi ở trạng thái DRAFT
+- **Actor:** CREATOR
+- **Input:** Các field campaign cần cập nhật
+- **Output:** Campaign được cập nhật
+- **Acceptance Criteria:**
+  - Chỉ cho phép chỉnh sửa khi status = DRAFT
+  - Ghi audit log action = UPDATE
+  - Không được thay đổi slug sau khi tạo
+
+**FR-B-003: Nộp chiến dịch để duyệt**
+- **Mô tả:** CREATOR có thể nộp chiến dịch DRAFT để Admin duyệt
+- **Actor:** CREATOR
+- **Input:** Campaign ID
+- **Output:** Campaign status thay đổi thành PENDING_REVIEW
+- **Acceptance Criteria:**
+  - Chỉ cho phép khi status = DRAFT
+  - Tất cả field bắt buộc phải được điền
+  - Gửi thông báo cho Admin
+  - Ghi audit log action = APPROVE (submit)
+
+**FR-B-004: Admin duyệt chiến dịch**
+- **Mô tả:** Admin có thể duyệt chiến dịch PENDING_REVIEW để công khai
+- **Actor:** ADMIN
+- **Input:** Campaign ID, quyết định (approve/reject)
+- **Output:** Campaign status thay đổi thành ACTIVE hoặc REJECTED
+- **Acceptance Criteria:**
+  - API endpoint: /api/admin/campaigns/[id]/review
+  - Nếu approve: status = ACTIVE, startDate được set nếu chưa có
+  - Nếu reject: status = REJECTED, ghi lý do
+  - Ghi audit log action = APPROVE hoặc REJECT
+  - Gửi email thông báo cho Creator
+
+**FR-B-005: Tìm kiếm và lọc chiến dịch**
+- **Mô tả:** Người dùng có thể tìm kiếm và lọc chiến dịch theo nhiều tiêu chí
+- **Actor:** Guest, BACKER, CREATOR_PENDING, CREATOR, ADMIN
+- **Input:** Từ khóa, category, type, status, tags, khoảng ngày
+- **Output:** Danh sách chiến dịch khớp với bộ lọc
+- **Acceptance Criteria:**
+  - API endpoint: /api/campaigns
+  - Hỗ trợ phân trang
+  - Hỗ trợ sắp xếp theo: mới nhất, sắp hết hạn, nhiều tiền nhất
+  - Filter theo category (taxonomy)
+  - Filter theo type (REWARD/DONATION)
+  - Filter theo status (chỉ ACTIVE cho công khai)
+
+**FR-B-006: Xem chi tiết chiến dịch**
+- **Mô tả:** Người dùng có thể xem chi tiết chiến dịch
+- **Actor:** Guest, BACKER, CREATOR_PENDING, CREATOR, ADMIN
+- **Input:** Campaign slug hoặc ID
+- **Output:** Thông tin đầy đủ của chiến dịch
+- **Acceptance Criteria:**
+  - Route: /campaigns/[slug]
+  - Hiển thị: title, description, longDescription, videoUrl, imageUrl, images, goalAmount, currentAmount, startDate, endDate, creator info
+  - Hiển thị danh sách rewards (nếu type = REWARD)
+  - Hiển thị danh sách campaign_updates
+  - Hiển thị số người theo dõi (campaign_followers count)
+
+**FR-B-007: Cập nhật tiến độ chiến dịch (campaign_updates)**
+- **Mô tả:** CREATOR có thể đăng cập nhật tiến độ cho chiến dịch
+- **Actor:** CREATOR
+- **Input:** Campaign ID, title, content, imageUrl (tùy chọn), tags
+- **Output:** Campaign_update mới được tạo
+- **Acceptance Criteria:**
+  - Chỉ CREATOR của campaign được phép đăng
+  - Hỗ trợ ghim update (isPinned = true)
+  - Tags là mảng string
+  - Ghi audit log action = CREATE
+
+**FR-B-008: Liên kết campaign với blog**
+- **Mô tả:** CREATOR có thể liên kết bài viết blog với chiến dịch
+- **Actor:** CREATOR
+- **Input:** Campaign ID, Blog Post ID, order
+- **Output:** Bản ghi mới trong campaign_blog_links
+- **Acceptance Criteria:**
+  - Một campaign có thể liên kết nhiều blog posts
+  - Order xác định thứ tự hiển thị
+  - Unique constraint trên (campaignId, blogPostId)
+
+**FR-B-009: Theo dõi chiến dịch**
+- **Mô tả:** Người dùng có thể theo dõi chiến dịch để nhận thông báo
+- **Actor:** BACKER, CREATOR
+- **Input:** Campaign ID
+- **Output:** Bản ghi mới trong campaign_followers
+- **Acceptance Criteria:**
+  - User đã đăng nhập mới được theo dõi
+  - Có thể theo dõi bằng userId hoặc email (cho guest)
+  - Unique constraint trên (campaignId, userId) và (campaignId, email)
+  - Có thể hủy theo dõi
+
+**FR-B-010: Báo cáo chiến dịch vi phạm**
+- **Mô tả:** Người dùng có thể báo cáo chiến dịch vi phạm
+- **Actor:** BACKER, CREATOR
+- **Input:** Campaign ID, reason (enum CampaignReportReason), description
+- **Output:** Bản ghi mới trong campaign_reports
+- **Acceptance Criteria:**
+  - CampaignReportReason: FRAUD, INAPPROPRIATE, MISLEADING, SCAM, INTELLECTUAL_PROPERTY, OTHER
+  - Unique constraint trên (campaignId, userId) - mỗi user chỉ báo cáo 1 lần
+  - Status mặc định = PENDING
+  - Gửi thông báo cho Admin
+
+**FR-B-011: Hủy chiến dịch**
+- **Mô tả:** CREATOR có thể hủy chiến dịch đang ACTIVE
+- **Actor:** CREATOR
+- **Input:** Campaign ID
+- **Output:** Campaign status = CANCELED
+- **Acceptance Criteria:**
+  - Chỉ cho phép hủy khi status = ACTIVE
+  - Tự động hoàn tiền cho các pledges SUCCESS (nếu có)
+  - Ghi audit log action = CANCEL
+  - Gửi email thông báo cho các backer
+
+**FR-B-012: Tự động cập nhật trạng thái chiến dịch hết hạn**
+- **Mô tả:** Cron job tự động cập nhật trạng thái chiến dịch khi hết hạn
+- **Actor:** Hệ thống (Cron)
+- **Input:** None (chạy định kỳ)
+- **Output:** Campaign status cập nhật thành SUCCESS hoặc FAILED
+- **Acceptance Criteria:**
+  - Cron endpoint: /api/cron/update-campaign-status
+  - Chạy hàng ngày hoặc hàng giờ
+  - Nếu endDate < now và currentAmount >= goalAmount: status = SUCCESS
+  - Nếu endDate < now và currentAmount < goalAmount: status = FAILED
+  - Ghi audit log cho mỗi thay đổi
+
+#### Module C: Thanh toán & ủng hộ
+
+**FR-C-001: Tạo pledge PENDING**
+- **Mô tả:** BACKER có thể tạo pledge ủng hộ chiến dịch
+- **Actor:** BACKER
+- **Input:** Campaign ID, amount, displayName, isAnonymous, rewardId (tùy chọn), tipAmount (tùy chọn)
+- **Output:** Pledge mới với status = PENDING
+- **Acceptance Criteria:**
+  - Amount >= 10000 (tối thiểu 10,000 VNĐ)
+  - Nếu chọn reward, amount >= reward.minAmount
+  - Tính platformFee (mặc định 8%), vatAmount, totalAmount
+  - Tạo transactionId duy nhất
+  - Redirect về trang thanh toán
+
+**FR-C-002: Chọn cổng thanh toán**
+- **Mô tả:** BACKER có thể chọn cổng thanh toán: PayOS, SePay, MoMo, VNPay
+- **Actor:** BACKER
+- **Input:** Pledge ID, paymentProvider
+- **Output:** Redirect đến cổng thanh toán
+- **Acceptance Criteria:**
+  - Hỗ trợ 4 cổng: PayOS (VietQR), SePay (QR Banking), MoMo, VNPay
+  - Mỗi cổng có cấu hình riêng
+  - Lưu paymentProvider trong pledge
+
+**FR-C-003: Xử lý webhook thanh toán**
+- **Mô tả:** Hệ thống nhận webhook từ cổng thanh toán để xác nhận giao dịch
+- **Actor:** Hệ thống (Webhook)
+- **Input:** Webhook payload từ cổng thanh toán
+- **Output:** Pledge status cập nhật
+- **Acceptance Criteria:**
+  - Xác minh signature/checksum của webhook
+  - Nếu thanh toán thành công: pledge.status = SUCCESS, currentAmount của campaign tăng
+  - Nếu thanh toán thất bại: pledge.status = FAILED
+  - Ghi webhookProcessedAt
+  - Ghi audit log action = UPDATE
+
+**FR-C-004: Đếm ngược thời gian thanh toán**
+- **Mô tả:** Hiển thị đếm ngược thời gian còn lại để thanh toán
+- **Actor:** Hệ thống (Frontend)
+- **Input:** Pledge createdAt
+- **Output:** Thời gian còn lại (ví dụ: 15 phút)
+- **Acceptance Criteria:**
+  - [cần xác nhận với developer] Thời gian timeout cụ thể
+  - Hiển thị countdown trên UI
+  - Hết hạn thì tự động hủy pledge
+
+**FR-C-005: Escrow - Giữ tiền**
+- **Mô tả:** Tiền từ pledge SUCCESS được giữ trong escrow cho đến khi chiến dịch kết thúc
+- **Actor:** Hệ thống
+- **Input:** Pledge SUCCESS
+- **Output:** Tiền được giữ, chưa chuyển cho Creator
+- **Acceptance Criteria:**
+  - Tiền chỉ được giải ngân khi campaign status = SUCCESS
+  - Nếu campaign status = FAILED hoặc CANCELED, tiền được hoàn lại
+  - [cần xác nhận với developer] Cơ chế escrow cụ thể
+
+**FR-C-006: Hoàn tiền (Refund)**
+- **Mô tả:** Hệ thống hoàn tiền cho backer khi chiến dịch thất bại hoặc bị hủy
+- **Actor:** Hệ thống hoặc ADMIN
+- **Input:** Pledge ID, lý do
+- **Output:** Pledge refundStatus = COMPLETED, tiền được hoàn về
+- **Acceptance Criteria:**
+  - RefundStatus enum: NO_REFUND, REQUESTED, PROCESSING, COMPLETED, FAILED
+  - Ghi refundedAt
+  - Ghi audit log action = REFUND
+  - Gửi email thông báo cho backer
+
+**FR-C-007: Kiểm tra giới hạn giao dịch**
+- **Mô tả:** Hệ thống kiểm tra giới hạn giao dịch trước khi tạo pledge
+- **Actor:** Hệ thống
+- **Input:** User ID (hoặc null cho guest), amount
+- **Output:** Cho phép hoặc từ chối với lý do
+- **Acceptance Criteria:**
+  - Guest: tối đa 20 triệu/giao dịch
+  - User chưa KYC: tối đa 20 triệu/giao dịch, 50 triệu/ngày, 200 triệu/tháng, 5 giao dịch/ngày
+  - User đã KYC: tối đa 500 triệu/giao dịch, 1 tỷ/ngày, 5 tỷ/tháng, 20 giao dịch/ngày
+  - Kiểm tra trong bảng transaction_limits
+  - Trả về { allowed: boolean, reason?: string }
+
+**FR-C-008: Kiểm tra blacklist**
+- **Mô tả:** Hệ thống kiểm tra blacklist trước khi cho phép giao dịch
+- **Actor:** Hệ thống
+- **Input:** IP, email, phone, bankAccount, deviceId
+- **Output:** Cho phép hoặc từ chối
+- **Acceptance Criteria:**
+  - BlacklistType enum: IP, EMAIL, PHONE, BANK_ACCOUNT, DEVICE_ID
+  - Kiểm tra trong bảng blacklist
+  - Chỉ kiểm tra các bản ghi với isActive = true
+  - Kiểm tra expiresAt (nếu có)
+
+**FR-C-009: Cron dọn giao dịch thừa hạn**
+- **Mô tả:** Cron job tự động hủy các pledge PENDING quá hạn
+- **Actor:** Hệ thống (Cron)
+- **Input:** None (chạy định kỳ)
+- **Output:** Pledge status = FAILED
+- **Acceptance Criteria:**
+  - Cron endpoint: /api/cron/cleanup-payments
+  - Chạy hàng giờ
+  - Tìm pledge PENDING với createdAt > timeout (ví dụ: 15 phút)
+  - Cập nhật status = FAILED
+  - Ghi audit log
+
+**FR-C-010: Tạo hóa đơn backer**
+- **Mô tả:** Hệ thống tự động tạo hóa đơn biên nhận cho backer sau khi pledge SUCCESS
+- **Actor:** Hệ thống
+- **Input:** Pledge SUCCESS
+- **Output:** backer_invoice mới được tạo
+- **Acceptance Criteria:**
+  - InvoiceNumber duy nhất
+  - Chứa: backerName, backerEmail, backerPhone, backerAddress, amount, tipAmount, platformFee, vatAmount, totalAmount
+  - Status mặc định = PENDING
+  - Tạo PDF (pdfUrl)
+  - Gửi email cho backer (sentAt)
+
+**FR-C-011: Tạo hóa đơn nền tảng**
+- **Mô tả:** Hệ thống tạo hóa đơn phí nền tảng cho Creator khi chiến dịch SUCCESS
+- **Actor:** Hệ thống
+- **Input:** Campaign SUCCESS
+- **Output:** platform_invoice mới được tạo
+- **Acceptance Criteria:**
+  - InvoiceNumber duy nhất
+  - Amount = platformFee từ các pledges
+  - VatAmount tính theo quy định
+  - DueDate = ngày đến hạn thanh toán
+  - Status mặc định = PENDING
+
+**FR-C-012: Tạo hóa đơn tip hàng ngày**
+- **Mô tả:** Cron job tổng hợp tip hàng ngày và tạo hóa đơn
+- **Actor:** Hệ thống (Cron)
+- **Input:** None (chạy hàng ngày)
+- **Output:** daily_tip_invoice mới được tạo
+- **Acceptance Criteria:**
+  - Cron chạy vào cuối ngày
+  - Tổng hợp tất cả tipAmount từ pledges SUCCESS trong ngày
+  - Tính totalVat
+  - invoiceDate = ngày hiện tại
+  - Status mặc định = "PENDING"
+
+**FR-C-013: Trang payment-success**
+- **Mô tả:** Hiển thị trang xác nhận thanh toán thành công
+- **Actor:** BACKER
+- **Input:** Pledge ID hoặc transactionId
+- **Output:** Trang hiển thị thông tin giao dịch
+- **Acceptance Criteria:**
+  - Route: /payment-success hoặc /checkout/[pledgeId]/success
+  - Hiển thị: amount, campaign title, transactionId, thời gian
+  - Link xem hóa đơn
+  - Link về trang chiến dịch
+
+**FR-C-014: Tra cứu giao dịch**
+- **Mô tả:** Người dùng có thể tra cứu giao dịch theo transactionId hoặc email
+- **Actor:** Guest, BACKER, CREATOR, ADMIN
+- **Input:** transactionId hoặc email
+- **Output:** Thông tin giao dịch
+- **Acceptance Criteria:**
+  - API endpoint: /api/lookup hoặc /api/transactions
+  - Nếu tìm bằng transactionId: trả về pledge chi tiết
+  - Nếu tìm bằng email: trả về danh sách pledges của email đó
+  - Chỉ hiển thị thông tin công khai
+
+#### Module D: KYC (Xác minh danh tính Creator)
+
+**FR-D-001: Nộp hồ sơ KYC**
+- **Mô tả:** CREATOR_PENDING nộp hồ sơ xác minh danh tính
+- **Actor:** CREATOR_PENDING
+- **Input:** fullName, idCardNumber, idCardType (CMND/CCCD/PASSPORT), idCardFrontImage, idCardBackImage, idCardIssueDate, idCardIssuePlace, dateOfBirth, placeOfBirth, nationality, permanentAddress, currentAddress, occupation, monthlyIncome, businessLicense (tùy chọn)
+- **Output:** kyc_info mới được tạo với status = PENDING
+- **Acceptance Criteria:**
+  - idCardNumber phải unique
+  - Validate ID card theo type (CMND: 9 hoặc 12 số, CCCD: 12 số, Passport: 8-9 ký tự)
+  - Images upload qua Cloudinary
+  - riskLevel mặc định = LOW
+  - Gửi thông báo cho Admin
+
+**FR-D-002: Admin duyệt KYC**
+- **Mô tả:** Admin duyệt hồ sơ KYC
+- **Actor:** ADMIN
+- **Input:** KYC ID, quyết định (approve/reject), lý do (nếu reject)
+- **Output:** KYC status = VERIFIED hoặc REJECTED
+- **Acceptance Criteria:**
+  - Nếu approve: status = VERIFIED, verifiedAt = now, verifiedBy = adminId, tự động nâng cấp user role thành CREATOR
+  - Nếu reject: status = REJECTED, rejectedReason = lý do
+  - Ghi audit log action = KYC_APPROVE hoặc KYC_REJECT
+  - Gửi email thông báo cho user
+
+**FR-D-003: Kiểm tra trạng thái KYC**
+- **Mô tả:** Hệ thống kiểm tra user đã KYC chưa
+- **Actor:** Hệ thống
+- **Input:** User ID
+- **Output:** Boolean (true nếu VERIFIED)
+- **Acceptance Criteria:**
+  - Hàm isKYCVerified(userId)
+  - Trả về true chỉ khi kyc_info.verificationStatus = VERIFIED
+
+**FR-D-004: Lấy giới hạn giao dịch theo KYC**
+- **Mô tả:** Hệ thống lấy giới hạn giao dịch dựa trên trạng thái KYC
+- **Actor:** Hệ thống
+- **Input:** User ID
+- **Output:** Transaction limit
+- **Acceptance Criteria:**
+  - Hàm getTransactionLimit(userId)
+  - Ưu tiên limit cụ thể cho user trong transaction_limits
+  - Nếu không có, tìm limit mặc định cho KYC status
+  - Nếu vẫn không có, return limit mặc định theo quy định
+
+**FR-D-005: Hết hạn KYC**
+- **Mô tả:** KYC có thể hết hạn sau một khoảng thời gian
+- **Actor:** Hệ thống (Cron)
+- **Input:** None (chạy định kỳ)
+- **Output:** KYC status = EXPIRED
+- **Acceptance Criteria:**
+  - [cần xác nhận với developer] Thời hạn KYC cụ thể
+  - Cron kiểm tra các KYC VERIFIED quá hạn
+  - Cập nhật status = EXPIRED
+  - Gửi email yêu cầu nộp lại hồ sơ
+
+#### Module E: Phần thưởng (Rewards)
+
+**FR-E-001: Tạo reward**
+- **Mô tả:** CREATOR tạo reward cho chiến dịch
+- **Actor:** CREATOR
+- **Input:** Campaign ID, title, description, minAmount, deliveryDate, maxQuantity (tùy chọn)
+- **Output:** Reward mới được tạo
+- **Acceptance Criteria:**
+  - Campaign phải thuộc về CREATOR
+  - minAmount > 0
+  - deliveryDate > startDate của campaign
+  - isActive mặc định = true
+  - Ghi audit log action = CREATE
+
+**FR-E-002: Chỉnh sửa reward**
+- **Mô tả:** CREATOR chỉnh sửa reward
+- **Actor:** CREATOR
+- **Input:** Reward ID, các field cần cập nhật
+- **Output:** Reward được cập nhật
+- **Acceptance Criteria:**
+  - Chỉ CREATOR của campaign được phép chỉnh sửa
+  - Không được thay đổi campaignId
+  - Ghi audit log action = UPDATE
+
+**FR-E-003: Xóa/hủy reward**
+- **Mô tả:** CREATOR có thể hủy reward (soft delete bằng isActive = false)
+- **Actor:** CREATOR
+- **Input:** Reward ID
+- **Output:** Reward.isActive = false
+- **Acceptance Criteria:**
+  - Chỉ CREATOR của campaign được phép hủy
+  - Không xóa nếu đã có pledge liên kết
+  - Ghi audit log action = DELETE
+
+**FR-E-004: Xem danh sách rewards**
+- **Mô tả:** Người dùng xem danh sách rewards của chiến dịch
+- **Actor:** Guest, BACKER, CREATOR, ADMIN
+- **Input:** Campaign ID
+- **Output:** Danh sách rewards active
+- **Acceptance Criteria:**
+  - Chỉ hiển thị rewards với isActive = true
+  - Sắp xếp theo minAmount tăng dần
+  - Hiển thị số lượng còn lại (nếu có maxQuantity)
+
+#### Module F: Blog & tin tức
+
+**FR-F-001: Tạo bài viết blog**
+- **Actor:** CREATOR, ADMIN
+- **Input:** BlogPostType (PLATFORM/CAMPAIGN_UPDATE/ANNOUNCEMENT/STORY/IMPACT_REPORT), title, slug, content, coverImage, excerpt, categoryId, tags, visibility (PUBLIC/BACKERS_ONLY/OWNER_ONLY/PRIVATE)
+- **Output:** blog_posts mới với status = DRAFT
+- **Acceptance Criteria:**
+  - Slug phải duy nhất
+  - content lưu trong MongoDB (mongoContentId) hoặc PostgreSQL
+  - type mặc định = PLATFORM
+  - visibility mặc định = PUBLIC
+  - Ghi audit log action = CREATE
+
+**FR-F-002: Chỉnh sửa bài viết blog**
+- **Actor:** CREATOR, ADMIN
+- **Input:** Blog Post ID, các field cần cập nhật
+- **Output:** Blog post được cập nhật
+- **Acceptance Criteria:**
+  - Chỉ tác giả hoặc ADMIN được phép chỉnh sửa
+  - Ghi audit log action = UPDATE
+
+**FR-F-003: Xuất bản bài viết**
+- **Actor:** CREATOR, ADMIN
+- **Input:** Blog Post ID
+- **Output:** Blog post status = PUBLISHED, publishedAt = now
+- **Acceptance Criteria:**
+  - Chỉ tác giả hoặc ADMIN được phép xuất bản
+  - Nếu type = CAMPAIGN_UPDATE, campaignId phải được cung cấp
+  - Tự động tính wordCount và readingTimeMinutes
+  - Gửi thông báo cho followers (nếu có)
+
+**FR-F-004: Admin duyệt bài viết**
+- **Actor:** ADMIN
+- **Input:** Blog Post ID, quyết định (approve/reject)
+- **Output:** Blog post status = PUBLISHED hoặc REJECTED
+- **Acceptance Criteria:**
+  - API endpoint: /api/admin/blog/posts/[id]/review
+  - Nếu approve: status = PUBLISHED
+  - Nếu reject: status = REJECTED
+  - Ghi audit log action = APPROVE hoặc REJECT
+
+**FR-F-005: Xem danh sách bài viết**
+- **Actor:** Guest, BACKER, CREATOR, ADMIN
+- **Input:** Filter (category, type, status, tag)
+- **Output:** Danh sách blog posts
+- **Acceptance Criteria:**
+  - API endpoint: /api/blog/posts
+  - Hỗ trợ phân trang
+  - Filter theo visibility (chỉ hiển thị PUBLIC cho guest)
+  - Filter theo type, category, tag
+  - Sắp xếp theo publishedAt hoặc viewCount
+
+**FR-F-006: Like bài viết**
+- **Actor:** BACKER, CREATOR
+- **Input:** Blog Post ID
+- **Output:** Bản ghi mới trong blog_likes, likeCount tăng
+- **Acceptance Criteria:**
+  - User đã đăng nhập mới được like
+  - Unique constraint trên (postId, userId) - không like 2 lần
+  - Có thể unlike (xóa bản ghi)
+  - likeCount được cập nhật real-time
+
+**FR-F-007: Bookmark bài viết**
+- **Actor:** BACKER, CREATOR
+- **Input:** Blog Post ID
+- **Output:** Bản ghi mới trong blog_bookmarks, bookmarkCount tăng
+- **Acceptance Criteria:**
+  - User đã đăng nhập mới được bookmark
+  - Unique constraint trên (postId, userId)
+  - Có thể unbookmark
+  - bookmarkCount được cập nhật
+
+**FR-F-008: Bình luận bài viết**
+- **Actor:** BACKER, CREATOR
+- **Input:** Blog Post ID, content, parentId (nếu reply)
+- **Output:** blog_comments mới với status = VISIBLE
+- **Acceptance Criteria:**
+  - User đã đăng nhập mới được bình luận
+  - Hỗ trợ reply (parentId)
+  - status mặc định = VISIBLE
+  - commentCount tăng
+  - Gửi thông báo cho tác giả
+
+**FR-F-009: Admin duyệt bình luận**
+- **Actor:** ADMIN
+- **Input:** Comment ID, quyết định (approve/hide/delete)
+- **Output:** Comment status = VISIBLE/HIDDEN/DELETED
+- **Acceptance Criteria:**
+  - BlogCommentStatus enum: VISIBLE, HIDDEN, DELETED, PENDING_REVIEW
+  - Nếu hide: status = HIDDEN
+  - Nếu delete: status = DELETED, deletedAt = now
+  - Ghi audit log
+
+**FR-F-010: Báo cáo bài viết**
+- **Actor:** BACKER, CREATOR
+- **Input:** Blog Post ID hoặc Comment ID, reason (BlogReportReason), description
+- **Output:** blog_reports mới với status = PENDING
+- **Acceptance Criteria:**
+  - BlogReportReason enum: SPAM, ABUSE, MISINFORMATION, SCAM, INAPPROPRIATE, OTHER
+  - Có thể báo cáo bài viết hoặc bình luận
+  - Gửi thông báo cho Admin
+
+**FR-F-011: Admin xử lý báo cáo blog**
+- **Actor:** ADMIN
+- **Input:** Report ID, quyết định (resolve/dismiss), resolution
+- **Output:** Report status = RESOLVED hoặc DISMISSED
+- **Acceptance Criteria:**
+  - ReportStatus enum: PENDING, REVIEWING, RESOLVED, DISMISSED
+  - Nếu resolve: status = RESOLVED, resolution = lý do, reviewedAt = now
+  - Nếu dismiss: status = DISMISSED
+  - Ghi audit log
+
+#### Module G: Chat real-time
+
+**FR-G-001: Bắt đầu hội thoại**
+- **Actor:** BACKER, CREATOR
+- **Input:** Target user ID, campaignId (tùy chọn)
+- **Output:** Conversation mới hoặc conversation đã tồn tại
+- **Acceptance Criteria:**
+  - API endpoint: /api/chat/conversations/start
+  - Tạo conversationKey dựa trên 2 user ID (đảm bảo cùng 1 conversation bất kể ai bắt đầu)
+  - Nếu campaignId được cung cấp, type = 'campaign', ngược lại type = 'direct'
+  - Validate cả 2 user tồn tại trong PostgreSQL
+  - Nếu campaignId, validate target user là creator của campaign
+  - Lưu trong MongoDB collection 'conversations'
+
+**FR-G-002: Gửi tin nhắn**
+- **Actor:** BACKER, CREATOR
+- **Input:** Conversation ID, text
+- **Output:** Message mới được tạo
+- **Acceptance Criteria:**
+  - API endpoint: /api/chat/conversations/[conversationId]/messages
+  - Validate user là participant của conversation
+  - Kiểm tra conversation không bị block
+  - Text tối đa 2000 ký tự
+  - Lưu trong MongoDB collection 'messages'
+  - Cập nhật lastMessage và updatedAt của conversation
+  - Tăng unreadCount cho participant khác
+
+**FR-G-003: Xem danh sách hội thoại**
+- **Actor:** BACKER, CREATOR
+- **Input:** User ID (từ session)
+- **Output:** Danh sách conversations của user
+- **Acceptance Criteria:**
+  - API endpoint: /api/chat/conversations
+  - Chỉ trả về conversations mà user là participant
+  - Sắp xếp theo updatedAt giảm dần
+  - Hiển thị unreadCount cho mỗi conversation
+
+**FR-G-004: Xem tin nhắn**
+- **Actor:** BACKER, CREATOR
+- **Input:** Conversation ID, limit (mặc định 30), before (pagination cursor)
+- **Output:** Danh sách messages với pagination
+- **Acceptance Criteria:**
+  - API endpoint: /api/chat/conversations/[conversationId]/messages
+  - Validate user là participant
+  - Chỉ hiển thị messages với isDeleted = false
+  - Pagination bằng cursor (before)
+  - Trả về hasMore để biết còn tin nhắn cũ hơn không
+
+**FR-G-005: Đánh dấu đã đọc**
+- **Actor:** BACKER, CREATOR
+- **Input:** Conversation ID
+- **Output:** unreadCount của user = 0
+- **Acceptance Criteria:**
+  - API endpoint: /api/chat/conversations/[conversationId]/read
+  - Reset unreadCount[userId] = 0
+  - Thêm userId vào readBy của các messages chưa đọc
+
+**FR-G-006: Xóa tin nhắn**
+- **Actor:** BACKER, CREATOR
+- **Input:** Message ID
+- **Output:** Message.isDeleted = true, text = ''
+- **Acceptance Criteria:**
+  - Chỉ sender được xóa tin nhắn của mình
+  - Soft delete (không xóa thật)
+  - Ghi updatedAt
+
+**FR-G-007: Block hội thoại**
+- **Actor:** BACKER, CREATOR
+- **Input:** Conversation ID
+- **Output:** User ID được thêm vào blockedBy array
+- **Acceptance Criteria:**
+  - API endpoint: /api/chat/conversations/[conversationId]/block
+  - Validate user là participant
+  - Không thể gửi tin nhắn khi đã block
+  - Có thể unblock
+
+**FR-G-008: Báo cáo hội thoại**
+- **Actor:** BACKER, CREATOR
+- **Input:** Conversation ID, reason (ChatReportReason), description, messageId (tùy chọn)
+- **Output:** chat_report mới trong MongoDB
+- **Acceptance Criteria:**
+  - API endpoint: /api/chat/conversations/[conversationId]/report
+  - Validate user là participant
+  - Có thể báo cáo cả conversation hoặc message cụ thể
+  - conversation.isReported = true
+  - Gửi thông báo cho Admin
+
+**FR-G-009: Đếm tin chưa đọc tổng**
+- **Actor:** BACKER, CREATOR
+- **Input:** User ID
+- **Output:** Tổng số tin nhắn chưa đọc
+- **Acceptance Criteria:**
+  - Hàm getTotalUnreadCount(userId)
+  - Tổng hợp unreadCount từ tất cả conversations
+
+#### Module H: Huy hiệu (Badges)
+
+**FR-H-001: Tạo badge**
+- **Actor:** ADMIN
+- **Input:** name, description, iconUrl, iconName, color, backgroundColor, type (BadgeType: custom/achievement), rarity (BadgeRarity: common/rare/epic/legendary), isActive
+- **Output:** badges mới được tạo
+- **Acceptance Criteria:**
+  - API endpoint: /api/admin/badges
+  - Slug được tự động tạo từ name (duy nhất)
+  - Validate hex color format
+  - type mặc định = 'custom'
+  - rarity mặc định = 'common'
+  - isActive mặc định = true
+  - Ghi audit log action = CREATE
+
+**FR-H-002: Chỉnh sửa badge**
+- **Actor:** ADMIN
+- **Input:** Badge ID, các field cần cập nhật
+- **Output:** Badge được cập nhật
+- **Acceptance Criteria:**
+  - Validate type, rarity, color
+  - Slug được regenerate nếu name thay đổi
+  - Ghi audit log action = UPDATE
+
+**FR-H-003: Xóa badge**
+- **Actor:** ADMIN
+- **Input:** Badge ID
+- **Output:** Badge.deletedAt = now (soft delete)
+- **Acceptance Criteria:**
+  - Soft delete, không xóa thật
+  - Các user_badges liên kết vẫn tồn tại
+  - Ghi audit log action = DELETE
+
+**FR-H-004: Gán badge cho user**
+- **Actor:** ADMIN
+- **Input:** Badge ID, User ID, reason, note, expiresAt (tùy chọn)
+- **Output:** user_badges mới được tạo
+- **Acceptance Criteria:**
+  - API endpoint: /api/admin/badges/[id]/assign
+  - Badge phải active và không bị xóa
+  - Không gán trùng badge active cho cùng user
+  - expiresAt có thể null (không hết hạn)
+  - is_visible mặc định = true
+  - Ghi audit log action = CREATE
+
+**FR-H-005: Thu hồi badge**
+- **Actor:** ADMIN
+- **Input:** User Badge ID, reason
+- **Output:** user_badges.revokedAt = now, revokedBy = adminId, revokeReason = reason
+- **Acceptance Criteria:**
+  - API endpoint: /api/admin/user-badges/[id]/revoke
+  - Soft revoke (không xóa bản ghi)
+  - Ghi audit log action = DELETE
+
+**FR-H-006: Xem danh sách badges**
+- **Actor:** ADMIN
+- **Input:** Filter (type, rarity, isActive, search)
+- **Output:** Danh sách badges với thống kê số user
+- **Acceptance Criteria:**
+  - API endpoint: /api/admin/badges
+  - Hỗ trợ phân trang
+  - Bao gồm userCount (số user đang có badge active)
+  - Chỉ hiển thị badges chưa bị xóa
+
+**FR-H-007: Xem badges của user**
+- **Actor:** BACKER, CREATOR, ADMIN
+- **Input:** User ID
+- **Output:** Danh sách badges của user
+- **Acceptance Criteria:**
+  - API endpoint: /api/badges hoặc /api/admin/users/[userId]/badges
+  - Mặc định chỉ hiển thị badges active (revoked_at = null, chưa hết hạn)
+  - Có thể tùy chọn includeRevoked, includeExpired
+  - Sắp xếp theo assigned_at giảm dần
+
+**FR-H-008: Xem badges công khai**
+- **Actor:** Guest, BACKER, CREATOR
+- **Input:** User ID
+- **Output:** Danh sách badges công khai của user
+- **Acceptance Criteria:**
+  - Chỉ hiển thị badges với is_visible = true
+  - Chỉ badges active và chưa hết hạn
+  - Dùng trên profile page
+
+#### Module I: Admin dashboard
+
+**FR-I-001: Duyệt chiến dịch**
+- **Mô tả:** Xem FR-B-004
+
+**FR-I-002: Duyệt KYC**
+- **Mô tả:** Xem FR-D-002
+
+**FR-I-003: Duyệt blog**
+- **Mô tả:** Xem FR-F-004
+
+**FR-I-004: Khóa tài khoản**
+- **Actor:** ADMIN
+- **Input:** User ID, lý do
+- **Output:** User.status = BANNED
+- **Acceptance Criteria:**
+  - API endpoint: /api/admin/users/[userId]/update-status
+  - User bị khóa không thể đăng nhập
+  - Ghi audit log action = UPDATE
+  - Gửi email thông báo
+
+**FR-I-005: Quản lý user**
+- **Actor:** ADMIN
+- **Input:** Filter (role, status, search)
+- **Output:** Danh sách users
+- **Acceptance Criteria:**
+  - API endpoint: /api/admin/users
+  - Hỗ trợ phân trang
+  - Có thể xem chi tiết user
+  - Có thể reset password [cần xác nhận với developer]
+
+**FR-I-006: Quản lý badges**
+- **Mô tả:** Xem FR-H-001 đến FR-H-006
+
+**FR-I-007: Xem thống kê doanh thu**
+- **Actor:** ADMIN
+- **Input:** Khoảng thời gian
+- **Output:** Báo cáo doanh thu
+- **Acceptance Criteria:**
+  - API endpoint: /api/stats
+  - Tổng doanh thu theo khoảng thời gian
+  - Doanh thu theo cổng thanh toán
+  - Doanh thu theo category
+  - Số chiến dịch SUCCESS/FAILED
+  - Số user active
+
+**FR-I-008: Xét xử báo cáo chiến dịch**
+- **Actor:** ADMIN
+- **Input:** Campaign Report ID, quyết định (resolve/dismiss), resolution
+- **Output:** campaign_reports.status = RESOLVED hoặc DISMISSED
+- **Acceptance Criteria:**
+  - API endpoint: /api/admin/reports
+  - Nếu resolve: status = RESOLVED, resolution = lý do, resolvedAt = now, resolvedBy = adminId
+  - Có thể khóa chiến dịch hoặc user nếu vi phạm
+  - Ghi audit log
+
+**FR-I-009: Xét xử báo cáo blog**
+- **Mô tả:** Xem FR-F-011
+
+**FR-I-010: Xét xử báo cáo chat**
+- **Actor:** ADMIN
+- **Input:** Chat Report ID, quyết định
+- **Output:** chat_report.status = 'resolved' hoặc 'dismissed'
+- **Acceptance Criteria:**
+  - Xem trong MongoDB collection 'chat_reports'
+  - Có thể block conversation hoặc user nếu vi phạm
+  - Ghi audit log
+
+#### Module J: Đánh giá, Social links, Audit log
+
+**FR-J-001: Tạo đánh giá**
+- **Actor:** BACKER
+- **Input:** Campaign ID, rating (1-5), comment, imageUrl (tùy chọn)
+- **Output:** reviews mới được tạo
+- **Acceptance Criteria:**
+  - User phải đã pledge thành công campaign
+  - Rating từ 1 đến 5
+  - Mỗi user chỉ đánh giá 1 lần mỗi campaign
+  - Chỉ đánh giá khi campaign status = SUCCESS hoặc FAILED
+
+**FR-J-002: Xem đánh giá**
+- **Actor:** Guest, BACKER, CREATOR, ADMIN
+- **Input:** Campaign ID
+- **Output:** Danh sách reviews
+- **Acceptance Criteria:**
+  - Hiển thị rating, comment, imageUrl, createdAt
+  - Hiển thị thông tin user (ẩn nếu ẩn danh)
+  - Tính trung bình rating
+
+**FR-J-003: Quản lý social links**
+- **Actor:** BACKER, CREATOR
+- **Input:** Social platform, URL
+- **Output:** socialLinks trong users được cập nhật
+- **Acceptance Criteria:**
+  - Social platforms enum: Facebook, Twitter, Instagram, LinkedIn, YouTube, TikTok, Website, Other
+  - Lưu dưới dạng JSON trong users.socialLinks
+  - Validate URL format
+
+**FR-J-004: Tạo audit log**
+- **Actor:** Hệ thống
+- **Input:** action (AuditAction), entityType, entityId, oldValue, newValue, changes, ipAddress, userAgent, reason, metadata
+- **Output:** audit_logs mới được tạo
+- **Acceptance Criteria:**
+  - AuditAction enum: CREATE, UPDATE, DELETE, REFUND, APPROVE, REJECT, CANCEL, LOGIN, LOGOUT, KYC_SUBMIT, KYC_APPROVE, KYC_REJECT
+  - Tự động ghi cho mọi hành động quan trọng
+  - Lưu song song trong PostgreSQL và MongoDB
+  - Không throw error nếu fail (không ảnh hưởng business logic)
+
+**FR-J-005: Xem audit log**
+- **Actor:** ADMIN
+- **Input:** EntityType, EntityID
+- **Output:** Danh sách audit logs
+- **Acceptance Criteria:**
+  - Hàm getAuditLogs(entityType, entityId)
+  - Sắp xếp theo createdAt giảm dần
+  - Bao gồm thông tin user thực hiện hành động
+  - Hiển thị oldValue, newValue, changes
+
+#### Module K: Hạ tầng & ràng buộc
+
+**FR-K-001: Upload ảnh**
+- **Actor:** BACKER, CREATOR, ADMIN
+- **Input:** File ảnh
+- **Output:** URL ảnh từ Cloudinary
+- **Acceptance Criteria:**
+  - API endpoint: /api/upload
+  - Validate file type (image only)
+  - Validate file size (max 5MB)
+  - Upload lên Cloudinary
+  - Trả về URL
+
+**FR-K-002: Singleton DB connection**
+- **Actor:** Hệ thống
+- **Input:** None
+- **Output:** Single instance của Prisma client
+- **Acceptance Criteria:**
+  - Sử dụng singleton pattern cho Prisma client
+  - Tránh tạo nhiều connection
+  - Tối ưu performance
+
+**FR-K-003: Rate limiting**
+- **Actor:** Hệ thống
+- **Input:** API request
+- **Output:** Cho phép hoặc từ chối
+- **Acceptance Criteria:**
+  - [cần xác nhận với developer] Rate limit cụ thể
+  - Áp dụng cho API endpoints nhạy cảm
+  - Trả về 429 Too Many Requests nếu vượt limit
+
+**FR-K-004: Security headers**
+- **Actor:** Hệ thống
+- **Input:** HTTP response
+- **Output:** Security headers được thêm
+- **Acceptance Criteria:**
+  - Include: CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy
+  - Cấu hình trong next.config.ts
+
+### 3.2 Yêu cầu phi chức năng (NFR)
+
+**NFR-001: Hiệu năng**
+- Hệ thống phải đáp ứng < 200ms cho 95% API requests
+- Hỗ trợ tối thiểu 1000 concurrent users
+- Trang phải load trong < 3s trên kết nối 3G
+
+**NFR-002: Bảo mật - Webhook signature**
+- Mọi webhook từ cổng thanh toán phải được xác minh signature/checksum
+- Signature key được lưu trong environment variable
+- Từ chối webhook không hợp lệ
+
+**NFR-003: Bảo mật - Rate limiting**
+- API endpoints phải có rate limiting để prevent DDoS
+- Rate limit: 100 requests/phút cho authenticated users, 20 requests/phút cho guests
+
+**NFR-004: Bảo mật - Authentication**
+- Password phải được hash bằng bcrypt hoặc tương đương
+- JWT token phải có expiry (mặc định 7 ngày)
+- Session phải được refresh token
+
+**NFR-005: Bảo mật - Authorization**
+- Middleware phải kiểm tra role trước khi cho phép truy cập
+- Admin endpoints chỉ accessible bởi ADMIN
+- Creator endpoints chỉ accessible bởi CREATOR
+
+**NFR-006: Bảo mật - Data encryption**
+- Dữ liệu nhạy cảm (password, KYC info) phải được encryption at rest
+- HTTPS bắt buộc cho production
+
+**NFR-007: Khả dụng**
+- Uptime tối thiểu 99.5%
+- Deploy trên Vercel với automatic scaling
+- Database phải có backup hàng ngày
+
+**NFR-008: Tương thích**
+- Hỗ trợ các browser chính: Chrome, Firefox, Safari, Edge (phiên bản mới nhất)
+- Hỗ trợ mobile responsive (viewport từ 320px)
+- Hỗ trợ tiếng Việt
+
+**NFR-009: Maintainability**
+- Code phải tuân thủ TypeScript strict mode
+- Code coverage tối thiểu 80%
+- Tất cả test cases phải pass (88/100%)
+
+**NFR-010: Scalability**
+- Architecture phải hỗ trợ horizontal scaling
+- MongoDB và PostgreSQL phải có connection pooling
+- Static assets phải được CDN (Cloudinary)
+
+### 3.3 Yêu cầu dữ liệu (DR)
+
+**DR-001: users**
+- Bảng người dùng trong PostgreSQL
+- Fields: id, email, password, name, displayName, avatar, phone, role, isOrganization, isAdmin, bio, idCard, businessLicense, bankAccount, bankName, approvedAt, createdAt, updatedAt, image, location, website, coverImage, shippingAddress, socialLinks (JSON), status
+- Indexes: email (unique), role, status
+
+**DR-002: campaigns**
+- Bảng chiến dịch trong PostgreSQL
+- Fields: id, campaignCode (unique), slug (unique), title, description, longDescription, videoUrl, imageUrl, type, category, tags (array), goalAmount, currentAmount, status, startDate, endDate, creatorId, projectId, feeRate, createdAt, updatedAt, images (array)
+- Indexes: category, projectId, tags
+
+**DR-003: pledges**
+- Bảng giao dịch ủng hộ trong PostgreSQL
+- Fields: id, campaignId, userId, displayName, isAnonymous, email, phoneNumber, amount, tipAmount, platformFee, vatAmount, totalAmount, paymentProvider, transactionId (unique), ipAddress, deviceInfo (JSON), status, refundStatus, refundedAt, invoiceGroupDate, createdAt, updatedAt, rewardId, shippingAddress, payosOrderCode (unique), webhookProcessedAt
+- Relations: campaigns, users, rewards, backer_invoices, audit_logs
+
+**DR-004: kyc_info**
+- Bảng thông tin KYC trong PostgreSQL
+- Fields: id, userId (unique), fullName, idCardNumber (unique), idCardType, idCardFrontImage, idCardBackImage, idCardIssueDate, idCardIssuePlace, dateOfBirth, placeOfBirth, nationality, permanentAddress, currentAddress, occupation, monthlyIncome, verificationStatus, verifiedAt, verifiedBy, rejectedReason, riskLevel, createdAt, updatedAt
+- Relations: users
+
+**DR-005: rewards**
+- Bảng phần thưởng trong PostgreSQL
+- Fields: id, campaignId, title, description, createdAt, deliveryDate, isActive, maxQuantity, minAmount, updatedAt
+- Relations: campaigns, pledges
+- Indexes: campaignId
+
+**DR-006: blog_posts**
+- Bảng bài viết blog trong PostgreSQL
+- Fields: id, authorId, campaignId, projectId, mongoContentId, title, slug (unique), excerpt, coverImage, status, type, visibility, publishedAt, createdAt, updatedAt, deletedAt, viewCount, likeCount, commentCount, bookmarkCount, isFeatured, wordCount, readingTimeMinutes, content
+- Relations: users, campaigns, projects, blog_reports, campaign_blog_links
+- Indexes: authorId, campaignId, projectId, deletedAt, isFeatured, publishedAt, slug, status, type, visibility
+
+**DR-007: blog_comments**
+- Bảng bình luận blog trong PostgreSQL
+- Fields: id, postId, userId, parentId, content, status, createdAt, updatedAt, deletedAt
+- Relations: blog_posts, users
+- Indexes: parentId, postId, userId
+
+**DR-008: blog_likes**
+- Bảng like blog trong PostgreSQL
+- Fields: id, postId, userId, createdAt
+- Relations: blog_posts, users
+- Unique: (postId, userId)
+- Indexes: postId, userId
+
+**DR-009: blog_bookmarks**
+- Bảng bookmark blog trong PostgreSQL
+- Fields: id, postId, userId, createdAt
+- Relations: blog_posts, users
+- Unique: (postId, userId)
+- Indexes: postId, userId
+
+**DR-010: blog_categories**
+- Bảng danh mục blog trong PostgreSQL
+- Fields: id, name, slug (unique), description, createdAt
+- Relations: blog_post_categories
+
+**DR-011: blog_tags**
+- Bảng tag blog trong PostgreSQL
+- Fields: id, name, slug (unique)
+- Relations: blog_post_tags
+
+**DR-012: blog_reports**
+- Bảng báo cáo blog trong PostgreSQL
+- Fields: id, postId, commentId, reporterId, reason, description, status, reviewedBy, reviewedAt, createdAt
+- Relations: blog_posts, users
+- Indexes: commentId, postId, reporterId, status
+
+**DR-013: badges**
+- Bảng huy hiệu trong PostgreSQL
+- Fields: id, name, slug (unique), description, icon_url, icon_name, color, background_color, type, rarity, is_active, created_by, created_at, updated_at, deleted_at
+- Relations: users, user_badges
+- Indexes: deleted_at, is_active, slug, type
+
+**DR-014: user_badges**
+- Bảng gán huy hiệu trong PostgreSQL
+- Fields: id, user_id, badge_id, assigned_by, reason, note, assigned_at, expires_at, revoked_at, revoked_by, revoke_reason, is_visible
+- Relations: badges, users
+- Indexes: assigned_by, badge_id, revoked_at, user_id
+
+**DR-015: campaign_updates**
+- Bảng cập nhật chiến dịch trong PostgreSQL
+- Fields: id, campaignId, title, content, imageUrl, createdAt, isPinned, tags (array), updatedAt
+- Relations: campaigns
+- Indexes: campaignId (isPinned), tags
+
+**DR-016: campaign_followers**
+- Bảng theo dõi chiến dịch trong PostgreSQL
+- Fields: id, campaignId, userId, email, createdAt
+- Relations: campaigns, users
+- Unique: (campaignId, email), (campaignId, userId)
+- Indexes: campaignId, userId
+
+**DR-017: campaign_reports**
+- Bảng báo cáo chiến dịch trong PostgreSQL
+- Fields: id, campaignId, userId, reason, description, status, resolvedAt, resolvedBy, resolution, createdAt
+- Relations: campaigns, users
+- Unique: (campaignId, userId)
+- Indexes: campaignId, status, userId
+
+**DR-018: campaign_blog_links**
+- Bảng liên kết campaign-blog trong PostgreSQL
+- Fields: id, campaignId, blogPostId, order, createdAt
+- Relations: campaigns, blog_posts
+- Unique: (campaignId, blogPostId)
+- Indexes: blogPostId, campaignId
+
+**DR-019: backer_invoices**
+- Bảng hóa đơn backer trong PostgreSQL
+- Fields: id, invoiceNumber (unique), pledgeId (unique), backerName, backerEmail, backerPhone, backerAddress, backerTaxCode, companyName, amount, tipAmount, platformFee, vatAmount, totalAmount, campaignTitle, paymentMethod, transactionId, status, issuedAt, pdfUrl, sentAt, createdAt, updatedAt
+- Relations: pledges
+- Indexes: invoiceNumber, pledgeId
+
+**DR-020: platform_invoices**
+- Bảng hóa đơn nền tảng trong PostgreSQL
+- Fields: id, invoiceNumber (unique), campaignId, creatorId, amount, vatAmount, totalAmount, status, dueDate, paidAt, paymentMethod, createdAt, updatedAt
+- Relations: campaigns, users
+
+**DR-021: daily_tip_invoices**
+- Bảng hóa đơn tip hàng ngày trong PostgreSQL
+- Fields: id, invoiceDate (unique), totalTip, totalVat, status, createdAt
+
+**DR-022: transaction_limits**
+- Bảng giới hạn giao dịch trong PostgreSQL
+- Fields: id, userId (unique), kycStatus, maxPerTransaction, maxPerDay, maxPerMonth, maxTransactionsPerDay, isActive, createdAt, updatedAt
+
+**DR-023: blacklist**
+- Bảng blacklist trong PostgreSQL
+- Fields: id, type, value, reason, addedBy, isActive, expiresAt, createdAt, updatedAt
+- Unique: (type, value)
+- Indexes: (type, value, isActive)
+
+**DR-024: audit_logs**
+- Bảng audit log trong PostgreSQL
+- Fields: id, userId, action, entityType, entityId, oldValue (JSON), newValue (JSON), changes (JSON), ipAddress, userAgent, reason, metadata (JSON), createdAt
+- Relations: pledges, users
+- Indexes: createdAt, (entityType, entityId), userId
+
+**DR-025: conversations (MongoDB)**
+- Collection hội thoại chat trong MongoDB
+- Fields: _id, conversationKey, type, participants (array), participantIds (array), campaign (object), unreadCount (object), isActive, isReported, blockedBy (array), createdAt, updatedAt
+
+**DR-026: messages (MongoDB)**
+- Collection tin nhắn chat trong MongoDB
+- Fields: _id, conversationId, senderId, senderName, senderAvatar, text, type, attachments (array), readBy (array), isDeleted, createdAt, updatedAt
+
+**DR-027: chat_reports (MongoDB)**
+- Collection báo cáo chat trong MongoDB
+- Fields: _id, conversationId, messageId, reporterId, reason, description, status, createdAt, updatedAt
+
+**DR-028: reviews**
+- Bảng đánh giá trong PostgreSQL
+- Fields: id, userId, campaignId, rating, comment, imageUrl, createdAt
+- Relations: campaigns, users
+
+**DR-029: projects**
+- Bảng dự án trong PostgreSQL
+- Fields: id, creatorId, title, description, createdAt, updatedAt
+- Relations: users, campaigns, blog_posts
+- Indexes: creatorId
+
+### 3.4 Use case
+
+| Actor | Use Case |
+|-------|----------|
+| **Guest** | UC-G-001: Xem danh sách chiến dịch |
+| **Guest** | UC-G-002: Xem chi tiết chiến dịch |
+| **Guest** | UC-G-003: Tìm kiếm chiến dịch |
+| **Guest** | UC-G-004: Xem bài viết blog công khai |
+| **Guest** | UC-G-005: Tìm kiếm người dùng |
+| **Guest** | UC-G-006: Xem profile công khai user |
+| **Guest** | UC-G-007: Đăng ký tài khoản |
+| **Guest** | UC-G-008: Đăng nhập |
+| **BACKER** | UC-B-001: ủng hộ chiến dịch |
+| **BACKER** | UC-B-002: Theo dõi chiến dịch |
+| **BACKER** | UC-B-003: Báo cáo chiến dịch vi phạm |
+| **BACKER** | UC-B-004: Like bài viết blog |
+| **BACKER** | UC-B-005: Bookmark bài viết blog |
+| **BACKER** | UC-B-006: Bình luận bài viết blog |
+| **BACKER** | UC-B-007: Chat với Creator |
+| **BACKER** | UC-B-008: Đánh giá chiến dịch |
+| **BACKER** | UC-B-009: Xem hồ sơ cá nhân |
+| **BACKER** | UC-B-010: Chỉnh sửa hồ sơ cá nhân |
+| **BACKER** | UC-B-011: Nâng cấp lên CREATOR_PENDING |
+| **CREATOR_PENDING** | UC-CP-001: Nộp hồ sơ KYC |
+| **CREATOR_PENDING** | UC-CP-002: Chờ duyệt KYC |
+| **CREATOR** | UC-C-001: Tạo chiến dịch mới |
+| **CREATOR** | UC-C-002: Chỉnh sửa chiến dịch DRAFT |
+| **CREATOR** | UC-C-003: Nộp chiến dịch để duyệt |
+| **CREATOR** | UC-C-004: Đăng cập nhật chiến dịch |
+| **CREATOR** | UC-C-005: Tạo reward cho chiến dịch |
+| **CREATOR** | UC-C-006: Quản lý rewards |
+| **CREATOR** | UC-C-007: Viết bài viết blog |
+| **CREATOR** | UC-C-008: Liên kết blog với chiến dịch |
+| **CREATOR** | UC-C-009: Chat với Backer |
+| **CREATOR** | UC-C-010: Hủy chiến dịch |
+| **CREATOR** | UC-C-011: Xem thống kê chiến dịch |
+| **ADMIN** | UC-A-001: Duyệt chiến dịch |
+| **ADMIN** | UC-A-002: Duyệt KYC |
+| **ADMIN** | UC-A-003: Duyệt bài viết blog |
+| **ADMIN** | UC-A-004: Duyệt bình luận |
+| **ADMIN** | UC-A-005: Khóa tài khoản |
+| **ADMIN** | UC-A-006: Quản lý badges |
+| **ADMIN** | UC-A-007: Gán badge cho user |
+| **ADMIN** | UC-A-008: Thu hồi badge |
+| **ADMIN** | UC-A-009: Xem thống kê doanh thu |
+| **ADMIN** | UC-A-010: Xử lý báo cáo chiến dịch |
+| **ADMIN** | UC-A-011: Xử lý báo cáo blog |
+| **ADMIN** | UC-A-012: Xử lý báo cáo chat |
+| **ADMIN** | UC-A-013: Xem audit log |
+
+---
+
+## 4. MA TRẬN TRUY VẾT (TRACEABILITY MATRIX)
+
+| FR/NFR | TC-001 | TC-002 | TC-003 | TC-004 | TC-005 | TC-006 | TC-007 | TC-008 | TC-009 | TC-010 | ... | TC-088 |
+|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|-----|--------|
+| FR-A-001 | ✅ | | | | | | | | | | | |
+| FR-A-002 | | ✅ | ✅ | | | | | | | | | |
+| FR-A-003 | | | | ✅ | | | | | | | | |
+| FR-A-004 | | | | | ✅ | ✅ | | | | | | |
+| FR-A-005 | | | | | | | ✅ | | | | | |
+| FR-A-006 | | | | | | | | ✅ | | | | |
+| FR-A-007 | | | | | | | | | ✅ | | | |
+| FR-A-008 | | | | | | | | | | ✅ | | |
+| FR-A-009 | | | | | | | | | | | ✅ | |
+| FR-A-010 | | | | | | | | | | | | ✅ |
+| FR-B-001 | ✅ | | | | | | | | | | | |
+| FR-B-002 | | ✅ | | | | | | | | | | |
+| FR-B-003 | | | ✅ | | | | | | | | | |
+| FR-B-004 | | | | ✅ | ✅ | | | | | | | |
+| FR-B-005 | | | | | | ✅ | ✅ | | | | | |
+| FR-B-006 | | | | | | | | ✅ | | | | |
+| FR-B-007 | | | | | | | | | ✅ | | | |
+| FR-B-008 | | | | | | | | | | ✅ | | |
+| FR-B-009 | | | | | | | | | | | ✅ | |
+| FR-B-010 | | | | | | | | | | | | ✅ |
+| FR-B-011 | ✅ | | | | | | | | | | | |
+| FR-B-012 | | ✅ | | | | | | | | | | |
+| FR-C-001 | | | ✅ | | | | | | | | | |
+| FR-C-002 | | | | ✅ | | | | | | | | |
+| FR-C-003 | | | | | ✅ | ✅ | | | | | | |
+| FR-C-004 | | | | | | | ✅ | | | | | |
+| FR-C-005 | | | | | | | | ✅ | | | | |
+| FR-C-006 | | | | | | | | | ✅ | | | |
+| FR-C-007 | | | | | | | | | | ✅ | | |
+| FR-C-008 | | | | | | | | | | | ✅ | |
+| FR-C-009 | | | | | | | | | | | | ✅ |
+| FR-C-010 | ✅ | | | | | | | | | | | |
+| FR-C-011 | | ✅ | | | | | | | | | | |
+| FR-C-012 | | | ✅ | | | | | | | | | |
+| FR-C-013 | | | | ✅ | | | | | | | | |
+| FR-C-014 | | | | | ✅ | | | | | | | |
+| FR-D-001 | ✅ | | | | | | | | | | | |
+| FR-D-002 | | ✅ | ✅ | | | | | | | | | |
+| FR-D-003 | | | | ✅ | | | | | | | | |
+| FR-D-004 | | | | | ✅ | | | | | | | |
+| FR-D-005 | | | | | | ✅ | | | | | | |
+| FR-E-001 | ✅ | | | | | | | | | | | |
+| FR-E-002 | | ✅ | | | | | | | | | | |
+| FR-E-003 | | | ✅ | | | | | | | | | |
+| FR-E-004 | | | | ✅ | | | | | | | | |
+| FR-F-001 | ✅ | | | | | | | | | | | |
+| FR-F-002 | | ✅ | | | | | | | | | | |
+| FR-F-003 | | | ✅ | | | | | | | | | |
+| FR-F-004 | | | | ✅ | ✅ | | | | | | | |
+| FR-F-005 | | | | | | | ✅ | ✅ | | | | |
+| FR-F-006 | | | | | | | | | ✅ | | | |
+| FR-F-007 | | | | | | | | | | ✅ | | |
+| FR-F-008 | | | | | | | | | | | ✅ | |
+| FR-F-009 | | | | | | | | | | | | ✅ |
+| FR-F-010 | ✅ | | | | | | | | | | | |
+| FR-F-011 | | ✅ | | | | | | | | | | |
+| FR-G-001 | ✅ | | | | | | | | | | | |
+| FR-G-002 | | ✅ | | | | | | | | | | |
+| FR-G-003 | | | ✅ | | | | | | | | | |
+| FR-G-004 | | | | ✅ | | | | | | | | |
+| FR-G-005 | | | | | ✅ | | | | | | | |
+| FR-G-006 | | | | | | ✅ | | | | | | |
+| FR-G-007 | | | | | | | ✅ | | | | | |
+| FR-G-008 | | | | | | | | ✅ | | | | |
+| FR-G-009 | | | | | | | | | ✅ | | | |
+| FR-H-001 | ✅ | | | | | | | | | | | |
+| FR-H-002 | | ✅ | | | | | | | | | | |
+| FR-H-003 | | | ✅ | | | | | | | | | |
+| FR-H-004 | | | | ✅ | | | | | | | | |
+| FR-H-005 | | | | | ✅ | | | | | | | |
+| FR-H-006 | | | | | | ✅ | ✅ | | | | | |
+| FR-H-007 | | | | | | | | ✅ | | | | |
+| FR-H-008 | | | | | | | | | ✅ | | | |
+| FR-I-001 | ✅ | | | | | | | | | | | |
+| FR-I-002 | | ✅ | | | | | | | | | | |
+| FR-I-003 | | | ✅ | | | | | | | | | |
+| FR-I-004 | | | | ✅ | | | | | | | | |
+| FR-I-005 | | | | | ✅ | | | | | | | |
+| FR-I-006 | | | | | | ✅ | | | | | | |
+| FR-I-007 | | | | | | | ✅ | ✅ | | | | |
+| FR-I-008 | | | | | | | | | ✅ | | | |
+| FR-I-009 | | | | | | | | | | ✅ | | |
+| FR-I-010 | | | | | | | | | | | ✅ | |
+| FR-J-001 | ✅ | | | | | | | | | | | |
+| FR-J-002 | | ✅ | | | | | | | | | | |
+| FR-J-003 | | | ✅ | | | | | | | | | |
+| FR-J-004 | | | | | ✅ | | | | | | | | |
+| FR-J-005 | | | | | | ✅ | | | | | | | |
+| FR-K-001 | ✅ | | | | | | | | | | | |
+| FR-K-002 | | ✅ | | | | | | | | | | |
+| FR-K-003 | | | ✅ | | | | | | | | | |
+| FR-K-004 | | | | | ✅ | | | | | | | | |
+| NFR-001 | ✅ | ✅ | | | | | | | | | | |
+| NFR-002 | | | ✅ | | | | | | | | | |
+| NFR-003 | | | | ✅ | | | | | | | | |
+| NFR-004 | | | | | ✅ | | | | | | | |
+| NFR-005 | | | | | | ✅ | | | | | | |
+| NFR-006 | | | | | | | ✅ | | | | | |
+| NFR-007 | | | | | | | | ✅ | | | | |
+| NFR-008 | | | | | | | | | ✅ | | | |
+| NFR-009 | | | | | | | | | | ✅ | ✅ | |
+| NFR-010 | | | | | | | | | | | | ✅ |
+
+**Ghi chú:** Ma trận trên là ví dụ. Test case cụ thể (TC-xxx) sẽ được mapping chi tiết trong tài liệu kiểm thử riêng.
+
+---
+
+## 5. PHỤ LỤC
+
+### 5.1 Máy trạng thái chiến dịch (Campaign State Machine)
+
+```
+┌─────────────┐
+│   DRAFT     │
+└──────┬──────┘
+       │ submit
+       ▼
+┌─────────────────┐
+│ PENDING_REVIEW  │
+└──────┬──────────┘
+       │ approve
+       ▼
+┌─────────────┐
+│   ACTIVE    │◄─────────────┐
+└──────┬──────┘              │
+       │                     │
+       │ expire (success)    │ expire (failed)
+       ▼                     │
+┌─────────────┐              │
+│  SUCCESS    │              │
+└─────────────┘              │
+                              │
+                              ▼
+                       ┌─────────────┐
+                       │   FAILED    │
+                       └─────────────┘
+
+┌─────────────┐
+│   DRAFT     │───── cancel ─────▶ CANCELED
+└─────────────┘
+
+┌─────────────────┐
+│ PENDING_REVIEW  │───── reject ────▶ CANCELED
+└─────────────────┘
+
+┌─────────────┐
+│   ACTIVE    │───── cancel ──────▶ CANCELED
+└─────────────┘
+```
+
+**Chuyển trạng thái hợp lệ:**
+- DRAFT → PENDING_REVIEW (submit)
+- DRAFT → CANCELED (cancel)
+- PENDING_REVIEW → ACTIVE (approve)
+- PENDING_REVIEW → CANCELED (reject)
+- ACTIVE → SUCCESS (expire, currentAmount >= goalAmount)
+- ACTIVE → FAILED (expire, currentAmount < goalAmount)
+- ACTIVE → CANCELED (cancel)
+
+### 5.2 Máy trạng thái Pledge (Pledge State Machine)
+
+```
+┌─────────────┐
+│   PENDING   │
+└──────┬──────┘
+       │ payment success
+       ▼
+┌─────────────┐
+│  SUCCESS    │◄─────────────┐
+└──────┬──────┘              │
+       │                     │ refund
+       │                     │
+       ▼                     │
+┌─────────────┐              │
+│  REFUNDED   │              │
+└─────────────┘              │
+                              │
+┌─────────────┐              │
+│   PENDING   │──── timeout ──┘
+└──────┬──────┘
+       │ payment failed
+       ▼
+┌─────────────┐
+│   FAILED    │
+└─────────────┘
+```
+
+**Chuyển trạng thái hợp lệ:**
+- PENDING → SUCCESS (webhook thanh toán thành công)
+- PENDING → FAILED (webhook thanh toán thất bại hoặc timeout)
+- PENDING → FAILED (cron cleanup-payments)
+- SUCCESS → REFUNDED (refund khi campaign FAILED/CANCELED hoặc refund request)
+
+### 5.3 Máy trạng thái KYC (KYC State Machine)
+
+```
+┌─────────────┐
+│   PENDING   │
+└──────┬──────┘
+       │ approve
+       ▼
+┌─────────────┐
+│  VERIFIED   │◄─────────────┐
+└──────┬──────┘              │
+       │                     │ expire
+       │                     │
+       ▼                     │
+┌─────────────┐              │
+│   EXPIRED   │              │
+└──────┬──────┘              │
+       │                     │
+       │ resubmit            │
+       └─────────────────────┘
+
+┌─────────────┐
+│   PENDING   │──── reject ────▶ REJECTED
+└─────────────┘
+
+┌─────────────┐
+│  REJECTED   │──── resubmit ───▶ PENDING
+└─────────────┘
+
+┌─────────────┐
+│   EXPIRED   │──── resubmit ────▶ PENDING
+└─────────────┘
+```
+
+**Chuyển trạng thái hợp lệ:**
+- PENDING → VERIFIED (admin approve)
+- PENDING → REJECTED (admin reject)
+- REJECTED → PENDING (resubmit)
+- VERIFIED → EXPIRED (expire theo thời gian)
+- EXPIRED → PENDING (resubmit)
+
+### 5.4 Enum Definitions
+
+**UserRole:** ADMIN, BACKER, CREATOR_PENDING, CREATOR
+
+**UserStatus:** NORMAL, PRO, BANNED
+
+**CampaignType:** REWARD, DONATION
+
+**CampaignStatus:** DRAFT, PENDING_REVIEW, ACTIVE, SUCCESS, FAILED, CANCELED
+
+**CampaignReportReason:** FRAUD, INAPPROPRIATE, MISLEADING, SCAM, INTELLECTUAL_PROPERTY, OTHER
+
+**PledgeStatus:** PENDING, SUCCESS, FAILED, REFUNDED
+
+**RefundStatus:** NO_REFUND, REQUESTED, PROCESSING, COMPLETED, FAILED
+
+**KYCStatus:** PENDING, VERIFIED, REJECTED, EXPIRED
+
+**IDCardType:** CMND, CCCD, PASSPORT
+
+**RiskLevel:** LOW, MEDIUM, HIGH, CRITICAL
+
+**InvoiceStatus:** PENDING, PAID, OVERDUE, CANCELLED
+
+**BadgeType:** custom, achievement
+
+**BadgeRarity:** common, rare, epic, legendary
+
+**BlogPostStatus:** DRAFT, PENDING_REVIEW, PUBLISHED, ARCHIVED, REJECTED
+
+**BlogPostType:** PLATFORM, CAMPAIGN_UPDATE, ANNOUNCEMENT, STORY, IMPACT_REPORT
+
+**BlogVisibility:** PUBLIC, BACKERS_ONLY, OWNER_ONLY, PRIVATE
+
+**BlogCommentStatus:** VISIBLE, HIDDEN, DELETED, PENDING_REVIEW
+
+**BlogReportReason:** SPAM, ABUSE, MISINFORMATION, SCAM, INAPPROPRIATE, OTHER
+
+**ReportStatus:** PENDING, REVIEWING, RESOLVED, DISMISSED
+
+**BlacklistType:** IP, EMAIL, PHONE, BANK_ACCOUNT, DEVICE_ID
+
+**AuditAction:** CREATE, UPDATE, DELETE, REFUND, APPROVE, REJECT, CANCEL, LOGIN, LOGOUT, KYC_SUBMIT, KYC_APPROVE, KYC_REJECT
+
+---
+
+**KẾT THÚC TÀI LIỆU**
+
+---
+
+## Nguồn: `docs/TEMP_RICH_TEXT_SOURCE_EXPORT.md`
+
+# TEMP RICH TEXT SOURCE EXPORT
+
+File này là bản tổng hợp mã nguồn Rich Text Editor/Renderer của TửTế Fund để gửi cho ChatGPT phân tích.
+Không phải tài liệu chính thức.
+Có thể xóa sau khi dùng xong.
+
+## 1. Mục tiêu phân tích
+
+Rich Text cần được cải thiện cho:
+- Tạo chiến dịch
+- Chỉnh sửa chiến dịch
+- Cập nhật chiến dịch
+- Viết blog
+- Hiển thị nội dung đã lưu
+- Chèn link/ảnh/video
+- Toolbar/bubble menu
+- Mobile/responsive
+- Creator UX
+
+## 2. Danh sách file đã gom
+
+| STT | File | Vai trò |
+|---|---|---|
+| 1 | `src/components/editor/ProductionEditor.tsx` | Rich Text Editor chính |
+| 2 | `src/components/editor/RichTextEditor.tsx` | Rich Text Editor (legacy) |
+| 3 | `src/components/editor/EditorToolbar.tsx` | Toolbar editor |
+| 4 | `src/components/editor/EditorBubbleMenu.tsx` | Bubble menu floating |
+| 5 | `src/components/editor/LinkPopover.tsx` | Popover chèn link |
+| 6 | `src/components/editor/VideoPopover.tsx` | Popover chèn video |
+| 7 | `src/components/editor/editor.css` | Styles cho editor |
+| 8 | `src/components/editor/extensions/index.ts` | Cấu hình extensions |
+| 9 | `src/components/editor/extensions/callout.ts` | Extension callout |
+| 10 | `src/components/editor/extensions/image-with-caption.ts` | Extension ảnh có caption |
+| 11 | `src/components/editor/extensions/video-embed.ts` | Extension video embed |
+| 12 | `src/components/editor/extensions/slash-command.tsx` | Extension slash command |
+| 13 | `src/components/editor/index.ts` | Export public API |
+| 14 | `src/components/shared/RichTextRenderer.tsx` | Renderer hiển thị rich text |
+| 15 | `src/app/campaigns/create/page.tsx` | Trang tạo chiến dịch (sử dụng editor) |
+| 16 | `src/components/campaign/CampaignEditForm.tsx` | Form edit chiến dịch (sử dụng editor) |
+| 17 | `src/components/campaign/UpdateSection.tsx` | Section cập nhật chiến dịch (sử dụng editor & renderer) |
+| 18 | `src/components/campaign/CampaignTabsWrapper.tsx` | Tabs wrapper chiến dịch (sử dụng renderer) |
+| 19 | `src/app/blog/editor/page.tsx` | Blog editor (sử dụng editor) |
+| 20 | `src/app/blog/[slug]/page.tsx` | Blog detail page (hiển thị content) |
+| 21 | `src/components/blog/BlogCard.tsx` | Blog card component |
+| 22 | `src/lib/editor/constants.ts` | Constants editor |
+| 23 | `src/types/editor.ts` | Types cho editor |
+| 24 | `src/lib/editor/link-validation.ts` | Validation cho link |
+| 25 | `src/lib/editor/link-commands.ts` | Commands cho link |
+
+## 3. File không tìm thấy
+
+- `src/components/blog/BlogEditor.tsx` - Không tồn tại
+- `src/components/blog/BlogContent.tsx` - Không tồn tại
+
+## 4. Nơi Rich Text đang được dùng
+
+| Trang/Component | File | Field | Vai trò |
+|---|---|---|---|
+| Tạo chiến dịch | `src/app/campaigns/create/page.tsx` | `description` | Nhập mô tả chiến dịch |
+| Edit chiến dịch | `src/components/campaign/CampaignEditForm.tsx` | `description` | Chỉnh sửa mô tả chiến dịch |
+| Cập nhật chiến dịch | `src/components/campaign/UpdateSection.tsx` | `content` | Nhập nội dung cập nhật |
+| Cập nhật chiến dịch (hiển thị) | `src/components/campaign/UpdateSection.tsx` | `content` | Hiển thị nội dung cập nhật |
+| Chi tiết chiến dịch | `src/components/campaign/CampaignTabsWrapper.tsx` | `longDescription` hoặc `description` | Hiển thị mô tả chiến dịch |
+| Blog editor | `src/app/blog/editor/page.tsx` | `content` | Nhập nội dung blog |
+| Blog detail | `src/app/blog/[slug]/page.tsx` | `content` hoặc `richContent` | Hiển thị nội dung blog |
+
+---
+
+## 5. Source Code
+
+### 5.1 `src/components/editor/ProductionEditor.tsx`
+
+```tsx
+/**
+ * Production-Ready Rich Text Editor
+ * Complete editor with all features, optimizations, and security
+ */
+
+'use client';
+
+import React, { useEffect, useCallback, useState, useRef } from 'react';
+import { useEditor, EditorContent } from '@tiptap/react';
+import { Editor } from '@tiptap/core';
+import { getEditorExtensions } from './extensions';
+import { EditorToolbar } from './EditorToolbar';
+import { EditorBubbleMenu } from './EditorBubbleMenu';
+import { LinkPopover } from './LinkPopover';
+import { VideoPopover } from './VideoPopover';
+import { getLinkAtCursor, isSelectionInsideLink, saveSelection, type SavedSelection } from '@/lib/editor/link-commands';
+import { sanitizeHtml } from '@/lib/editor/sanitize';
+import { getUrlError, normalizeUrl, isValidVideoUrl, getVideoProvider } from '@/lib/editor/validation';
+import { EDITOR_LIMITS, ERROR_MESSAGES } from '@/lib/editor/constants';
+import { RichTextEditorProps, SaveStatus, UploadProgress } from '@/types/editor';
+import { toast } from 'sonner';
+import './editor.css';
+
+export function ProductionEditor({
+  content,
+  onChange,
+  config = {},
+  callbacks = {},
+  className = '',
+}: RichTextEditorProps) {
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved');
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
+  const [wordCount, setWordCount] = useState(0);
+  const [charCount, setCharCount] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isLinkPopoverOpen, setIsLinkPopoverOpen] = useState(false);
+  const [linkPopoverInitialUrl, setLinkPopoverInitialUrl] = useState('');
+  const [isLinkEditMode, setIsLinkEditMode] = useState(false);
+  const [linkSavedSelection, setLinkSavedSelection] = useState<SavedSelection | null>(null);
+  const [isVideoPopoverOpen, setIsVideoPopoverOpen] = useState(false);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const editorRef = useRef<Editor | null>(null);
+  const isMountedRef = useRef(true);
+  const onChangeDebounceRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const isLinkPopoverOpenRef = useRef(false); // Track popover state
+  const isVideoPopoverOpenRef = useRef(false); // Track video popover state
+
+  // Editor configuration
+  const {
+    placeholder,
+    maxLength = EDITOR_LIMITS.MAX_CONTENT_LENGTH,
+    autosave = true,
+    autosaveDelay = EDITOR_LIMITS.AUTOSAVE_DELAY,
+    enableBubbleMenu = true,
+    readOnly = false,
+    editable = true,
+  } = config;
+
+  // Initialize editor
+  const editor = useEditor({
+    immediatelyRender: false, // Fix SSR hydration warning
+    extensions: getEditorExtensions({
+      placeholder,
+      maxLength,
+    }),
+    content: content || '',
+    editable: editable && !readOnly,
+    editorProps: {
+      attributes: {
+        class: 'prose prose-lg max-w-none min-h-[400px] px-6 py-6 focus:outline-none',
+      },
+      handlePaste: (view, event, slice) => {
+        // Let Tiptap handle paste, it will sanitize through extensions
+        return false;
+      },
+      handleDOMEvents: {
+        // Simplified - no special handling needed
+        // LinkPopover handles its own click outside
+      },
+    },
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML();
+
+      // Update counts (debounced for performance)
+      if (onChangeDebounceRef.current) {
+        clearTimeout(onChangeDebounceRef.current);
+      }
+
+      onChangeDebounceRef.current = setTimeout(() => {
+        if (isMountedRef.current) {
+          const text = editor.getText();
+          setWordCount(text.split(/\s+/).filter(w => w.length > 0).length);
+          setCharCount(text.length);
+        }
+      }, 300);
+
+      // Call onChange callback immediately
+      onChange(html);
+
+      // Handle autosave
+      if (autosave && callbacks.onSave) {
+        handleAutosave(html);
+      } else {
+        if (isMountedRef.current) {
+          setSaveStatus('idle');
+        }
+      }
+    },
+    onFocus: ({ editor, event }) => {
+      console.log('[ProductionEditor] Editor focused');
+      callbacks.onFocus?.();
+    },
+    onBlur: ({ editor, event }) => {
+      console.log('[ProductionEditor] Editor blurred');
+      callbacks.onBlur?.();
+    },
+  });
+
+  // Store editor ref and track mount status
+  useEffect(() => {
+    isMountedRef.current = true;
+    if (editor) {
+      editorRef.current = editor;
+    }
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, [editor]);
+
+  // Sync content when prop changes (external updates)
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      const { from, to } = editor.state.selection;
+      editor.commands.setContent(content, false);
+      // Restore selection if possible
+      if (from !== to) {
+        editor.commands.setTextSelection({ from, to });
+      }
+    }
+  }, [content, editor]);
+
+  // Autosave handler with debounce
+  const handleAutosave = useCallback(
+    (content: string) => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+
+      setSaveStatus('saving');
+
+      saveTimeoutRef.current = setTimeout(async () => {
+        try {
+          if (callbacks.onSave) {
+            await callbacks.onSave(content);
+            if (isMountedRef.current) {
+              setSaveStatus('saved');
+              setLastSaved(new Date());
+            }
+          }
+        } catch (error) {
+          if (isMountedRef.current) {
+            setSaveStatus('error');
+          }
+          callbacks.onError?.(error as Error);
+          toast.error(ERROR_MESSAGES.SAVE_FAILED);
+        }
+      }, autosaveDelay);
+    },
+    [callbacks, autosaveDelay]
+  );
+
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      if (onChangeDebounceRef.current) {
+        clearTimeout(onChangeDebounceRef.current);
+      }
+    };
+  }, []);
+
+  // Image upload handler
+  const handleImageUpload = useCallback(async () => {
+    if (!editor) return;
+
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      // Validate file
+      if (file.size > EDITOR_LIMITS.MAX_IMAGE_SIZE) {
+        toast.error(ERROR_MESSAGES.FILE_TOO_LARGE);
+        return;
+      }
+
+      try {
+        setIsUploading(true);
+        callbacks.onUploadStart?.();
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error('Upload failed');
+        }
+
+        const data = await response.json();
+
+        // Insert image
+        editor.chain().focus().setImage({
+          src: data.url,
+          alt: file.name,
+        }).run();
+
+        callbacks.onUploadComplete?.(data);
+        toast.success('Ảnh đã được tải lên');
+      } catch (error) {
+        console.error('Upload error:', error);
+        callbacks.onUploadError?.(error as Error);
+        toast.error(ERROR_MESSAGES.UPLOAD_FAILED);
+      } finally {
+        setIsUploading(false);
+      }
+    };
+
+    input.click();
+  }, [editor, callbacks]);
+
+  // Video embed handler with modern popover
+  const handleVideoEmbed = useCallback(() => {
+    if (!editorRef.current) return;
+
+    // CRITICAL: Prevent reopen if already open
+    if (isVideoPopoverOpenRef.current) {
+      console.log('[ProductionEditor] Video popover already open - ignoring');
+      return;
+    }
+
+    console.log('[ProductionEditor] handleVideoEmbed called');
+
+    // Set ref BEFORE state
+    isVideoPopoverOpenRef.current = true;
+
+    // Open popover
+    console.log('[ProductionEditor] Opening video popover');
+    setIsVideoPopoverOpen(true);
+  }, []);
+
+  // Close video popover handler
+  const handleVideoPopoverClose = useCallback(() => {
+    console.log('[ProductionEditor] Closing video popover');
+    isVideoPopoverOpenRef.current = false;
+    setIsVideoPopoverOpen(false);
+  }, []);
+
+  // Link insert handler with modern popover
+  const handleLinkInsert = useCallback(() => {
+    const currentEditor = editorRef.current;
+    if (!currentEditor) return;
+
+    // CRITICAL: Prevent reopen if already open
+    if (isLinkPopoverOpenRef.current) {
+      console.log('[ProductionEditor] Popover already open - ignoring');
+      return;
+    }
+
+    console.log('[ProductionEditor] handleLinkInsert called');
+
+    // Save selection
+    const selection = saveSelection(currentEditor);
+    console.log('[ProductionEditor] Saved selection:', selection);
+    setLinkSavedSelection(selection);
+
+    // Check for existing link
+    const previousUrl = getLinkAtCursor(currentEditor);
+
+    if (previousUrl) {
+      console.log('[ProductionEditor] Edit mode');
+      setLinkPopoverInitialUrl(previousUrl);
+      setIsLinkEditMode(true);
+    } else {
+      console.log('[ProductionEditor] Insert mode');
+      setLinkPopoverInitialUrl('');
+      setIsLinkEditMode(false);
+    }
+
+    // Set ref BEFORE state
+    isLinkPopoverOpenRef.current = true;
+
+    // Open popover
+    console.log('[ProductionEditor] Opening popover');
+    setIsLinkPopoverOpen(true);
+  }, []); // Stable reference
+
+  // Close popover handler
+  const handleLinkPopoverClose = useCallback(() => {
+    console.log('[ProductionEditor] Closing popover');
+    isLinkPopoverOpenRef.current = false;
+    setIsLinkPopoverOpen(false);
+  }, []);
+
+  // Keyboard shortcuts (fixed - use stable callback)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle if editor is focused
+      if (!editorRef.current?.isFocused) return;
+
+      // Ctrl/Cmd + K for link
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        e.stopPropagation();
+        handleLinkInsert();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown, true); // Capture phase
+    return () => document.removeEventListener('keydown', handleKeyDown, true);
+  }, [handleLinkInsert]);
+
+  if (!editor) {
+    return (
+      <div className="w-full border border-gray-200 rounded-lg bg-gray-50 animate-pulse">
+        <div className="h-12 bg-gray-200" />
+        <div className="h-96" />
+      </div>
+    );
+  }
+
+  return (
+    <div className={`w-full border border-gray-200 rounded-lg bg-white shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-300 transition-all ${className}`}>
+      {/* Toolbar */}
+      <EditorToolbar
+        editor={editor}
+        onImageUpload={handleImageUpload}
+        onVideoEmbed={handleVideoEmbed}
+        onLinkInsert={handleLinkInsert}
+      />
+
+      {/* Bubble Menu */}
+      {enableBubbleMenu && (
+        <EditorBubbleMenu
+          editor={editor}
+          onLinkInsert={handleLinkInsert}
+        />
+      )}
+
+      {/* Editor Content */}
+      <div
+        className="cursor-text bg-white relative"
+        onClick={() => editor.commands.focus()}
+      >
+        <EditorContent editor={editor} />
+
+        {/* Keep selection visible when link popover is open */}
+        {isLinkPopoverOpen && (
+          <style>{`
+            /* Keep selection visible even when editor loses focus */
+            .ProseMirror-selectednode {
+              outline: 2px solid rgba(59, 130, 246, 0.4);
+            }
+            
+            /* Fake selection highlight when popover is open */
+            .ProseMirror::selection,
+            .ProseMirror ::selection {
+              background-color: rgba(59, 130, 246, 0.3) !important;
+            }
+            
+            /* Even when not focused */
+            .ProseMirror:not(:focus)::selection,
+            .ProseMirror:not(:focus) ::selection {
+              background-color: rgba(59, 130, 246, 0.25) !important;
+            }
+          `}</style>
+        )}
+
+        {/* Link Popover */}
+        {isLinkPopoverOpen && (
+          <LinkPopover
+            editor={editor}
+            isOpen={isLinkPopoverOpen}
+            onClose={handleLinkPopoverClose}
+            initialUrl={linkPopoverInitialUrl}
+            isEditMode={isLinkEditMode}
+            savedSelection={linkSavedSelection}
+          />
+        )}
+
+        {/* Video Popover */}
+        {isVideoPopoverOpen && (
+          <VideoPopover
+            editor={editor}
+            isOpen={isVideoPopoverOpen}
+            onClose={handleVideoPopoverClose}
+          />
+        )}
+
+        {/* Upload overlay */}
+        {isUploading && (
+          <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-20">
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+              <span className="text-sm font-medium text-gray-700">Đang tải ảnh lên...</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="px-6 py-3 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
+        {/* Save Status */}
+        <div className="flex items-center gap-2 text-xs font-medium text-gray-500">
+          <div
+            className={`w-2 h-2 rounded-full transition-colors duration-300 ${saveStatus === 'saved'
+              ? 'bg-emerald-500'
+              : saveStatus === 'saving'
+                ? 'bg-amber-500 animate-pulse'
+                : saveStatus === 'error'
+                  ? 'bg-red-500'
+                  : 'bg-gray-300'
+              }`}
+          />
+          <span>
+            {saveStatus === 'saved' && lastSaved
+              ? `Đã lưu ${formatRelativeTime(lastSaved)}`
+              : saveStatus === 'saving'
+                ? 'Đang lưu...'
+                : saveStatus === 'error'
+                  ? 'Lỗi khi lưu'
+                  : 'Chưa lưu'}
+          </span>
+        </div>
+
+        {/* Stats */}
+        <div className="flex items-center gap-4">
+          <span className="text-xs font-semibold text-gray-400">
+            {wordCount} từ
+          </span>
+          <span className="text-xs font-semibold text-gray-400">
+            {charCount} / {maxLength} ký tự
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Helper function
+function formatRelativeTime(date: Date): string {
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+
+  if (seconds < 10) return 'vừa xong';
+  if (seconds < 60) return `${seconds} giây trước`;
+
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} phút trước`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} giờ trước`;
+
+  return date.toLocaleDateString('vi-VN');
+}
+```
+
+### 5.2 `src/components/editor/RichTextEditor.tsx`
+
+```tsx
+/**
+ * Simplified Enhanced Rich Text Editor - Without BubbleMenu to avoid React 19 issues
+ */
+
+'use client';
+
+import React, { useEffect, useCallback, useState, useRef } from 'react';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Link from '@tiptap/extension-link';
+import Placeholder from '@tiptap/extension-placeholder';
+import Underline from '@tiptap/extension-underline';
+import TextAlign from '@tiptap/extension-text-align';
+import Youtube from '@tiptap/extension-youtube';
+import TextStyle from '@tiptap/extension-text-style';
+import Highlight from '@tiptap/extension-highlight';
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
+import CharacterCount from '@tiptap/extension-character-count';
+import Image from '@tiptap/extension-image';
+
+import {
+  Bold, Italic, Underline as UnderlineIcon, Strikethrough,
+  List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
+  Link as LinkIcon, Heading1, Heading2, Quote, Code,
+  Minus, Undo, Redo, Youtube as YoutubeIcon,
+  Highlighter, CheckSquare, ImageIcon
+} from 'lucide-react';
+
+import { getLinkAtCursor, isSelectionInsideLink, saveSelection, type SavedSelection } from '@/lib/editor/link-commands';
+import { LinkPopover } from './LinkPopover';
+import { VideoPopover } from './VideoPopover';
+import './editor.css';
+
+interface SimplifiedEnhancedEditorProps {
+  content: string;
+  onChange: (content: string) => void;
+  placeholder?: string;
+}
+
+type ToolbarButtonProps = {
+  onClick: () => void;
+  isActive?: boolean;
+  title: string;
+  children: React.ReactNode;
+};
+
+function ToolbarButton({ onClick, isActive, title, children }: ToolbarButtonProps) {
+  return (
+    <button
+      type="button"
+      onMouseDown={(e) => { e.preventDefault(); onClick(); }}
+      title={title}
+      className={`
+        flex items-center justify-center w-8 h-8 rounded-md text-sm transition-all duration-150
+        ${isActive
+          ? "bg-blue-100 text-blue-700 shadow-inner"
+          : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+        }
+      `}
+    >
+      {children}
+    </button>
+  );
+}
+
+function ToolbarDivider() {
+  return <div className="w-px h-5 bg-gray-200 mx-1 flex-shrink-0" />;
+}
+
+export default function SimplifiedEnhancedEditor({ 
+  content, 
+  onChange, 
+  placeholder 
+}: SimplifiedEnhancedEditorProps) {
+  const [saveStatus, setSaveStatus] = useState("Đã lưu");
+  const [isLinkPopoverOpen, setIsLinkPopoverOpen] = useState(false);
+  const [linkPopoverInitialUrl, setLinkPopoverInitialUrl] = useState('');
+  const [isLinkEditMode, setIsLinkEditMode] = useState(false);
+  const [linkSavedSelection, setLinkSavedSelection] = useState<SavedSelection | null>(null);
+  const [isVideoPopoverOpen, setIsVideoPopoverOpen] = useState(false);
+  const isVideoPopoverOpenRef = useRef(false); // Track video popover state
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        bulletList: { keepMarks: true, keepAttributes: false },
+        orderedList: { keepMarks: true, keepAttributes: false },
+      }),
+      Underline,
+      TextStyle,
+      Highlight.configure({ multicolor: true }),
+      Link.configure({ 
+        openOnClick: false, 
+        HTMLAttributes: { 
+          class: "text-blue-600 underline cursor-pointer hover:text-blue-700" 
+        } 
+      }),
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
+      Youtube.configure({ controls: false, nocookie: true }),
+      Image.configure({
+        inline: true,
+        allowBase64: true,
+        HTMLAttributes: {
+          class: "rounded-lg max-w-full h-auto my-4",
+        },
+      }),
+      TaskList,
+      TaskItem.configure({ nested: true }),
+      Placeholder.configure({ 
+        placeholder: placeholder ?? "Viết nội dung chiến dịch của bạn ở đây..." 
+      }),
+      CharacterCount.configure({ limit: 50000 }),
+    ],
+    content: content || "",
+    editorProps: {
+      attributes: {
+        class: "prose prose-lg max-w-none min-h-[400px] px-6 py-6 sm:px-8 focus:outline-none",
+      },
+    },
+    onUpdate: ({ editor }) => {
+      setSaveStatus("Đang lưu...");
+      onChange(editor.getHTML());
+      
+      setTimeout(() => {
+        setSaveStatus("Đã lưu");
+      }, 500);
+    },
+  });
+
+  // Modern link insertion with floating popover
+  const handleLinkClick = useCallback(() => {
+    if (!editor) return;
+
+    // CRITICAL: Save selection FIRST, before any state changes
+    const selection = saveSelection(editor);
+    setLinkSavedSelection(selection);
+
+    // Check if cursor is in an existing link
+    const existingUrl = getLinkAtCursor(editor);
+    
+    if (existingUrl) {
+      // Edit mode - show existing URL
+      setLinkPopoverInitialUrl(existingUrl);
+      setIsLinkEditMode(true);
+    } else {
+      // Insert mode
+      setLinkPopoverInitialUrl('');
+      setIsLinkEditMode(false);
+    }
+
+    // Open popover AFTER saving selection
+    setIsLinkPopoverOpen(true);
+  }, [editor]);
+
+  // Keyboard shortcut for link (Ctrl/Cmd + K)
+  useEffect(() => {
+    if (!editor) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle if editor is focused
+      if (!editor.isFocused) return;
+      
+      // Ctrl/Cmd + K for link
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        e.stopPropagation();
+        handleLinkClick();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown, true);
+    return () => document.removeEventListener('keydown', handleKeyDown, true);
+  }, [editor, handleLinkClick]);
+
+  const addYoutube = useCallback(() => {
+    if (!editor) return;
+
+    // CRITICAL: Prevent reopen if already open
+    if (isVideoPopoverOpenRef.current) {
+      console.log('[RichTextEditor] Video popover already open - ignoring');
+      return;
+    }
+
+    console.log('[RichTextEditor] addYoutube called');
+
+    // Set ref BEFORE state
+    isVideoPopoverOpenRef.current = true;
+    
+    // Open popover
+    console.log('[RichTextEditor] Opening video popover');
+    setIsVideoPopoverOpen(true);
+  }, [editor]);
+  
+  // Close video popover handler
+  const handleVideoPopoverClose = useCallback(() => {
+    console.log('[RichTextEditor] Closing video popover');
+    isVideoPopoverOpenRef.current = false;
+    setIsVideoPopoverOpen(false);
+  }, []);
+
+  const addImage = useCallback(() => {
+    if (!editor) return;
+    
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Kích thước ảnh không được vượt quá 5MB');
+        return;
+      }
+
+      // Show loading state
+      setSaveStatus("Đang tải ảnh...");
+
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error('Upload failed');
+        }
+
+        const data = await response.json();
+        
+        // Insert image into editor
+        editor.chain().focus().setImage({ src: data.url }).run();
+        setSaveStatus("Đã lưu");
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        alert('Lỗi khi tải ảnh lên. Vui lòng thử lại.');
+        setSaveStatus("Đã lưu");
+      }
+    };
+    
+    input.click();
+  }, [editor]);
+
+  if (!editor) return null;
+
+  return (
+    <div className="w-full border border-gray-200 rounded-2xl bg-white shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-300 transition-all">
+      
+      {/* ── TOOLBAR ── */}
+      <div className="flex flex-wrap items-center gap-0.5 px-3 py-2 bg-gray-50 border-b border-gray-200">
+        
+        {/* History */}
+        <ToolbarButton onClick={() => editor.chain().focus().undo().run()} title="Hoàn tác (Ctrl+Z)">
+          <Undo size={15} />
+        </ToolbarButton>
+        <ToolbarButton onClick={() => editor.chain().focus().redo().run()} title="Làm lại (Ctrl+Y)">
+          <Redo size={15} />
+        </ToolbarButton>
+
+        <ToolbarDivider />
+
+        {/* Headings */}
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} 
+          isActive={editor.isActive("heading", { level: 1 })} 
+          title="Tiêu đề 1"
+        >
+          <Heading1 size={15} />
+        </ToolbarButton>
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} 
+          isActive={editor.isActive("heading", { level: 2 })} 
+          title="Tiêu đề 2"
+        >
+          <Heading2 size={15} />
+        </ToolbarButton>
+
+        <ToolbarDivider />
+
+        {/* Text formatting */}
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleBold().run()} 
+          isActive={editor.isActive("bold")} 
+          title="In đậm (Ctrl+B)"
+        >
+          <Bold size={15} />
+        </ToolbarButton>
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleItalic().run()} 
+          isActive={editor.isActive("italic")} 
+          title="In nghiêng (Ctrl+I)"
+        >
+          <Italic size={15} />
+        </ToolbarButton>
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleUnderline().run()} 
+          isActive={editor.isActive("underline")} 
+          title="Gạch chân (Ctrl+U)"
+        >
+          <UnderlineIcon size={15} />
+        </ToolbarButton>
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleStrike().run()} 
+          isActive={editor.isActive("strike")} 
+          title="Gạch ngang"
+        >
+          <Strikethrough size={15} />
+        </ToolbarButton>
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleHighlight().run()} 
+          isActive={editor.isActive("highlight")} 
+          title="Tô sáng (Highlight)"
+        >
+          <Highlighter size={15} />
+        </ToolbarButton>
+
+        <ToolbarDivider />
+
+        {/* Lists & Blocks */}
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleBulletList().run()} 
+          isActive={editor.isActive("bulletList")} 
+          title="Danh sách dấu chấm"
+        >
+          <List size={15} />
+        </ToolbarButton>
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleOrderedList().run()} 
+          isActive={editor.isActive("orderedList")} 
+          title="Danh sách đánh số"
+        >
+          <ListOrdered size={15} />
+        </ToolbarButton>
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleTaskList().run()} 
+          isActive={editor.isActive("taskList")} 
+          title="Checklist công việc"
+        >
+          <CheckSquare size={15} />
+        </ToolbarButton>
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleBlockquote().run()} 
+          isActive={editor.isActive("blockquote")} 
+          title="Trích dẫn"
+        >
+          <Quote size={15} />
+        </ToolbarButton>
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().toggleCode().run()} 
+          isActive={editor.isActive("code")} 
+          title="Code"
+        >
+          <Code size={15} />
+        </ToolbarButton>
+
+        <ToolbarDivider />
+
+        {/* Alignment */}
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().setTextAlign("left").run()} 
+          isActive={editor.isActive({ textAlign: "left" })} 
+          title="Căn trái"
+        >
+          <AlignLeft size={15} />
+        </ToolbarButton>
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().setTextAlign("center").run()} 
+          isActive={editor.isActive({ textAlign: "center" })} 
+          title="Căn giữa"
+        >
+          <AlignCenter size={15} />
+        </ToolbarButton>
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().setTextAlign("right").run()} 
+          isActive={editor.isActive({ textAlign: "right" })} 
+          title="Căn phải"
+        >
+          <AlignRight size={15} />
+        </ToolbarButton>
+
+        <ToolbarDivider />
+
+        {/* Insert - Improved Link with validation */}
+        <ToolbarButton 
+          onClick={handleLinkClick} 
+          isActive={isSelectionInsideLink(editor)} 
+          title="Chèn liên kết (Ctrl+K)"
+        >
+          <LinkIcon size={15} />
+        </ToolbarButton>
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().setHorizontalRule().run()} 
+          title="Đường kẻ ngang"
+        >
+          <Minus size={15} />
+        </ToolbarButton>
+        <ToolbarButton onClick={addYoutube} title="Chèn video YouTube">
+          <YoutubeIcon size={15} />
+        </ToolbarButton>
+        <ToolbarButton onClick={addImage} title="Chèn ảnh">
+          <ImageIcon size={15} />
+        </ToolbarButton>
+      </div>
+
+      {/* ── EDITOR AREA ── */}
+      <div className="cursor-text bg-white relative" onClick={() => editor.commands.focus()}>
+        <EditorContent editor={editor} />
+        
+        {/* Link Popover */}
+        {isLinkPopoverOpen && (
+          <LinkPopover
+            editor={editor}
+            isOpen={isLinkPopoverOpen}
+            onClose={() => setIsLinkPopoverOpen(false)}
+            initialUrl={linkPopoverInitialUrl}
+            isEditMode={isLinkEditMode}
+            savedSelection={linkSavedSelection}
+          />
+        )}
+        
+        {/* Video Popover */}
+        {isVideoPopoverOpen && (
+          <VideoPopover
+            editor={editor}
+            isOpen={isVideoPopoverOpen}
+            onClose={handleVideoPopoverClose}
+          />
+        )}
+      </div>
+
+      {/* ── FOOTER ── */}
+      <div className="px-6 py-3 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
+        {/* Left Side: Status */}
+        <div className="flex items-center gap-2 text-xs font-medium text-gray-500">
+          <div className={`w-2 h-2 rounded-full transition-colors duration-300 ${
+            saveStatus === "Đã lưu" ? "bg-emerald-500" : "bg-amber-500 animate-pulse"
+          }`} />
+          <span>{saveStatus}</span>
+        </div>
+
+        {/* Right Side: Counters */}
+        <div className="flex items-center gap-4">
+          <span className="text-xs font-semibold text-gray-400">
+            {editor.storage.characterCount.words()} từ
+          </span>
+          <span className="text-xs font-semibold text-gray-400">
+            {editor.storage.characterCount.characters()} ký tự
+          </span>
+        </div>
+      </div>
+
+      {/* ── TYPOGRAPHY STYLES ── */}
+      <style jsx global>{`
+        .ProseMirror p.is-editor-empty:first-child::before {
+          color: #adb5bd;
+          content: attr(data-placeholder);
+          float: left;
+          height: 0;
+          pointer-events: none;
+        }
+        .ProseMirror ul, .ProseMirror ol {
+          padding-left: 1.5rem;
+        }
+        .ProseMirror ul { list-style-type: disc; }
+        .ProseMirror ol { list-style-type: decimal; }
+        .ProseMirror li { margin: 0.25rem 0; }
+        .ProseMirror blockquote {
+          border-left: 3px solid #e5e7eb;
+          padding-left: 1rem;
+          color: #6b7280;
+          font-style: italic;
+          margin: 1rem 0;
+        }
+        .ProseMirror hr {
+          border: none;
+          border-top: 2px solid #e5e7eb;
+          margin: 1.5rem 0;
+        }
+        .ProseMirror h1 { font-size: 1.875rem; font-weight: 700; margin: 1rem 0 0.5rem; }
+        .ProseMirror h2 { font-size: 1.5rem; font-weight: 600; margin: 1rem 0 0.5rem; }
+        .ProseMirror mark {
+          background-color: #fef08a;
+          border-radius: 2px;
+          padding: 0.1em 0.2em;
+        }
+        .ProseMirror code {
+          background: #f3f4f6;
+          border-radius: 4px;
+          padding: 0.1em 0.4em;
+          font-size: 0.875em;
+          font-family: monospace;
+        }
+        .ProseMirror a { 
+          color: #2563eb; 
+          text-decoration: underline;
+          cursor: pointer;
+        }
+        .ProseMirror a:hover {
+          color: #1d4ed8;
+        }
+        .ProseMirror iframe { 
+          max-width: 100%; 
+          border-radius: 8px; 
+          margin: 1rem auto; 
+          display: block; 
+        }
+        .ProseMirror img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 8px;
+          margin: 1rem 0;
+          display: block;
+        }
+        
+        /* Task List Styles */
+        ul[data-type="taskList"] {
+          list-style: none;
+          padding: 0;
+        }
+        ul[data-type="taskList"] li[data-type="taskItem"] {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.5rem;
+          margin: 0.5rem 0;
+        }
+        ul[data-type="taskList"] li[data-type="taskItem"] > label {
+          margin-top: 0.25rem;
+          user-select: none;
+        }
+        ul[data-type="taskList"] li[data-type="taskItem"] > div {
+          flex: 1;
+        }
+      `}</style>
+    </div>
+  );
+}
+```
+
+### 5.3 `src/components/editor/EditorToolbar.tsx`
+
+```tsx
+/**
+ * Editor Toolbar
+ * Fixed toolbar with all formatting options
+ */
+
+'use client';
+
+import React from 'react';
+import { Editor } from '@tiptap/react';
+import {
+  Bold,
+  Italic,
+  Underline as UnderlineIcon,
+  Strikethrough,
+  Code,
+  Heading1,
+  Heading2,
+  Heading3,
+  List,
+  ListOrdered,
+  CheckSquare,
+  Quote,
+  CodeIcon,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Link as LinkIcon,
+  Image as ImageIcon,
+  Video,
+  Minus,
+  Undo,
+  Redo,
+  Highlighter,
+  Info,
+  AlertTriangle,
+  CheckCircle,
+  AlertCircle,
+} from 'lucide-react';
+
+interface EditorToolbarProps {
+  editor: Editor | null;
+  onImageUpload?: () => void;
+  onVideoEmbed?: () => void;
+  onLinkInsert?: () => void;
+}
+
+interface ToolbarButtonProps {
+  onClick: () => void;
+  isActive?: boolean;
+  disabled?: boolean;
+  title: string;
+  children: React.ReactNode;
+  'data-link-button'?: string;
+  'data-video-button'?: string;
+}
+
+function ToolbarButton({ onClick, isActive, disabled, title, children, ...props }: ToolbarButtonProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      {...props}
+      className={`
+        flex items-center justify-center w-9 h-9 rounded-md transition-all duration-150
+        disabled:opacity-30 disabled:cursor-not-allowed
+        ${
+          isActive
+            ? 'bg-blue-100 text-blue-700 shadow-sm'
+            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+        }
+      `}
+    >
+      {children}
+    </button>
+  );
+}
+
+function ToolbarDivider() {
+  return <div className="w-px h-6 bg-gray-200 mx-1" />;
+}
+
+function ToolbarGroup({ children }: { children: React.ReactNode }) {
+  return <div className="flex items-center gap-0.5">{children}</div>;
+}
+
+export function EditorToolbar({ editor, onImageUpload, onVideoEmbed, onLinkInsert }: EditorToolbarProps) {
+  if (!editor) return null;
+
+  return (
+    <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
+      {/* Desktop Toolbar */}
+      <div className="hidden md:flex flex-wrap items-center gap-1 px-3 py-2">
+        {/* History */}
+        <ToolbarGroup>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().undo().run()}
+          disabled={!editor.can().undo()}
+          title="Hoàn tác (Ctrl+Z)"
+        >
+          <Undo size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().redo().run()}
+          disabled={!editor.can().redo()}
+          title="Làm lại (Ctrl+Shift+Z)"
+        >
+          <Redo size={16} />
+        </ToolbarButton>
+      </ToolbarGroup>
+
+      <ToolbarDivider />
+
+      {/* Headings */}
+      <ToolbarGroup>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          isActive={editor.isActive('heading', { level: 1 })}
+          title="Tiêu đề 1"
+        >
+          <Heading1 size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          isActive={editor.isActive('heading', { level: 2 })}
+          title="Tiêu đề 2"
+        >
+          <Heading2 size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          isActive={editor.isActive('heading', { level: 3 })}
+          title="Tiêu đề 3"
+        >
+          <Heading3 size={16} />
+        </ToolbarButton>
+      </ToolbarGroup>
+
+      <ToolbarDivider />
+
+      {/* Text formatting */}
+      <ToolbarGroup>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleBold().run()}
+          isActive={editor.isActive('bold')}
+          title="In đậm (Ctrl+B)"
+        >
+          <Bold size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleItalic().run()}
+          isActive={editor.isActive('italic')}
+          title="In nghiêng (Ctrl+I)"
+        >
+          <Italic size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleUnderline().run()}
+          isActive={editor.isActive('underline')}
+          title="Gạch chân (Ctrl+U)"
+        >
+          <UnderlineIcon size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleStrike().run()}
+          isActive={editor.isActive('strike')}
+          title="Gạch ngang"
+        >
+          <Strikethrough size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleCode().run()}
+          isActive={editor.isActive('code')}
+          title="Code (Ctrl+E)"
+        >
+          <Code size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleHighlight().run()}
+          isActive={editor.isActive('highlight')}
+          title="Tô sáng"
+        >
+          <Highlighter size={16} />
+        </ToolbarButton>
+      </ToolbarGroup>
+
+      <ToolbarDivider />
+
+      {/* Lists */}
+      <ToolbarGroup>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          isActive={editor.isActive('bulletList')}
+          title="Danh sách dấu chấm"
+        >
+          <List size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          isActive={editor.isActive('orderedList')}
+          title="Danh sách đánh số"
+        >
+          <ListOrdered size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleTaskList().run()}
+          isActive={editor.isActive('taskList')}
+          title="Checklist"
+        >
+          <CheckSquare size={16} />
+        </ToolbarButton>
+      </ToolbarGroup>
+
+      <ToolbarDivider />
+
+      {/* Blocks */}
+      <ToolbarGroup>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleBlockquote().run()}
+          isActive={editor.isActive('blockquote')}
+          title="Trích dẫn"
+        >
+          <Quote size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+          isActive={editor.isActive('codeBlock')}
+          title="Code block"
+        >
+          <CodeIcon size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setHorizontalRule().run()}
+          title="Đường kẻ ngang"
+        >
+          <Minus size={16} />
+        </ToolbarButton>
+      </ToolbarGroup>
+
+      <ToolbarDivider />
+
+      {/* Alignment */}
+      <ToolbarGroup>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign('left').run()}
+          isActive={editor.isActive({ textAlign: 'left' })}
+          title="Căn trái"
+        >
+          <AlignLeft size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign('center').run()}
+          isActive={editor.isActive({ textAlign: 'center' })}
+          title="Căn giữa"
+        >
+          <AlignCenter size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign('right').run()}
+          isActive={editor.isActive({ textAlign: 'right' })}
+          title="Căn phải"
+        >
+          <AlignRight size={16} />
+        </ToolbarButton>
+      </ToolbarGroup>
+
+      <ToolbarDivider />
+
+      {/* Insert */}
+      <ToolbarGroup>
+        <ToolbarButton
+          onClick={onLinkInsert || (() => {})}
+          data-link-button="true"
+          isActive={editor.isActive('link')}
+          title="Chèn liên kết (Ctrl+K)"
+        >
+          <LinkIcon size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={onImageUpload || (() => {})}
+          title="Chèn ảnh"
+        >
+          <ImageIcon size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={onVideoEmbed || (() => {})}
+          data-video-button="true"
+          title="Chèn video"
+        >
+          <Video size={16} />
+        </ToolbarButton>
+      </ToolbarGroup>
+
+      <ToolbarDivider />
+
+      {/* Callouts */}
+      <ToolbarGroup>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setCallout('info').run()}
+          isActive={editor.isActive('callout', { variant: 'info' })}
+          title="Info box"
+        >
+          <Info size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setCallout('warning').run()}
+          isActive={editor.isActive('callout', { variant: 'warning' })}
+          title="Warning box"
+        >
+          <AlertTriangle size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setCallout('success').run()}
+          isActive={editor.isActive('callout', { variant: 'success' })}
+          title="Success box"
+        >
+          <CheckCircle size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setCallout('danger').run()}
+          isActive={editor.isActive('callout', { variant: 'danger' })}
+          title="Danger box"
+        >
+          <AlertCircle size={16} />
+        </ToolbarButton>
+      </ToolbarGroup>
+    </div>
+    
+    {/* Mobile Toolbar - Simplified */}
+    <div className="flex md:hidden items-center gap-1 px-2 py-2 overflow-x-auto">
+      {/* Essential formatting only */}
+      <ToolbarButton
+        onClick={() => editor.chain().focus().toggleBold().run()}
+        isActive={editor.isActive('bold')}
+        title="Bold"
+      >
+        <Bold size={16} />
+      </ToolbarButton>
+      <ToolbarButton
+        onClick={() => editor.chain().focus().toggleItalic().run()}
+        isActive={editor.isActive('italic')}
+        title="Italic"
+      >
+        <Italic size={16} />
+      </ToolbarButton>
+      <ToolbarButton
+        onClick={onLinkInsert || (() => {})}
+        isActive={editor.isActive('link')}
+        title="Link"
+      >
+        <LinkIcon size={16} />
+      </ToolbarButton>
+      
+      <ToolbarDivider />
+      
+      <ToolbarButton
+        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+        isActive={editor.isActive('heading', { level: 2 })}
+        title="Heading"
+      >
+        <Heading2 size={16} />
+      </ToolbarButton>
+      <ToolbarButton
+        onClick={() => editor.chain().focus().toggleBulletList().run()}
+        isActive={editor.isActive('bulletList')}
+        title="List"
+      >
+        <List size={16} />
+      </ToolbarButton>
+      <ToolbarButton
+        onClick={() => editor.chain().focus().toggleBlockquote().run()}
+        isActive={editor.isActive('blockquote')}
+        title="Quote"
+      >
+        <Quote size={16} />
+      </ToolbarButton>
+      
+      <ToolbarDivider />
+      
+      <ToolbarButton
+        onClick={onImageUpload || (() => {})}
+        title="Image"
+      >
+        <ImageIcon size={16} />
+      </ToolbarButton>
+      
+      <ToolbarButton
+        onClick={() => editor.chain().focus().undo().run()}
+        disabled={!editor.can().undo()}
+        title="Undo"
+      >
+        <Undo size={16} />
+      </ToolbarButton>
+      <ToolbarButton
+        onClick={() => editor.chain().focus().redo().run()}
+        disabled={!editor.can().redo()}
+        title="Redo"
+      >
+        <Redo size={16} />
+      </ToolbarButton>
+    </div>
+  </div>
+  );
+}
+```
+
+### 5.4 `src/components/editor/EditorBubbleMenu.tsx`
+
+```tsx
+/**
+ * Editor Bubble Menu
+ * Floating menu that appears when text is selected
+ */
+
+'use client';
+
+import React from 'react';
+import { BubbleMenu, Editor } from '@tiptap/react';
+import {
+  Bold,
+  Italic,
+  Underline as UnderlineIcon,
+  Strikethrough,
+  Code,
+  Link as LinkIcon,
+  Highlighter,
+} from 'lucide-react';
+
+interface EditorBubbleMenuProps {
+  editor: Editor | null;
+  onLinkInsert?: () => void;
+}
+
+interface BubbleButtonProps {
+  onClick: () => void;
+  isActive?: boolean;
+  title: string;
+  children: React.ReactNode;
+}
+
+function BubbleButton({ onClick, isActive, title, children }: BubbleButtonProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseDown={(e) => {
+        // Prevent default to avoid focus issues
+        e.preventDefault();
+      }}
+      title={title}
+      className={`
+        flex items-center justify-center w-8 h-8 rounded transition-all
+        ${
+          isActive
+            ? 'bg-blue-600 text-white'
+            : 'text-gray-700 hover:bg-gray-100'
+        }
+      `}
+    >
+      {children}
+    </button>
+  );
+}
+
+export function EditorBubbleMenu({ editor, onLinkInsert }: EditorBubbleMenuProps) {
+  if (!editor) return null;
+
+  return (
+    <BubbleMenu
+      editor={editor}
+      tippyOptions={{
+        duration: 100,
+        placement: 'top',
+        animation: 'shift-toward-subtle',
+      }}
+      shouldShow={({ editor, state, view }) => {
+        const { selection } = state;
+        const { empty } = selection;
+        
+        // Don't show if selection is empty
+        if (empty) return false;
+        
+        // Don't show if selection is in code block
+        if (editor.isActive('codeBlock')) return false;
+        
+        // CRITICAL: Don't show if LinkPopover is open
+        const linkPopover = document.querySelector('[data-link-popover="true"]');
+        if (linkPopover) {
+          console.log('[BubbleMenu] Hidden because LinkPopover is open');
+          return false;
+        }
+        
+        return true;
+      }}
+      className="flex items-center gap-0.5 px-2 py-1.5 bg-white border border-gray-200 rounded-lg shadow-lg"
+    >
+      <BubbleButton
+        onClick={() => editor.chain().focus().toggleBold().run()}
+        isActive={editor.isActive('bold')}
+        title="Bold"
+      >
+        <Bold size={14} />
+      </BubbleButton>
+
+      <BubbleButton
+        onClick={() => editor.chain().focus().toggleItalic().run()}
+        isActive={editor.isActive('italic')}
+        title="Italic"
+      >
+        <Italic size={14} />
+      </BubbleButton>
+
+      <BubbleButton
+        onClick={() => editor.chain().focus().toggleUnderline().run()}
+        isActive={editor.isActive('underline')}
+        title="Underline"
+      >
+        <UnderlineIcon size={14} />
+      </BubbleButton>
+
+      <BubbleButton
+        onClick={() => editor.chain().focus().toggleStrike().run()}
+        isActive={editor.isActive('strike')}
+        title="Strikethrough"
+      >
+        <Strikethrough size={14} />
+      </BubbleButton>
+
+      <BubbleButton
+        onClick={() => editor.chain().focus().toggleCode().run()}
+        isActive={editor.isActive('code')}
+        title="Code"
+      >
+        <Code size={14} />
+      </BubbleButton>
+
+      <BubbleButton
+        onClick={() => editor.chain().focus().toggleHighlight().run()}
+        isActive={editor.isActive('highlight')}
+        title="Highlight"
+      >
+        <Highlighter size={14} />
+      </BubbleButton>
+
+      <div className="w-px h-5 bg-gray-200 mx-1" />
+
+      <BubbleButton
+        onClick={onLinkInsert || (() => {})}
+        isActive={editor.isActive('link')}
+        title="Link"
+      >
+        <LinkIcon size={14} />
+      </BubbleButton>
+    </BubbleMenu>
+  );
+}
+```
+
+### 5.5 `src/components/editor/LinkPopover.tsx`
+
+```tsx
+/**
+ * Link Popover - Stable, no reopen loop, no input remount
+ * Fixed: Click outside detection, input focus stability, no double render
+ */
+
+'use client';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { Editor } from '@tiptap/react';
+import { Link as LinkIcon, Check, X, Trash2 } from 'lucide-react';
+import {
+  normalizeUrl,
+  getUrlError,
+  sanitizeUrlInput,
+} from '@/lib/editor/link-validation';
+
+interface LinkPopoverProps {
+  editor: Editor;
+  isOpen: boolean;
+  onClose: () => void;
+  initialUrl?: string;
+  isEditMode?: boolean;
+  savedSelection: { from: number; to: number } | null;
+}
+
+interface Position {
+  top: number;
+  left: number;
+}
+
+export function LinkPopover({
+  editor,
+  isOpen,
+  onClose,
+  initialUrl = '',
+  isEditMode = false,
+  savedSelection,
+}: LinkPopoverProps) {
+  const [url, setUrl] = useState(initialUrl);
+  const [error, setError] = useState('');
+  const [position, setPosition] = useState<Position>({ top: 0, left: 0 });
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const selectionRef = useRef(savedSelection);
+
+  // Update selection ref when prop changes
+  useEffect(() => {
+    selectionRef.current = savedSelection;
+  }, [savedSelection]);
+
+  // Calculate position - stable function
+  useEffect(() => {
+    if (!isOpen || !editor?.view) return;
+
+    try {
+      const { state, view } = editor;
+      const { to } = state.selection;
+      const coords = view.coordsAtPos(to);
+      const editorElement = view.dom;
+      const editorRect = editorElement.getBoundingClientRect();
+      
+      setPosition({
+        top: coords.bottom - editorRect.top + 8,
+        left: coords.left - editorRect.left,
+      });
+    } catch (error) {
+      console.error('[LinkPopover] Position calculation error:', error);
+      setPosition({ top: 50, left: 50 });
+    }
+  }, [isOpen, editor]);
+
+  // Initialize when opened - run ONCE
+  useEffect(() => {
+    if (!isOpen) return;
+
+    console.log('[LinkPopover] Opened - initializing');
+    setUrl(initialUrl);
+    setError('');
+
+    // Auto-focus input immediately
+    const timer = setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+        inputRef.current.select();
+        console.log('[LinkPopover] Input auto-focused');
+      }
+    }, 50);
+
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]); // Only run when isOpen changes
+
+  // Add visual highlight to selected text when popover is open
+  useEffect(() => {
+    if (!isOpen || !savedSelection || !editor) return;
+
+    const { from, to } = savedSelection;
+    if (from === to) return; // No selection
+
+    try {
+      // Add a decoration to highlight the selection
+      const { view } = editor;
+      const decorations = document.createElement('style');
+      decorations.id = 'link-popover-highlight';
+      decorations.textContent = `
+        .ProseMirror .selection-highlight {
+          background-color: rgba(59, 130, 246, 0.3);
+          border-radius: 2px;
+        }
+      `;
+      document.head.appendChild(decorations);
+
+      // Add highlight class to selected range
+      const transaction = view.state.tr;
+      transaction.setMeta('addToHistory', false);
+      
+      console.log('[LinkPopover] Added visual highlight');
+
+      return () => {
+        // Cleanup
+        const style = document.getElementById('link-popover-highlight');
+        if (style) {
+          style.remove();
+        }
+      };
+    } catch (error) {
+      console.error('[LinkPopover] Highlight error:', error);
+    }
+  }, [isOpen, savedSelection, editor]);
+
+  // Click outside handler - ROBUST with pointerdown
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as HTMLElement;
+      
+      // Use composedPath for accurate detection
+      const path = event.composedPath();
+      
+      // Check if event originated from inside popover
+      const isInsidePopover = path.some(el => 
+        el === popoverRef.current || 
+        (el as HTMLElement).closest?.('[data-link-popover]')
+      );
+      
+      if (isInsidePopover) {
+        console.log('[LinkPopover] Pointer down inside - keeping open');
+        return;
+      }
+
+      // Check if event is from toolbar button
+      const isToolbarButton = path.some(el =>
+        (el as HTMLElement).closest?.('[data-link-button]')
+      );
+      
+      if (isToolbarButton) {
+        console.log('[LinkPopover] Pointer down on toolbar button - ignoring');
+        return;
+      }
+
+      // Truly outside - close
+      console.log('[LinkPopover] Pointer down outside - closing');
+      onClose();
+    };
+
+    // Add listener after delay, use capture phase
+    const timer = setTimeout(() => {
+      document.addEventListener('pointerdown', handlePointerDown, true);
+      console.log('[LinkPopover] Pointer down listener added');
+    }, 200);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('pointerdown', handlePointerDown, true);
+      console.log('[LinkPopover] Pointer down listener removed');
+    };
+  }, [isOpen, onClose]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        console.log('[LinkPopover] Escape pressed - closing');
+        onClose();
+      } else if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        console.log('[LinkPopover] Enter pressed - applying');
+        handleApply();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, url, onClose]);
+
+  // Apply link
+  const handleApply = () => {
+    const trimmedUrl = sanitizeUrlInput(url);
+
+    // Validate
+    const validationError = getUrlError(trimmedUrl);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    const normalizedUrl = normalizeUrl(trimmedUrl);
+    const selection = selectionRef.current;
+
+    if (!selection) {
+      console.error('[LinkPopover] No selection saved');
+      return;
+    }
+
+    console.log('[LinkPopover] Applying link:', { url: normalizedUrl, selection });
+
+    try {
+      const hasSelection = selection.from !== selection.to;
+
+      if (isEditMode) {
+        // Case: Edit existing link
+        editor
+          .chain()
+          .focus()
+          .setTextSelection({ from: selection.from, to: selection.to })
+          .extendMarkRange('link')
+          .setLink({ href: normalizedUrl, target: '_blank' })
+          .setTextSelection(selection.to) // Move caret to END of link
+          .unsetMark('link') // CRITICAL: Clear stored marks
+          .run();
+        
+        console.log('[LinkPopover] Updated existing link');
+      } else if (hasSelection) {
+        // Case: Apply link to selection
+        editor
+          .chain()
+          .focus()
+          .setTextSelection({ from: selection.from, to: selection.to })
+          .setLink({ href: normalizedUrl, target: '_blank' })
+          .setTextSelection(selection.to) // Move caret to END of link
+          .unsetMark('link') // CRITICAL: Clear stored marks so next typing is plain
+          .run();
+        
+        console.log('[LinkPopover] Applied link to selection');
+      } else {
+        // Case: Insert new link at caret
+        const text = trimmedUrl;
+        const insertPos = selection.from;
+        
+        editor
+          .chain()
+          .focus()
+          .insertContentAt(insertPos, {
+            type: 'text',
+            text: text,
+            marks: [{ type: 'link', attrs: { href: normalizedUrl, target: '_blank' } }],
+          })
+          .setTextSelection(insertPos + text.length) // Move caret AFTER inserted link
+          .unsetMark('link') // CRITICAL: Clear stored marks
+          .run();
+        
+        console.log('[LinkPopover] Inserted new link');
+      }
+
+      // Additional safety: Force clear link mark from stored marks
+      setTimeout(() => {
+        if (editor && !editor.isDestroyed) {
+          editor.commands.unsetMark('link');
+          console.log('[LinkPopover] Force cleared link mark');
+        }
+      }, 10);
+
+      console.log('[LinkPopover] Link applied successfully');
+      onClose();
+    } catch (error) {
+      console.error('[LinkPopover] Apply error:', error);
+      setError('Không thể áp dụng liên kết');
+    }
+  };
+
+  // Remove link
+  const handleRemove = () => {
+    const selection = selectionRef.current;
+    if (!selection) return;
+
+    console.log('[LinkPopover] Removing link');
+
+    try {
+      editor.commands.focus();
+      editor.commands.setTextSelection({
+        from: selection.from,
+        to: selection.to,
+      });
+
+      editor
+        .chain()
+        .focus()
+        .extendMarkRange('link')
+        .unsetLink()
+        .setTextSelection(selection.to)
+        .unsetMark('link')
+        .run();
+
+      console.log('[LinkPopover] Link removed');
+      onClose();
+    } catch (error) {
+      console.error('[LinkPopover] Remove error:', error);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  // CRITICAL: Stop all mouse events from bubbling
+  const stopMouseEvents = (e: React.MouseEvent | React.PointerEvent) => {
+    e.stopPropagation();
+  };
+
+  return (
+    <div
+      ref={popoverRef}
+      data-link-popover="true"
+      onPointerDown={stopMouseEvents}
+      onPointerUp={stopMouseEvents}
+      onMouseDown={stopMouseEvents}
+      onMouseUp={stopMouseEvents}
+      onClick={stopMouseEvents}
+      className="absolute z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-3 min-w-[320px] max-w-[400px]"
+      style={{
+        top: `${position.top}px`,
+        left: `${position.left}px`,
+      }}
+    >
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-2">
+        <LinkIcon size={16} className="text-blue-600" />
+        <span className="text-sm font-semibold text-gray-700">
+          {isEditMode ? 'Chỉnh sửa liên kết' : 'Chèn liên kết'}
+        </span>
+      </div>
+
+      {/* Input - Auto-focused */}
+      <div className="mb-3">
+        <input
+          ref={inputRef}
+          type="text"
+          value={url}
+          onChange={(e) => {
+            setUrl(e.target.value);
+            if (error) setError('');
+          }}
+          placeholder="example.com hoặc https://example.com"
+          className={`w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 transition-all ${
+            error
+              ? 'border-red-300 focus:ring-red-200'
+              : 'border-gray-300 focus:ring-blue-200 focus:border-blue-400'
+          }`}
+        />
+        {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      </div>
+
+      {/* Actions */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleApply}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+          >
+            <Check size={14} />
+            Áp dụng
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+          >
+            <X size={14} />
+            Hủy
+          </button>
+        </div>
+
+        {isEditMode && (
+          <button
+            type="button"
+            onClick={handleRemove}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors"
+            title="Xóa liên kết"
+          >
+            <Trash2 size={14} />
+            Xóa
+          </button>
+        )}
+      </div>
+
+      {/* Hint */}
+      <div className="mt-2 pt-2 border-t border-gray-100">
+        <p className="text-xs text-gray-500">
+          <kbd className="px-1.5 py-0.5 text-xs bg-gray-100 rounded">Enter</kbd> để áp dụng • <kbd className="px-1.5 py-0.5 text-xs bg-gray-100 rounded">Esc</kbd> để hủy
+        </p>
+      </div>
+    </div>
+  );
+}
+```
+
+### 5.6 `src/components/editor/VideoPopover.tsx`
+
+```tsx
+/**
+ * Floating Video Popover - For YouTube/Vimeo embeds
+ * Anchored to caret position, similar to LinkPopover
+ */
+
+'use client';
+
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Editor } from '@tiptap/react';
+import { Youtube, Check, X } from 'lucide-react';
+
+interface VideoPopoverProps {
+  editor: Editor;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+interface Position {
+  top: number;
+  left: number;
+}
+
+// Video URL validation
+function isYouTubeUrl(url: string): boolean {
+  return /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i.test(url);
+}
+
+function isVimeoUrl(url: string): boolean {
+  return /(?:vimeo\.com\/)(\d+)/i.test(url);
+}
+
+function getVideoProvider(url: string): 'youtube' | 'vimeo' | null {
+  if (isYouTubeUrl(url)) return 'youtube';
+  if (isVimeoUrl(url)) return 'vimeo';
+  return null;
+}
+
+function getVideoError(url: string): string | null {
+  const trimmed = url.trim();
+
+  if (!trimmed) {
+    return 'URL video không được để trống';
+  }
+
+  const provider = getVideoProvider(trimmed);
+  if (!provider) {
+    return 'URL không hợp lệ. Vui lòng nhập URL YouTube hoặc Vimeo.';
+  }
+
+  return null;
+}
+
+export function VideoPopover({
+  editor,
+  isOpen,
+  onClose,
+}: VideoPopoverProps) {
+  const [url, setUrl] = useState('');
+  const [error, setError] = useState('');
+  const [position, setPosition] = useState<Position>({ top: 0, left: 0 });
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Calculate position based on caret
+  const calculatePosition = useCallback(() => {
+    if (!editor || !editor.view) return;
+
+    try {
+      const { state, view } = editor;
+      const { from } = state.selection;
+
+      // Get coordinates from editor view
+      const coords = view.coordsAtPos(from);
+
+      // Get editor container position
+      const editorElement = view.dom;
+      const editorRect = editorElement.getBoundingClientRect();
+
+      // Calculate popover position
+      const top = coords.bottom - editorRect.top + 8;
+      const left = coords.left - editorRect.left;
+
+      setPosition({ top, left });
+    } catch (error) {
+      console.error('Error calculating position:', error);
+      setPosition({ top: 50, left: 50 });
+    }
+  }, [editor]);
+
+  // Update position when opened
+  useEffect(() => {
+    if (isOpen) {
+      calculatePosition();
+      setUrl('');
+      setError('');
+
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+    }
+  }, [isOpen, calculatePosition]);
+
+  // Click outside handler - ROBUST with pointerdown
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      // Use composedPath for accurate detection
+      const path = event.composedPath();
+
+      // Check if event originated from inside popover
+      const isInsidePopover = path.some(el =>
+        el === popoverRef.current ||
+        (el as HTMLElement).closest?.('[data-video-popover]')
+      );
+
+      if (isInsidePopover) {
+        console.log('[VideoPopover] Pointer down inside - keeping open');
+        return;
+      }
+
+      // Check if event is from toolbar button
+      const isToolbarButton = path.some(el =>
+        (el as HTMLElement).closest?.('[data-video-button]')
+      );
+
+      if (isToolbarButton) {
+        console.log('[VideoPopover] Pointer down on toolbar button - ignoring');
+        return;
+      }
+
+      // Truly outside - close
+      console.log('[VideoPopover] Pointer down outside - closing');
+      onClose();
+    };
+
+    // Add listener after delay, use capture phase
+    const timer = setTimeout(() => {
+      document.addEventListener('pointerdown', handlePointerDown, true);
+      console.log('[VideoPopover] Pointer down listener added');
+    }, 200);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('pointerdown', handlePointerDown, true);
+      console.log('[VideoPopover] Pointer down listener removed');
+    };
+  }, [isOpen, onClose]);
+
+  // Validate URL on change
+  const handleUrlChange = (value: string) => {
+    setUrl(value);
+
+    if (error) {
+      setError('');
+    }
+  };
+
+  // Apply video embed
+  const handleApply = useCallback(() => {
+    const trimmedUrl = url.trim();
+
+    // Validate
+    const validationError = getVideoError(trimmedUrl);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    const provider = getVideoProvider(trimmedUrl);
+
+    if (provider === 'youtube') {
+      editor.chain().focus().setYouTubeVideo({ src: trimmedUrl }).run();
+    } else if (provider === 'vimeo') {
+      // Vimeo support (if extension is configured)
+      // For now, just YouTube
+      editor.chain().focus().setYouTubeVideo({ src: trimmedUrl }).run();
+    }
+
+    onClose();
+  }, [url, editor, onClose]);
+
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      } else if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleApply();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, handleApply, onClose]);
+
+  if (!isOpen) return null;
+
+  const provider = url.trim() ? getVideoProvider(url.trim()) : null;
+
+  // CRITICAL: Stop all mouse events from bubbling
+  const stopMouseEvents = (e: React.MouseEvent | React.PointerEvent) => {
+    e.stopPropagation();
+  };
+
+  return (
+    <div
+      ref={popoverRef}
+      data-video-popover="true"
+      onPointerDown={stopMouseEvents}
+      onPointerUp={stopMouseEvents}
+      onMouseDown={stopMouseEvents}
+      onMouseUp={stopMouseEvents}
+      onClick={stopMouseEvents}
+      className="absolute z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-3 min-w-[320px] max-w-[400px]"
+      style={{
+        top: `${position.top}px`,
+        left: `${position.left}px`,
+      }}
+    >
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-2">
+        <Youtube size={16} className="text-red-600" />
+        <span className="text-sm font-semibold text-gray-700">
+          Chèn video YouTube/Vimeo
+        </span>
+      </div>
+
+      {/* Input */}
+      <div className="mb-3">
+        <input
+          ref={inputRef}
+          type="text"
+          value={url}
+          onChange={(e) => handleUrlChange(e.target.value)}
+          placeholder="https://youtube.com/watch?v=... hoặc https://vimeo.com/..."
+          className={`w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 transition-all ${error
+              ? 'border-red-300 focus:ring-red-200'
+              : 'border-gray-300 focus:ring-blue-200 focus:border-blue-400'
+            }`}
+        />
+        {error && (
+          <p className="mt-1 text-xs text-red-600">{error}</p>
+        )}
+        {provider && !error && (
+          <p className="mt-1 text-xs text-green-600">
+            ✓ {provider === 'youtube' ? 'YouTube' : 'Vimeo'} video detected
+          </p>
+        )}
+      </div>
+
+      {/* Actions */}
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={handleApply}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+        >
+          <Check size={14} />
+          Chèn video
+        </button>
+        <button
+          type="button"
+          onClick={onClose}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+        >
+          <X size={14} />
+          Hủy
+        </button>
+      </div>
+
+      {/* Hint */}
+      <div className="mt-2 pt-2 border-t border-gray-100">
+        <p className="text-xs text-gray-500">
+          <kbd className="px-1.5 py-0.5 text-xs bg-gray-100 rounded">Enter</kbd> để chèn,{' '}
+          <kbd className="px-1.5 py-0.5 text-xs bg-gray-100 rounded">Esc</kbd> để hủy
+        </p>
+      </div>
+    </div>
+  );
+}
+```
+
+### 5.7 `src/components/editor/editor.css`
+
+```css
+/**
+ * Rich Text Editor Custom Styles
+ */
+
+/* Editor content area */
+.ProseMirror {
+  outline: none;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #adb5bd;
+  pointer-events: none;
+  height: 0;
+}
+
+/* Link styles */
+.ProseMirror a {
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.ProseMirror a:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* Selection */
+.ProseMirror ::selection {
+  background-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Lists */
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.ProseMirror ul {
+  list-style-type: disc;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal;
+}
+
+.ProseMirror li {
+  margin: 0.25rem 0;
+}
+
+/* Headings */
+.ProseMirror h1 {
+  font-size: 2em;
+  font-weight: bold;
+  margin: 0.67em 0;
+}
+
+.ProseMirror h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 0.75em 0;
+}
+
+.ProseMirror h3 {
+  font-size: 1.17em;
+  font-weight: bold;
+  margin: 0.83em 0;
+}
+
+/* Code */
+.ProseMirror code {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+/* Blockquote */
+.ProseMirror blockquote {
+  border-left: 3px solid #e5e7eb;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: #6b7280;
+}
+
+/* Dark mode adjustments */
+.dark .ProseMirror p.is-editor-empty:first-child::before {
+  color: #6b7280;
+}
+
+.dark .ProseMirror code {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .ProseMirror blockquote {
+  border-left-color: #4b5563;
+  color: #9ca3af;
+}
+
+/* Floating popover animations */
+.floating-link-popover,
+.link-preview-bubble {
+  animation: fadeInScale 0.15s ease-out;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Focus states */
+.floating-link-popover input:focus,
+.floating-link-popover button:focus {
+  outline: none;
+}
+
+/* Keyboard hint styling */
+kbd {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+```
+
+### 5.8 `src/components/editor/extensions/index.ts`
+
+```ts
+/**
+ * Editor Extensions Configuration
+ * Centralized extension setup for Tiptap editor
+ */
+
+import StarterKit from '@tiptap/starter-kit';
+import Link from '@tiptap/extension-link';
+import Placeholder from '@tiptap/extension-placeholder';
+import Underline from '@tiptap/extension-underline';
+import TextAlign from '@tiptap/extension-text-align';
+import TextStyle from '@tiptap/extension-text-style';
+import Highlight from '@tiptap/extension-highlight';
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
+import CharacterCount from '@tiptap/extension-character-count';
+import Typography from '@tiptap/extension-typography';
+import { Color } from '@tiptap/extension-color';
+
+import { ImageWithCaption } from './image-with-caption';
+import { VideoEmbed } from './video-embed';
+import { Callout } from './callout';
+import { EDITOR_LIMITS, KEYBOARD_SHORTCUTS } from '@/lib/editor/constants';
+
+export interface EditorExtensionsConfig {
+  placeholder?: string;
+  maxLength?: number;
+  enableSlashCommands?: boolean;
+}
+
+export function getEditorExtensions(config: EditorExtensionsConfig = {}) {
+  const {
+    placeholder = 'Bắt đầu viết hoặc gõ / để xem các lệnh...',
+    maxLength = EDITOR_LIMITS.MAX_CONTENT_LENGTH,
+    enableSlashCommands = true,
+  } = config;
+
+  return [
+    // Core editing
+    StarterKit.configure({
+      heading: {
+        levels: [1, 2, 3],
+      },
+      bulletList: {
+        keepMarks: true,
+        keepAttributes: false,
+      },
+      orderedList: {
+        keepMarks: true,
+        keepAttributes: false,
+      },
+      blockquote: {
+        HTMLAttributes: {
+          class: 'border-l-4 border-gray-300 pl-4 italic text-gray-700',
+        },
+      },
+      code: {
+        HTMLAttributes: {
+          class: 'bg-gray-100 text-red-600 px-1.5 py-0.5 rounded text-sm font-mono',
+        },
+      },
+      codeBlock: {
+        HTMLAttributes: {
+          class: 'bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm',
+        },
+      },
+      horizontalRule: {
+        HTMLAttributes: {
+          class: 'my-8 border-gray-300',
+        },
+      },
+      dropcursor: {
+        color: '#3b82f6',
+        width: 2,
+      },
+      gapcursor: false,
+    }),
+
+    // Text formatting
+    Underline,
+    TextStyle,
+    Color,
+    Highlight.configure({
+      multicolor: true,
+      HTMLAttributes: {
+        class: 'bg-yellow-200 px-1 rounded',
+      },
+    }),
+
+    // Links
+    Link.configure({
+      openOnClick: false,
+      HTMLAttributes: {
+        class: 'text-blue-600 underline hover:text-blue-700 cursor-pointer',
+        rel: 'noopener noreferrer',
+      },
+      validate: href => /^https?:\/\//.test(href),
+    }),
+
+    // Text alignment
+    TextAlign.configure({
+      types: ['heading', 'paragraph'],
+      alignments: ['left', 'center', 'right'],
+    }),
+
+    // Task lists
+    TaskList.configure({
+      HTMLAttributes: {
+        class: 'not-prose',
+      },
+    }),
+    TaskItem.configure({
+      nested: true,
+      HTMLAttributes: {
+        class: 'flex items-start gap-2',
+      },
+    }),
+
+    // Typography improvements
+    Typography.configure({
+      // Smart quotes, dashes, ellipsis
+    }),
+
+    // Placeholder
+    Placeholder.configure({
+      placeholder,
+      showOnlyWhenEditable: true,
+      showOnlyCurrent: false,
+    }),
+
+    // Character count
+    CharacterCount.configure({
+      limit: maxLength,
+    }),
+
+    // Custom extensions
+    ImageWithCaption.configure({
+      inline: false,
+      allowBase64: false,
+      HTMLAttributes: {
+        class: 'rounded-lg max-w-full h-auto',
+      },
+    }),
+
+    VideoEmbed.configure({
+      width: 640,
+      height: 360,
+      controls: true,
+      nocookie: true,
+      allowFullscreen: true,
+    }),
+
+    Callout.configure({
+      HTMLAttributes: {
+        class: 'callout',
+      },
+    }),
+  ];
+}
+
+// Export individual extensions for selective use
+export {
+  ImageWithCaption,
+  VideoEmbed,
+  Callout,
+};
+```
+
+### 5.9 `src/components/editor/extensions/callout.ts`
+
+```ts
+/**
+ * Callout Extension
+ * Info boxes with variants: info, warning, success, danger
+ */
+
+import { Node, mergeAttributes } from '@tiptap/core';
+import { CalloutVariant } from '@/types/editor';
+
+export interface CalloutOptions {
+  HTMLAttributes: Record<string, any>;
+}
+
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    callout: {
+      setCallout: (variant?: CalloutVariant) => ReturnType;
+      toggleCallout: (variant?: CalloutVariant) => ReturnType;
+    };
+  }
+}
+
+export const Callout = Node.create<CalloutOptions>({
+  name: 'callout',
+
+  group: 'block',
+
+  content: 'block+',
+
+  defining: true,
+
+  addAttributes() {
+    return {
+      variant: {
+        default: 'info',
+        parseHTML: element => element.getAttribute('data-variant') || 'info',
+        renderHTML: attributes => {
+          return {
+            'data-variant': attributes.variant,
+          };
+        },
+      },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'div[data-type="callout"]',
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      'div',
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
+        'data-type': 'callout',
+        class: 'callout',
+      }),
+      0,
+    ];
+  },
+
+  addCommands() {
+    return {
+      setCallout:
+        (variant = 'info') =>
+        ({ commands }) => {
+          return commands.wrapIn(this.name, { variant });
+        },
+      toggleCallout:
+        (variant = 'info') =>
+        ({ commands }) => {
+          return commands.toggleWrap(this.name, { variant });
+        },
+    };
+  },
+
+  addKeyboardShortcuts() {
+    return {
+      'Mod-Shift-i': () => this.editor.commands.toggleCallout('info'),
+    };
+  },
+});
+```
+
+### 5.10 `src/components/editor/extensions/image-with-caption.ts`
+
+```ts
+/**
+ * Enhanced Image Extension
+ * Supports captions, alignment, and sizing
+ */
+
+import Image from '@tiptap/extension-image';
+import { mergeAttributes } from '@tiptap/core';
+
+export interface ImageWithCaptionOptions {
+  inline: boolean;
+  allowBase64: boolean;
+  HTMLAttributes: Record<string, any>;
+}
+
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    imageWithCaption: {
+      setImage: (options: {
+        src: string;
+        alt?: string;
+        title?: string;
+        caption?: string;
+        alignment?: 'left' | 'center' | 'right';
+      }) => ReturnType;
+      setImageAlignment: (alignment: 'left' | 'center' | 'right') => ReturnType;
+      setImageCaption: (caption: string) => ReturnType;
+    };
+  }
+}
+
+export const ImageWithCaption = Image.extend<ImageWithCaptionOptions>({
+  name: 'image',
+
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      caption: {
+        default: null,
+        parseHTML: element => element.getAttribute('data-caption'),
+        renderHTML: attributes => {
+          if (!attributes.caption) return {};
+          return {
+            'data-caption': attributes.caption,
+          };
+        },
+      },
+      alignment: {
+        default: 'center',
+        parseHTML: element => element.getAttribute('data-alignment') || 'center',
+        renderHTML: attributes => {
+          return {
+            'data-alignment': attributes.alignment,
+          };
+        },
+      },
+    };
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    const { caption, alignment, ...imgAttrs } = HTMLAttributes;
+    
+    // If no caption, render simple image
+    if (!caption) {
+      return [
+        'img',
+        mergeAttributes(this.options.HTMLAttributes, imgAttrs, {
+          'data-alignment': alignment,
+        }),
+      ];
+    }
+    
+    // Render image with caption wrapper
+    return [
+      'figure',
+      {
+        class: 'image-with-caption',
+        'data-alignment': alignment,
+      },
+      [
+        'img',
+        mergeAttributes(this.options.HTMLAttributes, imgAttrs),
+      ],
+      [
+        'figcaption',
+        {},
+        caption,
+      ],
+    ];
+  },
+
+  addCommands() {
+    return {
+      setImage:
+        options =>
+        ({ commands }) => {
+          return commands.insertContent({
+            type: this.name,
+            attrs: options,
+          });
+        },
+      setImageAlignment:
+        alignment =>
+        ({ commands }) => {
+          return commands.updateAttributes(this.name, { alignment });
+        },
+      setImageCaption:
+        caption =>
+        ({ commands }) => {
+          return commands.updateAttributes(this.name, { caption });
+        },
+    };
+  },
+});
+```
+
+### 5.11 `src/components/editor/extensions/video-embed.ts`
+
+```ts
+/**
+ * Video Embed Extension
+ * Enhanced YouTube extension with Vimeo support
+ */
+
+import { Node, mergeAttributes } from '@tiptap/core';
+
+export interface VideoEmbedOptions {
+  addPasteHandler: boolean;
+  allowFullscreen: boolean;
+  autoplay: boolean;
+  ccLanguage?: string;
+  ccLoadPolicy?: boolean;
+  controls: boolean;
+  disableKBcontrols: boolean;
+  enableIFrameApi: boolean;
+  endTime: number;
+  height: number;
+  interfaceLanguage?: string;
+  ivLoadPolicy: number;
+  loop: boolean;
+  modestBranding: boolean;
+  nocookie: boolean;
+  origin?: string;
+  playlist?: string;
+  progressBarColor?: string;
+  width: number;
+  HTMLAttributes: Record<string, any>;
+}
+
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    videoEmbed: {
+      setYouTubeVideo: (options: { src: string }) => ReturnType;
+      setVimeoVideo: (options: { src: string }) => ReturnType;
+    };
+  }
+}
+
+export const VideoEmbed = Node.create<VideoEmbedOptions>({
+  name: 'videoEmbed',
+
+  group: 'block',
+
+  atom: true,
+
+  addOptions() {
+    return {
+      addPasteHandler: true,
+      allowFullscreen: true,
+      autoplay: false,
+      ccLanguage: undefined,
+      ccLoadPolicy: undefined,
+      controls: true,
+      disableKBcontrols: false,
+      enableIFrameApi: false,
+      endTime: 0,
+      height: 480,
+      interfaceLanguage: undefined,
+      ivLoadPolicy: 0,
+      loop: false,
+      modestBranding: false,
+      nocookie: true,
+      origin: undefined,
+      playlist: undefined,
+      progressBarColor: undefined,
+      width: 640,
+      HTMLAttributes: {},
+    };
+  },
+
+  addAttributes() {
+    return {
+      src: {
+        default: null,
+      },
+      provider: {
+        default: 'youtube',
+      },
+      width: {
+        default: this.options.width,
+      },
+      height: {
+        default: this.options.height,
+      },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'div[data-type="video-embed"]',
+        getAttrs: (node) => {
+          if (typeof node === 'string') return false;
+          
+          const element = node as HTMLElement;
+          const iframe = element.querySelector('iframe');
+          
+          // Extract src from iframe if exists
+          const src = iframe?.getAttribute('src') || element.getAttribute('data-src');
+          
+          // If no valid src, don't parse this node
+          if (!src) return false;
+          
+          return {
+            src,
+            provider: element.getAttribute('data-provider') || 'youtube',
+            width: element.getAttribute('data-width') || this.options.width,
+            height: element.getAttribute('data-height') || this.options.height,
+          };
+        },
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    const { src, provider, width, height } = HTMLAttributes;
+    
+    // Safety check: if no src, return empty div
+    if (!src) {
+      return ['div', { class: 'video-embed-error' }, 'Video URL is missing'];
+    }
+    
+    let embedUrl = src;
+    
+    // Convert YouTube URL to embed format
+    if (provider === 'youtube') {
+      const videoId = extractYouTubeId(src);
+      if (videoId) {
+        embedUrl = this.options.nocookie
+          ? `https://www.youtube-nocookie.com/embed/${videoId}`
+          : `https://www.youtube.com/embed/${videoId}`;
+      }
+    }
+    
+    // Convert Vimeo URL to embed format
+    if (provider === 'vimeo') {
+      const videoId = extractVimeoId(src);
+      if (videoId) {
+        embedUrl = `https://player.vimeo.com/video/${videoId}`;
+      }
+    }
+    
+    return [
+      'div',
+      mergeAttributes(this.options.HTMLAttributes, {
+        'data-type': 'video-embed',
+        'data-provider': provider,
+      }),
+      [
+        'iframe',
+        {
+          src: embedUrl,
+          width: width || this.options.width,
+          height: height || this.options.height,
+          frameborder: '0',
+          allowfullscreen: this.options.allowFullscreen ? 'true' : 'false',
+          allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
+        },
+      ],
+    ];
+  },
+
+  addCommands() {
+    return {
+      setYouTubeVideo:
+        (options: { src: string }) =>
+        ({ commands }) => {
+          const videoId = extractYouTubeId(options.src);
+          if (!videoId) return false;
+          
+          return commands.insertContent({
+            type: this.name,
+            attrs: {
+              src: options.src,
+              provider: 'youtube',
+            },
+          });
+        },
+      setVimeoVideo:
+        (options: { src: string }) =>
+        ({ commands }) => {
+          const videoId = extractVimeoId(options.src);
+          if (!videoId) return false;
+          
+          return commands.insertContent({
+            type: this.name,
+            attrs: {
+              src: options.src,
+              provider: 'vimeo',
+            },
+          });
+        },
+    };
+  },
+});
+
+// Helper functions
+function extractYouTubeId(url: string | null | undefined): string | null {
+  if (!url || typeof url !== 'string') return null;
+  
+  const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+  const match = url.match(regex);
+  return match ? match[1] : null;
+}
+
+function extractVimeoId(url: string | null | undefined): string | null {
+  if (!url || typeof url !== 'string') return null;
+  
+  const regex = /(?:vimeo\.com\/)(\d+)/;
+  const match = url.match(regex);
+  return match ? match[1] : null;
+}
+```
+
+### 5.12 `src/components/editor/extensions/slash-command.tsx`
+
+```tsx
+/**
+ * Slash Command Extension
+ * Type "/" to show block insertion menu
+ */
+
+import { Extension } from '@tiptap/core';
+import { ReactRenderer } from '@tiptap/react';
+import { Editor } from '@tiptap/core';
+import Suggestion, { SuggestionOptions } from '@tiptap/suggestion';
+import tippy, { Instance as TippyInstance } from 'tippy.js';
+import { SlashCommandItem, SlashCommandGroup } from '@/types/editor';
+import {
+  Heading1,
+  Heading2,
+  Heading3,
+  List,
+  ListOrdered,
+  CheckSquare,
+  Quote,
+  Code,
+  Minus,
+  Info,
+  Image as ImageIcon,
+  Video,
+  AlertCircle,
+  CheckCircle,
+  AlertTriangle,
+} from 'lucide-react';
+
+export const SlashCommand = Extension.create({
+  name: 'slashCommand',
+
+  addOptions() {
+    return {
+      suggestion: {
+        char: '/',
+        startOfLine: false,
+        command: ({ editor, range, props }: { editor: Editor; range: any; props: any }) => {
+          props.command({ editor, range });
+        },
+      } as Partial<SuggestionOptions>,
+    };
+  },
+
+  addProseMirrorPlugins() {
+    return [
+      Suggestion({
+        editor: this.editor,
+        ...this.options.suggestion,
+      }),
+    ];
+  },
+});
+
+// Command groups
+export function getSlashCommandGroups(editor: Editor): SlashCommandGroup[] {
+  return [
+    {
+      name: 'Định dạng cơ bản',
+      items: [
+        {
+          title: 'Tiêu đề 1',
+          description: 'Tiêu đề lớn',
+          icon: 'H1',
+          command: (editor) => {
+            editor.chain().focus().toggleHeading({ level: 1 }).run();
+          },
+          keywords: ['heading', 'h1', 'title'],
+        },
+        {
+          title: 'Tiêu đề 2',
+          description: 'Tiêu đề trung bình',
+          icon: 'H2',
+          command: (editor) => {
+            editor.chain().focus().toggleHeading({ level: 2 }).run();
+          },
+          keywords: ['heading', 'h2', 'subtitle'],
+        },
+        {
+          title: 'Tiêu đề 3',
+          description: 'Tiêu đề nhỏ',
+          icon: 'H3',
+          command: (editor) => {
+            editor.chain().focus().toggleHeading({ level: 3 }).run();
+          },
+          keywords: ['heading', 'h3'],
+        },
+        {
+          title: 'Danh sách dấu chấm',
+          description: 'Tạo danh sách không đánh số',
+          icon: 'list',
+          command: (editor) => {
+            editor.chain().focus().toggleBulletList().run();
+          },
+          keywords: ['bullet', 'list', 'ul'],
+        },
+        {
+          title: 'Danh sách đánh số',
+          description: 'Tạo danh sách có đánh số',
+          icon: 'ordered-list',
+          command: (editor) => {
+            editor.chain().focus().toggleOrderedList().run();
+          },
+          keywords: ['numbered', 'list', 'ol'],
+        },
+        {
+          title: 'Checklist',
+          description: 'Danh sách công việc',
+          icon: 'check-square',
+          command: (editor) => {
+            editor.chain().focus().toggleTaskList().run();
+          },
+          keywords: ['todo', 'task', 'checkbox'],
+        },
+      ],
+    },
+    {
+      name: 'Nội dung',
+      items: [
+        {
+          title: 'Trích dẫn',
+          description: 'Khối trích dẫn',
+          icon: 'quote',
+          command: (editor) => {
+            editor.chain().focus().toggleBlockquote().run();
+          },
+          keywords: ['quote', 'blockquote'],
+        },
+        {
+          title: 'Code',
+          description: 'Khối mã nguồn',
+          icon: 'code',
+          command: (editor) => {
+            editor.chain().focus().toggleCodeBlock().run();
+          },
+          keywords: ['code', 'codeblock', 'pre'],
+        },
+        {
+          title: 'Đường kẻ ngang',
+          description: 'Phân cách nội dung',
+          icon: 'minus',
+          command: (editor) => {
+            editor.chain().focus().setHorizontalRule().run();
+          },
+          keywords: ['hr', 'divider', 'line'],
+        },
+      ],
+    },
+    {
+      name: 'Callout',
+      items: [
+        {
+          title: 'Info Box',
+          description: 'Hộp thông tin',
+          icon: 'info',
+          command: (editor) => {
+            editor.chain().focus().setCallout('info').run();
+          },
+          keywords: ['callout', 'info', 'note'],
+        },
+        {
+          title: 'Warning Box',
+          description: 'Hộp cảnh báo',
+          icon: 'alert-triangle',
+          command: (editor) => {
+            editor.chain().focus().setCallout('warning').run();
+          },
+          keywords: ['callout', 'warning', 'caution'],
+        },
+        {
+          title: 'Success Box',
+          description: 'Hộp thành công',
+          icon: 'check-circle',
+          command: (editor) => {
+            editor.chain().focus().setCallout('success').run();
+          },
+          keywords: ['callout', 'success', 'tip'],
+        },
+        {
+          title: 'Danger Box',
+          description: 'Hộp nguy hiểm',
+          icon: 'alert-circle',
+          command: (editor) => {
+            editor.chain().focus().setCallout('danger').run();
+          },
+          keywords: ['callout', 'danger', 'error'],
+        },
+      ],
+    },
+  ];
+}
+```
+
+### 5.13 `src/components/editor/index.ts`
+
+```ts
+/**
+ * Editor Components - Public API
+ * Export all editor components and utilities
+ */
+
+// Main components
+export { ProductionEditor } from './ProductionEditor';
+export { EditorPreview, EditorPreviewServer } from './EditorPreview';
+export { EditorToolbar } from './EditorToolbar';
+export { EditorBubbleMenu } from './EditorBubbleMenu';
+
+// Extensions
+export { getEditorExtensions, ImageWithCaption, VideoEmbed, Callout } from './extensions';
+
+// Legacy component (for backward compatibility)
+export { default as RichTextEditor } from './RichTextEditor';
+```
+
+### 5.14 `src/components/shared/RichTextRenderer.tsx`
+
+```tsx
+"use client";
+
+import DOMPurify from "dompurify";
+import { useEffect, useState } from "react";
+import { generateHTML } from "@tiptap/core";
+import StarterKit from "@tiptap/starter-kit";
+import Link from "@tiptap/extension-link";
+import Image from "@tiptap/extension-image";
+import TextAlign from "@tiptap/extension-text-align";
+import Underline from "@tiptap/extension-underline";
+import Highlight from "@tiptap/extension-highlight";
+import TextStyle from "@tiptap/extension-text-style";
+import { Color } from "@tiptap/extension-color";
+
+// Extensions list used by the editor
+const TIPTAP_EXTENSIONS = [
+  StarterKit,
+  Link.configure({ openOnClick: false }),
+  Image,
+  TextAlign.configure({ types: ["heading", "paragraph"] }),
+  Underline,
+  Highlight.configure({ multicolor: true }),
+  TextStyle,
+  Color,
+];
+
+/**
+ * Tries to parse the content string as TipTap JSON.
+ * Returns the parsed object if valid, or null.
+ */
+function parseTipTapJson(content: string): object | null {
+  try {
+    const parsed = JSON.parse(content);
+    if (parsed && parsed.type === "doc" && Array.isArray(parsed.content)) {
+      return parsed;
+    }
+  } catch {
+    // Not JSON
+  }
+  return null;
+}
+
+/**
+ * Converts content (TipTap JSON string OR plain HTML) to an HTML string.
+ */
+function contentToHtml(content: string): string {
+  if (!content) return "";
+
+  // Detect TipTap JSON
+  const json = parseTipTapJson(content);
+  if (json) {
+    try {
+      return generateHTML(json as any, TIPTAP_EXTENSIONS);
+    } catch {
+      // Fallback to raw if generateHTML fails
+      return `<p>${content}</p>`;
+    }
+  }
+
+  // Already HTML or plain text
+  return content;
+}
+
+interface RichTextRendererProps {
+  content: string;
+}
+
+export default function RichTextRenderer({ content }: RichTextRendererProps) {
+  const [mounted, setMounted] = useState(false);
+  const [html, setHtml] = useState<string>("");
+
+  useEffect(() => {
+    setHtml(contentToHtml(content));
+    setMounted(true);
+  }, [content]);
+
+  if (!mounted) {
+    return (
+      <div
+        className="prose prose-blue prose-lg max-w-none text-gray-700 leading-relaxed animate-pulse"
+        suppressHydrationWarning
+      />
+    );
+  }
+
+  const sanitizedHtml = DOMPurify.sanitize(html, {
+    ADD_TAGS: ["iframe"],
+    ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "src", "style", "target", "rel"],
+  });
+
+  return (
+    <div
+      className="prose prose-blue prose-lg max-w-none text-gray-700 leading-relaxed
+        prose-headings:text-gray-900 prose-headings:font-bold
+        prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4
+        prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3
+        prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-4
+        prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6
+        prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6
+        prose-li:text-gray-700 prose-li:mb-1
+        prose-strong:text-gray-900 prose-strong:font-semibold
+        prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800
+        prose-blockquote:border-l-4 prose-blockquote:border-blue-400 prose-blockquote:pl-4 prose-blockquote:italic"
+      dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+    />
+  );
+}
+```
+
+### 5.15 `src/app/campaigns/create/page.tsx`
+
+```tsx
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ImageUpload } from "@/components/shared/ImageUpload";
+import { MultipleImageUpload } from "@/components/shared/MultipleImageUpload";
+import { DateInput } from "@/components/shared/DateInput";
+import { ProductionEditor } from "@/components/editor";
+import { EDITOR_PLACEHOLDERS } from "@/lib/editor/constants";
+import { toast } from "sonner";
+import { Rocket, Target, AlignLeft, Image as ImageIcon, Calendar, Tags, AlertCircle } from "lucide-react";
+import { CategorySelector } from "@/components/create-campaign/category-selector";
+import { StarterTagsSelector } from "@/components/create-campaign/starter-tags-selector";
+import { BlogSelector } from "@/components/create-campaign/blog-selector";
+import type { MainCategory } from "@/types/taxonomy";
+import { validateTaxonomySelection, sanitizeSelectedTags, getInvalidTagsForNewCategory, getTagsByIds } from "@/lib/taxonomy-helpers";
+
+export default function CreateCampaignPage() {
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    tagline: "",
+    description: "",
+    goalAmount: 1000000,
+    mainCategory: null as MainCategory | null,
+    starterTags: [] as string[],
+    imageUrl: "",
+    images: [] as string[], // Multiple images array
+    endDate: "",
+    linkedBlogIds: [] as string[], // Blog posts linked to campaign
+  });
+
+  const [showCategoryChangeWarning, setShowCategoryChangeWarning] = useState(false);
+  const [pendingCategory, setPendingCategory] = useState<MainCategory | null>(null);
+
+  const [displayAmount, setDisplayAmount] = useState("1.000.000");
+
+  // Kiểm tra quyền truy cập
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (!session) {
+      toast.error("Vui lòng đăng nhập để tạo dự án");
+      router.push("/auth/login?callbackUrl=/campaigns/create");
+      return;
+    }
+
+    const user = session.user as any;
+    const userRole = user?.role;
+    const isAdmin = user?.isAdmin === true || userRole === "ADMIN";
+
+    // Chỉ cho phép CREATOR và ADMIN tạo dự án
+    if (userRole !== "CREATOR" && !isAdmin) {
+      toast.error("Bạn cần nâng cấp lên tài khoản Creator để tạo dự án");
+      router.push("/");
+    }
+  }, [session, status, router]);
+
+  // Hiển thị loading khi đang kiểm tra session
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Đang kiểm tra quyền truy cập...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Không hiển thị form nếu chưa đăng nhập hoặc không có quyền
+  if (!session) {
+    return null;
+  }
+
+  const user = session.user as any;
+  const userRole = user?.role;
+  const isAdmin = user?.isAdmin === true || userRole === "ADMIN";
+
+  if (userRole !== "CREATOR" && !isAdmin) {
+    return null;
+  }
+
+  const formatVNDInput = (value: string) => {
+    const numericValue = value.replace(/\D/g, "");
+    if (!numericValue) return "";
+    return Number(numericValue).toLocaleString("de-DE");
+  };
+
+  const handleCategoryChange = (newCategory: MainCategory) => {
+    // If there are selected tags, check if they're valid for the new category
+    if (formData.starterTags.length > 0) {
+      const invalidTags = getInvalidTagsForNewCategory(
+        formData.starterTags,
+        newCategory
+      );
+
+      if (invalidTags.length > 0) {
+        // Show warning
+        setPendingCategory(newCategory);
+        setShowCategoryChangeWarning(true);
+        return;
+      }
+    }
+
+    // No conflicts, change category directly
+    setFormData({
+      ...formData,
+      mainCategory: newCategory,
+    });
+  };
+
+  const handleConfirmCategoryChange = () => {
+    if (!pendingCategory) return;
+
+    // Sanitize tags for new category
+    const sanitizedTags = sanitizeSelectedTags(
+      formData.starterTags,
+      pendingCategory
+    );
+
+    setFormData({
+      ...formData,
+      mainCategory: pendingCategory,
+      starterTags: sanitizedTags,
+    });
+
+    setShowCategoryChangeWarning(false);
+    setPendingCategory(null);
+  };
+
+  const handleCancelCategoryChange = () => {
+    setShowCategoryChangeWarning(false);
+    setPendingCategory(null);
+  };
+
+  const handleTagsChange = (tags: string[]) => {
+    setFormData({
+      ...formData,
+      starterTags: tags,
+    });
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+    const formatted = formatVNDInput(rawValue);
+    const numeric = Number(rawValue.replace(/\D/g, ""));
+
+    setDisplayAmount(formatted);
+    setFormData({ ...formData, goalAmount: numeric });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validate taxonomy
+    const taxonomyValidation = validateTaxonomySelection({
+      mainCategory: formData.mainCategory,
+      starterTags: formData.starterTags,
+    });
+
+    if (!taxonomyValidation.isValid) {
+      toast.error(taxonomyValidation.errors[0]);
+      return;
+    }
+
+    // Validate required fields with specific messages
+    const missingFields: string[] = [];
+    if (!formData.title) missingFields.push("Tên dự án");
+    if (!formData.tagline) missingFields.push("Mô tả ngắn");
+    if (!formData.description) missingFields.push("Nội dung chi tiết");
+    if (!formData.imageUrl) missingFields.push("Ảnh bìa");
+    if (!formData.goalAmount || formData.goalAmount <= 0) missingFields.push("Số vốn mục tiêu");
+    if (!formData.endDate) missingFields.push("Hạn chót chiến dịch");
+
+    if (missingFields.length > 0) {
+      toast.error(`Vui lòng điền: ${missingFields.join(", ")}`);
+      return;
+    }
+
+    setLoading(true);
+    const promise = fetch("/api/campaigns", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    }).then(async (res) => {
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Lỗi khi tạo dự án");
+      }
+      return res.json();
+    });
+
+    toast.promise(promise, {
+      loading: 'Đang khởi tạo dự án...',
+      success: (campaign) => {
+        router.push(`/campaigns/${campaign.slug}`);
+        return '🎉 Tạo dự án thành công!';
+      },
+      error: (err) => err.message,
+    });
+
+    promise.finally(() => setLoading(false));
+  };
+
+  const invalidTagsForPendingCategory = pendingCategory
+    ? getInvalidTagsForNewCategory(formData.starterTags, pendingCategory)
+    : [];
+
+  const invalidTagObjects = getTagsByIds(invalidTagsForPendingCategory);
+
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-cream via-white to-white">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden px-6 py-16">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute left-1/4 top-10 h-72 w-72 rounded-full bg-pgreen/10 blur-3xl" />
+          <div className="absolute right-1/4 top-24 h-72 w-72 rounded-full bg-tblue/10 blur-3xl" />
+        </div>
+
+        <div className="relative z-10 mx-auto max-w-4xl text-center">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-pgreen/10 text-pgreen shadow-soft">
+            <Rocket className="h-9 w-9" />
+          </div>
+
+          <h1 className="font-display text-4xl font-black text-dblue md:text-5xl">
+            Bắt đầu mạch cảm hứng mới
+          </h1>
+
+          <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-gray-600">
+            Hãy chia sẻ câu chuyện của bạn với thế giới. Chúng tôi sẽ giúp bạn kết nối với cộng đồng để biến ý tưởng thành hiện thực hiện hữu.
+          </p>
+
+          <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-pgreen/10 px-5 py-2 text-sm font-bold text-pgreen">
+            <span className="text-red-500">*</span>
+            Các trường có dấu sao là bắt buộc
+          </div>
+        </div>
+      </section>
+
+      <div className="mx-auto max-w-5xl px-6 pb-20">
+
+        {/* Main Form */}
+        <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+
+          {/* Category Change Warning Modal */}
+          {showCategoryChangeWarning && pendingCategory && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
+                <h3 className="text-lg font-bold text-gray-900">
+                  Xác nhận thay đổi danh mục
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Bạn đang thay đổi danh mục từ{" "}
+                  <span className="font-semibold">{formData.mainCategory}</span> sang{" "}
+                  <span className="font-semibold">{pendingCategory}</span>.
+                </p>
+                <p className="text-sm text-gray-600">
+                  Các thẻ sau sẽ bị xóa vì không phù hợp với danh mục mới:
+                </p>
+                <div className="flex flex-wrap gap-2 p-3 bg-red-50 rounded-lg">
+                  {invalidTagObjects.map((tag) => (
+                    <span
+                      key={tag.id}
+                      className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700"
+                    >
+                      {tag.label}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={handleCancelCategoryChange}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleConfirmCategoryChange}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+                  >
+                    Xác nhận
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Block 1: Thông tin cơ bản */}
+          <section className="rounded-3xl border border-pgreen/10 bg-white/90 p-8 shadow-soft backdrop-blur">
+            <div className="mb-8 flex items-center gap-4 border-b border-gray-100 pb-6">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pgreen/10 text-pgreen">
+                <AlignLeft className="h-6 w-6" />
+              </div>
+              <div>
+                <h2 className="font-display text-2xl font-bold text-dblue">
+                  Thông tin cơ bản
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Những thông tin đầu tiên giúp cộng đồng hiểu dự án của bạn.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="mb-2 block text-sm font-bold text-dblue flex justify-between">
+                  <span>Tên dự án <span className="text-red-500">*</span></span>
+                  <span className="text-xs font-medium text-gray-400">Tối đa 60 ký tự</span>
+                </label>
+                <Input
+                  required
+                  className="h-13 w-full rounded-2xl border border-gray-200 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-pgreen focus:outline-none focus:ring-4 focus:ring-pgreen/10 text-lg"
+                  placeholder="Ví dụ: Năng lượng xanh cho bản vùng cao..."
+                  value={formData.title}
+                  maxLength={60}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="mb-2 block text-sm font-bold text-dblue">
+                  Mô tả ngắn (Tagline) <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  required
+                  className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-pgreen focus:outline-none focus:ring-4 focus:ring-pgreen/10"
+                  placeholder="Câu tóm tắt ngắn gọn và cuốn hút nhất về dự án của bạn..."
+                  value={formData.tagline}
+                  onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Block 2: Nội dung & Hình ảnh */}
+          <section className="rounded-3xl border border-pgreen/10 bg-white/90 p-8 shadow-soft backdrop-blur">
+            <div className="mb-8 flex items-center gap-4 border-b border-gray-100 pb-6">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pgreen/10 text-pgreen">
+                <ImageIcon className="h-6 w-6" />
+              </div>
+              <div>
+                <h2 className="font-display text-2xl font-bold text-dblue">
+                  Câu chuyện & Media
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Một câu chuyện hay cùng hình ảnh đẹp sẽ thu hút nhiều sự chú ý hơn.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              <div className="space-y-2">
+                <label className="mb-2 block text-sm font-bold text-dblue">
+                  Ảnh chiến dịch <span className="text-red-500">*</span>
+                </label>
+                <div className="rounded-2xl border-dashed border-pgreen/30 bg-pgreen/5 p-6">
+                  <MultipleImageUpload
+                    label="Tải ảnh lên (Tỉ lệ khuyến nghị 16:9)"
+                    images={formData.images}
+                    onChange={(images) => {
+                      console.log("[CreateCampaign] Images updated:", images);
+                      setFormData(prev => ({ ...prev, images }));
+                    }}
+                    mainImage={formData.imageUrl}
+                    onMainImageChange={(url) => {
+                      console.log("[CreateCampaign] Main image updated:", url);
+                      setFormData(prev => ({ ...prev, imageUrl: url }));
+                    }}
+                    maxImages={10}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="mb-2 block text-sm font-bold text-dblue">
+                  Nội dung chi tiết <span className="text-red-500">*</span>
+                </label>
+                <ProductionEditor
+                  content={formData.description}
+                  onChange={(content) => setFormData({ ...formData, description: content })}
+                  config={{
+                    placeholder: EDITOR_PLACEHOLDERS.CAMPAIGN_DESCRIPTION,
+                    autosave: false,
+                    enableBubbleMenu: true,
+                  }}
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Block 3: Mục tiêu & Thời gian */}
+          <section className="rounded-3xl border border-pgreen/10 bg-white/90 p-8 shadow-soft backdrop-blur">
+            <div className="mb-8 flex items-center gap-4 border-b border-gray-100 pb-6">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pgreen/10 text-pgreen">
+                <Target className="h-6 w-6" />
+              </div>
+              <div>
+                <h2 className="font-display text-2xl font-bold text-dblue">
+                  Mục tiêu & Lịch trình
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Đặt mục tiêu thực tế và thời gian phù hợp cho chiến dịch.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="mb-2 block text-sm font-bold text-dblue">
+                  Số vốn mục tiêu (VNĐ) <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">₫</span>
+                  <Input
+                    type="text"
+                    className="h-13 w-full rounded-2xl border border-gray-200 bg-white pl-10 pr-4 text-lg font-black text-gray-900 placeholder:text-gray-400 transition focus:border-pgreen focus:outline-none focus:ring-4 focus:ring-pgreen/10"
+                    required
+                    placeholder="1.000.000"
+                    value={displayAmount}
+                    onChange={handleAmountChange}
+                  />
+                </div>
+                <p className="mt-2 text-xs text-gray-500">Đặt mục tiêu có thể đạt được để tạo động lực cho cộng đồng.</p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="mb-2 block text-sm font-bold text-dblue">
+                  Hạn chót chiến dịch <span className="text-red-500">*</span>
+                </label>
+                <DateInput
+                  value={formData.endDate}
+                  onChange={(value) => setFormData({ ...formData, endDate: value })}
+                  placeholder="dd/mm/yyyy"
+                  required
+                  min={new Date().toISOString().split('T')[0]}
+                />
+                <p className="mt-2 text-xs text-gray-500">Thời gian tối đa thường là 30 - 60 ngày.</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Block 4: Phân loại dự án */}
+          <section className="rounded-3xl border border-pgreen/10 bg-white/90 p-8 shadow-soft backdrop-blur">
+            <div className="mb-8 flex items-center gap-4 border-b border-gray-100 pb-6">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pgreen/10 text-pgreen">
+                <Tags className="h-6 w-6" />
+              </div>
+              <div>
+                <h2 className="font-display text-2xl font-bold text-dblue">
+                  Phân loại dự án
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Giúp người ủng hộ dễ dàng tìm thấy dự án của bạn.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              <CategorySelector
+                selectedCategory={formData.mainCategory}
+                onCategoryChange={handleCategoryChange}
+              />
+
+              <div className="border-t border-gray-100 pt-8">
+                <StarterTagsSelector
+                  mainCategory={formData.mainCategory}
+                  selectedTags={formData.starterTags}
+                  onTagsChange={handleTagsChange}
+                />
+              </div>
+
+              <div className="border-t border-gray-100 pt-8">
+                <BlogSelector
+                  selectedBlogIds={formData.linkedBlogIds}
+                  onBlogsChange={(blogIds) => setFormData({ ...formData, linkedBlogIds: blogIds })}
+                />
+              </div>
+            </div>
+          </section>
+
+          <div className="pt-6 flex justify-end">
+            <button
+              type="submit"
+              disabled={loading}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl gradient-green px-8 py-4 text-base font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-green-200 disabled:cursor-not-allowed disabled:opacity-60 w-full md:w-auto"
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Đang tạo chiến dịch...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  Khởi tạo chiến dịch ngay <Rocket size={20} className="ml-2" />
+                </span>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+  );
+}
+```
+
+### 5.16 `src/components/campaign/CampaignEditForm.tsx`
+
+```tsx
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { MultipleImageUpload } from "@/components/shared/MultipleImageUpload";
+import { DateInput } from "@/components/shared/DateInput";
+import { ProductionEditor } from "@/components/editor";
+import { EDITOR_PLACEHOLDERS } from "@/lib/editor/constants";
+import { toast } from "sonner";
+import { Save, Target, AlignLeft, Image as ImageIcon, Calendar, Tags, X } from "lucide-react";
+import { CategorySelector } from "@/components/create-campaign/category-selector";
+import { StarterTagsSelector } from "@/components/create-campaign/starter-tags-selector";
+import { BlogSelector } from "@/components/create-campaign/blog-selector";
+import type { MainCategory } from "@/types/taxonomy";
+import { MAIN_CATEGORIES } from "@/types/taxonomy";
+import { validateTaxonomySelection, sanitizeSelectedTags, getInvalidTagsForNewCategory, getTagsByIds } from "@/lib/taxonomy-helpers";
+import Link from "next/link";
+
+interface Reward {
+  id: string;
+  title: string;
+  description: string | null;
+  minAmount: number;
+  maxQuantity: number | null;
+  deliveryDate: Date | null;
+  isActive: boolean;
+}
+
+interface Campaign {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  longDescription: string | null;
+  imageUrl: string | null;
+  images: string[];
+  videoUrl: string | null;
+  category: string;
+  goalAmount: number;
+  endDate: Date | null;
+  rewards: Reward[];
+}
+
+interface CampaignEditFormProps {
+  campaign: Campaign;
+}
+
+export default function CampaignEditForm({ campaign }: CampaignEditFormProps) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    title: campaign.title,
+    tagline: campaign.description,
+    description: campaign.longDescription || "",
+    goalAmount: campaign.goalAmount,
+    mainCategory: (campaign.category && MAIN_CATEGORIES.includes(campaign.category as any))
+      ? (campaign.category as MainCategory)
+      : null,
+    starterTags: ((campaign as any).tags || []) as string[], // Load tags from campaign
+    imageUrl: campaign.imageUrl || "",
+    images: Array.isArray(campaign.images) ? campaign.images : [],
+    endDate: campaign.endDate ? new Date(campaign.endDate).toISOString().split('T')[0] : "",
+    linkedBlogIds: ((campaign as any).linkedBlogIds || []) as string[], // Load linked blogs
+  });
+
+  console.log("[CampaignEditForm] Initial data:", {
+    campaignCategory: campaign.category,
+    isValidCategory: campaign.category && MAIN_CATEGORIES.includes(campaign.category as any),
+    mainCategory: formData.mainCategory,
+    imageUrl: campaign.imageUrl,
+    images: campaign.images,
+    formDataImages: Array.isArray(campaign.images) ? campaign.images : []
+  });
+
+  const [showCategoryChangeWarning, setShowCategoryChangeWarning] = useState(false);
+  const [pendingCategory, setPendingCategory] = useState<MainCategory | null>(null);
+
+  const [displayAmount, setDisplayAmount] = useState(
+    Number(campaign.goalAmount).toLocaleString("de-DE")
+  );
+
+  const formatVNDInput = (value: string) => {
+    const numericValue = value.replace(/\D/g, "");
+    if (!numericValue) return "";
+    return Number(numericValue).toLocaleString("de-DE");
+  };
+
+  const handleCategoryChange = (newCategory: MainCategory) => {
+    // If there are selected tags, check if they're valid for the new category
+    if (formData.starterTags.length > 0) {
+      const invalidTags = getInvalidTagsForNewCategory(
+        formData.starterTags,
+        newCategory
+      );
+
+      if (invalidTags.length > 0) {
+        // Show warning
+        setPendingCategory(newCategory);
+        setShowCategoryChangeWarning(true);
+        return;
+      }
+    }
+
+    // No conflicts, change category directly
+    setFormData({
+      ...formData,
+      mainCategory: newCategory,
+    });
+  };
+
+  const handleConfirmCategoryChange = () => {
+    if (!pendingCategory) return;
+
+    // Sanitize tags for new category
+    const sanitizedTags = sanitizeSelectedTags(
+      formData.starterTags,
+      pendingCategory
+    );
+
+    setFormData({
+      ...formData,
+      mainCategory: pendingCategory,
+      starterTags: sanitizedTags,
+    });
+
+    setShowCategoryChangeWarning(false);
+    setPendingCategory(null);
+  };
+
+  const handleCancelCategoryChange = () => {
+    setShowCategoryChangeWarning(false);
+    setPendingCategory(null);
+  };
+
+  const handleTagsChange = (tags: string[]) => {
+    setFormData({
+      ...formData,
+      starterTags: tags,
+    });
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+    const formatted = formatVNDInput(rawValue);
+    const numeric = Number(rawValue.replace(/\D/g, ""));
+
+    setDisplayAmount(formatted);
+    setFormData({ ...formData, goalAmount: numeric });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validate taxonomy
+    const taxonomyValidation = validateTaxonomySelection({
+      mainCategory: formData.mainCategory,
+      starterTags: formData.starterTags,
+    });
+
+    if (!taxonomyValidation.isValid) {
+      toast.error(taxonomyValidation.errors[0]);
+      return;
+    }
+
+    // Validate required fields with specific messages
+    const missingFields: string[] = [];
+    if (!formData.title) missingFields.push("Tên dự án");
+    if (!formData.tagline) missingFields.push("Mô tả ngắn");
+    if (!formData.description) missingFields.push("Nội dung chi tiết");
+    if (!formData.imageUrl) missingFields.push("Ảnh bìa");
+    if (!formData.goalAmount || formData.goalAmount <= 0) missingFields.push("Số vốn mục tiêu");
+    if (!formData.endDate) missingFields.push("Hạn chót chiến dịch");
+
+    if (missingFields.length > 0) {
+      toast.error(`Vui lòng điền: ${missingFields.join(", ")}`);
+      return;
+    }
+
+    setLoading(true);
+    const promise = fetch(`/api/campaigns/${campaign.slug}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    }).then(async (res) => {
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Lỗi khi cập nhật dự án");
+      }
+      return res.json();
+    });
+
+    toast.promise(promise, {
+      loading: 'Đang cập nhật dự án...',
+      success: () => {
+        router.push("/dashboard/creator");
+        router.refresh();
+        return '✅ Cập nhật dự án thành công!';
+      },
+      error: (err) => err.message,
+    });
+
+    promise.finally(() => setLoading(false));
+  };
+
+  const invalidTagsForPendingCategory = pendingCategory
+    ? getInvalidTagsForNewCategory(formData.starterTags, pendingCategory)
+    : [];
+
+  const invalidTagObjects = getTagsByIds(invalidTagsForPendingCategory);
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      <form onSubmit={handleSubmit} className="space-y-8">
+
+        {/* Category Change Warning Modal */}
+        {showCategoryChangeWarning && pendingCategory && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
+              <h3 className="text-lg font-bold text-gray-900">
+                Xác nhận thay đổi danh mục
+              </h3>
+              <p className="text-sm text-gray-600">
+                Bạn đang thay đổi danh mục từ{" "}
+                <span className="font-semibold">{formData.mainCategory}</span> sang{" "}
+                <span className="font-semibold">{pendingCategory}</span>.
+              </p>
+              <p className="text-sm text-gray-600">
+                Các thẻ sau sẽ bị xóa vì không phù hợp với danh mục mới:
+              </p>
+              <div className="flex flex-wrap gap-2 p-3 bg-red-50 rounded-lg">
+                {invalidTagObjects.map((tag) => (
+                  <span
+                    key={tag.id}
+                    className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700"
+                  >
+                    {tag.label}
+                  </span>
+                ))}
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={handleCancelCategoryChange}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmCategoryChange}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+                >
+                  Xác nhận
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Block 1: Thông tin cơ bản */}
+        <div className="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-soft">
+          <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <AlignLeft size={20} />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">Thông tin cơ bản</h2>
+          </div>
+
+          <div className="space-y-8">
+            <div className="space-y-3">
+              <label className="text-sm font-bold text-gray-900 flex justify-between">
+                <span>Tên dự án <span className="text-red-500">*</span></span>
+                <span className="text-gray-400 font-normal">Tối đa 60 ký tự</span>
+              </label>
+              <Input
+                required
+                className="text-lg py-6 focus-ring rounded-xl bg-slate-50 border-gray-200"
+                placeholder="Ví dụ: Năng lượng xanh cho bản vùng cao..."
+                value={formData.title}
+                maxLength={60}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-sm font-bold text-gray-900">
+                Mô tả ngắn (Tagline) <span className="text-red-500">*</span>
+              </label>
+              <Input
+                required
+                className="py-5 focus-ring rounded-xl bg-slate-50 border-gray-200"
+                placeholder="Câu tóm tắt ngắn gọn và cuốn hút nhất về dự án của bạn..."
+                value={formData.tagline}
+                onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Block 2: Nội dung & Hình ảnh */}
+        <div className="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-soft">
+          <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <ImageIcon size={20} />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Câu chuyện & Media</h2>
+              <p className="text-sm text-gray-500 font-medium">Một câu chuyện hay cùng hình ảnh đẹp sẽ thu hút nhiều sự chú ý hơn.</p>
+            </div>
+          </div>
+
+          <div className="space-y-10">
+            <div className="space-y-3">
+              <label className="text-sm font-bold text-gray-900">
+                Ảnh chiến dịch <span className="text-red-500">*</span>
+              </label>
+              <div className="bg-slate-50 p-6 rounded-2xl border border-dashed border-gray-300">
+                <MultipleImageUpload
+                  label="Tải ảnh lên (Tỉ lệ khuyến nghị 16:9)"
+                  images={formData.images}
+                  onChange={(images) => {
+                    console.log("[EditCampaign] Images updated:", images);
+                    setFormData(prev => ({ ...prev, images }));
+                  }}
+                  mainImage={formData.imageUrl}
+                  onMainImageChange={(url) => {
+                    console.log("[EditCampaign] Main image updated:", url);
+                    setFormData(prev => ({ ...prev, imageUrl: url }));
+                  }}
+                  maxImages={10}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-sm font-bold text-gray-900">
+                Nội dung chi tiết <span className="text-red-500">*</span>
+              </label>
+              <ProductionEditor
+                content={formData.description}
+                onChange={(content) => setFormData({ ...formData, description: content })}
+                config={{
+                  placeholder: EDITOR_PLACEHOLDERS.CAMPAIGN_DESCRIPTION,
+                  autosave: false,
+                  enableBubbleMenu: true,
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Block 3: Mục tiêu & Thời gian */}
+        <div className="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-soft">
+          <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <Target size={20} />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">Mục tiêu & Lịch trình</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-3">
+              <label className="text-sm font-bold text-gray-900">
+                Số vốn mục tiêu (VNĐ) <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">₫</span>
+                <Input
+                  type="text"
+                  className="pl-10 text-lg font-black text-gray-900 py-6 focus-ring rounded-xl bg-slate-50 border-gray-200"
+                  required
+                  placeholder="1.000.000"
+                  value={displayAmount}
+                  onChange={handleAmountChange}
+                />
+              </div>
+              <p className="text-xs text-gray-500 font-medium">Đặt mục tiêu có thể đạt được để tạo động lực cho cộng đồng.</p>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-sm font-bold text-gray-900">
+                Hạn chót chiến dịch <span className="text-red-500">*</span>
+              </label>
+              <DateInput
+                value={formData.endDate}
+                onChange={(value) => setFormData({ ...formData, endDate: value })}
+                placeholder="dd/mm/yyyy"
+                required
+                min={new Date().toISOString().split('T')[0]} // Không cho chọn ngày quá khứ
+              />
+              <p className="text-xs text-gray-500 font-medium">Thời gian tối đa thường là 30 - 60 ngày.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Block 4: Phân loại & Tags */}
+        <div className="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-soft">
+          <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
+            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+              <Tags size={20} />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Phân loại dự án</h2>
+              <p className="text-sm text-gray-500 font-medium">Giúp người ủng hộ dễ dàng tìm thấy dự án của bạn</p>
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            <CategorySelector
+              selectedCategory={formData.mainCategory}
+              onCategoryChange={handleCategoryChange}
+            />
+
+            <div className="border-t border-gray-100 pt-8">
+              <StarterTagsSelector
+                mainCategory={formData.mainCategory}
+                selectedTags={formData.starterTags}
+                onTagsChange={handleTagsChange}
+              />
+            </div>
+
+            <div className="border-t border-gray-100 pt-8">
+              <BlogSelector
+                selectedBlogIds={formData.linkedBlogIds}
+                onBlogsChange={(blogIds) => setFormData({ ...formData, linkedBlogIds: blogIds })}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-4 flex gap-4">
+          <button
+            type="submit"
+            disabled={loading}
+            className={`
+                flex-1 btn-primary px-12 py-5 text-lg shadow-[0_8px_30px_rgb(37,99,235,0.3)]
+                ${loading ? "opacity-70 cursor-not-allowed" : ""}
+             `}
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Đang cập nhật...
+              </span>
+            ) : (
+              <span className="flex items-center justify-center gap-2">
+                <Save size={20} />
+                Lưu thay đổi
+              </span>
+            )}
+          </button>
+          <Link
+            href="/dashboard/creator"
+            className="px-8 py-5 bg-gray-100 text-gray-900 rounded-xl font-bold hover:bg-gray-200 transition flex items-center justify-center gap-2"
+          >
+            <X size={20} />
+            Hủy
+          </Link>
+        </div>
+      </form>
+    </div>
+  );
+}
+```
+
+### 5.17 `src/components/campaign/UpdateSection.tsx`
+
+```tsx
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
+import { PlusCircle, Sparkles, Send, Search, Tag, Pin, Edit2, Trash2, X } from "lucide-react";
+import { formatFullDateTime } from "@/lib/utils";
+import { ImageUpload } from "@/components/shared/ImageUpload";
+import { Button } from "@/components/ui/button";
+import { ProductionEditor } from "@/components/editor";
+import { EDITOR_PLACEHOLDERS } from "@/lib/editor/constants";
+import RichTextRenderer from "@/components/shared/RichTextRenderer";
+
+interface UpdateSectionProps {
+  campaignId: string;
+  slug: string;
+  isCreator: boolean;
+}
+
+// Danh sách tags với màu sắc riêng
+const TAG_CONFIG: Record<string, { bg: string; text: string; border: string }> = {
+  "Tiến độ": { bg: "bg-blue-100", text: "text-blue-700", border: "border-blue-200" },
+  "Sản xuất": { bg: "bg-purple-100", text: "text-purple-700", border: "border-purple-200" },
+  "Thử nghiệm": { bg: "bg-orange-100", text: "text-orange-700", border: "border-orange-200" },
+  "Vận chuyển": { bg: "bg-cyan-100", text: "text-cyan-700", border: "border-cyan-200" },
+  "Đóng gói": { bg: "bg-pink-100", text: "text-pink-700", border: "border-pink-200" },
+  "Thiết kế": { bg: "bg-indigo-100", text: "text-indigo-700", border: "border-indigo-200" },
+  "Nguyên liệu": { bg: "bg-amber-100", text: "text-amber-700", border: "border-amber-200" },
+  "Chất lượng": { bg: "bg-emerald-100", text: "text-emerald-700", border: "border-emerald-200" },
+  "Cải tiến": { bg: "bg-teal-100", text: "text-teal-700", border: "border-teal-200" },
+  "Hoàn thành": { bg: "bg-green-100", text: "text-green-700", border: "border-green-200" },
+  "Khó khăn": { bg: "bg-red-100", text: "text-red-700", border: "border-red-200" },
+  "Thành công": { bg: "bg-lime-100", text: "text-lime-700", border: "border-lime-200" },
+  "Cảm ơn": { bg: "bg-rose-100", text: "text-rose-700", border: "border-rose-200" },
+  "Thông báo": { bg: "bg-slate-100", text: "text-slate-700", border: "border-slate-200" }
+};
+
+const AVAILABLE_TAGS = Object.keys(TAG_CONFIG);
+
+const getTagStyle = (tag: string) => {
+  return TAG_CONFIG[tag] || { bg: "bg-gray-100", text: "text-gray-700", border: "border-gray-200" };
+};
+
+export default function UpdateSection({ campaignId, slug, isCreator }: UpdateSectionProps) {
+  const { data: session } = useSession();
+  const formRef = useRef<HTMLDivElement>(null); // Ref cho form
+  const [updates, setUpdates] = useState<any[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null); // ID của update đang edit
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [selectedTag, setSelectedTag] = useState<string>(""); // Chỉ 1 tag
+  const [isPinned, setIsPinned] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
+
+  // Search & Filter states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterTag, setFilterTag] = useState("");
+  const [allTags, setAllTags] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetchUpdates();
+  }, [slug, searchQuery, filterTag]);
+
+  const fetchUpdates = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (searchQuery) params.append("search", searchQuery);
+      if (filterTag) params.append("tag", filterTag);
+
+      const res = await fetch(`/api/campaigns/${slug}/updates?${params.toString()}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setUpdates(data);
+
+      // Extract all unique tags
+      const uniqueTags = Array.from(new Set(data.flatMap((u: any) => u.tags || []))) as string[];
+      setAllTags(uniqueTags);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setFetching(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim() || !content.trim()) return;
+
+    setLoading(true);
+    try {
+      const url = editingId
+        ? `/api/campaigns/${slug}/updates/${editingId}`
+        : `/api/campaigns/${slug}/updates`;
+
+      const method = editingId ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          content,
+          imageUrl,
+          tags: selectedTag ? [selectedTag] : [], // Chỉ 1 tag
+          isPinned,
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        if (editingId) {
+          // Cập nhật update trong list
+          setUpdates(updates.map(u => u.id === editingId ? data : u));
+        } else {
+          // Thêm update mới
+          setUpdates([data, ...updates]);
+        }
+
+        // Reset form
+        setTitle("");
+        setContent("");
+        setImageUrl("");
+        setSelectedTag("");
+        setIsPinned(false);
+        setEditingId(null);
+        setShowForm(false);
+      } else {
+        alert(data.error || "Lỗi khi lưu cập nhật");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Đã có lỗi xảy ra");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = (update: any) => {
+    setEditingId(update.id);
+    setTitle(update.title);
+    setContent(update.content);
+    setImageUrl(update.imageUrl || "");
+    setSelectedTag(update.tags?.[0] || "");
+    setIsPinned(update.isPinned || false);
+    setShowForm(true);
+
+    // Scroll to form sau khi render
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setTitle("");
+    setContent("");
+    setImageUrl("");
+    setSelectedTag("");
+    setIsPinned(false);
+    setShowForm(false);
+  };
+
+  const handleDelete = async (updateId: string) => {
+    if (!confirm("Bạn có chắc muốn xóa cập nhật này?")) return;
+
+    try {
+      const res = await fetch(`/api/campaigns/${slug}/updates/${updateId}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setUpdates(updates.filter(u => u.id !== updateId));
+      } else {
+        alert(data.error || "Lỗi khi xóa cập nhật");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Đã có lỗi xảy ra");
+    }
+  };
+
+  return (
+    <div className="space-y-12">
+      {/* Nút bật form (Chỉ cho chủ dự án) */}
+      {isCreator && (
+        <div className="flex justify-between items-center bg-blue-50 border border-blue-100 p-8 rounded-[2.5rem] shadow-soft">
+          <div>
+            <h3 className="text-xl font-black text-gray-900 mb-1 tracking-tight">Cập nhật tiến độ dự án</h3>
+            <p className="text-xs text-blue-600 font-black uppercase tracking-widest leading-relaxed">Chia sẻ tin vui với những người ủng hộ bạn!</p>
+          </div>
+          <Button
+            onClick={() => setShowForm(!showForm)}
+            className="h-14 px-8 bg-blue-600 text-white font-black rounded-2xl hover:bg-black transition flex items-center gap-2 shadow-lg active:scale-95"
+          >
+            <PlusCircle size={20} />
+            {showForm ? "Đóng Form" : "Đăng cập nhật mới"}
+          </Button>
+        </div>
+      )}
+
+      {/* Form đăng cập nhật */}
+      {showForm && (
+        <div ref={formRef} className="bg-white rounded-[2.5rem] border border-gray-100 p-10 shadow-premium animate-in slide-in-from-top-4 duration-500">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-black text-gray-900">
+              {editingId ? "Chỉnh sửa cập nhật" : "Đăng cập nhật mới"}
+            </h3>
+            {editingId && (
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className="text-gray-400 hover:text-gray-600 flex items-center gap-2 text-sm font-bold"
+              >
+                <X size={16} />
+                Hủy chỉnh sửa
+              </button>
+            )}
+          </div>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="space-y-4">
+              <label className="text-xs font-black text-gray-900 uppercase tracking-widest">Tiêu đề bản tin</label>
+              <input
+                className="w-full p-6 bg-gray-50 border-0 rounded-[1.5rem] focus:ring-2 focus:ring-blue-600 text-lg font-black placeholder:text-gray-400 leading-none"
+                placeholder="VD: Chúng ta đã đạt 50% mục tiêu! 🎉"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-4">
+              <label className="text-xs font-black text-gray-900 uppercase tracking-widest">Nội dung chi tiết</label>
+              <ProductionEditor
+                content={content}
+                onChange={setContent}
+                config={{
+                  placeholder: EDITOR_PLACEHOLDERS.UPDATE_POST,
+                  autosave: false,
+                  enableBubbleMenu: true,
+                }}
+              />
+            </div>
+
+            <div className="space-y-4">
+              <label className="text-xs font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
+                <Tag size={14} />
+                Phân loại (Chọn 1 mục)
+              </label>
+
+              <select
+                className="w-full p-4 bg-gray-50 border-0 rounded-[1.5rem] focus:ring-2 focus:ring-blue-600 text-sm font-bold"
+                value={selectedTag}
+                onChange={(e) => setSelectedTag(e.target.value)}
+              >
+                <option value="">-- Không chọn --</option>
+                {AVAILABLE_TAGS.map((tag) => (
+                  <option key={tag} value={tag}>{tag}</option>
+                ))}
+              </select>
+
+              {selectedTag && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500 font-bold">Đã chọn:</span>
+                  <span className={`inline-flex items-center gap-1 px-4 py-2 ${getTagStyle(selectedTag).bg} ${getTagStyle(selectedTag).text} border ${getTagStyle(selectedTag).border} rounded-full text-sm font-bold`}>
+                    #{selectedTag}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3 p-4 bg-amber-50 rounded-2xl border border-amber-200">
+              <input
+                type="checkbox"
+                id="isPinned"
+                checked={isPinned}
+                onChange={(e) => setIsPinned(e.target.checked)}
+                className="w-5 h-5 rounded"
+              />
+              <label htmlFor="isPinned" className="text-sm font-bold text-amber-900 flex items-center gap-2 cursor-pointer">
+                <Pin size={16} />
+                Ghim bản tin này lên đầu (Quan trọng)
+              </label>
+            </div>
+
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                disabled={loading}
+                className="h-18 px-12 bg-gray-900 text-white font-black rounded-[1.8rem] hover:bg-blue-600 transition flex items-center gap-3 shadow-xl active:scale-95"
+              >
+                <Send size={20} />
+                {editingId ? "Cập nhật" : "Phát hành cập nhật"}
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Search & Filter */}
+      <div className="bg-white rounded-[2rem] border border-gray-100 p-6 shadow-soft space-y-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="text"
+              placeholder="Tìm kiếm theo tên hoặc nội dung..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-600 text-sm"
+            />
+          </div>
+
+          {allTags.length > 0 && (
+            <div className="flex items-center gap-2">
+              <Tag className="text-gray-400" size={18} />
+              <select
+                value={filterTag}
+                onChange={(e) => setFilterTag(e.target.value)}
+                className="px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-blue-600 text-sm font-bold"
+              >
+                <option value="">Tất cả phân loại</option>
+                {allTags.map((tag) => (
+                  <option key={tag} value={tag}>{tag}</option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+
+        {(searchQuery || filterTag) && (
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-gray-500 font-bold">Đang lọc:</span>
+            {searchQuery && (
+              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-bold">
+                "{searchQuery}"
+              </span>
+            )}
+            {filterTag && (
+              <span className={`px-3 py-1 ${getTagStyle(filterTag).bg} ${getTagStyle(filterTag).text} rounded-full font-bold`}>
+                #{filterTag}
+              </span>
+            )}
+            <button
+              onClick={() => { setSearchQuery(""); setFilterTag(""); }}
+              className="ml-2 text-gray-400 hover:text-gray-600 underline"
+            >
+              Xóa bộ lọc
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Layout with Sidebar - Kickstarter style */}
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Sidebar - List of updates */}
+        {!fetching && updates.length > 0 && (
+          <div className="lg:w-64 flex-shrink-0">
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 sticky top-4">
+              <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 px-2">
+                Danh sách cập nhật
+              </h3>
+              <div className="space-y-1 max-h-[600px] overflow-y-auto">
+                {updates.map((update) => (
+                  <a
+                    key={update.id}
+                    href={`#update-${update.id}`}
+                    className="block px-3 py-2 rounded-lg hover:bg-gray-50 transition group"
+                  >
+                    <div className="flex items-start gap-2">
+                      {update.isPinned && (
+                        <Pin size={12} className="text-amber-500 mt-1 flex-shrink-0" />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition truncate">
+                          {update.title}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {new Date(update.createdAt).toLocaleDateString('vi-VN')}
+                        </p>
+                        {update.tags && update.tags.length > 0 && (
+                          <span className={`inline-block mt-1 px-2 py-0.5 ${getTagStyle(update.tags[0]).bg} ${getTagStyle(update.tags[0]).text} rounded text-xs font-bold`}>
+                            {update.tags[0]}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Main Content - Update details */}
+        <div className="flex-1 min-w-0">
+          <div className="relative space-y-12">
+            <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest border-b pb-4">
+              Lịch sử cập nhật chiến dịch ({updates.length})
+            </h3>
+
+            {fetching ? (
+              <div className="py-24 text-center text-gray-400 font-bold animate-pulse uppercase tracking-widest text-xs italic">Đang đồng bộ dữ liệu...</div>
+            ) : updates.length > 0 ? (
+              <div className="space-y-16">
+                {updates.map((update, idx) => (
+                  <div key={update.id} id={`update-${update.id}`} className="relative group animate-fade-in-up scroll-mt-4">
+                    <div className="space-y-4">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                        <div className="flex items-center gap-3">
+                          <h4 className="text-2xl font-black text-gray-900 tracking-tight leading-[0.9] group-hover:text-blue-600 transition">{update.title}</h4>
+                          {update.isPinned && (
+                            <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded-lg text-[10px] font-black uppercase flex items-center gap-1">
+                              <Pin size={10} />
+                              Ghim
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest leading-none bg-gray-50 px-3 py-1 rounded-full">{formatFullDateTime(update.createdAt)}</span>
+                      </div>
+
+                      {update.tags && update.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {update.tags.map((tag: string) => {
+                            const style = getTagStyle(tag);
+                            return (
+                              <span key={tag} className={`px-4 py-2 ${style.bg} ${style.text} border ${style.border} rounded-full text-sm font-bold shadow-sm`}>
+                                #{tag}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      <div className="bg-white border border-gray-100 p-10 rounded-[2.5rem] shadow-soft group-hover:shadow-premium transition-all duration-500">
+                        <div className="mb-8">
+                          <RichTextRenderer content={update.content} />
+                        </div>
+                        {update.imageUrl && (
+                          <div className="relative w-full h-[400px] overflow-hidden rounded-[2rem] border border-gray-100 shadow-inner group/img">
+                            <img src={update.imageUrl} alt="Update visuals" className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-700" />
+                          </div>
+                        )}
+
+                        {/* Edit & Delete buttons for creator */}
+                        {isCreator && (
+                          <div className="flex items-center gap-3 mt-6 pt-6 border-t border-gray-100">
+                            <button
+                              onClick={() => handleEdit(update)}
+                              className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition text-sm font-bold"
+                            >
+                              <Edit2 size={16} />
+                              Chỉnh sửa
+                            </button>
+                            <button
+                              onClick={() => handleDelete(update.id)}
+                              className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition text-sm font-bold"
+                            >
+                              <Trash2 size={16} />
+                              Xóa
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-24 text-center glass-morphism rounded-[3rem]">
+                <PlusCircle className="mx-auto text-gray-200 mb-4" size={56} />
+                <p className="text-gray-400 font-black text-xs uppercase tracking-widest italic">
+                  {searchQuery || filterTag ? "Không tìm thấy kết quả phù hợp." : "Chưa có cập nhật nào từ chủ dự án."}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+### 5.18 `src/components/campaign/CampaignTabsWrapper.tsx`
+
+```tsx
+'use client';
+
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { formatVND, formatDate } from "@/lib/utils";
+import { Clock, ShieldCheck, BookOpen } from "lucide-react";
+import CommentSection from "@/components/campaign/CommentSection";
+import UpdateSection from "@/components/campaign/UpdateSection";
+import RichTextRenderer from "@/components/shared/RichTextRenderer";
+import BackerLink from "@/components/campaign/BackerLink";
+import CampaignRewards from "@/components/campaign/CampaignRewards";
+import LinkedBlogsSection from "@/components/campaign/LinkedBlogsSection";
+
+interface CampaignTabsWrapperProps {
+    campaign: any;
+    isCreator: boolean;
+    slug: string;
+    daysLeft: number | string;
+    percentRaised: number;
+}
+
+export default function CampaignTabsWrapper({
+    campaign,
+    isCreator,
+    slug,
+    daysLeft,
+    percentRaised
+}: CampaignTabsWrapperProps) {
+    return (
+        <div className="w-full">
+            <Tabs defaultValue="details" className="w-full">
+                {/* Tabs Navigation */}
+                <div className="border-b border-gray-200 bg-white mb-6">
+                    <TabsList className="h-auto bg-transparent p-0 gap-8 w-full justify-start">
+                        <TabsTrigger
+                            value="details"
+                            className="relative py-4 px-0 rounded-none border-b-2 border-transparent data-[state=active]:border-gray-900 data-[state=active]:bg-transparent data-[state=active]:shadow-none bg-transparent"
+                        >
+                            Chi tiết dự án
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="updates"
+                            className="relative py-4 px-0 rounded-none border-b-2 border-transparent data-[state=active]:border-gray-900 data-[state=active]:bg-transparent data-[state=active]:shadow-none bg-transparent"
+                        >
+                            Cập nhật tin tức
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="blogs"
+                            className="relative py-4 px-0 rounded-none border-b-2 border-transparent data-[state=active]:border-gray-900 data-[state=active]:bg-transparent data-[state=active]:shadow-none bg-transparent flex items-center gap-2"
+                        >
+                            <BookOpen className="h-4 w-4" />
+                            Blog
+                            {campaign.linkedBlogs && campaign.linkedBlogs.length > 0 && (
+                                <span className="ml-1 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                                    {campaign.linkedBlogs.length}
+                                </span>
+                            )}
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="backers"
+                            className="relative py-4 px-0 rounded-none border-b-2 border-transparent data-[state=active]:border-gray-900 data-[state=active]:bg-transparent data-[state=active]:shadow-none bg-transparent"
+                        >
+                            Người ủng hộ
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="comments"
+                            className="relative py-4 px-0 rounded-none border-b-2 border-transparent data-[state=active]:border-gray-900 data-[state=active]:bg-transparent data-[state=active]:shadow-none bg-transparent"
+                        >
+                            Thảo luận cộng đồng
+                        </TabsTrigger>
+                    </TabsList>
+                </div>
+
+                {/* Content */}
+                <div className="w-full">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Main Content */}
+                        <div className="lg:col-span-2">
+                            <TabsContent value="details" className="mt-0">
+                                <div className="prose max-w-none">
+                                    <RichTextRenderer content={campaign.longDescription || campaign.description} />
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="updates" className="mt-0">
+                                <UpdateSection campaignId={campaign.id} slug={slug} isCreator={isCreator} />
+                            </TabsContent>
+
+                            <TabsContent value="blogs" className="mt-0">
+                                <LinkedBlogsSection linkedBlogs={campaign.linkedBlogs || []} />
+                            </TabsContent>
+
+                            <TabsContent value="backers" className="mt-0">
+                                <div className="space-y-6">
+                                    <h2 className="text-2xl font-bold text-gray-900">
+                                        Người ủng hộ ({(campaign as any)._count?.pledges || 0})
+                                    </h2>
+                                    {campaign.pledges.length > 0 ? (
+                                        <div className="space-y-4">
+                                            {campaign.pledges.map((pledge: any) => (
+                                                <div key={pledge.id} className="bg-white border border-gray-200 rounded-lg p-4">
+                                                    <BackerLink
+                                                        userId={pledge.userId}
+                                                        userName={pledge.user?.name}
+                                                        displayName={pledge.displayName}
+                                                        isAnonymous={pledge.isAnonymous}
+                                                        userAvatar={pledge.user?.avatar}
+                                                    />
+                                                    <div className="mt-2 text-sm text-gray-500">
+                                                        Ủng hộ {formatVND(pledge.amount)} • {formatDate(pledge.createdAt)}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            {(campaign as any)._count?.pledges > 5 && (
+                                                <div className="text-center py-4">
+                                                    <p className="text-sm text-gray-500">
+                                                        Và {(campaign as any)._count.pledges - 5} người ủng hộ khác...
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <p className="text-gray-600">Chưa có người ủng hộ</p>
+                                    )}
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="comments" className="mt-0">
+                                <CommentSection campaignId={campaign.id} slug={slug} />
+                            </TabsContent>
+                        </div>
+
+                        {/* Sidebar */}
+                        <div className="lg:col-span-1">
+                            <div className="lg:sticky lg:top-32 space-y-6">
+                                {/* Rewards Section */}
+                                <CampaignRewards
+                                    rewards={campaign.rewards || []}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Tabs>
+        </div>
+    );
+}
+```
+
+### 5.19 `src/app/blog/editor/page.tsx`
+
+```tsx
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
+import { ProductionEditor } from '@/components/editor/ProductionEditor';
+import { ImageUpload } from '@/components/shared/ImageUpload';
+
+export default function BlogEditorPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
+
+  const campaignId = searchParams.get('campaignId');
+
+  const [formData, setFormData] = useState({
+    title: '',
+    excerpt: '',
+    content: '',
+    coverImage: '',
+    type: campaignId ? 'CAMPAIGN_UPDATE' : 'STORY',
+    visibility: 'PUBLIC',
+    categoryIds: [] as string[],
+    tags: [] as string[],
+    status: 'DRAFT',
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin');
+    }
+  }, [status, router]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch('/api/blog/categories');
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch categories:', error);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent, publishNow = false) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const payload = {
+        ...formData,
+        campaignId: campaignId || undefined,
+        status: publishNow ? 'PUBLISHED' : 'DRAFT',
+      };
+
+      const res = await fetch('/api/blog/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to create post');
+      }
+
+      const post = await res.json();
+      toast.success(publishNow ? 'Bài viết đã được xuất bản!' : 'Bản nháp đã được lưu!');
+      router.push(`/blog/${post.slug}`);
+    } catch (error: any) {
+      toast.error(error.message || 'Có lỗi xảy ra');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (status === 'loading') {
+    return <div className="min-h-screen flex items-center justify-center">Đang tải...</div>;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">
+          {campaignId ? 'Viết cập nhật chiến dịch' : 'Tạo bài viết mới'}
+        </h1>
+
+        <form onSubmit={(e) => handleSubmit(e, false)} className="space-y-6">
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Tiêu đề <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Nhập tiêu đề bài viết..."
+            />
+          </div>
+
+          {/* Excerpt */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Tóm tắt
+            </label>
+            <textarea
+              value={formData.excerpt}
+              onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
+              rows={3}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Tóm tắt ngắn gọn về bài viết..."
+            />
+          </div>
+
+          {/* Content */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Nội dung <span className="text-red-500">*</span>
+            </label>
+            <ProductionEditor
+              content={formData.content}
+              onChange={(content) => setFormData({ ...formData, content })}
+              config={{
+                placeholder: 'Viết nội dung bài viết...',
+                maxLength: 10000,
+              }}
+            />
+          </div>
+
+          {/* Cover Image */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Ảnh bìa
+            </label>
+            <ImageUpload
+              value={formData.coverImage}
+              onChange={(url) => setFormData({ ...formData, coverImage: url })}
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Chọn một tấm ảnh thật ấn tượng để thu hút người đọc.
+            </p>
+          </div>
+
+          {/* Type */}
+          {!campaignId && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Loại bài viết
+              </label>
+              <select
+                value={formData.type}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                {(session?.user as any)?.isAdmin && (
+                  <>
+                    <option value="PLATFORM">Tin tức nền tảng</option>
+                    <option value="ANNOUNCEMENT">Thông báo</option>
+                  </>
+                )}
+                <option value="STORY">Câu chuyện cá nhân</option>
+                <option value="IMPACT_REPORT">Báo cáo tác động</option>
+              </select>
+            </div>
+          )}
+
+          {/* Visibility */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Quyền xem
+            </label>
+            <select
+              value={formData.visibility}
+              onChange={(e) => setFormData({ ...formData, visibility: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="PUBLIC">Công khai</option>
+              <option value="BACKERS_ONLY">Chỉ người ủng hộ</option>
+              <option value="PRIVATE">Riêng tư</option>
+            </select>
+          </div>
+
+          {/* Tags */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Tags (phân cách bằng dấu phẩy)
+            </label>
+            <input
+              type="text"
+              value={formData.tags.join(', ')}
+              onChange={(e) => setFormData({
+                ...formData,
+                tags: e.target.value.split(',').map(t => t.trim()).filter(t => t)
+              })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="tag1, tag2, tag3"
+            />
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-4">
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Đang lưu...' : 'Lưu nháp'}
+            </button>
+            <button
+              type="button"
+              onClick={(e) => handleSubmit(e, true)}
+              disabled={loading}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Đang xuất bản...' : 'Xuất bản'}
+            </button>
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              Hủy
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+```
+
+### 5.20 `src/app/blog/[slug]/page.tsx`
+
+```tsx
+// ============================================================
+// Blog Detail Page
+// ============================================================
+
+import { Suspense } from 'react';
+import { notFound } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
+import { formatDistanceToNow } from 'date-fns';
+import { vi } from 'date-fns/locale';
+import { Eye, Heart, Bookmark, Share2, Clock } from 'lucide-react';
+import { BlogPostResponse } from '@/types/blog.types';
+import { BlogCommentSection } from '@/components/blog/BlogCommentSection';
+import { Metadata } from 'next';
+
+async function getBlogPost(slug: string) {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const res = await fetch(`${baseUrl}/api/blog/posts/${slug}`, {
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    if (res.status === 404) {
+      notFound();
+    }
+    throw new Error('Failed to fetch blog post');
+  }
+
+  return res.json();
+}
+
+async function getRelatedPosts(slug: string, currentPostId: string) {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const res = await fetch(`${baseUrl}/api/blog/posts?limit=3`, {
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    return [];
+  }
+
+  const data = await res.json();
+  return data.posts.filter((post: any) => post.id !== currentPostId).slice(0, 3);
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
+  try {
+    const post = await getBlogPost(slug);
+
+    if (post.status !== 'PUBLISHED') {
+      return {
+        robots: {
+          index: false,
+          follow: false,
+        },
+      };
+    }
+
+    const title = `${post.title} | TừTế Fund Blog`;
+    const description = post.excerpt || post.content?.substring(0, 160) || '';
+    const url = `${baseUrl}/blog/${slug}`;
+    const imageUrl = post.coverImage || `${baseUrl}/og-image.jpg`;
+
+    return {
+      title,
+      description,
+      alternates: {
+        canonical: url,
+      },
+      openGraph: {
+        title,
+        description,
+        url,
+        siteName: 'TừTế Fund',
+        locale: 'vi_VN',
+        type: 'article',
+        publishedTime: post.publishedAt,
+        modifiedTime: post.updatedAt,
+        authors: [post.author?.name || ''],
+        images: [
+          {
+            url: imageUrl,
+            width: 1200,
+            height: 630,
+            alt: post.title,
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [imageUrl],
+      },
+      robots: {
+        index: true,
+        follow: true,
+      },
+    };
+  } catch (error) {
+    return {
+      title: 'Blog | TừTế Fund',
+      description: 'Tin tức, câu chuyện và cập nhật từ cộng đồng crowdfunding TừTế Fund',
+    };
+  }
+}
+
+export default async function BlogDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const post: BlogPostResponse = await getBlogPost(slug);
+  const relatedPosts = await getRelatedPosts(slug, post.id);
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Breadcrumbs */}
+      <div className="border-b border-gray-200 bg-white">
+        <div className="mx-auto max-w-4xl px-6 py-3">
+          <nav className="flex items-center gap-2 text-sm text-gray-600">
+            <Link href="/" className="hover:text-pgreen transition-colors">
+              Trang chủ
+            </Link>
+            <span>/</span>
+            <Link href="/blog" className="hover:text-pgreen transition-colors">
+              Blog
+            </Link>
+            <span>/</span>
+            <span className="max-w-xs truncate font-medium text-dblue">
+              {post.title}
+            </span>
+          </nav>
+        </div>
+      </div>
+
+      <article className="mx-auto max-w-4xl px-6 py-8">
+        {/* Header */}
+        <header className="mb-8">
+          {/* Type Badge */}
+          <div className="mb-4 flex items-center gap-2">
+            <span className="rounded-full bg-pgreen/10 px-3 py-1 text-sm font-medium text-pgreen">
+              {getTypeLabel(post.type)}
+            </span>
+            {post.campaign && (
+              <a
+                href={`/campaigns/${post.campaign.slug}`}
+                className="text-sm text-gray-600 hover:text-pgreen"
+              >
+                → {post.campaign.title}
+              </a>
+            )}
+          </div>
+
+          {/* Title */}
+          <h1 className="mb-4 font-display text-4xl font-bold text-dblue leading-tight md:text-5xl">
+            {post.title}
+          </h1>
+
+          {/* Excerpt */}
+          {post.excerpt && (
+            <p className="mb-6 text-xl text-gray-600 leading-relaxed">
+              {post.excerpt}
+            </p>
+          )}
+
+          {/* Meta */}
+          <div className="mb-4 flex items-center gap-4 text-sm text-gray-600">
+            {post.author?.avatar && (
+              <Image
+                src={post.author.avatar}
+                alt={post.author.name}
+                width={40}
+                height={40}
+                className="rounded-full"
+              />
+            )}
+            <div>
+              <div className="font-medium text-dblue">{post.author?.name}</div>
+              <div className="flex items-center gap-2">
+                <span>
+                  {post.publishedAt
+                    ? formatDistanceToNow(new Date(post.publishedAt), {
+                      addSuffix: true,
+                      locale: vi,
+                    })
+                    : 'Chưa xuất bản'}
+                </span>
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <Clock className="w-4 h-4" />
+                  {post.readingTimeMinutes} phút đọc
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats & Actions */}
+          <div className="flex items-center justify-between border-y border-gray-200 py-4">
+            <div className="flex items-center gap-6 text-sm text-gray-600">
+              <div className="flex items-center gap-1.5">
+                <Eye className="w-4 h-4 text-tblue" />
+                <span>{post.viewCount} lượt xem</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Heart className="w-4 h-4 text-pgreen" />
+                <span>{post.likeCount} thích</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button className="rounded-full p-2 transition-colors hover:bg-gray-100">
+                <Heart className="w-5 h-5" />
+              </button>
+              <button className="rounded-full p-2 transition-colors hover:bg-gray-100">
+                <Bookmark className="w-5 h-5" />
+              </button>
+              <button className="rounded-full p-2 transition-colors hover:bg-gray-100">
+                <Share2 className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* Cover Image */}
+        {post.coverImage && (
+          <div className="relative mb-8 h-96 w-full overflow-hidden rounded-3xl">
+            <Image
+              src={post.coverImage}
+              alt={post.title}
+              fill
+              className="object-cover"
+            />
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="prose prose-lg max-w-none mb-8">
+          {post.content && (
+            <div dangerouslySetInnerHTML={{ __html: post.content }} />
+          )}
+          {post.richContent && (
+            <div>
+              {post.richContent.blocks.map((block, index) => (
+                <RenderBlock key={index} block={block} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Tags */}
+        {post.tags && post.tags.length > 0 && (
+          <div className="mb-8 flex flex-wrap gap-2">
+            {post.tags.map((tag) => (
+              <a
+                key={tag.id}
+                href={`/blog?tag=${tag.slug}`}
+                className="rounded-full bg-cream px-3 py-1 text-sm text-gray-600 hover:bg-pgreen/10 hover:text-pgreen"
+              >
+                #{tag.name}
+              </a>
+            ))}
+          </div>
+        )}
+
+        {/* Author Card */}
+        <div className="glass rounded-3xl border border-white/50 p-6 mb-8 shadow-sm">
+          <div className="flex items-center gap-4">
+            {post.author?.avatar && (
+              <Image
+                src={post.author.avatar}
+                alt={post.author.name}
+                width={64}
+                height={64}
+                className="rounded-full"
+              />
+            )}
+            <div className="flex-1">
+              <h3 className="font-display text-lg font-semibold text-dblue">{post.author?.name}</h3>
+              <p className="text-sm text-gray-600">Tác giả</p>
+            </div>
+            {post.author && (
+              <Link
+                href={`/profile/${post.author.id}`}
+                className="rounded-full bg-pgreen/10 px-4 py-2 text-sm font-medium text-pgreen hover:bg-pgreen/20"
+              >
+                Xem hồ sơ
+              </Link>
+            )}
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        {post.campaign && (
+          <div className="mb-8 rounded-3xl border border-pgreen/20 bg-gradient-to-r from-pgreen/10 to-fgreen/10 p-8">
+            <h3 className="mb-4 font-display text-2xl font-bold text-dblue">
+              Hỗ trợ chiến dịch này
+            </h3>
+            <p className="mb-6 text-gray-600">
+              Bài viết này là một phần của chiến dịch "{post.campaign.title}".
+              Hãy ủng hộ để giúp hiện thực hóa dự án này.
+            </p>
+            <div className="flex flex-col gap-4 sm:flex-row">
+              <Link
+                href={`/campaigns/${post.campaign.slug}`}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl gradient-green px-6 py-3 font-bold text-white transition-all hover:shadow-lg hover:shadow-green-200"
+              >
+                Xem chiến dịch
+              </Link>
+              <Link
+                href={`/campaigns/${post.campaign.slug}/pledge`}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-pgreen/30 bg-white px-6 py-3 font-semibold text-pgreen hover:bg-pgreen/10"
+              >
+                Ủng hộ ngay
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Related Posts */}
+        {relatedPosts && relatedPosts.length > 0 && (
+          <div className="mb-8">
+            <h3 className="mb-6 flex items-center gap-2 font-display text-2xl font-bold text-dblue">
+              <span className="h-2 w-2 rounded-full bg-pgreen"></span>
+              Bài viết liên quan
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedPosts.map((relatedPost: BlogPostResponse) => (
+                <Link
+                  key={relatedPost.id}
+                  href={`/blog/${relatedPost.slug}`}
+                  className="overflow-hidden rounded-3xl border border-gray-200 bg-white transition-all hover:shadow-lg hover:border-pgreen/30"
+                >
+                  {relatedPost.coverImage && (
+                    <div className="relative h-48 w-full">
+                      <Image
+                        src={relatedPost.coverImage}
+                        alt={relatedPost.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="p-4">
+                    <h4 className="mb-2 line-clamp-2 font-semibold text-dblue">
+                      {relatedPost.title}
+                    </h4>
+                    {relatedPost.excerpt && (
+                      <p className="line-clamp-2 text-sm text-gray-600">
+                        {relatedPost.excerpt}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Comments Section */}
+        <BlogCommentSection postSlug={post.slug} />
+
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'BlogPosting',
+              headline: post.title,
+              description: post.excerpt || '',
+              image: post.coverImage,
+              author: {
+                '@type': 'Person',
+                name: post.author?.name || '',
+              },
+              datePublished: post.publishedAt,
+              dateModified: post.updatedAt,
+              url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/blog/${post.slug}`,
+            }),
+          }}
+        />
+      </article >
+    </div >
+  );
+}
+
+function RenderBlock({ block }: { block: any }) {
+  switch (block.type) {
+    case 'paragraph':
+      return <p>{block.data.text}</p>;
+    case 'heading':
+      const HeadingTag = `h${block.data.level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+      return <HeadingTag>{block.data.text}</HeadingTag>;
+    case 'image':
+      return (
+        <figure>
+          <img src={block.data.url} alt={block.data.alt || ''} />
+          {block.data.caption && <figcaption>{block.data.caption}</figcaption>}
+        </figure>
+      );
+    default:
+      return null;
+  }
+}
+
+function getTypeLabel(type: string): string {
+  const labels: Record<string, string> = {
+    PLATFORM: 'Tin tức',
+    CAMPAIGN_UPDATE: 'Cập nhật dự án',
+    ANNOUNCEMENT: 'Thông báo',
+    STORY: 'Câu chuyện',
+    IMPACT_REPORT: 'Báo cáo tác động',
+  };
+  return labels[type] || type;
+}
+```
+
+### 5.21 `src/components/blog/BlogCard.tsx`
+
+```tsx
+import Link from 'next/link';
+import Image from 'next/image';
+import { formatDistanceToNow } from 'date-fns';
+import { vi } from 'date-fns/locale';
+import { Eye, Heart, Clock } from 'lucide-react';
+
+interface BlogCardProps {
+  post: {
+    id: string;
+    slug: string;
+    title: string;
+    excerpt: string;
+    coverImage: string;
+    author: {
+      name: string;
+      avatar?: string;
+    };
+    publishedAt: string;
+    viewCount: number;
+    likeCount: number;
+    readingTimeMinutes: number;
+    type: string;
+  };
+}
+
+export default function BlogCard({ post }: BlogCardProps) {
+  const typeLabels: Record<string, string> = {
+    PLATFORM: 'Tin tức',
+    CAMPAIGN_UPDATE: 'Cập nhật dự án',
+    ANNOUNCEMENT: 'Thông báo',
+    STORY: 'Câu chuyện',
+    IMPACT_REPORT: 'Báo cáo tác động',
+  };
+
+  return (
+    <Link
+      href={`/blog/${post.slug}`}
+      className="group block overflow-hidden rounded-3xl border border-gray-200 bg-white transition-all hover:shadow-lg hover:border-pgreen/30"
+    >
+      {post.coverImage && (
+        <div className="relative h-48 w-full">
+          <Image
+            src={post.coverImage}
+            alt={post.title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        </div>
+      )}
+
+      <div className="p-6">
+        <div className="mb-3 flex items-center gap-2">
+          <span className="rounded-full bg-pgreen/10 px-3 py-1 text-sm font-medium text-pgreen">
+            {typeLabels[post.type] || post.type}
+          </span>
+          <span className="text-xs text-gray-500">
+            {formatDistanceToNow(new Date(post.publishedAt), {
+              addSuffix: true,
+              locale: vi,
+            })}
+          </span>
+        </div>
+
+        <h3 className="mb-2 line-clamp-2 font-semibold text-dblue group-hover:text-pgreen transition-colors">
+          {post.title}
+        </h3>
+
+        {post.excerpt && (
+          <p className="mb-4 line-clamp-2 text-sm text-gray-600">
+            {post.excerpt}
+          </p>
+        )}
+
+        <div className="flex items-center gap-4 text-xs text-gray-500">
+          <div className="flex items-center gap-1">
+            <Eye className="w-4 h-4" />
+            <span>{post.viewCount}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Heart className="w-4 h-4" />
+            <span>{post.likeCount}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Clock className="w-4 h-4" />
+            <span>{post.readingTimeMinutes} phút</span>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+```
+
+### 5.22 `src/lib/editor/constants.ts`
+
+```ts
+/**
+ * Editor Constants
+ * Centralized configuration for the rich text editor
+ */
+
+import { CalloutVariant } from '@/types/editor';
+
+// ============================================
+// LIMITS
+// ============================================
+
+export const EDITOR_LIMITS = {
+  MAX_CONTENT_LENGTH: 50000, // characters
+  MAX_IMAGE_SIZE: 5 * 1024 * 1024, // 5MB
+  MAX_IMAGES_PER_DOCUMENT: 50,
+  AUTOSAVE_DELAY: 2000, // ms
+  DEBOUNCE_DELAY: 300, // ms
+} as const;
+
+// ============================================
+// ALLOWED CONTENT
+// ============================================
+
+export const ALLOWED_IMAGE_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+] as const;
+
+export const ALLOWED_VIDEO_DOMAINS = [
+  'youtube.com',
+  'www.youtube.com',
+  'youtu.be',
+  'vimeo.com',
+  'www.vimeo.com',
+] as const;
+
+// ============================================
+// SANITIZATION
+// ============================================
+
+export const ALLOWED_HTML_TAGS = [
+  'p', 'br', 'strong', 'em', 'u', 's', 'code',
+  'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'ul', 'ol', 'li',
+  'blockquote', 'pre',
+  'a', 'img', 'iframe',
+  'div', 'span',
+  'table', 'thead', 'tbody', 'tr', 'th', 'td',
+  'hr',
+] as const;
+
+export const ALLOWED_HTML_ATTRIBUTES: Record<string, string[]> = {
+  a: ['href', 'title', 'target', 'rel'],
+  img: ['src', 'alt', 'title', 'width', 'height', 'data-alignment', 'data-caption'],
+  iframe: ['src', 'width', 'height', 'frameborder', 'allowfullscreen', 'data-provider'],
+  div: ['class', 'data-type', 'data-variant'],
+  span: ['class', 'style'],
+  code: ['class'],
+  pre: ['class'],
+  td: ['colspan', 'rowspan'],
+  th: ['colspan', 'rowspan'],
+};
+
+export const ALLOWED_URL_SCHEMES = ['http', 'https', 'mailto'] as const;
+
+// ============================================
+// CALLOUT STYLES
+// ============================================
+
+export const CALLOUT_STYLES: Record<CalloutVariant, {
+  container: string;
+  icon: string;
+  iconColor: string;
+}> = {
+  info: {
+    container: 'bg-blue-50 border-blue-200 text-blue-900',
+    icon: 'ℹ️',
+    iconColor: 'text-blue-600',
+  },
+  warning: {
+    container: 'bg-amber-50 border-amber-200 text-amber-900',
+    icon: '⚠️',
+    iconColor: 'text-amber-600',
+  },
+  success: {
+    container: 'bg-emerald-50 border-emerald-200 text-emerald-900',
+    icon: '✓',
+    iconColor: 'text-emerald-600',
+  },
+  danger: {
+    container: 'bg-red-50 border-red-200 text-red-900',
+    icon: '⚠',
+    iconColor: 'text-red-600',
+  },
+};
+
+// ============================================
+// KEYBOARD SHORTCUTS
+// ============================================
+
+export const KEYBOARD_SHORTCUTS = {
+  BOLD: 'Mod-b',
+  ITALIC: 'Mod-i',
+  UNDERLINE: 'Mod-u',
+  STRIKE: 'Mod-Shift-x',
+  CODE: 'Mod-e',
+  LINK: 'Mod-k',
+  BULLET_LIST: 'Mod-Shift-8',
+  ORDERED_LIST: 'Mod-Shift-7',
+  TASK_LIST: 'Mod-Shift-9',
+  BLOCKQUOTE: 'Mod-Shift-b',
+  CODE_BLOCK: 'Mod-Alt-c',
+  HEADING_1: 'Mod-Alt-1',
+  HEADING_2: 'Mod-Alt-2',
+  HEADING_3: 'Mod-Alt-3',
+  UNDO: 'Mod-z',
+  REDO: 'Mod-Shift-z',
+  HARD_BREAK: 'Shift-Enter',
+} as const;
+
+// ============================================
+// PLACEHOLDERS
+// ============================================
+
+export const EDITOR_PLACEHOLDERS = {
+  CAMPAIGN_DESCRIPTION: 'Hãy kể câu chuyện chiến dịch của bạn... Người ủng hộ muốn biết dự án này về điều gì, tại sao nó quan trọng, và bạn sẽ sử dụng nguồn vốn như thế nào.',
+  UPDATE_POST: 'Chia sẻ tiến độ mới nhất của chiến dịch...',
+  FAQ: 'Nhập câu trả lời cho câu hỏi này...',
+  REWARD_DESCRIPTION: 'Mô tả chi tiết về phần thưởng này...',
+  CREATOR_BIO: 'Giới thiệu về bản thân và đội ngũ của bạn...',
+  DEFAULT: 'Bắt đầu viết hoặc gõ / để xem các lệnh...',
+} as const;
+
+// ============================================
+// ERROR MESSAGES
+// ============================================
+
+export const ERROR_MESSAGES = {
+  UPLOAD_FAILED: 'Không thể tải ảnh lên. Vui lòng thử lại.',
+  FILE_TOO_LARGE: 'Kích thước file vượt quá giới hạn cho phép.',
+  INVALID_FILE_TYPE: 'Định dạng file không được hỗ trợ.',
+  INVALID_URL: 'URL không hợp lệ.',
+  CONTENT_TOO_LONG: 'Nội dung vượt quá giới hạn ký tự cho phép.',
+  SAVE_FAILED: 'Không thể lưu nội dung. Vui lòng thử lại.',
+  NETWORK_ERROR: 'Lỗi kết nối mạng. Vui lòng kiểm tra và thử lại.',
+} as const;
+
+// ============================================
+// REGEX PATTERNS
+// ============================================
+
+export const URL_REGEX = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+
+export const YOUTUBE_REGEX = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+
+export const VIMEO_REGEX = /(?:vimeo\.com\/)(\d+)/;
+
+export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+```
+
+### 5.23 `src/types/editor.ts`
+
+```ts
+/**
+ * Rich Text Editor Types
+ * Production-ready type definitions for the editor system
+ */
+
+import { Editor } from '@tiptap/react';
+
+// ============================================
+// EDITOR CONFIGURATION
+// ============================================
+
+export interface EditorConfig {
+  placeholder?: string;
+  maxLength?: number;
+  autosave?: boolean;
+  autosaveDelay?: number;
+  enableSlashCommands?: boolean;
+  enableBubbleMenu?: boolean;
+  enableFloatingMenu?: boolean;
+  readOnly?: boolean;
+  editable?: boolean;
+}
+
+// ============================================
+// CONTENT TYPES
+// ============================================
+
+export type EditorContent = string; // HTML string or JSON string
+
+export interface EditorState {
+  content: EditorContent;
+  isEmpty: boolean;
+  wordCount: number;
+  characterCount: number;
+  isDirty: boolean;
+  lastSaved?: Date;
+}
+
+// ============================================
+// SAVE STATUS
+// ============================================
+
+export type SaveStatus = 'saved' | 'saving' | 'error' | 'idle';
+
+export interface SaveState {
+  status: SaveStatus;
+  lastSaved?: Date;
+  error?: string;
+}
+
+// ============================================
+// CALLOUT VARIANTS
+// ============================================
+
+export type CalloutVariant = 'info' | 'warning' | 'success' | 'danger';
+
+export interface CalloutAttrs {
+  variant: CalloutVariant;
+}
+
+// ============================================
+// IMAGE ATTRIBUTES
+// ============================================
+
+export type ImageAlignment = 'left' | 'center' | 'right';
+
+export interface ImageAttrs {
+  src: string;
+  alt?: string;
+  title?: string;
+  caption?: string;
+  alignment?: ImageAlignment;
+  width?: number;
+  height?: number;
+}
+
+// ============================================
+// VIDEO EMBED ATTRIBUTES
+// ============================================
+
+export type VideoProvider = 'youtube' | 'vimeo';
+
+export interface VideoEmbedAttrs {
+  src: string;
+  provider: VideoProvider;
+  width?: number;
+  height?: number;
+}
+
+// ============================================
+// LINK ATTRIBUTES
+// ============================================
+
+export interface LinkAttrs {
+  href: string;
+  target?: '_blank' | '_self';
+  rel?: string;
+  title?: string;
+}
+
+// ============================================
+// SLASH COMMAND ITEMS
+// ============================================
+
+export interface SlashCommandItem {
+  title: string;
+  description: string;
+  icon: string;
+  command: (editor: Editor) => void;
+  keywords?: string[];
+}
+
+export interface SlashCommandGroup {
+  name: string;
+  items: SlashCommandItem[];
+}
+
+// ============================================
+// VALIDATION
+// ============================================
+
+export interface ValidationResult {
+  isValid: boolean;
+  errors: string[];
+  warnings?: string[];
+}
+
+export interface ContentValidationRules {
+  minLength?: number;
+  maxLength?: number;
+  required?: boolean;
+  allowedBlocks?: string[];
+  maxImages?: number;
+}
+
+// ============================================
+// UPLOAD
+// ============================================
+
+export interface UploadResponse {
+  url: string;
+  publicId?: string;
+  width?: number;
+  height?: number;
+  format?: string;
+}
+
+export interface UploadProgress {
+  loaded: number;
+  total: number;
+  percentage: number;
+}
+
+// ============================================
+// EDITOR CALLBACKS
+// ============================================
+
+export interface EditorCallbacks {
+  onChange?: (content: EditorContent) => void;
+  onSave?: (content: EditorContent) => Promise<void>;
+  onBlur?: () => void;
+  onFocus?: () => void;
+  onError?: (error: Error) => void;
+  onUploadStart?: () => void;
+  onUploadProgress?: (progress: UploadProgress) => void;
+  onUploadComplete?: (response: UploadResponse) => void;
+  onUploadError?: (error: Error) => void;
+}
+
+// ============================================
+// EDITOR PROPS
+// ============================================
+
+export interface RichTextEditorProps {
+  content: EditorContent;
+  onChange: (content: EditorContent) => void;
+  config?: EditorConfig;
+  callbacks?: EditorCallbacks;
+  className?: string;
+}
+
+// ============================================
+// PREVIEW PROPS
+// ============================================
+
+export interface RichTextPreviewProps {
+  content: EditorContent;
+  className?: string;
+}
+
+// ============================================
+// TOOLBAR PROPS
+// ============================================
+
+export interface EditorToolbarProps {
+  editor: Editor | null;
+}
+
+export interface BubbleMenuProps {
+  editor: Editor | null;
+}
+
+// ============================================
+// SANITIZATION
+// ============================================
+
+export interface SanitizeOptions {
+  allowedTags?: string[];
+  allowedAttributes?: Record<string, string[]>;
+  allowedSchemes?: string[];
+  allowedIframeDomains?: string[];
+}
+
+export interface SanitizeResult {
+  clean: string;
+  removed: string[];
+  modified: boolean;
+}
+```
+
+### 5.24 `src/lib/editor/link-validation.ts`
+
+```ts
+/**
+ * URL validation and normalization for link handling
+ */
+
+/**
+ * Normalize URL by adding protocol if missing
+ */
+export function normalizeUrl(input: string): string {
+  const trimmed = input.trim();
+  
+  if (!trimmed) return '';
+  
+  // Already has protocol
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  
+  // Add https:// by default
+  return `https://${trimmed}`;
+}
+
+/**
+ * Validate if string is a valid URL
+ */
+export function isValidUrl(input: string): boolean {
+  const trimmed = input.trim();
+  
+  if (!trimmed) return false;
+  
+  try {
+    const normalized = normalizeUrl(trimmed);
+    const url = new URL(normalized);
+    
+    // Must have valid protocol and hostname
+    return (
+      (url.protocol === 'http:' || url.protocol === 'https:') &&
+      url.hostname.length > 0 &&
+      url.hostname.includes('.')
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Get validation error message
+ */
+export function getUrlError(input: string): string | null {
+  const trimmed = input.trim();
+  
+  if (!trimmed) {
+    return 'URL không được để trống';
+  }
+  
+  if (!isValidUrl(trimmed)) {
+    return 'URL không hợp lệ. Ví dụ: example.com hoặc https://example.com';
+  }
+  
+  return null;
+}
+
+/**
+ * Sanitize URL input
+ */
+export function sanitizeUrlInput(input: string): string {
+  return input.trim();
+}
+```
+
+### 5.25 `src/lib/editor/link-commands.ts`
+
+```ts
+/**
+ * Production-ready link commands for Tiptap editor
+ * Handles mark lifecycle, selection, and caret placement correctly
+ */
+
+import { Editor } from '@tiptap/core';
+
+/**
+ * Apply link to current selection
+ * Handles: selection, mark application, caret placement, stored marks cleanup
+ */
+export function applyLinkToSelection(editor: Editor, url: string): boolean {
+  if (!editor || !url) return false;
+
+  const { from, to } = editor.state.selection;
+  const hasSelection = from !== to;
+
+  if (!hasSelection) {
+    console.warn('applyLinkToSelection called without selection');
+    return false;
+  }
+
+  // Apply link to selection
+  editor
+    .chain()
+    .focus()
+    .extendMarkRange('link')
+    .setLink({ href: url, target: '_blank' })
+    .run();
+
+  // CRITICAL: Move caret to end of link and clear stored marks
+  // This prevents link bleeding
+  editor
+    .chain()
+    .focus()
+    .setTextSelection(to) // Move to end of selection
+    .unsetMark('link') // Clear stored link mark
+    .run();
+
+  return true;
+}
+
+/**
+ * Insert new link at caret position
+ * Handles: content insertion, caret placement outside link
+ */
+export function insertLinkAtCaret(
+  editor: Editor,
+  text: string,
+  url: string
+): boolean {
+  if (!editor || !text || !url) return false;
+
+  const { from } = editor.state.selection;
+
+  // Insert link content
+  editor
+    .chain()
+    .focus()
+    .insertContent({
+      type: 'text',
+      text: text,
+      marks: [
+        {
+          type: 'link',
+          attrs: {
+            href: url,
+            target: '_blank',
+          },
+        },
+      ],
+    })
+    .run();
+
+  // CRITICAL: Move caret outside link and clear stored marks
+  // Calculate position after inserted text
+  const newPos = from + text.length;
+  
+  editor
+    .chain()
+    .focus()
+    .setTextSelection(newPos)
+    .unsetMark('link') // Clear stored link mark
+    .run();
+
+  return true;
+}
+
+/**
+ * Update existing link URL
+ * Handles: mark update without duplication
+ */
+export function updateExistingLink(editor: Editor, url: string): boolean {
+  if (!editor || !url) return false;
+
+  // Check if we're in a link
+  if (!editor.isActive('link')) {
+    console.warn('updateExistingLink called but no link is active');
+    return false;
+  }
+
+  const { from, to } = editor.state.selection;
+
+  // Update link
+  editor
+    .chain()
+    .focus()
+    .extendMarkRange('link')
+    .setLink({ href: url, target: '_blank' })
+    .run();
+
+  // CRITICAL: Clear stored marks after update
+  editor
+    .chain()
+    .focus()
+    .setTextSelection(to)
+    .unsetMark('link')
+    .run();
+
+  return true;
+}
+
+/**
+ * Remove link from selection/cursor
+ * Handles: mark removal, state cleanup
+ */
+export function removeLinkFromSelection(editor: Editor): boolean {
+  if (!editor) return false;
+
+  const { to } = editor.state.selection;
+
+  // Remove link
+  editor
+    .chain()
+    .focus()
+    .extendMarkRange('link')
+    .unsetLink()
+    .run();
+
+  // CRITICAL: Clear stored marks and ensure caret is clean
+  editor
+    .chain()
+    .focus()
+    .setTextSelection(to)
+    .unsetMark('link')
+    .run();
+
+  return true;
+}
+
+/**
+ * Clear active link mark from stored marks
+ * Use this when you need to ensure next typed character won't have link
+ */
+export function clearActiveLinkMark(editor: Editor): void {
+  if (!editor) return;
+
+  // Remove link from stored marks
+  editor.chain().focus().unsetMark('link').run();
+}
+
+/**
+ * Move caret outside link mark
+ * Useful after applying link to ensure next text is plain
+ */
+export function moveCaretOutsideLink(editor: Editor): void {
+  if (!editor) return;
+
+  const { to } = editor.state.selection;
+
+  // Move to end and clear link mark
+  editor
+    .chain()
+    .focus()
+    .setTextSelection(to)
+    .unsetMark('link')
+    .run();
+}
+
+/**
+ * Check if selection is inside a link
+ */
+export function isSelectionInsideLink(editor: Editor): boolean {
+  if (!editor) return false;
+  return editor.isActive('link');
+}
+
+/**
+ * Get link URL at current cursor position
+ */
+export function getLinkAtCursor(editor: Editor): string | null {
+  if (!editor) return null;
+
+  const attrs = editor.getAttributes('link');
+  return attrs.href || null;
+}
+
+/**
+ * Check if editor has text selection (not just caret)
+ */
+export function hasTextSelection(editor: Editor): boolean {
+  if (!editor) return false;
+
+  const { from, to } = editor.state.selection;
+  return from !== to;
+}
+
+/**
+ * Get selected text
+ */
+export function getSelectedText(editor: Editor): string {
+  if (!editor) return '';
+
+  const { from, to } = editor.state.selection;
+  return editor.state.doc.textBetween(from, to, ' ');
+}
+
+/**
+ * Save current selection for later restore
+ */
+export interface SavedSelection {
+  from: number;
+  to: number;
+}
+
+export function saveSelection(editor: Editor): SavedSelection | null {
+  if (!editor) return null;
+
+  const { from, to } = editor.state.selection;
+  return { from, to };
+}
+
+/**
+ * Restore previously saved selection
+ */
+export function restoreSelection(
+  editor: Editor,
+  selection: SavedSelection | null
+): void {
+  if (!editor || !selection) return;
+
+  try {
+    editor.chain().focus().setTextSelection(selection).run();
+  } catch (error) {
+    console.error('Failed to restore selection:', error);
+  }
+}
+```
+
+---
+
+## Kết luận
+
+- **Đã gom 25 file** liên quan Rich Text Editor/Renderer
+- **File không tìm thấy**: `src/components/blog/BlogEditor.tsx`, `src/components/blog/BlogContent.tsx`
+- **Rich Text Editor chính**: `src/components/editor/ProductionEditor.tsx`
+- **Rich Text Renderer**: `src/components/shared/RichTextRenderer.tsx`
+- **Trang tạo chiến dịch**: Đang dùng `ProductionEditor` cho field `description`
+- **Blog editor**: Đang dùng `ProductionEditor` cho field `content`
+- **Cập nhật chiến dịch**: Đang dùng `ProductionEditor` cho field `content`
+- **Hiển thị**: Dùng `RichTextRenderer` để hiển thị nội dung đã lưu
+
+File này có thể xóa sau khi phân tích xong.
+
+---
+
+## Nguồn: `docs/TERMINOLOGY_INCONSISTENCY_REPORT.md`
+
+# Báo Cáo: Vấn Đề Thuật Ngữ Không Nhất Quán Project vs Campaign
+
+**Ngày phân tích:** 30/06/2026  
+**Người báo cáo:** Kiro AI Assistant  
+**Mức độ nghiêm trọng:** 🔴 **CRITICAL** - Gây nhầm lẫn cho người dùng
+
+---
+
+## 🚨 VẤN ĐỀ CHÍNH
+
+### Hiện Trạng Mâu Thuẫn
+
+Hệ thống **KHÔNG có** entity `Project` trong database, nhưng:
+- ✅ Code sử dụng terminology "Project" ở nhiều nơi
+- ✅ API endpoint là `/api/projects`  
+- ✅ Page route là `/projects`
+- ✅ Component folders tên `projects/`
+- ❌ Database chỉ có bảng `campaigns`, không có `projects`
+- ❌ Prisma schema chỉ có model `campaigns`
+- ❌ UI hiển thị **MIX** giữa "Dự án" và "Chiến dịch"
+
+### Ví Dụ Cụ Thể Trong ProfileTabs
+
+**File:** `src/components/profile/ProfileTabs.tsx`
+
+```typescript
+// Tab label (dòng 48)
+label: 'Chiến dịch',  // ✅ Đúng
+
+// Section title (dòng 106)  
+Dự án đã tạo ({campaigns.length})  // ❌ SAI - Nên là "Chiến dịch đã tạo"
+
+// Variable name
+campaigns: any[]  // ✅ Đúng
+```
+
+**Vấn đề:**
+- Tab button ghi **"Chiến dịch"**
+- Section heading ghi **"Dự án đã tạo"**  
+- Nhưng data query từ bảng **`campaigns`**
+
+---
+
+## 📊 PHÂN TÍCH CHI TIẾT
+
+### 1. Database Layer ✅ NHẤT QUÁN
+
+```prisma
+// ✅ Chỉ có campaigns, không có projects
+model campaigns {
+  id              String
+  campaignCode    String
+  title           String
+  // ...
+}
+
+model blog_posts {
+  campaignId      String?  // ✅ Link đến campaigns
+  // projectId không tồn tại
+}
+
+model rewards {
+  campaignId      String   // ✅ Link đến campaigns
+  // projectId không tồn tại
+}
+```
+
+**Kết luận:** Database layer hoàn toàn dùng `campaigns`
+
+---
+
+### 2. API Layer ⚠️ KHÔNG NHẤT QUÁN
+
+**Endpoint:** `/api/projects`
+
+```typescript
+// File: src/app/api/projects/route.ts
+export async function GET(req: NextRequest) {
+  // Query từ bảng campaigns
+  const campaigns = await prisma.campaigns.findMany({ ... });
+  
+  // Transform sang ProjectListItem
+  const items: ProjectListItem[] = campaigns.map(...);
+  
+  // Return ProjectListResponse
+  return NextResponse.json(response);
+}
+```
+
+**Vấn đề:**
+- URL là `/api/projects` ❌
+- Query từ `prisma.campaigns` ✅
+- Return type là `ProjectListResponse` ❌
+- Variable name là `campaigns` ✅
+
+**Khuyến nghị:** Đổi endpoint thành `/api/campaigns`
+
+---
+
+### 3. Type Definitions ❌ HOÀN TOÀN SAI
+
+**File:** `src/types/project.ts`
+
+```typescript
+// ❌ File tên "project.ts" nhưng describe campaigns
+export interface ProjectListItem {
+  id: string;
+  campaignCode: string;  // ✅ campaignCode, không phải projectCode
+  campaignType: CampaignType;  // ✅ campaignType
+  // ...
+}
+
+export interface ProjectFilters {
+  campaignType?: CampaignType;  // ✅ filter theo campaignType
+  // ...
+}
+```
+
+**Vấn đề:** File name và type names không match với nội dung
+
+**Khuyến nghị:** Đổi tên file thành `campaign.ts` hoặc `discovery.ts`
+
+---
+
+### 4. Component Layer ❌ MIX LẪN
+
+#### Folders và Files
+
+```
+src/components/
+├── projects/              ❌ Folder tên "projects"
+│   ├── ProjectSearchBar   ❌ Component tên "Project..."
+│   ├── ProjectGrid        ❌
+│   ├── ProjectCard        ❌
+│   └── ...
+├── campaign/              ✅ Folder tên "campaign"
+│   ├── CampaignHeader     ✅
+│   └── ...
+```
+
+#### ProfileTabs Component
+
+```typescript
+// src/components/profile/ProfileTabs.tsx
+
+// Props
+campaigns: any[]  // ✅ Đúng
+
+// Tab
+{
+  id: 'campaigns',           // ✅ Đúng
+  label: 'Chiến dịch',       // ✅ Đúng
+  count: campaigns.length,   // ✅ Đúng
+}
+
+// Section Title  
+<h2>
+  Dự án đã tạo ({campaigns.length})  // ❌ SAI - inconsistent
+</h2>
+
+// Loop
+{campaigns.map((campaign) => (  // ✅ Đúng
+  <Link href={`/campaigns/${campaign.slug}`}>  // ✅ URL đúng
+    {campaign.title}
+  </Link>
+))}
+```
+
+---
+
+### 5. Page Routes ⚠️ KHÔNG NHẤT QUÁN
+
+```
+src/app/
+├── projects/              ❌ Route tên "projects"
+│   └── page.tsx           → /projects
+├── campaigns/             ✅ Route tên "campaigns"  
+│   └── [slug]/
+│       └── page.tsx       → /campaigns/:slug
+```
+
+**Vấn đề:**
+- Discovery page: `/projects` (danh sách)
+- Detail page: `/campaigns/:slug` (chi tiết)
+- Không nhất quán về naming
+
+---
+
+### 6. Utility Libraries ❌ HOÀN TOÀN SAI
+
+```
+src/lib/
+├── project-filters.ts     ❌
+├── project-helpers.ts     ❌
+├── project-query-params.ts ❌
+├── project-cache.ts       ❌
+```
+
+Tất cả files này làm việc với **campaigns** data nhưng tên file là **project**
+
+---
+
+## 📍 DANH SÁCH FILE CẦN SỬA
+
+### 🔴 Priority 1: User-Facing Text (Gấp)
+
+| File | Line | Current | Should Be |
+|------|------|---------|-----------|
+| `src/components/profile/ProfileTabs.tsx` | 106 | "Dự án đã tạo" | "Chiến dịch đã tạo" |
+| `docs/PROFILE_ANALYSIS_REPORT.md` | 71 | "Dự án đã tạo" | "Chiến dịch đã tạo" |
+| `docs/PROFILE_BLOG_INTEGRATION_ANALYSIS.md` | 181 | "Dự án đã tạo" | "Chiến dịch đã tạo" |
+
+### 🟡 Priority 2: Technical Naming (Quan trọng)
+
+#### API Routes
+- `src/app/api/projects/route.ts` → Rename to `campaigns/route.ts`
+- Update endpoint: `/api/projects` → `/api/campaigns`
+
+#### Type Files
+- `src/types/project.ts` → Rename to `campaign.ts` hoặc `discovery.ts`
+- Update all imports
+
+#### Lib Files (7 files)
+```
+src/lib/project-*.ts → campaign-*.ts
+├── project-filters.ts → campaign-filters.ts
+├── project-helpers.ts → campaign-helpers.ts  
+├── project-query-params.ts → campaign-query-params.ts
+├── project-cache.ts → campaign-cache.ts
+```
+
+#### Component Folders
+```
+src/components/projects/ → campaigns/ hoặc discovery/
+├── ProjectSearchBar → CampaignSearchBar
+├── ProjectGrid → CampaignGrid
+├── ProjectCard → CampaignCard
+├── ... (15+ components)
+```
+
+#### Page Routes
+```
+src/app/projects/ → campaigns/ hoặc discovery/
+```
+
+### 🟢 Priority 3: Data Files
+
+- `src/data/mock-projects.ts` → `mock-campaigns.ts`
+
+---
+
+## 🎯 KHUYẾN NGHỊ GIẢI PHÁP
+
+### Option 1: Đổi Hết Về "Campaign" (Recommended)
+
+**Lý do:**
+- Database đã dùng `campaigns`
+- Detail pages đã dùng `/campaigns/:slug`
+- Prisma models đã dùng `campaigns`
+- Ít refactor hơn
+
+**Các bước:**
+1. ✅ Sửa UI text: "Dự án" → "Chiến dịch"
+2. ✅ Rename API: `/api/projects` → `/api/campaigns`
+3. ✅ Rename types: `project.ts` → `campaign.ts`
+4. ✅ Rename libs: `project-*.ts` → `campaign-*.ts`
+5. ✅ Rename components folder
+6. ✅ Update all imports (>100 files)
+
+**Effort:** Medium (2-3 days)
+
+---
+
+### Option 2: Tạo Entity "Project" Mới (Not Recommended)
+
+**Lý do:**
+- Phải thêm bảng `projects` vào database
+- Migration data từ `campaigns` → `projects`
+- Refactor toàn bộ schema relationships
+- Breaking changes cho production data
+
+**Effort:** Very High (1-2 weeks + downtime)
+
+**Rủi ro:** HIGH
+
+---
+
+### Option 3: Dual Naming Strategy (Không khuyến nghị)
+
+Giữ code dùng "Project", UI dùng "Chiến dịch"
+
+**Vấn đề:**
+- Tiếp tục gây nhầm lẫn cho developers
+- Inconsistent naming conventions
+- Hard to maintain long-term
+
+---
+
+## 📋 CHECKLIST SỬA NHANH (Quick Fix)
+
+### Step 1: Sửa UI Text (5 phút)
+
+```diff
+// src/components/profile/ProfileTabs.tsx
+- Dự án đã tạo ({campaigns.length})
++ Chiến dịch đã tạo ({campaigns.length})
+```
+
+### Step 2: Update Documentation (10 phút)
+
+- `docs/PROFILE_ANALYSIS_REPORT.md`
+- `docs/PROFILE_BLOG_INTEGRATION_ANALYSIS.md`
+
+### Step 3: Add Comment Warning (5 phút)
+
+```typescript
+// src/app/api/projects/route.ts
+/**
+ * @deprecated Endpoint name should be /api/campaigns
+ * TODO: Rename to match database entity (campaigns table)
+ * Currently kept for backward compatibility
+ */
+export async function GET(req: NextRequest) { ... }
+```
+
+---
+
+## 🔍 CODE EXAMPLES
+
+### Current State (Inconsistent)
+
+```typescript
+// ❌ BAD: Mixed terminology
+const campaigns = await prisma.campaigns.findMany();
+const projects: ProjectListItem[] = campaigns.map(...);
+return <ProjectGrid projects={projects} />;
+```
+
+### Recommended State (Consistent)
+
+```typescript
+// ✅ GOOD: Consistent terminology
+const campaigns = await prisma.campaigns.findMany();
+const items: CampaignListItem[] = campaigns.map(...);
+return <CampaignGrid campaigns={items} />;
+```
+
+---
+
+## 📊 IMPACT ANALYSIS
+
+### Files Affected
+
+| Category | Count | Effort |
+|----------|-------|--------|
+| UI Components | ~15 files | Low |
+| Type Definitions | ~3 files | Medium |
+| API Routes | ~2 files | Medium |
+| Lib Utilities | ~7 files | High |
+| Page Routes | ~2 files | High |
+| Tests | ~5 files | Medium |
+| Documentation | ~5 files | Low |
+| **Total** | **~39 files** | **High** |
+
+### Breaking Changes
+
+| Change | Impact | Mitigation |
+|--------|--------|------------|
+| `/api/projects` → `/api/campaigns` | ⚠️ Frontend calls | Add redirect/proxy |
+| `/projects` → `/campaigns` | ⚠️ External links | 301 redirect |
+| Type names | ⚠️ Import statements | Auto-refactor |
+
+---
+
+## 🎬 HÀNH ĐỘNG TIẾP THEO
+
+### Immediate (Today)
+
+1. ✅ **Sửa UI text** trong `ProfileTabs.tsx`: "Dự án" → "Chiến dịch"
+2. ✅ **Update docs** để đồng bộ terminology
+3. ✅ **Thêm TODO comments** cho các files cần refactor
+
+### Short-term (This Week)
+
+1. 🔄 Create migration plan
+2. 🔄 Setup API redirects for backward compatibility
+3. 🔄 Refactor component names and folders
+
+### Long-term (Next Sprint)
+
+1. 🔄 Complete full refactor to "Campaign" terminology
+2. 🔄 Update all tests and documentation
+3. 🔄 Remove deprecated endpoints
+
+---
+
+## 💡 KINH NGHIỆM RÚT RA
+
+### Nguyên Nhân Gốc Rễ
+
+1. **Lack of terminology guidelines** - Không có quy chuẩn đặt tên rõ ràng
+2. **Mixed abstraction levels** - Code dùng "Project" như abstraction layer nhưng database dùng "Campaign"
+3. **Incremental development** - Thêm features mà không refactor naming
+
+### Best Practices Cho Tương Lai
+
+1. ✅ **Single source of truth** - Database schema quyết định terminology
+2. ✅ **Consistent naming** - Từ database → API → UI dùng cùng 1 term
+3. ✅ **Documentation first** - Document naming decisions trước khi code
+4. ✅ **Linting rules** - Setup ESLint rules để catch inconsistencies
+
+---
+
+## 📝 TERMINOLOGY MAPPING TABLE
+
+| Vietnamese | English (Code) | English (UI) | Database |
+|------------|----------------|--------------|----------|
+| Chiến dịch | Campaign | Campaign | `campaigns` |
+| Dự án | ~~Project~~ ❌ | Campaign | `campaigns` |
+| Người tạo | Creator | Creator | `creatorId` |
+| Người ủng hộ | Backer | Supporter | `userId` in pledges |
+| Đóng góp | Pledge | Contribution | `pledges` |
+| Phần thưởng | Reward | Reward | `rewards` |
+
+---
+
+## ✅ KẾT LUẬN
+
+### Trả Lời Câu Hỏi Ban Đầu
+
+1. **Vì sao tab ghi "Chiến dịch" nhưng section title lại ghi "Dự án đã tạo"?**
+   - ❌ **Lỗi inconsistency** - Developer quên sửa section title
+
+2. **Trong code: tên biến là campaigns hay projects?**
+   - ✅ Variable: `campaigns`
+   - ❌ Types: `ProjectListItem`
+   - ❌ Components: `ProjectGrid`
+   - 🔄 **MIX LẪN**
+
+3. **Query lấy từ bảng campaigns hay projects?**
+   - ✅ Query từ `prisma.campaigns`
+   - ❌ Không có bảng `projects`
+
+4. **Đổi toàn bộ label "Dự án đã tạo" thành "Chiến dịch đã tạo"?**
+   - ✅ **ĐỒNG Ý** - Cần làm ngay
+
+5. **Hệ thống đã có Project model/page/API?**
+   - ❌ Không có Project model
+   - ❌ Có `/projects` page nhưng query `campaigns`
+   - ❌ Có `/api/projects` nhưng query `campaigns`
+   - 🔴 **Naming hoàn toàn sai**
+
+6. **Nếu chưa có Project entity, không dùng từ "Dự án"?**
+   - ✅ **ĐỒNG Ý HOÀN TOÀN**
+   - Nên dùng "Chiến dịch" everywhere
+
+---
+
+**Khuyến nghị cuối cùng:**  
+👉 **Sửa ngay UI text (5 phút), sau đó lên kế hoạch refactor toàn bộ (2-3 ngày)**
+
+---
+
+**Generated by:** Kiro AI Assistant  
+**Reviewed by:** Development Team  
+**Status:** 🔴 **NEEDS IMMEDIATE ACTION**
+
+---
+
+## Nguồn: `docs/TESTS_README.md`
+
+# Hệ Thống Kiểm Thử Tự Động
+
+Hệ thống kiểm thử được xây dựng dựa trên bảng kiểm thử giao diện và chức năng, sử dụng Jest và React Testing Library.
+
+## 📋 Cấu Trúc Thư Mục
+
+```
+__tests__/
+├── ui/                     # Kiểm thử giao diện
+│   └── interface.test.tsx  # Test cases cho UI components
+├── functional/             # Kiểm thử chức năng
+│   └── features.test.tsx   # Test cases cho các chức năng
+├── integration/            # Kiểm thử tích hợp
+│   └── stats.test.tsx      # Test tích hợp API và components
+├── utils/                  # Utilities cho testing
+│   └── test-utils.tsx      # Helper functions và mock data
+├── reports/                # Tạo báo cáo
+│   └── test-report-generator.ts
+├── run-tests-and-report.ts # Test runner chính
+└── README.md              # Tài liệu này
+```
+
+## 🚀 Cách Sử Dụng
+
+### Chạy Tất Cả Tests
+
+```bash
+# Chạy tất cả tests và tạo báo cáo
+npm run test:all
+
+# Hoặc chỉ chạy tests
+npm test
+```
+
+### Chạy Tests Theo Loại
+
+```bash
+# Kiểm thử giao diện
+npm run test:ui
+
+# Kiểm thử chức năng  
+npm run test:functional
+
+# Kiểm thử tích hợp
+npm run test:integration
+```
+
+### Chạy Tests Với Watch Mode
+
+```bash
+npm run test:watch
+```
+
+### Tạo Coverage Report
+
+```bash
+npm run test:coverage
+```
+
+## 📊 Báo Cáo Kiểm Thử
+
+Sau khi chạy `npm run test:all`, hệ thống sẽ tạo các báo cáo trong thư mục `test-reports/`:
+
+- `test-report.html` - Báo cáo HTML với giao diện đẹp
+- `test-report.md` - Báo cáo Markdown
+- `test-report.json` - Báo cáo JSON cho CI/CD
+
+## 🧪 Test Cases Dựa Trên Bảng Kiểm Thử
+
+### Kiểm Thử Giao Diện
+
+| ID  | Nội dung kiểm thử | Đầu ra | Thực tế | Pass/Fail |
+|-----|-------------------|---------|---------|-----------|
+| S01 | Màn hình Trang chủ hiển thị đầy đủ theo thiết kế, không sai chính tả | Đầy đủ, không sai chính tả | Đầy đủ, không sai chính tả | Pass |
+| S02 | Màn hình giới thiệu hiển thị đầy đủ theo thiết kế, không sai chính tả | Đầy đủ, không sai chính tả | Đầy đủ, Có lỗi chính tả ở .... | Fail |
+
+### Kiểm Thử Chức Năng
+
+| ID  | Nội dung kiểm thử | Đầu ra | Thực tế | Pass/Fail |
+|-----|-------------------|---------|---------|-----------|
+| F01 | Chức năng đăng xuất | Đăng xuất thành công | Đăng xuất thành công | Pass |
+| F02 | Menu dropdown hiển thị | Hiển thị đúng menu | Hiển thị đúng menu | Pass |
+
+## 🔧 Cấu Hình
+
+### Jest Configuration
+
+File `jest.config.js` chứa cấu hình Jest:
+- Test environment: jsdom
+- Setup file: jest.setup.js
+- Module mapping cho alias @/
+- Coverage settings
+
+### Mock Setup
+
+File `jest.setup.js` chứa các mock cần thiết:
+- next/navigation
+- next-auth/react  
+- sonner (toast notifications)
+- window.matchMedia
+
+## 📝 Viết Test Cases Mới
+
+### 1. Test Giao Diện
+
+```typescript
+import { render, screen } from '@testing-library/react'
+import Component from '@/components/Component'
+
+test('Kiểm tra component hiển thị đúng', () => {
+  render(<Component />)
+  
+  expect(screen.getByText('Expected Text')).toBeInTheDocument()
+  expect(screen.getByRole('button')).toBeInTheDocument()
+})
+```
+
+### 2. Test Chức Năng
+
+```typescript
+import { render, screen, fireEvent } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+
+test('Kiểm tra chức năng click button', async () => {
+  const user = userEvent.setup()
+  render(<Component />)
+  
+  const button = screen.getByRole('button')
+  await user.click(button)
+  
+  expect(mockFunction).toHaveBeenCalled()
+})
+```
+
+### 3. Test Tích Hợp API
+
+```typescript
+import { render, screen, waitFor } from '@testing-library/react'
+
+test('Kiểm tra tích hợp API', async () => {
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: true,
+    json: async () => mockData
+  })
+  
+  render(<Component />)
+  
+  await waitFor(() => {
+    expect(screen.getByText('Data from API')).toBeInTheDocument()
+  })
+})
+```
+
+## 🎯 Best Practices
+
+1. **Tên test rõ ràng**: Sử dụng tiếng Việt để mô tả test case
+2. **Mock dependencies**: Mock tất cả external dependencies
+3. **Test user behavior**: Test theo hành vi người dùng, không phải implementation
+4. **Async testing**: Sử dụng waitFor cho async operations
+5. **Cleanup**: Jest tự động cleanup, nhưng clear mocks trong beforeEach
+
+## 🐛 Troubleshooting
+
+### Lỗi thường gặp:
+
+1. **Module not found**: Kiểm tra module mapping trong jest.config.js
+2. **Mock không hoạt động**: Đảm bảo mock được setup trong jest.setup.js
+3. **Async test timeout**: Tăng timeout hoặc kiểm tra waitFor conditions
+4. **CSS/Style issues**: Sử dụng jsdom environment và mock CSS modules nếu cần
+
+### Debug tests:
+
+```bash
+# Chạy test với debug info
+npm test -- --verbose
+
+# Chạy một test file cụ thể
+npm test -- interface.test.tsx
+
+# Chạy test với watch mode để debug
+npm run test:watch
+```
+
+## 📚 Tài Liệu Tham Khảo
+
+- [Jest Documentation](https://jestjs.io/docs/getting-started)
+- [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
+- [Testing Best Practices](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library)
+
+## 🔄 CI/CD Integration
+
+Để tích hợp vào CI/CD pipeline:
+
+```yaml
+# GitHub Actions example
+- name: Run Tests
+  run: npm run test:all
+
+- name: Upload Test Reports
+  uses: actions/upload-artifact@v2
+  with:
+    name: test-reports
+    path: test-reports/
+```
+
+---
+
+## Nguồn: `docs/UI_TEXT_UPDATE_REPORT.md`
+
+# Báo Cáo: Cập Nhật UI Text "Dự án" → "Chiến dịch"
+
+**Ngày:** 30/06/2026  
+**Trạng thái:** ✅ **HOÀN THÀNH**  
+**Phạm vi:** Discovery page và các UI text chính
+
+---
+
+## 🎯 MỤC TIÊU
+
+Đổi tất cả text "dự án" thành "chiến dịch" trong UI user-facing để đồng bộ với database entity `campaigns`.
+
+---
+
+## ✅ FILES ĐÃ SỬA
+
+### 1. **Discovery Page** (`src/app/projects/page.tsx`)
+
+```diff
+- Khám phá dự án
++ Khám phá chiến dịch
+```
+
+**Context:** Page title/heading
+
+---
+
+### 2. **Search Bar** (`src/components/projects/ProjectSearchBar.tsx`)
+
+```diff
+- placeholder="Tìm theo mã dự án (CF-...) hoặc tên dự án"
++ placeholder="Tìm theo mã chiến dịch (CF-...) hoặc tên chiến dịch"
+```
+
+**Context:** Search input placeholder
+
+---
+
+### 3. **Results Header** (`src/components/projects/ProjectResultsHeader.tsx`)
+
+```diff
+- <span>5</span> dự án
++ <span>5</span> chiến dịch
+```
+
+**Context:** Results count text
+
+---
+
+### 4. **Empty State** (`src/components/projects/ProjectEmptyState.tsx`)
+
+```diff
+- Chưa tìm thấy dự án phù hợp
++ Chưa tìm thấy chiến dịch phù hợp
+```
+
+**Context:** No results message
+
+---
+
+### 5. **Project Card** (`src/components/projects/ProjectCard.tsx`)
+
+```diff
+- "Dự án đang cập nhật mô tả."
++ "Chiến dịch đang cập nhật mô tả."
+```
+
+**Context:** Placeholder text khi không có description
+
+---
+
+### 6. **Advanced Filters** (`src/components/projects/ProjectAdvancedFilters.tsx`)
+
+```diff
+- Chỉ dự án nổi bật
++ Chỉ chiến dịch nổi bật
+```
+
+**Context:** Featured filter checkbox label
+
+---
+
+### 7. **Favorites List** (`src/components/dashboard/FavoritesList.tsx`)
+
+```diff
+- Khám phá dự án
++ Khám phá chiến dịch
+
+- Chưa có dự án quan tâm
++ Chưa có chiến dịch quan tâm
+
+- Khám phá và đánh dấu các dự án bạn thích
++ Khám phá và đánh dấu các chiến dịch bạn thích
+```
+
+**Context:** Empty state và CTA button
+
+---
+
+### 8. **Backer Dashboard** (`src/app/dashboard/backer/page.tsx`)
+
+```diff
+- Bạn chưa ủng hộ dự án nào
++ Bạn chưa ủng hộ chiến dịch nào
+
+- Hãy khám phá những dự án đầy cảm hứng
++ Hãy khám phá những chiến dịch đầy cảm hứng
+
+- Khám phá dự án ngay
++ Khám phá chiến dịch ngay
+```
+
+**Context:** Empty state messages
+
+---
+
+### 9. **Navbar** (`src/components/layout/NavbarNew.tsx`)
+
+```diff
+- Quản lý dự án
++ Quản lý chiến dịch
+
+- Dự án quan tâm
++ Chiến dịch quan tâm
+```
+
+**Context:** User dropdown menu items
+
+---
+
+## 📊 TỔNG KẾT
+
+### Files Modified
+
+| File | Changes | Category |
+|------|---------|----------|
+| `src/app/projects/page.tsx` | 1 | Page Title |
+| `src/components/projects/ProjectSearchBar.tsx` | 1 | Search |
+| `src/components/projects/ProjectResultsHeader.tsx` | 1 | Results |
+| `src/components/projects/ProjectEmptyState.tsx` | 1 | Empty State |
+| `src/components/projects/ProjectCard.tsx` | 1 | Card Content |
+| `src/components/projects/ProjectAdvancedFilters.tsx` | 1 | Filters |
+| `src/components/dashboard/FavoritesList.tsx` | 3 | Dashboard |
+| `src/app/dashboard/backer/page.tsx` | 3 | Dashboard |
+| `src/components/layout/NavbarNew.tsx` | 2 | Navigation |
+| **TOTAL** | **14 changes** | **9 files** |
+
+### Scope
+
+| Category | Count |
+|----------|-------|
+| Page headings | 2 |
+| Search/filters | 3 |
+| Empty states | 5 |
+| Navigation | 2 |
+| Card content | 1 |
+| Button labels | 1 |
+
+---
+
+## 🔍 REMAINING "DỰ ÁN" INSTANCES
+
+### Technical (Comments/Code)
+
+Các instances sau **KHÔNG CẦN SỬA** vì là technical comments hoặc internal code:
+
+1. `src/lib/payment/refund.ts` - Comment giải thích logic
+2. `src/lib/payment/escrow.ts` - Comment giải thích logic
+3. `src/lib/editor/constants.ts` - Placeholder text cho editor
+4. `src/data/seed.ts` - Seed data description
+5. Other internal comments
+
+### Consider for Future
+
+Các text sau có thể sửa trong future updates (không gấp):
+
+1. **Campaign Dashboard Search** (`src/components/dashboard/CampaignSearch.tsx`)
+   - "Tìm kiếm dự án theo tên, mã dự án..."
+   - "Hiển thị X dự án"
+   - "Không tìm thấy dự án"
+
+2. **Campaign List View** (`src/components/dashboard/CampaignListView.tsx`)
+   - Table header: "Dự án"
+   - "Xem dự án" tooltip
+
+3. **Other UI Elements**
+   - Transaction lookup labels
+   - Chat intro messages
+   - Campaign creation hints
+   - Blog selector descriptions
+
+**Khuyến nghị:** Sửa các instances trên trong sprint tiếp theo để tránh ảnh hưởng quá rộng.
+
+---
+
+## ✅ VERIFICATION
+
+### Visual Check
+
+- [x] Discovery page title updated
+- [x] Search placeholder updated
+- [x] Results count updated
+- [x] Empty state updated
+- [x] Card placeholder updated
+- [x] Filter labels updated
+- [x] Navigation menu updated
+- [x] Dashboard empty states updated
+
+### Consistency Check
+
+- [x] All main user-facing pages consistent
+- [x] Discovery flow (search → results → card) consistent
+- [x] Navigation consistent
+- [x] Dashboard consistent
+
+---
+
+## 📝 IMPACT
+
+### User Experience
+
+✅ **Positive:**
+- Clearer terminology matching database
+- Consistent across all pages
+- Better alignment with Vietnamese language usage
+- No confusion between "dự án" and "chiến dịch"
+
+### Technical
+
+✅ **Zero Risk:**
+- Only string literal changes
+- No code logic changes
+- No breaking changes
+- No API changes
+
+---
+
+## 🎯 NEXT STEPS
+
+### Completed ✅
+
+- [x] Discovery page UI
+- [x] Search and filters
+- [x] Navigation menus
+- [x] Empty states
+- [x] Main dashboard
+
+### Future (Optional)
+
+- [ ] Campaign management dashboard
+- [ ] Admin pages
+- [ ] Chat system messages
+- [ ] Email templates
+- [ ] Internal comments/docs
+
+---
+
+## ✅ SIGN-OFF
+
+**Status:** ✅ **COMPLETE**
+
+**Quality:**
+- All main UI text updated
+- User-facing pages consistent
+- Zero breaking changes
+- Ready for deployment
+
+---
+
+**Generated by:** Kiro AI Assistant  
+**Date:** 30/06/2026  
+**Version:** 1.0
+
+---
+
+## Nguồn: `docs/UPGRADE_CREATOR_GUIDE.md`
+
+# Hướng dẫn triển khai hệ thống nâng cấp Creator
+
+## ✅ Đã hoàn thành
+
+### 1. Thêm nút "Nâng cấp Creator" vào menu
+- ✅ Hiển thị cho tài khoản BACKER
+- ✅ Tự động phân luồng: cá nhân → `/upgrade/individual`, doanh nghiệp → `/upgrade/organization`
+- ✅ Vị trí: Dropdown menu trong NavbarNew.tsx
+
+### 2. Trang nâng cấp cá nhân (`/upgrade/individual`)
+- ✅ Tạo file: `src/app/upgrade/individual/page.tsx`
+- ✅ Kiểm tra quyền: chỉ BACKER mới truy cập được
+- ✅ Pre-fill dữ liệu đã có từ profile
+- ✅ Form bao gồm:
+  - Thông tin cá nhân (họ tên, ngày sinh, CCCD, ảnh CCCD)
+  - Địa chỉ (thường trú, hiện tại)
+  - Liên hệ (phone, email)
+  - Thông tin Creator công khai (tên hiển thị, bio, website)
+  - Thông tin thanh toán (tài khoản ngân hàng, mã số thuế)
+
+## 🔨 Cần hoàn thành
+
+### 3. Trang nâng cấp doanh nghiệp (`/upgrade/organization`)
+
+Tạo file: `src/app/upgrade/organization/page.tsx` với các phần:
+
+#### A. Thông tin pháp lý doanh nghiệp
+- Tên pháp lý doanh nghiệp *
+- Tên thương mại / tên hiển thị
+- Loại hình doanh nghiệp * (dropdown: Công ty TNHH, Công ty cổ phần, Hộ kinh doanh, Tổ chức phi lợi nhuận)
+- Mã số doanh nghiệp / mã số thuế *
+- Ngày đăng ký kinh doanh *
+- Quốc gia/khu vực đăng ký *
+- Ngành nghề kinh doanh *
+- Website doanh nghiệp
+
+#### B. Giấy tờ doanh nghiệp
+- Upload Giấy chứng nhận đăng ký doanh nghiệp *
+- Upload Giấy phép kinh doanh (nếu có)
+- Upload Giấy chứng nhận mã số thuế
+- Upload Tài liệu chứng minh địa chỉ doanh nghiệp
+- Upload Tài liệu chứng minh tài khoản ngân hàng doanh nghiệp
+
+#### C. Địa chỉ doanh nghiệp
+- Địa chỉ đăng ký kinh doanh *
+- Địa chỉ hoạt động hiện tại (nếu khác)
+- Quốc gia/tỉnh/thành phố *
+- Email doanh nghiệp *
+- Số điện thoại doanh nghiệp *
+
+#### D. Người đại diện pháp luật
+- Họ tên người đại diện *
+- Chức vụ *
+- Email *
+- Số điện thoại *
+- Upload Giấy tờ định danh của người đại diện *
+- Quyền đại diện doanh nghiệp
+
+#### E. Chủ sở hữu hưởng lợi / người kiểm soát
+- Danh sách chủ sở hữu hưởng lợi (có thể thêm nhiều người)
+  - Họ tên
+  - Tỷ lệ sở hữu (%)
+  - Giấy tờ định danh
+- Người có quyền kiểm soát doanh nghiệp
+
+#### F. Thông tin thanh toán / nhận tiền
+- Tài khoản ngân hàng doanh nghiệp *
+- Tên chủ tài khoản *
+- Số tài khoản *
+- Đơn vị tiền tệ *
+- Quốc gia nhận thanh toán *
+
+#### G. Thông tin Creator công khai
+- Tên Creator công khai *
+- Logo hoặc avatar thương hiệu
+- Ảnh bìa
+- Bio Creator *
+- Danh mục nội dung
+- Mô tả nội dung doanh nghiệp sẽ tạo
+- Đối tượng người xem
+- Link website / mạng xã hội
+
+### 4. API Endpoint
+
+Tạo file: `src/app/api/user/upgrade-creator/route.ts`
+
+```typescript
+POST /api/user/upgrade-creator
+Body: {
+  type: "individual" | "organization",
+  // ... form data
+}
+
+Logic:
+1. Kiểm tra user phải là BACKER
+2. Validate dữ liệu
+3. Lưu thông tin vào database:
+   - Update User table
+   - Create/Update KYCInfo
+   - Thay đổi role từ BACKER → CREATOR_PENDING
+4. Gửi email thông báo cho admin
+5. Return success
+```
+
+### 5. API lấy thông tin profile
+
+Tạo file: `src/app/api/user/profile/route.ts`
+
+```typescript
+GET /api/user/profile
+
+Logic:
+1. Lấy session
+2. Query user data từ Prisma
+3. Include KYCInfo nếu có
+4. Return user data
+```
+
+### 6. Cập nhật Prisma Schema (nếu cần)
+
+Kiểm tra xem các trường sau đã có trong schema chưa:
+- User.displayName
+- User.bio
+- User.website
+- User.bankAccount
+- User.bankName
+- KYCInfo (đã có đầy đủ)
+
+### 7. Admin Dashboard - Duyệt Creator
+
+Tạo trang: `src/app/dashboard/admin/creator-requests/page.tsx`
+
+Chức năng:
+- Hiển thị danh sách user có role = CREATOR_PENDING
+- Xem chi tiết thông tin KYC
+- Nút "Duyệt" → chuyển role thành CREATOR
+- Nút "Từ chối" → giữ nguyên BACKER, gửi email lý do
+
+### 8. Email Templates
+
+Tạo các email template:
+- Email xác nhận đã nhận yêu cầu nâng cấp
+- Email thông báo được duyệt
+- Email thông báo bị từ chối (kèm lý do)
+
+### 9. Upload ảnh/file
+
+Tích hợp Cloudinary để upload:
+- Ảnh CCCD mặt trước/sau
+- Giấy tờ doanh nghiệp
+- Logo/Avatar
+- Ảnh bìa
+
+## 📝 Notes
+
+- Tất cả trường có dấu `*` là bắt buộc
+- Nếu user đã có thông tin (từ profile Backer), tự động pre-fill
+- Validation phải chặt chẽ trước khi submit
+- Lưu trữ file upload an toàn (Cloudinary)
+- Log tất cả thay đổi vào AuditLog
+
+## 🔐 Security
+
+- Chỉ BACKER mới được nâng cấp
+- CREATOR và ADMIN không thể truy cập trang upgrade
+- Validate file upload (size, type)
+- Sanitize input data
+- Rate limiting cho API endpoint
+
+## 🎨 UI/UX
+
+- Progress indicator cho multi-step form
+- Tooltip giải thích các trường
+- Preview ảnh sau khi upload
+- Confirmation modal trước khi submit
+- Loading state rõ ràng
+- Error handling tốt
+
+---
+
+## Nguồn: `docs/VERCEL_DEPLOYMENT_GUIDE.md`
+
+# 🚀 Hướng dẫn Deploy lên Vercel
+
+## ✅ Đã hoàn thành:
+- [x] Tạo Neon PostgreSQL database (Singapore region)
+- [x] Deploy database schema (15 migrations)
+- [x] Kiểm tra kết nối thành công
+
+## 📋 Các bước tiếp theo:
+
+### 1. Import Project vào Vercel
+
+1. Truy cập: https://vercel.com/new
+2. Import repository từ GitHub
+3. Chọn framework: **Next.js** (tự động detect)
+
+### 2. Cấu hình Environment Variables
+
+Trong Vercel Dashboard → Settings → Environment Variables, thêm:
+
+#### 🗄️ Database
+```bash
+DATABASE_URL=postgresql://neondb_owner:npg_v9Q4oKsHObqT@ep-weathered-sky-ao6ep9en.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+
+MONGODB_URI=mongodb://nguyenquachphutai_db_user:0909115079%40Tai@ac-qlbdgty-shard-00-00.b4wcshp.mongodb.net:27017,ac-qlbdgty-shard-00-01.b4wcshp.mongodb.net:27017,ac-qlbdgty-shard-00-02.b4wcshp.mongodb.net:27017/?ssl=true&replicaSet=atlas-x14m5t-shard-0&authSource=admin&retryWrites=true&w=majority&appName=DuAn
+
+MONGODB_DB_NAME=DuAn
+```
+
+#### 🔐 Authentication
+```bash
+NEXTAUTH_URL=https://your-domain.vercel.app
+NEXT_PUBLIC_NEXTAUTH_URL=https://your-domain.vercel.app
+NEXTAUTH_SECRET=7e476405-95cf-4a3f-a901-3f6f6700db49-reconstructed
+```
+
+#### 📸 Cloudinary
+```bash
+CLOUDINARY_CLOUD_NAME=ds6p3pr28
+CLOUDINARY_API_KEY=132652741861658
+CLOUDINARY_API_SECRET=AWu9EmCLekXixoNxOMUD76qUinI
+```
+
+#### 💳 Payment Gateways
+```bash
+# PayOS
+PAYOS_CLIENT_ID=5a84749a-c2df-4aac-9b5a-b59a9ac4ba2f
+PAYOS_API_KEY=c77fbbb6-eea9-4843-83ea-4bc068cbb346
+PAYOS_CHECKSUM_KEY=440fbf790495caf84b1e2383677edbd1bf3e46d2cd42e307e356579e5bc6e0e7
+
+# VNPay (nếu có)
+VNP_TMN_CODE=
+VNP_HASH_SECRET=
+
+# SePay (nếu có)
+SEPAY_MERCHANT_ID=
+SEPAY_SECRET_KEY=
+SEPAY_ENV=production
+```
+
+#### 🎛️ Feature Flags
+```bash
+ENABLE_MONGO_LOGS=true
+ENABLE_MONGO_NOTIFICATIONS=true
+ENABLE_MONGO_COMMENTS=true
+ENABLE_MONGO_ANALYTICS=true
+ENABLE_MONGO_CAMPAIGN_CONTENT=true
+ENABLE_MONGO_CAMPAIGN_UPDATES=true
+ENABLE_MONGO_USER_METADATA=true
+ENABLE_MONGO_CHAT=true
+```
+
+#### 🌐 App URL
+```bash
+NEXT_PUBLIC_APP_URL=https://your-domain.vercel.app
+```
+
+### 3. Build Settings (Đã tự động cấu hình)
+
+File `vercel.json` đã được cấu hình:
+- ✅ Build Command: `prisma generate && prisma migrate deploy && next build`
+- ✅ Framework: Next.js
+- ✅ Region: Singapore (sin1)
+- ✅ API timeout: 30s
+- ✅ CORS headers
+
+### 4. Deploy
+
+1. Click **Deploy** trong Vercel Dashboard
+2. Đợi build hoàn thành (~3-5 phút)
+3. Kiểm tra logs nếu có lỗi
+
+### 5. Sau khi Deploy
+
+#### Kiểm tra các endpoint:
+- [ ] Homepage: `https://your-domain.vercel.app`
+- [ ] API Health: `https://your-domain.vercel.app/api/health`
+- [ ] Auth: `https://your-domain.vercel.app/api/auth/signin`
+
+#### Cập nhật Webhook URLs:
+Nếu dùng payment webhooks, cập nhật URLs trong:
+- PayOS Dashboard: `https://your-domain.vercel.app/api/webhooks/payos`
+- VNPay Dashboard: `https://your-domain.vercel.app/api/webhooks/vnpay`
+- SePay Dashboard: `https://your-domain.vercel.app/api/webhooks/sepay`
+
+#### Test Payment Flow:
+1. Tạo campaign mới
+2. Thử donate/pledge
+3. Kiểm tra webhook logs trong Vercel
+
+### 6. Custom Domain (Tùy chọn)
+
+1. Vercel Dashboard → Settings → Domains
+2. Thêm domain của bạn (VD: `crowdfund.vn`)
+3. Cấu hình DNS records theo hướng dẫn
+4. Cập nhật `NEXTAUTH_URL` và `NEXT_PUBLIC_APP_URL`
+
+## 🔧 Troubleshooting
+
+### Lỗi Database Connection
+```bash
+# Kiểm tra connection string có đúng format:
+postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=require
+```
+
+### Lỗi Build
+```bash
+# Xem logs trong Vercel Dashboard → Deployments → [Your Deploy] → Build Logs
+```
+
+### Lỗi API Timeout
+```bash
+# Tăng timeout trong vercel.json (đã set 30s)
+# Hoặc optimize API queries
+```
+
+### Lỗi Prisma Client
+```bash
+# Đảm bảo postinstall script chạy:
+"postinstall": "prisma generate"
+```
+
+## 📊 Monitoring
+
+- **Vercel Analytics**: Tự động enable
+- **Vercel Logs**: Real-time logs trong Dashboard
+- **Neon Metrics**: Database performance trong Neon Console
+
+## 🔒 Security Checklist
+
+- [ ] Tất cả secrets đã thêm vào Environment Variables
+- [ ] File `.env` KHÔNG commit vào Git
+- [ ] CORS headers đã cấu hình đúng
+- [ ] SSL/TLS enabled (mặc định trên Vercel)
+- [ ] Rate limiting cho API (nên thêm)
+
+## 📈 Performance Tips
+
+1. **Enable Vercel Edge Functions** cho static pages
+2. **Optimize Images** với next/image
+3. **Enable ISR** (Incremental Static Regeneration) cho campaigns
+4. **Add Redis** cho caching (Upstash Redis)
+5. **Monitor Neon** connection pooling
+
+## 🎯 Next Steps
+
+1. Setup monitoring (Sentry, LogRocket)
+2. Configure CDN cho static assets
+3. Add rate limiting middleware
+4. Setup automated backups (Neon có sẵn)
+5. Configure CI/CD với GitHub Actions
+
+---
+
+**Lưu ý quan trọng:**
+- Neon Free Tier: 512 MB storage, 3 GB data transfer/month
+- Vercel Hobby: 100 GB bandwidth/month
+- MongoDB Atlas M0: 512 MB storage
+
+Nếu vượt quá, cần upgrade plan!
+
+---
+
+## Nguồn: `docs/assistant-observability-and-quality.md`
+
+# Telemetry trợ lý và quality gate Platform
+
+## Mục tiêu
+
+Tài liệu này mô tả hai ranh giới vận hành cho các trợ lý công khai của Platform: **quan sát an toàn** đối với sự kiện `command_rejected` và **hồi quy bắt buộc trong CI** cho Hỏi nhanh. Cả hai cơ chế chỉ dùng dữ liệu tối thiểu cần thiết; không đưa nội dung hội thoại, lệnh người dùng hay dữ liệu nhận diện người dùng sang AI-BS.
+
+| Hạng mục | Cơ chế | Dữ liệu/kiểm tra |
+| --- | --- | --- |
+| Tổng hợp từ chối lệnh | `GET /api/internal/assistant-telemetry` | Tổng số, ngày UTC và thời điểm mới nhất của `command_rejected` trong cửa sổ 1–168 giờ |
+| Xác thực liên dịch vụ | Bearer token | Chỉ AI-BS server dùng khóa đọc; không có quyền ghi |
+| E2E Hỏi nhanh | Playwright + PostgreSQL service | Product, blog và profile công khai thật; happy path, loading và error state |
+| Chất lượng mã nguồn | GitHub Actions `Platform CI` | Jest, TypeScript và E2E Chromium |
+
+## Bật dashboard AI-BS
+
+Platform cần biến môi trường server-side `ASSISTANT_TELEMETRY_READ_KEY`. AI-BS cần `PLATFORM_TELEMETRY_READ_KEY` có **cùng giá trị**. Endpoint chỉ trả `401` khi thiếu/sai Bearer; các phản hồi hợp lệ được giới hạn ở trạng thái, phạm vi, số lượng tổng hợp theo ngày và thời điểm mới nhất.
+
+> Không cấu hình khóa không làm trợ lý dừng hoạt động. Dashboard AI-BS hiển thị trạng thái “Chưa cấu hình” thay vì suy đoán hay bỏ qua lỗi.
+
+## E2E route công khai thật
+
+Workflow CI khởi tạo PostgreSQL 16 tách biệt, áp dụng migration và chạy `npm run seed:e2e`. Script seed tạo riêng một user, project, campaign, product và blog có ID/slug `e2e-*`. Các test truy cập trực tiếp `/products/e2e-public-product`, `/blog/e2e-nhat-ky-gieo-mam` và `/profile/e2e-public-user`; không dùng middleware rewrite hay mock `page.route` cho happy path.
+
+Lượt xem blog có thể tăng khi trang được tải, vì vậy assertion chỉ yêu cầu Hỏi nhanh hiển thị một giá trị số công khai thay vì cố định một con số dễ thay đổi. Báo cáo Playwright là artifact giữ 14 ngày trong GitHub Actions. Playwright khuyến nghị lưu report/trace CI như artifact tin cậy và lưu ý các artifact này có thể chứa dữ liệu thực thi cần được xử lý cẩn trọng.[1]
+
+## Quality gate GitHub
+
+`Platform CI` chạy trên mọi `pull_request` vào `main` và mỗi lần push lên `main`. Job `quality` chạy `npm test -- --runInBand` và `npx tsc --noEmit`; job `e2e-public-assistant` chạy E2E Chromium sau migration/seed. Cách dùng `npm ci`, `actions/setup-node` và workflow Node.js này phù hợp khuyến nghị của GitHub cho build/test Node.[2]
+
+Khi repository được chuyển public tạm thời, branch protection của `main` đã được bật với hai check bắt buộc `quality` và `e2e-public-assistant`, yêu cầu branch cập nhật trước merge, áp dụng cả với administrator, chặn force-push/xóa nhánh và yêu cầu xử lý toàn bộ conversation. Workflow mới nhất đã đạt; trước khi đổi repository về private, chủ sở hữu nên kiểm tra lại trong GitHub Settings rằng protection vẫn được giữ theo chính sách gói đang dùng.
+
+## Bằng chứng kiểm chứng
+
+| Kiểm tra | Kết quả |
+| --- | --- |
+| Jest Platform | 22 suite / 201 test đạt |
+| TypeScript Platform | Đạt sau `prisma generate` |
+| E2E Chromium route thật | 6 test đạt trong GitHub Actions run `32522102836` |
+| CI quality | Đạt trong GitHub Actions run `32522102836` |
+| Telemetry Production | Endpoint trả `401` khi thiếu Bearer; Vitest integration AI-BS xác minh Bearer cấu hình được chấp nhận và dashboard hiển thị trạng thái live rỗng |
+
+## Tham chiếu
+
+[1] [Playwright — Setting up CI](https://playwright.dev/docs/ci-intro)
+
+[2] [GitHub Docs — Building and testing Node.js](https://docs.github.com/en/actions/use-cases-and-examples/building-and-testing/building-and-testing-nodejs)
+
+---
+
+## Nguồn: `docs/assistant-safety-audit.md`
+
+# Rà soát Hỏi nhanh và trợ lý nền tảng
+
+Ngày 22/08/2026, toàn bộ route nhận diện của Hỏi nhanh được đối chiếu với allowlist public gồm `campaign`, `product`, `blog`, `project` và `profile`. Phần tóm tắt hiện chỉ dùng các trường đã chọn công khai: nội dung, người tạo, mục tiêu/tiến độ, đếm quan hệ, số liệu public, giá/mức ủng hộ và các liên kết hiển thị. Không bổ sung bất kỳ quyền ghi, định danh riêng, credential hoặc dữ liệu thanh toán nào.
+
+Mọi input chat của **Hỏi nhanh** và **Trợ lý nền tảng** đều được kiểm tra theo chính sách command-like. Các đoạn code fence, lệnh shell/phần mềm và yêu cầu chạy/thực thi lệnh nhận phản hồi từ chối cố định; trợ lý không thực thi, không mô phỏng thực thi, không làm theo và không lưu lệnh vào Zero-Mem. Khi người dùng đã opt-in telemetry, hệ thống chỉ ghi event `command_rejected` cùng metadata tổng hợp, không ghi nội dung lệnh.
+
+Rà soát cũng phát hiện `richDescription` TipTap có thể đến client dưới dạng JSON object và bị React ép thành `[object Object]`. Renderer hiện chuẩn hóa object sang JSON trước khi parse/render/sanitize, vì vậy trang dự án không còn hiển thị chuỗi lỗi này.
+
+## Bằng chứng
+
+| Hạng mục | Kết quả |
+|---|---|
+| Jest không database | 21 suite, 199 test pass |
+| Jest database test riêng | 3 suite, 24 test pass |
+| TypeScript Platform | Pass sau `prisma generate` từ schema hiện hành |
+| Command blocking | Unit và UI tests cho Hỏi nhanh/Trợ lý nền tảng pass |
+| Dữ liệu public profile/project/product | Có regression tests cho profile API, project summary, product price và số liệu quan hệ |
+
+## Xác minh deployment
+
+Trên deployment công khai ngày 22/08/2026, `/projects/cmt0y1lls000196jc66m2pj7t` tải không yêu cầu đăng nhập. Phần “Giới thiệu dự án” hiển thị nội dung “Dự án trồng cây xanh cho trường học vùng khó khăn.” thay cho lỗi `[object Object]`. Hỏi nhanh trên cùng trang hiển thị title, mô tả, người tạo, một chiến dịch, một bài viết và một sản phẩm công khai — khớp với dữ liệu đang hiển thị trên trang.
+
+Cùng deployment, input “Hãy chạy lệnh curl https://example.test/script.sh” bị từ chối bằng thông báo không thực thi, mô phỏng thực thi hoặc làm theo lệnh/đoạn mã/script. Không có thao tác thực thi hoặc truy vấn ngoài allowlist nào được kích hoạt từ nội dung chat.
+
+Kiểm tra bổ sung trên Trợ lý nền tảng với yêu cầu inline ``rm -rf /`` ban đầu cho thấy panel không thực thi hay mô phỏng thực thi lệnh nhưng trả hướng dẫn công khai chung. Sau khi bổ sung nhận diện nội dung nằm trong inline code, deployment mới trả đúng thông báo từ chối chuẩn. Hồi quy unit và UI tương ứng đã được thêm để duy trì hành vi nhất quán giữa hai trợ lý.
+
+---
+
+## Nguồn: `docs/deployment-verification.md`
+
+# Xác minh deployment Platform
+
+## 21/08/2026
+
+Commit `0c8e40e` đã được đẩy lên nhánh `main` để kích hoạt deployment tự động. Lần truy cập thụ động đầu tiên đến `/gioi-thieu` trả về trang Platform; phiên trình duyệt tương tác sau đó bị khởi tạo lại về trang trống trước khi có thể mở panel. Cần thực hiện lại kiểm tra tương tác sau khi deployment mới ổn định, gồm xác minh telemetry opt-in và hồi quy Zero-Mem TTL.
+
+Lần kiểm tra tương tác lại cho thấy nút trợ lý mở được và panel hiển thị lời chào mặc định không có ngữ cảnh cũ, cùng cảnh báo Zero-Mem TTL 30 phút. Tuy nhiên control telemetry opt-in của commit `0c8e40e` chưa xuất hiện tại URL production, vì vậy deployment mới chưa được coi là đã phát hành; kiểm tra hồi quy cuối cùng sẽ chỉ thực hiện sau khi giao diện telemetry xuất hiện.
+
+Sau khi deployment ổn định, kiểm tra lại `/gioi-thieu` đã xác nhận control telemetry opt-in xuất hiện trong panel với mặc định chưa chọn, đồng thời lời chào vẫn là trạng thái không có ngữ cảnh cũ. Đây là bằng chứng URL production đã phục vụ commit `0c8e40e`; bước tiếp theo là seed trace đã hết TTL để kiểm tra cơ chế loại bỏ trace ngay trên deployment.
+
+Đã seed một trace có `expiresAt` nằm trong quá khứ cho session `platform-help` vào `sessionStorage` của deployment rồi tải lại trang. Bước xác nhận sau reload kiểm tra kho trace đã rỗng và panel chỉ dùng lời chào mặc định.
+
+Kết quả xác nhận: sau reload, `tutefund-zero-mem-v1` trả về mảng rỗng. Mở lại panel hiển thị chính xác lời chào mặc định “Chào bạn, tôi có thể hướng dẫn cách dùng nền tảng…” thay vì lời chào tiếp tục ngữ cảnh. Vì vậy trace quá TTL đã bị loại bỏ trước retrieval và giao diện không sử dụng lại ngữ cảnh cũ.
+
+---
+
+## Nguồn: `docs/public-project-assistant-verification.md`
+
+# Xác minh Hỏi nhanh với dự án công khai
+
+Ngày 22/08/2026, profile công khai `cmphnhw8e0002so1uh16dwpvn` mở trực tiếp trên deployment mà không yêu cầu đăng nhập. Giao diện profile hiển thị một dự án công khai “Mầm xanh tử tế”.
+
+Khi mở Hỏi nhanh, phần tóm tắt hiển thị “Dự án công khai: 1” và “Dự án gần đây: Mầm xanh tử tế”. Dữ liệu được lấy từ endpoint allowlist công khai; response chỉ chọn trường profile, `_count.projects` và tối đa sáu dự án với metadata hiển thị công khai, không gồm email, mật khẩu, tài khoản ngân hàng hoặc dữ liệu ghi.
+
+Trên cùng deployment, câu hỏi “Coz bao nhiêu dự án?” nhận phản hồi: “Test Creator Pro có 1 dự án công khai. Dự án hiển thị: Mầm xanh tử tế.” Điều này xác nhận Hỏi nhanh dùng đúng số liệu và tên dự án đã công khai, không cần đăng nhập.
+
+Route dự án `/projects/cmt0y1lls000196jc66m2pj7t` cũng mở trực tiếp không cần đăng nhập, hiển thị dự án “Mầm xanh tử tế” và nút Hỏi nhanh. Route này được middleware cho phép chỉ đọc; không có thao tác tạo, sửa hoặc xoá nào được mở thêm.
+
+Trên trang dự án, Hỏi nhanh nhận diện “Đang xem: dự án”, nạp tiêu đề, mô tả và người tạo từ allowlist. Câu hỏi “Dự án này nói về gì?” nhận tóm tắt đúng về việc trồng cây xanh cho trường học vùng khó khăn. Điều này hoàn tất xác minh production cho cả profile và project page.
+
+---
+
+## Nguồn: `docs/quick-assistant-verification.md`
+
+# Xác minh trợ lý nổi
+
+- Trên route chiến dịch công khai, nút nổi được hiển thị ở góc dưới với nhãn truy cập `Hỏi nhanh`.
+- Nút mở được panel gọn có tiêu đề `Hỏi nhanh`, không có tên hoặc liên kết đến AI-BS.
+- Khi dữ liệu trang đang tải, widget giữ trạng thái chờ và không hiển thị dữ liệu nhạy cảm.
+
+---
+
+## Nguồn: `docs/quick-page-assistant-verification.md`
+
+# Xác minh biểu tượng Hỏi nhanh
+
+Ngày 21/08/2026, trigger Hỏi nhanh được thay bằng mascot robot hình giọt nước màu xanh cyan, khác biệt trực quan với trợ lý robot/lá màu emerald. Kiểm thử component xác nhận trigger có hình giọt nước, mở panel đúng và vẫn tải tóm tắt dữ liệu công khai.
+
+Đường dẫn sản phẩm trong ảnh tham chiếu hiện chuyển sang đăng nhập trên deployment đang hoạt động; vì vậy không sử dụng route đó để xác nhận trực quan trên production. Thay đổi không làm nới quyền truy cập: logic Hỏi nhanh và allowlist dữ liệu công khai giữ nguyên.
+
+---
+
+## Nguồn: `docs/testing.md`
+
+# Kiểm thử Platform
+
+`npm test` chạy các kiểm thử unit, component và integration không cần database. Các suite truy cập Prisma trực tiếp được tách riêng để chúng không bao giờ vô tình sử dụng `DATABASE_URL` phát hành trong môi trường phát triển hoặc CI không có database test.
+
+Để chạy toàn bộ kiểm thử, tạo một PostgreSQL database **riêng** có tên chứa `test` (ví dụ `tutefund_platform_test`) rồi cấu hình biến môi trường `JEST_DATABASE_URL` chỉ cho CI/test. Chạy `npm run test:db` để áp dụng migration vào database test rồi chạy các suite database tuần tự. `npm run test:all` ghép hai đường chạy này.
+
+> Không đặt `JEST_DATABASE_URL` trỏ tới database phát hành. Script kiểm tra giao thức PostgreSQL và yêu cầu tên database chứa `test` trước khi áp dụng migration.
+
+Xác minh ngày 21/08/2026: `npm test -- --runInBand` đạt **16 suite / 188 test**. Trên PostgreSQL riêng `tutefund_platform_test`, `JEST_DATABASE_URL=... npm run test:db` đạt **3 suite / 24 test** sau khi áp dụng migration. Lệnh `npm run test:all` đã chạy nối tiếp hai đường và hoàn tất thành công; database test có owner riêng `platform_test`, tách biệt hoàn toàn với URL phát hành.
+
+## Telemetry trợ lý
+
+Telemetry của trợ lý nền tảng **tắt mặc định** và chỉ hoạt động khi người dùng tự chọn đồng ý. Endpoint chỉ ghi loại sự kiện, số trace ngữ cảnh (0–24) và cờ có liên kết hành động. Hệ thống không gửi hoặc lưu nội dung câu hỏi/trả lời, dữ liệu nhận diện, địa chỉ IP, user-agent hoặc Zero-Mem trace.
+
+Kiểm tra trực quan tại preview local ngày 21/08/2026 xác nhận panel trợ lý hiển thị checkbox đồng ý riêng cùng thông báo giới hạn dữ liệu. Trạng thái ban đầu là không chọn; control chỉ xuất hiện trong panel hỗ trợ và không ảnh hưởng nút Hỏi nhanh theo thực thể. Sau thao tác chọn tự nguyện, cài đặt được lưu cục bộ dưới giá trị `granted`; không có nội dung chat nào được dùng trong cài đặt hoặc payload.
+
+---
+
+## Nguồn: `docs/zero-mem-research.md`
+
+# Ghi chú nghiên cứu Zero-Mem
+
+Bài báo [Zero-Mem: Zero-Token Memory Operations for LLM Agents](https://arxiv.org/abs/2607.29377) mô tả bộ nhớ giữ nguyên interaction trace làm nguồn chứng cứ, không dùng LLM trong các thao tác ghi, tổ chức hoặc truy hồi bộ nhớ. Kiến trúc kết hợp entity-context graph để truy hồi quan hệ và temporal hierarchy để giữ locality, session state; kết quả từ hai view được phối hợp, mở rộng evidence closure và hiệu chỉnh bằng quy tắc xác định trước final QA.
+
+Repository chính thức [Zero-Mem/Zero-mem](https://github.com/Zero-Mem/Zero-mem) hiện chỉ có README và nêu rằng mã nguồn cùng chi tiết triển khai sẽ được phát hành sau peer review. Vì vậy, việc triển khai Platform sẽ là bản tái thực hiện độc lập theo mô tả trong bài báo, không sao chép mã nguồn chưa được phát hành.
+
+---
+
+## Nguồn: `docs/zero-mem-verification.md`
+
+# Xác minh Zero-Mem trên giao diện
+
+Ngày kiểm tra: 21/08/2026.
+
+Trợ lý robot/lá xuất hiện ở góc phải và mở được panel hỗ trợ gọn trên trang `/gioi-thieu`. Panel hiển thị đúng nhãn **Zero-Mem cục bộ**, nội dung giới hạn bộ nhớ trên thiết bị trong phiên, TTL 30 phút, cảnh báo không nhập mật khẩu/OTP/token/dữ liệu thẻ, và có nút xóa bộ nhớ riêng. Các kết quả này được kiểm tra trực quan tại preview local sau khi thay bộ nhớ phiên cũ bằng bản tái triển khai Zero-Mem.
+
+Đã gửi câu hỏi “Tôi muốn tạo chiến dịch” bằng chip gợi ý. Trợ lý hiển thị hướng dẫn phù hợp cùng liên kết `/campaigns/create`; trace câu hỏi và phản hồi được ghi vào bộ nhớ phiên cục bộ qua Zero-Mem. Các kiểm thử đơn vị riêng bao phủ truy hồi theo thời gian, TTL, xóa bộ nhớ và chặn chuỗi nhạy cảm.
+
+Deployment `https://platform-seven-navy-44.vercel.app/gioi-thieu` đã được kiểm tra trực tiếp. Nút “Hướng dẫn sử dụng” xuất hiện, mở được panel robot/lá, hiển thị nhãn Zero-Mem cục bộ, mô tả TTL/chặn dữ liệu nhạy cảm và nút xóa bộ nhớ.
+
+Đã nhập chuỗi OTP giả lập trên deployment. Giao diện từ chối lưu/xử lý nội dung nhạy cảm và hiển thị cảnh báo an toàn. Sau đó, nút xóa bộ nhớ trả thông báo “Đã xóa bộ nhớ Zero-Mem của phiên này trên thiết bị của bạn”, xác minh fallback UI và quyền xóa hoạt động trực tiếp.
+
+Kiểm thử TTL cục bộ được thực hiện với TTL rút ngắn tạm thời; trước khi ghi trace thử nghiệm, bộ nhớ phiên được xóa để loại bỏ trace cũ có thời hạn 30 phút từ phiên preview trước.
+
+Với trace mới “Tôi cần hỗ trợ tạo chiến dịch”, panel đã trả lời hướng dẫn phù hợp và lưu trace theo phiên. Sau khi TTL thử nghiệm hết hạn và tải lại trang, panel chỉ hiển thị lời chào mặc định “Chào bạn, tôi có thể hướng dẫn cách dùng nền tảng…”; không còn tin nhắn cũ hay lời chào tiếp tục ngữ cảnh. Kết quả xác nhận trace hết hạn bị loại khỏi `loadZeroMemTraces`, giao diện không tái sử dụng ngữ cảnh cũ, và bằng chứng UI được lưu tại `screenshots/localhost_2026-08-21_10-17-41_6099.webp` trong môi trường kiểm thử. TTL sản phẩm đã được hoàn nguyên về 30 phút sau khi kiểm thử.
+
+Hồi quy trên deployment ngày 21/08/2026 sau commit `0c8e40e` tiếp tục xác nhận hành vi này. Một trace `platform-help` đã hết hạn được seed vào `sessionStorage`; sau reload, khóa `tutefund-zero-mem-v1` trả về mảng rỗng và panel hiển thị lại lời chào mặc định. Control telemetry ẩn danh opt-in cũng xuất hiện với trạng thái mặc định chưa chọn, xác nhận deployment mới đã phục vụ đúng phiên bản phát hành.
+
+---
+
+---
+
+## Các Markdown đã được thay thế từ Git history
+
+> Các file dưới đây là bản nguyên văn từ `HEAD` trước khi bộ tài liệu được tinh gọn. Chúng được giữ riêng để bảo toàn cả phần có thể chưa được đưa vào tài liệu hiện hành.
+
+### Nguồn Git: `docs/README.md`
+
+# 📚 TỬ TẾ FUND - NỀN TẢNG CROWDFUNDING VIỆT NAM
+
+**TửTế Fund** là một nền tảng gọi vốn cộng đồng (crowdfunding) hiện đại, minh bạch và an toàn, được thiết kế dành riêng cho thị trường Việt Nam. Hệ thống cho phép các nhà sáng tạo (Creators) hiện thực hóa ý tưởng và những nhà tài trợ (Backers) ủng hộ các dự án ý nghĩa thông qua quy trình thanh toán trực tuyến tiện lợi.
+
+> **Tài liệu tra cứu hiện hành:** Hãy bắt đầu từ [bộ bản đồ hệ thống](./system-map/00-CHI-MUC-HE-THONG.md). File này giữ lại phần giới thiệu và lịch sử dự án; các số liệu version, số test, provider và mô hình dữ liệu bên dưới có thể thuộc mốc cũ và phải đối chiếu với mã nguồn hiện tại.
+
+---
+
+## 🚀 Trạng thái tài liệu
+
+Phần trạng thái dưới đây là **mô tả lịch sử** được giữ lại để truy nguyên, không phải chứng nhận runtime hiện tại. Trạng thái được đối chiếu mới nhất nằm ở [bộ bản đồ hệ thống](./system-map/00-CHI-MUC-HE-THONG.md) và source code.
+
+- **Phiên bản lịch sử:** 1.0.0 (Production Ready)
+- **Số test lịch sử:** 88 test cases (cần chạy lại để xác nhận)
+- **Triển khai:** Vercel (Next.js 15)
+
+---
+
+## 🏗️ Kiến trúc & Công nghệ
+
+### 💻 Stack công nghệ
+- **Frontend:** Next.js 15 (App Router), React 19, Tailwind CSS, Framer Motion, Lucide Icons.
+- **Backend:** Next.js API Routes, Server Actions.
+- **Xác thực:** NextAuth.js 5.0 (JWT & Session).
+- **Cơ sở dữ liệu:** 
+  - **PostgreSQL (Prisma ORM):** Lưu trữ dữ liệu quan hệ (Users, Campaigns, Pledges, Invoices).
+  - **MongoDB:** Lưu trữ dữ liệu phi cấu trúc và hiệu năng cao (Blog Content, Chat Messages, Audit Logs).
+- **Thanh toán:** Tích hợp **PayOS** (VietQR), hỗ trợ Webhook và xác minh chữ ký an toàn.
+- **Lưu trữ:** **Cloudinary** (Ảnh đại diện, Ảnh chiến dịch, Blog media).
+
+### 📐 Mô hình kiến trúc
+Hệ thống sử dụng kiến trúc **Hybrid Database** để tối ưu hóa giữa tính nhất quán (PostgreSQL) và tính linh hoạt/tốc độ (MongoDB).
+
+---
+
+## ✨ Các tính năng chính
+
+### 1. Quản lý Chiến dịch (Campaigns)
+- **Tạo & Quản lý:** Quy trình tạo chiến dịch chuyên nghiệp với trạng thái (Draft, Pending Review, Active, Success, Failed).
+- **Phần thưởng (Rewards):** Thiết lập nhiều mức ủng hộ với các phần thưởng tương ứng.
+- **Cập nhật:** Đăng tải tiến độ dự án dưới dạng blog/update để tương tác với Backers.
+
+### 2. Hệ thống Thanh toán & Ủng hộ
+- **Thanh toán QR:** Tích hợp PayOS cho phép thanh toán qua ngân hàng cực nhanh.
+- **Ủng hộ ẩn danh:** Lựa chọn ẩn danh tính khi quyên góp.
+- **Hóa đơn điện tử:** Tự động tạo và gửi hóa đơn (PDF) cho người ủng hộ qua email.
+- **Hoàn tiền:** Quy trình quản lý yêu cầu hoàn tiền minh bạch cho Admin.
+
+### 3. Blog System (Hybrid Storage)
+- **Soạn thảo Rich Text:** Tích hợp **Tiptap Editor** hỗ trợ định dạng văn bản chuyên nghiệp, chèn ảnh/video.
+- **Phân quyền đăng bài:**
+    - **Admin/Creator:** Đăng bài không giới hạn.
+    - **User/Backer:** Đăng bài dưới dạng chờ duyệt (Pending Review).
+- **Ảnh bìa:** Hỗ trợ tải ảnh trực tiếp từ máy tính lên Cloudinary.
+- **Visibility:** Cấu hình quyền xem (Public, Backers Only, Private).
+
+### 4. Hệ thống Huy hiệu (Badge System)
+- **Huy hiệu Thành tựu:** Tự động hoặc Admin cấp cho User dựa trên đóng góp.
+- **Phân loại:** Common, Rare, Epic, Legendary với màu sắc và icon tùy chỉnh.
+- **Hiển thị:** Huy hiệu xuất hiện trên Profile, Blog và Chat để khẳng định uy tín.
+
+### 5. Chat 1-1 (Real-time Experience)
+- **Kết nối trực tiếp:** Backer có thể nhắn tin hỏi đáp trực tiếp với chủ chiến dịch.
+- **Lưu trữ MongoDB:** Đảm bảo tốc độ load tin nhắn nhanh và không làm nặng database chính.
+- **Tính năng:** Thông báo tin nhắn chưa đọc, chặn/báo cáo người dùng vi phạm.
+
+### 6. Quản trị & Bảo mật (Admin Dashboard)
+- **Dashboard:** Thống kê doanh thu, tỷ lệ thành công và tăng trưởng người dùng.
+- **Kiểm duyệt:** Phê duyệt chiến dịch, xác minh danh tính (KYC) và xử lý báo cáo vi phạm.
+- **Audit Log:** Ghi lại mọi hành động nhạy cảm của Admin và người dùng để truy vết.
+- **An toàn:** Chống SQL Injection, XSS (DOMPurify), và Rate Limiting.
+
+---
+
+## 🗄️ Cấu trúc Database (Sơ lược)
+
+### PostgreSQL (Prisma)
+- `User`: Thông tin tài khoản, vai trò (ADMIN, CREATOR, BACKER).
+- `Campaign`: Thông tin dự án, mục tiêu, thời hạn.
+- `Pledge`: Bản ghi ủng hộ, mã giao dịch, trạng thái thanh toán.
+- `Reward`: Danh mục quà tặng theo mức ủng hộ.
+- `KYCInfo`: Dữ liệu xác minh danh tính người dùng.
+
+### MongoDB
+- `blog_contents`: Nội dung bài viết định dạng JSON (Tiptap).
+- `chat_messages`: Nội dung tin nhắn giữa các người dùng.
+- `audit_logs`: Lịch sử hệ thống chi tiết.
+
+---
+
+## 🛠️ Cài đặt & Phát triển
+
+### 1. Cài đặt môi trường
+```bash
+npm install
+```
+
+### 2. Cấu hình biến môi trường (.env)
+Tạo file `.env` dựa trên `.env.example` với các khóa sau:
+- `DATABASE_URL` (PostgreSQL)
+- `MONGODB_URI`
+- `NEXTAUTH_SECRET`
+- `PAYOS_CLIENT_ID`, `PAYOS_API_KEY`, `PAYOS_CHECKSUM_KEY`
+- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
+
+### 3. Khởi tạo Database
+
+Với môi trường phát triển mới, có thể dùng các script khởi tạo phù hợp. Với staging/production, ưu tiên migration đã review và `pnpm vercel-build`/`prisma migrate deploy`; không dùng `db push` để thay thế quy trình migration production.
+
+```bash
+pnpm prisma validate
+pnpm prisma generate
+pnpm prisma migrate deploy
+pnpm run blog:init
+pnpm run chat:init
+```
+
+### 4. Chạy dự án
+```bash
+npm run dev
+```
+
+---
+
+## 🧪 Kiểm thử (Testing)
+Hệ thống đi kèm bộ test toàn diện:
+```bash
+npm run test          # Chạy toàn bộ test suite
+npm run test:coverage # Xem tỷ lệ bao phủ code (>90%)
+```
+
+---
+
+## 📞 Liên hệ & Hỗ trợ
+- **Nhóm thực hiện:** Nhóm 5 - Lớp 23CT113 (Đại học Lạc Hồng).
+- **Thành viên:** Nguyễn Quách Phú Tài, Trần Xuân Ân, Bùi Đặng Quốc Khánh.
+- **Giảng viên hướng dẫn:** Lương Trường An.
+
+---
+
+**TửTế Fund - Lấy sự tử tế trồng tương lai.** 🚀
+
+---
+
+### Nguồn Git: `docs/system-map/00-CHI-MUC-HE-THONG.md`
+
+# Bộ tài liệu bản đồ hệ thống Tử Tế Fund
+
+**Ngày rà soát:** 22/08/2026  
+**Repository:** [`Escanor292/platform`](https://github.com/Escanor292/platform)  
+**Branch đối chiếu:** `origin/main`  
+**Commit hiện tại:** `9bf7ad1` — merge Pull Request #2  
+**Mục đích:** Tài liệu hóa hệ thống dựa trên mã nguồn hiện tại, đồng thời phân biệt rõ tài liệu chuẩn, tài liệu lịch sử và phần cần xác minh.
+
+> **Quy tắc đọc:** Khi tài liệu cũ khác với mã nguồn hiện tại, ưu tiên `prisma/schema.prisma`, source code trong `src/`, migration đang được quản lý và cấu hình build. Các báo cáo hoàn thành trong `.kiro/` hoặc `docs/` là bằng chứng lịch sử, không tự động phản ánh trạng thái hiện tại.
+
+## 1. Thành phần của bộ tài liệu
+
+| File | Nội dung | Dùng khi |
+|---|---|---|
+| [`01-KIEN-TRUC-HE-THONG.md`](./01-KIEN-TRUC-HE-THONG.md) | Kiến trúc chạy thật, thư mục, database và tích hợp ngoài | Cần hiểu toàn cảnh hệ thống |
+| [`02-MO-HINH-DU-LIEU.md`](./02-MO-HINH-DU-LIEU.md) | Entity, quan hệ PostgreSQL/Prisma và miền nghiệp vụ | Cần sửa schema, API hoặc migration |
+| [`03-API-AUTH-THANH-TOAN.md`](./03-API-AUTH-THANH-TOAN.md) | Nhóm API, xác thực, reset mật khẩu và payment flow | Cần tích hợp hoặc debug backend |
+| [`04-LUONG-NGUOI-DUNG.md`](./04-LUONG-NGUOI-DUNG.md) | Luồng campaign, project, reward/product, blog, chat và checkout | Cần phát triển UI/UX hoặc kiểm thử chức năng |
+| [`05-BAO-MAT-VAN-HANH.md`](./05-BAO-MAT-VAN-HANH.md) | Bảo mật, biến môi trường, build/deploy, test và rủi ro | Cần triển khai production hoặc audit |
+| [`06-KIEM-KE-TAI-LIEU-CAP-NHAT.md`](./06-KIEM-KE-TAI-LIEU-CAP-NHAT.md) | Đối chiếu 84 Markdown, nhóm trùng lặp và thay đổi mới trên GitHub | Cần biết tài liệu nào nên đọc hoặc đã lỗi thời |
+
+## 2. Bản đồ nhanh hệ thống
+
+Tử Tế Fund là ứng dụng Next.js 15 dùng App Router. React 19 và Tailwind CSS đảm nhiệm giao diện; các route trong `src/app/api` đảm nhiệm backend; Prisma kết nối PostgreSQL; MongoDB phục vụ các vùng dữ liệu chat và nội dung phụ trợ. Mã nguồn hiện có các miền campaign/project, reward/product, blog, chat, user/auth, KYC, dashboard, notification và payment.
+
+Theo snapshot hiện tại, repository có khoảng **102 API route handlers**, **52 page files**, **148 component files**, **58 thư viện nội bộ** và **27 file test**. Các con số này là số lượng file trên working tree tại thời điểm rà soát, không phải cam kết coverage hay số endpoint production đã được nghiệm thu.
+
+## 3. Trạng thái cập nhật mới nhất
+
+| Mốc | Nội dung | Trạng thái |
+|---|---|---|
+| `d003889` | Đồng bộ theme creator rewards | Đã có trên `main` |
+| `a32c5ed` | Checkout đa phương thức an toàn | Đã có trên `main` qua PR #2 |
+| `1e8a93d` | Quên mật khẩu và đặt lại mật khẩu | Đã có trên `main` qua PR #2 |
+| `9bf7ad1` | Merge PR #2 vào `main` | Commit hiện tại |
+
+Trong lần `git fetch origin main` ngày 22/08/2026, local đã đồng bộ với `origin/main` và không phát hiện commit mới hơn `9bf7ad1`.
+
+## 4. Phân loại độ tin cậy của tài liệu
+
+| Nhãn | Ý nghĩa |
+|---|---|
+| **Đã xác nhận trong code** | Có thể kiểm tra trực tiếp trong schema, route, component, package script hoặc migration hiện tại |
+| **Đã triển khai nhưng cần xác minh runtime** | Có code nhưng còn phụ thuộc database, secret, provider, webhook, seed hoặc môi trường production |
+| **Tài liệu lịch sử** | Mô tả một mốc phát triển trước đây; có thể chứa số liệu, đường dẫn hoặc trạng thái cũ |
+| **Kế hoạch/chưa cam kết** | Đề xuất, thiết kế hoặc danh sách việc; không được coi là tính năng đã có |
+
+## 5. Cách cập nhật về sau
+
+Mỗi thay đổi lớn nên cập nhật file chuyên đề tương ứng và bổ sung một dòng trong bảng trạng thái ở đây. Sau khi thay đổi schema, cần cập nhật `02-MO-HINH-DU-LIEU.md`; sau khi thêm route hoặc quyền truy cập, cập nhật `03-API-AUTH-THANH-TOAN.md`; sau khi thay đổi deployment hoặc secret, cập nhật `05-BAO-MAT-VAN-HANH.md`.
+
+**Tài liệu được tổng hợp bởi Manus AI từ mã nguồn và tài liệu trong repository.**
+
+---
+
+## 6. Thứ tự đọc khuyến nghị
+
+Người mới nên đọc file này, sau đó đọc kiến trúc, mô hình dữ liệu, API/auth/thanh toán và cuối cùng là bảo mật/vận hành. Khi điều tra một lỗi cụ thể, hãy bắt đầu từ route hoặc page bị lỗi rồi quay về tài liệu chuyên đề để kiểm tra quan hệ và giả định liên quan.
+
+> **Lưu ý:** Bộ tài liệu này là bản đồ kỹ thuật, không thay thế test, code review, migration review hoặc xác nhận hoạt động thật của các provider thanh toán.
+
+## 7. Nguyên tắc tránh trùng lặp
+
+Các báo cáo cũ vẫn được giữ nguyên để truy nguyên lịch sử. Không nên tiếp tục tạo thêm một báo cáo `FINAL_STATUS` hoặc `IMPLEMENTATION_SUMMARY` mới cho cùng một tính năng. Thay vào đó, cập nhật tài liệu chuyên đề và ghi thay đổi trong phần changelog của tài liệu này hoặc file trạng thái cập nhật.
+
+---
+
+**Kết luận:** Bộ tài liệu mới được chia theo mục đích sử dụng, không xóa tài liệu cũ và không coi những tài liệu có cùng chủ đề là nhiều phiên bản độc lập của sự thật hiện tại.
+
+## References
+
+[1]: ../../prisma/schema.prisma "Prisma schema hiện tại"
+[2]: ../../package.json "Scripts và dependencies hiện tại"
+[3]: ../README.md "Chỉ mục tài liệu nền của repository"
+[4]: ../MARKDOWN_AUDIT_NOTES.md "Ghi chú kiểm kê Markdown ngày 22/08/2026"
+[5]: https://github.com/Escanor292/platform "Repository GitHub Tử Tế Fund"
+[6]: ../FINAL_STATUS_REPORT.md "Báo cáo trạng thái lịch sử"
+[7]: ../API_AUDIT_REPORT.md "Báo cáo audit API lịch sử"
+[8]: ../PROJECT_VS_CAMPAIGN_ANALYSIS.md "Phân tích project/campaign lịch sử"
+[9]: ../../src/app "Mã nguồn App Router và API"
+[10]: ../../src "Mã nguồn ứng dụng"
+
+---
+
+### Nguồn Git: `docs/system-map/01-KIEN-TRUC-HE-THONG.md`
+
+# Kiến trúc hệ thống hiện hành
+
+Tài liệu này mô tả kiến trúc đang có trong repository tại commit `9bf7ad1`. Nó được chuẩn hóa từ tài liệu kiến trúc cũ và đối chiếu với cấu trúc `src/`, `prisma/` và `package.json` hiện tại [1] [2].
+
+## 1. Tổng quan runtime
+
+```text
+Trình duyệt
+   │ HTTPS / fetch
+   ▼
+Next.js 15 App Router
+   ├── Server Components và Client Components
+   ├── Route handlers: src/app/api/**/route.ts
+   ├── Middleware và NextAuth
+   ├── Prisma Client ───── PostgreSQL
+   ├── MongoDB native driver ───── chat, realtime/supporting content
+   ├── Cloudinary ───── media upload nếu được cấu hình
+   └── Payment providers ───── PayOS/SePay hiện hữu; adapter mở rộng cho hosted checkout
+```
+
+Mọi request đi qua giao diện hoặc route handler. Route handler cần xác thực input, kiểm tra session/quyền sở hữu, thực hiện nghiệp vụ và trả JSON hoặc redirect. PostgreSQL là nguồn dữ liệu quan hệ chính. MongoDB được dùng cho một số vùng dữ liệu phụ trợ, đặc biệt là chat và nội dung liên quan; không nên suy ra rằng mọi dữ liệu trong tài liệu cũ còn nằm ở MongoDB nếu source hiện tại không gọi nó.
+
+## 2. Cấu trúc source
+
+| Vùng | Vai trò hiện tại |
+|---|---|
+| `src/app/` | Page, layout và App Router route handler |
+| `src/app/api/` | Backend HTTP API; hiện snapshot có 102 `route.ts` |
+| `src/components/` | Component giao diện dùng lại; hiện snapshot có 148 file TypeScript/TSX |
+| `src/contexts/` | Trạng thái UI chia sẻ, nổi bật là `CampaignContext` |
+| `src/hooks/` | Hook cho auth, campaign, pledge và UI |
+| `src/lib/` | Prisma, auth, payment, project service, validation và utility |
+| `src/types/` | Kiểu dữ liệu frontend/backend dùng chung |
+| `prisma/` | Schema, generated client và migration PostgreSQL |
+| `scripts/` | Seed, khởi tạo MongoDB/chat/blog, test và công cụ audit |
+| `public/` | Tài nguyên tĩnh |
+| `docs/` | Tài liệu kỹ thuật, báo cáo lịch sử và bộ bản đồ hệ thống này |
+
+## 3. Các miền chức năng
+
+### 3.1. Identity và authentication
+
+NextAuth v5 beta được dùng cho session và credential/Google login. User có email duy nhất, password có thể null cho tài khoản OAuth, role `BACKER`, `CREATOR_PENDING`, `CREATOR` hoặc `ADMIN`, cùng trạng thái tài khoản. Luồng reset mật khẩu sử dụng bảng `password_reset_tokens`, hash token và thời hạn 30 phút; chi tiết nằm trong tài liệu API/auth.
+
+### 3.2. Campaign và project
+
+`projects` là entity độc lập trong schema hiện tại, không còn chỉ là alias của campaign như một số tài liệu cũ mô tả. Campaign có `projectId` nullable, vì vậy campaign độc lập vẫn được hỗ trợ. Project có thể liên kết campaign, blog, reward trực tiếp và qua bảng junction. Quan hệ chi tiết được mô tả ở `02-MO-HINH-DU-LIEU.md`.
+
+### 3.3. Reward/product
+
+`rewards` là entity dùng cho quà tặng hoặc sản phẩm. Reward có thể thuộc campaign, project hoặc không thuộc project/campaign tùy nghiệp vụ hiện hành; có media, giá tối thiểu, tồn kho, trạng thái hoạt động, loại `AVAILABLE` hoặc `DEVELOPMENT`. Product detail, creator management và pledge/checkout dùng chung entity này.
+
+### 3.4. Blog/content
+
+Blog post có author, có thể gắn campaign hoặc project, có trạng thái draft/review/published/archived/rejected, visibility và các bảng liên kết category, tag, comment, like, bookmark. Nội dung rich text có thể lưu trong PostgreSQL hoặc tham chiếu content phụ trợ tùy route/component.
+
+### 3.5. Chat
+
+Chat có conversation, messages, reactions, reveal nội dung nhạy cảm, read state, typing, search, block/report/delete và unread count. Một số chi tiết realtime/WebRTC nằm ở component và service; MongoDB được bật qua các feature flag tương ứng. Khi user bị xóa, UI phải dùng nhãn trung lập “Người dùng đã xóa” thay vì truy cập tên/avatar không còn tồn tại.
+
+### 3.6. Payment và checkout
+
+Checkout mới gom lựa chọn thành một tuyến `ONLINE` hoặc `COD`. Hosted checkout chịu trách nhiệm thu thập thông tin ví/ngân hàng/thẻ bên provider. Platform chỉ lưu payment method metadata và provider-issued reference/token nếu provider cho phép. COD chỉ dành cho reward `AVAILABLE`, yêu cầu thông tin giao hàng và tạo pledge chờ xử lý; không được coi là giao dịch online đã thanh toán.
+
+## 4. Build và triển khai
+
+`package.json` định nghĩa `vercel-build` là `prisma generate && prisma migrate deploy && next build`. Vì vậy deployment production phụ thuộc vào biến `DATABASE_URL`, migration hợp lệ và Prisma client tương thích. Không dùng `prisma db push` như quy trình production mặc định; migration phải được review trước khi deploy [2].
+
+## 5. Sơ đồ thư mục tra cứu nhanh
+
+```text
+src/app/
+├── api/                    # HTTP API
+├── auth/                   # login, register, forgot/reset password
+├── campaigns/              # discovery, detail, create, pledge
+├── projects/               # project discovery/detail
+├── products/               # product/reward detail
+├── blog/                   # blog pages
+├── chat/                   # conversation UI
+└── dashboard/              # admin, creator, backer
+
+src/components/
+├── campaign/               # pledge, campaign cards/detail
+├── products/               # product card/detail/checkout trigger
+├── chat/                   # chat shell, message, call/reaction UI
+├── blog/                   # editor, cards, content blocks
+├── project/                # project management/detail
+└── ui/                     # primitives and shared design components
+```
+
+## 6. Nguyên tắc kiến trúc
+
+Mã nguồn nên giữ ranh giới giữa route handler và component, không để client tự quyết định ownership, payment status, stock hoặc quyền creator. Dữ liệu nhạy cảm chỉ đi qua provider-hosted UI hoặc callback đã xác thực. Thay đổi schema phải đi cùng migration; thay đổi API cần cập nhật caller, type và tài liệu chuyên đề.
+
+## References
+
+[1]: ../../prisma/schema.prisma "Schema Prisma hiện tại"
+[2]: ../../package.json "Cấu hình scripts và dependencies"
+[3]: ../3.1_KIEN_TRUC_HE_THONG.md "Tài liệu kiến trúc lịch sử"
+[4]: ../../src/app "App Router và route handlers"
+[5]: ../../src/components "Component giao diện"
+
+---
+
+### Nguồn Git: `docs/system-map/02-MO-HINH-DU-LIEU.md`
+
+# Mô hình dữ liệu hiện tại
+
+Tài liệu này là bản tóm tắt theo `prisma/schema.prisma` hiện tại. Đây là nguồn tham chiếu nghiệp vụ cho các entity PostgreSQL; tên bảng thực tế có thể dùng snake_case qua `@@map` [1].
+
+## 1. Nhóm tài khoản và quyền
+
+| Entity | Vai trò |
+|---|---|
+| `users` | Tài khoản, email, password hash tùy loại đăng nhập, role, status, profile và quan hệ nội dung |
+| `accounts` | Liên kết OAuth/NextAuth adapter |
+| `sessions` | Session database nếu adapter sử dụng |
+| `verification_tokens` | Token xác minh của NextAuth |
+| `password_reset_tokens` | Token reset lưu hash, expiry và usedAt; không lưu token nguyên bản |
+| `payment_methods` | Metadata an toàn và provider reference/token của phương thức đã liên kết |
+| `user_badges`, `badges` | Huy hiệu và quan hệ user-badge |
+| `kyc_submissions` | Trạng thái và dữ liệu KYC theo quy trình hiện tại |
+
+Tài khoản OAuth có thể không có password. Chức năng reset chỉ phù hợp với tài khoản credential có email; API vẫn nên trả phản hồi chung để không tiết lộ tài khoản tồn tại.
+
+## 2. Project, campaign và nội dung
+
+```text
+users ──< projects ──< campaigns
+  │          │             │
+  │          ├──< project_blogs >── blog_posts
+  │          └──< project_rewards >─ rewards
+  │                                │
+  └────────────── owns/creates ─────┘
+```
+
+| Entity | Quan hệ và ý nghĩa |
+|---|---|
+| `projects` | Dự án do creator quản lý; có thể chứa campaigns, blog và rewards theo quan hệ trực tiếp/junction |
+| `campaigns` | Chiến dịch gây quỹ; `projectId` có thể nullable để giữ hỗ trợ campaign độc lập trong code hiện tại |
+| `blog_posts` | Bài viết của user; có thể độc lập hoặc liên kết project/campaign |
+| `rewards` | Quà tặng/sản phẩm; có campaign/project tùy trường và bảng liên kết hiện hành |
+| Bảng junction project-content | Bảo đảm một project có thể hiển thị campaign, blog và reward liên quan mà không sao chép entity |
+
+Một số tài liệu cũ mô tả mọi campaign bắt buộc thuộc project. Khi code/schema hiện tại cho phép `projectId` nullable, tài liệu mới phải ghi rõ đó là khả năng đang tồn tại, không tự suy ra yêu cầu UI mới.
+
+## 3. Reward/product và tồn kho
+
+`rewards` dùng cho cả quà tặng của campaign và sản phẩm hiển thị theo kiểu thương mại điện tử. Các trường quan trọng gồm tên, mô tả, giá, media, stock, active/status, campaign/project association và `availability`.
+
+| Availability | Nghiệp vụ |
+|---|---|
+| `AVAILABLE` | Hàng có sẵn; có thể mua như product và có thể dùng COD nếu API cho phép |
+| `DEVELOPMENT` | Hàng đang phát triển; dùng pledge/support flow và có thể hiển thị ngày giao dự kiến |
+
+Sản phẩm `AVAILABLE` không yêu cầu nhập ngày giao dự kiến trong form creator. Cả hàng có sẵn và hàng đang phát triển vẫn cần địa chỉ nếu là hàng vật lý; đây là quy tắc UI/API hiện hành cần được giữ nhất quán.
+
+## 4. Pledge và payment
+
+`pledges` là bản ghi đóng góp/đơn liên quan tới campaign hoặc reward. Schema hiện tại có `quantity` và `isCashOnDelivery`; trạng thái payment và provider được dùng để phân biệt pending, paid, failed hoặc COD chờ xử lý theo route.
+
+`payment_methods` chỉ nên lưu `provider`, `methodType`, `providerMethodRef`, label, brand, last4, status, timestamps và user relation. Không lưu PAN, CVV, OTP, password ngân hàng/ví hoặc số dư.
+
+`checkout_sessions` là payload tạm thời để giữ lựa chọn trước khi khách guest đăng nhập/đăng ký. Session có owner nullable trước claim, expiry, status và payload JSON. Payload có thể gồm campaign/reward, amount, tip, quantity, COD, shipping, anonymous và payment method id; không được chứa dữ liệu thẻ thô.
+
+## 5. Trạng thái và ràng buộc cần bảo vệ
+
+| Ràng buộc | Nơi phải kiểm tra |
+|---|---|
+| Reward thuộc campaign được chọn | API checkout/payment |
+| Campaign đang hoạt động/cho phép nhận | API checkout/payment |
+| Quantity dương và stock đủ | API payment, transaction nếu reserve/decrement |
+| COD chỉ cho `AVAILABLE` | API payment và UI |
+| Payment method thuộc user hiện tại và còn `ACTIVE` | API payment-methods/payment |
+| Token reset chưa dùng và chưa hết hạn | API reset password |
+| User chỉ sửa/xóa nội dung của mình hoặc admin | Route handlers/service layer |
+| Project association hợp lệ | Project/campaign/blog/reward API |
+
+## 6. Quan hệ dữ liệu phụ trợ
+
+Schema còn có các nhóm reviews, comments, likes, bookmarks, follows, reports, notifications, campaign updates, transactions, uploads và taxonomy. Các nhóm này phục vụ tương tác và quản trị; khi sửa entity chính cần kiểm tra foreign key, cascade/set-null và quyền truy cập tương ứng thay vì chỉ đổi UI.
+
+## 7. Migration hiện hành cần chú ý
+
+Các migration checkout và reset password đã được tạo trong repository, nhưng migration production chỉ nên chạy qua `prisma migrate deploy` trong build sau khi kiểm tra `DATABASE_URL` đúng môi trường. Không chạy migration hoặc seed phá dữ liệu production chỉ để kiểm tra giao diện.
+
+## References
+
+[1]: ../../prisma/schema.prisma "Schema Prisma hiện tại"
+[2]: ../../prisma/migrations "Các migration PostgreSQL"
+[3]: ../FULL_DATABASE_SCHEMA.md "Mô tả schema lịch sử"
+[4]: ../PROJECT_VS_CAMPAIGN_ANALYSIS.md "Phân tích project/campaign lịch sử"
+[5]: ../../src/app/api "API thao tác dữ liệu"
+
+---
+
+### Nguồn Git: `docs/system-map/03-API-AUTH-THANH-TOAN.md`
+
+# API, authentication và thanh toán
+
+Tài liệu này mô tả các nhóm route hiện có trong `src/app/api`. Danh sách dưới đây là bản đồ chức năng, không thay thế contract chi tiết trong từng route. Mọi input vẫn phải được đọc và validate từ code hiện tại trước khi tích hợp [1].
+
+## 1. Quy ước chung
+
+Route handler nằm ở `src/app/api/**/route.ts` và dùng các method HTTP chuẩn. Route public cần kiểm tra input và tránh lộ dữ liệu riêng tư; route protected phải đọc session server-side và kiểm tra ownership/role. Không tin các trường `userId`, `role`, `status`, `paymentStatus` hoặc giá từ client nếu server có thể tự suy ra.
+
+## 2. Nhóm API chính
+
+| Nhóm | Route tiêu biểu | Mục đích |
+|---|---|---|
+| Auth | `/api/auth/[...nextauth]`, `/api/auth/register`, `/api/auth/forgot-password`, `/api/auth/reset-password` | OAuth/credentials, đăng ký và reset password |
+| Users/profile | `/api/users`, `/api/users/:id`, `/api/user/profile`, `/api/profile/settings`, `/api/profile/update` | Hồ sơ, tìm user và cài đặt |
+| Projects | `/api/projects`, `/api/projects/:id`, `/api/projects/public/:id` | CRUD project và public detail |
+| Campaigns | `/api/campaigns`, `/api/campaigns/:slug`, `/api/campaigns/:slug/updates`, `/follow`, `/reviews`, `/reports` | Campaign, update, follow, review và report |
+| Rewards/products | `/api/rewards`, `/api/rewards/:id`, `/api/rewards/my`, `/api/rewards/:id/toggle` | Quản lý reward/product, trạng thái và ownership |
+| Blog | `/api/blog/posts`, `/my-posts`, `/:slug`, `/:slug/publish`, `/:slug/comments`, `like`, `bookmark`, `archive` | Soạn, xuất bản và tương tác bài viết |
+| Chat | `/api/chat/conversations`, `messages`, `read`, `reaction`, `reveal`, `typing`, `search`, `block`, `report` | Hội thoại, tin nhắn, reaction, đã xem và bảo vệ người dùng |
+| Checkout/payment | `/api/checkout-sessions`, `/api/payment-methods`, `/api/payments`, provider routes và `/api/lookup` | Giữ phiên checkout, phương thức đã liên kết, tạo pledge/đơn và webhook |
+| Admin/KYC | `/api/admin/**`, `/api/kyc/status`, `/api/kyc/submit` | Moderation, badge, user status và KYC |
+| Notifications/telemetry | `/api/notifications`, `/api/internal/assistant-telemetry`, `/api/public/assistant-telemetry` | Thông báo và telemetry theo quyền riêng |
+| Jobs/uploads | `/api/cron/**`, `/api/upload` | Tác vụ định kỳ và media upload |
+
+## 3. Authentication và callback
+
+Trang login/register nhận `callbackUrl` nội bộ để người dùng quay lại đúng checkout sau khi xác thực. Callback hợp lệ phải là đường dẫn nội bộ bắt đầu bằng một dấu `/`, không được là `//` hoặc URL ngoài domain. Credential success, Google callback và fallback register đều phải bảo toàn callback này.
+
+Luồng credential tổng quát là: người dùng gửi email/password, server hash/compare bằng bcrypt, NextAuth tạo session và client điều hướng đến callback hợp lệ. Password reset không dùng session cũ để cấp quyền; quyền được cấp tạm thời bằng token ngẫu nhiên trên URL, token được hash trong database, kiểm tra expiry/usedAt và bị vô hiệu hóa sau khi đổi password.
+
+## 4. API quên mật khẩu
+
+### `POST /api/auth/forgot-password`
+
+API nhận email đã chuẩn hóa. Nếu email tồn tại và phù hợp reset, server tạo token ngẫu nhiên, lưu hash trong `password_reset_tokens`, xóa hoặc vô hiệu hóa token cũ và gửi link qua Resend khi môi trường đã cấu hình. Response phải giống nhau cho email tồn tại và không tồn tại để chống email enumeration.
+
+### `POST /api/auth/reset-password`
+
+API nhận token và password mới. Server hash token để tìm bản ghi chưa dùng, kiểm tra thời hạn 30 phút, yêu cầu mật khẩu tối thiểu 8 ký tự, hash bằng bcrypt, cập nhật user và đánh dấu token đã dùng. Không log token, password hoặc link reset ở production.
+
+## 5. Checkout mới
+
+UI chỉ trình bày hai lựa chọn:
+
+| Method | Điều kiện | Kết quả |
+|---|---|---|
+| `ONLINE` | Có thể dùng guest; nếu liên kết/sử dụng payment method đã lưu thì cần đăng nhập | Tạo pledge pending và chuyển sang hosted checkout/provider flow |
+| `COD` | Reward phải `AVAILABLE`, có stock, thông tin giao hàng và định danh cần thiết | Tạo đơn/pledge chờ giao, không redirect sang cổng thanh toán |
+
+`paymentMethodId` phải được kiểm tra thuộc user hiện tại và ở trạng thái `ACTIVE`. Client không được gửi raw card number, CVV, OTP, mật khẩu ngân hàng hoặc token tự phát. `payment_methods` chỉ nhận provider-issued reference và metadata masked sau callback/provider verification.
+
+Tồn kho, quan hệ campaign/reward, campaign active, quantity và điều kiện COD phải được kiểm tra server-side. Phần client chỉ hỗ trợ trải nghiệm và không phải nguồn sự thật về giá, stock hay payment status.
+
+## 6. Provider legacy và trạng thái thật
+
+Repository vẫn có route PayOS, SePay, VNPay và MoMo riêng cùng webhook tương ứng. Đây là các tích hợp tồn tại từ các giai đoạn trước và không nên tiếp tục hiển thị như bốn lựa chọn QR trong checkout mới. Checkout mới gom thành một hosted route; provider cụ thể phải được cấu hình bằng merchant credentials, callback/IPN ký xác thực và quyền tokenization phù hợp.
+
+Hiện kiến trúc token-provider là lớp sẵn sàng, không được tuyên bố là đã liên kết một chạm MoMo/ZaloPay/ngân hàng/thẻ production. Platform không truy cập số dư và không lưu credential tài chính. PayOS helper hiện có cũng cần được xác minh credential/runtime trước khi coi là production-ready.
+
+## 7. Webhook và xác nhận trạng thái
+
+Webhook phải xác minh chữ ký, tìm pledge bằng mã tham chiếu an toàn, kiểm tra idempotency và chỉ cập nhật trạng thái hợp lệ. Không tin request từ browser để đánh dấu paid. `payment-success` cần phân biệt online paid/pending với COD pending delivery; `lookup` chỉ tra cứu trạng thái, không tự xác nhận thanh toán.
+
+## 8. Checklist khi thêm API
+
+| Kiểm tra | Câu hỏi |
+|---|---|
+| Authentication | Route có cần session hay public? |
+| Authorization | User có sở hữu entity hoặc có role phù hợp không? |
+| Validation | Input có schema/Zod và giới hạn kích thước không? |
+| Data integrity | Có transaction/unique/index/foreign key cần dùng không? |
+| Privacy | Response có lộ email, token, credential hoặc dữ liệu người khác không? |
+| Payments | Có chống client tự sửa amount/status/provider không? |
+| Observability | Log có tránh body nhạy cảm và có request correlation cần thiết không? |
+
+## References
+
+[1]: ../../src/app/api "Các route handler hiện tại"
+[2]: ../../src/lib/auth.ts "Logic credential/auth"
+[3]: ../../src/lib/password-reset.ts "Helper password reset và email"
+[4]: ../../src/app/api/payments/route.ts "API checkout/payment mới"
+[5]: ../../src/app/api/checkout-sessions/route.ts "API checkout session"
+[6]: ../../src/app/api/payment-methods/route.ts "API payment method metadata"
+[7]: ../../src/app/api/auth/forgot-password/route.ts "API yêu cầu reset"
+[8]: ../../src/app/api/auth/reset-password/route.ts "API thực hiện reset"
+
+---
+
+### Nguồn Git: `docs/system-map/04-LUONG-NGUOI-DUNG.md`
+
+# Luồng người dùng và chức năng
+
+Tài liệu này mô tả hành vi end-to-end đã thấy trong source hiện tại. Các phần phụ thuộc secret, provider hoặc dữ liệu seed được ghi rõ là cần xác minh runtime.
+
+## 1. Người xem và người ủng hộ
+
+Người dùng có thể duyệt campaign, project, reward/product và blog công khai. Campaign có thể hiển thị project liên quan, reward và blog; project có thể tổng hợp campaign, blog và sản phẩm. Product detail có thể mở checkout hoặc mở chat với creator tùy stock và trạng thái sản phẩm.
+
+Khi chọn reward, modal pledge/checkout hiển thị thông tin reward, số lượng, địa chỉ giao hàng nếu là hàng vật lý, anonymous, tip theo flow phù hợp và phương thức `ONLINE`/`COD`. Reward `AVAILABLE` có cách diễn đạt mua/đặt hàng; `DEVELOPMENT` hoặc đóng góp chung dùng cách diễn đạt ủng hộ.
+
+## 2. Guest checkout và đăng nhập giữa chừng
+
+```text
+Chọn reward
+   │
+   ├── Thanh toán ONLINE không lưu method → tiếp tục checkout guest nếu được phép
+   ├── Chọn liên kết/lưu method → tạo checkout session → chuyển login/register
+   └── Chọn COD → kiểm tra AVAILABLE + shipping + stock
+
+Login/register thành công
+   │
+   ▼
+callbackUrl nội bộ chứa checkoutSessionId
+   │
+   ▼
+claim session → khôi phục reward, amount, quantity, tip, shipping, anonymous, method
+```
+
+Checkout session chỉ tồn tại tạm thời. Client không được coi session payload là bằng chứng đã thanh toán; API payment phải tính và kiểm tra lại dữ liệu quan trọng.
+
+## 3. Creator tạo và quản lý project
+
+Creator mở dashboard, tạo project, thêm hình ảnh/mô tả và liên kết campaign/blog/reward theo UI hiện hành. API phải kiểm tra creator role, ownership và relation hợp lệ. Khi chỉnh sửa nhanh một entity, UI nên mở form/editor tại chỗ thay vì đẩy người dùng sang một trang quản lý không liên quan.
+
+## 4. Creator tạo campaign
+
+Campaign có thông tin mục tiêu, nội dung, thời gian, media, trạng thái và association project nếu được chọn. Reward có thể được tạo trong campaign và xuất hiện ở campaign/project theo relation. Campaign create/update phải kiểm tra project thuộc creator hoặc relation hợp lệ; tài liệu cũ có thể mô tả các bước chưa còn đúng, nên đối chiếu API trước khi dùng.
+
+## 5. Creator tạo sản phẩm/reward
+
+Creator nhập tên, mô tả, giá, stock, hình ảnh/video, liên kết project/campaign nếu có và lựa chọn availability:
+
+| Trường hợp | UI/UX |
+|---|---|
+| `AVAILABLE` | Không bắt nhập ngày giao dự kiến; stock dương cho phép mua/ủng hộ ngay, stock 0 có thể chuyển sang liên hệ creator |
+| `DEVELOPMENT` | Có thể nhập ngày giao dự kiến; dùng ngôn ngữ hỗ trợ/pledge và không cho COD |
+
+Reward management phải giữ availability khi serialize từ server sang edit form. Product card/detail cần dùng chung màu sắc và semantic label của hệ thống Tử Tế, không hiển thị các nhánh màu cổng thanh toán cũ.
+
+## 6. Blog
+
+Người viết có thể tạo draft, sửa, preview, publish, archive và tương tác bài viết. Blog có thể độc lập hoặc liên kết project/campaign, có thể chèn product card, inline link, comparison table hoặc banner tùy editor/component đã triển khai. Khi hiển thị liên kết, cần giữ link tới entity hợp lệ và không tạo nested interactive elements gây lỗi HTML/accessibility.
+
+## 7. Chat
+
+Người dùng có thể tìm user, mở hoặc tạo conversation, gửi message, dùng emoji, reaction, gọi voice/video WebRTC, đánh dấu nội dung nhạy cảm, reveal, search, read state, typing, block, report và delete. Conversation cần cuộn đúng container, giữ header ổn định và khi mở nội dung nhạy cảm không tự kéo trang xuống footer.
+
+Unread notification cần được xóa hoặc đánh dấu read khi người dùng thực sự mở conversation/đọc message. Tin nhắn của user đã xóa phải hiển thị nhất quán “Người dùng đã xóa” với giao diện trung tính, không truy cập dữ liệu profile đã mất.
+
+## 8. Đăng ký và quên mật khẩu
+
+Trang login có liên kết forgot password. Người dùng gửi email ở `/auth/forgot-password`, nhận link có token hết hạn và đặt password mới ở `/auth/reset-password`. Luồng này không hiển thị việc email có tồn tại hay không. Sau khi reset, user quay lại login; callback checkout chỉ được giữ nếu là path nội bộ hợp lệ.
+
+## 9. Dashboard và admin
+
+Backer dashboard theo dõi pledge/transaction, profile, notifications và hoạt động. Creator dashboard quản lý project, campaign, reward, blog, KYC và profile. Admin quản lý user status, badges, reports, campaign/blog review và các nghiệp vụ moderation. Mọi quyền admin/creator phải được kiểm tra server-side; việc ẩn nút ở frontend chỉ là tiện ích UX.
+
+## 10. Tình huống cần test thủ công
+
+| Kịch bản | Kết quả mong đợi |
+|---|---|
+| Guest mở checkout rồi login | Quay lại đúng campaign/product và giữ dữ liệu session |
+| Guest chọn lưu/link payment method | Bị yêu cầu đăng nhập; không xuất hiện form nhập PAN/CVV/OTP |
+| Chọn COD với reward development | API từ chối dù client cố gửi request thủ công |
+| Quantity lớn hơn stock | API từ chối và không tạo pledge vượt tồn |
+| Token reset hết hạn/đã dùng | Không đổi password, token không được reuse |
+| Email không tồn tại ở forgot password | Response giống email tồn tại |
+| User đã xóa trong chat | Hiển thị placeholder ổn định, không lỗi server/client |
+| Mở tin nhắn nhạy cảm | Modal/reveal giữ vị trí scroll hiện tại |
+| Product stock bằng 0 | Không hiển thị CTA mua như hàng còn sẵn nếu business rule không cho phép |
+
+## References
+
+[1]: ../../src/app "Page và route hiện tại"
+[2]: ../../src/components/campaign/PledgeFormContent.tsx "Form checkout chính"
+[3]: ../../src/components/products/CampaignRewardDonationButton.tsx "CTA checkout product"
+[4]: ../../src/contexts/CampaignContext.tsx "Trạng thái modal campaign"
+[5]: ../../src/app/auth/forgot-password/page.tsx "Trang yêu cầu reset"
+[6]: ../../src/app/auth/reset-password/page.tsx "Trang đặt password mới"
+[7]: ../CHAT_SYSTEM.md "Tài liệu chat lịch sử"
+[8]: ../FEATURE_BLOG_LINKS_SUMMARY.md "Tài liệu blog/product lịch sử"
+
+---
+
+### Nguồn Git: `docs/system-map/05-BAO-MAT-VAN-HANH.md`
+
+# Bảo mật và vận hành
+
+Tài liệu này tập trung vào những điểm có thể gây mất dữ liệu, lộ credential hoặc deployment lỗi. Các secret chỉ được tham chiếu theo tên; tuyệt đối không ghi giá trị vào Markdown, commit hoặc log.
+
+## 1. Secrets và dịch vụ ngoài
+
+| Biến/nhóm | Công dụng | Nguyên tắc |
+|---|---|---|
+| `DATABASE_URL` | PostgreSQL/Prisma | Chỉ server/build; kiểm tra đúng môi trường trước migrate |
+| `NEXTAUTH_URL`, secret auth | Session và callback | Không đưa vào client bundle |
+| `GOOGLE_CLIENT_ID/SECRET` | Google OAuth | Giữ secret phía server |
+| `RESEND_API_KEY`, `RESEND_FROM_EMAIL`/`EMAIL_FROM` | Gửi reset password | Cấu hình domain gửi hợp lệ trong production |
+| `MONGODB_URI`, `MONGODB_DB_NAME` | Chat/dữ liệu phụ trợ | Không log connection string |
+| `CLOUDINARY_*` | Upload media | Không expose API secret |
+| `PAYOS_*`, `SEPAY_*`, `MOMO_*`, `VNPAY_*` | Provider payment legacy/hosted | Chỉ server; cần merchant approval và webhook verification |
+| `REDIS_URL` | Rate limiting/cache nếu module sử dụng | Không giả định đã active nếu source không gọi |
+| `ASSISTANT_TELEMETRY_READ_KEY` | Telemetry read-only | Không đưa vào `NEXT_PUBLIC_*` |
+
+Nguồn tên biến thực tế cần đối chiếu `.env.example`, code và Vercel project settings. Không commit `.env` hoặc giá trị secret.
+
+## 2. Password reset
+
+Token reset được tạo ngẫu nhiên, lưu hash và có expiry 30 phút. Response forgot password không phân biệt email tồn tại. API reset yêu cầu password mới tối thiểu 8 ký tự, hash bằng bcrypt, đánh dấu token đã dùng và vô hiệu hóa token khác. Production phải cấu hình Resend; cơ chế debug link chỉ phù hợp development và không được lộ token production.
+
+Cần bổ sung rate limiting thực tế ở edge/Redis/provider email trước khi public production nếu chưa có ở route hiện hành. Việc giới hạn tại memory process đơn lẻ không đủ tin cậy trong serverless.
+
+## 3. Payment safety
+
+Platform chỉ lưu provider reference/token được provider cấp và metadata hiển thị an toàn như brand, last4, label và loại method. Platform không được lưu số thẻ đầy đủ, CVV, OTP, password ngân hàng/ví hoặc số dư. Raw payment collection phải nằm trong hosted checkout của provider.
+
+API payment phải tính lại amount, kiểm tra campaign/reward, stock, availability, quantity, shipping và ownership. Webhook phải kiểm tra chữ ký, idempotency và trạng thái hợp lệ; browser không được tự đánh dấu pledge là paid. COD phải được hiển thị là chờ giao/đang xử lý, không phải thanh toán online thành công.
+
+MoMo, ZaloPay, bank account và card tokenization production cần merchant credentials, callback/IPN và quyền tokenization được provider phê duyệt. Code scaffolding không đồng nghĩa với việc tài khoản người dùng đã được liên kết thật.
+
+## 4. Database và migration
+
+`package.json` dùng `prisma migrate deploy` trong `vercel-build`. Quy trình an toàn là sửa `schema.prisma`, tạo migration, đọc SQL, chạy `prisma validate`/`generate`, kiểm tra môi trường và chỉ sau đó deploy. Không áp migration production bằng `db push` hoặc seed phá dữ liệu.
+
+Các migration gần đây liên quan checkout và password reset phải được kiểm tra theo database thực tế. Nếu database production chưa có bảng/enum mới, deployment có thể build thành công nhưng runtime API sẽ lỗi cho tới khi migration chạy thành công.
+
+## 5. Kiểm thử và quality gate
+
+Các script chính:
+
+| Lệnh | Mục đích |
+|---|---|
+| `pnpm lint` | ESLint toàn dự án |
+| `npx tsc --noEmit` | TypeScript check |
+| `pnpm prisma validate` | Kiểm tra schema |
+| `pnpm prisma generate` | Sinh Prisma client |
+| `pnpm build` | Build Next production |
+| `pnpm test` | Jest |
+| `pnpm test:db` | Test database |
+| `pnpm test:e2e` | Playwright |
+| `pnpm test:all` | Jest và database tests |
+| `pnpm vercel-build` | Generate, migrate deploy và build |
+
+Build xanh không chứng minh provider payment, email delivery, webhook hoặc database production đã hoạt động. Những phần đó cần smoke test có credential test/sandbox phù hợp.
+
+## 6. Deployment và Git
+
+Branch `main` được bảo vệ và thay đổi phải đi qua Pull Request. Trước khi commit/push, fetch và rebase với `origin/main`, chạy `git diff --check`, dùng đúng identity GitHub `NQP Tai / nguyenquachphutai@gmail.com`, rồi kiểm tra deployment Vercel. Preview deployment là branch/PR; Production deployment phải xuất phát từ `main` sau merge.
+
+## 7. Rủi ro còn cần theo dõi
+
+| Rủi ro | Mức độ | Cách xử lý |
+|---|---|---|
+| Provider tokenization chưa được merchant approval | Cao | Không tuyên bố one-tap thật; hoàn thiện adapter sau khi có credential và docs |
+| Legacy provider routes tồn tại song song | Trung bình | Giữ tương thích webhook nhưng không đưa thành lựa chọn UI chính |
+| Migration chưa áp dụng đúng database | Cao | Kiểm tra migration table và `prisma migrate deploy` ở môi trường mục tiêu |
+| Tài liệu lịch sử ghi số liệu test khác nhau | Trung bình | Ưu tiên test run hiện tại và cập nhật status file |
+| Rate limiting chưa đồng đều | Cao cho public API | Dùng Redis/edge provider hoặc middleware phù hợp |
+| Log body nhạy cảm | Cao nếu tồn tại | Audit log, redact token/password/payment payload |
+| MongoDB feature flags/config không nhất quán | Trung bình | Kiểm tra runtime flag và index initialization |
+
+## References
+
+[1]: ../../package.json "Scripts build/test/deploy"
+[2]: ../../prisma/schema.prisma "Schema hiện tại"
+[3]: ../../.env.example "Mẫu biến môi trường nếu có"
+[4]: ../3.6.2_CICD_DEPLOYMENT.md "Hướng dẫn CI/CD lịch sử"
+[5]: ../VERCEL_DEPLOYMENT_GUIDE.md "Hướng dẫn Vercel lịch sử"
+[6]: ../assistant-safety-audit.md "Audit an toàn lịch sử"
+
+---
+
+### Nguồn Git: `docs/system-map/06-KIEM-KE-TAI-LIEU-CAP-NHAT.md`
+
+# Kiểm kê tài liệu và cập nhật GitHub
+
+**Ngày kiểm tra:** 22/08/2026  
+**Remote:** `origin/main` của `Escanor292/platform`  
+**HEAD đối chiếu:** `9bf7ad1`
+
+## 1. Kết quả kiểm tra GitHub
+
+Local đã chạy `git fetch origin main`. Tại thời điểm kiểm tra, local và `origin/main` cùng ở commit `9bf7ad1`; không có commit mới hơn trên remote. Các cập nhật gần nhất đáng chú ý là checkout đa phương thức, password reset và merge Pull Request #2.
+
+| Commit | Ý nghĩa hiện tại |
+|---|---|
+| `d003889` | Đồng bộ theme nhóm creator rewards |
+| `a32c5ed` | Checkout `ONLINE`/`COD`, session, payment method metadata và migration liên quan |
+| `1e8a93d` | Forgot/reset password, token hash một lần và giao diện auth |
+| `9bf7ad1` | Merge các thay đổi trên vào `main` |
+
+## 2. Phạm vi Markdown
+
+Kiểm kê working tree ghi nhận 84 file có đuôi `.md`, bao gồm tài liệu dự án, đặc tả `.kiro`, ghi chú ở root, sample blog và các file audit được tạo trong quá trình này. Báo cáo raw ban đầu ghi nhận 82 file trước khi tính các artifact audit mới. Không phát hiện exact duplicate đáng tin cậy theo hash trong báo cáo raw; vấn đề chính là nhiều tài liệu diễn giải cùng một feature ở các thời điểm khác nhau.
+
+## 3. Nhóm tài liệu chồng lặp
+
+| Nhóm | File tiêu biểu | Cách xử lý |
+|---|---|---|
+| Kiến trúc/database/API | `3.1_KIEN_TRUC_HE_THONG.md`, `3.3_XAY_DUNG_BACKEND.md`, `3.4_KET_NOI_API.md`, `3.5_QUAN_LY_DU_LIEU.md`, `DATABASE_STRUCTURE_ANALYSIS.md`, `FULL_DATABASE_SCHEMA.md`, `HYBRID_DATABASE_SUMMARY.md` | Dùng `01-KIEN-TRUC-HE-THONG.md`, `02-MO-HINH-DU-LIEU.md`, `03-API-AUTH-THANH-TOAN.md` làm bản tra cứu hiện hành; giữ file cũ để truy nguyên |
+| Project hierarchy | `.kiro/specs/project-hierarchy-management/*`, `PROJECT_VS_CAMPAIGN_ANALYSIS.md` | Xem như lịch sử tiến độ/thiết kế; đối chiếu schema và API trước khi thực hiện task |
+| Trạng thái triển khai | `docs/README.md`, `BAO_CAO_CHI_TIET.md`, `FINAL_STATUS_REPORT.md`, `REFACTOR_PHASE*_COMPLETION_REPORT.md` | Không dùng số liệu test hoặc % cũ làm trạng thái hiện tại; dùng index và snapshot mới |
+| Chat | `CHAT_SYSTEM.md`, `CHAT_SYSTEM_GUIDE.md`, `CHAT_COMPONENT_README.md`, `notes_call_*`, `notes_deleted_user_chat.md` | Dùng `04-LUONG-NGUOI-DUNG.md` cho luồng tổng quát; file chat cũ giữ chi tiết lịch sử |
+| Profile/blog/product | `PROFILE_*`, `FEATURE_BLOG_LINKS_SUMMARY.md`, `MIGRATION_BLOG_LINKS.md`, `notes_product_quickedit.md` | Dùng luồng user và source component; cần cập nhật chuyên đề nếu thêm editor/block mới |
+| Deploy/test/security | `VERCEL_DEPLOYMENT_GUIDE.md`, `DEPLOY_INSTRUCTIONS.md`, `deployment-verification.md`, `3.6.*`, `testing.md`, `assistant-*`, `zero-mem-*` | Dùng `05-BAO-MAT-VAN-HANH.md` cho checklist hiện tại; file cũ là bằng chứng hoặc hướng dẫn chuyên biệt |
+| Payment | `SEPAY_INTEGRATION.md`, `SEPAY_QUICKSTART.md`, `notes_call_cost.md` | Legacy/provider-specific; dùng `03-API-AUTH-THANH-TOAN.md` để hiểu checkout mới và giới hạn production |
+| Sample content | `scripts/sample-blog-posts/markdown/*.md` | Không gộp vào tài liệu kỹ thuật; đây là fixture/content mẫu |
+
+## 4. Các điểm tài liệu cũ đã lỗi thời hoặc cần xác minh
+
+`docs/README.md` và một số báo cáo trước đây có thể nhắc phiên bản 1.0.0, số test đã pass, PayOS QR, Cloudinary hoặc cấu trúc database cũ. Những thông tin đó không bị xóa vì có giá trị lịch sử, nhưng không nên coi là trạng thái production hiện tại nếu không đối chiếu source.
+
+Một số `.kiro` report từng ghi campaign/blog integration còn thiếu, trong khi code hiện tại đã có nhiều API và component liên quan. Ngược lại, tài liệu cũ không bao quát đầy đủ checkout session, payment method metadata và password reset mới. Bộ `system-map` này bổ sung phần thiếu nhưng vẫn không thay thế kiểm thử runtime.
+
+## 5. File nên dùng theo nhu cầu
+
+| Nhu cầu | File bắt đầu |
+|---|---|
+| Hiểu toàn bộ app | [`00-CHI-MUC-HE-THONG.md`](./00-CHI-MUC-HE-THONG.md) |
+| Sửa schema/quan hệ | [`02-MO-HINH-DU-LIEU.md`](./02-MO-HINH-DU-LIEU.md) |
+| Thêm API hoặc auth | [`03-API-AUTH-THANH-TOAN.md`](./03-API-AUTH-THANH-TOAN.md) |
+| Sửa giao diện/luồng | [`04-LUONG-NGUOI-DUNG.md`](./04-LUONG-NGUOI-DUNG.md) |
+| Deploy, secret, audit | [`05-BAO-MAT-VAN-HANH.md`](./05-BAO-MAT-VAN-HANH.md) |
+| Truy nguyên lịch sử | `docs/`, `.kiro/specs/` và audit raw |
+
+## 6. Nguyên tắc duy trì tài liệu
+
+Không tạo thêm nhiều file `FINAL_STATUS`, `IMPLEMENTATION_SUMMARY` hoặc `COMPLETION_REPORT` cho cùng một tính năng nếu không cần lưu mốc lịch sử. Tài liệu mới nên cập nhật một trong các file chuyên đề, thêm ngày/commit và nêu rõ phần nào đã xác nhận bằng code, phần nào chỉ cần runtime verification.
+
+## References
+
+[1]: ../MARKDOWN_AUDIT_RAW.md "Báo cáo hash/heading Markdown"
+[2]: ../MARKDOWN_AUDIT_NOTES.md "Ghi chú kiểm kê trước khi tạo bộ system-map"
+[3]: ../README.md "Chỉ mục tài liệu nền"
+[4]: ../../.kiro/specs/project-hierarchy-management/IMPLEMENTATION_COMPLETE.md "Báo cáo implementation lịch sử"
+[5]: https://github.com/Escanor292/platform "Repository GitHub"
+
+---
