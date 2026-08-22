@@ -91,17 +91,17 @@ export default function EditRewardForm({ reward }: EditRewardFormProps) {
         <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden">
             <div className="px-8 py-6 border-b border-gray-100">
                 <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center">
-                        <Gift className="text-orange-600" size={24} />
+                    <div className="w-12 h-12 bg-pgreen/10 rounded-2xl flex items-center justify-center">
+                        <Gift className="text-pgreen" size={24} />
                     </div>
                     <div className="flex-1">
                         <h2 className="text-xl font-bold text-gray-900">Chỉnh sửa quà tặng</h2>
                         <p className="text-gray-500 text-sm">Cập nhật thông tin gói quà tặng</p>
                     </div>
                     {hasPledges && (
-                        <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-xl">
-                            <Users className="text-blue-600" size={16} />
-                            <span className="text-sm font-semibold text-blue-600">
+                        <div className="flex items-center gap-2 px-3 py-2 bg-tblue/10 rounded-xl">
+                            <Users className="text-tblue" size={16} />
+                            <span className="text-sm font-semibold text-tblue">
                                 {reward._count.pledges} lượt chọn
                             </span>
                         </div>
@@ -136,7 +136,7 @@ export default function EditRewardForm({ reward }: EditRewardFormProps) {
                         onChange={handleInputChange}
                         required
                         placeholder="VD: Gói ủng hộ cơ bản, Sản phẩm đầu tiên..."
-                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-pgreen/30 focus:border-transparent transition"
                     />
                 </div>
 
@@ -151,7 +151,7 @@ export default function EditRewardForm({ reward }: EditRewardFormProps) {
                         onChange={handleInputChange}
                         rows={4}
                         placeholder="Mô tả chi tiết về quà tặng, quyền lợi, điều kiện..."
-                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition resize-none"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-pgreen/30 focus:border-transparent transition resize-none"
                     />
                 </div>
 
@@ -193,7 +193,7 @@ export default function EditRewardForm({ reward }: EditRewardFormProps) {
                             onChange={handleInputChange}
                             min="1"
                             placeholder="Để trống nếu không giới hạn"
-                            className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                            className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-pgreen/30 focus:border-transparent transition"
                         />
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
@@ -220,10 +220,10 @@ export default function EditRewardForm({ reward }: EditRewardFormProps) {
                 {/* Status Toggle */}
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
                     <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${formData.isActive ? 'bg-green-100' : 'bg-gray-100'
+                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${formData.isActive ? 'bg-fgreen/10' : 'bg-gray-100'
                             }`}>
                             {formData.isActive ? (
-                                <Eye className="text-green-600" size={20} />
+                                <Eye className="text-pgreen" size={20} />
                             ) : (
                                 <EyeOff className="text-gray-600" size={20} />
                             )}
@@ -243,7 +243,7 @@ export default function EditRewardForm({ reward }: EditRewardFormProps) {
                     <button
                         type="button"
                         onClick={toggleActive}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData.isActive ? 'bg-green-600' : 'bg-gray-200'
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData.isActive ? 'bg-pgreen' : 'bg-gray-200'
                             }`}
                     >
                         <span
@@ -265,7 +265,7 @@ export default function EditRewardForm({ reward }: EditRewardFormProps) {
                     <button
                         type="submit"
                         disabled={isLoading || !formData.title || !formData.minAmount}
-                        className="flex-1 px-6 py-3 bg-orange-600 text-white rounded-2xl font-semibold hover:bg-orange-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 px-6 py-3 gradient-green text-white rounded-2xl font-semibold hover:shadow-lg hover:shadow-green-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isLoading ? 'Đang cập nhật...' : 'Cập nhật quà tặng'}
                     </button>

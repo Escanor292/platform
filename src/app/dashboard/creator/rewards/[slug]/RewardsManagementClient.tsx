@@ -99,8 +99,8 @@ export default function RewardsManagementClient({ campaign }: RewardsManagementC
     if (rewards.length === 0) {
         return (
             <div className="bg-white rounded-3xl border border-gray-100 p-12 text-center">
-                <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Gift className="text-orange-600" size={32} />
+                <div className="w-20 h-20 bg-pgreen/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Gift className="text-pgreen" size={32} />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
                     Chưa có quà tặng nào
@@ -110,7 +110,7 @@ export default function RewardsManagementClient({ campaign }: RewardsManagementC
                 </p>
                 <Link
                     href={`/dashboard/creator/rewards/${campaign.slug}/create`}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-orange-600 text-white rounded-2xl font-semibold hover:bg-orange-700 transition"
+                    className="inline-flex items-center gap-2 px-6 py-3 gradient-green text-white rounded-2xl font-semibold hover:shadow-lg hover:shadow-green-200 transition"
                 >
                     <Gift size={20} />
                     Tạo quà tặng đầu tiên
@@ -141,7 +141,7 @@ export default function RewardsManagementClient({ campaign }: RewardsManagementC
                             {/* Reward Info */}
                             <div className="col-span-4">
                                 <div className="flex items-start gap-4">
-                                    <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <div className="w-12 h-12 bg-gradient-to-br from-pgreen to-fgreen rounded-xl flex items-center justify-center flex-shrink-0">
                                         <Gift className="text-white" size={20} />
                                     </div>
                                     <div className="min-w-0 flex-1">
@@ -224,7 +224,7 @@ export default function RewardsManagementClient({ campaign }: RewardsManagementC
                                 <div className="flex items-center gap-2">
                                     <Link
                                         href={`/dashboard/creator/rewards/${campaign.slug}/edit/${reward.id}`}
-                                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                        className="p-2 text-gray-400 hover:text-pgreen hover:bg-pgreen/10 rounded-lg transition-colors"
                                         title="Chỉnh sửa"
                                     >
                                         <Edit size={16} />
@@ -234,8 +234,8 @@ export default function RewardsManagementClient({ campaign }: RewardsManagementC
                                         onClick={() => toggleRewardStatus(reward.id, reward.isActive)}
                                         disabled={isLoading}
                                         className={`p-2 rounded-lg transition-colors ${reward.isActive
-                                            ? 'text-gray-400 hover:text-yellow-600 hover:bg-yellow-50'
-                                            : 'text-gray-400 hover:text-green-600 hover:bg-green-50'
+                                            ? 'text-gray-400 hover:text-amber-600 hover:bg-amber-50'
+                                            : 'text-gray-400 hover:text-pgreen hover:bg-pgreen/10'
                                             }`}
                                         title={reward.isActive ? 'Tạm dừng' : 'Kích hoạt'}
                                     >

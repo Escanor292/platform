@@ -78,8 +78,8 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
         <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden">
             <div className="px-8 py-6 border-b border-gray-100">
                 <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center">
-                        <Gift className="text-orange-600" size={24} />
+                    <div className="w-12 h-12 bg-pgreen/10 rounded-2xl flex items-center justify-center">
+                        <Gift className="text-pgreen" size={24} />
                     </div>
                     <div>
                         <h2 className="text-xl font-bold text-gray-900">Thông tin quà tặng</h2>
@@ -101,7 +101,7 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                         onChange={handleInputChange}
                         required
                         placeholder="VD: Gói ủng hộ cơ bản, Sản phẩm đầu tiên..."
-                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-pgreen/30 focus:border-transparent transition"
                     />
                 </div>
 
@@ -116,7 +116,7 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                         onChange={handleInputChange}
                         rows={4}
                         placeholder="Mô tả chi tiết về quà tặng, quyền lợi, điều kiện..."
-                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition resize-none"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-pgreen/30 focus:border-transparent transition resize-none"
                     />
                 </div>
 
@@ -153,7 +153,7 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                             onChange={handleInputChange}
                             min="1"
                             placeholder="Để trống nếu không giới hạn"
-                            className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                            className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-pgreen/30 focus:border-transparent transition"
                         />
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
@@ -180,10 +180,10 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                 {/* Status Toggle */}
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
                     <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${formData.isActive ? 'bg-green-100' : 'bg-gray-100'
+                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${formData.isActive ? 'bg-fgreen/10' : 'bg-gray-100'
                             }`}>
                             {formData.isActive ? (
-                                <Eye className="text-green-600" size={20} />
+                                <Eye className="text-pgreen" size={20} />
                             ) : (
                                 <EyeOff className="text-gray-600" size={20} />
                             )}
@@ -203,7 +203,7 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                     <button
                         type="button"
                         onClick={toggleActive}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData.isActive ? 'bg-green-600' : 'bg-gray-200'
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData.isActive ? 'bg-pgreen' : 'bg-gray-200'
                             }`}
                     >
                         <span
@@ -225,7 +225,7 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                     <button
                         type="submit"
                         disabled={isLoading || !formData.title || !formData.minAmount}
-                        className="flex-1 px-6 py-3 bg-orange-600 text-white rounded-2xl font-semibold hover:bg-orange-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 px-6 py-3 gradient-green text-white rounded-2xl font-semibold hover:shadow-lg hover:shadow-green-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isLoading ? 'Đang tạo...' : 'Tạo quà tặng'}
                     </button>

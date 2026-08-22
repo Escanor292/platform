@@ -61,7 +61,7 @@ export default async function CampaignRewardsPage({ params }: PageProps) {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50/50 py-24 px-6">
+        <div className="min-h-screen bg-cream/50 py-24 px-6">
             <div className="max-w-7xl mx-auto space-y-8">
 
                 {/* Header */}
@@ -80,7 +80,7 @@ export default async function CampaignRewardsPage({ params }: PageProps) {
                     </div>
                     <Link
                         href={`/dashboard/creator/rewards/${campaign.slug}/create`}
-                        className="px-6 py-3 bg-orange-600 text-white rounded-2xl font-semibold hover:bg-orange-700 transition flex items-center gap-2"
+                        className="px-6 py-3 gradient-green text-white rounded-2xl font-semibold hover:shadow-lg hover:shadow-green-200 transition flex items-center gap-2"
                     >
                         <Plus size={20} />
                         Thêm quà tặng
@@ -91,8 +91,8 @@ export default async function CampaignRewardsPage({ params }: PageProps) {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div className="bg-white p-6 rounded-3xl border border-gray-100">
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 bg-orange-100 rounded-2xl flex items-center justify-center">
-                                <Gift className="text-orange-600" size={20} />
+                            <div className="w-10 h-10 bg-pgreen/10 rounded-2xl flex items-center justify-center">
+                                <Gift className="text-pgreen" size={20} />
                             </div>
                             <div>
                                 <div className="text-sm text-gray-400 font-bold">Tổng quà tặng</div>
@@ -105,12 +105,12 @@ export default async function CampaignRewardsPage({ params }: PageProps) {
 
                     <div className="bg-white p-6 rounded-3xl border border-gray-100">
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 bg-green-100 rounded-2xl flex items-center justify-center">
-                                <Package className="text-green-600" size={20} />
+                            <div className="w-10 h-10 bg-fgreen/10 rounded-2xl flex items-center justify-center">
+                                <Package className="text-pgreen" size={20} />
                             </div>
                             <div>
                                 <div className="text-sm text-gray-400 font-bold">Đang hoạt động</div>
-                                <div className="text-2xl font-black text-green-600">
+                                <div className="text-2xl font-black text-pgreen">
                                     {campaign.rewards.filter(r => r.isActive).length}
                                 </div>
                             </div>
@@ -119,12 +119,12 @@ export default async function CampaignRewardsPage({ params }: PageProps) {
 
                     <div className="bg-white p-6 rounded-3xl border border-gray-100">
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 bg-blue-100 rounded-2xl flex items-center justify-center">
-                                <Users className="text-blue-600" size={20} />
+                            <div className="w-10 h-10 bg-tblue/10 rounded-2xl flex items-center justify-center">
+                                <Users className="text-tblue" size={20} />
                             </div>
                             <div>
                                 <div className="text-sm text-gray-400 font-bold">Lượt chọn</div>
-                                <div className="text-2xl font-black text-blue-600">
+                                <div className="text-2xl font-black text-tblue">
                                     {campaign.rewards.reduce((sum, r) => sum + r._count.pledges, 0)}
                                 </div>
                             </div>
@@ -133,12 +133,12 @@ export default async function CampaignRewardsPage({ params }: PageProps) {
 
                     <div className="bg-white p-6 rounded-3xl border border-gray-100">
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 bg-purple-100 rounded-2xl flex items-center justify-center">
-                                <span className="text-purple-600 font-bold text-lg">₫</span>
+                            <div className="w-10 h-10 bg-pgreen/10 rounded-2xl flex items-center justify-center">
+                                <span className="text-pgreen font-bold text-lg">₫</span>
                             </div>
                             <div>
                                 <div className="text-sm text-gray-400 font-bold">Giá trị thấp nhất</div>
-                                <div className="text-2xl font-black text-purple-600">
+                                <div className="text-2xl font-black text-pgreen">
                                     {campaign.rewards.length > 0
                                         ? `${Math.min(...campaign.rewards.map(r => Number(r.minAmount))).toLocaleString('vi-VN')}₫`
                                         : '0₫'
