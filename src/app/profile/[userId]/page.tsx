@@ -14,6 +14,7 @@ import { StartChatButton } from "@/components/chat/StartChatButton";
 import { ProfileBlogCard } from "@/components/profile/ProfileBlogCard";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
 import { canExposePrivacyField } from "@/lib/profile-settings";
+import { getProfileThemeStyle, getPublicProfileCustomization, isSectionVisible, normalizeProfileCustomization } from "@/lib/profile-customization";
 
 interface ProfilePageProps {
   params: Promise<{ userId: string }>;
@@ -147,6 +148,9 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
         },
         orderBy: { createdAt: 'desc' },
       },
+      profile_customization: {
+        select: { draftConfig: true, publishedConfig: true, publishedAt: true },
+      },
       _count: {
         select: {
           campaigns: true,
@@ -161,6 +165,10 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
   }
 
   const profileIsPublic = !isOwnProfile || showAsPublic;
+  const storedProfileConfig = normalizeProfileCustomization(
+    profileIsPublic ? user.profile_customization?.publishedConfig : user.profile_customization?.draftConfig
+  );
+  const profileConfig = profileIsPublic ? getPublicProfileCustomization(storedProfileConfig, userId) : storedProfileConfig;
   const showLocation = canExposePrivacyField(user.role, user.privacySettings, 'location', !profileIsPublic);
   const showBio = canExposePrivacyField(user.role, user.privacySettings, 'bio', !profileIsPublic);
   const showWebsite = canExposePrivacyField(user.role, user.privacySettings, 'website', !profileIsPublic);
@@ -211,13 +219,13 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
   const isBacker = user._count.pledges > 0;
 
   return (
-    <div className="min-h-screen bg-slate-50/50 py-24 px-6">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="min-h-screen py-24 px-6" style={{ ...getProfileThemeStyle(profileConfig), backgroundColor: "var(--profile-background)" }}>
+      <div className="mx-auto max-w-6xl space-y-8">
 
         {/* Profile Header */}
-        <div className="bg-white rounded-[3rem] border border-gray-100 shadow-sm overflow-hidden">
+        <div className="overflow-hidden border border-[color:var(--profile-primary)]/10 bg-[var(--profile-surface)] shadow-sm" style={{ borderRadius: "var(--profile-radius)" }}>
           {/* Cover Image */}
-          <div className="h-64 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 relative">
+          <div className="relative h-64" style={{ background: "var(--profile-gradient)" }}>
             {user.coverImage ? (
               <img
                 src={user.coverImage}
@@ -225,12 +233,12 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500" />
+              <div className="absolute inset-0" style={{ background: "var(--profile-gradient)" }} />
             )}
           </div>
 
           {/* Content Area with White Background */}
-          <div className="relative px-8 pt-20 pb-8">
+          <div className="relative px-8 pb-8 pt-20">
             {/* Avatar - Overlapping Cover */}
             <div className="absolute -top-16 left-8">
               <div className="w-32 h-32 rounded-[2rem] bg-white border-4 border-white shadow-xl flex items-center justify-center text-4xl font-black text-white bg-gradient-to-br from-blue-600 to-purple-600 overflow-hidden">
@@ -312,6 +320,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
 
             {/* User Info - In White Content Area */}
             <div className="space-y-4">
+              {/* Identity is always visible; optional about fields obey the profile layout. */}
               {/* Name and Badges */}
               <div className="flex items-center gap-3">
                 <h1 className="text-3xl font-black text-gray-900">
@@ -330,8 +339,10 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
                 )}
               </div>
 
+              {isSectionVisible(profileConfig, "about") && (
+                <>
               {/* Meta Info */}
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+              <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--profile-muted)]">
                 <div className="flex items-center gap-1">
                   <Calendar size={16} />
                   Tham gia {new Date(user.createdAt).toLocaleDateString("vi-VN", { month: "long", year: "numeric" })}
@@ -369,7 +380,11 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
                 </div>
               )}
 
+              </>
+              )}
+
               {/* Stats */}
+              {isSectionVisible(profileConfig, "analytics") && (
               <div className="flex flex-wrap gap-8 pt-4">
                 {isCreator && (
                   <>
@@ -400,6 +415,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
                   </>
                 )}
               </div>
+              )}
             </div>
           </div>
         </div>
@@ -416,10 +432,45 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
           projects={serializedProjects}
           isCreator={isCreator}
           isBacker={isBacker}
+          profileConfig={profileConfig}
         />
 
+        {isSectionVisible(profileConfig, "analytics") && (profileConfig.analytics.showSupportStats || profileConfig.analytics.showProgressStats) && (
+          <section className="grid gap-4 sm:grid-cols-2">
+            {profileConfig.analytics.showProgressStats && isCreator && (
+              <div className="border border-[color:var(--profile-primary)]/10 bg-[var(--profile-surface)] p-6 shadow-sm" style={{ borderRadius: "var(--profile-radius)" }}>
+                <div className="text-xs font-black uppercase tracking-[0.2em] text-[var(--profile-muted)]">Tổng huy động</div>
+                <div className="mt-2 text-3xl font-black text-[var(--profile-primary)]">{formatVND(totalRaised)}</div>
+                <div className="mt-1 text-sm text-[var(--profile-muted)]">{successfulCampaigns} chiến dịch đã thành công</div>
+              </div>
+            )}
+            {profileConfig.analytics.showSupportStats && isBacker && (
+              <div className="border border-[color:var(--profile-primary)]/10 bg-[var(--profile-surface)] p-6 shadow-sm" style={{ borderRadius: "var(--profile-radius)" }}>
+                <div className="text-xs font-black uppercase tracking-[0.2em] text-[var(--profile-muted)]">Hoạt động ủng hộ</div>
+                <div className="mt-2 text-3xl font-black text-[var(--profile-secondary)]">{formatVND(totalSupported)}</div>
+                <div className="mt-1 text-sm text-[var(--profile-muted)]">{user._count.pledges} lượt ủng hộ</div>
+              </div>
+            )}
+          </section>
+        )}
+
+        {isSectionVisible(profileConfig, "cta") && profileConfig.cta.enabled && (
+          <section className="flex flex-wrap items-center justify-between gap-4 p-6 text-white shadow-xl" style={{ borderRadius: "var(--profile-radius)", background: "var(--profile-gradient)" }}>
+            <div>
+              <div className="text-xl font-black">{profileConfig.cta.label}</div>
+              <div className="mt-1 text-sm text-white/80">Khám phá thêm nội dung và hoạt động của {user.name || "người dùng"}.</div>
+            </div>
+            <Link
+              href={profileConfig.cta.action === "projects" ? `/projects?creatorId=${encodeURIComponent(userId)}` : profileConfig.cta.action === "campaigns" ? `/campaigns?creatorId=${encodeURIComponent(userId)}` : profileConfig.cta.action === "products" ? `/profile/${encodeURIComponent(userId)}?tab=products` : profileConfig.cta.action === "blog" ? `/blog?authorId=${encodeURIComponent(userId)}` : `/chat?userId=${encodeURIComponent(userId)}`}
+              className="rounded-full bg-white px-5 py-3 text-sm font-black text-[var(--profile-primary)] shadow-lg transition hover:-translate-y-0.5"
+            >
+              Mở nội dung
+            </Link>
+          </section>
+        )}
+
         {/* Sidebar - Achievements */}
-        {(isCreator || isBacker) && (
+        {isSectionVisible(profileConfig, "achievements") && (isCreator || isBacker) && (
           <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-6">
             <h3 className="text-lg font-black text-gray-900 mb-4">Thành tích</h3>
             <div className="space-y-3">

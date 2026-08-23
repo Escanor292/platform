@@ -633,6 +633,35 @@ model user_badges {
   @@index([user_id])
 }
 
+model profile_customizations {
+  id                  String                             @id @default(cuid())
+  userId              String                             @unique
+  draftConfig         Json
+  publishedConfig     Json
+  draftVersion        Int                                @default(1)
+  publishedVersion    Int                                @default(1)
+  publishedAt         DateTime?
+  createdAt           DateTime                           @default(now())
+  updatedAt           DateTime                           @updatedAt
+  users               users                              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  versions            profile_customization_versions[]
+
+  @@index([updatedAt])
+}
+
+model profile_customization_versions {
+  id              String               @id @default(cuid())
+  customizationId String
+  version         Int
+  action          String               @db.VarChar(24)
+  config          Json
+  createdAt       DateTime             @default(now())
+  customization   profile_customizations @relation(fields: [customizationId], references: [id], onDelete: Cascade)
+
+  @@index([customizationId, createdAt])
+  @@unique([customizationId, version])
+}
+
 model users {
   id                                         String               @id
   email                                      String               @unique
@@ -660,6 +689,7 @@ model users {
   socialLinks                                Json?
   privacySettings                            Json?
   notificationSettings                       Json?
+  profile_customization                      profile_customizations?
   status                                     UserStatus           @default(NORMAL)
   audit_logs                                 audit_logs[]
   badges                                     badges[]

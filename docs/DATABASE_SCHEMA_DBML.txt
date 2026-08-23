@@ -627,6 +627,27 @@ Table user_badges {
   is_visible boolean [default: true]
 }
 
+Table profile_customizations {
+  id text [pk, default: cuid()]
+  userId text [unique]
+  draftConfig jsonb
+  publishedConfig jsonb
+  draftVersion int [default: 1]
+  publishedVersion int [default: 1]
+  publishedAt timestamp
+  createdAt timestamp [default: now()]
+  updatedAt timestamp
+}
+
+Table profile_customization_versions {
+  id text [pk, default: cuid()]
+  customizationId text
+  version int
+  action varchar(24)
+  config jsonb
+  createdAt timestamp [default: now()]
+}
+
 Table users {
   id text [pk]
   email text [unique]
@@ -727,6 +748,8 @@ Ref: user_badges.assigned_by > users.id
 Ref: user_badges.badge_id > badges.id [delete: cascade]
 Ref: user_badges.revoked_by > users.id
 Ref: user_badges.user_id > users.id [delete: cascade]
+Ref: profile_customizations.userId > users.id [delete: cascade]
+Ref: profile_customization_versions.customizationId > profile_customizations.id [delete: cascade]
 Ref: password_reset_tokens.userId > users.id [delete: cascade]
 
 // Index: audit_logs(createdAt)
@@ -800,6 +823,9 @@ Ref: password_reset_tokens.userId > users.id [delete: cascade]
 // Index: user_badges(badge_id)
 // Index: user_badges(revoked_at)
 // Index: user_badges(user_id)
+// Index: profile_customizations(updatedAt)
+// Index: profile_customization_versions(customizationId, createdAt)
+// Composite unique: profile_customization_versions(customizationId, version)
 // Index: password_reset_tokens(userId, expiresAt)
 // Index: password_reset_tokens(expiresAt, usedAt)
 // Index: assistant_telemetry_events(createdAt)

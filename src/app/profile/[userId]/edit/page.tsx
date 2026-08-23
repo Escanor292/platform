@@ -1,6 +1,8 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
+import { Palette } from "lucide-react";
 import ProfileEditForm from "@/components/profile/ProfileEditForm";
 
 interface EditProfilePageProps {
@@ -69,6 +71,9 @@ export default async function EditProfilePage({ params }: EditProfilePageProps) 
           <p className="mt-3 max-w-2xl text-gray-600">
             Cập nhật thông tin hiển thị để cộng đồng hiểu rõ hơn về bạn và hành trình bạn đang đồng hành.
           </p>
+          <Link href={`/profile/${userId}/customize`} className="mt-5 inline-flex items-center gap-2 rounded-xl bg-teal-700 px-4 py-3 text-sm font-black text-white transition hover:bg-teal-800">
+            <Palette size={17} /> Tùy chỉnh giao diện trang cá nhân
+          </Link>
         </div>
 
         <ProfileEditForm user={userData} />

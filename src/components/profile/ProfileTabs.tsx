@@ -11,6 +11,7 @@ import { getCampaignTypeLabel } from '@/lib/campaign-helpers';
 import { ProfileBlogCard } from '@/components/profile/ProfileBlogCard';
 import { UserBadgeList } from '@/components/badge/UserBadgeList';
 import { AddProductModal } from '@/components/profile/AddProductModal';
+import { getSectionLimit, isSectionVisible, type ProfileCustomizationConfig } from '@/lib/profile-customization';
 
 type TabType = 'projects' | 'campaigns' | 'products' | 'blog' | 'pledges' | 'badges';
 
@@ -24,6 +25,7 @@ interface ProfileTabsProps {
     projects: any[];
     isCreator: boolean;
     isBacker: boolean;
+    profileConfig: ProfileCustomizationConfig;
 }
 
 // Helper component for Badges tab with empty state handling
@@ -77,12 +79,23 @@ export function ProfileTabs({
     projects,
     isCreator,
     isBacker,
+    profileConfig,
 }: ProfileTabsProps) {
     // Crash prevention: fallback to empty arrays
     const safeProjects = projects || [];
     const safeCampaigns = campaigns || [];
     const safeBlogPosts = blogPosts || [];
     const safePledges = pledges || [];
+    const featured = profileConfig.featured;
+    const orderByFeatured = <T extends { id: string }>(items: T[], ids: string[]) => {
+        if (ids.length === 0) return items;
+        const rank = new Map(ids.map((id, index) => [id, index]));
+        return [...items].sort((a, b) => (rank.get(a.id) ?? 999) - (rank.get(b.id) ?? 999));
+    };
+    const orderedProjects = orderByFeatured(safeProjects, featured.projectIds).slice(0, getSectionLimit(profileConfig, 'projects'));
+    const orderedCampaigns = orderByFeatured(safeCampaigns, featured.campaignIds).slice(0, getSectionLimit(profileConfig, 'campaigns'));
+    const orderedBlogPosts = orderByFeatured(safeBlogPosts, featured.blogPostIds).slice(0, getSectionLimit(profileConfig, 'blog'));
+    const limitedPledges = safePledges.slice(0, getSectionLimit(profileConfig, 'pledges'));
 
     // State for delete operations
     const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -128,10 +141,10 @@ export function ProfileTabs({
 
     // Determine default tab
     const getDefaultTab = (): TabType => {
-        if (safeProjects.length > 0) return 'projects';
-        if (isCreator && safeCampaigns.length > 0) return 'campaigns';
-        if (safeBlogPosts.length > 0) return 'blog';
-        if (isBacker && safePledges.length > 0 && isOwnProfile && !showAsPublic) return 'pledges';
+        if (isSectionVisible(profileConfig, 'projects') && orderedProjects.length > 0) return 'projects';
+        if (isSectionVisible(profileConfig, 'campaigns') && isCreator && orderedCampaigns.length > 0) return 'campaigns';
+        if (isSectionVisible(profileConfig, 'blog') && orderedBlogPosts.length > 0) return 'blog';
+        if (isSectionVisible(profileConfig, 'pledges') && isBacker && limitedPledges.length > 0 && isOwnProfile && !showAsPublic) return 'pledges';
         return 'badges';
     };
 
@@ -147,7 +160,7 @@ export function ProfileTabs({
         const isEcommerceProduct = (r: any) =>
             (Array.isArray(r.productImages) && r.productImages.length > 0) || !!r.maxAmount;
 
-        safeProjects.forEach((project) => {
+        orderedProjects.forEach((project) => {
             (project.campaigns || []).forEach((campaign: any) => {
                 const activeRewards = (campaign.rewards || []).filter((r: any) => r.isActive);
 
@@ -193,7 +206,11 @@ export function ProfileTabs({
             });
         });
 
-        return { products, gifts };
+        const featuredRank = new Map(featured.rewardIds.map((id, index) => [id, index]));
+        const featuredProducts = featured.rewardIds.length > 0
+            ? [...products].sort((a, b) => (featuredRank.get(a.reward.id) ?? 999) - (featuredRank.get(b.reward.id) ?? 999))
+            : products;
+        return { products: featuredProducts.slice(0, getSectionLimit(profileConfig, 'products')), gifts };
     };
 
     const { products, gifts } = classifyRewards();
@@ -205,14 +222,14 @@ export function ProfileTabs({
         {
             id: 'projects',
             label: 'Dự án',
-            count: safeProjects.length,
-            show: (isOwnProfile && !showAsPublic) || safeProjects.length > 0,
+            count: orderedProjects.length,
+            show: isSectionVisible(profileConfig, 'projects') && ((isOwnProfile && !showAsPublic) || orderedProjects.length > 0),
         },
         {
             id: 'campaigns',
             label: 'Chiến dịch',
-            count: safeCampaigns.length,
-            show: (isOwnProfile && !showAsPublic) || (isCreator && safeCampaigns.length > 0),
+            count: orderedCampaigns.length,
+            show: isSectionVisible(profileConfig, 'campaigns') && ((isOwnProfile && !showAsPublic) || (isCreator && orderedCampaigns.length > 0)),
         },
         {
             id: 'products',
@@ -223,28 +240,28 @@ export function ProfileTabs({
         {
             id: 'blog',
             label: 'Blog',
-            count: safeBlogPosts.length,
-            show: (isOwnProfile && !showAsPublic) || safeBlogPosts.length > 0,
+            count: orderedBlogPosts.length,
+            show: isSectionVisible(profileConfig, 'blog') && ((isOwnProfile && !showAsPublic) || orderedBlogPosts.length > 0),
         },
         {
             id: 'pledges',
             label: 'Đã ủng hộ',
-            count: safePledges.length,
-            show: isBacker && safePledges.length > 0 && isOwnProfile && !showAsPublic,
+            count: limitedPledges.length,
+            show: isSectionVisible(profileConfig, 'pledges') && isBacker && limitedPledges.length > 0 && isOwnProfile && !showAsPublic,
         },
         {
             id: 'badges',
             label: 'Huy hiệu',
-            show: true, // Always show
+            show: isSectionVisible(profileConfig, 'badges'),
         },
     ];
 
     const visibleTabs = tabs.filter((tab) => tab.show);
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6" style={{ color: 'var(--profile-text)' }}>
             {/* Tabs Navigation */}
-            <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-2">
+            <div className="bg-[var(--profile-surface)] border border-[color:var(--profile-primary)]/10 p-2 shadow-sm" style={{ borderRadius: 'var(--profile-radius)' }}>
                 <div className="flex flex-wrap gap-2">
                     {visibleTabs.map((tab) => (
                         <button
@@ -267,14 +284,14 @@ export function ProfileTabs({
             </div>
 
             {/* Tab Content */}
-            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
+            <div className="bg-[var(--profile-surface)] border border-[color:var(--profile-primary)]/10 p-8 shadow-sm" style={{ borderRadius: 'var(--profile-radius)' }}>
                 {/* Projects Tab */}
                 {activeTab === 'projects' && (
                     <div>
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
                                 <FolderKanban size={24} className="text-blue-600" />
-                                Dự án ({safeProjects.length})
+                                Dự án (                        {orderedProjects.length})
                             </h2>
                             {isOwnerMode && (
                                 <Link
@@ -288,7 +305,7 @@ export function ProfileTabs({
                         </div>
                         {safeProjects.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {safeProjects.map((project) => {
+                                {orderedProjects.map((project) => {
                                     const campaignCount = project.campaigns?.length || 0;
                                     const blogCount = project.project_blog_links?.length || 0;
                                     const productCount = (project as any)._count?.project_reward_links || 0;
@@ -384,7 +401,7 @@ export function ProfileTabs({
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
                                 <Rocket size={24} className="text-blue-600" />
-                                Chiến dịch đã tạo ({safeCampaigns.length})
+                                Chiến dịch đã tạo (                        {orderedCampaigns.length})
                             </h2>
                             {isOwnerMode && (
                                 <Link
@@ -398,7 +415,7 @@ export function ProfileTabs({
                         </div>
                         {safeCampaigns.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {safeCampaigns.map((campaign) => {
+                                {orderedCampaigns.map((campaign) => {
                                     const progress = Math.min(
                                         100,
                                         Math.round((Number(campaign.currentAmount) / Number(campaign.goalAmount)) * 100)
@@ -595,7 +612,7 @@ export function ProfileTabs({
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
                                 <MessageCircle size={24} className="text-pgreen" />
-                                {isOwnProfile && !showAsPublic ? 'Blog của tôi' : 'Bài viết'} ({safeBlogPosts.length})
+                                {isOwnProfile && !showAsPublic ? 'Blog của tôi' : 'Bài viết'} (                        {orderedBlogPosts.length})
                             </h2>
                             {isOwnerMode && (
                                 <Link
@@ -609,7 +626,7 @@ export function ProfileTabs({
                         </div>
                         {safeBlogPosts.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {safeBlogPosts.map((post) => (
+                                {orderedBlogPosts.map((post) => (
                                     <div key={post.id} className="relative">
                                         <ProfileBlogCard
                                             post={post}
@@ -643,11 +660,11 @@ export function ProfileTabs({
                     <div>
                         <h2 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2">
                             <Heart size={24} className="text-pink-600" />
-                            Đã ủng hộ ({safePledges.length})
+                            Đã ủng hộ (                        {limitedPledges.length})
                         </h2>
                         {safePledges.length > 0 ? (
                             <div className="space-y-4">
-                                {safePledges.map((pledge) => (
+                                {limitedPledges.map((pledge) => (
                                     <Link
                                         key={pledge.id}
                                         href={`/campaigns/${pledge.campaigns.slug}`}

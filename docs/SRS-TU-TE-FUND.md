@@ -1,6 +1,6 @@
 # Software Requirements Specification — Tử Tế Fund
 
-**Phiên bản:** 1.0
+**Phiên bản:** 1.1
 **Ngày lập:** 22/08/2026
 **Tác giả:** Manus AI
 **Trạng thái:** Baseline kỹ thuật dựa trên source hiện tại
@@ -299,6 +299,21 @@ Notification service có feature flag, user preferences, danh sách notification
 | FR-PLAT-004 | Public/internal assistant telemetry phải giới hạn payload, không nhận secret/PII không cần thiết và có retention. | Có code/schema — cần policy/runtime review | P1 |
 | FR-PLAT-005 | Error response phải nhất quán giữa 400/401/403/404/409/429/500/503; không trả stack trace hoặc provider secret. | Khoảng trống cần API standard | P0 |
 
+### 5.12 Profile Studio và cá nhân hóa trang cá nhân
+
+Profile Studio là khu vực owner-only cho phép chọn preset, chỉnh design token màu sắc/phong cách, bật/tắt section, sắp xếp section bằng nút hoặc native drag-and-drop, chọn featured project/campaign/reward/blog, cấu hình CTA, hiển thị analytics, thử nghiệm preset B, lưu nháp, xuất bản, khôi phục bản public và khôi phục snapshot phiên bản. Cấu hình được lưu riêng trong `profile_customizations` và `profile_customization_versions`; API chỉ nhận enum/token/block ID đã validate, không nhận HTML/CSS/JavaScript tự do.[19] [20]
+
+| ID | Yêu cầu | Trạng thái | Ưu tiên |
+|---|---|---|---|
+| FR-PROFILE-CUST-001 | Chỉ owner đã đăng nhập mới tải/lưu/publish/restore cấu hình profile của chính mình. | Đã xác nhận | P0 |
+| FR-PROFILE-CUST-002 | Preset chỉ được chọn từ allowlist; theme chỉ dùng mã HEX, font/style/radius/density đã định nghĩa. | Đã xác nhận | P0 |
+| FR-PROFILE-CUST-003 | Section và featured content phải giới hạn theo schema; server kiểm tra ownership của project/campaign/reward/blog trước khi lưu. | Đã xác nhận | P0 |
+| FR-PROFILE-CUST-004 | Public profile dùng `publishedConfig`; owner preview dùng draft; malformed/missing config fallback về default an toàn. | Đã xác nhận | P0 |
+| FR-PROFILE-CUST-005 | Owner có thể lưu draft, publish, reset, restore public hoặc restore một snapshot trong lịch sử. | Đã xác nhận | P1 |
+| FR-PROFILE-CUST-006 | Homepage hiển thị quick-edit panel cho user đã đăng nhập và dẫn tới Profile Studio hoặc chỉnh hồ sơ. | Đã xác nhận | P1 |
+| FR-PROFILE-CUST-007 | Profile render vẫn tôn trọng privacy settings và không cho layout config làm lộ email, phone, KYC, draft hoặc private content. | Đã xác nhận trong thiết kế; cần security regression | P0 |
+| FR-PROFILE-CUST-008 | Analytics/A-B chỉ điều khiển presentation/rollout, không thay đổi amount, pledge, stock hoặc quyền nghiệp vụ. | Đã xác nhận | P1 |
+
 ---
 
 ## 6. Use case chính
@@ -349,7 +364,7 @@ Operator apply migration, configure env, init indexes nếu cần, build/start, 
 
 ### 7.1 PostgreSQL/Prisma
 
-Schema hiện có 35 model và 25 enum. Các nhóm model chính là users/auth-support, project/campaign/reward/pledge, blog, payment/checkout, KYC/badge/moderation, invoice/limits và assistant telemetry.[1]
+Schema hiện có 37 model và 25 enum. Các nhóm model chính là users/auth-support, project/campaign/reward/pledge, blog, payment/checkout, KYC/badge/moderation, invoice/limits và assistant telemetry.[1]
 
 | Nhóm | Model tiêu biểu | Quy tắc quan trọng |
 |---|---|---|
@@ -810,3 +825,7 @@ Rollback application không tự động rollback database nếu migration destr
 [17] [`../../src/services/mongodb/`](../src/services/mongodb/) và [`../../scripts/init-mongodb.js`](../scripts/init-mongodb.js), [`../../scripts/init-chat-indexes.ts`](../scripts/init-chat-indexes.ts) — Mongo collection/service/index/retention evidence.
 
 [18] [`../../src/app/api/`](../src/app/api/) — API route surface hiện hành được phân nhóm trong SRS.
+
+[19] [`../src/lib/profile-customization.ts`](../src/lib/profile-customization.ts) — allowlist preset/theme/section, normalization và deterministic A/B presentation.
+
+[20] [`../src/app/api/profile/customization/route.ts`](../src/app/api/profile/customization/route.ts), [`../src/components/profile/ProfileCustomizationEditor.tsx`](../src/components/profile/ProfileCustomizationEditor.tsx) và [`../src/app/profile/[userId]/customize/page.tsx`](../src/app/profile/[userId]/customize/page.tsx) — Profile Studio, owner authorization, draft/publish/restore/version history và preview.

@@ -27,7 +27,7 @@ Bộ tài liệu này là bản đồ kỹ thuật ngắn gọn của hệ thố
 
 ## Snapshot hệ thống
 
-Tử Tế Fund là ứng dụng Next.js 15 App Router, React 19 và Tailwind CSS. PostgreSQL/Prisma là nguồn dữ liệu quan hệ; MongoDB được dùng cho chat và một số nội dung phụ trợ; Cloudinary và các provider thanh toán chỉ hoạt động khi môi trường đã cấu hình. Audit hiện tại ghi nhận 102 route handler API, 52 page file, 148 component file, 35 Prisma model và 25 Prisma enum. Đây là số lượng file/model, không phải cam kết test coverage hay số route đã nghiệm thu production.
+Tử Tế Fund là ứng dụng Next.js 15 App Router, React 19 và Tailwind CSS. PostgreSQL/Prisma là nguồn dữ liệu quan hệ; MongoDB được dùng cho chat và một số nội dung phụ trợ; Cloudinary và các provider thanh toán chỉ hoạt động khi môi trường đã cấu hình. Audit hiện tại ghi nhận 102 route handler API, 52 page file, 148 component file, 37 Prisma model và 25 Prisma enum. Đây là số lượng file/model, không phải cam kết test coverage hay số route đã nghiệm thu production.
 
 Các miền chính gồm identity/auth, project, campaign, reward/product, blog, chat/realtime, dashboard/admin, KYC, notification, upload và payment/checkout.
 

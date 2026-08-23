@@ -1,4 +1,6 @@
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import OwnerEditPanel from "@/components/OwnerEditPanel";
 import { formatVND, extractTextFromDescription } from "@/lib/utils";
 import Link from "next/link";
 import { Metadata } from "next";
@@ -19,6 +21,11 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
+  const session = await auth();
+  const currentUser = session?.user?.email
+    ? await prisma.users.findUnique({ where: { email: session.user.email }, select: { id: true } })
+    : null;
+
   const campaigns = await prisma.campaigns.findMany({
     where: { status: "ACTIVE" },
     include: {
@@ -143,6 +150,24 @@ export default async function Home() {
 
       {/* CTA Section */}
       <CTASection />
+
+      {currentUser && (
+        <OwnerEditPanel
+          isOwner={true}
+          blocks={[
+            {
+              label: "Tùy chỉnh trang cá nhân",
+              editUrl: `/profile/${currentUser.id}/customize`,
+              description: "Preset, màu sắc, section, kéo-thả và preview",
+            },
+            {
+              label: "Chỉnh sửa thông tin hồ sơ",
+              editUrl: `/profile/${currentUser.id}/edit`,
+              description: "Ảnh đại diện, giới thiệu, liên kết và privacy",
+            },
+          ]}
+        />
+      )}
     </main>
   );
 }
