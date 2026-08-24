@@ -92,6 +92,15 @@ export default async function StatementPage({ params }: Params) {
             refundStatus: p.refundStatus,
             fulfillmentStatus: p.fulfillmentStatus,
             accountingReversedAt: p.accountingReversedAt,
+            depositAmount: Number(p.depositAmount),
+            chargeAmount: Number(p.chargeAmount),
+            orderTotalAmount: Number(p.orderTotalAmount),
+            paidAmount: Number(p.paidAmount),
+            remainingAmount: Number(p.remainingAmount),
+            accountingAmount: Number(p.accountingAmount),
+            refundAmount: Number(p.refundAmount),
+            cancellationFeeAmount: Number(p.cancellationFeeAmount),
+            isCashOnDelivery: p.isCashOnDelivery,
             reversalReason: p.fulfillmentStatus === "DELIVERY_FAILED"
               ? (p.deliveryFailureReason || "Giao hàng không thành công")
               : p.fulfillmentStatus === "CANCELED"

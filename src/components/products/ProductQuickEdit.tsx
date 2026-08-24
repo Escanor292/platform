@@ -16,6 +16,9 @@ export interface QuickEditProduct {
   stock?: number | null;
   maxQuantity?: number | null;
   deliveryDate?: Date | string | null;
+  isPreorder?: boolean;
+  onlineDepositPercent?: number;
+  codDepositPercent?: number;
   isActive: boolean;
   isIncludedInProject?: boolean;
   productImages?: string[];
@@ -46,6 +49,9 @@ export function ProductQuickEdit({ product, isOwner }: ProductQuickEditProps) {
     deliveryDate: product.deliveryDate
       ? new Date(product.deliveryDate).toISOString().slice(0, 10)
       : '',
+    isPreorder: product.isPreorder === true,
+    onlineDepositPercent: product.onlineDepositPercent ?? 30,
+    codDepositPercent: product.codDepositPercent ?? 50,
     isActive: product.isActive,
     images: product.productImages || [],
     videoUrl: product.productVideo || '',
@@ -53,6 +59,10 @@ export function ProductQuickEdit({ product, isOwner }: ProductQuickEditProps) {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.isPreorder && !formData.deliveryDate) {
+      toast.error('Vui lòng chọn ngày dự kiến giao hàng cho sản phẩm đặt trước');
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch(`/api/rewards/${product.id}`, {
@@ -65,7 +75,10 @@ export function ProductQuickEdit({ product, isOwner }: ProductQuickEditProps) {
           maxAmount: formData.maxAmount || null,
           stock: formData.stock || null,
           maxQuantity: formData.maxQuantity || null,
-          deliveryDate: formData.deliveryDate || null,
+          deliveryDate: formData.isPreorder ? (formData.deliveryDate || null) : null,
+          isPreorder: formData.isPreorder,
+          onlineDepositPercent: Number(formData.onlineDepositPercent),
+          codDepositPercent: Number(formData.codDepositPercent),
           isActive: formData.isActive,
           productImages: formData.images,
           productVideo: formData.videoUrl || null,
@@ -217,19 +230,58 @@ export function ProductQuickEdit({ product, isOwner }: ProductQuickEditProps) {
                   </div>
                 </div>
 
-                {/* Ngày giao dự kiến */}
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2 mb-2">
-                    <Calendar className="w-4 h-4 text-gray-500" />
-                    Ngày giao dự kiến
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.deliveryDate}
-                    onChange={(e) => setFormData({ ...formData, deliveryDate: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none text-sm"
-                  />
+                {/* Đặt hàng trước */}
+                <div className={`flex items-center justify-between gap-4 rounded-xl border p-4 transition ${formData.isPreorder ? 'border-amber-300 bg-amber-50' : 'border-gray-200 bg-gray-50'}`}>
+                  <div className="flex items-center gap-3">
+                    <Calendar className={`w-5 h-5 ${formData.isPreorder ? 'text-amber-700' : 'text-gray-500'}`} />
+                    <div>
+                      <div className="text-sm font-semibold text-gray-800">Cho phép đặt hàng trước</div>
+                      <div className="text-xs text-gray-500">Nhận đơn trước và giao vào ngày dự kiến</div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={formData.isPreorder}
+                    aria-label="Cho phép đặt hàng trước"
+                    onClick={() => setFormData({ ...formData, isPreorder: !formData.isPreorder, deliveryDate: formData.isPreorder ? '' : formData.deliveryDate })}
+                    className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${formData.isPreorder ? 'bg-amber-500' : 'bg-gray-300'}`}
+                  >
+                    <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${formData.isPreorder ? 'translate-x-6' : 'translate-x-1'}`} />
+                  </button>
                 </div>
+
+                {formData.isPreorder && (
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2 mb-2">
+                      <Calendar className="w-4 h-4 text-amber-600" />
+                      Ngày dự kiến giao hàng *
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      min={new Date().toISOString().slice(0, 10)}
+                      value={formData.deliveryDate}
+                      onChange={(e) => setFormData({ ...formData, deliveryDate: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none text-sm"
+                    />
+                  </div>
+                )}
+
+                {formData.isPreorder && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">Cọc online (%)</label>
+                      <input type="number" min="1" max="99" step="1" value={formData.onlineDepositPercent} onChange={(e) => setFormData({ ...formData, onlineDepositPercent: Number(e.target.value) })} required className="w-full px-4 py-2.5 rounded-xl border border-amber-200 bg-white" />
+                      <p className="mt-1 text-xs text-gray-600">Giữ lại nếu người mua tự hủy sau khi thanh toán online.</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">Cọc COD (%)</label>
+                      <input type="number" min="1" max="99" step="1" value={formData.codDepositPercent} onChange={(e) => setFormData({ ...formData, codDepositPercent: Number(e.target.value) })} required className="w-full px-4 py-2.5 rounded-xl border border-amber-200 bg-white" />
+                      <p className="mt-1 text-xs text-gray-600">Phần còn lại thanh toán khi nhận hàng.</p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Ảnh sản phẩm */}
                 <div>

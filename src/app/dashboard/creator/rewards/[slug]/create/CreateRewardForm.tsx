@@ -30,11 +30,18 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
         deliveryDate: "",
         isActive: true,
         availability: "AVAILABLE" as "AVAILABLE" | "DEVELOPMENT",
+        isPreorder: false,
+        onlineDepositPercent: 30,
+        codDepositPercent: 50,
         fulfillmentType: "PHYSICAL" as "PHYSICAL" | "EMAIL" | "DOWNLOAD" | "LICENSE_KEY" | "DIGITAL_COMIC",
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (formData.isPreorder && !formData.deliveryDate) {
+            toast.error("Vui lòng chọn ngày dự kiến giao hàng cho sản phẩm đặt trước");
+            return;
+        }
         setIsLoading(true);
 
         try {
@@ -49,7 +56,10 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                     description: formData.description || null,
                     minAmount: parseFloat(formData.minAmount),
                     maxQuantity: formData.maxQuantity ? parseInt(formData.maxQuantity) : null,
-                    deliveryDate: formData.availability === "DEVELOPMENT" && formData.deliveryDate ? new Date(formData.deliveryDate) : null,
+                    deliveryDate: formData.isPreorder && formData.deliveryDate ? new Date(formData.deliveryDate) : null,
+                    isPreorder: formData.isPreorder,
+                    onlineDepositPercent: Number(formData.onlineDepositPercent),
+                    codDepositPercent: Number(formData.codDepositPercent),
                     isActive: formData.isActive,
                     availability: formData.availability,
                     fulfillmentType: formData.fulfillmentType,
@@ -163,6 +173,29 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                     </div>
                 </div>
 
+                {/* Pre-order toggle */}
+                <div className={`flex items-center justify-between gap-4 rounded-2xl border p-4 transition ${formData.isPreorder ? 'border-amber-300 bg-amber-50' : 'border-gray-200 bg-gray-50'}`}>
+                    <div className="flex items-center gap-3">
+                        <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${formData.isPreorder ? 'bg-amber-100' : 'bg-white'}`}>
+                            <Calendar className={formData.isPreorder ? 'text-amber-700' : 'text-gray-500'} size={20} />
+                        </div>
+                        <div>
+                            <div className="font-semibold text-gray-900">Cho phép đặt hàng trước</div>
+                            <div className="text-xs text-gray-500">Bật khi sản phẩm chưa sẵn sàng và cần giao vào một ngày dự kiến</div>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        role="switch"
+                        aria-checked={formData.isPreorder}
+                        aria-label="Cho phép đặt hàng trước"
+                        onClick={() => setFormData(prev => ({ ...prev, isPreorder: !prev.isPreorder, deliveryDate: prev.isPreorder ? '' : prev.deliveryDate }))}
+                        className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${formData.isPreorder ? 'bg-amber-500' : 'bg-gray-300'}`}
+                    >
+                        <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${formData.isPreorder ? 'translate-x-6' : 'translate-x-1'}`} />
+                    </button>
+                </div>
+
                 <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">Hình thức nhận sản phẩm *</label>
                     <select
@@ -220,21 +253,37 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                     </p>
                 </div>
 
-                {/* Delivery Date */}
-                {formData.availability === "DEVELOPMENT" && <div>
+                {/* Pre-order delivery date */}
+                {formData.isPreorder && <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
-                        Ngày giao hàng dự kiến
+                        Ngày dự kiến giao hàng *
                     </label>
                     <DateInput
                         value={formData.deliveryDate}
                         onChange={(value) => setFormData(prev => ({ ...prev, deliveryDate: value }))}
                         placeholder="dd/mm/yyyy"
+                        required
                         min={new Date().toISOString().split('T')[0]}
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                        Ngày dự kiến giao quà tặng cho người ủng hộ
+                        Ngày này sẽ được hiển thị cho khách hàng trước khi đặt hàng.
                     </p>
                 </div>}
+
+                {formData.isPreorder && (
+                    <div className="grid gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:grid-cols-2">
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">Cọc online (%)</label>
+                            <input type="number" name="onlineDepositPercent" value={formData.onlineDepositPercent} onChange={handleInputChange} min="1" max="99" step="1" required className="w-full rounded-xl border border-amber-200 bg-white px-4 py-3" />
+                            <p className="mt-1 text-xs text-gray-600">Thanh toán online đủ: tỷ lệ giữ lại khi tự hủy.</p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">Cọc COD (%)</label>
+                            <input type="number" name="codDepositPercent" value={formData.codDepositPercent} onChange={handleInputChange} min="1" max="99" step="1" required className="w-full rounded-xl border border-amber-200 bg-white px-4 py-3" />
+                            <p className="mt-1 text-xs text-gray-600">Phần còn lại thanh toán khi nhận hàng.</p>
+                        </div>
+                    </div>
+                )}
 
                 {/* Status Toggle */}
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">

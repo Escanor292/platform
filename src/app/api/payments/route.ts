@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Decimal } from "@prisma/client/runtime/library";
 import { createPayOSPaymentLink } from "@/lib/payment/payos";
+import { calculateDepositAmount, normalizeDepositPercent } from "@/lib/preorder-deposit";
 
 const MIN_DONATION_AMOUNT = 50_000;
 const MAX_TIP_PERCENT = 20;
@@ -73,6 +74,9 @@ export async function POST(request: NextRequest) {
             maxQuantity: true,
             stock: true,
             availability: true,
+            isPreorder: true,
+            onlineDepositPercent: true,
+            codDepositPercent: true,
             fulfillmentType: true,
           },
         })
@@ -102,8 +106,11 @@ export async function POST(request: NextRequest) {
       if (reward.fulfillmentType !== "PHYSICAL" && !["EMAIL", "DOWNLOAD"].includes(shippingMethod)) {
         return NextResponse.json({ error: "Tài sản số cần chọn phương thức nhận qua email hoặc kho đã mua" }, { status: 400 });
       }
-      if (paymentMethod === "COD" && (reward.availability !== "AVAILABLE" || reward.fulfillmentType !== "PHYSICAL")) {
-        return NextResponse.json({ error: "Thanh toán khi nhận hàng chỉ áp dụng cho sản phẩm vật lý có sẵn" }, { status: 400 });
+      if (paymentMethod === "COD" && reward.fulfillmentType !== "PHYSICAL") {
+        return NextResponse.json({ error: "COD chỉ áp dụng cho sản phẩm vật lý" }, { status: 400 });
+      }
+      if (paymentMethod === "COD" && !reward.isPreorder && reward.availability !== "AVAILABLE") {
+        return NextResponse.json({ error: "COD thường chỉ áp dụng cho sản phẩm vật lý có sẵn" }, { status: 400 });
       }
       if (reward.stock !== null && reward.stock < quantity) {
         return NextResponse.json({ error: "Sản phẩm không đủ tồn kho" }, { status: 409 });
@@ -139,8 +146,14 @@ export async function POST(request: NextRequest) {
       }, { status: 503 });
     }
 
-    const isReadyProduct = reward?.availability === "AVAILABLE";
+    const isPreorder = Boolean(reward?.isPreorder);
+    const isReadyProduct = reward?.availability === "AVAILABLE" && !isPreorder;
     const baseAmount = reward ? amount * quantity : amount;
+    const depositPercent = isPreorder
+      ? (paymentMethod === "COD"
+        ? normalizeDepositPercent(reward?.codDepositPercent, 50)
+        : normalizeDepositPercent(reward?.onlineDepositPercent, 30))
+      : 0;
     const tipPercent = !isReadyProduct && paymentMethod === "ONLINE"
       ? Math.min(Math.max(Number.isFinite(platformTipPercent) ? platformTipPercent : 0, 0), MAX_TIP_PERCENT)
       : 0;
@@ -148,6 +161,9 @@ export async function POST(request: NextRequest) {
     const vatAmount = Math.round(tipAmount * 0.1);
     const shippingFee = reward?.fulfillmentType === "PHYSICAL" && shippingMethod === "EXPRESS" ? 30000 : 0;
     const totalAmount = baseAmount + tipAmount + vatAmount + shippingFee;
+    const depositAmount = isPreorder ? calculateDepositAmount(baseAmount, depositPercent) : 0;
+    const chargeAmount = isPreorder && paymentMethod === "COD" ? depositAmount : totalAmount;
+    const remainingAmount = Math.max(0, totalAmount - chargeAmount);
     const finalDisplayName = isAnonymous ? "Người dùng ẩn danh" : (displayName || session?.user?.name || "Khách hàng");
     const ipAddress = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
       || request.headers.get("x-real-ip")
@@ -157,12 +173,12 @@ export async function POST(request: NextRequest) {
       : null;
     const now = new Date();
 
-    if (paymentMethod === "COD") {
+    if (paymentMethod === "COD" && !isPreorder) {
       const transactionId = `COD-${crypto.randomUUID()}`;
       try {
         const pledge = await prisma.$transaction(async (tx) => {
           if (!reward) {
-            throw new Error("COD chỉ áp dụng cho sản phẩm có sẵn");
+            throw new Error("COD chỉ áp dụng cho sản phẩm vật lý có sẵn, không áp dụng cho hàng đặt trước");
           }
           if (reward.stock !== null) {
             const stockUpdate = await tx.rewards.updateMany({
@@ -183,6 +199,12 @@ export async function POST(request: NextRequest) {
               tipAmount: new Decimal(0),
               vatAmount: new Decimal(0),
               totalAmount: new Decimal(baseAmount + shippingFee),
+              depositAmount: new Decimal(0),
+              chargeAmount: new Decimal(baseAmount + shippingFee),
+              orderTotalAmount: new Decimal(baseAmount + shippingFee),
+              remainingAmount: new Decimal(0),
+              paidAmount: new Decimal(0),
+              accountingAmount: new Decimal(0),
               email: finalEmail,
               displayName: finalDisplayName,
               shippingAddress: finalShippingAddress,
@@ -211,6 +233,9 @@ export async function POST(request: NextRequest) {
           status: "PENDING",
           paymentProvider: "COD",
           confirmationUrl,
+          isPreorder: false,
+          chargeAmount: baseAmount + shippingFee,
+          remainingAmount: 0,
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : "Không thể tạo đơn COD";
@@ -242,6 +267,12 @@ export async function POST(request: NextRequest) {
           tipAmount: new Decimal(tipAmount),
           vatAmount: new Decimal(vatAmount),
           totalAmount: new Decimal(totalAmount),
+          depositAmount: new Decimal(depositAmount),
+          chargeAmount: new Decimal(chargeAmount),
+          orderTotalAmount: new Decimal(totalAmount),
+          remainingAmount: new Decimal(remainingAmount),
+          paidAmount: new Decimal(0),
+          accountingAmount: new Decimal(0),
           email: finalEmail || null,
           displayName: finalDisplayName,
           shippingAddress: finalShippingAddress,
@@ -249,12 +280,12 @@ export async function POST(request: NextRequest) {
           shippingFee: new Decimal(shippingFee),
           isAnonymous,
           quantity,
-          isCashOnDelivery: false,
+          isCashOnDelivery: paymentMethod === "COD",
           stockReserved,
           fulfillmentType: reward?.fulfillmentType ?? null,
           fulfillmentStatus: reward ? "AWAITING_PAYMENT" : "NOT_APPLICABLE",
           ipAddress,
-          paymentProvider: "PAYOS",
+          paymentProvider: paymentMethod === "COD" ? "PAYOS_COD_DEPOSIT" : "PAYOS",
           transactionId: `ONLINE-${crypto.randomUUID()}`,
           status: "PENDING",
           updatedAt: now,
@@ -268,11 +299,11 @@ export async function POST(request: NextRequest) {
 
     try {
       if (process.env.NODE_ENV === "development") {
-        paymentUrl = `${baseUrl}/api/payment/payos/mock-checkout?orderCode=${orderCode}&amount=${totalAmount}&pledgeId=${encodeURIComponent(pledge.id)}`;
+          paymentUrl = `${baseUrl}/api/payment/payos/mock-checkout?orderCode=${orderCode}&amount=${chargeAmount}&pledgeId=${encodeURIComponent(pledge.id)}`;
       } else {
         const paymentLink = await createPayOSPaymentLink({
           orderCode,
-          amount: Math.round(totalAmount),
+          amount: Math.round(chargeAmount),
           description: `${reward ? "Mua " + reward.title : "Ung ho " + (campaign?.title || "chien dich")}`.slice(0, 32),
           cancelUrl: `${baseUrl}/campaigns`,
           returnUrl: `${baseUrl}/payment-success?status=success&ref=${encodeURIComponent(pledge.id)}`,
@@ -285,7 +316,9 @@ export async function POST(request: NextRequest) {
         const current = await tx.pledges.findUnique({ where: { id: pledge.id }, select: { stockReserved: true, rewardId: true, quantity: true } });
         if (current?.stockReserved && current.rewardId) {
           await tx.rewards.update({ where: { id: current.rewardId }, data: { stock: { increment: current.quantity }, updatedAt: new Date() } });
-          await tx.pledges.update({ where: { id: pledge.id }, data: { stockReserved: false, status: "FAILED", fulfillmentStatus: "CANCELED", cancellationReason: "Không tạo được phiên thanh toán" } });
+        }
+        if (current) {
+          await tx.pledges.update({ where: { id: pledge.id }, data: { stockReserved: false, status: "FAILED", fulfillmentStatus: "CANCELED", cancellationReason: "Không tạo được phiên thanh toán", updatedAt: new Date() } });
         }
       });
       return NextResponse.json({ error: "Cổng thanh toán trực tuyến chưa sẵn sàng. Vui lòng thử lại sau." }, { status: 503 });
@@ -303,6 +336,10 @@ export async function POST(request: NextRequest) {
       orderCode,
       paymentProvider: "PAYOS_HOSTED",
       paymentMethodSavePending: savePaymentMethod && Boolean(session?.user?.id),
+      isPreorder,
+      chargeAmount,
+      depositAmount,
+      remainingAmount,
     });
   } catch (error) {
     console.error("[PAYMENTS_API] Request failed", error instanceof Error ? error.message : "unknown error");

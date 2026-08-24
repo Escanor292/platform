@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog } from "@/lib/audit";
+import { recalculateCampaignAmount } from "@/lib/order-fulfillment";
 import crypto from "crypto";
 
 /**
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
     const pledge = await prisma.pledges.findFirst({
       where: {
         payosOrderCode: orderCode.toString(),
-        paymentProvider: "PAYOS",
+        paymentProvider: { in: ["PAYOS", "PAYOS_COD_DEPOSIT"] },
       },
       include: { campaigns: true, users: true },
     });
@@ -105,12 +106,12 @@ export async function POST(request: NextRequest) {
     // ============================================================
     // 5. VERIFY AMOUNT
     // ============================================================
-    const pledgeTotalAmount = Number(pledge.totalAmount);
-    if (Math.abs(pledgeTotalAmount - amount) > 100) { // Cho phép sai lệch 100 VND
+    const pledgeChargeAmount = Number(pledge.chargeAmount || pledge.totalAmount);
+    if (Math.abs(pledgeChargeAmount - amount) > 100) { // Cho phép sai lệch 100 VND
       console.error(`[PAYOS WEBHOOK ${requestId}] Amount mismatch`, {
-        expected: pledgeTotalAmount,
+        expected: pledgeChargeAmount,
         received: amount,
-        difference: Math.abs(pledgeTotalAmount - amount)
+          difference: Math.abs(pledgeChargeAmount - amount)
       });
       return NextResponse.json(
         { error: "Amount mismatch" },
@@ -130,26 +131,39 @@ export async function POST(request: NextRequest) {
       console.log(`[PAYOS WEBHOOK ${requestId}] Processing successful payment`);
 
       // Update pledge
-      await prisma.pledges.update({
+      const updatedCampaign = pledge.campaignId ? await prisma.$transaction(async (tx) => {
+        await tx.pledges.update({
+          where: { id: pledge.id },
+          data: {
+            status: "SUCCESS",
+            fulfillmentStatus: pledge.rewardId ? "PROCESSING" : "NOT_APPLICABLE",
+            transactionId: reference || pledge.transactionId,
+            paidAmount: pledgeChargeAmount,
+            remainingAmount: Math.max(0, Number(pledge.orderTotalAmount || pledge.totalAmount) - pledgeChargeAmount),
+            accountingAmount: pledge.isCashOnDelivery ? pledge.depositAmount : pledge.amount,
+            webhookProcessedAt: new Date(),
+            updatedAt: new Date(),
+          },
+        });
+        await recalculateCampaignAmount(tx, pledge.campaignId!);
+        return tx.campaigns.findUnique({ where: { id: pledge.campaignId! }, select: { currentAmount: true, goalAmount: true, status: true } });
+      }) : await prisma.pledges.update({
         where: { id: pledge.id },
         data: {
           status: "SUCCESS",
           fulfillmentStatus: pledge.rewardId ? "PROCESSING" : "NOT_APPLICABLE",
           transactionId: reference || pledge.transactionId,
+          paidAmount: pledgeChargeAmount,
+          remainingAmount: Math.max(0, Number(pledge.orderTotalAmount || pledge.totalAmount) - pledgeChargeAmount),
+          accountingAmount: pledge.isCashOnDelivery ? pledge.depositAmount : pledge.amount,
           webhookProcessedAt: new Date(),
           updatedAt: new Date(),
         },
-      });
-
-      // Update campaign amount only for campaign-attributed pledges.
-      const updatedCampaign = pledge.campaignId ? await prisma.$transaction(async (tx) => {
-        await tx.campaigns.update({ where: { id: pledge.campaignId! }, data: { currentAmount: { increment: pledge.amount }, updatedAt: new Date() } });
-        return tx.campaigns.findUnique({ where: { id: pledge.campaignId! } });
-      }) : null;
+      }).then(() => null);
 
       if (
         updatedCampaign &&
-        Number(updatedCampaign.currentAmount) >= Number(updatedCampaign.goalAmount) &&
+        Number(updatedCampaign) >= Number(pledge.campaigns?.goalAmount || 0) &&
         updatedCampaign.status === "ACTIVE"
       ) {
         await prisma.campaigns.update({
@@ -188,13 +202,22 @@ export async function POST(request: NextRequest) {
       // ========== PAYMENT FAILED ==========
       console.log(`[PAYOS WEBHOOK ${requestId}] Processing failed payment: ${code} - ${desc}`);
 
-      await prisma.pledges.update({
-        where: { id: pledge.id },
-        data: {
-          status: "FAILED",
-          webhookProcessedAt: new Date(),
-          updatedAt: new Date(),
-        },
+      await prisma.$transaction(async (tx) => {
+        const current = await tx.pledges.findUnique({ where: { id: pledge.id }, select: { stockReserved: true, rewardId: true, quantity: true } });
+        if (current?.stockReserved && current.rewardId) {
+          await tx.rewards.update({ where: { id: current.rewardId }, data: { stock: { increment: current.quantity }, updatedAt: new Date() } });
+        }
+        await tx.pledges.update({
+          where: { id: pledge.id },
+          data: {
+            status: "FAILED",
+            stockReserved: false,
+            fulfillmentStatus: pledge.rewardId ? "CANCELED" : "NOT_APPLICABLE",
+            cancellationReason: "Thanh toán cọc không thành công",
+            webhookProcessedAt: new Date(),
+            updatedAt: new Date(),
+          },
+        });
       });
 
       // Audit log

@@ -8,6 +8,15 @@ interface Pledge {
   id: string;
   amount: number;
   totalAmount: number;
+  depositAmount: number;
+  chargeAmount: number;
+  orderTotalAmount: number;
+  paidAmount: number;
+  remainingAmount: number;
+  accountingAmount: number;
+  refundAmount: number;
+  cancellationFeeAmount: number;
+  isCashOnDelivery: boolean;
   displayName: string | null;
   isAnonymous: boolean;
   createdAt: Date;
@@ -39,20 +48,24 @@ interface TransactionStatementProps {
 
 export default function TransactionStatement({ campaign, pledges }: TransactionStatementProps) {
   const gross = pledges.filter((p) => p.status === "SUCCESS" || p.status === "REFUNDED").reduce((sum, p) => sum + Number(p.amount), 0);
-  const actual = pledges.filter((p) => p.status === "SUCCESS" && !p.accountingReversedAt).reduce((sum, p) => sum + Number(p.amount), 0);
-  const reversed = gross - actual;
+  const actual = pledges.filter((p) => (p.status === "SUCCESS" || p.status === "REFUNDED") && Number(p.accountingAmount) > 0).reduce((sum, p) => sum + Number(p.accountingAmount), 0);
+  const reversed = Math.max(0, gross - actual);
   const closedTotal = campaign.closedAmount ?? gross;
   const activeCount = pledges.filter((p) => p.status === "SUCCESS" && !p.accountingReversedAt).length;
 
   const handleExport = () => {
     const rows = [
-      ["STT", "Tên người ủng hộ", "Sản phẩm/quà", "Số tiền đóng góp", "Tổng thanh toán", "Trạng thái", "Lý do đảo", "Thời gian", "Mã giao dịch", "Phương thức"],
+      ["STT", "Tên người ủng hộ", "Sản phẩm/quà", "Đóng góp gốc", "Accounting hiện tại", "Đã trả", "Đã hoàn", "Phí/cọc giữ lại", "Tổng đơn", "Trạng thái", "Lý do đảo", "Thời gian", "Mã giao dịch", "Phương thức"],
       ...pledges.map((pledge, index) => [
         index + 1,
         pledge.isAnonymous ? "Ẩn danh" : (pledge.user?.name || pledge.displayName || "Người ủng hộ"),
         pledge.rewardTitle || "Ủng hộ không quà",
         Number(pledge.amount),
-        Number(pledge.totalAmount),
+        Number(pledge.accountingAmount),
+        Number(pledge.paidAmount),
+        Number(pledge.refundAmount),
+        Number(pledge.cancellationFeeAmount),
+        Number(pledge.orderTotalAmount || pledge.totalAmount),
         pledge.status,
         pledge.reversalReason || "",
         new Date(pledge.createdAt).toLocaleString("vi-VN"),
@@ -92,8 +105,8 @@ export default function TransactionStatement({ campaign, pledges }: TransactionS
           <div className="rounded-xl border border-gray-200 bg-gray-50 p-4"><div className="flex items-center gap-2 mb-2"><Calendar size={16} className="text-gray-600" /><div className="text-xs text-gray-600 font-bold uppercase">Giao dịch hợp lệ</div></div><div className="text-2xl font-black text-gray-900">{activeCount}</div></div>
         </div>
 
-        <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b-2 border-gray-200"><th className="text-left py-3 px-2 font-black text-gray-700 uppercase text-xs">STT</th><th className="text-left py-3 px-4 font-black text-gray-700 uppercase text-xs">Người ủng hộ</th><th className="text-left py-3 px-4 font-black text-gray-700 uppercase text-xs">Sản phẩm</th><th className="text-right py-3 px-4 font-black text-gray-700 uppercase text-xs">Đóng góp</th><th className="text-left py-3 px-4 font-black text-gray-700 uppercase text-xs">Trạng thái</th><th className="text-left py-3 px-4 font-black text-gray-700 uppercase text-xs">Thời gian</th><th className="text-left py-3 px-2 font-black text-gray-700 uppercase text-xs">PT</th></tr></thead>
-          <tbody>{pledges.map((pledge, index) => { const reversedRow = Boolean(pledge.accountingReversedAt) || pledge.status === "REFUNDED" || Boolean(pledge.reversalReason); return <tr key={pledge.id} className={`border-b ${reversedRow ? "border-red-100 bg-red-50/70 text-red-800" : "border-gray-100 hover:bg-gray-50"}`}><td className="py-3 px-2 font-medium">{index + 1}</td><td className="py-3 px-4 font-semibold">{pledge.isAnonymous ? <span className="italic">Ẩn danh</span> : (pledge.user?.name || pledge.displayName || "Người ủng hộ")}{reversedRow && <div className="text-xs font-bold text-red-700 mt-1">Giao dịch đã bị loại khỏi tổng thực tế</div>}</td><td className="py-3 px-4">{pledge.rewardTitle || "Ủng hộ không quà"}</td><td className={`py-3 px-4 text-right font-bold ${reversedRow ? "line-through text-red-700" : "text-green-700"}`}>{formatVND(pledge.amount)}</td><td className="py-3 px-4"><span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-bold ${reversedRow ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>{reversedRow && <AlertTriangle size={12} />}{reversedRow ? (pledge.reversalReason || "Đã đảo") : pledge.fulfillmentStatus}</span></td><td className="py-3 px-4 text-xs font-mono">{formatDate(new Date(pledge.createdAt))}</td><td className="py-3 px-2"><span className="inline-block px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">{pledge.paymentProvider}</span></td></tr>; })}</tbody>
+        <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b-2 border-gray-200"><th className="text-left py-3 px-2 font-black text-gray-700 uppercase text-xs">STT</th><th className="text-left py-3 px-4 font-black text-gray-700 uppercase text-xs">Người ủng hộ</th><th className="text-left py-3 px-4 font-black text-gray-700 uppercase text-xs">Sản phẩm</th><th className="text-right py-3 px-4 font-black text-gray-700 uppercase text-xs">Đóng góp / accounting</th><th className="text-left py-3 px-4 font-black text-gray-700 uppercase text-xs">Trạng thái</th><th className="text-left py-3 px-4 font-black text-gray-700 uppercase text-xs">Thời gian</th><th className="text-left py-3 px-2 font-black text-gray-700 uppercase text-xs">PT</th></tr></thead>
+          <tbody>{pledges.map((pledge, index) => { const reversedRow = Boolean(pledge.accountingReversedAt) || pledge.status === "REFUNDED" || Boolean(pledge.reversalReason); return <tr key={pledge.id} className={`border-b ${reversedRow ? "border-red-100 bg-red-50/70 text-red-800" : "border-gray-100 hover:bg-gray-50"}`}><td className="py-3 px-2 font-medium">{index + 1}</td><td className="py-3 px-4 font-semibold">{pledge.isAnonymous ? <span className="italic">Ẩn danh</span> : (pledge.user?.name || pledge.displayName || "Người ủng hộ")}{reversedRow && <div className="text-xs font-bold text-red-700 mt-1">Giao dịch đã bị loại khỏi tổng thực tế</div>}</td><td className="py-3 px-4">{pledge.rewardTitle || "Ủng hộ không quà"}</td><td className={`py-3 px-4 text-right font-bold ${reversedRow ? "text-red-700" : "text-green-700"}`}><div className={reversedRow ? "line-through" : ""}>{formatVND(pledge.amount)}</div>{reversedRow && Number(pledge.accountingAmount) > 0 && <div className="mt-1 text-xs font-semibold text-red-700">Tính giữ lại: {formatVND(pledge.accountingAmount)}</div>}</td><td className="py-3 px-4"><span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-bold ${reversedRow ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>{reversedRow && <AlertTriangle size={12} />}{reversedRow ? (pledge.reversalReason || "Đã đảo") : pledge.fulfillmentStatus}</span></td><td className="py-3 px-4 text-xs font-mono"><div>{formatDate(new Date(pledge.createdAt))}</div><div className="mt-1 text-[11px] text-gray-500">Đã trả: {formatVND(pledge.paidAmount)} · Hoàn: {formatVND(pledge.refundAmount)}</div></td><td className="py-3 px-2"><span className="inline-block px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">{pledge.paymentProvider}</span></td></tr>; })}</tbody>
           <tfoot><tr className="border-t-2 border-gray-300 bg-gray-50"><td colSpan={3} className="py-4 px-4 font-black text-gray-900 uppercase text-sm">Tổng thực tế hiện tại</td><td className="py-4 px-4 text-right font-black text-green-700 text-lg">{formatVND(actual)}</td><td colSpan={3} className="py-4 px-4 text-gray-500 text-xs font-medium">{activeCount} giao dịch hợp lệ · {formatVND(reversed)} đã bị đảo</td></tr></tfoot>
         </table></div>
         <div className="text-center text-xs text-gray-400 pt-6 border-t border-gray-200"><p>Báo cáo được tính từ ledger pledge, không xóa các giao dịch lịch sử.</p><p className="mt-1">Các dòng màu đỏ là giao dịch đã hủy, giao hàng không thành công hoặc trả hàng.</p></div>

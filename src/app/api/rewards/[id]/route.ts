@@ -81,7 +81,10 @@ export async function PUT(
             isActive,
             isIncludedInProject,
             availability,
-            fulfillmentType
+            fulfillmentType,
+            isPreorder,
+            onlineDepositPercent,
+            codDepositPercent
         } = body;
         const allowedFulfillmentTypes = ["PHYSICAL", "EMAIL", "DOWNLOAD", "LICENSE_KEY", "DIGITAL_COMIC"] as const;
         const normalizedFulfillmentType = fulfillmentType === undefined
@@ -136,6 +139,27 @@ export async function PUT(
             }
         }
 
+        const preorderEnabled = isPreorder === undefined ? reward.isPreorder : isPreorder === true;
+        const parseDepositPercent = (value: unknown, fallback: number) => {
+            if (value === undefined || value === null || value === '') return fallback;
+            const parsed = Number(value);
+            return Number.isInteger(parsed) && parsed >= 1 && parsed <= 99 ? parsed : null;
+        };
+        const normalizedOnlineDepositPercent = parseDepositPercent(onlineDepositPercent, reward.onlineDepositPercent);
+        const normalizedCodDepositPercent = parseDepositPercent(codDepositPercent, reward.codDepositPercent);
+        if (normalizedOnlineDepositPercent === null || normalizedCodDepositPercent === null) {
+            return NextResponse.json({ error: "Tỷ lệ cọc phải là số nguyên từ 1% đến 99%" }, { status: 400 });
+        }
+        const nextDeliveryDate = deliveryDate !== undefined
+            ? (deliveryDate ? new Date(deliveryDate) : null)
+            : reward.deliveryDate;
+        if (preorderEnabled && (!nextDeliveryDate || Number.isNaN(nextDeliveryDate.getTime()) || nextDeliveryDate <= new Date())) {
+            return NextResponse.json(
+                { error: "Sản phẩm đặt trước phải có ngày dự kiến giao hàng trong tương lai" },
+                { status: 400 }
+            );
+        }
+
         // Update reward
         const updatedReward = await prisma.rewards.update({
             where: { id },
@@ -148,7 +172,10 @@ export async function PUT(
                 productImages: Array.isArray(productImages) ? productImages : undefined,
                 productVideo: productVideo !== undefined ? (productVideo || null) : undefined,
                 maxQuantity: maxQuantity !== undefined ? (maxQuantity ? parseInt(maxQuantity) : null) : undefined,
-                deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
+                deliveryDate: preorderEnabled ? nextDeliveryDate : null,
+                isPreorder: preorderEnabled,
+                onlineDepositPercent: normalizedOnlineDepositPercent,
+                codDepositPercent: normalizedCodDepositPercent,
                 isActive: isActive !== undefined ? Boolean(isActive) : undefined,
                 availability: availability !== undefined ? (availability === "DEVELOPMENT" ? "DEVELOPMENT" : "AVAILABLE") : undefined,
                 fulfillmentType: normalizedFulfillmentType,

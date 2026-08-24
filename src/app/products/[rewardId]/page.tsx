@@ -15,6 +15,7 @@ import {
   Check,
   Calendar,
   Layers,
+  Star,
 } from 'lucide-react';
 import prisma from '@/lib/prisma';
 import { formatVND } from '@/lib/utils';
@@ -59,10 +60,25 @@ export default async function ProductDetailPage({
         },
       },
       projects: true,
+      _count: {
+        select: {
+          pledges: { where: { status: 'SUCCESS' } },
+          product_reviews: true,
+        },
+      },
     },
   });
 
   if (!reward) return notFound();
+
+  const reviewSummary = await prisma.product_reviews.aggregate({
+    where: { rewardId: reward.id },
+    _avg: { rating: true },
+    _count: { _all: true },
+  });
+  const soldCount = (reward as any)._count?.pledges ?? 0;
+  const reviewCount = reviewSummary._count._all;
+  const averageRating = reviewSummary._avg.rating ?? 0;
 
   const campaign = (reward as any).campaigns as any;
   const campaignProject = campaign?.projects || null;
@@ -170,6 +186,29 @@ export default async function ProductDetailPage({
                   {reward.title}
                 </h1>
 
+                <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                  <span className="inline-flex items-center gap-1.5 font-semibold text-amber-600">
+                    <Star size={16} className="fill-amber-400 text-amber-400" />
+                    {reviewCount > 0 ? averageRating.toFixed(1) : 'Chưa có đánh giá'}
+                  </span>
+                  <span className="text-gray-500">{reviewCount} đánh giá</span>
+                  <span className="text-gray-300">|</span>
+                  <span className="text-gray-600">{soldCount} lượt bán</span>
+                </div>
+
+                {reward.isPreorder && (
+                  <div className="mb-4 space-y-2">
+                    <div className="inline-flex w-fit items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-800">
+                      <Calendar size={15} />
+                      Đặt hàng trước
+                      {reward.deliveryDate && ` · dự kiến giao ${new Date(reward.deliveryDate).toLocaleDateString('vi-VN')}`}
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Online cọc {reward.onlineDepositPercent}% · COD cọc {reward.codDepositPercent}% · phần còn lại thanh toán theo phương thức đã chọn.
+                    </p>
+                  </div>
+                )}
+
                 {reward.description && (
                   <p className="text-gray-600 leading-relaxed mb-5 text-sm">
                     {reward.description}
@@ -235,13 +274,16 @@ export default async function ProductDetailPage({
                 )}
 
                 {/* Actions */}
-                <div className="flex flex-wrap items-center gap-3 mt-auto">
+                <div className="flex w-full flex-wrap items-center gap-3 mt-auto">
                   <QuickAddToCartButton
                     rewardId={reward.id}
                     title={reward.title}
                     image={images[0] || ''}
                     price={Number(reward.minAmount)}
                     campaignId={campaign.id}
+                    isPreorder={reward.isPreorder}
+                    deliveryDate={reward.deliveryDate?.toISOString() || null}
+                    className="h-12 w-12 rounded-2xl"
                   />
                   <CampaignRewardDonationButton
                     campaignId={campaign.id}
@@ -252,6 +294,9 @@ export default async function ProductDetailPage({
                       description: reward.description,
                       minAmount: Number(reward.minAmount),
                       estimatedDelivery: reward.deliveryDate?.toISOString() || null,
+                      isPreorder: reward.isPreorder,
+                      onlineDepositPercent: reward.onlineDepositPercent,
+                      codDepositPercent: reward.codDepositPercent,
                       availability: reward.availability,
                       fulfillmentType: reward.fulfillmentType,
                       maxQuantity: reward.maxQuantity,
@@ -308,6 +353,9 @@ export default async function ProductDetailPage({
               stock: reward.stock,
               maxQuantity: reward.maxQuantity,
               deliveryDate: reward.deliveryDate,
+              isPreorder: reward.isPreorder,
+              onlineDepositPercent: reward.onlineDepositPercent,
+              codDepositPercent: reward.codDepositPercent,
               isActive: reward.isActive,
               productImages: images,
               productVideo: reward.productVideo,
@@ -366,6 +414,23 @@ export default async function ProductDetailPage({
                 {reward.title}
               </h1>
 
+              <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                <span className="inline-flex items-center gap-1.5 font-semibold text-amber-600">
+                  <Star size={16} className="fill-amber-400 text-amber-400" />
+                  {reviewCount > 0 ? averageRating.toFixed(1) : 'Chưa có đánh giá'}
+                </span>
+                <span className="text-gray-500">{reviewCount} đánh giá</span>
+                <span className="text-gray-300">|</span>
+                <span className="text-gray-600">{soldCount} lượt bán</span>
+              </div>
+
+              {reward.isPreorder && (
+                <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-800">
+                  <Calendar size={15} /> Đặt hàng trước
+                  {reward.deliveryDate ? ` · dự kiến giao ${new Date(reward.deliveryDate).toLocaleDateString('vi-VN')}` : ''}
+                </div>
+              )}
+
               {/* Giá */}
               <div className="mb-5 p-4 rounded-2xl bg-cream/50 border border-pgreen/10">
                 <div className="flex items-baseline gap-3">
@@ -390,9 +455,9 @@ export default async function ProductDetailPage({
                 <span className="flex items-center gap-1.5">
                   <Package size={15} className="text-pgreen" /> {stockText}
                 </span>
-                {deliveryText && (
-                  <span className="flex items-center gap-1.5">
-                    <Calendar size={15} className="text-pgreen" /> {deliveryText}
+                {reward.isPreorder && deliveryText && (
+                  <span className="flex items-center gap-1.5 font-semibold text-amber-700">
+                    <Calendar size={15} className="text-amber-600" /> Đặt trước · {deliveryText}
                   </span>
                 )}
                 {((reward as any)._count?.pledges ?? 0) > 0 && (
@@ -410,17 +475,7 @@ export default async function ProductDetailPage({
               )}
 
               {/* Actions */}
-              <div className="flex flex-wrap gap-3 mt-auto">
-                <ProductPurchaseButton
-                  rewardId={reward.id}
-                  title={reward.title}
-                  minAmount={Number(reward.minAmount)}
-                  stock={reward.stock}
-                  maxQuantity={reward.maxQuantity}
-                  availability={reward.availability}
-                  fulfillmentType={reward.fulfillmentType}
-                  campaignId={campaign?.id}
-                />
+              <div className="flex flex-wrap items-center gap-3 mt-auto">
                 <AddToCartButton
                   rewardId={reward.id}
                   title={reward.title}
@@ -428,8 +483,25 @@ export default async function ProductDetailPage({
                   price={Number(reward.minAmount)}
                   originalPrice={reward.maxAmount ? Number(reward.maxAmount) : undefined}
                   stock={reward.stock}
+                  isPreorder={reward.isPreorder}
+                  deliveryDate={reward.deliveryDate?.toISOString() || null}
                   contactUserId={contactUserId}
                   ownerName={campaign?.users?.name || 'Nhà sáng tạo'}
+                  campaignId={campaign?.id}
+                  compact
+                />
+                <ProductPurchaseButton
+                  rewardId={reward.id}
+                  title={reward.title}
+                  minAmount={Number(reward.minAmount)}
+                  stock={reward.stock}
+                  maxQuantity={reward.maxQuantity}
+                  availability={reward.availability}
+                  isPreorder={reward.isPreorder}
+                  deliveryDate={reward.deliveryDate?.toISOString() || null}
+                  onlineDepositPercent={reward.onlineDepositPercent}
+                  codDepositPercent={reward.codDepositPercent}
+                  fulfillmentType={reward.fulfillmentType}
                   campaignId={campaign?.id}
                 />
                 <button
@@ -449,7 +521,7 @@ export default async function ProductDetailPage({
                   { icon: ShieldCheck, title: 'Thanh toán an toàn', sub: 'Bảo mật 100%' },
                   { icon: Package, title: 'Giao hàng toàn quốc', sub: 'Miễn phí vận chuyển' },
                   { icon: RotateCcw, title: 'Đổi trả dễ dàng', sub: 'Trong 7 ngày' },
-                  { icon: Users, title: 'Cộng đồng ủng hộ', sub: 'Nền tảng Tử Tế Fund' },
+                  { icon: Users, title: 'Đã bán', sub: `${soldCount} lượt bán` },
                 ].map(({ icon: Icon, title, sub }) => (
                   <div key={title} className="flex items-center gap-2.5">
                     <div className="w-9 h-9 rounded-full bg-pgreen/10 flex items-center justify-center flex-shrink-0">
@@ -479,6 +551,7 @@ export default async function ProductDetailPage({
             stock: reward.stock,
             maxQuantity: reward.maxQuantity,
             deliveryDate: reward.deliveryDate,
+            isPreorder: reward.isPreorder,
             isActive: reward.isActive,
             productImages: images,
             productVideo: reward.productVideo,

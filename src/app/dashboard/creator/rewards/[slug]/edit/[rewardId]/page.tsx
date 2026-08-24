@@ -57,6 +57,10 @@ export default async function EditRewardPage({ params }: PageProps) {
         maxQuantity: reward.maxQuantity,
         availability: reward.availability,
         deliveryDate: reward.deliveryDate?.toISOString().split('T')[0] || null,
+        isPreorder: reward.isPreorder,
+        onlineDepositPercent: reward.onlineDepositPercent,
+        codDepositPercent: reward.codDepositPercent,
+
         isActive: reward.isActive,
         _count: reward._count,
         campaign: reward.campaigns!,

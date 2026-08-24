@@ -19,6 +19,8 @@ export interface CartItem {
   price: number;
   qty: number;
   campaignId?: string | null;
+  isPreorder?: boolean;
+  deliveryDate?: string | null;
 }
 
 interface CartContextValue {

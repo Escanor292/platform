@@ -15,6 +15,8 @@ export interface ProductBoxAttributes {
   imageUrl: string | null;
   linkUrl: string | null;
   campaignId?: string | null;
+  isPreorder?: boolean;
+  deliveryDate?: string | null;
 }
 
 declare module '@tiptap/core' {
@@ -76,6 +78,16 @@ export const ProductBox = Node.create({
         renderHTML: attributes =>
           attributes.campaignId ? { 'data-campaign-id': attributes.campaignId } : {},
       },
+      isPreorder: {
+        default: false,
+        parseHTML: element => element.getAttribute('data-is-preorder') === 'true',
+        renderHTML: attributes => attributes.isPreorder ? { 'data-is-preorder': 'true' } : {},
+      },
+      deliveryDate: {
+        default: null,
+        parseHTML: element => element.getAttribute('data-delivery-date') || null,
+        renderHTML: attributes => attributes.deliveryDate ? { 'data-delivery-date': attributes.deliveryDate } : {},
+      },
     };
   },
 
@@ -113,7 +125,7 @@ export const ProductBox = Node.create({
 
   addNodeView() {
     return ({ node, editor, getPos }) => {
-      const { rewardId, title, price, imageUrl, linkUrl, campaignId } = node.attrs as ProductBoxAttributes;
+      const { rewardId, title, price, imageUrl, linkUrl, campaignId, isPreorder, deliveryDate } = node.attrs as ProductBoxAttributes;
 
       const container = document.createElement('div');
       container.className =
@@ -155,6 +167,8 @@ export const ProductBox = Node.create({
               imageUrl,
                                                       linkUrl,
                                                       campaignId,
+                                                      isPreorder,
+                                                      deliveryDate,
                                                       pos: typeof getPos === 'function' ? getPos() : null,
             },
           })

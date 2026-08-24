@@ -411,6 +411,11 @@ export default function ProjectDetailClient({ project }: ProjectDetailClientProp
                                                         <h4 className="font-display font-bold text-lg text-gray-900 line-clamp-2">
                                                             {reward.title}
                                                         </h4>
+                                                        {reward.isPreorder && (
+                                                            <div className="text-xs font-semibold text-amber-700">
+                                                                Đặt trước{reward.deliveryDate ? ` · giao dự kiến ${new Date(reward.deliveryDate).toLocaleDateString('vi-VN')}` : ''}
+                                                            </div>
+                                                        )}
                                                         {reward.description && (
                                                             <p className="text-sm text-gray-600 line-clamp-2">
                                                                 {reward.description}
@@ -444,6 +449,8 @@ export default function ProjectDetailClient({ project }: ProjectDetailClientProp
                                                                     image={reward.imageUrl || ''}
                                                                     price={Number(reward.minAmount) || 0}
                                                                     campaignId={campaign.id}
+                                                                    isPreorder={reward.isPreorder}
+                                                                    deliveryDate={reward.deliveryDate || null}
                                                                 />
                                                                 <Link
                                                                     href={`/campaigns/${campaign.slug}`}

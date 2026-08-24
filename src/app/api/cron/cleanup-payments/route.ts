@@ -17,9 +17,28 @@ export async function GET(request: Request) {
     });
 
     for (const pledge of stalePledges) {
-      await prisma.pledges.update({
-        where: { id: pledge.id },
-        data: { status: "FAILED" }
+      await prisma.$transaction(async (tx) => {
+        const current = await tx.pledges.findUnique({
+          where: { id: pledge.id },
+          select: { status: true, stockReserved: true, rewardId: true, quantity: true },
+        });
+        if (!current || current.status !== "PENDING") return;
+        if (current.stockReserved && current.rewardId) {
+          await tx.rewards.update({
+            where: { id: current.rewardId },
+            data: { stock: { increment: current.quantity }, updatedAt: new Date() },
+          });
+        }
+        await tx.pledges.update({
+          where: { id: pledge.id },
+          data: {
+            status: "FAILED",
+            stockReserved: false,
+            fulfillmentStatus: pledge.rewardId ? "CANCELED" : "NOT_APPLICABLE",
+            cancellationReason: "Phiên thanh toán đã hết hạn",
+            updatedAt: new Date(),
+          },
+        });
       });
     }
 

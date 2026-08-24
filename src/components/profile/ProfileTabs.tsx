@@ -534,6 +534,8 @@ export function ProfileTabs({
                                                 productImages: Array.isArray(reward.productImages) ? reward.productImages : [],
                                                 campaignTitle: campaign?.title || null,
                                                 campaignId: campaign?.id || null,
+                                                isPreorder: reward.isPreorder === true,
+                                                deliveryDate: reward.deliveryDate || null,
                                                 isOwnerMode,
                                                 onEditUrl: campaign?.slug
                                                     ? `/dashboard/creator/rewards/${campaign.slug}/edit/${reward.id}`
@@ -564,6 +566,11 @@ export function ProfileTabs({
                                                                     <div className="text-xs text-gray-500">
                                                                         {campaign.title}
                                                                     </div>
+                                                                    {reward.isPreorder && (
+                                                                        <div className="mt-1 text-[11px] font-semibold text-amber-700">
+                                                                            Đặt trước{reward.deliveryDate ? ` · giao dự kiến ${new Date(reward.deliveryDate).toLocaleDateString('vi-VN')}` : ''}
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                                 <div className="ml-3 text-right">
                                                                     <div className="text-xs font-black text-pink-600">
@@ -579,6 +586,8 @@ export function ProfileTabs({
                                                         image={Array.isArray(reward.productImages) ? reward.productImages[0] || '' : ''}
                                                         price={Number(reward.minAmount) || 0}
                                                         campaignId={campaign?.id || null}
+                                                        isPreorder={reward.isPreorder === true}
+                                                        deliveryDate={reward.deliveryDate || null}
                                                         className="absolute bottom-2 right-2 h-9 w-9 rounded-lg"
                                                     />
                                                     {isOwnerMode && (

@@ -17,6 +17,8 @@ interface ProductPayload {
   imageUrl: string | null;
   linkUrl: string | null;
   campaignId?: string | null;
+  isPreorder?: boolean;
+  deliveryDate?: string | null;
 }
 
 function formatVND(value: number | string): string {
@@ -73,6 +75,7 @@ export function ProductBoxRenderer() {
             <div class="min-w-0 flex-1">
               <div class="text-base font-bold text-gray-900 leading-snug">${title}</div>
               ${payload.price ? `<div class="text-base font-extrabold mt-1" style="color: #15803d;">${price} ₫</div>` : ""}
+              ${payload.isPreorder ? `<div class="text-xs font-semibold mt-1" style="color: #b45309;">Đặt trước${payload.deliveryDate ? ` · giao dự kiến ${escapeHtml(new Date(payload.deliveryDate).toLocaleDateString("vi-VN"))}` : ""}</div>` : ""}
               <span class="text-xs mt-1.5 font-semibold px-3 py-1.5 rounded-lg inline-block" style="background: #ecfdf5; color: #15803d;">
                 Xem sản phẩm →
               </span>
@@ -93,6 +96,8 @@ export function ProductBoxRenderer() {
             image: payload.imageUrl || "",
             price: Number(payload.price) || 0,
             campaignId: payload.campaignId || null,
+            isPreorder: payload.isPreorder === true,
+            deliveryDate: payload.deliveryDate || null,
           });
           addButton.textContent = "✓";
           addButton.setAttribute("aria-label", `Đã thêm ${payload.title} vào giỏ hàng`);

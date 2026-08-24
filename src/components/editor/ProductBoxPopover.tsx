@@ -19,6 +19,8 @@ interface ProductItem {
   campaignId: string;
   campaignTitle?: string;
   projectId?: string | null;
+  isPreorder?: boolean;
+  deliveryDate?: string | null;
 }
 
 interface ProductBoxPopoverProps {
@@ -33,6 +35,8 @@ interface ProductBoxPopoverProps {
     imageUrl: string | null;
     linkUrl: string | null;
     campaignId?: string | null;
+    isPreorder?: boolean;
+    deliveryDate?: string | null;
     pos: number | null;
   } | null;
   onCancelEdit?: () => void;
@@ -90,6 +94,8 @@ export function ProductBoxPopover({
                 campaignId: campaign.id,
                 campaignTitle: campaign.title,
                 projectId: reward.projectId ?? campaign.projectId ?? null,
+                isPreorder: reward.isPreorder === true,
+                deliveryDate: reward.deliveryDate || null,
               });
             });
           });
@@ -107,7 +113,9 @@ export function ProductBoxPopover({
               productImages: reward.productImages || [],
               campaignId: reward.campaignId || '',
               campaignTitle: project.title,
-              projectId: project.id,
+              projectId: reward.projectId,
+              isPreorder: reward.isPreorder === true,
+              deliveryDate: reward.deliveryDate || null,
             });
           });
         });
@@ -167,6 +175,8 @@ export function ProductBoxPopover({
       imageUrl: selectedProduct.productImages?.[0] || null,
       linkUrl: `/products/${selectedProduct.id}`,
       campaignId: selectedProduct.campaignId || null,
+      isPreorder: selectedProduct.isPreorder === true,
+      deliveryDate: selectedProduct.deliveryDate || null,
     };
 
     if (editData && editData.pos !== null && editData.pos !== undefined) {
@@ -232,6 +242,7 @@ export function ProductBoxPopover({
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-gray-900 truncate">{product.title}</div>
                   <div className="text-xs text-gray-500 truncate">{formatVND(product.minAmount)} đ{product.maxAmount ? ` (giá gốc ${formatVND(product.maxAmount)} đ)` : ''}{product.campaignTitle ? ` • ${product.campaignTitle}` : ''}</div>
+                  {product.isPreorder && <div className="text-[11px] font-semibold text-amber-700">Đặt trước{product.deliveryDate ? ` · giao ${new Date(product.deliveryDate).toLocaleDateString('vi-VN')}` : ''}</div>}
                 </div>
                 {selectedId === product.id && <span className="text-pgreen text-xs font-bold">✓ Đã chọn</span>}
               </button>
@@ -242,9 +253,9 @@ export function ProductBoxPopover({
         {selectedProduct && (
           <div className="rounded-xl border border-gray-200 bg-gray-50 p-3">
             <div className="text-xs font-semibold text-gray-500 mb-2">Xem trước</div>
-            <div className="bg-white rounded-lg border border-gray-200 p-3 flex items-center gap-3">
+              <div className="bg-white rounded-lg border border-gray-200 p-3 flex items-center gap-3">
               {selectedProduct.productImages?.[0] ? <img src={selectedProduct.productImages[0]} alt="" className="w-14 h-14 rounded-lg object-cover" /> : <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center"><Package size={20} className="text-gray-400" /></div>}
-              <div className="flex-1 min-w-0"><div className="text-sm font-bold text-gray-900 truncate">{selectedProduct.title}</div><div className="text-sm font-bold text-pgreen mt-0.5">{formatVND(selectedProduct.minAmount)} đ</div></div>
+              <div className="flex-1 min-w-0"><div className="text-sm font-bold text-gray-900 truncate">{selectedProduct.title}</div><div className="text-sm font-bold text-pgreen mt-0.5">{formatVND(selectedProduct.minAmount)} đ</div>{selectedProduct.isPreorder && <div className="text-xs font-semibold text-amber-700 mt-1">Đặt trước{selectedProduct.deliveryDate ? ` · giao ${new Date(selectedProduct.deliveryDate).toLocaleDateString('vi-VN')}` : ''}</div>}</div>
             </div>
           </div>
         )}

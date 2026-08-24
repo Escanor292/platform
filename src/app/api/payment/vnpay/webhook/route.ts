@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog } from "@/lib/audit";
+import { recalculateCampaignAmount } from "@/lib/order-fulfillment";
 import { notificationService } from "@/services/mongodb/notification.service";
 import crypto from "crypto";
 
@@ -67,7 +68,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 4. Kiểm tra đã xử lý chưa
-    if (pledge.status === "SUCCESS") {
+    if (pledge.status === "SUCCESS" || pledge.status === "REFUNDED") {
       console.log("[VNPAY WEBHOOK] Already processed:", pledgeId);
       return NextResponse.json({
         RspCode: "00",
@@ -77,25 +78,33 @@ export async function GET(request: NextRequest) {
 
     // 5. Xử lý theo response code
     if (responseCode === "00") {
-      // Thanh toán thành công
-      await prisma.pledges.update({
-        where: { id: pledgeId },
-        data: {
-          status: "SUCCESS",
-          transactionId: transactionNo || pledge.transactionId,
-          fulfillmentStatus: pledge.rewardId ? "PROCESSING" : "NOT_APPLICABLE",
-          updatedAt: new Date(),
-        },
-      });
+      // Thanh toán thành công. VNPay gửi số tiền theo đơn vị đồng sau khi chia 100.
+      const expectedChargeAmount = Number(pledge.chargeAmount || pledge.totalAmount);
+      if (Math.abs(expectedChargeAmount - amount) > 100) {
+        console.error("[VNPAY WEBHOOK] Amount mismatch", { pledgeId, expected: expectedChargeAmount, received: amount });
+        return NextResponse.json({ RspCode: "04", Message: "Invalid amount" }, { status: 400 });
+      }
 
-      // Cộng tiền vào campaign; sản phẩm độc lập không có campaign attribution.
-      const updatedCampaign = pledge.campaignId ? await prisma.$transaction(async (tx) => {
-        await tx.campaigns.update({
-          where: { id: pledge.campaignId! },
-          data: { currentAmount: { increment: pledge.amount }, updatedAt: new Date() },
+      const updateSuccess = async (tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0]) => {
+        await tx.pledges.update({
+          where: { id: pledgeId },
+          data: {
+            status: "SUCCESS",
+            transactionId: transactionNo || pledge.transactionId,
+            fulfillmentStatus: pledge.rewardId ? "PROCESSING" : "NOT_APPLICABLE",
+            paidAmount: expectedChargeAmount,
+            remainingAmount: Math.max(0, Number(pledge.orderTotalAmount || pledge.totalAmount) - expectedChargeAmount),
+            accountingAmount: pledge.isCashOnDelivery ? pledge.depositAmount : pledge.amount,
+            webhookProcessedAt: new Date(),
+            updatedAt: new Date(),
+          },
         });
-        return tx.campaigns.findUnique({ where: { id: pledge.campaignId! } });
-      }) : null;
+        if (pledge.campaignId) {
+          await recalculateCampaignAmount(tx, pledge.campaignId);
+        }
+      };
+      await prisma.$transaction(updateSuccess);
+      const updatedCampaign = pledge.campaignId ? await prisma.campaigns.findUnique({ where: { id: pledge.campaignId } }) : null;
 
       if (
         updatedCampaign &&
@@ -148,12 +157,22 @@ export async function GET(request: NextRequest) {
       });
     } else {
       // Thanh toán thất bại
-      await prisma.pledges.update({
-        where: { id: pledgeId },
-        data: {
-          status: "FAILED",
-          updatedAt: new Date(),
-        },
+      await prisma.$transaction(async (tx) => {
+        const current = await tx.pledges.findUnique({ where: { id: pledgeId }, select: { stockReserved: true, rewardId: true, quantity: true } });
+        if (current?.stockReserved && current.rewardId) {
+          await tx.rewards.update({ where: { id: current.rewardId }, data: { stock: { increment: current.quantity }, updatedAt: new Date() } });
+        }
+        await tx.pledges.update({
+          where: { id: pledgeId },
+          data: {
+            status: "FAILED",
+            stockReserved: false,
+            fulfillmentStatus: pledge.rewardId ? "CANCELED" : "NOT_APPLICABLE",
+            cancellationReason: "Thanh toán không thành công",
+            webhookProcessedAt: new Date(),
+            updatedAt: new Date(),
+          },
+        });
       });
 
       // Audit log

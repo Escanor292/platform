@@ -539,6 +539,14 @@ Table pledges {
   email text
   phoneNumber text
   amount decimal
+  depositAmount decimal [default: 0]
+  chargeAmount decimal [default: 0]
+  orderTotalAmount decimal [default: 0]
+  remainingAmount decimal [default: 0]
+  paidAmount decimal [default: 0]
+  accountingAmount decimal [default: 0]
+  refundAmount decimal [default: 0]
+  cancellationFeeAmount decimal [default: 0]
   tipAmount decimal [default: 0]
   platformFee decimal [default: 0]
   vatAmount decimal [default: 0]
@@ -616,6 +624,9 @@ Table rewards {
   description text
   createdAt timestamp [default: now()]
   deliveryDate timestamp
+  isPreorder boolean [default: false]
+  onlineDepositPercent int [default: 30]
+  codDepositPercent int [default: 50]
   isActive boolean [default: true]
   isIncludedInProject boolean [default: true]
   maxQuantity int

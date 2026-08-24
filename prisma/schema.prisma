@@ -477,6 +477,14 @@ model pledges {
   email              String?
   phoneNumber        String?
   amount             Decimal
+  depositAmount      Decimal          @default(0)
+  chargeAmount       Decimal          @default(0)
+  orderTotalAmount   Decimal          @default(0)
+  remainingAmount    Decimal          @default(0)
+  paidAmount         Decimal          @default(0)
+  accountingAmount   Decimal          @default(0)
+  refundAmount       Decimal          @default(0)
+  cancellationFeeAmount Decimal       @default(0)
   tipAmount          Decimal          @default(0)
   platformFee        Decimal          @default(0)
   vatAmount          Decimal          @default(0)
@@ -572,6 +580,9 @@ model rewards {
   description          String?
   createdAt            DateTime               @default(now())
   deliveryDate         DateTime?
+  isPreorder           Boolean                @default(false)
+  onlineDepositPercent Int                    @default(30)
+  codDepositPercent    Int                    @default(50)
   isActive             Boolean                @default(true)
   isIncludedInProject  Boolean                @default(true)
   maxQuantity          Int?

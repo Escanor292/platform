@@ -28,11 +28,19 @@ export async function POST(request: NextRequest) {
       paymentMethod = "ONLINE",
       paymentMethodId,
       savePaymentMethod = false,
+      quantity = 1,
+      shippingMethod = "STANDARD",
       returnPath,
     } = body;
 
     const amountNumber = Number(amount);
     const tipPercentNumber = Number(platformTipPercent);
+    const quantityNumber = Number(quantity);
+    const allowedShippingMethods = ["STANDARD", "EXPRESS", "EMAIL", "DOWNLOAD"];
+
+    if (!Number.isInteger(quantityNumber) || quantityNumber < 1 || quantityNumber > 99 || !allowedShippingMethods.includes(shippingMethod)) {
+      return NextResponse.json({ error: "Thông tin số lượng hoặc phương thức nhận hàng không hợp lệ" }, { status: 400 });
+    }
 
     if (!campaignId || !Number.isFinite(amountNumber) || amountNumber < 50_000) {
       return NextResponse.json({ error: "Thông tin checkout hoặc số tiền không hợp lệ" }, { status: 400 });
@@ -51,11 +59,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Không tìm thấy chiến dịch" }, { status: 404 });
     }
 
-    let reward: { id: string; campaignId: string | null; availability: "AVAILABLE" | "DEVELOPMENT"; stock: number | null } | null = null;
+    let reward: { id: string; campaignId: string | null; availability: "AVAILABLE" | "DEVELOPMENT"; isPreorder: boolean; stock: number | null } | null = null;
     if (rewardId) {
       reward = await prisma.rewards.findUnique({
         where: { id: String(rewardId), isActive: true },
-        select: { id: true, campaignId: true, availability: true, stock: true },
+        select: { id: true, campaignId: true, availability: true, isPreorder: true, stock: true },
       });
       if (!reward || reward.campaignId !== campaign.id) {
         return NextResponse.json({ error: "Phần quà không thuộc chiến dịch này" }, { status: 400 });
@@ -63,8 +71,8 @@ export async function POST(request: NextRequest) {
       if (reward.stock !== null && reward.stock <= 0) {
         return NextResponse.json({ error: "Phần quà đã hết hàng" }, { status: 409 });
       }
-      if (paymentMethod === "COD" && reward.availability !== "AVAILABLE") {
-        return NextResponse.json({ error: "Thanh toán khi nhận hàng chỉ áp dụng cho sản phẩm có sẵn" }, { status: 400 });
+      if (paymentMethod === "COD" && reward.availability !== "AVAILABLE" && !reward.isPreorder) {
+        return NextResponse.json({ error: "COD thường chỉ áp dụng cho sản phẩm có sẵn; pre-order cần thanh toán cọc trước" }, { status: 400 });
       }
     }
 
@@ -74,6 +82,8 @@ export async function POST(request: NextRequest) {
     const returnPathValue = safeReturnPath(returnPath);
     const payload = {
       amount: amountNumber,
+      quantity: quantityNumber,
+      shippingMethod,
       platformTipPercent: tipPercent,
       isAnonymous: Boolean(isAnonymous),
       displayName: typeof displayName === "string" ? displayName.slice(0, 120) : null,

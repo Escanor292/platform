@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart, Package, Share2, Pencil, Trash2 } from "lucide-react";
+import { ShoppingCart, Package, Share2, Pencil, Trash2, Star } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { formatVND } from "@/lib/utils";
@@ -18,6 +18,11 @@ export interface ShopeeCardProduct {
   productImages?: string[] | null;
   campaignTitle?: string | null;
   campaignId?: string | null;
+  isPreorder?: boolean;
+  deliveryDate?: string | Date | null;
+  averageRating?: number | null;
+  reviewCount?: number;
+  soldCount?: number;
   /** Props cho chế độ chủ sở hữu */
   isOwnerMode?: boolean;
   onShare?: (e: React.MouseEvent, url: string) => void;
@@ -91,6 +96,11 @@ export default function ShopeeProductCard({
               -{discount}%
             </span>
           )}
+          {product.isPreorder && (
+            <span className="absolute bottom-2 left-2 bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm shadow">
+              Đặt trước
+            </span>
+          )}
           {images.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center">
               <Package className="w-10 h-10 text-slate-300" />
@@ -120,8 +130,23 @@ export default function ShopeeProductCard({
               )}
             </div>
           </div>
+          <div className="mt-1 flex items-center gap-2 text-[10px]">
+            <span className="inline-flex items-center gap-0.5 font-semibold text-amber-600">
+              <Star size={11} className="fill-amber-400 text-amber-400" />
+              {product.reviewCount ? Number(product.averageRating || 0).toFixed(1) : "Mới"}
+            </span>
+            <span className="text-gray-400">({product.reviewCount || 0})</span>
+            <span className="text-gray-300">|</span>
+            <span className="text-gray-500">Đã bán {product.soldCount || 0}</span>
+          </div>
           {product.stock !== null && product.stock !== undefined && (
             <div className="text-[10px] text-gray-400 mt-1">Tồn kho: {product.stock}</div>
+          )}
+          {product.isPreorder && product.deliveryDate && (
+            <div className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-amber-700">
+              <span>Giao dự kiến:</span>
+              {new Date(product.deliveryDate).toLocaleDateString("vi-VN")}
+            </div>
           )}
         </div>
       </Link>

@@ -43,6 +43,11 @@ export default function CartPage() {
                       {item.title}
                     </Link>
                     <div className="text-pgreen font-black text-base mt-1">{formatVND(item.price).replace("VNĐ", "") + "đ"}</div>
+                    {item.isPreorder && (
+                      <div className="mt-1 text-xs font-semibold text-amber-700">
+                        Đặt hàng trước{item.deliveryDate ? ` · giao dự kiến ${new Date(item.deliveryDate).toLocaleDateString("vi-VN")}` : ""}
+                      </div>
+                    )}
                     <div className="flex items-center gap-2 mt-2 flex-wrap">
                       <button type="button" onClick={() => changeQty(item.id, item.qty - 1)} className="w-7 h-7 rounded border border-gray-300 flex items-center justify-center text-gray-600 hover:border-pgreen hover:text-pgreen transition" aria-label="Giảm số lượng">
                         <Minus size={14} />

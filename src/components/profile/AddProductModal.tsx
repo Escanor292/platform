@@ -85,6 +85,9 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
         productVideo: "",
         maxQuantity: "",
         deliveryDate: "",
+        isPreorder: false,
+        onlineDepositPercent: 30,
+        codDepositPercent: 50,
         isActive: true,
     });
     const [uploadingMedia, setUploadingMedia] = useState(false);
@@ -147,6 +150,10 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
             toast.error("Vui lòng nhập tên và giá sản phẩm");
             return;
         }
+        if (newForm.isPreorder && !newForm.deliveryDate) {
+            toast.error("Vui lòng chọn ngày dự kiến giao hàng cho sản phẩm đặt trước");
+            return;
+        }
 
         setSubmitting(true);
         try {
@@ -164,7 +171,10 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
                     productImages: newForm.productImages,
                     productVideo: newForm.productVideo || null,
                     maxQuantity: newForm.maxQuantity ? parseInt(newForm.maxQuantity) : null,
-                    deliveryDate: newForm.deliveryDate ? new Date(newForm.deliveryDate) : null,
+                    deliveryDate: newForm.isPreorder && newForm.deliveryDate ? new Date(newForm.deliveryDate) : null,
+                    isPreorder: newForm.isPreorder,
+                    onlineDepositPercent: Number(newForm.onlineDepositPercent),
+                    codDepositPercent: Number(newForm.codDepositPercent),
                     isActive: true,
                 }),
             });
@@ -621,6 +631,44 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
                                 </div>
                             </div>
 
+                            {/* ---- Đặt hàng trước ---- */}
+                            <div className={`flex items-center justify-between gap-4 rounded-2xl border p-4 transition ${newForm.isPreorder ? "border-amber-300 bg-amber-50" : "border-gray-200 bg-gray-50"}`}>
+                                <div className="flex items-center gap-3">
+                                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${newForm.isPreorder ? "bg-amber-100" : "bg-white"}`}>
+                                        <Calendar size={19} className={newForm.isPreorder ? "text-amber-700" : "text-gray-500"} />
+                                    </div>
+                                    <div>
+                                        <div className="font-semibold text-gray-900 text-sm">Cho phép đặt hàng trước</div>
+                                        <div className="text-xs text-gray-500">Bật để nhận đơn trước khi sản phẩm sẵn sàng</div>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    role="switch"
+                                    aria-checked={newForm.isPreorder}
+                                    aria-label="Cho phép đặt hàng trước"
+                                    onClick={() => setNewForm((f) => ({ ...f, isPreorder: !f.isPreorder, deliveryDate: f.isPreorder ? "" : f.deliveryDate }))}
+                                    className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${newForm.isPreorder ? "bg-amber-500" : "bg-gray-300"}`}
+                                >
+                                    <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${newForm.isPreorder ? "translate-x-6" : "translate-x-1"}`} />
+                                </button>
+                            </div>
+
+                            {newForm.isPreorder && (
+                                <div className="grid grid-cols-2 gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-900 mb-2">Cọc online (%)</label>
+                                        <input type="number" name="onlineDepositPercent" value={newForm.onlineDepositPercent} onChange={(event) => setNewForm((f) => ({ ...f, onlineDepositPercent: Number(event.target.value) }))} min="1" max="99" step="1" required className="w-full px-4 py-3 border border-amber-200 rounded-xl bg-white" />
+                                        <p className="text-xs text-gray-600 mt-1">Tỷ lệ giữ lại khi tự hủy online.</p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-900 mb-2">Cọc COD (%)</label>
+                                        <input type="number" name="codDepositPercent" value={newForm.codDepositPercent} onChange={(event) => setNewForm((f) => ({ ...f, codDepositPercent: Number(event.target.value) }))} min="1" max="99" step="1" required className="w-full px-4 py-3 border border-amber-200 rounded-xl bg-white" />
+                                        <p className="text-xs text-gray-600 mt-1">Phần còn lại trả khi nhận hàng.</p>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* ---- Tồn kho & vận chuyển ---- */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
@@ -640,7 +688,7 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-gray-900 mb-2">
-                                        Ngày giao dự kiến
+                                        Ngày dự kiến giao hàng {newForm.isPreorder ? "*" : ""}
                                     </label>
                                     <DateInput
                                         value={newForm.deliveryDate}
@@ -648,6 +696,7 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
                                             setNewForm((f) => ({ ...f, deliveryDate: value }))
                                         }
                                         placeholder="dd/mm/yyyy"
+                                        required={newForm.isPreorder}
                                         min={new Date().toISOString().split("T")[0]}
                                     />
                                 </div>

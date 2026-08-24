@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog } from "@/lib/audit";
+import { recalculateCampaignAmount } from "@/lib/order-fulfillment";
 import { getSePay } from "@/lib/payment/sepay";
 
 /**
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Kiểm tra đã xử lý chưa
-    if (pledge.status === "SUCCESS") {
+    if (pledge.status === "SUCCESS" || pledge.status === "REFUNDED") {
       console.log("[SEPAY WEBHOOK] Already processed:", pledge.id);
       return NextResponse.json({
         success: true,
@@ -94,9 +95,9 @@ export async function POST(request: NextRequest) {
 
     // 5. Kiểm tra số tiền
     const orderAmount = parseFloat(order.order_amount);
-    const pledgeAmount = Number(pledge.totalAmount);
+    const pledgeAmount = Number(pledge.chargeAmount || pledge.totalAmount);
 
-    if (Math.abs(pledgeAmount - orderAmount) > 1) {
+    if (Math.abs(pledgeAmount - orderAmount) > 100) {
       console.error("[SEPAY WEBHOOK] Amount mismatch:", {
         expected: pledgeAmount,
         received: orderAmount,
@@ -113,21 +114,26 @@ export async function POST(request: NextRequest) {
 
     if (orderStatus === "CAPTURED" && transactionStatus === "APPROVED") {
       // Thanh toán thành công
-      await prisma.pledges.update({
-        where: { id: pledge.id },
-        data: {
-          status: "SUCCESS",
-          fulfillmentStatus: pledge.rewardId ? "PROCESSING" : "NOT_APPLICABLE",
-          transactionId: transaction.transaction_id || pledge.transactionId,
-          updatedAt: new Date(),
-        },
+      const updatedCampaign = await prisma.$transaction(async (tx) => {
+        await tx.pledges.update({
+          where: { id: pledge.id },
+          data: {
+            status: "SUCCESS",
+            fulfillmentStatus: pledge.rewardId ? "PROCESSING" : "NOT_APPLICABLE",
+            transactionId: transaction.transaction_id || pledge.transactionId,
+            paidAmount: pledgeAmount,
+            remainingAmount: Math.max(0, Number(pledge.orderTotalAmount || pledge.totalAmount) - pledgeAmount),
+            accountingAmount: pledge.isCashOnDelivery ? pledge.depositAmount : pledge.amount,
+            webhookProcessedAt: new Date(),
+            updatedAt: new Date(),
+          },
+        });
+        if (pledge.campaignId) {
+          await recalculateCampaignAmount(tx, pledge.campaignId);
+          return tx.campaigns.findUnique({ where: { id: pledge.campaignId! } });
+        }
+        return null;
       });
-
-      // Cộng tiền vào campaign; giao dịch sản phẩm độc lập không có campaign attribution.
-      const updatedCampaign = pledge.campaignId ? await prisma.$transaction(async (tx) => {
-        await tx.campaigns.update({ where: { id: pledge.campaignId! }, data: { currentAmount: { increment: pledge.amount }, updatedAt: new Date() } });
-        return tx.campaigns.findUnique({ where: { id: pledge.campaignId! } });
-      }) : null;
 
       if (
         updatedCampaign &&
@@ -171,12 +177,22 @@ export async function POST(request: NextRequest) {
       transactionStatus === "DECLINED"
     ) {
       // Thanh toán thất bại hoặc bị hủy
-      await prisma.pledges.update({
-        where: { id: pledge.id },
-        data: {
-          status: "FAILED",
-          updatedAt: new Date(),
-        },
+      await prisma.$transaction(async (tx) => {
+        const current = await tx.pledges.findUnique({ where: { id: pledge.id }, select: { stockReserved: true, rewardId: true, quantity: true } });
+        if (current?.stockReserved && current.rewardId) {
+          await tx.rewards.update({ where: { id: current.rewardId }, data: { stock: { increment: current.quantity }, updatedAt: new Date() } });
+        }
+        await tx.pledges.update({
+          where: { id: pledge.id },
+          data: {
+            status: "FAILED",
+            stockReserved: false,
+            fulfillmentStatus: pledge.rewardId ? "CANCELED" : "NOT_APPLICABLE",
+            cancellationReason: "Thanh toán không thành công hoặc bị hủy",
+            webhookProcessedAt: new Date(),
+            updatedAt: new Date(),
+          },
+        });
       });
 
       // Audit log

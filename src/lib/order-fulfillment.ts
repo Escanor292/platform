@@ -1,4 +1,4 @@
-import { Decimal } from "../../prisma/generated/client/runtime/library";
+import { Decimal } from "@prisma/client/runtime/library";
 import type { Prisma } from "../../prisma/generated/client";
 
 export const REVERSING_FULFILLMENT_STATUSES = ["DELIVERY_FAILED", "CANCELED", "RETURNED"] as const;
@@ -19,12 +19,12 @@ export async function recalculateCampaignAmount(
   const pledges = await tx.pledges.findMany({
     where: {
       campaignId,
-      status: "SUCCESS",
-      accountingReversedAt: null,
+      status: { in: ["SUCCESS", "REFUNDED"] },
+      accountingAmount: { gt: 0 },
     },
-    select: { amount: true },
+    select: { accountingAmount: true },
   });
-  const currentAmount = pledges.reduce((sum, pledge) => sum.plus(pledge.amount), new Decimal(0));
+  const currentAmount = pledges.reduce((sum, pledge) => sum.plus(pledge.accountingAmount), new Decimal(0));
   await tx.campaigns.update({
     where: { id: campaignId },
     data: { currentAmount, updatedAt: new Date() },

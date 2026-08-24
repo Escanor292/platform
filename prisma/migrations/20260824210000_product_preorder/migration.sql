@@ -1,0 +1,2 @@
+ALTER TABLE "rewards"
+  ADD COLUMN "isPreorder" BOOLEAN NOT NULL DEFAULT false;
