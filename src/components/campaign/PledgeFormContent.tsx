@@ -12,6 +12,8 @@ interface Reward {
     minAmount: number;
     estimatedDelivery?: string | null;
     availability?: "AVAILABLE" | "DEVELOPMENT";
+    fulfillmentType?: "PHYSICAL" | "EMAIL" | "DOWNLOAD" | "LICENSE_KEY" | "DIGITAL_COMIC";
+    maxQuantity?: number | null;
 }
 
 interface CheckoutRestorePayload {
@@ -24,6 +26,8 @@ interface CheckoutRestorePayload {
     paymentMethod?: "ONLINE" | "COD";
     paymentMethodId?: string | null;
     savePaymentMethod?: boolean;
+    quantity?: number;
+    shippingMethod?: "STANDARD" | "EXPRESS" | "EMAIL" | "DOWNLOAD";
 }
 
 interface PledgeFormContentProps {
@@ -33,6 +37,7 @@ interface PledgeFormContentProps {
     donationType?: 'general' | 'reward';
     preselectedReward?: Reward | null;
     restoredPayload?: CheckoutRestorePayload | null;
+    initialQuantity?: number;
     showHeader?: boolean;
 }
 
@@ -73,6 +78,7 @@ const PledgeFormContent = memo(function PledgeFormContent({
     donationType = 'general',
     preselectedReward,
     restoredPayload,
+    initialQuantity = 1,
     showHeader = true,
 }: PledgeFormContentProps) {
     const router = useRouter();
@@ -98,6 +104,10 @@ const PledgeFormContent = memo(function PledgeFormContent({
     const [paymentMethod, setPaymentMethod] = useState<"ONLINE" | "COD">("ONLINE");
     const [savePaymentMethod, setSavePaymentMethod] = useState(false);
     const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<string | null>(null);
+    const [quantity, setQuantity] = useState(Math.min(99, Math.max(1, initialQuantity)));
+    const [shippingMethod, setShippingMethod] = useState<"STANDARD" | "EXPRESS" | "EMAIL" | "DOWNLOAD">(
+        preselectedReward?.fulfillmentType && preselectedReward.fulfillmentType !== "PHYSICAL" ? "EMAIL" : "STANDARD"
+    );
     const [savedMethods, setSavedMethods] = useState<Array<{ id: string; methodType: string; provider: string; label: string; last4: string | null; isDefault: boolean }>>([]);
 
     useEffect(() => {
@@ -118,6 +128,8 @@ const PledgeFormContent = memo(function PledgeFormContent({
         }
         setSelectedPaymentMethodId(restoredPayload.paymentMethodId || null);
         if (typeof restoredPayload.savePaymentMethod === "boolean") setSavePaymentMethod(restoredPayload.savePaymentMethod);
+        if (typeof restoredPayload.quantity === "number" && Number.isInteger(restoredPayload.quantity)) setQuantity(Math.min(99, Math.max(1, restoredPayload.quantity)));
+        if (restoredPayload.shippingMethod) setShippingMethod(restoredPayload.shippingMethod);
     }, [restoredPayload]);
 
     // Auth state checks
@@ -175,8 +187,15 @@ const PledgeFormContent = memo(function PledgeFormContent({
     );
     const isReadyProduct = selectedReward?.availability === "AVAILABLE";
 
-    // Check if shipping address is needed for reward donation (after selectedReward is defined)
-    const needsShippingAddress = isRewardDonation && selectedReward;
+    useEffect(() => {
+        if (!selectedReward) return;
+        setShippingMethod(selectedReward.fulfillmentType && selectedReward.fulfillmentType !== "PHYSICAL" ? "EMAIL" : "STANDARD");
+    }, [selectedReward?.id, selectedReward?.fulfillmentType]);
+
+    // Physical products need an address; digital products use email or the purchase vault.
+    const isDigitalProduct = Boolean(selectedReward && selectedReward.fulfillmentType && selectedReward.fulfillmentType !== "PHYSICAL");
+    const needsShippingAddress = Boolean(isRewardDonation && selectedReward && !isDigitalProduct);
+    const needsProductEmail = Boolean(isRewardDonation && selectedReward);
     const userHasShippingAddress = isAuthenticated && (currentUser as any)?.shippingAddress;
     const shouldShowShippingForm = needsShippingAddress && (!userHasShippingAddress || !isAuthenticated);
 
@@ -195,24 +214,16 @@ const PledgeFormContent = memo(function PledgeFormContent({
     const currentMethod = PAYMENT_METHODS[paymentMethod];
     const sliderColors = getSliderColors(currentMethod.colors.accent);
 
-    const baseAmount = selectedReward ? selectedReward.minAmount : customAmount;
-    const tipAmount = useMemo(
-        () => Math.round((baseAmount * tipPercent) / 100),
-        [baseAmount, tipPercent]
-    );
-    const totalAmount = baseAmount + tipAmount;
-
-    // For reward donation, use the reward's minimum amount
-    const finalAmount = isRewardDonation && selectedReward
-        ? Number(selectedReward.minAmount)
-        : customAmount;
-
+    const unitAmount = isRewardDonation && selectedReward ? Number(selectedReward.minAmount) : customAmount;
+    const productSubtotal = isRewardDonation && selectedReward ? unitAmount * quantity : unitAmount;
     const effectiveTipPercent = isReadyProduct ? 0 : tipPercent;
     const finalTipAmount = useMemo(
-        () => Math.round((finalAmount * effectiveTipPercent) / 100),
-        [finalAmount, effectiveTipPercent]
+        () => Math.round((productSubtotal * effectiveTipPercent) / 100),
+        [productSubtotal, effectiveTipPercent]
     );
-    const finalTotalAmount = finalAmount + finalTipAmount;
+    const shippingFee = needsShippingAddress && shippingMethod === "EXPRESS" ? 30000 : 0;
+    const finalTotalAmount = productSubtotal + finalTipAmount + shippingFee;
+    const finalAmount = unitAmount;
 
     const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
@@ -228,8 +239,8 @@ const PledgeFormContent = memo(function PledgeFormContent({
             }
 
             // Email validation for reward donations (guest users)
-            if (needsShippingAddress && !isAuthenticated && !guestEmail.trim()) {
-                setError("Vui lòng nhập email để nhận thông tin giao hàng");
+            if (needsProductEmail && !isAuthenticated && !guestEmail.trim()) {
+                setError(isDigitalProduct ? "Vui lòng nhập email để nhận tài sản số" : "Vui lòng nhập email để nhận thông tin giao hàng");
                 setLoading(false);
                 return;
             }
@@ -242,6 +253,8 @@ const PledgeFormContent = memo(function PledgeFormContent({
                         campaignId,
                         rewardId: isRewardDonation ? effectiveSelectedRewardId : undefined,
                         amount: finalAmount,
+                        quantity,
+                        shippingMethod,
                         platformTipPercent: effectiveTipPercent,
                         isAnonymous,
                         displayName: isAnonymous ? undefined : displayName || undefined,
@@ -268,6 +281,8 @@ const PledgeFormContent = memo(function PledgeFormContent({
                 campaignId,
                 rewardId: isRewardDonation ? effectiveSelectedRewardId : undefined,
                 amount: finalAmount,
+                quantity,
+                shippingMethod,
                 platformTipPercent: tipPercent,
                 isAnonymous,
                 paymentMethod,
@@ -314,6 +329,8 @@ const PledgeFormContent = memo(function PledgeFormContent({
         campaignId,
         effectiveSelectedRewardId,
         finalAmount,
+        quantity,
+        shippingMethod,
         effectiveTipPercent,
         isAnonymous,
         paymentMethod,
@@ -324,6 +341,8 @@ const PledgeFormContent = memo(function PledgeFormContent({
         guestEmail,
         isRewardDonation,
         needsShippingAddress,
+        needsProductEmail,
+        isDigitalProduct,
         userHasShippingAddress,
         shippingAddress,
         savePaymentMethod,
@@ -380,6 +399,12 @@ const PledgeFormContent = memo(function PledgeFormContent({
                                         <p className="text-xs font-semibold text-emerald-700 mt-1">
                                             {selectedReward.availability === "AVAILABLE" ? "Sản phẩm có sẵn" : "Sản phẩm đang phát triển"}
                                         </p>
+                                        <div className="flex items-center gap-2 mt-3">
+                                            <span className="text-xs font-semibold text-gray-600 mr-2">Số lượng</span>
+                                            <button type="button" onClick={() => setQuantity((value) => Math.max(1, value - 1))} className="w-7 h-7 rounded-lg border border-gray-200 text-gray-700 hover:border-green-500">−</button>
+                                            <span className="w-8 text-center text-sm font-bold text-gray-900">{quantity}</span>
+                                            <button type="button" onClick={() => setQuantity((value) => Math.min(selectedReward.maxQuantity || 99, value + 1))} className="w-7 h-7 rounded-lg border border-gray-200 text-gray-700 hover:border-green-500">+</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -572,14 +597,14 @@ const PledgeFormContent = memo(function PledgeFormContent({
                     {(!isAuthenticated || needsShippingAddress) && (
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                                {needsShippingAddress ? "Email nhận thông tin giao hàng *" : "Email nhận xác nhận (không bắt buộc)"}
+                                {needsProductEmail ? (isDigitalProduct ? "Email nhận tài sản số *" : "Email nhận thông tin giao hàng *") : "Email nhận xác nhận (không bắt buộc)"}
                             </label>
                             <input
                                 type="email"
                                 value={guestEmail}
                                 onChange={(e) => setGuestEmail(e.target.value)}
-                                placeholder={needsShippingAddress ? "Email để nhận thông tin giao hàng..." : "Email để nhận xác nhận..."}
-                                required={needsShippingAddress && !isAuthenticated}
+                                placeholder={needsProductEmail ? (isDigitalProduct ? "Email để nhận tài sản số..." : "Email để nhận thông tin giao hàng...") : "Email để nhận xác nhận..."}
+                                required={needsProductEmail && !isAuthenticated}
                                 className={`w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 outline-none ${currentMethod.colors.accent === 'amber' ? 'focus:ring-amber-500' : 'focus:ring-green-500'}`}
                             />
                         </div>
@@ -623,6 +648,30 @@ const PledgeFormContent = memo(function PledgeFormContent({
                                         <p className="text-sm text-green-700 mt-1">{(currentUser as any)?.shippingAddress}</p>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {isRewardDonation && selectedReward && (
+                        <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-4">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700">Phương thức nhận hàng</label>
+                                <p className="text-xs text-gray-500 mt-1">{isDigitalProduct ? "Tài sản số sẽ được gửi qua email hoặc lưu trong Kho đã mua." : "Chọn phương thức vận chuyển cho sản phẩm vật lý."}</p>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {(isDigitalProduct ? [
+                                    { id: "EMAIL", label: "Gửi qua email", description: "Nhận liên kết/mã tại email xác nhận" },
+                                    { id: "DOWNLOAD", label: "Kho đã mua", description: "Truy cập lại trong tài khoản" },
+                                ] : [
+                                    { id: "STANDARD", label: "Giao tiêu chuẩn", description: "Miễn phí vận chuyển" },
+                                    { id: "EXPRESS", label: "Giao nhanh", description: "+30.000đ" },
+                                ]).map((method) => (
+                                    <label key={method.id} className={`rounded-xl border-2 p-3 cursor-pointer ${shippingMethod === method.id ? "border-green-500 bg-green-50" : "border-gray-200 hover:border-green-300"}`}>
+                                        <input type="radio" className="sr-only" checked={shippingMethod === method.id} onChange={() => setShippingMethod(method.id as typeof shippingMethod)} />
+                                        <span className="block text-sm font-semibold text-gray-800">{method.label}</span>
+                                        <span className="block text-xs text-gray-500 mt-1">{method.description}</span>
+                                    </label>
+                                ))}
                             </div>
                         </div>
                     )}
@@ -737,7 +786,7 @@ const PledgeFormContent = memo(function PledgeFormContent({
 
                     <button
                         type="submit"
-                        disabled={loading || baseAmount < 50000}
+                        disabled={loading || productSubtotal < 50000}
                         className={`w-full bg-gradient-to-r ${PAYMENT_METHODS[paymentMethod].colors.button} disabled:opacity-50 text-white font-semibold py-3.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md`}
                     >
                         {loading ? (

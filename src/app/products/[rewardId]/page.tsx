@@ -22,6 +22,7 @@ import { auth } from '@/lib/auth';
 import ProductGallery from '@/components/products/ProductGallery';
 import { ProductQuickEdit } from '@/components/products/ProductQuickEdit';
 import { AddToCartButton } from '@/components/products/AddToCartButton';
+import { ProductPurchaseButton } from '@/components/products/ProductPurchaseButton';
 import CampaignRewardDonationButton from '@/components/products/CampaignRewardDonationButton';
 import ProductReviews from '@/components/products/ProductReviews';
 
@@ -243,6 +244,9 @@ export default async function ProductDetailPage({
                       description: reward.description,
                       minAmount: Number(reward.minAmount),
                       estimatedDelivery: reward.deliveryDate?.toISOString() || null,
+                      availability: reward.availability,
+                      fulfillmentType: reward.fulfillmentType,
+                      maxQuantity: reward.maxQuantity,
                     }}
                   />
                   <button
@@ -399,6 +403,16 @@ export default async function ProductDetailPage({
 
               {/* Actions */}
               <div className="flex flex-wrap gap-3 mt-auto">
+                <ProductPurchaseButton
+                  rewardId={reward.id}
+                  title={reward.title}
+                  minAmount={Number(reward.minAmount)}
+                  stock={reward.stock}
+                  maxQuantity={reward.maxQuantity}
+                  availability={reward.availability}
+                  fulfillmentType={reward.fulfillmentType}
+                  campaignId={campaign?.id}
+                />
                 <AddToCartButton
                   rewardId={reward.id}
                   title={reward.title}

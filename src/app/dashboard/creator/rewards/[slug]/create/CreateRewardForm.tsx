@@ -30,6 +30,7 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
         deliveryDate: "",
         isActive: true,
         availability: "AVAILABLE" as "AVAILABLE" | "DEVELOPMENT",
+        fulfillmentType: "PHYSICAL" as "PHYSICAL" | "EMAIL" | "DOWNLOAD" | "LICENSE_KEY" | "DIGITAL_COMIC",
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -51,6 +52,7 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                     deliveryDate: formData.availability === "DEVELOPMENT" && formData.deliveryDate ? new Date(formData.deliveryDate) : null,
                     isActive: formData.isActive,
                     availability: formData.availability,
+                    fulfillmentType: formData.fulfillmentType,
                 }),
             });
 
@@ -159,6 +161,22 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                             </div>
                         </button>
                     </div>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Hình thức nhận sản phẩm *</label>
+                    <select
+                        value={formData.fulfillmentType}
+                        onChange={(event) => setFormData(prev => ({ ...prev, fulfillmentType: event.target.value as typeof prev.fulfillmentType }))}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-pgreen/30 focus:border-transparent transition"
+                    >
+                        <option value="PHYSICAL">Sản phẩm vật lý — giao tận nơi/COD</option>
+                        <option value="EMAIL">Tài sản số — gửi qua email</option>
+                        <option value="DOWNLOAD">Tài sản số — Kho đã mua</option>
+                        <option value="LICENSE_KEY">Mã bản quyền — Kho đã mua</option>
+                        <option value="DIGITAL_COMIC">Truyện số — Kho đã mua</option>
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">COD chỉ mở cho sản phẩm vật lý có sẵn.</p>
                 </div>
 
                 {/* Min Amount */}

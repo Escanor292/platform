@@ -34,11 +34,13 @@ export default async function StatementPage({ params }: Params) {
     where: { id: campaignId },
     include: {
       pledges: {
-        where: { status: "SUCCESS" },
         orderBy: { createdAt: "desc" },
         include: {
           users: {
             select: { name: true }
+          },
+          rewards: {
+            select: { title: true }
           }
         }
       }
@@ -73,7 +75,9 @@ export default async function StatementPage({ params }: Params) {
             title: campaign.title,
             campaignCode: campaign.campaignCode,
             currentAmount: Number(campaign.currentAmount),
-            goalAmount: Number(campaign.goalAmount)
+            goalAmount: Number(campaign.goalAmount),
+            closedAmount: campaign.closedAmount == null ? null : Number(campaign.closedAmount),
+            closedAt: campaign.closedAt
           }}
           pledges={campaign.pledges.map(p => ({
             id: p.id,
@@ -84,6 +88,18 @@ export default async function StatementPage({ params }: Params) {
             createdAt: p.createdAt,
             transactionId: p.transactionId,
             paymentProvider: p.paymentProvider,
+            status: p.status,
+            refundStatus: p.refundStatus,
+            fulfillmentStatus: p.fulfillmentStatus,
+            accountingReversedAt: p.accountingReversedAt,
+            reversalReason: p.fulfillmentStatus === "DELIVERY_FAILED"
+              ? (p.deliveryFailureReason || "Giao hàng không thành công")
+              : p.fulfillmentStatus === "CANCELED"
+                ? (p.cancellationReason || "Hủy đơn hàng")
+                : p.fulfillmentStatus === "RETURNED"
+                  ? (p.returnReason || "Trả hàng")
+                  : null,
+            rewardTitle: p.rewards?.title || null,
             user: p.users
           }))}
         />

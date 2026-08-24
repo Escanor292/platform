@@ -80,8 +80,13 @@ export async function PUT(
             deliveryDate,
             isActive,
             isIncludedInProject,
-            availability
+            availability,
+            fulfillmentType
         } = body;
+        const allowedFulfillmentTypes = ["PHYSICAL", "EMAIL", "DOWNLOAD", "LICENSE_KEY", "DIGITAL_COMIC"] as const;
+        const normalizedFulfillmentType = fulfillmentType === undefined
+            ? undefined
+            : (allowedFulfillmentTypes.includes(fulfillmentType) ? fulfillmentType : "PHYSICAL");
 
         // Check if user owns the reward: chủ chiến dịch, chủ dự án hoặc admin
         const reward = await prisma.rewards.findUnique({
@@ -146,6 +151,7 @@ export async function PUT(
                 deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
                 isActive: isActive !== undefined ? Boolean(isActive) : undefined,
                 availability: availability !== undefined ? (availability === "DEVELOPMENT" ? "DEVELOPMENT" : "AVAILABLE") : undefined,
+                fulfillmentType: normalizedFulfillmentType,
                 ...(updateIncludedInProject !== undefined ? { isIncludedInProject: updateIncludedInProject, projectId: updateProjectId } : {}),
             },
         });

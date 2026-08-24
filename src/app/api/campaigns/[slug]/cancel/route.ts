@@ -51,7 +51,14 @@ export async function POST(
       try {
         await prisma.pledges.update({
           where: { id: pledge.id },
-          data: { refundStatus: "PROCESSING" }
+          data: {
+            refundStatus: "PROCESSING",
+            status: "REFUNDED",
+            fulfillmentStatus: "CANCELED",
+            cancellationReason: typeof reason === "string" ? reason.slice(0, 500) : "Creator hủy chiến dịch",
+            accountingReversedAt: new Date(),
+            updatedAt: new Date(),
+          }
         });
 
         refundedCount++;
@@ -66,7 +73,10 @@ export async function POST(
       where: { id: campaignId },
       data: {
         status: "FAILED",
+        closedAmount: campaign.currentAmount,
+        closedAt: new Date(),
         currentAmount: 0,
+        updatedAt: new Date(),
       }
     });
 

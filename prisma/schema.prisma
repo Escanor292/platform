@@ -327,6 +327,8 @@ model campaigns {
   tags                String[]              @default([])
   goalAmount          Decimal
   currentAmount       Decimal               @default(0)
+  closedAmount        Decimal?
+  closedAt            DateTime?
   status              CampaignStatus        @default(DRAFT)
   startDate           DateTime?
   endDate             DateTime?
@@ -347,6 +349,7 @@ model campaigns {
   pledges             pledges[]
   reviews             reviews[]
   rewards             rewards[]
+  reward_digital_assets reward_digital_assets[]
 
   @@index([category])
   @@index([projectId])
@@ -464,12 +467,13 @@ model project_reward_links {
 
 model pledges {
   id                 String           @id
-  campaignId         String
+  campaignId         String?
   userId             String?
   displayName        String
   isAnonymous        Boolean          @default(false)
   quantity           Int              @default(1)
   isCashOnDelivery   Boolean          @default(false)
+  stockReserved      Boolean          @default(false)
   email              String?
   phoneNumber        String?
   amount             Decimal
@@ -489,12 +493,23 @@ model pledges {
   updatedAt          DateTime
   rewardId           String?
   shippingAddress    String?
+  fulfillmentType    RewardFulfillmentType?
+  fulfillmentStatus  FulfillmentStatus    @default(NOT_APPLICABLE)
+  shippingMethod     String?
+  shippingFee        Decimal              @default(0)
+  shippingProvider   String?
+  trackingNumber    String?
+  deliveryFailureReason String?
+  cancellationReason    String?
+  returnReason          String?
+  accountingReversedAt  DateTime?
+  digitalAsset         reward_digital_assets?
   payosOrderCode     String?          @unique
   webhookProcessedAt DateTime?
   receivedAt         DateTime?
   audit_logs         audit_logs[]
   backer_invoices    backer_invoices?
-  campaigns          campaigns        @relation(fields: [campaignId], references: [id])
+  campaigns          campaigns?       @relation(fields: [campaignId], references: [id])
   rewards            rewards?         @relation(fields: [rewardId], references: [id])
   product_reviews    product_reviews?
   users              users?           @relation(fields: [userId], references: [id])
@@ -567,15 +582,39 @@ model rewards {
   productVideo         String?
   updatedAt            DateTime
   availability         RewardAvailability   @default(AVAILABLE)
+  fulfillmentType      RewardFulfillmentType @default(PHYSICAL)
   pledges              pledges[]
   product_reviews      product_reviews[]
   campaigns            campaigns?             @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   projects             projects?              @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  digitalAssets        reward_digital_assets[]
   blog_posts           blog_posts[]
   project_reward_links project_reward_links[]
 
   @@index([campaignId])
   @@index([projectId])
+}
+
+model reward_digital_assets {
+  id             String             @id @default(cuid())
+  rewardId       String
+  campaignId     String?
+  pledgeId       String?            @unique
+  assetType      RewardFulfillmentType
+  encryptedValue String?
+  assetUrl       String?
+  deliveryEmail  String?
+  status         DigitalAssetStatus @default(AVAILABLE)
+  deliveredAt    DateTime?
+  claimedAt      DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  rewards        rewards            @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+  campaigns      campaigns?         @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  pledges        pledges?           @relation(fields: [pledgeId], references: [id], onDelete: SetNull)
+
+  @@index([rewardId, status])
+  @@index([campaignId, status])
 }
 
 model product_reviews {
@@ -859,6 +898,34 @@ enum KYCStatus {
 enum RewardAvailability {
   AVAILABLE
   DEVELOPMENT
+}
+
+enum RewardFulfillmentType {
+  PHYSICAL
+  EMAIL
+  DOWNLOAD
+  LICENSE_KEY
+  DIGITAL_COMIC
+}
+
+enum FulfillmentStatus {
+  NOT_APPLICABLE
+  AWAITING_PAYMENT
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  DELIVERY_FAILED
+  CANCELED
+  RETURN_REQUESTED
+  RETURNED
+}
+
+enum DigitalAssetStatus {
+  AVAILABLE
+  RESERVED
+  DELIVERED
+  CLAIMED
+  REVOKED
 }
 
 enum PaymentMethodType {

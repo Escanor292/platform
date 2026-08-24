@@ -27,6 +27,11 @@ export async function createBackerInvoice(pledgeId: string) {
           title: true,
         },
       },
+      rewards: {
+        select: {
+          title: true,
+        },
+      },
       users: {
         select: {
           name: true,
@@ -64,7 +69,7 @@ export async function createBackerInvoice(pledgeId: string) {
       platformFee: pledge.platformFee,
       vatAmount: pledge.vatAmount,
       totalAmount: pledge.totalAmount,
-      campaignTitle: pledge.campaigns.title,
+      campaignTitle: pledge.campaigns?.title || pledge.rewards?.title || "Sản phẩm Tử Tế Fund",
       paymentMethod: pledge.paymentProvider,
       transactionId: pledge.transactionId,
       status: "PAID",

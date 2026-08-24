@@ -126,6 +126,34 @@ Enum RewardAvailability {
   DEVELOPMENT
 }
 
+Enum RewardFulfillmentType {
+  PHYSICAL
+  EMAIL
+  DOWNLOAD
+  LICENSE_KEY
+  DIGITAL_COMIC
+}
+
+Enum FulfillmentStatus {
+  NOT_APPLICABLE
+  AWAITING_PAYMENT
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  DELIVERY_FAILED
+  CANCELED
+  RETURN_REQUESTED
+  RETURNED
+}
+
+Enum DigitalAssetStatus {
+  AVAILABLE
+  RESERVED
+  DELIVERED
+  CLAIMED
+  REVOKED
+}
+
 Enum PaymentMethodType {
   CARD
   BANK_ACCOUNT
@@ -405,6 +433,8 @@ Table campaigns {
   tags text[] [default: []]
   goalAmount decimal
   currentAmount decimal [default: 0]
+  closedAmount decimal
+  closedAt timestamp
   status CampaignStatus [default: DRAFT]
   startDate timestamp
   endDate timestamp
@@ -505,6 +535,7 @@ Table pledges {
   isAnonymous boolean [default: false]
   quantity int [default: 1]
   isCashOnDelivery boolean [default: false]
+  stockReserved boolean [default: false]
   email text
   phoneNumber text
   amount decimal
@@ -524,6 +555,16 @@ Table pledges {
   updatedAt timestamp
   rewardId text
   shippingAddress text
+  fulfillmentType RewardFulfillmentType
+  fulfillmentStatus FulfillmentStatus [default: NOT_APPLICABLE]
+  shippingMethod text
+  shippingFee decimal [default: 0]
+  shippingProvider text
+  trackingNumber text
+  deliveryFailureReason text
+  cancellationReason text
+  returnReason text
+  accountingReversedAt timestamp
   payosOrderCode text [unique]
   webhookProcessedAt timestamp
   receivedAt timestamp
@@ -585,6 +626,23 @@ Table rewards {
   productVideo text
   updatedAt timestamp
   availability RewardAvailability [default: AVAILABLE]
+  fulfillmentType RewardFulfillmentType [default: PHYSICAL]
+}
+
+Table reward_digital_assets {
+  id text [pk, default: cuid()]
+  rewardId text
+  campaignId text
+  pledgeId text [unique]
+  assetType RewardFulfillmentType
+  encryptedValue text
+  assetUrl text
+  deliveryEmail text
+  status DigitalAssetStatus [default: AVAILABLE]
+  deliveredAt timestamp
+  claimedAt timestamp
+  createdAt timestamp [default: now()]
+  updatedAt timestamp
 }
 
 Table product_reviews {
@@ -741,6 +799,9 @@ Ref: reviews.campaignId > campaigns.id
 Ref: reviews.userId > users.id
 Ref: rewards.campaignId > campaigns.id [delete: cascade]
 Ref: rewards.projectId > projects.id [delete: setnull]
+Ref: reward_digital_assets.rewardId > rewards.id [delete: cascade]
+Ref: reward_digital_assets.campaignId > campaigns.id [delete: setnull]
+Ref: reward_digital_assets.pledgeId > pledges.id [delete: setnull]
 Ref: product_reviews.rewardId > rewards.id [delete: cascade]
 Ref: product_reviews.pledgeId > pledges.id [delete: cascade]
 Ref: product_reviews.userId > users.id [delete: cascade]
@@ -817,6 +878,8 @@ Ref: password_reset_tokens.userId > users.id [delete: cascade]
 // Index: checkout_sessions(campaignId, rewardId)
 // Index: rewards(campaignId)
 // Index: rewards(projectId)
+// Index: reward_digital_assets(rewardId, status)
+// Index: reward_digital_assets(campaignId, status)
 // Index: product_reviews(rewardId, createdAt)
 // Index: product_reviews(userId)
 // Index: user_badges(assigned_by)

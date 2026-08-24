@@ -26,8 +26,11 @@ export async function GET(request: Request) {
        
        await prisma.campaigns.update({
           where: { id: campaign.id },
-          data: {
-             status: isSuccess ? "SUCCESS" : "FAILED"
+             data: {
+             status: isSuccess ? "SUCCESS" : "FAILED",
+             closedAmount: campaign.currentAmount,
+             closedAt: now,
+             updatedAt: now,
           }
        });
        updatedCount++;

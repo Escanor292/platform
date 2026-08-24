@@ -24,8 +24,12 @@ export async function POST(req: NextRequest) {
             deliveryDate,
             isActive,
             isIncludedInProject,
-            availability
+            availability,
+            fulfillmentType
         } = body;
+
+        const allowedFulfillmentTypes = ["PHYSICAL", "EMAIL", "DOWNLOAD", "LICENSE_KEY", "DIGITAL_COMIC"] as const;
+        const normalizedFulfillmentType = allowedFulfillmentTypes.includes(fulfillmentType) ? fulfillmentType : "PHYSICAL";
 
         // Validate required fields
         if (!title || !minAmount) {
@@ -107,6 +111,7 @@ export async function POST(req: NextRequest) {
                 deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
                 isActive: Boolean(isActive),
                 availability: availability === "DEVELOPMENT" ? "DEVELOPMENT" : "AVAILABLE",
+                fulfillmentType: normalizedFulfillmentType,
                 updatedAt: new Date(),
             },
         });

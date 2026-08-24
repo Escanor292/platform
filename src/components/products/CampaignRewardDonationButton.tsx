@@ -14,23 +14,29 @@ interface Reward {
   minAmount: number;
   estimatedDelivery?: string | null;
   availability?: "AVAILABLE" | "DEVELOPMENT";
+  fulfillmentType?: "PHYSICAL" | "EMAIL" | "DOWNLOAD" | "LICENSE_KEY" | "DIGITAL_COMIC";
+  maxQuantity?: number | null;
 }
 
 interface CampaignRewardDonationButtonProps {
   campaignId: string;
   campaignSlug: string;
   reward: Reward;
+  initialQuantity?: number;
 }
 
 export default function CampaignRewardDonationButton({
   campaignId,
   campaignSlug,
   reward,
+  initialQuantity = 1,
 }: CampaignRewardDonationButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { status: sessionStatus } = useSession();
   const searchParams = useSearchParams();
   const checkoutSessionId = searchParams.get("checkoutSessionId");
+  const shouldOpenFromCart = searchParams.get("buy") === "1";
+  const requestedQuantity = Math.min(99, Math.max(1, Number(searchParams.get("qty") || initialQuantity) || 1));
   const [restoredSessionId, setRestoredSessionId] = useState<string | null>(null);
   const [restoredPayload, setRestoredPayload] = useState<{
     amount?: number;
@@ -42,6 +48,8 @@ export default function CampaignRewardDonationButton({
     paymentMethod?: "ONLINE" | "COD";
     paymentMethodId?: string | null;
     savePaymentMethod?: boolean;
+    quantity?: number;
+    shippingMethod?: "STANDARD" | "EXPRESS" | "EMAIL" | "DOWNLOAD";
   } | null>(null);
 
   useEffect(() => {
@@ -74,6 +82,10 @@ export default function CampaignRewardDonationButton({
     };
   }, [campaignId, checkoutSessionId, reward.id, restoredSessionId, sessionStatus]);
 
+  useEffect(() => {
+    if (shouldOpenFromCart) setIsOpen(true);
+  }, [shouldOpenFromCart]);
+
   return (
     <>
       <button
@@ -102,6 +114,7 @@ export default function CampaignRewardDonationButton({
             rewards={[reward]}
             donationType="reward"
             preselectedReward={reward}
+            initialQuantity={requestedQuantity}
             restoredPayload={restoredPayload}
             showHeader={false}
           />

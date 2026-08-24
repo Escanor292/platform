@@ -23,13 +23,14 @@ export async function GET(req: NextRequest) {
 
     if (responseCode === "00" && result.isVerified) {
       // 1. Cập nhật trạng thái Pledge
+      const existingPledge = await prisma.pledges.findUnique({ where: { id: pledgeId }, select: { rewardId: true } });
       const pledge = await prisma.pledges.update({
         where: { id: pledgeId },
-        data: { status: "SUCCESS" },
+        data: { status: "SUCCESS", fulfillmentStatus: existingPledge?.rewardId ? "PROCESSING" : "NOT_APPLICABLE" },
       });
 
-      // 2. Cập nhật số tiền dự án (Escrow)
-      await releaseEscrow(pledge.campaignId);
+      // 2. Cập nhật số tiền dự án (Escrow), chỉ áp dụng khi pledge gắn campaign.
+      if (pledge.campaignId) await releaseEscrow(pledge.campaignId);
 
       return NextResponse.redirect(
         new URL(`/payment-success?status=success&ref=${pledgeId}`, req.url)
@@ -66,12 +67,12 @@ export async function POST(req: NextRequest) {
          where: { transactionId: `PAYOS-${body.orderCode}` } 
        });
 
-       if (pledge) {
+          if (pledge) {
           await prisma.pledges.update({
             where: { id: pledge.id },
-            data: { status: "SUCCESS" }
+            data: { status: "SUCCESS", fulfillmentStatus: pledge.rewardId ? "PROCESSING" : "NOT_APPLICABLE" }
           });
-          await releaseEscrow(pledge.campaignId);
+          if (pledge.campaignId) await releaseEscrow(pledge.campaignId);
        }
        return NextResponse.json({ success: true });
     }

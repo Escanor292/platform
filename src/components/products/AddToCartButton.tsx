@@ -60,7 +60,7 @@ export function AddToCartButton({
   }
 
   const handleAdd = () => {
-    addItem({ id: rewardId, title, image, price });
+    addItem({ id: rewardId, title, image, price, campaignId: campaignId || null });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };

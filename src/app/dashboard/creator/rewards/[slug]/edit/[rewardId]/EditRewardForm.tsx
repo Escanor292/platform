@@ -16,6 +16,7 @@ interface Reward {
     deliveryDate: string | null;
     isActive: boolean;
     availability?: "AVAILABLE" | "DEVELOPMENT";
+    fulfillmentType?: "PHYSICAL" | "EMAIL" | "DOWNLOAD" | "LICENSE_KEY" | "DIGITAL_COMIC";
     _count: {
         pledges: number;
     };
@@ -43,6 +44,7 @@ export default function EditRewardForm({ reward }: EditRewardFormProps) {
         deliveryDate: reward.deliveryDate || "",
         isActive: reward.isActive,
         availability: reward.availability || "AVAILABLE",
+        fulfillmentType: reward.fulfillmentType || "PHYSICAL",
     });
 
     const hasPledges = reward._count.pledges > 0;
@@ -65,6 +67,7 @@ export default function EditRewardForm({ reward }: EditRewardFormProps) {
                     deliveryDate: formData.availability === "DEVELOPMENT" && formData.deliveryDate ? new Date(formData.deliveryDate) : null,
                     isActive: formData.isActive,
                     availability: formData.availability,
+                    fulfillmentType: formData.fulfillmentType,
                 }),
             });
 
@@ -195,6 +198,22 @@ export default function EditRewardForm({ reward }: EditRewardFormProps) {
                             </div>
                         </button>
                     </div>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Hình thức nhận sản phẩm *</label>
+                    <select
+                        value={formData.fulfillmentType}
+                        onChange={(event) => setFormData(prev => ({ ...prev, fulfillmentType: event.target.value as typeof prev.fulfillmentType }))}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-pgreen/30 focus:border-transparent transition"
+                    >
+                        <option value="PHYSICAL">Sản phẩm vật lý — giao tận nơi/COD</option>
+                        <option value="EMAIL">Tài sản số — gửi qua email</option>
+                        <option value="DOWNLOAD">Tài sản số — Kho đã mua</option>
+                        <option value="LICENSE_KEY">Mã bản quyền — Kho đã mua</option>
+                        <option value="DIGITAL_COMIC">Truyện số — Kho đã mua</option>
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">COD chỉ áp dụng cho sản phẩm vật lý có sẵn.</p>
                 </div>
 
                 {/* Min Amount */}

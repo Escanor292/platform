@@ -134,26 +134,18 @@ export async function POST(request: NextRequest) {
         where: { id: pledge.id },
         data: {
           status: "SUCCESS",
+          fulfillmentStatus: pledge.rewardId ? "PROCESSING" : "NOT_APPLICABLE",
           transactionId: reference || pledge.transactionId,
           webhookProcessedAt: new Date(),
           updatedAt: new Date(),
         },
       });
 
-      // Update campaign amount
-      await prisma.campaigns.update({
-        where: { id: pledge.campaignId },
-        data: {
-          currentAmount: {
-            increment: pledge.amount,
-          },
-        },
-      });
-
-      // Check if campaign reached goal
-      const updatedCampaign = await prisma.campaigns.findUnique({
-        where: { id: pledge.campaignId },
-      });
+      // Update campaign amount only for campaign-attributed pledges.
+      const updatedCampaign = pledge.campaignId ? await prisma.$transaction(async (tx) => {
+        await tx.campaigns.update({ where: { id: pledge.campaignId! }, data: { currentAmount: { increment: pledge.amount }, updatedAt: new Date() } });
+        return tx.campaigns.findUnique({ where: { id: pledge.campaignId! } });
+      }) : null;
 
       if (
         updatedCampaign &&
@@ -161,7 +153,7 @@ export async function POST(request: NextRequest) {
         updatedCampaign.status === "ACTIVE"
       ) {
         await prisma.campaigns.update({
-          where: { id: pledge.campaignId },
+          where: { id: pledge.campaignId! },
           data: { status: "SUCCESS" },
         });
         console.log(`[PAYOS WEBHOOK ${requestId}] Campaign ${pledge.campaignId} reached goal!`);

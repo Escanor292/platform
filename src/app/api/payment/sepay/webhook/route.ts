@@ -117,25 +117,17 @@ export async function POST(request: NextRequest) {
         where: { id: pledge.id },
         data: {
           status: "SUCCESS",
+          fulfillmentStatus: pledge.rewardId ? "PROCESSING" : "NOT_APPLICABLE",
           transactionId: transaction.transaction_id || pledge.transactionId,
           updatedAt: new Date(),
         },
       });
 
-      // Cộng tiền vào campaign
-      await prisma.campaigns.update({
-        where: { id: pledge.campaignId },
-        data: {
-          currentAmount: {
-            increment: pledge.amount,
-          },
-        },
-      });
-
-      // Kiểm tra campaign đạt mục tiêu
-      const updatedCampaign = await prisma.campaigns.findUnique({
-        where: { id: pledge.campaignId },
-      });
+      // Cộng tiền vào campaign; giao dịch sản phẩm độc lập không có campaign attribution.
+      const updatedCampaign = pledge.campaignId ? await prisma.$transaction(async (tx) => {
+        await tx.campaigns.update({ where: { id: pledge.campaignId! }, data: { currentAmount: { increment: pledge.amount }, updatedAt: new Date() } });
+        return tx.campaigns.findUnique({ where: { id: pledge.campaignId! } });
+      }) : null;
 
       if (
         updatedCampaign &&
@@ -143,7 +135,7 @@ export async function POST(request: NextRequest) {
         updatedCampaign.status === "ACTIVE"
       ) {
         await prisma.campaigns.update({
-          where: { id: pledge.campaignId },
+          where: { id: pledge.campaignId! },
           data: { status: "SUCCESS" },
         });
       }

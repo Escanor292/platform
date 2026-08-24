@@ -53,12 +53,12 @@ export async function GET(request: NextRequest) {
       status: pledge.status,
       refundStatus: pledge.refundStatus,
       createdAt: pledge.createdAt,
-      campaign: {
+      campaign: pledge.campaigns ? {
         title: pledge.campaigns.title,
         slug: pledge.campaigns.slug,
         campaignCode: pledge.campaigns.campaignCode,
         imageUrl: pledge.campaigns.imageUrl,
-      },
+      } : null,
     };
 
     return NextResponse.json(safeData);

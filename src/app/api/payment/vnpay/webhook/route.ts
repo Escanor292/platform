@@ -83,24 +83,19 @@ export async function GET(request: NextRequest) {
         data: {
           status: "SUCCESS",
           transactionId: transactionNo || pledge.transactionId,
+          fulfillmentStatus: pledge.rewardId ? "PROCESSING" : "NOT_APPLICABLE",
           updatedAt: new Date(),
         },
       });
 
-      // Cộng tiền vào campaign
-      await prisma.campaigns.update({
-        where: { id: pledge.campaignId },
-        data: {
-          currentAmount: {
-            increment: pledge.amount,
-          },
-        },
-      });
-
-      // Kiểm tra campaign đạt mục tiêu
-      const updatedCampaign = await prisma.campaigns.findUnique({
-        where: { id: pledge.campaignId },
-      });
+      // Cộng tiền vào campaign; sản phẩm độc lập không có campaign attribution.
+      const updatedCampaign = pledge.campaignId ? await prisma.$transaction(async (tx) => {
+        await tx.campaigns.update({
+          where: { id: pledge.campaignId! },
+          data: { currentAmount: { increment: pledge.amount }, updatedAt: new Date() },
+        });
+        return tx.campaigns.findUnique({ where: { id: pledge.campaignId! } });
+      }) : null;
 
       if (
         updatedCampaign &&
@@ -108,7 +103,7 @@ export async function GET(request: NextRequest) {
         updatedCampaign.status === "ACTIVE"
       ) {
         await prisma.campaigns.update({
-          where: { id: pledge.campaignId },
+          where: { id: pledge.campaignId! },
           data: { status: "SUCCESS" },
         });
       }
@@ -124,32 +119,25 @@ export async function GET(request: NextRequest) {
         reason: "VNPay payment successful",
       });
 
-      // Send notifications (non-blocking)
-      // 1. Notify Creator
-      notificationService.send({
-        userId: pledge.campaigns.creatorId,
-        type: "PLEDGE_RECEIVED",
-        title: "Bạn có lượt ủng hộ mới!",
-        message: `Chiến dịch "${pledge.campaigns.title}" vừa nhận được ${Number(pledge.amount).toLocaleString('vi-VN')} VNĐ từ ${pledge.displayName}.`,
-        payload: {
-          campaignId: pledge.campaignId,
-          pledgeId: pledge.id,
-          amount: Number(pledge.amount)
-        }
-      });
-
-      // 2. Notify Backer (if logged in)
-      if (pledge.userId) {
+      // Send campaign notifications only when this pledge is attributed to a campaign.
+      if (pledge.campaigns && pledge.campaignId) {
         notificationService.send({
-          userId: pledge.userId,
-          type: "PAYMENT_SUCCESS",
-          title: "Ủng hộ thành công!",
-          message: `Bạn đã ủng hộ thành công ${Number(pledge.amount).toLocaleString('vi-VN')} VNĐ cho chiến dịch "${pledge.campaigns.title}".`,
-          payload: {
-            campaignId: pledge.campaignId,
-            pledgeId: pledge.id
-          }
+          userId: pledge.campaigns.creatorId,
+          type: "PLEDGE_RECEIVED",
+          title: "Bạn có lượt ủng hộ mới!",
+          message: `Chiến dịch "${pledge.campaigns.title}" vừa nhận được ${Number(pledge.amount).toLocaleString('vi-VN')} VNĐ từ ${pledge.displayName}.`,
+          payload: { campaignId: pledge.campaignId, pledgeId: pledge.id, amount: Number(pledge.amount) }
         });
+
+        if (pledge.userId) {
+          notificationService.send({
+            userId: pledge.userId,
+            type: "PAYMENT_SUCCESS",
+            title: "Ủng hộ thành công!",
+            message: `Bạn đã ủng hộ thành công ${Number(pledge.amount).toLocaleString('vi-VN')} VNĐ cho chiến dịch "${pledge.campaigns.title}".`,
+            payload: { campaignId: pledge.campaignId, pledgeId: pledge.id }
+          });
+        }
       }
 
       console.log("[VNPAY WEBHOOK] Payment successful:", pledgeId);

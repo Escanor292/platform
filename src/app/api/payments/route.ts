@@ -35,9 +35,10 @@ export async function POST(request: NextRequest) {
     const displayName = typeof body.displayName === "string" ? body.displayName.trim().slice(0, 120) : "";
     const guestEmail = typeof body.guestEmail === "string" ? body.guestEmail.trim().slice(0, 254) : "";
     const shippingAddress = typeof body.shippingAddress === "string" ? body.shippingAddress.trim().slice(0, 1000) : "";
+    const shippingMethod = typeof body.shippingMethod === "string" ? body.shippingMethod.trim().toUpperCase() : "STANDARD";
     const savePaymentMethod = body.savePaymentMethod === true;
 
-    if (!campaignId || !Number.isFinite(amount) || amount < MIN_DONATION_AMOUNT || !Number.isInteger(amount)) {
+    if ((!campaignId && !rewardId) || !Number.isFinite(amount) || amount < MIN_DONATION_AMOUNT || !Number.isInteger(amount)) {
       return NextResponse.json({ error: "Thiếu thông tin hoặc số tiền không hợp lệ" }, { status: 400 });
     }
 
@@ -49,26 +50,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Số lượng sản phẩm không hợp lệ" }, { status: 400 });
     }
 
-    const campaign = await prisma.campaigns.findFirst({
-      where: { id: campaignId, status: "ACTIVE" },
-      select: { id: true, title: true },
-    });
+    const campaign = campaignId
+      ? await prisma.campaigns.findFirst({
+          where: { id: campaignId, status: "ACTIVE" },
+          select: { id: true, title: true },
+        })
+      : null;
 
-    if (!campaign) {
+    if (campaignId && !campaign) {
       return NextResponse.json({ error: "Chiến dịch không tồn tại hoặc chưa mở nhận ủng hộ" }, { status: 404 });
     }
 
     const reward = rewardId
       ? await prisma.rewards.findFirst({
-          where: { id: rewardId, campaignId, isActive: true },
+          where: { id: rewardId, isActive: true, ...(campaignId ? { campaignId } : {}) },
           select: {
             id: true,
+            campaignId: true,
             title: true,
             minAmount: true,
             maxAmount: true,
             maxQuantity: true,
             stock: true,
             availability: true,
+            fulfillmentType: true,
           },
         })
       : null;
@@ -88,13 +93,22 @@ export async function POST(request: NextRequest) {
       if (reward.maxQuantity && quantity > reward.maxQuantity) {
         return NextResponse.json({ error: "Số lượng vượt quá giới hạn của phần quà" }, { status: 400 });
       }
-      if (paymentMethod === "COD" && reward.availability !== "AVAILABLE") {
-        return NextResponse.json({ error: "Thanh toán khi nhận hàng chỉ áp dụng cho sản phẩm có sẵn" }, { status: 400 });
+      if (!["STANDARD", "EXPRESS", "EMAIL", "DOWNLOAD"].includes(shippingMethod)) {
+        return NextResponse.json({ error: "Phương thức giao hàng không hợp lệ" }, { status: 400 });
+      }
+      if (reward.fulfillmentType === "PHYSICAL" && !["STANDARD", "EXPRESS"].includes(shippingMethod)) {
+        return NextResponse.json({ error: "Sản phẩm vật lý cần chọn phương thức vận chuyển" }, { status: 400 });
+      }
+      if (reward.fulfillmentType !== "PHYSICAL" && !["EMAIL", "DOWNLOAD"].includes(shippingMethod)) {
+        return NextResponse.json({ error: "Tài sản số cần chọn phương thức nhận qua email hoặc kho đã mua" }, { status: 400 });
+      }
+      if (paymentMethod === "COD" && (reward.availability !== "AVAILABLE" || reward.fulfillmentType !== "PHYSICAL")) {
+        return NextResponse.json({ error: "Thanh toán khi nhận hàng chỉ áp dụng cho sản phẩm vật lý có sẵn" }, { status: 400 });
       }
       if (reward.stock !== null && reward.stock < quantity) {
         return NextResponse.json({ error: "Sản phẩm không đủ tồn kho" }, { status: 409 });
       }
-      if (reward.availability === "AVAILABLE" && !shippingAddress && !((session?.user as { shippingAddress?: string } | undefined)?.shippingAddress)) {
+      if (reward.fulfillmentType === "PHYSICAL" && !shippingAddress && !((session?.user as { shippingAddress?: string } | undefined)?.shippingAddress)) {
         return NextResponse.json({ error: "Vui lòng nhập địa chỉ nhận hàng" }, { status: 400 });
       }
     }
@@ -126,17 +140,21 @@ export async function POST(request: NextRequest) {
     }
 
     const isReadyProduct = reward?.availability === "AVAILABLE";
+    const baseAmount = reward ? amount * quantity : amount;
     const tipPercent = !isReadyProduct && paymentMethod === "ONLINE"
       ? Math.min(Math.max(Number.isFinite(platformTipPercent) ? platformTipPercent : 0, 0), MAX_TIP_PERCENT)
       : 0;
-    const tipAmount = Math.round((amount * tipPercent) / 100);
+    const tipAmount = Math.round((baseAmount * tipPercent) / 100);
     const vatAmount = Math.round(tipAmount * 0.1);
-    const totalAmount = amount + tipAmount + vatAmount;
+    const shippingFee = reward?.fulfillmentType === "PHYSICAL" && shippingMethod === "EXPRESS" ? 30000 : 0;
+    const totalAmount = baseAmount + tipAmount + vatAmount + shippingFee;
     const finalDisplayName = isAnonymous ? "Người dùng ẩn danh" : (displayName || session?.user?.name || "Khách hàng");
     const ipAddress = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
       || request.headers.get("x-real-ip")
       || "unknown";
-    const finalShippingAddress = shippingAddress || ((session?.user as { shippingAddress?: string } | undefined)?.shippingAddress ?? null);
+    const finalShippingAddress = reward?.fulfillmentType === "PHYSICAL"
+      ? (shippingAddress || ((session?.user as { shippingAddress?: string } | undefined)?.shippingAddress ?? null))
+      : null;
     const now = new Date();
 
     if (paymentMethod === "COD") {
@@ -159,18 +177,23 @@ export async function POST(request: NextRequest) {
             data: {
               id: crypto.randomUUID(),
               userId: session?.user?.id || null,
-              campaignId,
+              campaignId: campaignId || reward.campaignId || null,
               rewardId: reward.id,
-              amount: new Decimal(amount),
+              amount: new Decimal(baseAmount),
               tipAmount: new Decimal(0),
               vatAmount: new Decimal(0),
-              totalAmount: new Decimal(amount),
+              totalAmount: new Decimal(baseAmount + shippingFee),
               email: finalEmail,
               displayName: finalDisplayName,
               shippingAddress: finalShippingAddress,
+              shippingMethod,
+              shippingFee: new Decimal(shippingFee),
               isAnonymous,
               quantity,
               isCashOnDelivery: true,
+              stockReserved: reward.stock !== null,
+              fulfillmentType: reward.fulfillmentType,
+              fulfillmentStatus: "PROCESSING",
               ipAddress,
               paymentProvider: "COD",
               transactionId,
@@ -196,28 +219,47 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const pledge = await prisma.pledges.create({
-      data: {
-        id: crypto.randomUUID(),
-        userId: session?.user?.id || null,
-        campaignId,
-        rewardId: reward?.id || null,
-        amount: new Decimal(amount),
-        tipAmount: new Decimal(tipAmount),
-        vatAmount: new Decimal(vatAmount),
-        totalAmount: new Decimal(totalAmount),
-        email: finalEmail || null,
-        displayName: finalDisplayName,
-        shippingAddress: finalShippingAddress,
-        isAnonymous,
-        quantity,
-        isCashOnDelivery: false,
-        ipAddress,
-        paymentProvider: "PAYOS",
-        transactionId: `ONLINE-${crypto.randomUUID()}`,
-        status: "PENDING",
-        updatedAt: now,
-      },
+    const pledge = await prisma.$transaction(async (tx) => {
+      let stockReserved = false;
+      if (reward && reward.stock !== null) {
+        const stockUpdate = await tx.rewards.updateMany({
+          where: { id: reward.id, isActive: true, stock: { gte: quantity } },
+          data: { stock: { decrement: quantity }, updatedAt: now },
+        });
+        if (stockUpdate.count !== 1) {
+          throw new Error("Sản phẩm vừa hết tồn kho, vui lòng thử lại");
+        }
+        stockReserved = true;
+      }
+
+      return tx.pledges.create({
+        data: {
+          id: crypto.randomUUID(),
+          userId: session?.user?.id || null,
+          campaignId: campaignId || reward?.campaignId || null,
+          rewardId: reward?.id || null,
+          amount: new Decimal(baseAmount),
+          tipAmount: new Decimal(tipAmount),
+          vatAmount: new Decimal(vatAmount),
+          totalAmount: new Decimal(totalAmount),
+          email: finalEmail || null,
+          displayName: finalDisplayName,
+          shippingAddress: finalShippingAddress,
+          shippingMethod,
+          shippingFee: new Decimal(shippingFee),
+          isAnonymous,
+          quantity,
+          isCashOnDelivery: false,
+          stockReserved,
+          fulfillmentType: reward?.fulfillmentType ?? null,
+          fulfillmentStatus: reward ? "AWAITING_PAYMENT" : "NOT_APPLICABLE",
+          ipAddress,
+          paymentProvider: "PAYOS",
+          transactionId: `ONLINE-${crypto.randomUUID()}`,
+          status: "PENDING",
+          updatedAt: now,
+        },
+      });
     });
 
     const orderCode = Number(`${Date.now()}${Math.floor(Math.random() * 10)}`.slice(-15));
@@ -231,7 +273,7 @@ export async function POST(request: NextRequest) {
         const paymentLink = await createPayOSPaymentLink({
           orderCode,
           amount: Math.round(totalAmount),
-          description: `Ung ho ${campaign.title.slice(0, 32)}`,
+          description: `${reward ? "Mua " + reward.title : "Ung ho " + (campaign?.title || "chien dich")}`.slice(0, 32),
           cancelUrl: `${baseUrl}/campaigns`,
           returnUrl: `${baseUrl}/payment-success?status=success&ref=${encodeURIComponent(pledge.id)}`,
         });
@@ -239,6 +281,13 @@ export async function POST(request: NextRequest) {
       }
     } catch (error) {
       console.error("[PAYMENTS_API] Hosted checkout creation failed", error instanceof Error ? error.message : "unknown error");
+      await prisma.$transaction(async (tx) => {
+        const current = await tx.pledges.findUnique({ where: { id: pledge.id }, select: { stockReserved: true, rewardId: true, quantity: true } });
+        if (current?.stockReserved && current.rewardId) {
+          await tx.rewards.update({ where: { id: current.rewardId }, data: { stock: { increment: current.quantity }, updatedAt: new Date() } });
+          await tx.pledges.update({ where: { id: pledge.id }, data: { stockReserved: false, status: "FAILED", fulfillmentStatus: "CANCELED", cancellationReason: "Không tạo được phiên thanh toán" } });
+        }
+      });
       return NextResponse.json({ error: "Cổng thanh toán trực tuyến chưa sẵn sàng. Vui lòng thử lại sau." }, { status: 503 });
     }
 

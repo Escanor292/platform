@@ -18,6 +18,7 @@ export interface CartItem {
   image: string;
   price: number;
   qty: number;
+  campaignId?: string | null;
 }
 
 interface CartContextValue {
@@ -259,15 +260,15 @@ export function CartDropdown() {
                   {formatVND(totalPrice).replace("VNĐ", "") + "đ"}
                 </span>
               </div>
-              <Link
+                <Link
                 href="/cart"
                 onClick={() => setOpen(false)}
                 className="block w-full text-center bg-pgreen hover:bg-emerald-600 text-white font-bold rounded-full py-2.5 text-sm transition"
               >
-                Xem giỏ hàng &amp; liên hệ nhà sáng tạo
+                Xem giỏ hàng &amp; thanh toán
               </Link>
               <p className="text-[10px] text-gray-400 text-center">
-                Sau khi xác nhận, bạn sẽ được chuyển đến trò chuyện với nhà sáng tạo để hoàn tất đặt hàng.
+                Chọn Mua ngay trên từng sản phẩm để chọn COD, online hoặc phương thức nhận tài sản số.
               </p>
             </div>
           )}

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import {
-  Rocket, User, LogOut, UserCircle, PlusCircle, Menu, X, ChevronDown, Settings, ShieldCheck, FolderKanban, HeartHandshake, MessageCircle
+  Rocket, User, LogOut, UserCircle, PlusCircle, Menu, X, ChevronDown, Settings, ShieldCheck, FolderKanban, HeartHandshake, MessageCircle, PackageOpen
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
@@ -258,6 +258,15 @@ export default function NavbarNew() {
                     >
                       <HeartHandshake size={16} />
                       Chiến dịch quan tâm
+                    </Link>
+
+                    <Link
+                      href="/purchases"
+                      className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      <PackageOpen size={16} />
+                      Kho đã mua
                     </Link>
 
                     <Link

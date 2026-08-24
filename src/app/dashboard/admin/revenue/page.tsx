@@ -169,10 +169,10 @@ export default async function AdminRevenuePage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm font-bold text-gray-900 max-w-xs truncate">
-                        {tx.campaigns.title}
+                        {tx.campaigns?.title || "Sản phẩm độc lập"}
                       </div>
                       <div className="text-xs text-gray-400 font-mono">
-                        {tx.campaigns.campaignCode}
+                        {tx.campaigns?.campaignCode || "—"}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
