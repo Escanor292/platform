@@ -5,6 +5,7 @@ import { Bot, ChevronDown, Leaf, Send, Trash2, X } from "lucide-react";
 import { isCommandLikeRequest } from "@/lib/assistant-safety";
 import { getAssistantTelemetryConsent, recordAssistantTelemetry, setAssistantTelemetryConsent } from "@/lib/assistant-telemetry";
 import { getPlatformHelpAnswer, type PlatformHelpAnswer } from "@/lib/platform-help";
+import { isProductReviewQuestion, rewardIdFromProductPath, summarizePublicProductReviews, type PublicProductReview } from "@/lib/public-product-review-summary";
 import { appendZeroMemTrace, clearZeroMemTraces, isZeroMemSensitive, loadZeroMemTraces, retrieveZeroMemEvidence, type ZeroMemTrace } from "@/lib/zero-mem";
 
 type HelpMessage = {
@@ -38,7 +39,7 @@ export default function PlatformHelpAssistant() {
     if (open && messages.length === 0) setMessages([greeting]);
   }, [greeting, messages.length, open]);
 
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault();
     const question = draft.trim();
     if (!question) return;
@@ -48,10 +49,28 @@ export default function PlatformHelpAssistant() {
     let answer: PlatformHelpAnswer;
     let answerFailed = false;
     try {
-      answer = isSensitive ? { content: "Vì an toàn, tôi không lưu hoặc xử lý mật khẩu, mã xác thực, dữ liệu thẻ hay token. Vui lòng không gửi các thông tin này qua chat." } : getPlatformHelpAnswer(question, evidence);
+      if (isSensitive) {
+        answer = { content: "Vì an toàn, tôi không lưu hoặc xử lý mật khẩu, mã xác thực, dữ liệu thẻ hay token. Vui lòng không gửi các thông tin này qua chat." };
+      } else if (isCommand) {
+        answer = getPlatformHelpAnswer(question, evidence);
+      } else {
+        const rewardId = rewardIdFromProductPath(window.location.pathname);
+        if (rewardId && isProductReviewQuestion(question)) {
+          const response = await fetch(`/api/products/${encodeURIComponent(rewardId)}/reviews`, { cache: "no-store" });
+          const data = await response.json();
+          if (!response.ok || !Array.isArray(data.reviews)) throw new Error(data.error || "Không thể tải đánh giá sản phẩm");
+          const reviews: PublicProductReview[] = data.reviews.map((review: unknown) => {
+            const item = review as { id?: unknown; rating?: unknown; comment?: unknown };
+            return { id: typeof item.id === "string" ? item.id : "", rating: typeof item.rating === "number" ? item.rating : Number.NaN, comment: typeof item.comment === "string" ? item.comment : null };
+          });
+          answer = { content: summarizePublicProductReviews(reviews) };
+        } else {
+          answer = getPlatformHelpAnswer(question, evidence);
+        }
+      }
     } catch {
       answerFailed = true;
-      answer = { content: "Trợ lý chưa thể tạo hướng dẫn ở thời điểm này. Bạn có thể thử lại hoặc dùng các mục gợi ý bên dưới." };
+      answer = { content: "Trợ lý chưa thể tải dữ liệu đánh giá công khai ở thời điểm này. Bạn có thể thử lại hoặc xem trực tiếp phần đánh giá của sản phẩm." };
     }
     const now = Date.now();
     setMessages(current => [...current, { id: `support-user-${now}`, role: "user", content: question }, { id: `support-answer-${now}`, role: "assistant", ...answer }]);
