@@ -67,10 +67,11 @@ export async function GET(_request: Request, context: { params: Promise<{ type: 
       case "product": {
         const reward = await prisma.rewards.findFirst({
           where: { id, isActive: true },
-          select: { id: true, title: true, description: true, minAmount: true, maxAmount: true, stock: true, productImages: true, productVideo: true, maxQuantity: true, deliveryDate: true, isPreorder: true, onlineDepositPercent: true, codDepositPercent: true, createdAt: true, campaigns: { select: { id: true, slug: true, title: true, status: true } }, projects: { select: { id: true, slug: true, title: true } } },
+          select: { id: true, title: true, description: true, minAmount: true, maxAmount: true, stock: true, productImages: true, productVideo: true, maxQuantity: true, deliveryDate: true, isPreorder: true, onlineDepositPercent: true, codDepositPercent: true, createdAt: true, campaigns: { select: { id: true, slug: true, title: true, status: true } }, projects: { select: { id: true, slug: true, title: true } }, product_reviews: { select: { rating: true } }, _count: { select: { pledges: { where: { status: "SUCCESS" } }, product_reviews: true } } },
         });
         if (!reward) return notFound();
-        return NextResponse.json({ type, data: { ...reward, minAmount: Number(reward.minAmount), maxAmount: reward.maxAmount === null ? null : Number(reward.maxAmount) } }, { headers: responseHeaders });
+        const averageRating = reward.product_reviews.length > 0 ? reward.product_reviews.reduce((sum, review) => sum + review.rating, 0) / reward.product_reviews.length : null;
+        return NextResponse.json({ type, data: { ...reward, minAmount: Number(reward.minAmount), maxAmount: reward.maxAmount === null ? null : Number(reward.maxAmount), averageRating, reviewCount: reward._count.product_reviews, soldCount: reward._count.pledges } }, { headers: responseHeaders });
       }
       case "blog": {
         const post = await prisma.blog_posts.findFirst({

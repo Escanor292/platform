@@ -19,7 +19,13 @@ const rewardSelect = {
     fulfillmentType: true,
     isActive: true,
     createdAt: true,
-    _count: { select: { pledges: true } },
+    product_reviews: { select: { rating: true } },
+    _count: {
+        select: {
+            pledges: { where: { status: "SUCCESS" } },
+            product_reviews: true,
+        },
+    },
 } as const;
 
 /** GET /api/rewards/my - Danh sách sản phẩm thật của creator để chèn vào bài viết. */
@@ -71,6 +77,9 @@ export async function GET() {
 
         const serializeRewards = (rewards: any[]) => rewards.map((reward) => ({
             ...reward,
+            averageRating: reward.product_reviews?.length ? Number(reward.product_reviews.reduce((sum: number, review: { rating: number }) => sum + review.rating, 0) / reward.product_reviews.length) : null,
+            reviewCount: reward._count?.product_reviews ?? 0,
+            soldCount: reward._count?.pledges ?? 0,
             minAmount: Number(reward.minAmount),
             maxAmount: reward.maxAmount == null ? null : Number(reward.maxAmount),
             _count: reward._count,

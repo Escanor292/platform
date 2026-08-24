@@ -116,6 +116,22 @@ async function main() {
     }}));
   }
 
+  const testUsers = await prisma.users.findMany({ orderBy: { createdAt: 'asc' }, take: 8 });
+  if (!testUsers.length) throw new Error('Không tìm thấy người dùng để tạo pledge/review fixture.');
+  for (let i = 0; i < rewards.length; i += 1) {
+    const reward = rewards[i];
+    const buyer = testUsers[i % testUsers.length];
+    const amount = Number(reward.minAmount);
+    const pledge = await prisma.pledges.create({ data: {
+      id: id(), campaignId: reward.campaignId, rewardId: reward.id, userId: buyer.id, displayName: buyer.name, isAnonymous: false, quantity: 1,
+      isCashOnDelivery: i % 3 === 0, stockReserved: false, email: buyer.email, amount, depositAmount: i % 3 === 0 ? amount * 0.5 : amount, chargeAmount: amount, orderTotalAmount: amount, remainingAmount: 0, paidAmount: amount, accountingAmount: amount, totalAmount: amount,
+      paymentProvider: i % 3 === 0 ? 'COD' : 'TEST', transactionId: `FIXTURE-SALE-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 7)}`, status: 'SUCCESS', fulfillmentType: reward.fulfillmentType, fulfillmentStatus: reward.fulfillmentType === 'PHYSICAL' ? 'DELIVERED' : 'DELIVERED', receivedAt: at(-i - 2), updatedAt: now,
+    }});
+    if (i < 8 && i % 2 === 0) {
+      await prisma.product_reviews.create({ data: { id: id(), rewardId: reward.id, pledgeId: pledge.id, userId: buyer.id, rating: 3 + (i % 3), comment: `Đánh giá fixture ${i + 1}: sản phẩm đúng mô tả và dễ sử dụng.`, mediaUrls: [], updatedAt: now } });
+    }
+  }
+
   const blogs = [];
   const blogSpecs = [
     ['Nhật ký gieo mầm tuần đầu', 'PUBLISHED', 'STORY', 'PUBLIC'], ['Bản tin tiến độ tháng này', 'DRAFT', 'CAMPAIGN_UPDATE', 'OWNER_ONLY'], ['Tác động sau 100 ngày', 'PUBLISHED', 'IMPACT_REPORT', 'PUBLIC'], ['Thông báo mở đăng ký workshop', 'PENDING_REVIEW', 'ANNOUNCEMENT', 'PUBLIC'], ['Câu chuyện của một họa sĩ trẻ', 'ARCHIVED', 'STORY', 'PUBLIC'], ['Bài viết độc lập về sống xanh', 'PUBLISHED', 'PLATFORM', 'PUBLIC'], ['Bản nháp kế hoạch mùa thu', 'DRAFT', 'PLATFORM', 'PRIVATE'], ['Lời cảm ơn cộng đồng', 'PUBLISHED', 'ANNOUNCEMENT', 'BACKERS_ONLY'], ['Hướng dẫn nhận sản phẩm số', 'PUBLISHED', 'PLATFORM', 'PUBLIC'], ['Báo cáo minh bạch gây quỹ', 'REJECTED', 'IMPACT_REPORT', 'OWNER_ONLY'],

@@ -104,10 +104,10 @@ export default function CampaignTabsWrapper({
                                                 <div key={pledge.id} className="bg-white border border-gray-200 rounded-lg p-4">
                                                     <BackerLink
                                                         userId={pledge.userId}
-                                                        userName={pledge.user?.name}
+                                                        userName={pledge.users?.name}
                                                         displayName={pledge.displayName}
                                                         isAnonymous={pledge.isAnonymous}
-                                                        userAvatar={pledge.user?.avatar}
+                                                        userAvatar={pledge.users?.avatar}
                                                     />
                                                     <div className="mt-2 text-sm text-gray-500">
                                                         Ủng hộ {formatVND(pledge.amount)} • {formatDate(pledge.createdAt)}

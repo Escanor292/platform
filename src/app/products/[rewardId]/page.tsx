@@ -15,6 +15,7 @@ import {
   Check,
   Calendar,
   Layers,
+  Star,
 } from 'lucide-react';
 import prisma from '@/lib/prisma';
 import { formatVND } from '@/lib/utils';
@@ -59,10 +60,25 @@ export default async function ProductDetailPage({
         },
       },
       projects: true,
+      _count: {
+        select: {
+          pledges: { where: { status: 'SUCCESS' } },
+          product_reviews: true,
+        },
+      },
     },
   });
 
   if (!reward) return notFound();
+
+  const reviewSummary = await prisma.product_reviews.aggregate({
+    where: { rewardId: reward.id },
+    _avg: { rating: true },
+    _count: { _all: true },
+  });
+  const soldCount = (reward as any)._count?.pledges ?? 0;
+  const reviewCount = reviewSummary._count._all;
+  const averageRating = reviewSummary._avg.rating ?? 0;
 
   const campaign = (reward as any).campaigns as any;
   const campaignProject = campaign?.projects || null;
@@ -169,6 +185,16 @@ export default async function ProductDetailPage({
                 <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-3">
                   {reward.title}
                 </h1>
+
+                <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                  <span className="inline-flex items-center gap-1.5 font-semibold text-amber-600">
+                    <Star size={16} className="fill-amber-400 text-amber-400" />
+                    {reviewCount > 0 ? averageRating.toFixed(1) : 'Chưa có đánh giá'}
+                  </span>
+                  <span className="text-gray-500">{reviewCount} đánh giá</span>
+                  <span className="text-gray-300">|</span>
+                  <span className="text-gray-600">{soldCount} lượt bán</span>
+                </div>
 
                 {reward.isPreorder && (
                   <div className="mb-4 space-y-2">
@@ -388,6 +414,16 @@ export default async function ProductDetailPage({
                 {reward.title}
               </h1>
 
+              <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                <span className="inline-flex items-center gap-1.5 font-semibold text-amber-600">
+                  <Star size={16} className="fill-amber-400 text-amber-400" />
+                  {reviewCount > 0 ? averageRating.toFixed(1) : 'Chưa có đánh giá'}
+                </span>
+                <span className="text-gray-500">{reviewCount} đánh giá</span>
+                <span className="text-gray-300">|</span>
+                <span className="text-gray-600">{soldCount} lượt bán</span>
+              </div>
+
               {reward.isPreorder && (
                 <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-800">
                   <Calendar size={15} /> Đặt hàng trước
@@ -485,7 +521,7 @@ export default async function ProductDetailPage({
                   { icon: ShieldCheck, title: 'Thanh toán an toàn', sub: 'Bảo mật 100%' },
                   { icon: Package, title: 'Giao hàng toàn quốc', sub: 'Miễn phí vận chuyển' },
                   { icon: RotateCcw, title: 'Đổi trả dễ dàng', sub: 'Trong 7 ngày' },
-                  { icon: Users, title: 'Cộng đồng ủng hộ', sub: 'Nền tảng Tử Tế Fund' },
+                  { icon: Users, title: 'Đã bán', sub: `${soldCount} lượt bán` },
                 ].map(({ icon: Icon, title, sub }) => (
                   <div key={title} className="flex items-center gap-2.5">
                     <div className="w-9 h-9 rounded-full bg-pgreen/10 flex items-center justify-center flex-shrink-0">

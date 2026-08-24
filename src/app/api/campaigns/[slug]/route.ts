@@ -23,12 +23,15 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug: 
         users: { select: { id: true, name: true, avatar: true } },
         rewards: { orderBy: { minAmount: "asc" } },
         pledges: {
-          where: { isAnonymous: false },
+          where: { status: "SUCCESS" },
           select: {
             id: true,
+            userId: true,
             amount: true,
             displayName: true,
+            isAnonymous: true,
             createdAt: true,
+            users: { select: { id: true, name: true, avatar: true } },
           },
           orderBy: { createdAt: "desc" },
           take: 10,
@@ -60,7 +63,7 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug: 
         },
         _count: {
           select: {
-            pledges: true,
+            pledges: { where: { status: "SUCCESS" } },
             campaign_followers: true
           }
         },
