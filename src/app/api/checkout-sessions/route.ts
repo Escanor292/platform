@@ -71,8 +71,8 @@ export async function POST(request: NextRequest) {
       if (reward.stock !== null && reward.stock <= 0) {
         return NextResponse.json({ error: "Phần quà đã hết hàng" }, { status: 409 });
       }
-      if (paymentMethod === "COD" && (reward.availability !== "AVAILABLE" || reward.isPreorder)) {
-        return NextResponse.json({ error: "Thanh toán khi nhận hàng chỉ áp dụng cho sản phẩm có sẵn, không áp dụng cho hàng đặt trước" }, { status: 400 });
+      if (paymentMethod === "COD" && reward.availability !== "AVAILABLE" && !reward.isPreorder) {
+        return NextResponse.json({ error: "COD thường chỉ áp dụng cho sản phẩm có sẵn; pre-order cần thanh toán cọc trước" }, { status: 400 });
       }
     }
 

@@ -14,6 +14,8 @@ interface Reward {
   minAmount: number;
   estimatedDelivery?: string | null;
   isPreorder?: boolean;
+  onlineDepositPercent?: number;
+  codDepositPercent?: number;
   availability?: "AVAILABLE" | "DEVELOPMENT";
   fulfillmentType?: "PHYSICAL" | "EMAIL" | "DOWNLOAD" | "LICENSE_KEY" | "DIGITAL_COMIC";
   maxQuantity?: number | null;

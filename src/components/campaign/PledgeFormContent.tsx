@@ -12,6 +12,8 @@ interface Reward {
     minAmount: number;
     estimatedDelivery?: string | null;
     isPreorder?: boolean;
+    onlineDepositPercent?: number;
+    codDepositPercent?: number;
     availability?: "AVAILABLE" | "DEVELOPMENT";
     fulfillmentType?: "PHYSICAL" | "EMAIL" | "DOWNLOAD" | "LICENSE_KEY" | "DIGITAL_COMIC";
     maxQuantity?: number | null;
@@ -61,7 +63,7 @@ const PAYMENT_METHODS = {
     COD: {
         id: "COD",
         label: "Thanh toán khi nhận hàng",
-        description: "Chỉ áp dụng cho sản phẩm có sẵn",
+        description: "Sản phẩm có sẵn thanh toán khi nhận; pre-order cần cọc trước",
         colors: {
             border: "border-amber-500",
             bg: "bg-amber-50",
@@ -188,10 +190,11 @@ const PledgeFormContent = memo(function PledgeFormContent({
     );
     const isPreorder = Boolean(selectedReward?.isPreorder);
     const isReadyProduct = selectedReward?.availability === "AVAILABLE" && !isPreorder;
+    const isDigitalProduct = Boolean(selectedReward && selectedReward.fulfillmentType && selectedReward.fulfillmentType !== "PHYSICAL");
 
     useEffect(() => {
-        if (isPreorder && paymentMethod === "COD") setPaymentMethod("ONLINE");
-    }, [isPreorder, paymentMethod]);
+        if (isDigitalProduct && paymentMethod === "COD") setPaymentMethod("ONLINE");
+    }, [isDigitalProduct, paymentMethod]);
 
     useEffect(() => {
         if (!selectedReward) return;
@@ -199,7 +202,6 @@ const PledgeFormContent = memo(function PledgeFormContent({
     }, [selectedReward?.id, selectedReward?.fulfillmentType]);
 
     // Physical products need an address; digital products use email or the purchase vault.
-    const isDigitalProduct = Boolean(selectedReward && selectedReward.fulfillmentType && selectedReward.fulfillmentType !== "PHYSICAL");
     const needsShippingAddress = Boolean(isRewardDonation && selectedReward && !isDigitalProduct);
     const needsProductEmail = Boolean(isRewardDonation && selectedReward);
     const userHasShippingAddress = isAuthenticated && (currentUser as any)?.shippingAddress;
@@ -222,13 +224,15 @@ const PledgeFormContent = memo(function PledgeFormContent({
 
     const unitAmount = isRewardDonation && selectedReward ? Number(selectedReward.minAmount) : customAmount;
     const productSubtotal = isRewardDonation && selectedReward ? unitAmount * quantity : unitAmount;
-    const effectiveTipPercent = isReadyProduct ? 0 : tipPercent;
+    const effectiveTipPercent = isReadyProduct || paymentMethod === "COD" ? 0 : tipPercent;
     const finalTipAmount = useMemo(
         () => Math.round((productSubtotal * effectiveTipPercent) / 100),
         [productSubtotal, effectiveTipPercent]
     );
     const shippingFee = needsShippingAddress && shippingMethod === "EXPRESS" ? 30000 : 0;
     const finalTotalAmount = productSubtotal + finalTipAmount + shippingFee;
+    const codDepositAmount = Math.round(productSubtotal * (selectedReward?.codDepositPercent ?? 50) / 100);
+    const finalChargeAmount = isPreorder && paymentMethod === "COD" ? codDepositAmount : finalTotalAmount;
     const finalAmount = unitAmount;
 
     const handleSubmit = useCallback(async (e: React.FormEvent) => {
@@ -403,7 +407,7 @@ const PledgeFormContent = memo(function PledgeFormContent({
                                             <p className="text-xs font-semibold text-amber-700 mt-1">📦 Đặt hàng trước · dự kiến giao: {new Date(selectedReward.estimatedDelivery).toLocaleDateString("vi-VN")}</p>
                                         )}
                                         <p className="text-xs font-semibold text-emerald-700 mt-1">
-                                            {selectedReward.isPreorder ? "Đặt hàng trước · thanh toán online" : selectedReward.availability === "AVAILABLE" ? "Sản phẩm có sẵn" : "Sản phẩm đang phát triển"}
+                                            {selectedReward.isPreorder ? (paymentMethod === "COD" ? `Đặt trước · cọc ${selectedReward.codDepositPercent ?? 50}%` : `Đặt trước · thanh toán online 100% · giữ lại ${selectedReward.onlineDepositPercent ?? 30}% nếu tự hủy`) : selectedReward.availability === "AVAILABLE" ? "Sản phẩm có sẵn" : "Sản phẩm đang phát triển"}
                                         </p>
                                         <div className="flex items-center gap-2 mt-3">
                                             <span className="text-xs font-semibold text-gray-600 mr-2">Số lượng</span>
@@ -472,7 +476,7 @@ const PledgeFormContent = memo(function PledgeFormContent({
                                             {r.isPreorder && r.estimatedDelivery && (
                                                 <p className="text-xs font-semibold text-amber-700">📦 Đặt hàng trước · dự kiến giao: {new Date(r.estimatedDelivery).toLocaleDateString("vi-VN")}</p>
                                             )}
-                                            <p className="text-xs text-gray-400">{r.isPreorder ? "Đặt hàng trước · chỉ thanh toán online" : r.availability === "AVAILABLE" ? "Có sẵn · có thể trả khi nhận hàng" : "Đang phát triển · ủng hộ nhận quà"}</p>
+                                            <p className="text-xs text-gray-400">{r.isPreorder ? `Đặt trước · COD cọc ${r.codDepositPercent ?? 50}% hoặc online 100%` : r.availability === "AVAILABLE" ? "Có sẵn · có thể trả khi nhận hàng" : "Đang phát triển · ủng hộ nhận quà"}</p>
                                         </div>
                                     </label>
                                 ))}
@@ -717,7 +721,7 @@ const PledgeFormContent = memo(function PledgeFormContent({
                         )}
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {Object.values(PAYMENT_METHODS).filter((method) => method.id !== "COD" || isReadyProduct).map((method) => {
+                            {Object.values(PAYMENT_METHODS).filter((method) => method.id !== "COD" || isReadyProduct || isPreorder).map((method) => {
                                 const isSelected = paymentMethod === method.id && !selectedPaymentMethodId;
                                 return (
                                     <label
@@ -785,8 +789,8 @@ const PledgeFormContent = memo(function PledgeFormContent({
                             <span>{formatVND(finalTipAmount)}</span>
                         </div>}
                         <div className="flex justify-between font-bold text-gray-900 pt-2 border-t border-gray-200">
-                            <span>Tổng cộng</span>
-                            <span className={`${PAYMENT_METHODS[paymentMethod].colors.accent === 'amber' ? 'text-amber-700' : 'text-green-700'}`}>{formatVND(finalTotalAmount)}</span>
+                            <span>{isPreorder && paymentMethod === "COD" ? "Số tiền cọc" : "Tổng cộng"}</span>
+                            <span className={`${PAYMENT_METHODS[paymentMethod].colors.accent === 'amber' ? 'text-amber-700' : 'text-green-700'}`}>{formatVND(finalChargeAmount)}</span>
                         </div>
                     </div>
 
@@ -801,7 +805,7 @@ const PledgeFormContent = memo(function PledgeFormContent({
                                 Đang xử lý...
                             </>
                         ) : (
-                            `${isPreorder ? "Đặt hàng trước" : isReadyProduct ? (paymentMethod === "COD" ? "Đặt hàng COD" : "Mua ngay") : "Ủng hộ"} ${formatVND(finalTotalAmount)} →`
+                            `${isPreorder ? (paymentMethod === "COD" ? "Đặt trước và trả cọc" : "Đặt trước và thanh toán online") : isReadyProduct ? (paymentMethod === "COD" ? "Đặt hàng COD" : "Mua ngay") : "Ủng hộ"} ${formatVND(finalChargeAmount)} →`
                         )}
                     </button>
 

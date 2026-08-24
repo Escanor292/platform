@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { verifyVNPayReturn } from "@/lib/payment/vnpay";
-import { releaseEscrow } from "@/lib/payment/escrow";
+import { recalculateCampaignAmount } from "@/lib/order-fulfillment";
 
 /**
  * GET /api/payments/webhook
@@ -22,24 +22,37 @@ export async function GET(req: NextRequest) {
     }
 
     if (responseCode === "00" && result.isVerified) {
-      // 1. Cập nhật trạng thái Pledge
-      const existingPledge = await prisma.pledges.findUnique({ where: { id: pledgeId }, select: { rewardId: true } });
-      const pledge = await prisma.pledges.update({
-        where: { id: pledgeId },
-        data: { status: "SUCCESS", fulfillmentStatus: existingPledge?.rewardId ? "PROCESSING" : "NOT_APPLICABLE" },
+      // 1. Ghi nhận payment và accounting trong cùng transaction.
+      await prisma.$transaction(async (tx) => {
+        const existingPledge = await tx.pledges.findUnique({ where: { id: pledgeId } });
+        if (!existingPledge || existingPledge.status === "SUCCESS" || existingPledge.status === "REFUNDED") return;
+        const paidAmount = Number(existingPledge.chargeAmount || existingPledge.totalAmount);
+        await tx.pledges.update({
+          where: { id: pledgeId },
+          data: {
+            status: "SUCCESS",
+            fulfillmentStatus: existingPledge.rewardId ? "PROCESSING" : "NOT_APPLICABLE",
+            paidAmount,
+            remainingAmount: Math.max(0, Number(existingPledge.orderTotalAmount || existingPledge.totalAmount) - paidAmount),
+            accountingAmount: existingPledge.isCashOnDelivery ? existingPledge.depositAmount : existingPledge.amount,
+            webhookProcessedAt: new Date(),
+            updatedAt: new Date(),
+          },
+        });
+        if (existingPledge.campaignId) await recalculateCampaignAmount(tx, existingPledge.campaignId);
       });
-
-      // 2. Cập nhật số tiền dự án (Escrow), chỉ áp dụng khi pledge gắn campaign.
-      if (pledge.campaignId) await releaseEscrow(pledge.campaignId);
 
       return NextResponse.redirect(
         new URL(`/payment-success?status=success&ref=${pledgeId}`, req.url)
       );
     } else {
-      // Thanh toán thất bại
-      await prisma.pledges.update({
-        where: { id: pledgeId },
-        data: { status: "FAILED" },
+      // Thanh toán thất bại và giải phóng tồn kho đã giữ.
+      await prisma.$transaction(async (tx) => {
+        const existingPledge = await tx.pledges.findUnique({ where: { id: pledgeId }, select: { stockReserved: true, rewardId: true, quantity: true } });
+        if (existingPledge?.stockReserved && existingPledge.rewardId) {
+          await tx.rewards.update({ where: { id: existingPledge.rewardId }, data: { stock: { increment: existingPledge.quantity }, updatedAt: new Date() } });
+        }
+        await tx.pledges.update({ where: { id: pledgeId }, data: { status: "FAILED", stockReserved: false, fulfillmentStatus: "CANCELED", cancellationReason: "Thanh toán không thành công", webhookProcessedAt: new Date(), updatedAt: new Date() } });
       });
 
       return NextResponse.redirect(
@@ -68,12 +81,23 @@ export async function POST(req: NextRequest) {
        });
 
           if (pledge) {
-          await prisma.pledges.update({
-            where: { id: pledge.id },
-            data: { status: "SUCCESS", fulfillmentStatus: pledge.rewardId ? "PROCESSING" : "NOT_APPLICABLE" }
-          });
-          if (pledge.campaignId) await releaseEscrow(pledge.campaignId);
-       }
+            await prisma.$transaction(async (tx) => {
+              const paidAmount = Number(pledge.chargeAmount || pledge.totalAmount);
+              await tx.pledges.update({
+                where: { id: pledge.id },
+                data: {
+                  status: "SUCCESS",
+                  fulfillmentStatus: pledge.rewardId ? "PROCESSING" : "NOT_APPLICABLE",
+                  paidAmount,
+                  remainingAmount: Math.max(0, Number(pledge.orderTotalAmount || pledge.totalAmount) - paidAmount),
+                  accountingAmount: pledge.isCashOnDelivery ? pledge.depositAmount : pledge.amount,
+                  webhookProcessedAt: new Date(),
+                  updatedAt: new Date(),
+                },
+              });
+              if (pledge.campaignId) await recalculateCampaignAmount(tx, pledge.campaignId);
+            });
+          }
        return NextResponse.json({ success: true });
     }
 

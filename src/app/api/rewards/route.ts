@@ -26,13 +26,25 @@ export async function POST(req: NextRequest) {
             isIncludedInProject,
             availability,
             fulfillmentType,
-            isPreorder
+            isPreorder,
+            onlineDepositPercent,
+            codDepositPercent
         } = body;
 
         const allowedFulfillmentTypes = ["PHYSICAL", "EMAIL", "DOWNLOAD", "LICENSE_KEY", "DIGITAL_COMIC"] as const;
         const normalizedFulfillmentType = allowedFulfillmentTypes.includes(fulfillmentType) ? fulfillmentType : "PHYSICAL";
 
         const preorderEnabled = isPreorder === true;
+        const parseDepositPercent = (value: unknown, fallback: number) => {
+            if (value === undefined || value === null || value === '') return fallback;
+            const parsed = Number(value);
+            return Number.isInteger(parsed) && parsed >= 1 && parsed <= 99 ? parsed : null;
+        };
+        const normalizedOnlineDepositPercent = parseDepositPercent(onlineDepositPercent, 30);
+        const normalizedCodDepositPercent = parseDepositPercent(codDepositPercent, 50);
+        if (normalizedOnlineDepositPercent === null || normalizedCodDepositPercent === null) {
+            return NextResponse.json({ error: "Tỷ lệ cọc phải là số nguyên từ 1% đến 99%" }, { status: 400 });
+        }
         const parsedDeliveryDate = deliveryDate ? new Date(deliveryDate) : null;
         if (preorderEnabled && (!parsedDeliveryDate || Number.isNaN(parsedDeliveryDate.getTime()) || parsedDeliveryDate <= new Date())) {
             return NextResponse.json(
@@ -120,6 +132,8 @@ export async function POST(req: NextRequest) {
                 maxQuantity: maxQuantity ? parseInt(maxQuantity) : null,
                 deliveryDate: preorderEnabled ? parsedDeliveryDate : null,
                 isPreorder: preorderEnabled,
+                onlineDepositPercent: normalizedOnlineDepositPercent,
+                codDepositPercent: normalizedCodDepositPercent,
                 isActive: Boolean(isActive),
                 availability: availability === "DEVELOPMENT" ? "DEVELOPMENT" : "AVAILABLE",
                 fulfillmentType: normalizedFulfillmentType,

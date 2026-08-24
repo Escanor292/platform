@@ -86,6 +86,8 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
         maxQuantity: "",
         deliveryDate: "",
         isPreorder: false,
+        onlineDepositPercent: 30,
+        codDepositPercent: 50,
         isActive: true,
     });
     const [uploadingMedia, setUploadingMedia] = useState(false);
@@ -171,6 +173,8 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
                     maxQuantity: newForm.maxQuantity ? parseInt(newForm.maxQuantity) : null,
                     deliveryDate: newForm.isPreorder && newForm.deliveryDate ? new Date(newForm.deliveryDate) : null,
                     isPreorder: newForm.isPreorder,
+                    onlineDepositPercent: Number(newForm.onlineDepositPercent),
+                    codDepositPercent: Number(newForm.codDepositPercent),
                     isActive: true,
                 }),
             });
@@ -649,6 +653,21 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
                                     <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${newForm.isPreorder ? "translate-x-6" : "translate-x-1"}`} />
                                 </button>
                             </div>
+
+                            {newForm.isPreorder && (
+                                <div className="grid grid-cols-2 gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-900 mb-2">Cọc online (%)</label>
+                                        <input type="number" name="onlineDepositPercent" value={newForm.onlineDepositPercent} onChange={(event) => setNewForm((f) => ({ ...f, onlineDepositPercent: Number(event.target.value) }))} min="1" max="99" step="1" required className="w-full px-4 py-3 border border-amber-200 rounded-xl bg-white" />
+                                        <p className="text-xs text-gray-600 mt-1">Tỷ lệ giữ lại khi tự hủy online.</p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-900 mb-2">Cọc COD (%)</label>
+                                        <input type="number" name="codDepositPercent" value={newForm.codDepositPercent} onChange={(event) => setNewForm((f) => ({ ...f, codDepositPercent: Number(event.target.value) }))} min="1" max="99" step="1" required className="w-full px-4 py-3 border border-amber-200 rounded-xl bg-white" />
+                                        <p className="text-xs text-gray-600 mt-1">Phần còn lại trả khi nhận hàng.</p>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* ---- Tồn kho & vận chuyển ---- */}
                             <div className="grid grid-cols-2 gap-4">

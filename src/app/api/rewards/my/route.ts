@@ -13,6 +13,8 @@ const rewardSelect = {
     productImages: true,
     deliveryDate: true,
     isPreorder: true,
+    onlineDepositPercent: true,
+    codDepositPercent: true,
     availability: true,
     fulfillmentType: true,
     isActive: true,

@@ -31,6 +31,8 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
         isActive: true,
         availability: "AVAILABLE" as "AVAILABLE" | "DEVELOPMENT",
         isPreorder: false,
+        onlineDepositPercent: 30,
+        codDepositPercent: 50,
         fulfillmentType: "PHYSICAL" as "PHYSICAL" | "EMAIL" | "DOWNLOAD" | "LICENSE_KEY" | "DIGITAL_COMIC",
     });
 
@@ -56,6 +58,8 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                     maxQuantity: formData.maxQuantity ? parseInt(formData.maxQuantity) : null,
                     deliveryDate: formData.isPreorder && formData.deliveryDate ? new Date(formData.deliveryDate) : null,
                     isPreorder: formData.isPreorder,
+                    onlineDepositPercent: Number(formData.onlineDepositPercent),
+                    codDepositPercent: Number(formData.codDepositPercent),
                     isActive: formData.isActive,
                     availability: formData.availability,
                     fulfillmentType: formData.fulfillmentType,
@@ -265,6 +269,21 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                         Ngày này sẽ được hiển thị cho khách hàng trước khi đặt hàng.
                     </p>
                 </div>}
+
+                {formData.isPreorder && (
+                    <div className="grid gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:grid-cols-2">
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">Cọc online (%)</label>
+                            <input type="number" name="onlineDepositPercent" value={formData.onlineDepositPercent} onChange={handleInputChange} min="1" max="99" step="1" required className="w-full rounded-xl border border-amber-200 bg-white px-4 py-3" />
+                            <p className="mt-1 text-xs text-gray-600">Thanh toán online đủ: tỷ lệ giữ lại khi tự hủy.</p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">Cọc COD (%)</label>
+                            <input type="number" name="codDepositPercent" value={formData.codDepositPercent} onChange={handleInputChange} min="1" max="99" step="1" required className="w-full rounded-xl border border-amber-200 bg-white px-4 py-3" />
+                            <p className="mt-1 text-xs text-gray-600">Phần còn lại thanh toán khi nhận hàng.</p>
+                        </div>
+                    </div>
+                )}
 
                 {/* Status Toggle */}
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">

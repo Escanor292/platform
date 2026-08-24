@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog } from "@/lib/audit";
+import { recalculateCampaignAmount } from "@/lib/order-fulfillment";
 import crypto from "crypto";
 
 /**
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Kiểm tra đã xử lý chưa
-    if (pledge.status === "SUCCESS") {
+    if (pledge.status === "SUCCESS" || pledge.status === "REFUNDED") {
       console.log("[MOMO WEBHOOK] Already processed:", pledgeId);
       return NextResponse.json({
         resultCode: 0,
@@ -79,11 +80,12 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 5. Kiểm tra số tiền
-    if (Math.abs(Number(pledge.totalAmount) - amount) > 1) {
+    // 5. Kiểm tra số tiền đã thu thực tế (pre-order COD chỉ thu depositAmount).
+    const expectedChargeAmount = Number(pledge.chargeAmount || pledge.totalAmount);
+    if (Math.abs(expectedChargeAmount - Number(amount)) > 100) {
       console.error("[MOMO WEBHOOK] Amount mismatch:", {
-        expected: Number(pledge.totalAmount),
-        received: amount,
+        expected: expectedChargeAmount,
+        received: Number(amount),
       });
       return NextResponse.json(
         { resultCode: 1, message: "Amount mismatch" },
@@ -94,21 +96,26 @@ export async function POST(request: NextRequest) {
     // 6. Xử lý theo result code
     if (resultCode === 0) {
       // Thanh toán thành công
-      await prisma.pledges.update({
-        where: { id: pledgeId },
-        data: {
-          status: "SUCCESS",
-          fulfillmentStatus: pledge.rewardId ? "PROCESSING" : "NOT_APPLICABLE",
-          transactionId: transId || pledge.transactionId,
-          updatedAt: new Date(),
-        },
+      const updatedCampaign = await prisma.$transaction(async (tx) => {
+        await tx.pledges.update({
+          where: { id: pledgeId },
+          data: {
+            status: "SUCCESS",
+            fulfillmentStatus: pledge.rewardId ? "PROCESSING" : "NOT_APPLICABLE",
+            transactionId: transId || pledge.transactionId,
+            paidAmount: expectedChargeAmount,
+            remainingAmount: Math.max(0, Number(pledge.orderTotalAmount || pledge.totalAmount) - expectedChargeAmount),
+            accountingAmount: pledge.isCashOnDelivery ? pledge.depositAmount : pledge.amount,
+            webhookProcessedAt: new Date(),
+            updatedAt: new Date(),
+          },
+        });
+        if (pledge.campaignId) {
+          await recalculateCampaignAmount(tx, pledge.campaignId);
+          return tx.campaigns.findUnique({ where: { id: pledge.campaignId! } });
+        }
+        return null;
       });
-
-      // Cộng tiền vào campaign; pledge sản phẩm độc lập không có attribution.
-      const updatedCampaign = pledge.campaignId ? await prisma.$transaction(async (tx) => {
-        await tx.campaigns.update({ where: { id: pledge.campaignId! }, data: { currentAmount: { increment: pledge.amount }, updatedAt: new Date() } });
-        return tx.campaigns.findUnique({ where: { id: pledge.campaignId! } });
-      }) : null;
 
       if (
         updatedCampaign &&
@@ -140,12 +147,22 @@ export async function POST(request: NextRequest) {
       });
     } else {
       // Thanh toán thất bại
-      await prisma.pledges.update({
-        where: { id: pledgeId },
-        data: {
-          status: "FAILED",
-          updatedAt: new Date(),
-        },
+      await prisma.$transaction(async (tx) => {
+        const current = await tx.pledges.findUnique({ where: { id: pledgeId }, select: { stockReserved: true, rewardId: true, quantity: true } });
+        if (current?.stockReserved && current.rewardId) {
+          await tx.rewards.update({ where: { id: current.rewardId }, data: { stock: { increment: current.quantity }, updatedAt: new Date() } });
+        }
+        await tx.pledges.update({
+          where: { id: pledgeId },
+          data: {
+            status: "FAILED",
+            stockReserved: false,
+            fulfillmentStatus: pledge.rewardId ? "CANCELED" : "NOT_APPLICABLE",
+            cancellationReason: "Thanh toán không thành công",
+            webhookProcessedAt: new Date(),
+            updatedAt: new Date(),
+          },
+        });
       });
 
       // Audit log

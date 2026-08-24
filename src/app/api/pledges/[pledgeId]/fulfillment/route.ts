@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { recalculateCampaignAmount } from "@/lib/order-fulfillment";
+import { calculateCancellationSettlement } from "@/lib/preorder-deposit";
+import { Decimal } from "@prisma/client/runtime/library";
 
 const FULFILLMENT_STATUSES = [
   "PROCESSING",
@@ -59,8 +61,13 @@ export async function PATCH(request: NextRequest, { params }: Context) {
         fulfillmentStatus: true,
         receivedAt: true,
         accountingReversedAt: true,
+        amount: true,
+        paidAmount: true,
+        orderTotalAmount: true,
+        accountingAmount: true,
+        depositAmount: true,
         campaigns: { select: { creatorId: true, status: true } },
-        rewards: { select: { projects: { select: { creatorId: true } }, campaigns: { select: { creatorId: true } } } },
+        rewards: { select: { onlineDepositPercent: true, codDepositPercent: true, projects: { select: { creatorId: true } }, campaigns: { select: { creatorId: true } } } },
       },
     });
     if (!pledge) return NextResponse.json({ error: "Không tìm thấy đơn hàng" }, { status: 404 });
@@ -92,15 +99,30 @@ export async function PATCH(request: NextRequest, { params }: Context) {
           stockReserved: true,
           fulfillmentStatus: true,
           accountingReversedAt: true,
+          amount: true,
+          paidAmount: true,
+          orderTotalAmount: true,
+          accountingAmount: true,
+          depositAmount: true,
+          rewards: { select: { onlineDepositPercent: true, codDepositPercent: true } },
         },
       });
       if (!current) throw new Error("NOT_FOUND");
 
       const reversing = ["DELIVERY_FAILED", "CANCELED", "RETURNED"].includes(nextStatus);
       const alreadyReversed = Boolean(current.accountingReversedAt);
-      const wasSuccess = current.status === "SUCCESS";
-      const shouldReverseAccounting = reversing && wasSuccess && !alreadyReversed;
+      const shouldReverseAccounting = reversing && Number(current.accountingAmount) > 0 && !alreadyReversed;
       const shouldReleaseStock = Boolean(current.stockReserved && current.rewardId && reversing);
+      const isBuyerCancellation = nextStatus === "CANCELED" && buyer;
+      const configuredForfeiturePercent = current.isCashOnDelivery
+        ? (current.rewards?.codDepositPercent ?? 50)
+        : (current.rewards?.onlineDepositPercent ?? 30);
+      const cancellationSettlement = isBuyerCancellation
+        ? calculateCancellationSettlement(Number(current.paidAmount), Number(current.amount), configuredForfeiturePercent)
+        : { cancellationFeeAmount: 0, refundAmount: reversing ? Number(current.paidAmount) : 0 };
+      const deliveredPaidAmount = nextStatus === "DELIVERED" && current.isCashOnDelivery
+        ? Number(current.orderTotalAmount || current.amount)
+        : Number(current.paidAmount);
 
       if (shouldReleaseStock) {
         await tx.rewards.update({
@@ -110,9 +132,12 @@ export async function PATCH(request: NextRequest, { params }: Context) {
       }
 
       const pledgeStatus = reversing
-        ? (current.isCashOnDelivery ? "FAILED" : (wasSuccess ? "REFUNDED" : "FAILED"))
+        ? (Number(current.paidAmount) > 0 ? "REFUNDED" : "FAILED")
         : (nextStatus === "DELIVERED" ? "SUCCESS" : current.status);
-      const refundStatus = reversing && !current.isCashOnDelivery && wasSuccess ? "REQUESTED" : undefined;
+      const refundStatus = cancellationSettlement.refundAmount > 0 ? "REQUESTED" : undefined;
+      const nextAccountingAmount = nextStatus === "DELIVERED"
+        ? Number(current.amount)
+        : (isBuyerCancellation ? cancellationSettlement.cancellationFeeAmount : (reversing ? 0 : Number(current.accountingAmount)));
       const updated = await tx.pledges.update({
         where: { id: pledgeId },
         data: {
@@ -123,7 +148,12 @@ export async function PATCH(request: NextRequest, { params }: Context) {
           ...(nextStatus === "DELIVERY_FAILED" ? { deliveryFailureReason: reason } : {}),
           ...(nextStatus === "CANCELED" ? { cancellationReason: reason } : {}),
           ...(nextStatus === "RETURNED" ? { returnReason: reason } : {}),
-          ...(nextStatus === "DELIVERED" ? { receivedAt: new Date() } : {}),
+          ...(nextStatus === "DELIVERED" ? { receivedAt: new Date(), paidAmount: new Decimal(deliveredPaidAmount), remainingAmount: 0 } : {}),
+          ...(reversing ? {
+            accountingAmount: new Decimal(nextAccountingAmount),
+            refundAmount: new Decimal(cancellationSettlement.refundAmount),
+            cancellationFeeAmount: new Decimal(cancellationSettlement.cancellationFeeAmount),
+          } : {}),
           ...(shouldReverseAccounting ? { accountingReversedAt: new Date() } : {}),
           updatedAt: new Date(),
         },

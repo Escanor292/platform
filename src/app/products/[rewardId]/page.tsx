@@ -242,6 +242,8 @@ export default async function ProductDetailPage({
                     image={images[0] || ''}
                     price={Number(reward.minAmount)}
                     campaignId={campaign.id}
+                    isPreorder={reward.isPreorder}
+                    deliveryDate={reward.deliveryDate?.toISOString() || null}
                   />
                   <CampaignRewardDonationButton
                     campaignId={campaign.id}
@@ -253,6 +255,8 @@ export default async function ProductDetailPage({
                       minAmount: Number(reward.minAmount),
                       estimatedDelivery: reward.deliveryDate?.toISOString() || null,
                       isPreorder: reward.isPreorder,
+                      onlineDepositPercent: reward.onlineDepositPercent,
+                      codDepositPercent: reward.codDepositPercent,
                       availability: reward.availability,
                       fulfillmentType: reward.fulfillmentType,
                       maxQuantity: reward.maxQuantity,
@@ -310,6 +314,8 @@ export default async function ProductDetailPage({
               maxQuantity: reward.maxQuantity,
               deliveryDate: reward.deliveryDate,
               isPreorder: reward.isPreorder,
+              onlineDepositPercent: reward.onlineDepositPercent,
+              codDepositPercent: reward.codDepositPercent,
               isActive: reward.isActive,
               productImages: images,
               productVideo: reward.productVideo,
@@ -429,6 +435,8 @@ export default async function ProductDetailPage({
                   availability={reward.availability}
                   isPreorder={reward.isPreorder}
                   deliveryDate={reward.deliveryDate?.toISOString() || null}
+                  onlineDepositPercent={reward.onlineDepositPercent}
+                  codDepositPercent={reward.codDepositPercent}
                   fulfillmentType={reward.fulfillmentType}
                   campaignId={campaign?.id}
                 />

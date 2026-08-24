@@ -14,6 +14,8 @@ interface Reward {
     estimatedDelivery?: string | null;
     deliveryDate?: string | null;
     isPreorder?: boolean;
+    onlineDepositPercent?: number;
+    codDepositPercent?: number;
     limitQuantity?: number | null;
     claimedCount?: number;
     productImages?: string[] | null;

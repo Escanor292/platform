@@ -17,6 +17,8 @@ export interface QuickEditProduct {
   maxQuantity?: number | null;
   deliveryDate?: Date | string | null;
   isPreorder?: boolean;
+  onlineDepositPercent?: number;
+  codDepositPercent?: number;
   isActive: boolean;
   isIncludedInProject?: boolean;
   productImages?: string[];
@@ -48,6 +50,8 @@ export function ProductQuickEdit({ product, isOwner }: ProductQuickEditProps) {
       ? new Date(product.deliveryDate).toISOString().slice(0, 10)
       : '',
     isPreorder: product.isPreorder === true,
+    onlineDepositPercent: product.onlineDepositPercent ?? 30,
+    codDepositPercent: product.codDepositPercent ?? 50,
     isActive: product.isActive,
     images: product.productImages || [],
     videoUrl: product.productVideo || '',
@@ -73,6 +77,8 @@ export function ProductQuickEdit({ product, isOwner }: ProductQuickEditProps) {
           maxQuantity: formData.maxQuantity || null,
           deliveryDate: formData.isPreorder ? (formData.deliveryDate || null) : null,
           isPreorder: formData.isPreorder,
+          onlineDepositPercent: Number(formData.onlineDepositPercent),
+          codDepositPercent: Number(formData.codDepositPercent),
           isActive: formData.isActive,
           productImages: formData.images,
           productVideo: formData.videoUrl || null,
@@ -259,6 +265,21 @@ export function ProductQuickEdit({ product, isOwner }: ProductQuickEditProps) {
                       onChange={(e) => setFormData({ ...formData, deliveryDate: e.target.value })}
                       className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none text-sm"
                     />
+                  </div>
+                )}
+
+                {formData.isPreorder && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">Cọc online (%)</label>
+                      <input type="number" min="1" max="99" step="1" value={formData.onlineDepositPercent} onChange={(e) => setFormData({ ...formData, onlineDepositPercent: Number(e.target.value) })} required className="w-full px-4 py-2.5 rounded-xl border border-amber-200 bg-white" />
+                      <p className="mt-1 text-xs text-gray-600">Giữ lại nếu người mua tự hủy sau khi thanh toán online.</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700 mb-2 block">Cọc COD (%)</label>
+                      <input type="number" min="1" max="99" step="1" value={formData.codDepositPercent} onChange={(e) => setFormData({ ...formData, codDepositPercent: Number(e.target.value) })} required className="w-full px-4 py-2.5 rounded-xl border border-amber-200 bg-white" />
+                      <p className="mt-1 text-xs text-gray-600">Phần còn lại thanh toán khi nhận hàng.</p>
+                    </div>
                   </div>
                 )}
 

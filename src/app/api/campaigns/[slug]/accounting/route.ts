@@ -31,8 +31,8 @@ export async function GET(
       .filter((pledge) => pledge.status === "SUCCESS" || pledge.status === "REFUNDED")
       .reduce((sum, pledge) => sum + Number(pledge.amount), 0);
     const actual = campaign.pledges
-      .filter((pledge) => pledge.status === "SUCCESS" && !pledge.accountingReversedAt)
-      .reduce((sum, pledge) => sum + Number(pledge.amount), 0);
+      .filter((pledge) => (pledge.status === "SUCCESS" || pledge.status === "REFUNDED") && Number(pledge.accountingAmount) > 0)
+      .reduce((sum, pledge) => sum + Number(pledge.accountingAmount), 0);
     const reversed = gross - actual;
     const historicalClosedTotal = campaign.closedAmount == null ? gross : Number(campaign.closedAmount);
 
@@ -65,6 +65,15 @@ export async function GET(
         returnReason: pledge.returnReason,
         reversalReason: reversalReason(pledge),
         accountingReversedAt: pledge.accountingReversedAt,
+        depositAmount: Number(pledge.depositAmount),
+        chargeAmount: Number(pledge.chargeAmount),
+        orderTotalAmount: Number(pledge.orderTotalAmount),
+        paidAmount: Number(pledge.paidAmount),
+        remainingAmount: Number(pledge.remainingAmount),
+        accountingAmount: Number(pledge.accountingAmount),
+        refundAmount: Number(pledge.refundAmount),
+        cancellationFeeAmount: Number(pledge.cancellationFeeAmount),
+        isCashOnDelivery: pledge.isCashOnDelivery,
         rewardTitle: pledge.rewards?.title || null,
       })),
     });
