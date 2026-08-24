@@ -24,6 +24,7 @@ import { ProductQuickEdit } from '@/components/products/ProductQuickEdit';
 import { AddToCartButton } from '@/components/products/AddToCartButton';
 import { ProductPurchaseButton } from '@/components/products/ProductPurchaseButton';
 import CampaignRewardDonationButton from '@/components/products/CampaignRewardDonationButton';
+import QuickAddToCartButton from '@/components/products/QuickAddToCartButton';
 import ProductReviews from '@/components/products/ProductReviews';
 
 function daysBetween(a: Date, b: Date): number {
@@ -234,7 +235,14 @@ export default async function ProductDetailPage({
                 )}
 
                 {/* Actions */}
-                <div className="flex flex-wrap gap-3 mt-auto">
+                <div className="flex flex-wrap items-center gap-3 mt-auto">
+                  <QuickAddToCartButton
+                    rewardId={reward.id}
+                    title={reward.title}
+                    image={images[0] || ''}
+                    price={Number(reward.minAmount)}
+                    campaignId={campaign.id}
+                  />
                   <CampaignRewardDonationButton
                     campaignId={campaign.id}
                     campaignSlug={campaign.slug}

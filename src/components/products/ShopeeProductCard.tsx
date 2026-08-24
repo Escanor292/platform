@@ -6,6 +6,7 @@ import { ShoppingCart, Package, Share2, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { formatVND } from "@/lib/utils";
+import { addItemToClientCart } from "@/lib/cart-client";
 
 export interface ShopeeCardProduct {
   id: string;
@@ -16,6 +17,7 @@ export interface ShopeeCardProduct {
   stock?: number | null;
   productImages?: string[] | null;
   campaignTitle?: string | null;
+  campaignId?: string | null;
   /** Props cho chế độ chủ sở hữu */
   isOwnerMode?: boolean;
   onShare?: (e: React.MouseEvent, url: string) => void;
@@ -54,27 +56,13 @@ export default function ShopeeProductCard({
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const cart: Array<{
-      id: string;
-      title: string;
-      image: string;
-      price: number;
-      qty: number;
-    }> = JSON.parse(localStorage.getItem("tutefund_cart") || "[]");
-    const existing = cart.find((item) => item.id === product.id);
-    if (existing) {
-      existing.qty += 1;
-    } else {
-      cart.push({
-        id: product.id,
-        title: product.title,
-        image: images[0] || "",
-        price: Number(product.minAmount) || 0,
-        qty: 1,
-      });
-    }
-    localStorage.setItem("tutefund_cart", JSON.stringify(cart));
-    window.dispatchEvent(new CustomEvent("tutefund_cart_change"));
+    addItemToClientCart({
+      id: product.id,
+      title: product.title,
+      image: images[0] || "",
+      price: Number(product.minAmount) || 0,
+      campaignId: product.campaignId || null,
+    });
     setAdded(true);
     setTimeout(() => setAdded(false), 1200);
     toast.success(`Đã thêm "${product.title}" vào giỏ hàng`, {

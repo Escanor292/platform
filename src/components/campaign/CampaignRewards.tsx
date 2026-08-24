@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from "react";
 import { formatVND } from "@/lib/utils";
-import { Gift, Users, Clock, PlayCircle, ShoppingCart, Check } from "lucide-react";
+import { Gift, Users, Clock, PlayCircle } from "lucide-react";
 import { useCampaignContext } from "@/contexts/CampaignContext";
-import { useCart } from "@/components/products/CartProvider";
+import QuickAddToCartButton from "@/components/products/QuickAddToCartButton";
 import { useRouter } from "next/navigation";
 
 interface Reward {
@@ -31,9 +30,7 @@ export default function CampaignRewards({
     selectedRewardId
 }: CampaignRewardsProps) {
     const { openRewardDonation } = useCampaignContext();
-    const { addItem } = useCart();
     const router = useRouter();
-    const [addedRewardId, setAddedRewardId] = useState<string | null>(null);
     if (!rewards || rewards.length === 0) {
         return (
             <div className="bg-white border border-gray-200 rounded-lg p-6">
@@ -145,38 +142,16 @@ export default function CampaignRewards({
 
                                 {/* CTA buttons for Reward */}
                                 <div className="shrink-0 flex items-center gap-2">
-                                    <button
-                                        type="button"
-                                        className={`
-                                            inline-flex h-12 w-12 items-center justify-center rounded-2xl border text-sm font-bold shadow-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-pgreen focus-visible:ring-offset-2 active:scale-95
-                                            ${!isAvailable
-                                                ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed opacity-60'
-                                                : addedRewardId === reward.id
-                                                    ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
-                                                    : 'border-emerald-200 bg-white text-emerald-700 hover:-translate-y-0.5 hover:border-emerald-400 hover:bg-emerald-50 hover:shadow-md'
-                                            }
-                                        `}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            if (!isAvailable) return;
-                                            addItem({
-                                                id: reward.id,
-                                                title: reward.title,
-                                                image: previewImage || '',
-                                                price: reward.minAmount,
-                                                campaignId,
-                                            });
-                                            setAddedRewardId(reward.id);
-                                            window.setTimeout(() => {
-                                                setAddedRewardId((current) => current === reward.id ? null : current);
-                                            }, 1400);
-                                        }}
-                                        disabled={!isAvailable}
-                                        aria-label={addedRewardId === reward.id ? `Đã thêm ${reward.title} vào giỏ hàng` : `Thêm ${reward.title} vào giỏ hàng`}
-                                        title={addedRewardId === reward.id ? 'Đã thêm vào giỏ hàng' : 'Thêm vào giỏ hàng'}
-                                    >
-                                        {addedRewardId === reward.id ? <Check className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
-                                    </button>
+                                    {isAvailable && (
+                                        <QuickAddToCartButton
+                                            rewardId={reward.id}
+                                            title={reward.title}
+                                            image={previewImage || ''}
+                                            price={reward.minAmount}
+                                            campaignId={campaignId}
+                                            className="h-12 w-12 rounded-2xl"
+                                        />
+                                    )}
 
                                     <button
                                         type="button"

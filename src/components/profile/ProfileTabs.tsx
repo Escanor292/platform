@@ -11,6 +11,7 @@ import { getCampaignTypeLabel } from '@/lib/campaign-helpers';
 import { ProfileBlogCard } from '@/components/profile/ProfileBlogCard';
 import { UserBadgeList } from '@/components/badge/UserBadgeList';
 import { AddProductModal } from '@/components/profile/AddProductModal';
+import QuickAddToCartButton from '@/components/products/QuickAddToCartButton';
 import { getSectionLimit, isSectionVisible, type ProfileCustomizationConfig } from '@/lib/profile-customization';
 
 type TabType = 'projects' | 'campaigns' | 'products' | 'blog' | 'pledges' | 'badges';
@@ -532,6 +533,7 @@ export function ProfileTabs({
                                                 stock: reward.stock,
                                                 productImages: Array.isArray(reward.productImages) ? reward.productImages : [],
                                                 campaignTitle: campaign?.title || null,
+                                                campaignId: campaign?.id || null,
                                                 isOwnerMode,
                                                 onEditUrl: campaign?.slug
                                                     ? `/dashboard/creator/rewards/${campaign.slug}/edit/${reward.id}`
@@ -571,6 +573,14 @@ export function ProfileTabs({
                                                             </div>
                                                         </div>
                                                     </Link>
+                                                    <QuickAddToCartButton
+                                                        rewardId={reward.id}
+                                                        title={reward.title}
+                                                        image={Array.isArray(reward.productImages) ? reward.productImages[0] || '' : ''}
+                                                        price={Number(reward.minAmount) || 0}
+                                                        campaignId={campaign?.id || null}
+                                                        className="absolute bottom-2 right-2 h-9 w-9 rounded-lg"
+                                                    />
                                                     {isOwnerMode && (
                                                         <div className="absolute top-2 right-2 flex gap-1">
                                                             <Link

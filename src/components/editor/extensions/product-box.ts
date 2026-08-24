@@ -14,6 +14,7 @@ export interface ProductBoxAttributes {
   price: string;
   imageUrl: string | null;
   linkUrl: string | null;
+  campaignId?: string | null;
 }
 
 declare module '@tiptap/core' {
@@ -69,6 +70,12 @@ export const ProductBox = Node.create({
         renderHTML: attributes =>
           attributes.linkUrl ? { 'data-link-url': attributes.linkUrl } : {},
       },
+      campaignId: {
+        default: null,
+        parseHTML: element => element.getAttribute('data-campaign-id') || null,
+        renderHTML: attributes =>
+          attributes.campaignId ? { 'data-campaign-id': attributes.campaignId } : {},
+      },
     };
   },
 
@@ -106,7 +113,7 @@ export const ProductBox = Node.create({
 
   addNodeView() {
     return ({ node, editor, getPos }) => {
-      const { rewardId, title, price, imageUrl, linkUrl } = node.attrs as ProductBoxAttributes;
+      const { rewardId, title, price, imageUrl, linkUrl, campaignId } = node.attrs as ProductBoxAttributes;
 
       const container = document.createElement('div');
       container.className =
@@ -146,8 +153,9 @@ export const ProductBox = Node.create({
               title,
               price,
               imageUrl,
-              linkUrl,
-              pos: typeof getPos === 'function' ? getPos() : null,
+                                                      linkUrl,
+                                                      campaignId,
+                                                      pos: typeof getPos === 'function' ? getPos() : null,
             },
           })
         );

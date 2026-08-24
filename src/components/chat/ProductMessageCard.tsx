@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Package } from "lucide-react";
 import { formatVND } from "@/lib/utils";
+import QuickAddToCartButton from "@/components/products/QuickAddToCartButton";
 
 export interface ProductCardData {
   id: string;
@@ -14,6 +15,7 @@ export interface ProductCardData {
   image?: string;
   /** Giá gốc bị gạch (nếu có khuyến mãi) */
   originalPrice?: number | string;
+  campaignId?: string | null;
 }
 
 const MARKER_START = "__TUTEFUND_PRODUCT_V1__";
@@ -62,11 +64,12 @@ export function ProductMessageCard({ data, className = "" }: { data: ProductCard
     : null;
 
   return (
-    <Link
-      href={`/products/${data.id}`}
-      className={`flex gap-3 items-center rounded-xl border border-gray-100 bg-white/95 hover:bg-gray-50 transition overflow-hidden min-w-[240px] max-w-[300px] shadow-sm ${className}`}
-    >
-      <div className="shrink-0 w-16 h-16 bg-gray-100 relative overflow-hidden">
+    <div className={`relative min-w-[240px] max-w-[300px] ${className}`}>
+      <Link
+        href={`/products/${data.id}`}
+        className="flex gap-3 items-center rounded-xl border border-gray-100 bg-white/95 hover:bg-gray-50 transition overflow-hidden shadow-sm pr-11"
+      >
+        <div className="shrink-0 w-16 h-16 bg-gray-100 relative overflow-hidden">
         {data.image ? (
           <Image
             src={data.image}
@@ -80,30 +83,39 @@ export function ProductMessageCard({ data, className = "" }: { data: ProductCard
             <Package size={22} />
           </div>
         )}
-      </div>
-      <div className="flex-1 min-w-0 py-2 pr-3">
-        <p className="text-[13px] font-semibold text-gray-900 line-clamp-2 leading-snug">
-          {data.title}
-        </p>
-        <div className="flex items-baseline gap-2 mt-0.5">
-          <span className="text-[13px] font-extrabold text-pgreen">
-            {typeof data.price === "number" ? formatVND(data.price) : data.price}
-          </span>
-          {originalNum && originalNum > (priceNum || 0) && (
-            <>
-              <span className="text-[11px] text-gray-400 line-through">
-                {formatVND(originalNum)}
-              </span>
-              <span className="text-[10px] font-bold text-white bg-red-500 px-1 rounded">
-                -{Math.round(((originalNum - (priceNum || 0)) / originalNum) * 100)}%
-              </span>
-            </>
-          )}
         </div>
-        <span className="text-[10px] text-pgreen font-medium underline">
-          Xem sản phẩm ›
-        </span>
-      </div>
-    </Link>
+        <div className="flex-1 min-w-0 py-2 pr-1">
+          <p className="text-[13px] font-semibold text-gray-900 line-clamp-2 leading-snug">
+            {data.title}
+          </p>
+          <div className="flex items-baseline gap-2 mt-0.5">
+            <span className="text-[13px] font-extrabold text-pgreen">
+              {typeof data.price === "number" ? formatVND(data.price) : data.price}
+            </span>
+            {originalNum && originalNum > (priceNum || 0) && (
+              <>
+                <span className="text-[11px] text-gray-400 line-through">
+                  {formatVND(originalNum)}
+                </span>
+                <span className="text-[10px] font-bold text-white bg-red-500 px-1 rounded">
+                  -{Math.round(((originalNum - (priceNum || 0)) / originalNum) * 100)}%
+                </span>
+              </>
+            )}
+          </div>
+          <span className="text-[10px] text-pgreen font-medium underline">
+            Xem sản phẩm ›
+          </span>
+        </div>
+      </Link>
+      <QuickAddToCartButton
+        rewardId={data.id}
+        title={data.title}
+        image={data.image || ""}
+        price={priceNum || 0}
+        campaignId={data.campaignId}
+        className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg"
+      />
+    </div>
   );
 }

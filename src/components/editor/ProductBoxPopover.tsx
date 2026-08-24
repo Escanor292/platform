@@ -32,6 +32,7 @@ interface ProductBoxPopoverProps {
     price: string;
     imageUrl: string | null;
     linkUrl: string | null;
+    campaignId?: string | null;
     pos: number | null;
   } | null;
   onCancelEdit?: () => void;
@@ -165,6 +166,7 @@ export function ProductBoxPopover({
       price: String(selectedProduct.minAmount),
       imageUrl: selectedProduct.productImages?.[0] || null,
       linkUrl: `/products/${selectedProduct.id}`,
+      campaignId: selectedProduct.campaignId || null,
     };
 
     if (editData && editData.pos !== null && editData.pos !== undefined) {

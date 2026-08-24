@@ -10,6 +10,7 @@ import RichTextRenderer from '@/components/shared/RichTextRenderer';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatDate, formatVND } from '@/lib/utils';
+import QuickAddToCartButton from '@/components/products/QuickAddToCartButton';
 
 interface ProjectDetailClientProps {
     project: PublicProjectDetail;
@@ -436,12 +437,21 @@ export default function ProjectDetailClient({ project }: ProjectDetailClientProp
                                                             <span className="font-bold text-blue-600">
                                                                 {formatVND(reward.minAmount)}
                                                             </span>
-                                                            <Link
-                                                                href={`/campaigns/${campaign.slug}`}
-                                                                className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
-                                                            >
-                                                                Xem chiến dịch <ExternalLink size={12} />
-                                                            </Link>
+                                                            <div className="flex items-center gap-2">
+                                                                <QuickAddToCartButton
+                                                                    rewardId={reward.id}
+                                                                    title={reward.title}
+                                                                    image={reward.imageUrl || ''}
+                                                                    price={Number(reward.minAmount) || 0}
+                                                                    campaignId={campaign.id}
+                                                                />
+                                                                <Link
+                                                                    href={`/campaigns/${campaign.slug}`}
+                                                                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
+                                                                >
+                                                                    Xem chiến dịch <ExternalLink size={12} />
+                                                                </Link>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </Card>
@@ -566,13 +576,22 @@ export default function ProjectDetailClient({ project }: ProjectDetailClientProp
                                                         >
                                                             {statusInfo.label}
                                                         </Badge>
-                                                        <Link
-                                                            href={`/campaigns/${campaign.slug}`}
-                                                            className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition-colors"
-                                                        >
-                                                            Xem chiến dịch
-                                                            <ExternalLink size={12} />
-                                                        </Link>
+                                                        <div className="flex items-center gap-2">
+                                                            <QuickAddToCartButton
+                                                                rewardId={reward.id}
+                                                                title={reward.title}
+                                                                image={reward.imageUrl || ''}
+                                                                price={Number(reward.minAmount) || 0}
+                                                                campaignId={campaign.id}
+                                                            />
+                                                            <Link
+                                                                href={`/campaigns/${campaign.slug}`}
+                                                                className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition-colors"
+                                                            >
+                                                                Xem chiến dịch
+                                                                <ExternalLink size={12} />
+                                                            </Link>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </Card>
@@ -642,13 +661,22 @@ export default function ProjectDetailClient({ project }: ProjectDetailClientProp
                                                         >
                                                             {statusInfo.label}
                                                         </Badge>
-                                                        <Link
-                                                            href={`/campaigns/${campaign.slug}`}
-                                                            className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition-colors"
-                                                        >
-                                                            Xem chiến dịch
-                                                            <ExternalLink size={12} />
-                                                        </Link>
+                                                        <div className="flex items-center gap-2">
+                                                            <QuickAddToCartButton
+                                                                rewardId={reward.id}
+                                                                title={reward.title}
+                                                                image={reward.imageUrl || ''}
+                                                                price={Number(reward.minAmount) || 0}
+                                                                campaignId={campaign.id}
+                                                            />
+                                                            <Link
+                                                                href={`/campaigns/${campaign.slug}`}
+                                                                className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition-colors"
+                                                            >
+                                                                Xem chiến dịch
+                                                                <ExternalLink size={12} />
+                                                            </Link>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </Card>
