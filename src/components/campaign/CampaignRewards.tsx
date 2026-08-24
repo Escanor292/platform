@@ -151,24 +151,11 @@ export default function CampaignRewards({
                                 </div>
 
                                 {/* CTA buttons for Reward */}
-                                <div className="shrink-0 flex items-center gap-2">
-                                    {isAvailable && (
-                                        <QuickAddToCartButton
-                                            rewardId={reward.id}
-                                            title={reward.title}
-                                            image={previewImage || ''}
-                                            price={reward.minAmount}
-                                            campaignId={campaignId}
-                                            isPreorder={reward.isPreorder}
-                                            deliveryDate={reward.deliveryDate || null}
-                                            className="h-12 w-12 rounded-2xl"
-                                        />
-                                    )}
-
+                                <div className="w-[180px] max-w-full shrink-0 flex flex-col items-end gap-2">
                                     <button
                                         type="button"
                                         className={`
-                                            inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold shadow-sm transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-pgreen focus-visible:ring-offset-2
+                                            inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold shadow-sm transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-pgreen focus-visible:ring-offset-2
                                             ${!isAvailable
                                                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60'
                                                 : 'gradient-green text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-green-200'
@@ -186,6 +173,19 @@ export default function CampaignRewards({
                                         {isAvailable && <Gift className="h-4 w-4" />}
                                         {!isAvailable ? 'Hết suất' : 'Ủng hộ nhận quà'}
                                     </button>
+
+                                    {isAvailable && (
+                                        <QuickAddToCartButton
+                                            rewardId={reward.id}
+                                            title={reward.title}
+                                            image={previewImage || ''}
+                                            price={reward.minAmount}
+                                            campaignId={campaignId}
+                                            isPreorder={reward.isPreorder}
+                                            deliveryDate={reward.deliveryDate || null}
+                                            className="h-10 w-10 rounded-xl"
+                                        />
+                                    )}
                                 </div>
                             </div>
 
