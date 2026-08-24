@@ -90,8 +90,8 @@ export default function PlatformHelpAssistant() {
     if (nextOpen) recordAssistantTelemetry({ event: "opened", contextTraceCount: memoryTraces.length });
   }
 
-  return <div className="fixed bottom-28 right-4 z-[69] md:bottom-16 md:right-6">
-    {open && <section aria-label="Trợ lý hướng dẫn nền tảng" className="mb-3 flex h-[min(570px,calc(100vh-9rem))] w-[min(368px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[22px] border border-emerald-100 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.22)]">
+  return <div className="fixed bottom-36 right-4 z-[69] md:bottom-24 md:right-6">
+    {open && <section aria-label="Trợ lý hướng dẫn nền tảng" className="mb-3 flex h-[min(540px,calc(100vh-10rem))] w-[min(368px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[22px] border border-emerald-100 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.22)]">
       <header className="flex items-center justify-between border-b border-emerald-100 bg-gradient-to-r from-emerald-50 via-white to-lime-50 px-4 py-3">
         <div className="flex min-w-0 items-center gap-2"><span className="relative grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-emerald-600 to-lime-500 text-white"><Bot size={16} /><Leaf className="absolute -right-1 -bottom-1 h-3.5 w-3.5 rounded-full bg-white p-0.5 text-emerald-600" /></span><div className="min-w-0"><p className="text-sm font-bold text-slate-900">Trợ lý nền tảng</p><p className="truncate text-xs text-slate-500">Hướng dẫn công khai · Zero-Mem cục bộ</p></div></div>
         <div className="flex items-center gap-1"><button type="button" onClick={clearMemory} aria-label="Xóa bộ nhớ Zero-Mem của phiên" className="grid h-8 w-8 place-items-center rounded-full text-slate-500 transition hover:bg-white hover:text-rose-600"><Trash2 size={15} /></button><button type="button" onClick={() => setOpen(false)} aria-label="Đóng trợ lý nền tảng" className="grid h-8 w-8 place-items-center rounded-full text-slate-500 transition hover:bg-white hover:text-slate-900"><X size={18} /></button></div>
