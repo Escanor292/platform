@@ -170,6 +170,19 @@ export default async function ProductDetailPage({
                   {reward.title}
                 </h1>
 
+                {reward.isPreorder && (
+                  <div className="mb-4 space-y-2">
+                    <div className="inline-flex w-fit items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-800">
+                      <Calendar size={15} />
+                      Đặt hàng trước
+                      {reward.deliveryDate && ` · dự kiến giao ${new Date(reward.deliveryDate).toLocaleDateString('vi-VN')}`}
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Online cọc {reward.onlineDepositPercent}% · COD cọc {reward.codDepositPercent}% · phần còn lại thanh toán theo phương thức đã chọn.
+                    </p>
+                  </div>
+                )}
+
                 {reward.description && (
                   <p className="text-gray-600 leading-relaxed mb-5 text-sm">
                     {reward.description}
@@ -235,7 +248,7 @@ export default async function ProductDetailPage({
                 )}
 
                 {/* Actions */}
-                <div className="flex flex-wrap items-center gap-3 mt-auto">
+                <div className="flex w-full flex-wrap items-center gap-3 mt-auto">
                   <QuickAddToCartButton
                     rewardId={reward.id}
                     title={reward.title}
