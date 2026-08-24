@@ -120,7 +120,6 @@ export default function ProductReviews({ rewardId }: { rewardId: string }) {
           <div>
             <p className="text-xs uppercase tracking-wider text-pgreen font-bold mb-1">Phản hồi cộng đồng</p>
             <h2 id="product-reviews-title" className="text-2xl font-bold text-gray-900">Đánh giá sản phẩm</h2>
-            <p className="text-sm text-gray-500 mt-1">Chỉ người đã mua và xác nhận nhận hàng mới có thể đánh giá.</p>
           </div>
           <div className="text-sm text-gray-500">{reviews.length} đánh giá</div>
         </div>
