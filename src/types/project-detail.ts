@@ -45,6 +45,7 @@ export interface PublicReward {
     isIncludedInProject: boolean;
     maxQuantity: number | null;
     deliveryDate: string | null;
+    isPreorder: boolean;
     isActive: boolean;
     createdAt: string;
 }

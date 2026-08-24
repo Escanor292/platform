@@ -11,6 +11,7 @@ interface Reward {
     description?: string | null;
     minAmount: number;
     estimatedDelivery?: string | null;
+    isPreorder?: boolean;
     availability?: "AVAILABLE" | "DEVELOPMENT";
     fulfillmentType?: "PHYSICAL" | "EMAIL" | "DOWNLOAD" | "LICENSE_KEY" | "DIGITAL_COMIC";
     maxQuantity?: number | null;
@@ -185,7 +186,12 @@ const PledgeFormContent = memo(function PledgeFormContent({
         () => rewards.find((r) => r.id === effectiveSelectedRewardId),
         [rewards, effectiveSelectedRewardId]
     );
-    const isReadyProduct = selectedReward?.availability === "AVAILABLE";
+    const isPreorder = Boolean(selectedReward?.isPreorder);
+    const isReadyProduct = selectedReward?.availability === "AVAILABLE" && !isPreorder;
+
+    useEffect(() => {
+        if (isPreorder && paymentMethod === "COD") setPaymentMethod("ONLINE");
+    }, [isPreorder, paymentMethod]);
 
     useEffect(() => {
         if (!selectedReward) return;
@@ -393,11 +399,11 @@ const PledgeFormContent = memo(function PledgeFormContent({
                                         {selectedReward.description && (
                                             <p className="text-xs text-gray-600 mt-1">{selectedReward.description}</p>
                                         )}
-                                        {selectedReward.availability === "DEVELOPMENT" && selectedReward.estimatedDelivery && (
-                                            <p className="text-xs text-gray-500 mt-1">📦 Dự kiến giao: {selectedReward.estimatedDelivery}</p>
+                                        {selectedReward.isPreorder && selectedReward.estimatedDelivery && (
+                                            <p className="text-xs font-semibold text-amber-700 mt-1">📦 Đặt hàng trước · dự kiến giao: {new Date(selectedReward.estimatedDelivery).toLocaleDateString("vi-VN")}</p>
                                         )}
                                         <p className="text-xs font-semibold text-emerald-700 mt-1">
-                                            {selectedReward.availability === "AVAILABLE" ? "Sản phẩm có sẵn" : "Sản phẩm đang phát triển"}
+                                            {selectedReward.isPreorder ? "Đặt hàng trước · thanh toán online" : selectedReward.availability === "AVAILABLE" ? "Sản phẩm có sẵn" : "Sản phẩm đang phát triển"}
                                         </p>
                                         <div className="flex items-center gap-2 mt-3">
                                             <span className="text-xs font-semibold text-gray-600 mr-2">Số lượng</span>
@@ -463,10 +469,10 @@ const PledgeFormContent = memo(function PledgeFormContent({
                                             {r.description && (
                                                 <p className="text-xs text-gray-500 mt-0.5">{r.description}</p>
                                             )}
-                                            {r.availability === "DEVELOPMENT" && r.estimatedDelivery && (
-                                                <p className="text-xs text-gray-400">📦 Dự kiến giao: {r.estimatedDelivery}</p>
+                                            {r.isPreorder && r.estimatedDelivery && (
+                                                <p className="text-xs font-semibold text-amber-700">📦 Đặt hàng trước · dự kiến giao: {new Date(r.estimatedDelivery).toLocaleDateString("vi-VN")}</p>
                                             )}
-                                            <p className="text-xs text-gray-400">{r.availability === "AVAILABLE" ? "Có sẵn · có thể trả khi nhận hàng" : "Đang phát triển · ủng hộ nhận quà"}</p>
+                                            <p className="text-xs text-gray-400">{r.isPreorder ? "Đặt hàng trước · chỉ thanh toán online" : r.availability === "AVAILABLE" ? "Có sẵn · có thể trả khi nhận hàng" : "Đang phát triển · ủng hộ nhận quà"}</p>
                                         </div>
                                     </label>
                                 ))}
@@ -795,7 +801,7 @@ const PledgeFormContent = memo(function PledgeFormContent({
                                 Đang xử lý...
                             </>
                         ) : (
-                            `${isReadyProduct ? (paymentMethod === "COD" ? "Đặt hàng COD" : "Mua ngay") : "Ủng hộ"} ${formatVND(finalTotalAmount)} →`
+                            `${isPreorder ? "Đặt hàng trước" : isReadyProduct ? (paymentMethod === "COD" ? "Đặt hàng COD" : "Mua ngay") : "Ủng hộ"} ${formatVND(finalTotalAmount)} →`
                         )}
                     </button>
 

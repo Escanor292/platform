@@ -94,6 +94,7 @@ export default async function CampaignDetailPage({ params }: Params) {
       rewards: campaign.rewards?.map(reward => ({
          ...reward,
          minAmount: Number(reward.minAmount),
+         deliveryDate: reward.deliveryDate?.toISOString() || null,
          createdAt: reward.createdAt.toISOString(),
          updatedAt: reward.updatedAt.toISOString(),
       })),

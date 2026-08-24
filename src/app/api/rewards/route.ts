@@ -25,11 +25,21 @@ export async function POST(req: NextRequest) {
             isActive,
             isIncludedInProject,
             availability,
-            fulfillmentType
+            fulfillmentType,
+            isPreorder
         } = body;
 
         const allowedFulfillmentTypes = ["PHYSICAL", "EMAIL", "DOWNLOAD", "LICENSE_KEY", "DIGITAL_COMIC"] as const;
         const normalizedFulfillmentType = allowedFulfillmentTypes.includes(fulfillmentType) ? fulfillmentType : "PHYSICAL";
+
+        const preorderEnabled = isPreorder === true;
+        const parsedDeliveryDate = deliveryDate ? new Date(deliveryDate) : null;
+        if (preorderEnabled && (!parsedDeliveryDate || Number.isNaN(parsedDeliveryDate.getTime()) || parsedDeliveryDate <= new Date())) {
+            return NextResponse.json(
+                { error: "Sản phẩm đặt trước phải có ngày dự kiến giao hàng trong tương lai" },
+                { status: 400 }
+            );
+        }
 
         // Validate required fields
         if (!title || !minAmount) {
@@ -108,7 +118,8 @@ export async function POST(req: NextRequest) {
                 productImages: Array.isArray(productImages) ? productImages : [],
                 productVideo: productVideo || null,
                 maxQuantity: maxQuantity ? parseInt(maxQuantity) : null,
-                deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
+                deliveryDate: preorderEnabled ? parsedDeliveryDate : null,
+                isPreorder: preorderEnabled,
                 isActive: Boolean(isActive),
                 availability: availability === "DEVELOPMENT" ? "DEVELOPMENT" : "AVAILABLE",
                 fulfillmentType: normalizedFulfillmentType,

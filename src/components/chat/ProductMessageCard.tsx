@@ -16,6 +16,8 @@ export interface ProductCardData {
   /** Giá gốc bị gạch (nếu có khuyến mãi) */
   originalPrice?: number | string;
   campaignId?: string | null;
+  isPreorder?: boolean;
+  deliveryDate?: string | null;
 }
 
 const MARKER_START = "__TUTEFUND_PRODUCT_V1__";
@@ -103,6 +105,7 @@ export function ProductMessageCard({ data, className = "" }: { data: ProductCard
               </>
             )}
           </div>
+          {data.isPreorder && <span className="block text-[10px] font-semibold text-amber-700">Đặt trước{data.deliveryDate ? ` · giao ${new Date(data.deliveryDate).toLocaleDateString("vi-VN")}` : ""}</span>}
           <span className="text-[10px] text-pgreen font-medium underline">
             Xem sản phẩm ›
           </span>
@@ -114,6 +117,8 @@ export function ProductMessageCard({ data, className = "" }: { data: ProductCard
         image={data.image || ""}
         price={priceNum || 0}
         campaignId={data.campaignId}
+        isPreorder={data.isPreorder}
+        deliveryDate={data.deliveryDate}
         className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg"
       />
     </div>

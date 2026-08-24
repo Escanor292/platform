@@ -616,6 +616,7 @@ Table rewards {
   description text
   createdAt timestamp [default: now()]
   deliveryDate timestamp
+  isPreorder boolean [default: false]
   isActive boolean [default: true]
   isIncludedInProject boolean [default: true]
   maxQuantity int

@@ -252,6 +252,7 @@ export default async function ProductDetailPage({
                       description: reward.description,
                       minAmount: Number(reward.minAmount),
                       estimatedDelivery: reward.deliveryDate?.toISOString() || null,
+                      isPreorder: reward.isPreorder,
                       availability: reward.availability,
                       fulfillmentType: reward.fulfillmentType,
                       maxQuantity: reward.maxQuantity,
@@ -308,6 +309,7 @@ export default async function ProductDetailPage({
               stock: reward.stock,
               maxQuantity: reward.maxQuantity,
               deliveryDate: reward.deliveryDate,
+              isPreorder: reward.isPreorder,
               isActive: reward.isActive,
               productImages: images,
               productVideo: reward.productVideo,
@@ -366,6 +368,13 @@ export default async function ProductDetailPage({
                 {reward.title}
               </h1>
 
+              {reward.isPreorder && (
+                <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-800">
+                  <Calendar size={15} /> Đặt hàng trước
+                  {reward.deliveryDate ? ` · dự kiến giao ${new Date(reward.deliveryDate).toLocaleDateString('vi-VN')}` : ''}
+                </div>
+              )}
+
               {/* Giá */}
               <div className="mb-5 p-4 rounded-2xl bg-cream/50 border border-pgreen/10">
                 <div className="flex items-baseline gap-3">
@@ -390,9 +399,9 @@ export default async function ProductDetailPage({
                 <span className="flex items-center gap-1.5">
                   <Package size={15} className="text-pgreen" /> {stockText}
                 </span>
-                {deliveryText && (
-                  <span className="flex items-center gap-1.5">
-                    <Calendar size={15} className="text-pgreen" /> {deliveryText}
+                {reward.isPreorder && deliveryText && (
+                  <span className="flex items-center gap-1.5 font-semibold text-amber-700">
+                    <Calendar size={15} className="text-amber-600" /> Đặt trước · {deliveryText}
                   </span>
                 )}
                 {((reward as any)._count?.pledges ?? 0) > 0 && (
@@ -418,6 +427,8 @@ export default async function ProductDetailPage({
                   stock={reward.stock}
                   maxQuantity={reward.maxQuantity}
                   availability={reward.availability}
+                  isPreorder={reward.isPreorder}
+                  deliveryDate={reward.deliveryDate?.toISOString() || null}
                   fulfillmentType={reward.fulfillmentType}
                   campaignId={campaign?.id}
                 />
@@ -428,6 +439,8 @@ export default async function ProductDetailPage({
                   price={Number(reward.minAmount)}
                   originalPrice={reward.maxAmount ? Number(reward.maxAmount) : undefined}
                   stock={reward.stock}
+                  isPreorder={reward.isPreorder}
+                  deliveryDate={reward.deliveryDate?.toISOString() || null}
                   contactUserId={contactUserId}
                   ownerName={campaign?.users?.name || 'Nhà sáng tạo'}
                   campaignId={campaign?.id}
@@ -479,6 +492,7 @@ export default async function ProductDetailPage({
             stock: reward.stock,
             maxQuantity: reward.maxQuantity,
             deliveryDate: reward.deliveryDate,
+            isPreorder: reward.isPreorder,
             isActive: reward.isActive,
             productImages: images,
             productVideo: reward.productVideo,

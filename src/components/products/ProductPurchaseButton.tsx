@@ -16,6 +16,8 @@ interface ProductPurchaseButtonProps {
   stock: number | null;
   maxQuantity?: number | null;
   availability?: "AVAILABLE" | "DEVELOPMENT";
+  isPreorder?: boolean;
+  deliveryDate?: string | null;
   fulfillmentType?: FulfillmentType;
   campaignId?: string | null;
 }
@@ -27,6 +29,8 @@ export function ProductPurchaseButton({
   stock,
   maxQuantity,
   availability = "AVAILABLE",
+  isPreorder = false,
+  deliveryDate,
   fulfillmentType = "PHYSICAL",
   campaignId,
 }: ProductPurchaseButtonProps) {
@@ -71,7 +75,7 @@ export function ProductPurchaseButton({
     try {
       if (!savedEmail && !guestEmail.trim()) throw new Error(isDigital ? "Vui lòng nhập email nhận tài sản số" : "Vui lòng nhập email nhận đơn hàng");
       if (!isDigital && !savedAddress && !shippingAddress.trim()) throw new Error("Vui lòng nhập địa chỉ nhận hàng");
-      if (paymentMethod === "COD" && (availability !== "AVAILABLE" || isDigital)) throw new Error("COD chỉ áp dụng cho sản phẩm vật lý có sẵn");
+      if (paymentMethod === "COD" && (availability !== "AVAILABLE" || isPreorder || isDigital)) throw new Error("COD chỉ áp dụng cho sản phẩm vật lý có sẵn, không áp dụng cho hàng đặt trước");
 
       const response = await fetch("/api/payments", {
         method: "POST",
@@ -108,7 +112,7 @@ export function ProductPurchaseButton({
         <div className="p-6 space-y-5">
           {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
           <div className="flex items-center justify-between rounded-xl bg-cream/60 border border-pgreen/10 p-4">
-            <div><p className="font-semibold text-gray-900">{title}</p><p className="text-sm text-gray-500">{formatVND(minAmount)} / sản phẩm</p></div>
+            <div><p className="font-semibold text-gray-900">{title}</p><p className="text-sm text-gray-500">{formatVND(minAmount)} / sản phẩm</p>{isPreorder && <p className="mt-1 text-xs font-semibold text-amber-700">Đặt hàng trước{deliveryDate ? ` · dự kiến giao ${new Date(deliveryDate).toLocaleDateString("vi-VN")}` : ""}</p>}</div>
             <div className="flex items-center gap-2"><button type="button" onClick={() => setQuantity((value) => Math.max(1, value - 1))} className="h-8 w-8 rounded-lg border border-gray-200">−</button><span className="w-8 text-center font-bold">{quantity}</span><button type="button" onClick={() => setQuantity((value) => Math.min(maxAllowed, value + 1))} className="h-8 w-8 rounded-lg border border-gray-200">+</button></div>
           </div>
 
@@ -116,10 +120,10 @@ export function ProductPurchaseButton({
 
           {isDigital ? <div><label className="mb-1.5 block text-sm font-semibold text-gray-700">Email nhận tài sản số *</label><input type="email" value={guestEmail || savedEmail} onChange={(event) => setGuestEmail(event.target.value)} disabled={Boolean(savedEmail)} placeholder="you@example.com" className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm" /></div> : <div><label className="mb-1.5 block text-sm font-semibold text-gray-700">Địa chỉ nhận hàng *</label><textarea value={shippingAddress || savedAddress} onChange={(event) => setShippingAddress(event.target.value)} disabled={Boolean(savedAddress)} rows={3} placeholder="Nhập địa chỉ đầy đủ" className="w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm" />{!savedEmail && <input type="email" value={guestEmail} onChange={(event) => setGuestEmail(event.target.value)} placeholder="Email nhận xác nhận" className="mt-3 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm" />}</div>}
 
-          <div className="grid gap-3 sm:grid-cols-2"><label className={`cursor-pointer rounded-xl border-2 p-3 ${paymentMethod === "ONLINE" ? "border-pgreen bg-pgreen/5" : "border-gray-200"}`}><input type="radio" className="sr-only" checked={paymentMethod === "ONLINE"} onChange={() => setPaymentMethod("ONLINE")} /><span className="flex items-center gap-2 text-sm font-semibold"><CreditCard size={15} /> Thanh toán online</span><span className="mt-1 block text-xs text-gray-500">Ví, ngân hàng hoặc thẻ qua hosted checkout</span></label><label className={`cursor-pointer rounded-xl border-2 p-3 ${paymentMethod === "COD" ? "border-amber-500 bg-amber-50" : "border-gray-200"}`}><input type="radio" className="sr-only" checked={paymentMethod === "COD"} onChange={() => setPaymentMethod("COD")} disabled={isDigital || availability !== "AVAILABLE"} /><span className="text-sm font-semibold">Thanh toán khi nhận hàng</span><span className="mt-1 block text-xs text-gray-500">Chỉ dùng cho sản phẩm vật lý có sẵn</span></label></div>
+          <div className="grid gap-3 sm:grid-cols-2"><label className={`cursor-pointer rounded-xl border-2 p-3 ${paymentMethod === "ONLINE" ? "border-pgreen bg-pgreen/5" : "border-gray-200"}`}><input type="radio" className="sr-only" checked={paymentMethod === "ONLINE"} onChange={() => setPaymentMethod("ONLINE")} /><span className="flex items-center gap-2 text-sm font-semibold"><CreditCard size={15} /> Thanh toán online</span><span className="mt-1 block text-xs text-gray-500">Ví, ngân hàng hoặc thẻ qua hosted checkout</span></label><label className={`cursor-pointer rounded-xl border-2 p-3 ${paymentMethod === "COD" ? "border-amber-500 bg-amber-50" : "border-gray-200"}`}><input type="radio" className="sr-only" checked={paymentMethod === "COD"} onChange={() => setPaymentMethod("COD")} disabled={isDigital || availability !== "AVAILABLE" || isPreorder} /><span className="text-sm font-semibold">Thanh toán khi nhận hàng</span><span className="mt-1 block text-xs text-gray-500">{isPreorder ? "Không áp dụng cho sản phẩm đặt trước" : "Chỉ dùng cho sản phẩm vật lý có sẵn"}</span></label></div>
 
           <div className="flex items-center justify-between border-t border-gray-100 pt-4"><span className="text-sm text-gray-600">Tổng cộng</span><strong className="text-xl text-pgreen">{formatVND(total)}</strong></div>
-          <button type="button" onClick={submit} disabled={loading || status === "loading" || stock === 0} className="w-full rounded-full bg-pgreen py-3.5 font-bold text-white hover:bg-emerald-600 disabled:opacity-50">{loading ? "Đang tạo đơn..." : paymentMethod === "COD" ? "Đặt hàng COD" : "Tiếp tục thanh toán"}</button>
+          <button type="button" onClick={submit} disabled={loading || status === "loading" || stock === 0} className="w-full rounded-full bg-pgreen py-3.5 font-bold text-white hover:bg-emerald-600 disabled:opacity-50">{loading ? "Đang tạo đơn..." : paymentMethod === "COD" ? "Đặt hàng COD" : isPreorder ? "Đặt hàng trước và thanh toán" : "Tiếp tục thanh toán"}</button>
         </div>
       </Modal>
     </>

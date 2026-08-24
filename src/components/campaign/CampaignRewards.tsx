@@ -12,6 +12,8 @@ interface Reward {
     description?: string | null;
     minAmount: number;
     estimatedDelivery?: string | null;
+    deliveryDate?: string | null;
+    isPreorder?: boolean;
     limitQuantity?: number | null;
     claimedCount?: number;
     productImages?: string[] | null;
@@ -71,6 +73,7 @@ export default function CampaignRewards({
                         : null;
                     const isAvailable = !reward.limitQuantity || (remainingQuantity !== null && remainingQuantity > 0);
                     const previewImage = reward.productImages?.[0];
+                    const expectedDelivery = reward.deliveryDate || reward.estimatedDelivery;
                     const hasVideo = Boolean(reward.productVideo);
                     const hasMedia = Boolean(previewImage || hasVideo);
 
@@ -138,6 +141,11 @@ export default function CampaignRewards({
                                     <h4 className="font-semibold text-gray-900 mb-2">
                                         {reward.title}
                                     </h4>
+                                    {reward.isPreorder && (
+                                        <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-800">
+                                            Đặt hàng trước{expectedDelivery ? ` · giao dự kiến ${new Date(expectedDelivery).toLocaleDateString('vi-VN')}` : ''}
+                                        </span>
+                                    )}
                                 </div>
 
                                 {/* CTA buttons for Reward */}
@@ -149,6 +157,8 @@ export default function CampaignRewards({
                                             image={previewImage || ''}
                                             price={reward.minAmount}
                                             campaignId={campaignId}
+                                            isPreorder={reward.isPreorder}
+                                            deliveryDate={reward.deliveryDate || null}
                                             className="h-12 w-12 rounded-2xl"
                                         />
                                     )}
@@ -186,10 +196,10 @@ export default function CampaignRewards({
 
                             {/* Reward Meta Info */}
                             <div className="flex flex-wrap gap-4 text-xs text-gray-500">
-                                {reward.estimatedDelivery && (
-                                    <div className="flex items-center gap-1">
+                                {reward.isPreorder && expectedDelivery && (
+                                    <div className="flex items-center gap-1 font-semibold text-amber-700">
                                         <Clock className="w-3 h-3" />
-                                        <span>Giao hàng: {reward.estimatedDelivery}</span>
+                                        <span>Dự kiến giao hàng: {new Date(expectedDelivery).toLocaleDateString('vi-VN')}</span>
                                     </div>
                                 )}
 

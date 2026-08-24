@@ -13,6 +13,7 @@ interface Reward {
   description?: string | null;
   minAmount: number;
   estimatedDelivery?: string | null;
+  isPreorder?: boolean;
   availability?: "AVAILABLE" | "DEVELOPMENT";
   fulfillmentType?: "PHYSICAL" | "EMAIL" | "DOWNLOAD" | "LICENSE_KEY" | "DIGITAL_COMIC";
   maxQuantity?: number | null;

@@ -18,6 +18,8 @@ export interface ShopeeCardProduct {
   productImages?: string[] | null;
   campaignTitle?: string | null;
   campaignId?: string | null;
+  isPreorder?: boolean;
+  deliveryDate?: string | Date | null;
   /** Props cho chế độ chủ sở hữu */
   isOwnerMode?: boolean;
   onShare?: (e: React.MouseEvent, url: string) => void;
@@ -91,6 +93,11 @@ export default function ShopeeProductCard({
               -{discount}%
             </span>
           )}
+          {product.isPreorder && (
+            <span className="absolute bottom-2 left-2 bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm shadow">
+              Đặt trước
+            </span>
+          )}
           {images.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center">
               <Package className="w-10 h-10 text-slate-300" />
@@ -122,6 +129,12 @@ export default function ShopeeProductCard({
           </div>
           {product.stock !== null && product.stock !== undefined && (
             <div className="text-[10px] text-gray-400 mt-1">Tồn kho: {product.stock}</div>
+          )}
+          {product.isPreorder && product.deliveryDate && (
+            <div className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-amber-700">
+              <span>Giao dự kiến:</span>
+              {new Date(product.deliveryDate).toLocaleDateString("vi-VN")}
+            </div>
           )}
         </div>
       </Link>

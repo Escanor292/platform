@@ -5,6 +5,8 @@ export interface PersistedCartItem {
   price: number;
   qty: number;
   campaignId?: string | null;
+  isPreorder?: boolean;
+  deliveryDate?: string | null;
 }
 
 export function addItemToClientCart(item: Omit<PersistedCartItem, "qty">): void {

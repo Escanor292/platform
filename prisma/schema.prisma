@@ -572,6 +572,7 @@ model rewards {
   description          String?
   createdAt            DateTime               @default(now())
   deliveryDate         DateTime?
+  isPreorder           Boolean                @default(false)
   isActive             Boolean                @default(true)
   isIncludedInProject  Boolean                @default(true)
   maxQuantity          Int?

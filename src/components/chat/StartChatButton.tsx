@@ -25,6 +25,9 @@ interface StartChatButtonProps {
   rewardImage?: string;
   /** Giá gốc bị gạch (nếu có khuyến mãi) */
   rewardOriginalPrice?: string;
+  /** Trạng thái đặt trước và ngày giao dự kiến */
+  rewardIsPreorder?: boolean;
+  rewardDeliveryDate?: string | null;
   variant?: "default" | "outline" | "none";
   className?: string;
   label?: string;
@@ -41,6 +44,8 @@ export function StartChatButton({
   rewardPrice,
   rewardImage,
   rewardOriginalPrice,
+  rewardIsPreorder = false,
+  rewardDeliveryDate,
   variant = "default",
   className = "",
   label,
@@ -101,6 +106,8 @@ export function StartChatButton({
           price: rewardPrice || "",
           image: rewardImage,
           originalPrice: rewardOriginalPrice,
+          isPreorder: rewardIsPreorder,
+          deliveryDate: rewardDeliveryDate || null,
         } as ProductCardData);
         introMessage =
           `👋 Xin chào ${campaignOwnerName}!\n\n` +

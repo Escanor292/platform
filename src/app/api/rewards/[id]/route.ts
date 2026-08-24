@@ -81,7 +81,8 @@ export async function PUT(
             isActive,
             isIncludedInProject,
             availability,
-            fulfillmentType
+            fulfillmentType,
+            isPreorder
         } = body;
         const allowedFulfillmentTypes = ["PHYSICAL", "EMAIL", "DOWNLOAD", "LICENSE_KEY", "DIGITAL_COMIC"] as const;
         const normalizedFulfillmentType = fulfillmentType === undefined
@@ -136,6 +137,17 @@ export async function PUT(
             }
         }
 
+        const preorderEnabled = isPreorder === undefined ? reward.isPreorder : isPreorder === true;
+        const nextDeliveryDate = deliveryDate !== undefined
+            ? (deliveryDate ? new Date(deliveryDate) : null)
+            : reward.deliveryDate;
+        if (preorderEnabled && (!nextDeliveryDate || Number.isNaN(nextDeliveryDate.getTime()) || nextDeliveryDate <= new Date())) {
+            return NextResponse.json(
+                { error: "Sản phẩm đặt trước phải có ngày dự kiến giao hàng trong tương lai" },
+                { status: 400 }
+            );
+        }
+
         // Update reward
         const updatedReward = await prisma.rewards.update({
             where: { id },
@@ -148,7 +160,8 @@ export async function PUT(
                 productImages: Array.isArray(productImages) ? productImages : undefined,
                 productVideo: productVideo !== undefined ? (productVideo || null) : undefined,
                 maxQuantity: maxQuantity !== undefined ? (maxQuantity ? parseInt(maxQuantity) : null) : undefined,
-                deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
+                deliveryDate: preorderEnabled ? nextDeliveryDate : null,
+                isPreorder: preorderEnabled,
                 isActive: isActive !== undefined ? Boolean(isActive) : undefined,
                 availability: availability !== undefined ? (availability === "DEVELOPMENT" ? "DEVELOPMENT" : "AVAILABLE") : undefined,
                 fulfillmentType: normalizedFulfillmentType,

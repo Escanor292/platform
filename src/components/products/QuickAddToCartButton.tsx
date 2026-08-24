@@ -10,6 +10,8 @@ interface QuickAddToCartButtonProps {
   image?: string;
   price: number;
   campaignId?: string | null;
+  isPreorder?: boolean;
+  deliveryDate?: string | Date | null;
   className?: string;
 }
 
@@ -23,6 +25,8 @@ export default function QuickAddToCartButton({
   image = "",
   price,
   campaignId,
+  isPreorder = false,
+  deliveryDate,
   className = "",
 }: QuickAddToCartButtonProps) {
   const { addItem, items } = useCart();
@@ -32,12 +36,15 @@ export default function QuickAddToCartButton({
   const handleAdd = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
+    const normalizedDeliveryDate = deliveryDate ? new Date(deliveryDate).toISOString() : null;
     addItem({
       id: rewardId,
       title,
       image,
       price,
       campaignId: campaignId || null,
+      isPreorder,
+      deliveryDate: normalizedDeliveryDate,
     });
     setAdded(true);
     window.setTimeout(() => setAdded(false), 1400);

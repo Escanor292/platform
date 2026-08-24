@@ -57,7 +57,7 @@ export async function GET(_request: Request, context: { params: Promise<{ type: 
             imageUrl: true, images: true, videoUrl: true, category: true, tags: true, type: true,
             goalAmount: true, currentAmount: true, status: true, startDate: true, endDate: true, createdAt: true,
             users: { select: publicUserSelect },
-            rewards: { where: { isActive: true }, orderBy: { minAmount: "asc" }, select: { id: true, title: true, description: true, minAmount: true, maxAmount: true, stock: true, productImages: true, productVideo: true, maxQuantity: true, deliveryDate: true } },
+            rewards: { where: { isActive: true }, orderBy: { minAmount: "asc" }, select: { id: true, title: true, description: true, minAmount: true, maxAmount: true, stock: true, productImages: true, productVideo: true, maxQuantity: true, deliveryDate: true, isPreorder: true } },
             _count: { select: { pledges: true, campaign_followers: true } },
           },
         });
@@ -67,7 +67,7 @@ export async function GET(_request: Request, context: { params: Promise<{ type: 
       case "product": {
         const reward = await prisma.rewards.findFirst({
           where: { id, isActive: true },
-          select: { id: true, title: true, description: true, minAmount: true, maxAmount: true, stock: true, productImages: true, productVideo: true, maxQuantity: true, deliveryDate: true, createdAt: true, campaigns: { select: { id: true, slug: true, title: true, status: true } }, projects: { select: { id: true, slug: true, title: true } } },
+          select: { id: true, title: true, description: true, minAmount: true, maxAmount: true, stock: true, productImages: true, productVideo: true, maxQuantity: true, deliveryDate: true, isPreorder: true, createdAt: true, campaigns: { select: { id: true, slug: true, title: true, status: true } }, projects: { select: { id: true, slug: true, title: true } } },
         });
         if (!reward) return notFound();
         return NextResponse.json({ type, data: { ...reward, minAmount: Number(reward.minAmount), maxAmount: reward.maxAmount === null ? null : Number(reward.maxAmount) } }, { headers: responseHeaders });

@@ -15,6 +15,8 @@ interface AddToCartButtonProps {
   contactUserId: string;
   ownerName: string;
   campaignId?: string | null;
+  isPreorder?: boolean;
+  deliveryDate?: string | null;
   /** Giá gốc bị gạch (nếu có khuyến mãi) */
   originalPrice?: number;
   className?: string;
@@ -34,12 +36,16 @@ export function AddToCartButton({
   contactUserId,
   ownerName,
   campaignId,
+  isPreorder = false,
+  deliveryDate,
   originalPrice,
   className = "",
 }: AddToCartButtonProps) {
   const { addItem, items } = useCart();
   const [added, setAdded] = useState(false);
-  const hasStock = !!stock && stock > 0;
+  const hasStock = isPreorder
+    ? (stock === null || stock === undefined || stock > 0)
+    : !!stock && stock > 0;
 
   if (!hasStock) {
     return (
@@ -54,13 +60,23 @@ export function AddToCartButton({
         rewardOriginalPrice={
           originalPrice ? `${originalPrice.toLocaleString("vi-VN")}đ` : undefined
         }
+        rewardIsPreorder={isPreorder}
+        rewardDeliveryDate={deliveryDate}
         className={`flex-1 ${className}`}
       />
     );
   }
 
   const handleAdd = () => {
-    addItem({ id: rewardId, title, image, price, campaignId: campaignId || null });
+    addItem({
+      id: rewardId,
+      title,
+      image,
+      price,
+      campaignId: campaignId || null,
+      isPreorder,
+      deliveryDate: deliveryDate || null,
+    });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };

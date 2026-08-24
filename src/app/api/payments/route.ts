@@ -73,6 +73,7 @@ export async function POST(request: NextRequest) {
             maxQuantity: true,
             stock: true,
             availability: true,
+            isPreorder: true,
             fulfillmentType: true,
           },
         })
@@ -102,7 +103,7 @@ export async function POST(request: NextRequest) {
       if (reward.fulfillmentType !== "PHYSICAL" && !["EMAIL", "DOWNLOAD"].includes(shippingMethod)) {
         return NextResponse.json({ error: "Tài sản số cần chọn phương thức nhận qua email hoặc kho đã mua" }, { status: 400 });
       }
-      if (paymentMethod === "COD" && (reward.availability !== "AVAILABLE" || reward.fulfillmentType !== "PHYSICAL")) {
+      if (paymentMethod === "COD" && (reward.availability !== "AVAILABLE" || reward.isPreorder || reward.fulfillmentType !== "PHYSICAL")) {
         return NextResponse.json({ error: "Thanh toán khi nhận hàng chỉ áp dụng cho sản phẩm vật lý có sẵn" }, { status: 400 });
       }
       if (reward.stock !== null && reward.stock < quantity) {
@@ -139,7 +140,7 @@ export async function POST(request: NextRequest) {
       }, { status: 503 });
     }
 
-    const isReadyProduct = reward?.availability === "AVAILABLE";
+    const isReadyProduct = reward?.availability === "AVAILABLE" && !reward.isPreorder;
     const baseAmount = reward ? amount * quantity : amount;
     const tipPercent = !isReadyProduct && paymentMethod === "ONLINE"
       ? Math.min(Math.max(Number.isFinite(platformTipPercent) ? platformTipPercent : 0, 0), MAX_TIP_PERCENT)
@@ -162,7 +163,7 @@ export async function POST(request: NextRequest) {
       try {
         const pledge = await prisma.$transaction(async (tx) => {
           if (!reward) {
-            throw new Error("COD chỉ áp dụng cho sản phẩm có sẵn");
+            throw new Error("COD chỉ áp dụng cho sản phẩm vật lý có sẵn, không áp dụng cho hàng đặt trước");
           }
           if (reward.stock !== null) {
             const stockUpdate = await tx.rewards.updateMany({
