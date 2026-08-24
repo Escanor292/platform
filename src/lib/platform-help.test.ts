@@ -1,6 +1,17 @@
 import { getPlatformHelpAnswer } from "./platform-help";
 
 describe("getPlatformHelpAnswer", () => {
+  it("chào lại lời chào ngắn bằng câu tự nhiên", () => {
+    expect(getPlatformHelpAnswer("hello").content).toMatch(/^Chào bạn!/);
+    expect(getPlatformHelpAnswer("xin chào").content).not.toMatch(/tôi chỉ có thể|tôi có thể/i);
+  });
+
+  it("không dùng fallback dạng menu cứng nhắc cho câu hỏi chung", () => {
+    const answer = getPlatformHelpAnswer("mình muốn tìm hiểu thêm");
+    expect(answer.content).not.toMatch(/tôi có thể chỉ bạn/i);
+    expect(answer.content).toMatch(/nền tảng/i);
+  });
+
   it("routes feature questions to the intended public page", () => {
     expect(getPlatformHelpAnswer("Tôi muốn tạo chiến dịch").action).toEqual({ label: "Tạo chiến dịch", href: "/campaigns/create" });
     expect(getPlatformHelpAnswer("Tôi cần tra cứu mã chiến dịch").action).toEqual({ label: "Mở Tra cứu", href: "/lookup" });
@@ -15,7 +26,7 @@ describe("getPlatformHelpAnswer", () => {
   it("hướng dẫn người dùng mở trang sản phẩm khi hỏi đánh giá ngoài ngữ cảnh sản phẩm", () => {
     const answer = getPlatformHelpAnswer("Sản phẩm có bình luận hay đánh giá như thế nào?");
     expect(answer.action).toEqual({ label: "Khám phá sản phẩm", href: "/products" });
-    expect(answer.content).toMatch(/tổng hợp số sao/i);
+    expect(answer.content).toMatch(/tóm tắt số sao/i);
   });
 
   it("uses only supplied session evidence when a user asks to recall earlier context", () => {

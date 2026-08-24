@@ -32,7 +32,7 @@ export default function PlatformHelpAssistant() {
   const greeting = useMemo<HelpMessage>(() => ({
     id: "support-welcome",
     role: "assistant",
-    content: memoryTraces.filter(trace => trace.role === "user").length ? "Chào bạn, tôi có thể tiếp tục phần hướng dẫn trong phiên này. Bộ nhớ Zero-Mem chỉ lưu cục bộ theo phiên và có thể xóa bất cứ lúc nào." : "Chào bạn, tôi có thể hướng dẫn cách dùng nền tảng, tìm chức năng, tra cứu thông tin và xem các chính sách công khai.",
+    content: memoryTraces.filter(trace => trace.role === "user").length ? "Chào bạn! Mình vẫn nhớ mạch trao đổi trong phiên này. Bạn muốn tiếp tục từ câu hỏi trước hay tìm một nội dung khác?" : "Chào bạn! Bạn đang muốn tìm hiểu điều gì trên nền tảng?",
   }), [memoryTraces]);
 
   useEffect(() => {
