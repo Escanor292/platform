@@ -138,6 +138,7 @@ export default function CampaignTabsWrapper({
                             <div className="lg:sticky lg:top-32 space-y-6">
                                 {/* Rewards Section */}
                                 <CampaignRewards
+                                    campaignId={campaign.id}
                                     rewards={campaign.rewards || []}
                                 />
                             </div>

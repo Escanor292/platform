@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from "react";
 import { formatVND } from "@/lib/utils";
-import { Gift, Users, Clock, PlayCircle } from "lucide-react";
+import { Gift, Users, Clock, PlayCircle, ShoppingCart, Check } from "lucide-react";
 import { useCampaignContext } from "@/contexts/CampaignContext";
+import { useCart } from "@/components/products/CartProvider";
 import { useRouter } from "next/navigation";
 
 interface Reward {
@@ -18,16 +20,20 @@ interface Reward {
 }
 
 interface CampaignRewardsProps {
+    campaignId: string;
     rewards: Reward[];
     selectedRewardId?: string;
 }
 
 export default function CampaignRewards({
+    campaignId,
     rewards,
     selectedRewardId
 }: CampaignRewardsProps) {
     const { openRewardDonation } = useCampaignContext();
+    const { addItem } = useCart();
     const router = useRouter();
+    const [addedRewardId, setAddedRewardId] = useState<string | null>(null);
     if (!rewards || rewards.length === 0) {
         return (
             <div className="bg-white border border-gray-200 rounded-lg p-6">
@@ -137,29 +143,63 @@ export default function CampaignRewards({
                                     </h4>
                                 </div>
 
-                                {/* CTA Button for Reward */}
-                                <button
-                                    type="button"
-                                    className={`
-                                        shrink-0
-                                        inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold shadow-sm transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-pgreen focus-visible:ring-offset-2
-                                        ${!isAvailable
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60'
-                                            : 'gradient-green text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-green-200'
-                                        }
-                                    `}
-                                    onClick={(e) => {
-                                        // The card opens details; only this button opens the payment modal.
-                                        e.stopPropagation();
-                                        if (isAvailable) {
-                                            openRewardDonation(reward);
-                                        }
-                                    }}
-                                    disabled={!isAvailable}
-                                >
-                                    {isAvailable && <Gift className="h-4 w-4" />}
-                                    {!isAvailable ? 'Hết suất' : 'Ủng hộ nhận quà'}
-                                </button>
+                                {/* CTA buttons for Reward */}
+                                <div className="shrink-0 flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        className={`
+                                            inline-flex h-12 w-12 items-center justify-center rounded-2xl border text-sm font-bold shadow-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-pgreen focus-visible:ring-offset-2 active:scale-95
+                                            ${!isAvailable
+                                                ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed opacity-60'
+                                                : addedRewardId === reward.id
+                                                    ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                                                    : 'border-emerald-200 bg-white text-emerald-700 hover:-translate-y-0.5 hover:border-emerald-400 hover:bg-emerald-50 hover:shadow-md'
+                                            }
+                                        `}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (!isAvailable) return;
+                                            addItem({
+                                                id: reward.id,
+                                                title: reward.title,
+                                                image: previewImage || '',
+                                                price: reward.minAmount,
+                                                campaignId,
+                                            });
+                                            setAddedRewardId(reward.id);
+                                            window.setTimeout(() => {
+                                                setAddedRewardId((current) => current === reward.id ? null : current);
+                                            }, 1400);
+                                        }}
+                                        disabled={!isAvailable}
+                                        aria-label={addedRewardId === reward.id ? `Đã thêm ${reward.title} vào giỏ hàng` : `Thêm ${reward.title} vào giỏ hàng`}
+                                        title={addedRewardId === reward.id ? 'Đã thêm vào giỏ hàng' : 'Thêm vào giỏ hàng'}
+                                    >
+                                        {addedRewardId === reward.id ? <Check className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className={`
+                                            inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold shadow-sm transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-pgreen focus-visible:ring-offset-2
+                                            ${!isAvailable
+                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60'
+                                                : 'gradient-green text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-green-200'
+                                            }
+                                        `}
+                                        onClick={(e) => {
+                                            // The card opens details; only this button opens the payment modal.
+                                            e.stopPropagation();
+                                            if (isAvailable) {
+                                                openRewardDonation(reward);
+                                            }
+                                        }}
+                                        disabled={!isAvailable}
+                                    >
+                                        {isAvailable && <Gift className="h-4 w-4" />}
+                                        {!isAvailable ? 'Hết suất' : 'Ủng hộ nhận quà'}
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Reward Description */}
