@@ -14,6 +14,7 @@ export function getPlatformHelpAnswer(question: string, evidence: EvidenceSnippe
     const previousQuestion = evidence.find(item => item.role === "user");
     return previousQuestion ? { content: `Trong phiên này, tôi tìm thấy ngữ cảnh gần nhất: “${previousQuestion.text}”. Tôi có thể tiếp tục hướng dẫn từ nội dung đó.` } : { content: "Tôi chưa có ngữ cảnh trợ giúp phù hợp trong phiên này. Bạn có thể nói lại điều bạn muốn thực hiện trên nền tảng." };
   }
+  if (/(đánh giá|review|bình luận|nhận xét|phản hồi)/.test(input)) return { content: "Trên trang sản phẩm, tôi có thể đọc dữ liệu đánh giá công khai và tổng hợp số sao, số bình luận cùng xu hướng phản hồi. Hãy mở sản phẩm bạn muốn xem rồi hỏi lại.", action: { label: "Khám phá sản phẩm", href: "/products" } };
   if (/(tạo.*chiến dịch|gây quỹ|khởi tạo.*quỹ|bắt đầu.*quỹ)/.test(input)) return { content: "Bạn có thể bắt đầu gây quỹ từ trang tạo chiến dịch. Chuẩn bị mục tiêu, câu chuyện, hình ảnh và thông tin minh bạch trước khi gửi.", action: { label: "Tạo chiến dịch", href: "/campaigns/create" } };
   if (/(tìm.*chiến dịch|khám phá.*chiến dịch|ủng hộ.*chiến dịch)/.test(input)) return { content: "Mục Chiến dịch giúp bạn khám phá các lời kêu gọi đang công khai và xem chi tiết trước khi ủng hộ.", action: { label: "Khám phá chiến dịch", href: "/campaigns" } };
   if (/(dự án|project)/.test(input)) return { content: "Mục Dự án tập hợp các hoạt động và nội dung có liên quan. Bạn có thể mở từng dự án để xem chiến dịch, bài viết và sản phẩm công khai.", action: { label: "Xem dự án", href: "/projects" } };

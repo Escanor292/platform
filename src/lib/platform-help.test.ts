@@ -12,6 +12,12 @@ describe("getPlatformHelpAnswer", () => {
     expect(answer.content).toMatch(/không yêu cầu mật khẩu/i);
   });
 
+  it("hướng dẫn người dùng mở trang sản phẩm khi hỏi đánh giá ngoài ngữ cảnh sản phẩm", () => {
+    const answer = getPlatformHelpAnswer("Sản phẩm có bình luận hay đánh giá như thế nào?");
+    expect(answer.action).toEqual({ label: "Khám phá sản phẩm", href: "/products" });
+    expect(answer.content).toMatch(/tổng hợp số sao/i);
+  });
+
   it("uses only supplied session evidence when a user asks to recall earlier context", () => {
     const answer = getPlatformHelpAnswer("Nhắc lại điều tôi vừa hỏi", [{ role: "user", text: "Tôi muốn tạo chiến dịch" }]);
     expect(answer.content).toContain("Tôi muốn tạo chiến dịch");
