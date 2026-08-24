@@ -190,6 +190,9 @@ export function getPublicProfileCustomization(config: ProfileCustomizationConfig
 
 export function getProfileThemeStyle(config: ProfileCustomizationConfig) {
   const { theme } = config;
+  const rgb = theme.primary.slice(1).match(/.{2}/g)?.map((value) => parseInt(value, 16)) ?? [15, 118, 110];
+  const luminance = (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / 255;
+  const contrastText = luminance > 0.62 ? "#091428" : "#ffffff";
   return {
     "--profile-primary": theme.primary,
     "--profile-secondary": theme.secondary,
@@ -197,6 +200,7 @@ export function getProfileThemeStyle(config: ProfileCustomizationConfig) {
     "--profile-surface": theme.surface,
     "--profile-text": theme.text,
     "--profile-muted": theme.muted,
+    "--profile-contrast": contrastText,
     "--profile-gradient": `linear-gradient(${theme.gradientAngle}deg, ${theme.gradientColors.join(", ")})`,
     "--profile-radius": theme.radius === "pill" ? "999px" : theme.radius === "soft" ? "1rem" : "2rem",
   } as React.CSSProperties;

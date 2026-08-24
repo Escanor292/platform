@@ -8,6 +8,7 @@ import { Providers } from "@/components/shared/Providers";
 import { CartProvider } from "@/components/products/CartProvider";
 import QuickPageAssistant from "@/components/public/QuickPageAssistant";
 import PlatformHelpAssistant from "@/components/public/PlatformHelpAssistant";
+import ProfileThemeShell from "@/components/profile/ProfileThemeShell";
 import { Toaster } from "sonner";
 
 const playfair = Playfair_Display({
@@ -55,16 +56,18 @@ export default function RootLayout({
         <Providers>
           <CartProvider>
           <Toaster position="top-center" richColors theme="light" />
-          <div className="flex flex-col min-h-screen pb-16 md:pb-0">
-            <NavbarNew />
-            <main className="flex-grow">
-              {children}
-            </main>
-            <FooterNew />
-            <MobileBottomNav />
-            <QuickPageAssistant />
-            <PlatformHelpAssistant />
-          </div>
+          <ProfileThemeShell>
+            <div className="flex min-h-screen flex-col pb-16 md:pb-0">
+              <NavbarNew />
+              <main className="flex-grow">
+                {children}
+              </main>
+              <FooterNew />
+              <MobileBottomNav />
+              <QuickPageAssistant />
+              <PlatformHelpAssistant />
+            </div>
+          </ProfileThemeShell>
           </CartProvider>
         </Providers>
       </body>

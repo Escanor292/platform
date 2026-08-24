@@ -40,7 +40,7 @@ export default function MobileBottomNav() {
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-t border-gray-200 pb-safe">
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white/80 pb-safe backdrop-blur-md transition-colors duration-300 md:hidden" style={{ backgroundColor: "color-mix(in srgb, var(--profile-shell-surface, #ffffff) 92%, transparent)", borderColor: "color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 14%, transparent)" }}>
       <div className="flex justify-around items-center h-16">
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));

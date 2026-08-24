@@ -102,7 +102,7 @@ export default function NavbarNew() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 glass border-b border-white/30">
+    <nav className="sticky top-0 z-50 glass border-b border-white/30 transition-colors duration-300" style={{ backgroundColor: "color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 7%, var(--profile-shell-surface, #ffffff) 93%)", borderColor: "color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 18%, transparent)", boxShadow: "0 6px 24px color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 9%, transparent)" }}>
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 cursor-pointer group">
@@ -177,7 +177,7 @@ export default function NavbarNew() {
               {(user?.role === "CREATOR" || user?.role === "ADMIN" || isAdmin) && (
                 <Link
                   href="/campaigns/create"
-                  className="text-sm font-semibold px-5 py-2.5 rounded-full gradient-green text-white hover:shadow-lg hover:shadow-green-200 transition-all"
+                  className="rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-green-200" style={{ background: "var(--profile-gradient, linear-gradient(135deg, #2E8B57, #6BCB77))" }}
                 >
                   Gây quỹ ngay
                 </Link>
@@ -191,7 +191,7 @@ export default function NavbarNew() {
                   aria-label="Mở menu tài khoản"
                   className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded-xl transition focus-ring"
                 >
-                  <div className="w-9 h-9 rounded-full bg-pgreen/10 border border-pgreen/20 flex items-center justify-center text-pgreen font-bold overflow-hidden">
+                  <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border font-bold" style={{ backgroundColor: "color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 10%, transparent)", borderColor: "color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 22%, transparent)", color: "var(--profile-shell-primary, #2E8B57)" }}>
                     {session.user?.image ? (
                       <img src={session.user.image} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
@@ -311,7 +311,7 @@ export default function NavbarNew() {
               </Link>
               <Link
                 href="/campaigns/create"
-                className="text-sm font-semibold px-5 py-2.5 rounded-full gradient-green text-white hover:shadow-lg hover:shadow-green-200 transition-all"
+                className="rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-green-200" style={{ background: "var(--profile-gradient, linear-gradient(135deg, #2E8B57, #6BCB77))" }}
               >
                 Gây quỹ ngay
               </Link>
