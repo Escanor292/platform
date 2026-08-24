@@ -244,6 +244,7 @@ export default async function ProductDetailPage({
                     campaignId={campaign.id}
                     isPreorder={reward.isPreorder}
                     deliveryDate={reward.deliveryDate?.toISOString() || null}
+                    className="h-12 w-12 rounded-2xl"
                   />
                   <CampaignRewardDonationButton
                     campaignId={campaign.id}
@@ -425,7 +426,21 @@ export default async function ProductDetailPage({
               )}
 
               {/* Actions */}
-              <div className="flex flex-wrap gap-3 mt-auto">
+              <div className="flex flex-wrap items-center gap-3 mt-auto">
+                <AddToCartButton
+                  rewardId={reward.id}
+                  title={reward.title}
+                  image={images[0] || ''}
+                  price={Number(reward.minAmount)}
+                  originalPrice={reward.maxAmount ? Number(reward.maxAmount) : undefined}
+                  stock={reward.stock}
+                  isPreorder={reward.isPreorder}
+                  deliveryDate={reward.deliveryDate?.toISOString() || null}
+                  contactUserId={contactUserId}
+                  ownerName={campaign?.users?.name || 'Nhà sáng tạo'}
+                  campaignId={campaign?.id}
+                  compact
+                />
                 <ProductPurchaseButton
                   rewardId={reward.id}
                   title={reward.title}
@@ -438,19 +453,6 @@ export default async function ProductDetailPage({
                   onlineDepositPercent={reward.onlineDepositPercent}
                   codDepositPercent={reward.codDepositPercent}
                   fulfillmentType={reward.fulfillmentType}
-                  campaignId={campaign?.id}
-                />
-                <AddToCartButton
-                  rewardId={reward.id}
-                  title={reward.title}
-                  image={images[0] || ''}
-                  price={Number(reward.minAmount)}
-                  originalPrice={reward.maxAmount ? Number(reward.maxAmount) : undefined}
-                  stock={reward.stock}
-                  isPreorder={reward.isPreorder}
-                  deliveryDate={reward.deliveryDate?.toISOString() || null}
-                  contactUserId={contactUserId}
-                  ownerName={campaign?.users?.name || 'Nhà sáng tạo'}
                   campaignId={campaign?.id}
                 />
                 <button
