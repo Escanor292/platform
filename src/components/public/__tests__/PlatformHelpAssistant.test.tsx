@@ -12,6 +12,8 @@ describe("PlatformHelpAssistant", () => {
     fireEvent.click(screen.getByRole("button", { name: "Mở trợ lý nền tảng" }));
 
     expect(screen.getByRole("region", { name: "Trợ lý hướng dẫn nền tảng" })).toBeInTheDocument();
+    expect(screen.getByText("Hướng dẫn công khai")).toBeInTheDocument();
+    expect(screen.queryByText("Hướng dẫn công khai · Zero-Mem cục bộ")).not.toBeInTheDocument();
     expect(screen.queryByText(/Bộ nhớ Zero-Mem chỉ lưu trên thiết bị trong phiên này/i)).not.toBeInTheDocument();
     expect(screen.getByText(/Đồng ý chia sẻ số liệu lỗi ẩn danh/i)).toBeInTheDocument();
   });
