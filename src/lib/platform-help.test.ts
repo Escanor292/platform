@@ -6,6 +6,13 @@ describe("getPlatformHelpAnswer", () => {
     expect(getPlatformHelpAnswer("xin chào").content).not.toMatch(/tôi chỉ có thể|tôi có thể/i);
   });
 
+  it("phản hồi tự nhiên các câu xã giao cơ bản", () => {
+    expect(getPlatformHelpAnswer("cảm ơn").content).toMatch(/Không có gì/i);
+    expect(getPlatformHelpAnswer("xin lỗi").content).toMatch(/Không sao/i);
+    expect(getPlatformHelpAnswer("tạm biệt").content).toMatch(/Tạm biệt/i);
+    expect(getPlatformHelpAnswer("chúc bạn một ngày tốt lành").content).toMatch(/Chúc bạn cũng/i);
+  });
+
   it("không dùng fallback dạng menu cứng nhắc cho câu hỏi chung", () => {
     const answer = getPlatformHelpAnswer("mình muốn tìm hiểu thêm");
     expect(answer.content).not.toMatch(/tôi có thể chỉ bạn/i);

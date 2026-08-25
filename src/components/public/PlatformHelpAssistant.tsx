@@ -6,6 +6,7 @@ import { isCommandLikeRequest } from "@/lib/assistant-safety";
 import { getAssistantTelemetryConsent, recordAssistantTelemetry, setAssistantTelemetryConsent } from "@/lib/assistant-telemetry";
 import { getPlatformHelpAnswer, type PlatformHelpAnswer } from "@/lib/platform-help";
 import { isProductReviewQuestion, rewardIdFromProductPath, summarizePublicProductReviews, type PublicProductReview } from "@/lib/public-product-review-summary";
+import { isPublicPageSummaryQuestion, publicPageContextFromPath, publicSummaryEndpoint, summarizePublicPage, supplementalSummaryEndpoints, type SupplementalPublicData } from "@/lib/public-page-summary";
 import { appendZeroMemTrace, clearZeroMemTraces, isZeroMemSensitive, loadZeroMemTraces, retrieveZeroMemEvidence, type ZeroMemTrace } from "@/lib/zero-mem";
 
 type HelpMessage = {
@@ -23,6 +24,7 @@ export default function PlatformHelpAssistant() {
   const [messages, setMessages] = useState<HelpMessage[]>([]);
   const [memoryTraces, setMemoryTraces] = useState<ZeroMemTrace[]>([]);
   const [telemetryEnabled, setTelemetryEnabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setMemoryTraces(loadZeroMemTraces(HELP_SESSION_ID));
@@ -48,14 +50,39 @@ export default function PlatformHelpAssistant() {
     const evidence = retrieveZeroMemEvidence(question, memoryTraces);
     let answer: PlatformHelpAnswer;
     let answerFailed = false;
+    let dataRequestContext = "dữ liệu công khai của trang này";
+    setIsLoading(true);
     try {
       if (isSensitive) {
         answer = { content: "Vì an toàn, tôi không lưu hoặc xử lý mật khẩu, mã xác thực, dữ liệu thẻ hay token. Vui lòng không gửi các thông tin này qua chat." };
       } else if (isCommand) {
         answer = getPlatformHelpAnswer(question, evidence);
       } else {
-        const rewardId = rewardIdFromProductPath(window.location.pathname);
-        if (rewardId && isProductReviewQuestion(question)) {
+        const pageContext = publicPageContextFromPath(window.location.pathname);
+        if (pageContext && isPublicPageSummaryQuestion(question)) {
+          dataRequestContext = `dữ liệu tóm tắt công khai của ${pageContext.type}`;
+          const response = await fetch(publicSummaryEndpoint(pageContext), { cache: "no-store" });
+          const payload = await response.json();
+          if (!response.ok || !payload?.data) throw new Error(payload?.error || "Không thể tải dữ liệu công khai");
+          const endpoints = supplementalSummaryEndpoints(pageContext);
+          const extra: SupplementalPublicData = {};
+          const entries = await Promise.all(Object.entries(endpoints).map(async ([key, endpoint]) => {
+            try {
+              const supplementalResponse = await fetch(endpoint, { cache: "no-store" });
+              if (!supplementalResponse.ok) return [key, []] as const;
+              const supplementalPayload = await supplementalResponse.json();
+              const list = Array.isArray(supplementalPayload) ? supplementalPayload : Array.isArray(supplementalPayload?.data) ? supplementalPayload.data : [];
+              return [key, list] as const;
+            } catch {
+              return [key, []] as const;
+            }
+          }));
+          for (const [key, value] of entries) (extra as Record<string, unknown>)[key] = value;
+          answer = { content: summarizePublicPage(pageContext.type, payload.data, extra) };
+        } else {
+          const rewardId = rewardIdFromProductPath(window.location.pathname);
+          if (rewardId && isProductReviewQuestion(question)) {
+          dataRequestContext = "đánh giá công khai của sản phẩm";
           const response = await fetch(`/api/products/${encodeURIComponent(rewardId)}/reviews`, { cache: "no-store" });
           const data = await response.json();
           if (!response.ok || !Array.isArray(data.reviews)) throw new Error(data.error || "Không thể tải đánh giá sản phẩm");
@@ -63,14 +90,17 @@ export default function PlatformHelpAssistant() {
             const item = review as { id?: unknown; rating?: unknown; comment?: unknown };
             return { id: typeof item.id === "string" ? item.id : "", rating: typeof item.rating === "number" ? item.rating : Number.NaN, comment: typeof item.comment === "string" ? item.comment : null };
           });
-          answer = { content: summarizePublicProductReviews(reviews) };
-        } else {
-          answer = getPlatformHelpAnswer(question, evidence);
+            answer = { content: summarizePublicProductReviews(reviews) };
+          } else {
+            answer = getPlatformHelpAnswer(question, evidence);
+          }
         }
       }
     } catch {
       answerFailed = true;
-      answer = { content: "Trợ lý chưa thể tải dữ liệu đánh giá công khai ở thời điểm này. Bạn có thể thử lại hoặc xem trực tiếp phần đánh giá của sản phẩm." };
+      answer = { content: `Mình chưa tải được ${dataRequestContext} lúc này. Bạn thử lại sau một chút nhé.` };
+    } finally {
+      setIsLoading(false);
     }
     const now = Date.now();
     setMessages(current => [...current, { id: `support-user-${now}`, role: "user", content: question }, { id: `support-answer-${now}`, role: "assistant", ...answer }]);
@@ -115,10 +145,11 @@ export default function PlatformHelpAssistant() {
         <div className="flex min-w-0 items-center gap-2"><span className="relative grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-emerald-600 to-lime-500 text-white"><Bot size={16} /><Leaf className="absolute -right-1 -bottom-1 h-3.5 w-3.5 rounded-full bg-white p-0.5 text-emerald-600" /></span><div className="min-w-0"><p className="text-sm font-bold text-slate-900">Trợ lý nền tảng</p><p className="truncate text-xs text-slate-500">Hướng dẫn công khai</p></div></div>
         <div className="flex items-center gap-1"><button type="button" onClick={clearMemory} aria-label="Xóa bộ nhớ Zero-Mem của phiên" className="grid h-8 w-8 place-items-center rounded-full text-slate-500 transition hover:bg-white hover:text-rose-600"><Trash2 size={15} /></button><button type="button" onClick={() => setOpen(false)} aria-label="Đóng trợ lý nền tảng" className="grid h-8 w-8 place-items-center rounded-full text-slate-500 transition hover:bg-white hover:text-slate-900"><X size={18} /></button></div>
       </header>
-      <div className="flex-1 space-y-3 overflow-y-auto bg-slate-50/70 p-3">
+      <div className="flex-1 space-y-3 overflow-y-auto bg-slate-50/70 p-3" aria-busy={isLoading}>
+        {isLoading && <div role="status" className="mr-5 rounded-2xl rounded-bl-md bg-white px-3 py-2 text-sm text-slate-500 shadow-sm ring-1 ring-slate-100">Mình đang đọc thông tin công khai trên trang này…</div>}
         {messages.map(message => <div key={message.id} className={message.role === "user" ? "ml-10 rounded-2xl rounded-br-md bg-slate-800 px-3 py-2 text-sm leading-relaxed text-white" : "mr-5 rounded-2xl rounded-bl-md bg-white px-3 py-2 text-sm leading-relaxed text-slate-700 shadow-sm ring-1 ring-slate-100"}><p>{message.content}</p>{message.action && <a href={message.action.href} className="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-100">{message.action.label} <span aria-hidden>→</span></a>}</div>)}
       </div>
-      <div className="border-t border-slate-100 bg-white p-3"><label className="mb-2 flex cursor-pointer items-start gap-2 rounded-lg bg-slate-50 px-2 py-1.5 text-[11px] leading-relaxed text-slate-500"><input type="checkbox" checked={telemetryEnabled} onChange={event => updateTelemetryConsent(event.target.checked)} className="mt-0.5 accent-emerald-600" /><span>Đồng ý chia sẻ số liệu lỗi ẩn danh để cải thiện trợ lý. Không gửi nội dung chat, dữ liệu nhận diện hoặc bộ nhớ Zero-Mem.</span></label><div className="mb-2 flex gap-2 overflow-x-auto pb-1"><button type="button" onClick={() => selectPrompt("Tôi muốn tạo chiến dịch") } className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">Tạo chiến dịch</button><button type="button" onClick={() => selectPrompt("Chính sách bảo mật là gì?") } className="shrink-0 rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600">Chính sách</button><button type="button" onClick={() => selectPrompt("Tôi cần tra cứu thông tin") } className="shrink-0 rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600">Tra cứu</button></div><form onSubmit={submit} className="flex items-center gap-2"><input id="platform-help-input" value={draft} onChange={event => setDraft(event.target.value)} placeholder="Hỏi cách dùng nền tảng…" className="min-w-0 flex-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100" /><button type="submit" disabled={!draft.trim()} aria-label="Gửi câu hỏi hỗ trợ" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-emerald-600 text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-200"><Send size={16} /></button></form></div>
+      <div className="border-t border-slate-100 bg-white p-3"><label className="mb-2 flex cursor-pointer items-start gap-2 rounded-lg bg-slate-50 px-2 py-1.5 text-[11px] leading-relaxed text-slate-500"><input type="checkbox" checked={telemetryEnabled} onChange={event => updateTelemetryConsent(event.target.checked)} className="mt-0.5 accent-emerald-600" /><span>Đồng ý chia sẻ số liệu lỗi ẩn danh để cải thiện trợ lý. Không gửi nội dung chat, dữ liệu nhận diện hoặc bộ nhớ Zero-Mem.</span></label><div className="mb-2 flex gap-2 overflow-x-auto pb-1"><button type="button" onClick={() => selectPrompt("Tôi muốn tạo chiến dịch") } className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">Tạo chiến dịch</button><button type="button" onClick={() => selectPrompt("Chính sách bảo mật là gì?") } className="shrink-0 rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600">Chính sách</button><button type="button" onClick={() => selectPrompt("Tôi cần tra cứu thông tin") } className="shrink-0 rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600">Tra cứu</button></div><form onSubmit={submit} className="flex items-center gap-2"><input id="platform-help-input" value={draft} onChange={event => setDraft(event.target.value)} disabled={isLoading} placeholder="Hỏi cách dùng nền tảng…" className="min-w-0 flex-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100" /><button type="submit" disabled={!draft.trim() || isLoading} aria-label="Gửi câu hỏi hỗ trợ" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-emerald-600 text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-200"><Send size={16} /></button></form></div>
     </section>}
     <button type="button" onClick={togglePanel} aria-expanded={open} aria-label={open ? "Thu gọn trợ lý nền tảng" : "Mở trợ lý nền tảng"} className="group grid h-14 w-14 place-items-center rounded-2xl border border-emerald-200 bg-white text-slate-900 shadow-[0_8px_24px_rgba(15,23,42,0.18)] transition hover:-translate-y-0.5 hover:border-emerald-400 hover:bg-emerald-50 focus:outline-none focus:ring-4 focus:ring-emerald-200"><span className="absolute -top-8 right-0 hidden whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-xs font-medium text-white group-hover:block">Hướng dẫn sử dụng</span>{open ? <ChevronDown size={23} /> : <span className="relative"><Bot size={24} className="text-emerald-600" /><Leaf className="absolute -right-2 -bottom-1 h-3.5 w-3.5 rounded-full bg-white p-0.5 text-lime-600" /></span>}</button>
   </div>;

@@ -14,10 +14,14 @@ export function isGreeting(question: string) {
 export function getPlatformHelpAnswer(question: string, evidence: EvidenceSnippet[] = []): PlatformHelpAnswer {
   const input = question.toLocaleLowerCase("vi-VN").trim();
   if (isGreeting(question)) return { content: "Chào bạn! Hôm nay bạn muốn tìm hiểu điều gì trên nền tảng?" };
+  if (/^(?:cảm ơn|cam on|thanks|thank you|cám ơn)[!.,?\s]*$/iu.test(input)) return { content: "Không có gì nhé! Khi cần, bạn cứ hỏi mình." };
+  if (/^(?:xin lỗi|xin loi|sorry)[!.,?\s]*$/iu.test(input)) return { content: "Không sao đâu. Bạn cứ nói điều mình đang cần tìm hiểu nhé." };
+  if (/^(?:tạm biệt|tam biet|bye|goodbye|hẹn gặp lại)[!.,?\s]*$/iu.test(input)) return { content: "Tạm biệt bạn nhé! Chúc bạn một ngày thật thuận lợi." };
+  if (/(?:chúc|chuc).*(?:ngày|ngay|buổi|buoi).*(?:tốt|tot|vui|thuận lợi|thuan loi)/iu.test(input)) return { content: "Cảm ơn bạn! Chúc bạn cũng có một ngày thật vui và thuận lợi." };
   if (isCommandLikeRequest(question)) return { content: COMMAND_REFUSAL };
   if (/(nhắc lại|trước đó|vừa hỏi|tiếp tục|lần trước)/.test(input)) {
     const previousQuestion = evidence.find(item => item.role === "user");
-    return previousQuestion ? { content: `Trong phiên này, mình thấy bạn vừa hỏi: “${previousQuestion.text}”. Mình có thể nối tiếp từ đó nếu bạn muốn.` } : { content: "Mình chưa thấy câu hỏi trước phù hợp. Bạn nói lại điều muốn tìm hiểu nhé." };
+    return previousQuestion ? { content: `Trong phiên này, mình thấy bạn vừa hỏi: “${previousQuestion.text}”. Nếu muốn, bạn cứ nói tiếp từ câu hỏi đó nhé.` } : { content: "Mình chưa thấy câu hỏi trước phù hợp. Bạn nói lại điều muốn tìm hiểu nhé." };
   }
   if (/(đánh giá|review|bình luận|nhận xét|phản hồi)/.test(input)) return { content: "Mình có thể đọc các đánh giá công khai trên trang sản phẩm và tóm tắt số sao, số bình luận cùng xu hướng phản hồi. Bạn mở sản phẩm muốn xem rồi hỏi mình nhé.", action: { label: "Khám phá sản phẩm", href: "/products" } };
   if (/(tạo.*chiến dịch|gây quỹ|khởi tạo.*quỹ|bắt đầu.*quỹ)/.test(input)) return { content: "Bạn có thể bắt đầu gây quỹ từ trang tạo chiến dịch. Chuẩn bị mục tiêu, câu chuyện, hình ảnh và thông tin minh bạch trước khi gửi.", action: { label: "Tạo chiến dịch", href: "/campaigns/create" } };
