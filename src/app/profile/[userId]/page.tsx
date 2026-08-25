@@ -456,21 +456,6 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
           </section>
         )}
 
-        {isSectionVisible(profileConfig, "cta") && profileConfig.cta.enabled && (
-          <section className="flex flex-wrap items-center justify-between gap-4 p-6 text-white shadow-xl" style={{ borderRadius: "var(--profile-radius)", background: "var(--profile-gradient)" }}>
-            <div>
-              <div className="text-xl font-black">{profileConfig.cta.label}</div>
-              <div className="mt-1 text-sm text-white/80">Khám phá thêm nội dung và hoạt động của {user.name || "người dùng"}.</div>
-            </div>
-            <Link
-              href={profileConfig.cta.action === "projects" ? `/projects?creatorId=${encodeURIComponent(userId)}` : profileConfig.cta.action === "campaigns" ? `/campaigns?creatorId=${encodeURIComponent(userId)}` : profileConfig.cta.action === "products" ? `/profile/${encodeURIComponent(userId)}?tab=products` : profileConfig.cta.action === "blog" ? `/blog?authorId=${encodeURIComponent(userId)}` : `/chat?userId=${encodeURIComponent(userId)}`}
-              className="rounded-full bg-white px-5 py-3 text-sm font-black text-[var(--profile-primary)] shadow-lg transition hover:-translate-y-0.5"
-            >
-              Mở nội dung
-            </Link>
-          </section>
-        )}
-
         {/* Sidebar - Achievements */}
         {isSectionVisible(profileConfig, "achievements") && (isCreator || isBacker) && (
           <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-6">
