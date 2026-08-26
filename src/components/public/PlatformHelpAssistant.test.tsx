@@ -53,7 +53,7 @@ describe("PlatformHelpAssistant command safety", () => {
     const panel = screen.getByLabelText("Trợ lý hướng dẫn nền tảng");
     fireEvent.change(within(panel).getByPlaceholderText("Hỏi cách dùng nền tảng…"), { target: { value: "tóm tắt trang này" } });
     fireEvent.click(within(panel).getByRole("button", { name: "Gửi câu hỏi hỗ trợ" }));
-    expect(await within(panel).findByText(/chưa tải được dữ liệu tóm tắt công khai của project/i)).toBeInTheDocument();
+    expect(await within(panel).findByText(/chưa tải được thông tin công khai của project/i)).toBeInTheDocument();
     fetchMock.mockRestore();
     window.history.pushState({}, "", "/");
   });
