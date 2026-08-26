@@ -22,9 +22,11 @@ describe("PlatformHelpAssistant", () => {
 
   it("tổng hợp review công khai khi người dùng hỏi trên trang sản phẩm", async () => {
     window.history.pushState({}, "", "/products/reward-public");
-    (global.fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: async () => ({ reviews: [] }),
+    (global.fetch as jest.Mock).mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith("/reviews")) return { ok: true, json: async () => ({ reviews: [] }) };
+      if (url === "/api/public/assistant") return { ok: true, json: async () => ({}) };
+      return { ok: true, json: async () => ({ data: { title: "Sản phẩm công khai" } }) };
     });
     render(<PlatformHelpAssistant />);
 

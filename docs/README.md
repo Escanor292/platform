@@ -29,3 +29,11 @@ Các tài liệu cũ về SRS, design system, chat, API audit, blog/product, dep
 Khi thay đổi code, cập nhật đúng tài liệu chuyên đề tương ứng. Không tạo thêm file `FINAL`, `IMPLEMENTATION_SUMMARY` hoặc `STATUS` trùng nội dung. Mỗi mô tả phải phân biệt rõ: đã xác nhận trong code, có code nhưng cần xác minh runtime, hay chỉ là kế hoạch/lịch sử.
 
 > Tài liệu không thay thế test, review migration, kiểm tra secret, code review hoặc xác nhận hoạt động trên production.
+
+## Trợ lý grounded công khai
+
+Trợ lý tại `/api/public/assistant` gọi Gemini từ **server-side**; `GEMINI_API_KEY` không được đặt dưới tiền tố `NEXT_PUBLIC_` và không được đưa vào client, log hoặc dữ liệu chat. Frontend chỉ gửi route hiện tại cùng dữ liệu đã lấy từ các endpoint public allowlist bằng GET. Route loại bỏ trường có tên token/secret/password/credential/private key, giới hạn kích thước câu hỏi và context, áp dụng timeout 18 giây cùng rate limit theo IP, và từ chối yêu cầu chạy hoặc mô phỏng lệnh trước khi gọi model.
+
+Khi có nguồn, phản hồi trả về danh sách citation tương đối như trang hiện tại, endpoint dữ liệu bổ sung hoặc đánh giá công khai; UI hiển thị chúng dưới câu trả lời với nhãn `Nguồn công khai`. URL tuyệt đối bị loại bỏ. Nếu Gemini trả `429`, UI dùng fallback tóm tắt cục bộ và API trả thông báo giới hạn miễn phí kèm `Retry-After`; timeout trả `504` và cũng fallback về dữ liệu public đã tải. Nội dung public có thể chứa prompt injection, vì vậy luôn được coi là bằng chứng dữ liệu chứ không phải chỉ dẫn thực thi.
+
+Để kiểm tra thay đổi, chạy `npm test -- --runInBand` cho Jest non-database, `npm run test:db` cho PostgreSQL test riêng, và `npx tsc --noEmit` trước khi mở pull request. Không ghi key thật vào `.env.example`; khai báo secret thật trong Vercel/secret manager với tên `GEMINI_API_KEY` và tùy chọn `GEMINI_MODEL`.
