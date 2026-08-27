@@ -111,7 +111,7 @@ export default function ProfileCustomizationEditor() {
 
   const applyPreset = (preset: ProfilePreset) => {
     const next = applyPresetLayout(cloneConfig(config), preset);
-    next.theme = cloneConfig(PRESET_THEME[preset]);
+    next.theme = { ...PRESET_THEME[preset] };
     setConfig(next);
     setMessage(`Đã áp dụng mẫu ${preset}`);
   };

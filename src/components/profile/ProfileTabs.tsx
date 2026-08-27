@@ -268,8 +268,6 @@ export function ProfileTabs({
         if (!visibleTabs.some((tab) => tab.id === activeTab)) {
             setActiveTab(getDefaultTab());
         }
-        // Keep the tab bar in sync when the published layout changes.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [visibleTabKey]);
 
     return (
