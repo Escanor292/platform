@@ -6,9 +6,8 @@ export interface NotificationCatalogItem {
   description: string;
 }
 
-/** Danh mục các sự kiện có thể gửi thông báo cá nhân. */
 export const NOTIFICATION_CATALOG: NotificationCatalogItem[] = [
-  { type: 'PAYMENT_SUCCESS', label: 'Thanh toán thành công', description: 'Thông báo khi khoản ủng hộ/thanh toán được ghi nhận.' },
+  { type: 'PAYMENT_SUCCESS', label: 'Thanh toán / kho đồ', description: 'Thông báo khi thanh toán thành công và sản phẩm số đã vào kho đồ. Bấm vào để mở kho đồ.' },
   { type: 'PLEDGE_RECEIVED', label: 'Nhận được ủng hộ', description: 'Thông báo cho chủ chiến dịch khi có người ủng hộ.' },
   { type: 'CAMPAIGN_APPROVED', label: 'Chiến dịch được duyệt', description: 'Thông báo khi Admin phê duyệt chiến dịch.' },
   { type: 'CAMPAIGN_REJECTED', label: 'Chiến dịch bị từ chối', description: 'Thông báo khi Admin từ chối chiến dịch.' },
