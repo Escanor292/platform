@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import WarehouseClient from "@/components/purchases/WarehouseClient";
-import { isDigitalFulfillment } from "@/lib/digital-warehouse";
+import { isDigitalFulfillment } from "@/lib/warehouse-ui";
 
 export default async function PurchasesPage({
   searchParams,
