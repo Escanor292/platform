@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import WarehouseClient from "@/components/purchases/WarehouseClient";
 import { isDigitalFulfillment } from "@/lib/warehouse-ui";
+import { DEMO_WAREHOUSE_USER_ID, seedDemoWarehouseItems } from "@/lib/digital-warehouse";
 
 export default async function PurchasesPage({
   searchParams,
@@ -13,6 +14,10 @@ export default async function PurchasesPage({
   const session = await auth();
   const userId = (session?.user as { id?: string } | undefined)?.id;
   if (!userId) redirect("/auth/login?callbackUrl=/purchases");
+
+  if (userId === DEMO_WAREHOUSE_USER_ID) {
+    await seedDemoWarehouseItems(userId);
+  }
 
   const params = searchParams ? await searchParams : {};
   const highlightId = typeof params.item === "string" ? params.item : undefined;
