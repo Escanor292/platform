@@ -9,7 +9,7 @@ import { ChatInfoPanel } from './ChatInfoPanel';
 import { CallModal } from './CallModal';
 import { useCall } from '@/hooks/useCall';
 import { MongoConversation, MongoMessage } from '@/types/chat.types';
-import { isVisibleCallEvent, previewConversationLastMessage } from '@/lib/chat-call-preview';
+import { getCallEventView, isVisibleCallEvent, previewConversationLastMessage } from '@/lib/chat-call-preview';
 
 interface Message {
     id: string;
@@ -34,7 +34,18 @@ interface ChatConversationClientProps {
 }
 
 function toDisplayMessages(list: MongoMessage[]): MongoMessage[] {
-    return list.filter((m) => m.type !== 'call-signal' || isVisibleCallEvent(m.text, m.type));
+    return list.flatMap((m) => {
+        if (m.type !== 'call-signal') return [m];
+        if (!isVisibleCallEvent(m.text, m.type)) return [];
+        const view = getCallEventView(m.text);
+        const text = view ? `☎ ${view.title}\n${view.subtitle}` : 'Cuộc gọi thoại';
+        return [{
+            ...m,
+            type: 'text',
+            text,
+            attachments: [],
+        }];
+    });
 }
 
 export function ChatConversationClient({ conversationId }: ChatConversationClientProps) {
