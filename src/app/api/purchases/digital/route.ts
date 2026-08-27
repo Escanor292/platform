@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { isDigitalFulfillment, warehouseCategory } from "@/lib/digital-warehouse";
+import { isDigitalFulfillment, warehouseCategory } from "@/lib/warehouse-ui";
 
 export async function GET() {
   const session = await auth();
