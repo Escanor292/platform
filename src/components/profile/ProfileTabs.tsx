@@ -12,7 +12,7 @@ import { ProfileBlogCard } from '@/components/profile/ProfileBlogCard';
 import { UserBadgeList } from '@/components/badge/UserBadgeList';
 import { AddProductModal } from '@/components/profile/AddProductModal';
 import QuickAddToCartButton from '@/components/products/QuickAddToCartButton';
-import { getSectionLimit, isSectionVisible, type ProfileCustomizationConfig } from '@/lib/profile-customization';
+import { getOrderedTabSections, getPreferredProfileTab, getSectionLimit, isSectionVisible, type ProfileCustomizationConfig } from '@/lib/profile-customization';
 
 type TabType = 'projects' | 'campaigns' | 'products' | 'blog' | 'pledges' | 'badges';
 
@@ -140,17 +140,6 @@ export function ProfileTabs({
     // Check if owner mode (not public preview)
     const isOwnerMode = isOwnProfile && !showAsPublic;
 
-    // Determine default tab
-    const getDefaultTab = (): TabType => {
-        if (isSectionVisible(profileConfig, 'projects') && orderedProjects.length > 0) return 'projects';
-        if (isSectionVisible(profileConfig, 'campaigns') && isCreator && orderedCampaigns.length > 0) return 'campaigns';
-        if (isSectionVisible(profileConfig, 'blog') && orderedBlogPosts.length > 0) return 'blog';
-        if (isSectionVisible(profileConfig, 'pledges') && isBacker && limitedPledges.length > 0 && isOwnProfile && !showAsPublic) return 'pledges';
-        return 'badges';
-    };
-
-    const [activeTab, setActiveTab] = useState<TabType>(getDefaultTab());
-
     // Classification logic for rewards (reused from ProjectDetailClient.tsx)
     const classifyRewards = () => {
         const products: Array<{ reward: any; campaign: any; isMain: boolean }> = [];
@@ -218,6 +207,8 @@ export function ProfileTabs({
     const totalProducts = products.length;
     const totalGifts = gifts.length;
 
+    const tabOrder = getOrderedTabSections(profileConfig).map((item) => item.id);
+
     // Define tabs based on view mode
     const tabs: { id: TabType; label: string; count?: number; show: boolean }[] = [
         {
@@ -236,7 +227,7 @@ export function ProfileTabs({
             id: 'products',
             label: 'Sản phẩm',
             count: totalProducts,
-            show: (isOwnProfile && !showAsPublic) || totalProducts > 0,
+            show: isSectionVisible(profileConfig, 'products') && ((isOwnProfile && !showAsPublic) || totalProducts > 0),
         },
         {
             id: 'blog',
@@ -255,9 +246,31 @@ export function ProfileTabs({
             label: 'Huy hiệu',
             show: isSectionVisible(profileConfig, 'badges'),
         },
-    ];
+    ].sort((a, b) => {
+        const ai = tabOrder.indexOf(a.id);
+        const bi = tabOrder.indexOf(b.id);
+        return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+    });
 
     const visibleTabs = tabs.filter((tab) => tab.show);
+
+    const getDefaultTab = (): TabType => {
+        const preferred = getPreferredProfileTab(profileConfig);
+        if (visibleTabs.some((tab) => tab.id === preferred)) return preferred;
+        const withContent = visibleTabs.find((tab) => (tab.count ?? 1) > 0);
+        return withContent?.id ?? visibleTabs[0]?.id ?? 'campaigns';
+    };
+
+    const visibleTabKey = visibleTabs.map((tab) => tab.id).join('|');
+    const [activeTab, setActiveTab] = useState<TabType>(getDefaultTab);
+
+    useEffect(() => {
+        if (!visibleTabs.some((tab) => tab.id === activeTab)) {
+            setActiveTab(getDefaultTab());
+        }
+        // Keep the tab bar in sync when the published layout changes.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [visibleTabKey]);
 
     return (
         <div className="space-y-6" style={{ color: 'var(--profile-text)' }}>
@@ -269,13 +282,14 @@ export function ProfileTabs({
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`px-6 py-3 rounded-[1.5rem] font-bold text-sm transition-all ${activeTab === tab.id
-                                ? 'bg-gradient-to-r from-pgreen to-fgreen text-white shadow-lg'
-                                : 'bg-white text-gray-700 border border-gray-200 hover:border-pgreen hover:text-pgreen'
+                                ? 'shadow-lg'
+                                : 'bg-white text-gray-700 border border-gray-200 hover:border-[color:var(--profile-primary)] hover:text-[color:var(--profile-primary)]'
                                 }`}
+                            style={activeTab === tab.id ? { background: 'var(--profile-primary)', color: 'var(--profile-contrast)' } : undefined}
                         >
                             {tab.label}
                             {tab.count !== undefined && (
-                                <span className={`ml-2 ${activeTab === tab.id ? 'text-white' : 'text-gray-400'}`}>
+                                <span className={`ml-2 ${activeTab === tab.id ? 'opacity-80' : 'text-gray-400'}`}>
                                     ({tab.count})
                                 </span>
                             )}

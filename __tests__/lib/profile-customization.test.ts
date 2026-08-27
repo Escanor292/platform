@@ -1,6 +1,9 @@
 import {
+  applyPresetLayout,
   DEFAULT_PROFILE_CUSTOMIZATION,
   getOrderedSections,
+  getOrderedTabSections,
+  getPreferredProfileTab,
   getPublicProfileCustomization,
   normalizeProfileCustomization,
   parseProfileCustomization,
@@ -54,5 +57,29 @@ describe('profile customization contract', () => {
     expect(first).toEqual(second);
     expect(first.preset).toBe('shop');
     expect(first.theme.primary).toBe('#ea580c');
+  });
+
+  it('shop preset puts products before campaigns like the live tab bar', () => {
+    const shop = applyPresetLayout(DEFAULT_PROFILE_CUSTOMIZATION, 'shop');
+    expect(getOrderedTabSections(shop).filter((section) => section.visible).map((section) => section.id)).toEqual([
+      'products',
+      'campaigns',
+      'pledges',
+    ]);
+    expect(getPreferredProfileTab(shop)).toBe('products');
+  });
+
+  it('keeps live tab order from a shop draft that only toggled visibility', () => {
+    const staleShop = {
+      ...DEFAULT_PROFILE_CUSTOMIZATION,
+      preset: 'shop' as const,
+      sections: DEFAULT_PROFILE_CUSTOMIZATION.sections.map((section) => ({
+        ...section,
+        visible: ['hero', 'about', 'products', 'campaigns', 'pledges', 'cta'].includes(section.id),
+      })),
+    };
+
+    expect(getPreferredProfileTab(staleShop)).toBe('products');
+    expect(getOrderedTabSections(staleShop).filter((section) => section.visible).map((section) => section.id)[0]).toBe('products');
   });
 });

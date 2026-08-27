@@ -17,12 +17,14 @@ import {
   Undo2,
 } from 'lucide-react';
 import {
+  applyPresetLayout,
   DEFAULT_PROFILE_CUSTOMIZATION,
   PROFILE_PRESETS,
   PROFILE_SECTION_IDS,
   type ProfileCustomizationConfig,
   type ProfilePreset,
 } from '@/lib/profile-customization';
+import ProfileStudioPreview from '@/components/profile/ProfileStudioPreview';
 
 type Option = { id: string; title: string; slug?: string; status?: string; projectId?: string | null; campaignId?: string | null };
 type Options = { projects: Option[]; campaigns: Option[]; rewards: Option[]; blogPosts: Option[] };
@@ -78,51 +80,6 @@ function toggleId(ids: string[], id: string, max: number) {
   return [...ids, id];
 }
 
-function Preview({ config, mode }: { config: ProfileCustomizationConfig; mode: PreviewMode }) {
-  const sections = [...config.sections].sort((a, b) => a.order - b.order).filter((item) => item.visible);
-  const cardClass = config.theme.cardStyle === 'flat' ? 'border border-transparent' : config.theme.cardStyle === 'bordered' ? 'border border-[color:var(--preview-primary)]/25' : 'shadow-lg';
-
-  return (
-    <div
-      className={`overflow-hidden border border-gray-200 bg-[var(--preview-background)] text-[var(--preview-text)] transition-all ${mode === 'mobile' ? 'mx-auto max-w-[360px]' : 'w-full'}`}
-      style={{
-        '--preview-primary': config.theme.primary,
-        '--preview-secondary': config.theme.secondary,
-        '--preview-background': config.theme.background,
-        '--preview-surface': config.theme.surface,
-        '--preview-text': config.theme.text,
-        borderRadius: config.theme.radius === 'pill' ? '2rem' : config.theme.radius === 'soft' ? '1rem' : '1.75rem',
-      } as React.CSSProperties}
-    >
-      {sections.map((section) => (
-        <div key={section.id} className="p-4">
-          {section.id === 'hero' && (
-            <div className="flex min-h-28 items-end rounded-2xl p-4 text-white" style={{ background: `linear-gradient(${config.theme.gradientAngle}deg, ${config.theme.gradientColors.join(', ')})` }}>
-              <div>
-                <div className="mb-2 h-3 w-24 rounded-full bg-white/50" />
-                <div className="h-5 w-44 rounded-full bg-white/90" />
-              </div>
-            </div>
-          )}
-          {section.id !== 'hero' && section.id !== 'about' && section.id !== 'cta' && (
-            <div className={`rounded-2xl bg-[var(--preview-surface)] p-4 ${cardClass}`}>
-              <div className="mb-3 flex items-center justify-between">
-                <div className="h-4 w-28 rounded-full" style={{ backgroundColor: config.theme.primary }} />
-                <span className="text-xs opacity-60">{SECTION_LABELS[section.id]}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {[1, 2].map((item) => <div key={item} className="h-12 rounded-xl bg-cream" />)}
-              </div>
-            </div>
-          )}
-          {section.id === 'about' && <div className="h-8 rounded-xl bg-[var(--preview-surface)] p-3 text-xs opacity-70">Giới thiệu bản thân và liên kết xã hội</div>}
-          {section.id === 'cta' && config.cta.enabled && <div className="rounded-xl p-3 text-center text-sm font-bold text-white" style={{ backgroundColor: config.theme.primary }}>{config.cta.label}</div>}
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export default function ProfileCustomizationEditor() {
   const [config, setConfig] = useState<ProfileCustomizationConfig>(cloneConfig(DEFAULT_PROFILE_CUSTOMIZATION));
   const [options, setOptions] = useState<Options>({ projects: [], campaigns: [], rewards: [], blogPosts: [] });
@@ -153,20 +110,8 @@ export default function ProfileCustomizationEditor() {
   const patchTheme = (next: Partial<ProfileCustomizationConfig['theme']>) => setConfig((current) => ({ ...current, theme: { ...current.theme, ...next } }));
 
   const applyPreset = (preset: ProfilePreset) => {
-    const next = cloneConfig(config);
-    next.preset = preset;
-    next.theme = cloneConfig({ ...next, theme: PRESET_THEME[preset] }).theme;
-    if (preset === 'minimal') {
-      next.sections = next.sections.map((item) => ({ ...item, visible: ['hero', 'about', 'blog', 'cta'].includes(item.id) }));
-    } else if (preset === 'shop') {
-      next.sections = next.sections.map((item) => ({ ...item, visible: ['hero', 'about', 'products', 'campaigns', 'cta'].includes(item.id) }));
-    } else if (preset === 'project') {
-      next.sections = next.sections.map((item) => ({ ...item, visible: ['hero', 'about', 'projects', 'campaigns', 'blog', 'achievements', 'cta'].includes(item.id) }));
-    } else if (preset === 'community') {
-      next.sections = next.sections.map((item) => ({ ...item, visible: ['hero', 'about', 'blog', 'badges', 'achievements', 'analytics', 'cta'].includes(item.id) }));
-    } else {
-      next.sections = cloneConfig(DEFAULT_PROFILE_CUSTOMIZATION).sections;
-    }
+    const next = applyPresetLayout(cloneConfig(config), preset);
+    next.theme = cloneConfig(PRESET_THEME[preset]);
     setConfig(next);
     setMessage(`Đã áp dụng mẫu ${preset}`);
   };
@@ -309,7 +254,7 @@ export default function ProfileCustomizationEditor() {
         </div>
 
         <aside className="h-fit space-y-4 xl:sticky xl:top-6">
-          <div className="rounded-[2.5rem] border border-pgreen/10 bg-white/90 p-4 shadow-soft backdrop-blur"><div className="mb-4 flex items-center justify-between"><div className="flex items-center gap-2 font-display text-xl font-black text-dblue"><Eye size={18} className="text-pgreen" /> Xem trước</div><div className="flex gap-1 rounded-xl border border-gray-200 bg-cream/70 p-1"><button onClick={() => setPreviewMode('desktop')} className={`rounded-lg px-2 py-1 text-xs font-bold ${previewMode === 'desktop' ? 'bg-white text-dblue' : 'text-gray-500'}`}>Desktop</button><button onClick={() => setPreviewMode('mobile')} className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-bold ${previewMode === 'mobile' ? 'bg-white text-dblue' : 'text-gray-500'}`}><Smartphone size={12} /> Mobile</button></div></div><Preview config={config} mode={previewMode} /></div>
+          <div className="rounded-[2.5rem] border border-pgreen/10 bg-white/90 p-4 shadow-soft backdrop-blur"><div className="mb-4 flex items-center justify-between"><div className="flex items-center gap-2 font-display text-xl font-black text-dblue"><Eye size={18} className="text-pgreen" /> Xem trước</div><div className="flex gap-1 rounded-xl border border-gray-200 bg-cream/70 p-1"><button onClick={() => setPreviewMode('desktop')} className={`rounded-lg px-2 py-1 text-xs font-bold ${previewMode === 'desktop' ? 'bg-white text-dblue' : 'text-gray-500'}`}>Desktop</button><button onClick={() => setPreviewMode('mobile')} className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-bold ${previewMode === 'mobile' ? 'bg-white text-dblue' : 'text-gray-500'}`}><Smartphone size={12} /> Mobile</button></div></div><ProfileStudioPreview config={config} mode={previewMode} /></div>
           <div className="rounded-[2rem] border border-ebrown/20 bg-cream p-4 text-sm leading-relaxed text-ebrown"><strong>Lưu ý bảo mật:</strong> Profile Studio chỉ nhận màu, preset, block ID và nội dung thuộc tài khoản. Không có HTML, CSS, JavaScript, iframe hoặc URL tùy ý trong cấu hình.</div>
           <div className="rounded-[2rem] border border-pgreen/10 bg-white/90 p-5 shadow-soft"><div className="mb-3 flex items-center justify-between"><h3 className="font-black text-dblue">Lịch sử phiên bản</h3><span className="text-xs text-gray-400">12 bản gần nhất</span></div>{versions.length === 0 ? <p className="text-sm text-gray-500">Chưa có snapshot. Hãy lưu bản nháp hoặc xuất bản.</p> : <div className="space-y-2">{versions.map((version) => <div key={version.id} className="flex items-center justify-between gap-3 rounded-xl bg-cream/70 px-3 py-2"><div><div className="text-sm font-bold text-gray-700">Bản {version.version} · {version.action}</div><div className="text-xs text-gray-400">{new Date(version.createdAt).toLocaleString('vi-VN')}</div></div><button onClick={() => save('restore_version', version.id)} disabled={saving} className="shrink-0 rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs font-bold text-gray-600 hover:border-pgreen/40 hover:text-pgreen">Khôi phục</button></div>)}</div>}</div>
         </aside>

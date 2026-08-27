@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useMemo, useState } from 'react';
 import {
   getOrderedTabSections,
   getPreferredProfileTab,
@@ -7,9 +8,19 @@ import {
   isSectionVisible,
   PROFILE_TAB_LABELS,
   type ProfileCustomizationConfig,
+  type ProfileTabSectionId,
 } from '@/lib/profile-customization';
 
 type PreviewMode = 'desktop' | 'mobile';
+
+const TAB_COUNTS: Record<ProfileTabSectionId, string> = {
+  projects: '3',
+  campaigns: '6',
+  products: '8',
+  blog: '5',
+  pledges: '4',
+  badges: '',
+};
 
 export default function ProfileStudioPreview({
   config,
@@ -18,11 +29,18 @@ export default function ProfileStudioPreview({
   config: ProfileCustomizationConfig;
   mode: PreviewMode;
 }) {
-  const tabs = getOrderedTabSections(config).filter((item) => item.visible);
-  const activeTab = tabs.some((item) => item.id === getPreferredProfileTab(config))
-    ? getPreferredProfileTab(config)
-    : tabs[0]?.id;
+  const tabs = useMemo(
+    () => getOrderedTabSections(config).filter((item) => item.visible),
+    [config],
+  );
+  const preferred = getPreferredProfileTab(config);
+  const [activeTab, setActiveTab] = useState<ProfileTabSectionId>(preferred);
+  useEffect(() => {
+    setActiveTab(preferred);
+  }, [preferred]);
+  const currentTab = tabs.some((item) => item.id === activeTab) ? activeTab : preferred;
   const radius = config.theme.radius === 'pill' ? '999px' : config.theme.radius === 'soft' ? '1rem' : '1.75rem';
+  const title = currentTab ? PROFILE_TAB_LABELS[currentTab] : 'Nội dung';
 
   return (
     <div
@@ -47,35 +65,56 @@ export default function ProfileStudioPreview({
 
       {tabs.length > 0 && (
         <div className="px-3 pt-3">
-          <div className="flex flex-wrap gap-2 rounded-2xl border border-[color:var(--profile-primary)]/10 bg-[var(--profile-surface)] p-2">
-            {tabs.map((tab) => (
-              <span
-                key={tab.id}
-                className="rounded-xl px-3 py-1.5 text-[11px] font-bold"
-                style={
-                  tab.id === activeTab
-                    ? { background: 'var(--profile-primary)', color: 'var(--profile-contrast)' }
-                    : { color: 'var(--profile-muted)', border: '1px solid color-mix(in srgb, var(--profile-primary) 18%, transparent)' }
-                }
-              >
-                {PROFILE_TAB_LABELS[tab.id]}
-              </span>
-            ))}
+          <div
+            className="flex flex-wrap gap-2 border border-[color:var(--profile-primary)]/10 bg-[var(--profile-surface)] p-2"
+            style={{ borderRadius: 'var(--profile-radius)' }}
+          >
+            {tabs.map((tab) => {
+              const isActive = tab.id === currentTab;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className="rounded-[1.5rem] px-4 py-2 text-[11px] font-bold transition"
+                  style={
+                    isActive
+                      ? { background: 'var(--profile-primary)', color: 'var(--profile-contrast)' }
+                      : { color: 'var(--profile-muted)', border: '1px solid color-mix(in srgb, var(--profile-primary) 18%, transparent)', background: 'var(--profile-surface)' }
+                  }
+                >
+                  {PROFILE_TAB_LABELS[tab.id]}
+                  {TAB_COUNTS[tab.id] ? ` (${TAB_COUNTS[tab.id]})` : ''}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
 
       <div className="p-3">
-        <div className="rounded-2xl border border-[color:var(--profile-primary)]/10 bg-[var(--profile-surface)] p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <div className="h-3.5 w-32 rounded-full" style={{ background: 'var(--profile-primary)' }} />
-            <span className="text-[11px] text-[var(--profile-muted)]">
-              {activeTab ? PROFILE_TAB_LABELS[activeTab] : 'Nội dung'}
+        <div
+          className="border border-[color:var(--profile-primary)]/10 bg-[var(--profile-surface)] p-4"
+          style={{ borderRadius: 'var(--profile-radius)' }}
+        >
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div className="text-sm font-black">{title} đã tạo</div>
+            <span className="rounded-full px-3 py-1 text-[10px] font-bold" style={{ background: 'var(--profile-primary)', color: 'var(--profile-contrast)' }}>
+              + Tạo
             </span>
           </div>
-          <div className={`grid gap-2 ${mode === 'mobile' ? 'grid-cols-1' : 'grid-cols-2'}`}>
+          <div className={`grid gap-3 ${mode === 'mobile' ? 'grid-cols-1' : 'grid-cols-2'}`}>
             {[1, 2].map((item) => (
-              <div key={item} className="h-16 rounded-xl bg-[var(--profile-background)]" />
+              <div key={item} className="rounded-2xl bg-[var(--profile-background)] p-3">
+                <div className="mb-6 flex gap-1">
+                  <span className="h-4 w-12 rounded-md" style={{ background: 'var(--profile-primary)' }} />
+                  <span className="h-4 w-16 rounded-md bg-[var(--profile-surface)]" />
+                </div>
+                <div className="h-3 w-3/4 rounded-full bg-[var(--profile-text)]/70" />
+                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[var(--profile-surface)]">
+                  <div className="h-full w-2/3 rounded-full" style={{ background: 'var(--profile-primary)' }} />
+                </div>
+              </div>
             ))}
           </div>
         </div>

@@ -9,7 +9,6 @@ import SocialLinks from "@/components/profile/SocialLinks";
 import { SocialLink } from "@/types/social";
 import { StartChatButton } from "@/components/chat/StartChatButton";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
-import AlignProfileTabs from "@/components/profile/AlignProfileTabs";
 import { canExposePrivacyField } from "@/lib/profile-settings";
 import { getProfileThemeStyle, getPublicProfileCustomization, isSectionVisible, normalizeProfileCustomization, resolveProfileLayout } from "@/lib/profile-customization";
 
@@ -217,7 +216,6 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
 
   return (
     <div className="min-h-screen py-24 px-6" style={{ ...getProfileThemeStyle(profileConfig), backgroundColor: "var(--profile-background)" }}>
-      <AlignProfileTabs config={profileConfig} />
       <div className="mx-auto max-w-6xl space-y-8">
         <div className="overflow-hidden border border-[color:var(--profile-primary)]/10 bg-[var(--profile-surface)] shadow-sm" style={{ borderRadius: "var(--profile-radius)" }}>
           <div className="relative h-64" style={{ background: "var(--profile-gradient)" }}>
