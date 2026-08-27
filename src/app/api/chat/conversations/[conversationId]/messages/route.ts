@@ -98,7 +98,8 @@ export async function POST(
     const { conversationId } = await context.params;
 
     const body: SendMessageRequest & { type?: string } = await request.json();
-    let { text, attachments, sensitive, type } = body;
+    const { attachments, sensitive, type } = body;
+    let text = body.text;
 
     const isCallSignal = type === 'call-signal';
     if (!text || (!text.trim() && !isCallSignal)) {
