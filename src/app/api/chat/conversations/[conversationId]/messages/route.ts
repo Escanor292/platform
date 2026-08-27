@@ -1,9 +1,6 @@
 /**
  * GET /api/chat/conversations/[conversationId]/messages
- * Get messages for a conversation
- * 
  * POST /api/chat/conversations/[conversationId]/messages
- * Send a message
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -11,12 +8,43 @@ import { auth } from '@/lib/auth';
 import { getMessages, sendMessage } from '@/services/mongodb/chat.service';
 import { SendMessageRequest } from '@/types/chat.types';
 
+async function enrichCallEndDuration(
+  conversationId: string,
+  userId: string,
+  text: string
+): Promise<string> {
+  try {
+    const sig = JSON.parse(text);
+    if (!sig || (sig.type !== 'end' && sig.type !== 'bye')) return text;
+    if (typeof sig.duration === 'number' && sig.duration >= 0) return text;
+
+    const result = await getMessages(conversationId, userId, 80);
+    let startAt: Date | null = null;
+    for (const m of result.messages) {
+      if (m.type !== 'call-signal') continue;
+      try {
+        const s = JSON.parse(m.text);
+        if (s?.type === 'accept') {
+          startAt = new Date(m.createdAt);
+          break;
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+    if (!startAt) return text;
+    sig.duration = Math.max(0, Math.floor((Date.now() - startAt.getTime()) / 1000));
+    return JSON.stringify(sig);
+  } catch {
+    return text;
+  }
+}
+
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ conversationId: string }> }
 ) {
   try {
-    // Check authentication
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -28,12 +56,10 @@ export async function GET(
     const userId = session.user.id;
     const { conversationId } = await context.params;
 
-    // Get query parameters
     const searchParams = request.nextUrl.searchParams;
     const limit = parseInt(searchParams.get('limit') || '30');
     const before = searchParams.get('before') || undefined;
 
-    // Get messages
     const result = await getMessages(conversationId, userId, limit, before);
 
     return NextResponse.json(result);
@@ -60,7 +86,6 @@ export async function POST(
   context: { params: Promise<{ conversationId: string }> }
 ) {
   try {
-    // Check authentication
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -72,11 +97,9 @@ export async function POST(
     const userId = session.user.id;
     const { conversationId } = await context.params;
 
-    // Parse request body
     const body: SendMessageRequest & { type?: string } = await request.json();
-    const { text, attachments, sensitive, type } = body;
+    let { text, attachments, sensitive, type } = body;
 
-    // Validate input: tin hiệu gọi (call-signal) là JSON trong text, tin thường phải có text
     const isCallSignal = type === 'call-signal';
     if (!text || (!text.trim() && !isCallSignal)) {
       return NextResponse.json(
@@ -93,9 +116,9 @@ export async function POST(
           { status: 400 }
         );
       }
+      text = await enrichCallEndDuration(conversationId, userId, text);
     }
 
-    // Send message
     const message = await sendMessage(conversationId, userId, text, attachments || [], sensitive || false, isCallSignal ? 'call-signal' : 'text');
 
     return NextResponse.json({
@@ -112,7 +135,6 @@ export async function POST(
       return NextResponse.json({ error: error.message }, { status: 404 });
     }
 
-    // Handle specific errors
     if (error.message.includes('blocked')) {
       return NextResponse.json(
         { error: error.message },
