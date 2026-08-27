@@ -234,9 +234,26 @@ export default function ProfileCustomizationEditor() {
 
           <section className="rounded-[2.5rem] border border-pgreen/10 bg-white/90 p-6 shadow-soft backdrop-blur sm:p-8">
             <div className="mb-4 flex items-center gap-2"><Star className="text-amber-500" size={20} /><h2 className="font-display text-xl font-black text-dblue">Nội dung nổi bật</h2></div>
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="grid min-w-0 grid-cols-1 gap-5 md:grid-cols-2">
               {([['projectIds', 'Dự án', options.projects, 3], ['campaignIds', 'Chiến dịch', options.campaigns, 6], ['rewardIds', 'Sản phẩm', options.rewards, 12], ['blogPostIds', 'Blog', options.blogPosts, 6]] as const).map(([key, label, list, max]) => (
-                <fieldset key={key} className="rounded-2xl border border-gray-200 p-3"><legend className="px-1 text-sm font-black text-dblue">{label} <span className="font-normal text-gray-400">(tối đa {max})</span></legend><div className="max-h-48 space-y-2 overflow-auto pr-1">{list.length === 0 ? <p className="text-xs text-gray-400">Chưa có nội dung phù hợp.</p> : list.map((item) => <label key={item.id} className="flex items-center gap-2 text-sm text-gray-700"><input type="checkbox" checked={config.featured[key].includes(item.id)} onChange={() => patch({ featured: { ...config.featured, [key]: toggleId(config.featured[key], item.id, max) } })} className="h-4 w-4 accent-pgreen" /><span className="truncate">{item.title}</span></label>)}</div></fieldset>
+                <div key={key} className="min-w-0 overflow-hidden rounded-2xl border border-gray-200 p-3">
+                  <div className="mb-2 text-sm font-black text-dblue">{label} <span className="font-normal text-gray-400">(tối đa {max})</span></div>
+                  <div className="max-h-48 space-y-1.5 overflow-y-auto overflow-x-hidden pr-1">
+                    {list.length === 0 ? (
+                      <p className="text-xs text-gray-400">Chưa có nội dung phù hợp.</p>
+                    ) : list.map((item) => (
+                      <label key={item.id} className="flex min-w-0 items-start gap-2 text-sm text-gray-700">
+                        <input
+                          type="checkbox"
+                          checked={config.featured[key].includes(item.id)}
+                          onChange={() => patch({ featured: { ...config.featured, [key]: toggleId(config.featured[key], item.id, max) } })}
+                          className="mt-0.5 h-4 w-4 shrink-0 accent-pgreen"
+                        />
+                        <span className="min-w-0 flex-1 break-words leading-5">{item.title}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           </section>
