@@ -22,6 +22,54 @@ const TAB_COUNTS: Record<ProfileTabSectionId, string> = {
   badges: '',
 };
 
+function PreviewHeader({ mode }: { mode: PreviewMode }) {
+  return (
+    <div
+      className="flex items-center justify-between gap-2 border-b px-3 py-2"
+      style={{
+        backgroundColor: 'color-mix(in srgb, var(--profile-primary) 8%, var(--profile-surface) 92%)',
+        borderColor: 'color-mix(in srgb, var(--profile-primary) 18%, transparent)',
+      }}
+    >
+      <div className="flex items-center gap-2">
+        <div className="h-6 w-6 rounded-md" style={{ background: 'var(--profile-gradient)' }} />
+        <span className="text-[11px] font-black" style={{ color: 'var(--profile-text)' }}>TửTế Fund</span>
+      </div>
+      {mode === 'desktop' && (
+        <div className="flex min-w-0 flex-1 justify-center gap-3 text-[10px] font-semibold" style={{ color: 'var(--profile-muted)' }}>
+          <span>Trang chủ</span>
+          <span>Giới thiệu</span>
+          <span>Khám phá</span>
+          <span>Blog</span>
+        </div>
+      )}
+      <span
+        className="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold"
+        style={{ background: 'var(--profile-gradient)', color: 'var(--profile-contrast)' }}
+      >
+        Gây quỹ ngay
+      </span>
+    </div>
+  );
+}
+
+function PreviewFooter() {
+  return (
+    <div className="px-3 py-3 text-[10px]" style={{ background: 'var(--profile-primary)', color: 'var(--profile-contrast)' }}>
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-black">TửTế Fund</span>
+        <span className="opacity-70">Chiến dịch · Giới thiệu · Tra cứu</span>
+      </div>
+      <div
+        className="mt-2 border-t pt-2 text-center opacity-50"
+        style={{ borderColor: 'color-mix(in srgb, var(--profile-contrast) 22%, transparent)' }}
+      >
+        © TửTế Fund
+      </div>
+    </div>
+  );
+}
+
 export default function ProfileStudioPreview({
   config,
   mode,
@@ -41,13 +89,24 @@ export default function ProfileStudioPreview({
   const currentTab = tabs.some((item) => item.id === activeTab) ? activeTab : preferred;
   const radius = config.theme.radius === 'pill' ? '999px' : config.theme.radius === 'soft' ? '1rem' : '1.75rem';
   const title = currentTab ? PROFILE_TAB_LABELS[currentTab] : 'Nội dung';
+  const themeStyle = {
+    ...getProfileThemeStyle(config),
+    '--profile-shell-primary': config.theme.primary,
+    '--profile-shell-secondary': config.theme.secondary,
+    '--profile-shell-background': config.theme.background,
+    '--profile-shell-surface': config.theme.surface,
+    '--profile-shell-text': config.theme.text,
+    '--profile-shell-muted': config.theme.muted,
+  } as React.CSSProperties;
 
   return (
     <div
       className={`overflow-hidden border border-[color:var(--profile-primary)]/15 bg-[var(--profile-background)] text-[var(--profile-text)] ${mode === 'mobile' ? 'mx-auto max-w-[360px]' : 'w-full'}`}
-      style={{ ...getProfileThemeStyle(config), borderRadius: radius }}
+      style={{ ...themeStyle, borderRadius: radius }}
     >
-      <div className="overflow-hidden bg-[var(--profile-surface)]" style={{ borderRadius: radius }}>
+      <PreviewHeader mode={mode} />
+
+      <div className="overflow-hidden bg-[var(--profile-surface)]">
         {isSectionVisible(config, 'hero') && (
           <div className="relative h-28" style={{ background: 'var(--profile-gradient)' }}>
             <div className="absolute -bottom-6 left-4 h-12 w-12 rounded-2xl border-4 border-[var(--profile-surface)] bg-[var(--profile-primary)]" />
@@ -118,12 +177,9 @@ export default function ProfileStudioPreview({
             ))}
           </div>
         </div>
-        {isSectionVisible(config, 'cta') && config.cta.enabled && (
-          <div className="mt-3 rounded-xl p-3 text-center text-sm font-bold" style={{ background: 'var(--profile-primary)', color: 'var(--profile-contrast)' }}>
-            {config.cta.label}
-          </div>
-        )}
       </div>
+
+      <PreviewFooter />
     </div>
   );
 }

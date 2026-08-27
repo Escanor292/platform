@@ -104,7 +104,10 @@ export default function ProfileCustomizationEditor() {
       .finally(() => setLoading(false));
   }, []);
 
-  const orderedSections = useMemo(() => [...config.sections].sort((a, b) => a.order - b.order), [config.sections]);
+  const orderedSections = useMemo(
+    () => [...config.sections].sort((a, b) => a.order - b.order).filter((item) => item.id !== 'cta'),
+    [config.sections],
+  );
 
   const patch = (next: Partial<ProfileCustomizationConfig>) => setConfig((current) => ({ ...current, ...next }));
   const patchTheme = (next: Partial<ProfileCustomizationConfig['theme']>) => setConfig((current) => ({ ...current, theme: { ...current.theme, ...next } }));
@@ -239,16 +242,11 @@ export default function ProfileCustomizationEditor() {
           </section>
 
           <section className="rounded-[2.5rem] border border-pgreen/10 bg-white/90 p-6 shadow-soft backdrop-blur sm:p-8">
-            <h2 className="mb-4 font-display text-xl font-black text-dblue">CTA, thống kê và thử nghiệm</h2>
+            <h2 className="mb-4 font-display text-xl font-black text-dblue">Thống kê và thử nghiệm</h2>
             <div className="grid gap-4 md:grid-cols-2">
               <label className="flex items-center justify-between rounded-2xl border border-gray-200 p-3 text-sm font-semibold text-gray-700">Hiện thống kê ủng hộ<input type="checkbox" checked={config.analytics.showSupportStats} onChange={(event) => patch({ analytics: { ...config.analytics, showSupportStats: event.target.checked } })} className="h-4 w-4 accent-pgreen" /></label>
               <label className="flex items-center justify-between rounded-2xl border border-gray-200 p-3 text-sm font-semibold text-gray-700">Hiện tiến độ campaign<input type="checkbox" checked={config.analytics.showProgressStats} onChange={(event) => patch({ analytics: { ...config.analytics, showProgressStats: event.target.checked } })} className="h-4 w-4 accent-pgreen" /></label>
             </div>
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
-              <label className="text-sm font-bold text-gray-700">Nhãn CTA<input value={config.cta.label} onChange={(event) => patch({ cta: { ...config.cta, label: event.target.value.slice(0, 60) } })} className="mt-2 w-full rounded-xl border border-gray-200 px-3 py-2 font-normal" maxLength={60} /></label>
-              <label className="text-sm font-bold text-gray-700">CTA dẫn đến<select value={config.cta.action} onChange={(event) => patch({ cta: { ...config.cta, action: event.target.value as ProfileCustomizationConfig['cta']['action'] } })} className="mt-2 w-full rounded-xl border border-gray-200 px-3 py-2 font-normal"><option value="projects">Dự án</option><option value="campaigns">Chiến dịch</option><option value="products">Sản phẩm</option><option value="blog">Blog</option><option value="chat">Nhắn tin</option></select></label>
-            </div>
-            <label className="mt-4 flex items-center justify-between rounded-2xl border border-gray-200 p-3 text-sm font-semibold text-gray-700">Bật CTA<input type="checkbox" checked={config.cta.enabled} onChange={(event) => patch({ cta: { ...config.cta, enabled: event.target.checked } })} className="h-4 w-4 accent-pgreen" /></label>
             <div className="mt-4 rounded-2xl border border-dashed border-ebrown/25 p-4"><div className="flex items-center justify-between"><div><div className="font-bold text-dblue">Thử nghiệm preset B</div><p className="text-xs text-gray-500">Chỉ là cấu hình rollout an toàn; chưa tự động thay đổi dữ liệu kinh doanh.</p></div><input type="checkbox" checked={config.experiment.enabled} onChange={(event) => patch({ experiment: { ...config.experiment, enabled: event.target.checked } })} className="h-4 w-4 accent-pgreen" /></div><div className="mt-3 grid gap-3 sm:grid-cols-2"><select value={config.experiment.variantBPreset} onChange={(event) => patch({ experiment: { ...config.experiment, variantBPreset: event.target.value as ProfilePreset } })} className="rounded-xl border border-gray-200 px-3 py-2 text-sm"><option value="minimal">B: Minimal</option><option value="creator">B: Creator</option><option value="project">B: Project</option><option value="shop">B: Shop</option><option value="community">B: Community</option></select><label className="text-sm font-bold text-gray-700">Phân bổ {config.experiment.allocationPercent}%<input type="range" min="0" max="100" value={config.experiment.allocationPercent} onChange={(event) => patch({ experiment: { ...config.experiment, allocationPercent: Number(event.target.value) } })} className="mt-2 w-full accent-pgreen" /></label></div></div>
           </section>
         </div>

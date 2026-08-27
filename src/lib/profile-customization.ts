@@ -131,7 +131,7 @@ export const DEFAULT_PROFILE_CUSTOMIZATION: ProfileCustomizationConfig = {
     section("badges", 7, true, 20),
     section("achievements", 8, true, 6),
     section("analytics", 9, true, 6),
-    section("cta", 10, true, 1),
+    section("cta", 10, false, 1),
   ],
   featured: {
     projectIds: [],
@@ -150,7 +150,7 @@ export const DEFAULT_PROFILE_CUSTOMIZATION: ProfileCustomizationConfig = {
     allocationPercent: 50,
   },
   cta: {
-    enabled: true,
+    enabled: false,
     label: "Khám phá hành trình",
     action: "projects",
   },
@@ -158,24 +158,24 @@ export const DEFAULT_PROFILE_CUSTOMIZATION: ProfileCustomizationConfig = {
 
 export const PRESET_SECTION_LAYOUT: Record<ProfilePreset, { visible: ProfileSectionId[]; order: ProfileSectionId[] }> = {
   minimal: {
-    visible: ["hero", "about", "blog", "cta"],
-    order: ["hero", "about", "blog", "cta", "projects", "campaigns", "products", "pledges", "badges", "achievements", "analytics"],
+    visible: ["hero", "about", "blog"],
+    order: ["hero", "about", "blog", "projects", "campaigns", "products", "pledges", "badges", "achievements", "analytics", "cta"],
   },
   creator: {
-    visible: [...PROFILE_SECTION_IDS],
+    visible: PROFILE_SECTION_IDS.filter((id) => id !== "cta"),
     order: [...PROFILE_SECTION_IDS],
   },
   project: {
-    visible: ["hero", "about", "projects", "campaigns", "blog", "achievements", "cta"],
-    order: ["hero", "about", "projects", "campaigns", "blog", "achievements", "cta", "products", "pledges", "badges", "analytics"],
+    visible: ["hero", "about", "projects", "campaigns", "blog", "achievements"],
+    order: ["hero", "about", "projects", "campaigns", "blog", "achievements", "products", "pledges", "badges", "analytics", "cta"],
   },
   shop: {
-    visible: ["hero", "about", "products", "campaigns", "pledges", "cta"],
-    order: ["hero", "about", "products", "campaigns", "pledges", "cta", "projects", "blog", "badges", "achievements", "analytics"],
+    visible: ["hero", "about", "products", "campaigns", "pledges"],
+    order: ["hero", "about", "products", "campaigns", "pledges", "projects", "blog", "badges", "achievements", "analytics", "cta"],
   },
   community: {
-    visible: ["hero", "about", "blog", "badges", "achievements", "analytics", "cta"],
-    order: ["hero", "about", "blog", "badges", "achievements", "analytics", "cta", "projects", "campaigns", "products", "pledges"],
+    visible: ["hero", "about", "blog", "badges", "achievements", "analytics"],
+    order: ["hero", "about", "blog", "badges", "achievements", "analytics", "projects", "campaigns", "products", "pledges", "cta"],
   },
 };
 
@@ -224,6 +224,7 @@ export function applyPresetLayout(config: ProfileCustomizationConfig, preset: Pr
   return {
     ...config,
     preset,
+    cta: { ...config.cta, enabled: false },
     sections: order.map((id, index) => ({
       ...(byId.get(id) ?? section(id, index)),
       id,
