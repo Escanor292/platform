@@ -21,16 +21,17 @@ export default function AlignProfileTabs({ config }: { config: ProfileCustomizat
     })?.parentElement;
     if (!nav) return;
 
-    const buttons = Array.from(nav.querySelectorAll(':scope > button'));
+    const buttons = Array.from(nav.querySelectorAll<HTMLButtonElement>(':scope > button'));
     orderedLabels.forEach((label) => {
       const match = buttons.find((button) => (button.textContent || '').startsWith(label));
       if (match) nav.appendChild(match);
     });
 
-    const currentActive = Array.from(nav.querySelectorAll(':scope > button')).find((button) =>
+    const currentButtons = Array.from(nav.querySelectorAll<HTMLButtonElement>(':scope > button'));
+    const currentActive = currentButtons.find((button) =>
       button.className.includes('from-pgreen') || button.className.includes('shadow-lg'),
     );
-    const preferredButton = Array.from(nav.querySelectorAll(':scope > button')).find((button) =>
+    const preferredButton = currentButtons.find((button) =>
       (button.textContent || '').startsWith(PROFILE_TAB_LABELS[preferred]),
     );
     if (preferredButton && currentActive !== preferredButton) preferredButton.click();
