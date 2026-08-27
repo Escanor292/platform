@@ -14,9 +14,20 @@ export const PROFILE_SECTION_IDS = [
   "analytics",
   "cta",
 ] as const;
+export const PROFILE_TAB_SECTION_IDS = ["projects", "campaigns", "products", "blog", "pledges", "badges"] as const;
 
 export type ProfilePreset = (typeof PROFILE_PRESETS)[number];
 export type ProfileSectionId = (typeof PROFILE_SECTION_IDS)[number];
+export type ProfileTabSectionId = (typeof PROFILE_TAB_SECTION_IDS)[number];
+
+export const PROFILE_TAB_LABELS: Record<ProfileTabSectionId, string> = {
+  projects: "Dự án",
+  campaigns: "Chiến dịch",
+  products: "Sản phẩm",
+  blog: "Blog",
+  pledges: "Đã ủng hộ",
+  badges: "Huy hiệu",
+};
 
 const hexColor = z.string().regex(/^#[0-9a-fA-F]{6}$/, "Màu phải là mã HEX 6 ký tự");
 const safeText = (max: number) => z.string().trim().max(max);
@@ -145,6 +156,29 @@ export const DEFAULT_PROFILE_CUSTOMIZATION: ProfileCustomizationConfig = {
   },
 };
 
+export const PRESET_SECTION_LAYOUT: Record<ProfilePreset, { visible: ProfileSectionId[]; order: ProfileSectionId[] }> = {
+  minimal: {
+    visible: ["hero", "about", "blog", "cta"],
+    order: ["hero", "about", "blog", "cta", "projects", "campaigns", "products", "pledges", "badges", "achievements", "analytics"],
+  },
+  creator: {
+    visible: [...PROFILE_SECTION_IDS],
+    order: [...PROFILE_SECTION_IDS],
+  },
+  project: {
+    visible: ["hero", "about", "projects", "campaigns", "blog", "achievements", "cta"],
+    order: ["hero", "about", "projects", "campaigns", "blog", "achievements", "cta", "products", "pledges", "badges", "analytics"],
+  },
+  shop: {
+    visible: ["hero", "about", "products", "campaigns", "pledges", "cta"],
+    order: ["hero", "about", "products", "campaigns", "pledges", "cta", "projects", "blog", "badges", "achievements", "analytics"],
+  },
+  community: {
+    visible: ["hero", "about", "blog", "badges", "achievements", "analytics", "cta"],
+    order: ["hero", "about", "blog", "badges", "achievements", "analytics", "cta", "projects", "campaigns", "products", "pledges"],
+  },
+};
+
 function cloneDefault(): ProfileCustomizationConfig {
   return JSON.parse(JSON.stringify(DEFAULT_PROFILE_CUSTOMIZATION)) as ProfileCustomizationConfig;
 }
@@ -170,6 +204,46 @@ export function getOrderedSections(config: ProfileCustomizationConfig) {
   return [...config.sections].sort((a, b) => a.order - b.order);
 }
 
+export function hasDefaultSectionOrder(config: ProfileCustomizationConfig) {
+  return [...config.sections]
+    .sort((a, b) => a.order - b.order)
+    .map((item) => item.id)
+    .join(",") === PROFILE_SECTION_IDS.join(",");
+}
+
+export function resolveProfileLayout(config: ProfileCustomizationConfig) {
+  if (config.preset === "creator" || !hasDefaultSectionOrder(config)) return config;
+  return applyPresetLayout(config, config.preset);
+}
+
+export function applyPresetLayout(config: ProfileCustomizationConfig, preset: ProfilePreset): ProfileCustomizationConfig {
+  const layout = PRESET_SECTION_LAYOUT[preset];
+  const byId = new Map(config.sections.map((item) => [item.id, item]));
+  const remaining = PROFILE_SECTION_IDS.filter((id) => !layout.order.includes(id));
+  const order = [...layout.order, ...remaining];
+  return {
+    ...config,
+    preset,
+    sections: order.map((id, index) => ({
+      ...(byId.get(id) ?? section(id, index)),
+      id,
+      order: index,
+      visible: layout.visible.includes(id),
+    })),
+  };
+}
+
+export function getOrderedTabSections(config: ProfileCustomizationConfig) {
+  return getOrderedSections(resolveProfileLayout(config)).filter((item): item is ProfileSection & { id: ProfileTabSectionId } =>
+    (PROFILE_TAB_SECTION_IDS as readonly string[]).includes(item.id),
+  );
+}
+
+export function getPreferredProfileTab(config: ProfileCustomizationConfig): ProfileTabSectionId {
+  const firstVisible = getOrderedTabSections(config).find((item) => item.visible);
+  return firstVisible?.id ?? "campaigns";
+}
+
 export function getPublicProfileCustomization(config: ProfileCustomizationConfig, userId: string) {
   if (!config.experiment.enabled || config.experiment.allocationPercent <= 0) return config;
   let hash = 0;
@@ -185,7 +259,7 @@ export function getPublicProfileCustomization(config: ProfileCustomizationConfig
     shop: { primary: "#ea580c", secondary: "#db2777", background: "#fff7ed", surface: "#ffffff", text: "#431407", muted: "#9a3412", gradientColors: ["#ea580c", "#db2777"] },
     community: { primary: "#7c3aed", secondary: "#2563eb", background: "#f5f3ff", surface: "#ffffff", text: "#2e1065", muted: "#6d28d9", gradientColors: ["#7c3aed", "#2563eb", "#0f766e"] },
   };
-  return { ...config, preset: variant, theme: { ...config.theme, ...themeOverrides[variant] } };
+  return applyPresetLayout({ ...config, theme: { ...config.theme, ...themeOverrides[variant] } }, variant);
 }
 
 export function getProfileThemeStyle(config: ProfileCustomizationConfig) {
