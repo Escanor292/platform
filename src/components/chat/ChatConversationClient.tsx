@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { ChatWindow } from './ChatWindow';
@@ -9,7 +9,7 @@ import { ChatInfoPanel } from './ChatInfoPanel';
 import { CallModal } from './CallModal';
 import { useCall } from '@/hooks/useCall';
 import { MongoConversation, MongoMessage } from '@/types/chat.types';
-import { cn } from '@/lib/utils';
+import { describeCallSignal, isVisibleCallEvent, previewConversationLastMessage } from '@/lib/chat-call-preview';
 
 interface Message {
     id: string;
@@ -26,12 +26,26 @@ interface Conversation {
     lastMessage: Message;
     unreadCount: number;
     isOnline?: boolean;
-    /** Tài khoản đối phương đã bị xóa khỏi hệ thống */
     userDeleted?: boolean;
 }
 
 interface ChatConversationClientProps {
     conversationId: string;
+}
+
+function toDisplayMessages(list: MongoMessage[]): MongoMessage[] {
+    return list.flatMap((m) => {
+        if (m.type !== 'call-signal') return [m];
+        if (isVisibleCallEvent(m.text, m.type)) {
+            return [{
+                ...m,
+                type: 'text',
+                text: describeCallSignal(m.text, m.type),
+                attachments: [],
+            }];
+        }
+        return [];
+    });
 }
 
 export function ChatConversationClient({ conversationId }: ChatConversationClientProps) {
@@ -49,7 +63,6 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
     const [currentUserName, setCurrentUserName] = useState('Bạn');
     const [currentUserAvatar, setCurrentUserAvatar] = useState<string | undefined>(undefined);
 
-    // ─── Lưu trạng thái messages mới nhất để dùng làm kênh signaling cho cuộc gọi ───
     const otherParticipant = conversation?.participants.find((p: any) => p.userId !== currentUserId);
     const messagesRef = useRef<MongoMessage[]>([]);
     const setMessagesState = (updater: React.SetStateAction<MongoMessage[]>) => {
@@ -65,7 +78,6 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
         setCurrentUserAvatar((session?.user as any)?.image || undefined);
     }, [session]);
 
-    // Hàm lấy tin nhắn mới nhất từ API — dùng bởi hook gọi để poll tín hiệu cuộc gọi
     const fetchLatestMessages = useCallback(async () => {
         try {
             const response = await fetch(`/api/chat/conversations/${conversationId}/messages?limit=50`);
@@ -133,11 +145,9 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                 method: 'PATCH',
             });
             if (response.ok) {
-                // Cập nhật ngay số chưa đọc của cuộc trò chuyện này trên sidebar
                 setAllConversations((prev) =>
                     prev.map((c) => (c.id === conversationId ? { ...c, unreadCount: 0 } : c))
                 );
-                // Báo cho navbar badge cập nhật số tổng ngay lập tức
                 window.dispatchEvent(new Event("chat:read"));
             }
         } catch (err) {
@@ -161,10 +171,10 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                     userDeleted: !!otherParticipant?.deleted,
                     lastMessage: {
                         id: conv.lastMessage?.senderId || '',
-                        content:
-                            conv.lastMessage?.type === 'call-signal'
-                                ? describeCallSignal(conv.lastMessage.text)
-                                : (conv.lastMessage?.text || ''),
+                        content: previewConversationLastMessage(
+                            conv.lastMessage?.text || '',
+                            conv.lastMessage?.type
+                        ),
                         createdAt: conv.lastMessage?.createdAt || new Date(),
                         isRead: false,
                     },
@@ -179,27 +189,12 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
         }
     };
 
-    // Mô tả tin tín hiệu cuộc gọi cho preview (thay vì hiện JSON thô)
-    const describeCallSignal = (text: string): string => {
-        try {
-            const sig = JSON.parse(text);
-            if (sig?.type === 'call') return sig.mode === 'video' ? '📹 Cuộc gọi video đến...' : '📞 Cuộc gọi thoại đến...';
-            if (sig?.type === 'accept') return sig.mode === 'video' ? '📹 Cuộc gọi video được chấp nhận' : '📞 Cuộc gọi thoại được chấp nhận';
-            if (sig?.type === 'end' || sig?.type === 'bye') return '📵 Cuộc gọi đã kết thúc';
-            if (sig?.type === 'reject') return '❌ Cuộc gọi bị từ chối';
-            return '📞 Tín hiệu cuộc gọi';
-        } catch {
-            return '';
-        }
-    };
-
     const handleSendMessage = async (content: string, files?: File[], sensitive?: boolean) => {
         if ((!content.trim() && (!files || files.length === 0)) || sending) return;
 
         try {
             setSending(true);
 
-            // Upload files to Cloudinary first
             const attachmentUrls: { url: string; type: 'image' | 'file' | 'voice'; filename?: string; size?: number; mimeType?: string }[] = [];
             if (files && files.length > 0) {
                 for (const file of files) {
@@ -256,6 +251,7 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
         }
     };
 
+    const displayMessages = useMemo(() => toDisplayMessages(messages), [messages]);
 
     if (loading) {
         return (
@@ -268,7 +264,6 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
     return (
         <div className="container mx-auto px-4 pt-16 pb-3 max-w-7xl h-[calc(100dvh-10.5rem)]">
             <div className="flex h-full w-full rounded-lg border border-gray-200 overflow-hidden bg-white">
-                {/* Left: Chat Sidebar */}
                 <div className="hidden lg:flex w-[300px] shrink-0 min-w-0 overflow-hidden border-r border-gray-200 h-full">
                     <ChatSidebar
                         conversations={allConversations}
@@ -278,7 +273,6 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                     />
                 </div>
 
-                {/* Middle: Chat Window */}
                 <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
                     <ChatWindow
                         conversationId={conversationId}
@@ -286,7 +280,7 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                         recipientAvatar={otherParticipant?.avatarUrl}
                         recipientUserId={otherParticipant?.userId}
                         recipientDeleted={!!otherParticipant?.deleted}
-                        messages={messages}
+                        messages={displayMessages}
                         loading={loading}
                         currentUserId={currentUserId}
                         currentUserName={currentUserName}
@@ -301,7 +295,6 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                     />
                 </div>
 
-                {/* Right: Info Panel (Desktop) */}
                 {showInfoPanel && (
                     <div className="hidden lg:flex w-[280px] shrink-0 min-w-0 border-l border-gray-200 h-full overflow-hidden bg-white transition-all duration-200 animate-in slide-in-from-right">
                         <ChatInfoPanel
@@ -318,7 +311,6 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                 )}
             </div>
 
-            {/* Modal cuộc gọi thoại/video */}
             <CallModal
                 visible={call.phase !== 'idle' || !!call.error}
                 onClose={() => call.endCall(true)}
@@ -342,7 +334,6 @@ export function ChatConversationClient({ conversationId }: ChatConversationClien
                 onToggleCamera={() => call.toggleCamera()}
                 onDismissError={() => call.setError(null)}
             />
-            {/* Mobile Info Panel Drawer */}
             {showInfoPanel && (
                 <div className="fixed inset-0 z-50 bg-black/50 lg:hidden flex justify-end animate-in fade-in duration-200">
                     <div className="w-full max-w-xs h-full bg-white shadow-xl animate-in slide-in-from-right duration-200">
