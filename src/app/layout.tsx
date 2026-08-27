@@ -8,6 +8,7 @@ import { Providers } from "@/components/shared/Providers";
 import { CartProvider } from "@/components/products/CartProvider";
 import QuickPageAssistant from "@/components/public/QuickPageAssistant";
 import PlatformHelpAssistant from "@/components/public/PlatformHelpAssistant";
+import PlatformAssistantGate from "@/components/public/PlatformAssistantGate";
 import ProfileThemeShell from "@/components/profile/ProfileThemeShell";
 import { Toaster } from "sonner";
 
@@ -64,8 +65,10 @@ export default function RootLayout({
               </main>
               <FooterNew />
               <MobileBottomNav />
-              <QuickPageAssistant />
-              <PlatformHelpAssistant />
+              <PlatformAssistantGate>
+                <QuickPageAssistant />
+                <PlatformHelpAssistant />
+              </PlatformAssistantGate>
             </div>
           </ProfileThemeShell>
           </CartProvider>
