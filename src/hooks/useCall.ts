@@ -9,19 +9,22 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export type CallMode = 'voice' | 'video';
+export type CallEndReason = 'completed' | 'rejected' | 'missed' | 'cancelled';
 export type CallPhase =
-    | 'idle'            // chưa có cuộc gọi
-    | 'ringing'         // người gọi đang đổ chuông chờ
-    | 'incoming'        // đang có cuộc gọi đến (người nhận thấy chuông)
-    | 'connecting'      // đã chấp nhận, đang kết nối P2P
-    | 'active'          // cuộc gọi đang diễn ra
-    | 'ended';          // vừa kết thúc
+    | 'idle'
+    | 'ringing'
+    | 'incoming'
+    | 'connecting'
+    | 'active'
+    | 'ended';
 
 export interface CallSignal {
     type: 'call' | 'accept' | 'reject' | 'offer' | 'answer' | 'candidate' | 'end' | 'bye';
     mode?: CallMode;
     from?: string;
     ts?: number;
+    duration?: number;
+    reason?: CallEndReason;
     sdp?: RTCSessionDescriptionInit;
     candidate?: RTCIceCandidateInit;
 }
@@ -38,16 +41,6 @@ const ICE_SERVERS: RTCConfiguration = {
     ],
 };
 
-function parseSignal(text: string): CallSignal | null {
-    try {
-        const obj = JSON.parse(text);
-        if (obj && obj.type && (obj.ts || obj.type === 'end' || obj.type === 'bye')) return obj as CallSignal;
-        return null;
-    } catch {
-        return null;
-    }
-}
-
 export function useCall({
     conversationId,
     currentUserId,
@@ -56,7 +49,7 @@ export function useCall({
     recipientUserId,
     recipientName,
     recipientAvatar,
-    onFetchMessages, // hàm gọi API để lấy tin nhắn mới nhất của conversation (bao gồm tín hiệu gọi)
+    onFetchMessages,
 }: {
     conversationId: string;
     currentUserId: string;
@@ -85,17 +78,21 @@ export function useCall({
     const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const phaseRef = useRef<CallPhase>('idle');
     const callStartRef = useRef<number>(0);
+    const connectedRef = useRef(false);
     const durationTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const processedTsRef = useRef<Set<string>>(new Set());
+    const modeRef = useRef<CallMode>('voice');
     const phaseConfigRef = useRef({ conversationId, currentUserId });
     phaseConfigRef.current = { conversationId, currentUserId };
 
-    // Cập nhật phaseRef ngoài render phase (React Compiler forbids ref access during render)
     useEffect(() => {
         phaseRef.current = phase;
     }, [phase]);
 
-    // Dừng chuông/báo hiệu bằng Web Audio
+    useEffect(() => {
+        modeRef.current = mode;
+    }, [mode]);
+
     const stopRingTone = useCallback(() => {
         if (ringIntervalRef.current) {
             clearInterval(ringIntervalRef.current);
@@ -137,12 +134,21 @@ export function useCall({
         }
     }, []);
 
+    const sendSignal = useCallback(async (sig: Omit<CallSignal, 'from'>) => {
+        const { conversationId: cid, currentUserId: uid } = phaseConfigRef.current;
+        const payload = { ...sig, from: uid, ts: sig.ts ?? Date.now() };
+        await fetch(`/api/chat/conversations/${cid}/messages`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: JSON.stringify(payload), type: CALL_SIGNAL }),
+        }).catch((err) => console.error('Send signal error', err));
+    }, []);
+
     const startPolling = useCallback(() => {
         stopPolling();
         pollRef.current = setInterval(async () => {
             try {
                 const msgs = await onFetchMessages();
-                // Lọc tín hiệu gọi của đối phương (không phải mình)
                 const signals = (msgs || [])
                     .filter((m: any) => m.type === CALL_SIGNAL && m.senderId !== currentUserId && !m.senderDeleted)
                     .map((m: any) => {
@@ -175,18 +181,14 @@ export function useCall({
                         endCall(false);
                         setPhase('idle');
                     } else if (phaseRef.current === 'idle' && sig.type === 'call' && sig.mode) {
-                        // Cuộc gọi đến mới
                         if (processedTsRef.current.has(String(sig.ts!))) continue;
                         stopPolling();
                         setMode(sig.mode as CallMode);
                         playRingTone();
                         setPhase('incoming');
-                        // Tự động từ chối sau CALL_TIMEOUT_MS
                         setTimeout(() => {
                             if (phaseRef.current === 'incoming') {
-                                stopRingTone();
-                                rejectIncoming();
-                                setPhase('idle');
+                                missIncoming();
                             }
                         }, CALL_TIMEOUT_MS);
                     } else if (phaseRef.current === 'ringing' && sig.type === 'end') {
@@ -202,7 +204,6 @@ export function useCall({
         }, POLL_MS);
     }, [currentUserId, onFetchMessages, stopRingTone, stopPolling]);
 
-    // ───────────────────── Media ─────────────────────
     const getLocalStream = useCallback(async (m: CallMode): Promise<MediaStream> => {
         if (localStreamRef.current) return localStreamRef.current;
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -214,86 +215,121 @@ export function useCall({
         return stream;
     }, []);
 
-    const createPeer = useCallback((mode: CallMode): RTCPeerConnection => {
+    const createPeer = useCallback((callMode: CallMode): RTCPeerConnection => {
         const pc = new RTCPeerConnection(ICE_SERVERS);
         peerRef.current = pc;
 
-        // ICE candidate → gửi qua signaling
         pc.onicecandidate = async (ev) => {
             if (ev.candidate) {
                 await sendSignal({ type: 'candidate', candidate: ev.candidate.toJSON(), ts: Date.now() });
             }
         };
-        // Stream từ xa
         pc.ontrack = (ev) => {
             remoteStreamRef.current = ev.streams[0];
             if (remoteVideoRef.current) remoteVideoRef.current.srcObject = ev.streams[0];
-            setIsRemoteVideo(mode === 'video' && !!ev.streams[0].getVideoTracks().length);
+            setIsRemoteVideo(callMode === 'video' && !!ev.streams[0].getVideoTracks().length);
         };
-        // Stream của mình
         localStreamRef.current?.getTracks().forEach((track) => pc.addTrack(track, localStreamRef.current!));
         return pc;
-    }, []);
+    }, [sendSignal]);
 
-    // ───────────────────── Signaling send ─────────────────────
-    const sendSignal = useCallback(async (sig: Omit<CallSignal, 'from'>) => {
-        const { conversationId: cid, currentUserId: uid } = phaseConfigRef.current;
-        const payload = { ...sig, from: uid, ts: sig.ts ?? Date.now() };
-        await fetch(`/api/chat/conversations/${cid}/messages`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: JSON.stringify(payload), type: CALL_SIGNAL }),
-        }).catch((err) => console.error('Send signal error', err));
-    }, []);
+    const startDurationTimer = () => {
+        if (durationTimerRef.current) clearInterval(durationTimerRef.current);
+        setCallDuration(0);
+        durationTimerRef.current = setInterval(() => {
+            setCallDuration(Math.floor((Date.now() - callStartRef.current) / 1000));
+        }, 1000);
+    };
 
-    // ───────────────────── Cuộc gọi đi ─────────────────────
+    const cleanupMedia = () => {
+        stopRingTone();
+        stopPolling();
+        if (durationTimerRef.current) clearInterval(durationTimerRef.current);
+        durationTimerRef.current = null;
+        localStreamRef.current?.getTracks().forEach((t) => t.stop());
+        localStreamRef.current = null;
+        remoteStreamRef.current = null;
+        peerRef.current?.close();
+        peerRef.current = null;
+    };
+
+    const endCall = useCallback((notify: boolean, reason?: CallEndReason) => {
+        const currentPhase = phaseRef.current;
+        let resolved: CallEndReason = reason || 'cancelled';
+        if (!reason) {
+            if (connectedRef.current || currentPhase === 'active' || currentPhase === 'connecting') {
+                resolved = 'completed';
+            } else if (currentPhase === 'ringing') {
+                resolved = 'cancelled';
+            } else if (currentPhase === 'incoming') {
+                resolved = 'rejected';
+            }
+        }
+        const duration =
+            resolved === 'completed' && callStartRef.current
+                ? Math.max(0, Math.floor((Date.now() - callStartRef.current) / 1000))
+                : 0;
+
+        if (notify && currentPhase !== 'idle') {
+            sendSignal({
+                type: resolved === 'rejected' ? 'reject' : 'end',
+                reason: resolved,
+                duration,
+                mode: modeRef.current,
+                ts: Date.now(),
+            }).catch(() => {});
+        }
+
+        cleanupMedia();
+        connectedRef.current = false;
+        setPhase('idle');
+        setMuted(false);
+        setCameraOff(false);
+        setIsRemoteVideo(false);
+        setCallDuration(0);
+    }, [sendSignal, stopPolling, stopRingTone]);
+
     const startCall = useCallback(async (m: CallMode) => {
         try {
             setError(null);
             setMode(m);
+            connectedRef.current = false;
             setPhase('ringing');
             callStartRef.current = Date.now();
             startPolling();
-            // Gửi tín hiệu gọi đến ngay để đối phương reo chuông trước khi lấy media
             await sendSignal({ type: 'call', mode: m, ts: Date.now() });
-            let stream: MediaStream;
             try {
-                stream = await getLocalStream(m);
+                await getLocalStream(m);
             } catch {
                 setError(m === 'video' ? 'Không thể truy cập camera/micro. Vui lòng cấp quyền.' : 'Không thể truy cập micro. Vui lòng cấp quyền.');
-                setTimeout(() => { setError(null); endCall(true); }, 5000);
+                setTimeout(() => { setError(null); endCall(true, 'cancelled'); }, 5000);
                 return;
             }
-            // Timeout nếu đối phương không bắt máy
             setTimeout(() => {
                 if (phaseRef.current === 'ringing') {
-                    endCall(false);
-                    setPhase('idle');
+                    endCall(true, 'missed');
                     setError('Không có ai bắt máy');
                     setTimeout(() => setError(null), 3000);
                 }
             }, CALL_TIMEOUT_MS);
-            // Offer WebRTC sẽ được tạo và gửi sau khi đối phương chấp nhận
-            // (xem handleAccept). Tín hiệu 'call' ở trên đã báo chuông rồi.
         } catch (err: any) {
             console.error('Start call error', err);
             setError('Không thể truy cập camera/micro. Vui lòng cấp quyền.');
-            setTimeout(() => { setError(null); endCall(true); }, 5000);
+            setTimeout(() => { setError(null); endCall(true, 'cancelled'); }, 5000);
         }
-    }, [getLocalStream, sendSignal, startPolling]);
+    }, [getLocalStream, sendSignal, startPolling, endCall]);
 
-    // ───────────────────── Người nhận chấp nhận ─────────────────────
     const acceptIncoming = useCallback(async () => {
         try {
             stopRingTone();
             setPhase('connecting');
-            const stream = await getLocalStream(mode);
+            connectedRef.current = true;
+            await getLocalStream(mode);
             createPeer(mode);
             startPolling();
             await sendSignal({ type: 'accept', mode, ts: Date.now() });
             callStartRef.current = Date.now();
             startDurationTimer();
-            // Chờ offer từ người gọi (do polling handleOffer)
         } catch (err: any) {
             console.error('Accept error', err);
             setError('Không thể truy cập camera/micro. Vui lòng cấp quyền.');
@@ -304,25 +340,45 @@ export function useCall({
     const rejectIncoming = useCallback(async () => {
         stopRingTone();
         stopPolling();
-        await sendSignal({ type: 'reject', ts: Date.now() }).catch(() => {});
+        await sendSignal({
+            type: 'reject',
+            reason: 'rejected',
+            mode: modeRef.current,
+            ts: Date.now(),
+        }).catch(() => {});
+        connectedRef.current = false;
         setPhase('idle');
     }, [sendSignal, stopPolling, stopRingTone]);
 
-    // ───────────────────── Người gọi: xử lý accept ─────────────────────
-    const handleAccept = useCallback(async (remoteMode: CallMode) => {
+    const missIncoming = useCallback(async () => {
+        stopRingTone();
+        stopPolling();
+        await sendSignal({
+            type: 'end',
+            reason: 'missed',
+            mode: modeRef.current,
+            ts: Date.now(),
+        }).catch(() => {});
+        connectedRef.current = false;
+        setPhase('idle');
+    }, [sendSignal, stopPolling, stopRingTone]);
+
+    const handleAccept = useCallback(async (_remoteMode: CallMode) => {
         try {
-            const m: CallMode = mode; // chế độ người gọi khởi xướng
+            const m: CallMode = modeRef.current;
+            connectedRef.current = true;
             createPeer(m);
             setPhase('connecting');
+            callStartRef.current = Date.now();
+            startDurationTimer();
             const offer = await peerRef.current!.createOffer();
             await peerRef.current!.setLocalDescription(offer);
             await sendSignal({ type: 'offer', sdp: offer, ts: Date.now() });
         } catch (err) {
             console.error('Handle accept error', err);
         }
-    }, [createPeer, mode, sendSignal]);
+    }, [createPeer, sendSignal]);
 
-    // ───────────────────── Người nhận: xử lý offer ─────────────────────
     const handleOffer = useCallback(async (sdp: RTCSessionDescriptionInit) => {
         try {
             if (!peerRef.current) return;
@@ -330,7 +386,6 @@ export function useCall({
             const answer = await peerRef.current.createAnswer();
             await peerRef.current.setLocalDescription(answer);
             await sendSignal({ type: 'answer', sdp: answer, ts: Date.now() });
-            // Cuộc gọi thực sự "active" khi remote stream bắt đầu; set an toàn:
             setTimeout(() => { if (phaseRef.current === 'connecting') setPhase('active'); }, 4000);
         } catch (err) {
             console.error('Handle offer error', err);
@@ -355,15 +410,6 @@ export function useCall({
         }
     }, []);
 
-    // ───────────────────── Kết thúc / trong cuộc gọi ─────────────────────
-    const startDurationTimer = () => {
-        if (durationTimerRef.current) clearInterval(durationTimerRef.current);
-        setCallDuration(0);
-        durationTimerRef.current = setInterval(() => {
-            setCallDuration(Math.floor((Date.now() - callStartRef.current) / 1000));
-        }, 1000);
-    };
-
     const toggleMute = useCallback(() => {
         localStreamRef.current?.getAudioTracks().forEach((t) => (t.enabled = !t.enabled));
         setMuted((v) => !v);
@@ -376,10 +422,9 @@ export function useCall({
             setCameraOff((v) => !v);
             return;
         }
-        // Đang gọi thoại → chuyển sang video
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
-            stream.getVideoTracks()[0].enabled = false; // tắt ngay, người dùng tự bật
+            stream.getVideoTracks()[0].enabled = false;
             stream.getVideoTracks().forEach((t) => peerRef.current?.addTrack(t, stream));
             localStreamRef.current = stream;
             if (localVideoRef.current) localVideoRef.current.srcObject = stream;
@@ -390,29 +435,6 @@ export function useCall({
         }
     }, []);
 
-    const endCall = useCallback((notify: boolean) => {
-        stopRingTone();
-        stopPolling();
-        if (durationTimerRef.current) clearInterval(durationTimerRef.current);
-        durationTimerRef.current = null;
-        localStreamRef.current?.getTracks().forEach((t) => t.stop());
-        localStreamRef.current = null;
-        remoteStreamRef.current = null;
-        peerRef.current?.close();
-        peerRef.current = null;
-        // Gửi tín hiệu kết thúc cho đối phương TRƯỚC khi đặt phase idle
-        // (để điều kiện check không bị fail và đối phương tắt chuông/đóng modal)
-        if (notify && phaseRef.current !== 'idle') {
-            sendSignal({ type: 'end', ts: Date.now() }).catch(() => {});
-        }
-        setPhase('idle');
-        setMuted(false);
-        setCameraOff(false);
-        setIsRemoteVideo(false);
-        setCallDuration(0);
-    }, [sendSignal, stopPolling, stopRingTone]);
-
-    // Cleanup khi unmount hoặc đổi conversation
     useEffect(() => {
         return () => {
             endCall(false);
