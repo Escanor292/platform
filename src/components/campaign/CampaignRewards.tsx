@@ -133,8 +133,8 @@ export default function CampaignRewards({
                             )}
 
                             <div className="p-4">
-                                <div className="flex items-start justify-between gap-3 mb-2">
-                                    <div className="text-lg font-bold text-emerald-600 leading-tight">
+                                <div className="flex items-center justify-between gap-3 mb-2">
+                                    <div className="text-lg font-bold text-emerald-600 leading-none">
                                         {formatVND(reward.minAmount)}
                                     </div>
                                     <button
