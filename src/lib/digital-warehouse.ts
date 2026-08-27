@@ -1,4 +1,4 @@
-import { createId } from "@paralleldrive/cuid2";
+import { randomUUID } from "crypto";
 import prisma from "@/lib/prisma";
 import { notificationService } from "@/services/mongodb/notification.service";
 import type { RewardFulfillmentType } from "../../prisma/generated/client";
@@ -92,7 +92,7 @@ export async function seedDemoWarehouseItems(userId = DEMO_WAREHOUSE_USER_ID) {
 
     const reward = await prisma.rewards.create({
       data: {
-        id: createId(),
+        id: randomUUID(),
         campaignId: campaign?.id || null,
         title: item.title,
         description: item.description,
@@ -106,7 +106,7 @@ export async function seedDemoWarehouseItems(userId = DEMO_WAREHOUSE_USER_ID) {
 
     const pledge = await prisma.pledges.create({
       data: {
-        id: createId(),
+        id: randomUUID(),
         campaignId: campaign?.id || null,
         userId,
         displayName: user.displayName || user.name || "Backer demo",
