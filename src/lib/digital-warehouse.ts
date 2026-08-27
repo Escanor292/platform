@@ -12,11 +12,11 @@ export function isDigitalFulfillment(type?: string | null): type is DigitalFulfi
 
 export function warehouseCategory(type?: string | null, title?: string | null): Exclude<WarehouseCategory, "all"> {
   const haystack = `${type || ""} ${title || ""}`.toLowerCase();
-  if (type === "LICENSE_KEY" || /\bgame\b|steam|key|bản quyền/.test(haystack)) return "game";
-  if (type === "DIGITAL_COMIC" || /truyện|comic|manga|webtoon/.test(haystack)) return "comic";
-  if (/ảnh|image|art pack|wallpaper|poster/.test(haystack)) return "image";
+  if (type === "LICENSE_KEY" || /\bgame\b|steam|key|ban quyen|bản quyền/.test(haystack)) return "game";
+  if (type === "DIGITAL_COMIC" || /truyen|truyện|comic|manga|webtoon/.test(haystack)) return "comic";
+  if (/anh|ảnh|image|art pack|wallpaper|poster/.test(haystack)) return "image";
   if (/video|phim|clip/.test(haystack)) return "video";
-  if (/ebook|pdf|sách|epub/.test(haystack)) return "ebook";
+  if (/ebook|pdf|sach|sách|epub/.test(haystack)) return "ebook";
   if (type === "LICENSE_KEY") return "key";
   return "other";
 }
@@ -35,10 +35,6 @@ export function warehouseCategoryLabel(category: WarehouseCategory) {
   return labels[category];
 }
 
-/**
- * Ghi sản phẩm số vào kho đồ của tài khoản sau khi thanh toán thành công.
- * Dùng bảng reward_digital_assets hiện có làm entitlement — không cần migration.
- */
 export async function grantDigitalWarehouseItem(pledgeId: string) {
   const pledge = await prisma.pledges.findUnique({
     where: { id: pledgeId },
@@ -102,7 +98,7 @@ export async function grantDigitalWarehouseItem(pledgeId: string) {
   if (pledge.userId) {
     notificationService.send({
       userId: pledge.userId,
-      type: "WAREHOUSE_ITEM_ADDED",
+      type: "PAYMENT_SUCCESS",
       title: "Đã vào kho đồ",
       message: `${itemTitle} đã vào kho đồ của bạn`,
       payload: {
