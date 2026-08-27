@@ -1,10 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Check,
-  ChevronDown,
-  ChevronUp,
   Eye,
   GripVertical,
   LayoutTemplate,
@@ -20,29 +18,15 @@ import {
   applyPresetLayout,
   DEFAULT_PROFILE_CUSTOMIZATION,
   PROFILE_PRESETS,
-  PROFILE_SECTION_IDS,
   type ProfileCustomizationConfig,
   type ProfilePreset,
 } from '@/lib/profile-customization';
 import ProfileStudioPreview from '@/components/profile/ProfileStudioPreview';
+import SectionDragList from '@/components/profile/SectionDragList';
 
 type Option = { id: string; title: string; slug?: string; status?: string; projectId?: string | null; campaignId?: string | null };
 type Options = { projects: Option[]; campaigns: Option[]; rewards: Option[]; blogPosts: Option[] };
 type PreviewMode = 'desktop' | 'mobile';
-
-const SECTION_LABELS: Record<(typeof PROFILE_SECTION_IDS)[number], string> = {
-  hero: 'Ảnh bìa & nhận diện',
-  about: 'Giới thiệu',
-  projects: 'Dự án',
-  campaigns: 'Chiến dịch',
-  products: 'Sản phẩm',
-  blog: 'Blog',
-  pledges: 'Lịch sử ủng hộ',
-  badges: 'Huy hiệu',
-  achievements: 'Thành tích',
-  analytics: 'Thống kê nâng cao',
-  cta: 'Nút kêu gọi hành động',
-};
 
 const PRESET_DESCRIPTIONS: Record<ProfilePreset, string> = {
   minimal: 'Gọn gàng, tập trung vào giới thiệu và nội dung chính.',
@@ -64,16 +48,6 @@ function cloneConfig(value: ProfileCustomizationConfig) {
   return JSON.parse(JSON.stringify(value)) as ProfileCustomizationConfig;
 }
 
-function moveSection(config: ProfileCustomizationConfig, from: number, to: number) {
-  const next = cloneConfig(config);
-  const items = [...next.sections].sort((a, b) => a.order - b.order);
-  const [moved] = items.splice(from, 1);
-  if (!moved) return next;
-  items.splice(to, 0, moved);
-  next.sections = items.map((item, order) => ({ ...item, order }));
-  return next;
-}
-
 function toggleId(ids: string[], id: string, max: number) {
   if (ids.includes(id)) return ids.filter((item) => item !== id);
   if (ids.length >= max) return ids;
@@ -85,7 +59,6 @@ export default function ProfileCustomizationEditor() {
   const [options, setOptions] = useState<Options>({ projects: [], campaigns: [], rewards: [], blogPosts: [] });
   const [versions, setVersions] = useState<Array<{ id: string; version: number; action: string; createdAt: string }>>([]);
   const [previewMode, setPreviewMode] = useState<PreviewMode>('desktop');
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -103,11 +76,6 @@ export default function ProfileCustomizationEditor() {
       .catch((reason) => setError(reason instanceof Error ? reason.message : 'Không thể tải cấu hình'))
       .finally(() => setLoading(false));
   }, []);
-
-  const orderedSections = useMemo(
-    () => [...config.sections].sort((a, b) => a.order - b.order).filter((item) => item.id !== 'cta'),
-    [config.sections],
-  );
 
   const patch = (next: Partial<ProfileCustomizationConfig>) => setConfig((current) => ({ ...current, ...next }));
   const patchTheme = (next: Partial<ProfileCustomizationConfig['theme']>) => setConfig((current) => ({ ...current, theme: { ...current.theme, ...next } }));
@@ -141,10 +109,6 @@ export default function ProfileCustomizationEditor() {
     }
   };
 
-  const updateSection = (id: string, next: Partial<ProfileCustomizationConfig['sections'][number]>) => {
-    setConfig((current) => ({ ...current, sections: current.sections.map((item) => item.id === id ? { ...item, ...next } : item) }));
-  };
-
   if (loading) return <div className="rounded-[2.5rem] border border-pgreen/10 bg-white/90 p-10 shadow-soft text-center text-gray-500 shadow-sm">Đang tải trình tùy chỉnh...</div>;
   if (error && !config) return <div className="rounded-[2rem] bg-cream p-6 text-red-700">{error}</div>;
 
@@ -155,7 +119,7 @@ export default function ProfileCustomizationEditor() {
           <div>
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-fgreen/20 bg-fgreen/10 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-pgreen"><Sparkles size={14} /> Profile Studio</div>
             <h2 className="font-display text-3xl font-black tracking-tight text-dblue sm:text-4xl">Thiết kế không gian của bạn</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-600">Tùy chỉnh trang cá nhân theo cá tính, thương hiệu creator hoặc câu chuyện dự án mà không làm mất đi sự tin cậy của Tử Tế Fund.</p>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-600">Tùy chỉnh trang cá nhân theo cá tính, thương hiệu creator hoặc câu chuyện dự án.</p>
           </div>
           <div className="flex items-center gap-2 rounded-2xl border border-pgreen/10 bg-white/70 px-3 py-2 text-xs font-bold text-pgreen"><Check size={15} /> An toàn theo hệ thống</div>
         </div>
@@ -217,19 +181,8 @@ export default function ProfileCustomizationEditor() {
           </section>
 
           <section className="rounded-[2.5rem] border border-pgreen/10 bg-white/90 p-6 shadow-soft backdrop-blur sm:p-8">
-            <div className="mb-1 flex items-center justify-between"><div className="flex items-center gap-2"><GripVertical className="text-pgreen" size={20} /><h2 className="font-display text-xl font-black text-dblue">Section và kéo-thả</h2></div><span className="text-xs font-semibold text-gray-400">Kéo để sắp xếp</span></div>
-            <p className="mb-4 text-sm text-gray-500">Chỉ các section được hệ thống định nghĩa mới có thể dùng trên profile.</p>
-            <div className="space-y-2">
-              {orderedSections.map((item, index) => (
-                <div key={item.id} draggable onDragStart={() => setDragIndex(index)} onDragOver={(event) => event.preventDefault()} onDrop={() => { if (dragIndex !== null && dragIndex !== index) setConfig(moveSection(config, dragIndex, index)); setDragIndex(null); }} className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-cream/70 p-3">
-                  <GripVertical className="cursor-grab text-gray-400" size={18} />
-                  <div className="min-w-0 flex-1"><div className="font-bold text-dblue">{SECTION_LABELS[item.id]}</div><div className="text-xs text-gray-500">Tối đa {item.limit} mục</div></div>
-                  <button aria-label="Đưa lên" disabled={index === 0} onClick={() => setConfig(moveSection(config, index, index - 1))} className="rounded-lg p-1 text-gray-500 hover:bg-white disabled:opacity-30"><ChevronUp size={16} /></button>
-                  <button aria-label="Đưa xuống" disabled={index === orderedSections.length - 1} onClick={() => setConfig(moveSection(config, index, index + 1))} className="rounded-lg p-1 text-gray-500 hover:bg-white disabled:opacity-30"><ChevronDown size={16} /></button>
-                  <input aria-label={`Hiện ${SECTION_LABELS[item.id]}`} type="checkbox" checked={item.visible} onChange={(event) => updateSection(item.id, { visible: event.target.checked })} className="h-4 w-4 accent-pgreen" />
-                </div>
-              ))}
-            </div>
+            <div className="mb-4 flex items-center justify-between"><div className="flex items-center gap-2"><GripVertical className="text-pgreen" size={20} /><h2 className="font-display text-xl font-black text-dblue">Section và kéo-thả</h2></div><span className="text-xs font-semibold text-gray-400">Kéo để sắp xếp</span></div>
+            <SectionDragList config={config} onChange={setConfig} />
           </section>
 
           <section className="rounded-[2.5rem] border border-pgreen/10 bg-white/90 p-6 shadow-soft backdrop-blur sm:p-8">
@@ -243,12 +196,7 @@ export default function ProfileCustomizationEditor() {
                       <p className="text-xs text-gray-400">Chưa có nội dung phù hợp.</p>
                     ) : list.map((item) => (
                       <label key={item.id} className="flex min-w-0 items-start gap-2 text-sm text-gray-700">
-                        <input
-                          type="checkbox"
-                          checked={config.featured[key].includes(item.id)}
-                          onChange={() => patch({ featured: { ...config.featured, [key]: toggleId(config.featured[key], item.id, max) } })}
-                          className="mt-0.5 h-4 w-4 shrink-0 accent-pgreen"
-                        />
+                        <input type="checkbox" checked={config.featured[key].includes(item.id)} onChange={() => patch({ featured: { ...config.featured, [key]: toggleId(config.featured[key], item.id, max) } })} className="mt-0.5 h-4 w-4 shrink-0 accent-pgreen" />
                         <span className="min-w-0 flex-1 break-words leading-5">{item.title}</span>
                       </label>
                     ))}
@@ -264,13 +212,13 @@ export default function ProfileCustomizationEditor() {
               <label className="flex items-center justify-between rounded-2xl border border-gray-200 p-3 text-sm font-semibold text-gray-700">Hiện thống kê ủng hộ<input type="checkbox" checked={config.analytics.showSupportStats} onChange={(event) => patch({ analytics: { ...config.analytics, showSupportStats: event.target.checked } })} className="h-4 w-4 accent-pgreen" /></label>
               <label className="flex items-center justify-between rounded-2xl border border-gray-200 p-3 text-sm font-semibold text-gray-700">Hiện tiến độ campaign<input type="checkbox" checked={config.analytics.showProgressStats} onChange={(event) => patch({ analytics: { ...config.analytics, showProgressStats: event.target.checked } })} className="h-4 w-4 accent-pgreen" /></label>
             </div>
-            <div className="mt-4 rounded-2xl border border-dashed border-ebrown/25 p-4"><div className="flex items-center justify-between"><div><div className="font-bold text-dblue">Thử nghiệm preset B</div><p className="text-xs text-gray-500">Chỉ là cấu hình rollout an toàn; chưa tự động thay đổi dữ liệu kinh doanh.</p></div><input type="checkbox" checked={config.experiment.enabled} onChange={(event) => patch({ experiment: { ...config.experiment, enabled: event.target.checked } })} className="h-4 w-4 accent-pgreen" /></div><div className="mt-3 grid gap-3 sm:grid-cols-2"><select value={config.experiment.variantBPreset} onChange={(event) => patch({ experiment: { ...config.experiment, variantBPreset: event.target.value as ProfilePreset } })} className="rounded-xl border border-gray-200 px-3 py-2 text-sm"><option value="minimal">B: Minimal</option><option value="creator">B: Creator</option><option value="project">B: Project</option><option value="shop">B: Shop</option><option value="community">B: Community</option></select><label className="text-sm font-bold text-gray-700">Phân bổ {config.experiment.allocationPercent}%<input type="range" min="0" max="100" value={config.experiment.allocationPercent} onChange={(event) => patch({ experiment: { ...config.experiment, allocationPercent: Number(event.target.value) } })} className="mt-2 w-full accent-pgreen" /></label></div></div>
+            <div className="mt-4 rounded-2xl border border-dashed border-ebrown/25 p-4"><div className="flex items-center justify-between"><div><div className="font-bold text-dblue">Thử nghiệm preset B</div><p className="text-xs text-gray-500">Chỉ là cấu hình rollout; chưa tự đổi dữ liệu kinh doanh.</p></div><input type="checkbox" checked={config.experiment.enabled} onChange={(event) => patch({ experiment: { ...config.experiment, enabled: event.target.checked } })} className="h-4 w-4 accent-pgreen" /></div><div className="mt-3 grid gap-3 sm:grid-cols-2"><select value={config.experiment.variantBPreset} onChange={(event) => patch({ experiment: { ...config.experiment, variantBPreset: event.target.value as ProfilePreset } })} className="rounded-xl border border-gray-200 px-3 py-2 text-sm"><option value="minimal">B: Minimal</option><option value="creator">B: Creator</option><option value="project">B: Project</option><option value="shop">B: Shop</option><option value="community">B: Community</option></select><label className="text-sm font-bold text-gray-700">Phân bổ {config.experiment.allocationPercent}%<input type="range" min="0" max="100" value={config.experiment.allocationPercent} onChange={(event) => patch({ experiment: { ...config.experiment, allocationPercent: Number(event.target.value) } })} className="mt-2 w-full accent-pgreen" /></label></div></div>
           </section>
         </div>
 
         <aside className="h-fit space-y-4 xl:sticky xl:top-6">
           <div className="rounded-[2.5rem] border border-pgreen/10 bg-white/90 p-4 shadow-soft backdrop-blur"><div className="mb-4 flex items-center justify-between"><div className="flex items-center gap-2 font-display text-xl font-black text-dblue"><Eye size={18} className="text-pgreen" /> Xem trước</div><div className="flex gap-1 rounded-xl border border-gray-200 bg-cream/70 p-1"><button onClick={() => setPreviewMode('desktop')} className={`rounded-lg px-2 py-1 text-xs font-bold ${previewMode === 'desktop' ? 'bg-white text-dblue' : 'text-gray-500'}`}>Desktop</button><button onClick={() => setPreviewMode('mobile')} className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-bold ${previewMode === 'mobile' ? 'bg-white text-dblue' : 'text-gray-500'}`}><Smartphone size={12} /> Mobile</button></div></div><ProfileStudioPreview config={config} mode={previewMode} /></div>
-          <div className="rounded-[2rem] border border-ebrown/20 bg-cream p-4 text-sm leading-relaxed text-ebrown"><strong>Lưu ý bảo mật:</strong> Profile Studio chỉ nhận màu, preset, block ID và nội dung thuộc tài khoản. Không có HTML, CSS, JavaScript, iframe hoặc URL tùy ý trong cấu hình.</div>
+          <div className="rounded-[2rem] border border-ebrown/20 bg-cream p-4 text-sm leading-relaxed text-ebrown"><strong>Lưu ý:</strong> Profile Studio chỉ nhận màu, preset, block ID và nội dung thuộc tài khoản. Không có HTML, CSS, JavaScript, iframe hoặc URL tùy ý trong cấu hình.</div>
           <div className="rounded-[2rem] border border-pgreen/10 bg-white/90 p-5 shadow-soft"><div className="mb-3 flex items-center justify-between"><h3 className="font-black text-dblue">Lịch sử phiên bản</h3><span className="text-xs text-gray-400">12 bản gần nhất</span></div>{versions.length === 0 ? <p className="text-sm text-gray-500">Chưa có snapshot. Hãy lưu bản nháp hoặc xuất bản.</p> : <div className="space-y-2">{versions.map((version) => <div key={version.id} className="flex items-center justify-between gap-3 rounded-xl bg-cream/70 px-3 py-2"><div><div className="text-sm font-bold text-gray-700">Bản {version.version} · {version.action}</div><div className="text-xs text-gray-400">{new Date(version.createdAt).toLocaleString('vi-VN')}</div></div><button onClick={() => save('restore_version', version.id)} disabled={saving} className="shrink-0 rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs font-bold text-gray-600 hover:border-pgreen/40 hover:text-pgreen">Khôi phục</button></div>)}</div>}</div>
         </aside>
       </div>
