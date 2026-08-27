@@ -100,7 +100,6 @@ export default function CampaignRewards({
                                 }
                             }}
                         >
-                            {/* Product image/video preview */}
                             {hasMedia && (
                                 <div className="relative aspect-[16/6] w-full overflow-hidden bg-gray-100">
                                     {hasVideo ? (
@@ -134,35 +133,20 @@ export default function CampaignRewards({
                             )}
 
                             <div className="p-4">
-                                {/* Reward Header */}
-                                <div className="flex justify-between items-start gap-4 mb-3">
-                                <div className="flex-1 min-w-0">
-                                    <div className="text-lg font-bold text-emerald-600 mb-1">
+                                <div className="flex items-start justify-between gap-3 mb-2">
+                                    <div className="text-lg font-bold text-emerald-600 leading-tight">
                                         {formatVND(reward.minAmount)}
                                     </div>
-                                    <h4 className="font-semibold text-gray-900 mb-2">
-                                        {reward.title}
-                                    </h4>
-                                    {reward.isPreorder && (
-                                        <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-800">
-                                            Đặt hàng trước{expectedDelivery ? ` · giao dự kiến ${new Date(expectedDelivery).toLocaleDateString('vi-VN')}` : ''}
-                                        </span>
-                                    )}
-                                </div>
-
-                                {/* CTA buttons for Reward */}
-                                <div className="w-[180px] max-w-full shrink-0 flex flex-col items-end gap-2">
                                     <button
                                         type="button"
                                         className={`
-                                            inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold shadow-sm transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-pgreen focus-visible:ring-offset-2
+                                            inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-bold shadow-sm transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-pgreen focus-visible:ring-offset-2
                                             ${!isAvailable
                                                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60'
                                                 : 'gradient-green text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-green-200'
                                             }
                                         `}
                                         onClick={(e) => {
-                                            // The card opens details; only this button opens the payment modal.
                                             e.stopPropagation();
                                             if (isAvailable) {
                                                 openRewardDonation(reward);
@@ -173,7 +157,19 @@ export default function CampaignRewards({
                                         {isAvailable && <Gift className="h-4 w-4" />}
                                         {!isAvailable ? 'Hết suất' : 'Ủng hộ nhận quà'}
                                     </button>
+                                </div>
 
+                                <div className="flex items-start gap-2 mb-3">
+                                    <div className="min-w-0 flex-1">
+                                        <h4 className="font-semibold text-gray-900 mb-2 leading-snug">
+                                            {reward.title}
+                                        </h4>
+                                        {reward.isPreorder && (
+                                            <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-800">
+                                                Đặt hàng trước{expectedDelivery ? ` · giao dự kiến ${new Date(expectedDelivery).toLocaleDateString('vi-VN')}` : ''}
+                                            </span>
+                                        )}
+                                    </div>
                                     {isAvailable && (
                                         <QuickAddToCartButton
                                             rewardId={reward.id}
@@ -183,20 +179,17 @@ export default function CampaignRewards({
                                             campaignId={campaignId}
                                             isPreorder={reward.isPreorder}
                                             deliveryDate={reward.deliveryDate || null}
-                                            className="h-10 w-10 rounded-xl"
+                                            className="h-10 w-10 shrink-0 rounded-xl"
                                         />
                                     )}
                                 </div>
-                            </div>
 
-                            {/* Reward Description */}
                             {reward.description && (
                                 <p className="text-gray-600 text-sm mb-3 leading-relaxed">
                                     {reward.description}
                                 </p>
                             )}
 
-                            {/* Reward Meta Info */}
                             <div className="flex flex-wrap gap-4 text-xs text-gray-500">
                                 {reward.isPreorder && expectedDelivery && (
                                     <div className="flex items-center gap-1 font-semibold text-amber-700">
@@ -215,7 +208,6 @@ export default function CampaignRewards({
                                 )}
                             </div>
 
-                            {/* Selection Indicator */}
                             {isSelected && (
                                 <div className="mt-3 pt-3 border-t border-emerald-200">
                                     <div className="flex items-center gap-2 text-emerald-700">
@@ -232,7 +224,6 @@ export default function CampaignRewards({
                 })}
             </div>
 
-            {/* Footer Note */}
             <div className="mt-4 pt-4 border-t border-gray-100">
                 <p className="text-xs text-gray-500 leading-relaxed">
                     💡 <strong>Lưu ý:</strong> Phần quà sẽ được gửi đến địa chỉ bạn cung cấp sau khi dự án thành công.
