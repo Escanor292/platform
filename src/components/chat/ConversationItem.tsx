@@ -6,20 +6,7 @@ import { UserAvatar } from "./UserAvatar";
 import { UnreadBadge } from "./UnreadBadge";
 import { formatDistanceToNow } from "@/lib/utils";
 import Link from "next/link";
-
-// Mô tả tin tín hiệu cuộc gọi cho preview (thay vì hiện JSON thô)
-const describeCallSignal = (text: string): string => {
-  try {
-    const sig = JSON.parse(text);
-    if (sig?.type === 'call') return sig.mode === 'video' ? '📹 Cuộc gọi video đến...' : '📞 Cuộc gọi thoại đến...';
-    if (sig?.type === 'accept') return sig.mode === 'video' ? '📹 Cuộc gọi video được chấp nhận' : '📞 Cuộc gọi thoại được chấp nhận';
-    if (sig?.type === 'end' || sig?.type === 'bye') return '📵 Cuộc gọi đã kết thúc';
-    if (sig?.type === 'reject') return '❌ Cuộc gọi bị từ chối';
-    return '📞 Tín hiệu cuộc gọi';
-  } catch {
-    return text;
-  }
-};
+import { previewConversationLastMessage } from "@/lib/chat-call-preview";
 
 interface ConversationItemProps {
   conversation: MongoConversation;
@@ -31,14 +18,12 @@ export function ConversationItem({ conversation, isActive, onClick }: Conversati
   const { data: session } = useSession();
   const currentUserId = session?.user?.id;
 
-  // Get the other participant
   const otherParticipant = conversation.participants.find(
     (p) => p.userId !== currentUserId
   );
 
   if (!otherParticipant) return null;
 
-  // Thống nhất giao diện "Người dùng đã xóa": coi là đã xóa dù DB thiếu flag (tên được gán nhãn khi user bị xóa)
   const isDeleted = !!otherParticipant.deleted || otherParticipant.name === 'Người dùng đã xóa';
   const displayName = isDeleted ? 'Người dùng đã xóa' : otherParticipant.name;
 
@@ -53,7 +38,6 @@ export function ConversationItem({ conversation, isActive, onClick }: Conversati
           : "border-gray-200 bg-white hover:bg-gray-50"
         }`}
     >
-      {/* Avatar - clickable (không link khi user đã bị xóa) */}
       <UserAvatar
         src={otherParticipant.avatarUrl}
         name={displayName}
@@ -63,9 +47,7 @@ export function ConversationItem({ conversation, isActive, onClick }: Conversati
         deleted={isDeleted}
       />
 
-      {/* Content */}
       <div className="flex-1 min-w-0">
-        {/* Name and Role - name is clickable (user đã xóa không có link profile) */}
         <div className="flex items-center gap-2">
           {isDeleted ? (
             <span className={`font-medium truncate text-gray-400 italic ${hasUnread ? "font-semibold" : ""}`}>
@@ -90,24 +72,19 @@ export function ConversationItem({ conversation, isActive, onClick }: Conversati
           )}
         </div>
 
-        {/* Campaign Info */}
         {conversation.campaign && (
           <p className="text-xs text-gray-500 truncate mt-0.5">
             📋 {conversation.campaign.title}
           </p>
         )}
 
-        {/* Last Message */}
         {conversation.lastMessage && (
           <p className={`text-sm truncate mt-1 ${hasUnread ? "font-medium text-gray-900" : "text-gray-600"}`}>
             {conversation.lastMessage.senderId === currentUserId && "Bạn: "}
-            {conversation.lastMessage.type === 'call-signal'
-              ? describeCallSignal(conversation.lastMessage.text)
-              : conversation.lastMessage.text}
+            {previewConversationLastMessage(conversation.lastMessage.text, conversation.lastMessage.type)}
           </p>
         )}
 
-        {/* Timestamp */}
         {conversation.lastMessage && (
           <p className="text-xs text-gray-400 mt-1">
             {formatDistanceToNow(new Date(conversation.lastMessage.createdAt))}
@@ -115,7 +92,6 @@ export function ConversationItem({ conversation, isActive, onClick }: Conversati
         )}
       </div>
 
-      {/* Unread Badge */}
       {hasUnread && <UnreadBadge count={unreadCount} />}
     </div>
   );
