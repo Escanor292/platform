@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { ChatSidebar } from './ChatSidebar';
 import { MongoConversation } from '@/types/chat.types';
+import { previewConversationLastMessage } from '@/lib/chat-call-preview';
 
 interface Message {
     id: string;
@@ -46,7 +47,6 @@ export function ChatPageClient() {
             }
             const data = await response.json();
 
-            // Map MongoConversation to Conversation interface
             const mappedConversations: Conversation[] = data.conversations.map((conv: MongoConversation) => {
                 const otherParticipant = conv.participants.find((p: any) => p.userId !== currentUserId);
 
@@ -60,13 +60,15 @@ export function ChatPageClient() {
                     userAvatar: otherParticipant?.avatarUrl,
                     lastMessage: {
                         id: conv.lastMessage?.senderId || '',
-                        content: conv.lastMessage?.text || '',
+                        content: previewConversationLastMessage(
+                            conv.lastMessage?.text || '',
+                            conv.lastMessage?.type
+                        ),
                         createdAt: conv.lastMessage?.createdAt || new Date(),
                         isRead: false,
                     },
                     unreadCount: conv.unreadCount[currentUserId] || 0,
                     isOnline: false,
-                    // Thống nhất giao diện "Người dùng đã xóa": dùng flag hoặc tên được gán nhãn
                     userDeleted: !!otherParticipant?.deleted || otherParticipant?.name === 'Người dùng đã xóa',
                 };
             });
@@ -84,7 +86,6 @@ export function ChatPageClient() {
     };
 
     const handleNewChat = () => {
-        // TODO: Open NewMessageDialog
         console.log('New chat');
     };
 
@@ -111,7 +112,6 @@ export function ChatPageClient() {
     return (
         <div className="container mx-auto px-4 pt-16 pb-3 max-w-7xl h-[calc(100dvh-10.5rem)]">
             <div className="flex h-full w-full rounded-lg border border-gray-200 overflow-hidden bg-white">
-                {/* Left: Chat Sidebar */}
                 <div className="hidden lg:flex w-[300px] shrink-0 min-w-0 overflow-hidden border-r border-gray-200 h-full">
                     <ChatSidebar
                         conversations={conversations}
@@ -121,7 +121,6 @@ export function ChatPageClient() {
                     />
                 </div>
 
-                {/* Right: Placeholder */}
                 <div className="flex lg:hidden h-full flex-col items-center justify-center p-8 text-center text-gray-500">
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">Tin nhắn</h3>
                     <p className="text-sm text-gray-500">Chọn một cuộc trò chuyện để xem.</p>
