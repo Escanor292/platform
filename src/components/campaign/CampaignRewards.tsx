@@ -159,13 +159,13 @@ export default function CampaignRewards({
                                     </button>
                                 </div>
 
-                                <div className="flex items-start gap-2 mb-3">
+                                <div className="flex items-center gap-2 mb-3">
                                     <div className="min-w-0 flex-1">
-                                        <h4 className="font-semibold text-gray-900 mb-2 leading-snug">
+                                        <h4 className="font-semibold text-gray-900 leading-snug">
                                             {reward.title}
                                         </h4>
                                         {reward.isPreorder && (
-                                            <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-800">
+                                            <span className="mt-2 inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-800">
                                                 Đặt hàng trước{expectedDelivery ? ` · giao dự kiến ${new Date(expectedDelivery).toLocaleDateString('vi-VN')}` : ''}
                                             </span>
                                         )}
