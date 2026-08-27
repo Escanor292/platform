@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { BookOpen, Download, Gamepad2, Image as ImageIcon, KeyRound, Mail, PackageOpen, Video } from "lucide-react";
 import { formatVND } from "@/lib/utils";
-import { warehouseCategory, warehouseCategoryLabel, type WarehouseCategory } from "@/lib/digital-warehouse";
+import { warehouseCategory, warehouseCategoryLabel, type WarehouseCategory } from "@/lib/warehouse-ui";
 
 export type WarehouseItem = {
   pledgeId: string;
