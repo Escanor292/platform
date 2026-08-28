@@ -153,10 +153,11 @@ const PledgeFormContent = memo(function PledgeFormContent({
     const isPreorder = Boolean(selectedReward?.isPreorder);
     const isReadyProduct = selectedReward?.availability === "AVAILABLE" && !isPreorder;
     const isDigitalProduct = Boolean(selectedReward && selectedReward.fulfillmentType && selectedReward.fulfillmentType !== "PHYSICAL");
+    const allowsCod = Boolean(isRewardDonation && !isDigitalProduct && (isReadyProduct || isPreorder));
 
     useEffect(() => {
-        if (isDigitalProduct && paymentMethod === "COD") setPaymentMethod("ONLINE");
-    }, [isDigitalProduct, paymentMethod]);
+        if (!allowsCod && paymentMethod === "COD") setPaymentMethod("ONLINE");
+    }, [allowsCod, paymentMethod]);
 
     useEffect(() => {
         if (!selectedReward) return;
@@ -318,26 +319,32 @@ const PledgeFormContent = memo(function PledgeFormContent({
                     <div className="space-y-3">
                         <div>
                             <label className="block text-sm font-semibold text-gray-700">Phương thức thanh toán</label>
-                            <p className="text-xs text-gray-500 mt-1">Chọn online rồi chọn ví, thẻ hoặc quét QR nếu không muốn liên kết thẻ.</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                                {allowsCod
+                                    ? "Chọn online rồi chọn ví, thẻ hoặc quét QR nếu không muốn liên kết thẻ."
+                                    : "Ủng hộ không nhận quà luôn thanh toán online — chọn ví, thẻ hoặc quét QR."}
+                            </p>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {Object.values(PAYMENT_METHODS).filter((method) => method.id !== "COD" || isReadyProduct || isPreorder).map((method) => {
-                                const isSelected = paymentMethod === method.id;
-                                return (
-                                    <label key={method.id} className={`flex items-center justify-between p-4 border-2 rounded-xl cursor-pointer ${isSelected ? `${method.colors.border} ${method.colors.bg} ${method.colors.text}` : "border-gray-200"}`}>
-                                        <div>
-                                            <div className="font-medium">{method.label}</div>
-                                            <div className="text-xs text-gray-500">{method.description}</div>
-                                        </div>
-                                        <input type="radio" name="paymentMethod" checked={isSelected} onChange={() => {
-                                            setPaymentMethod(method.id as "ONLINE" | "COD");
-                                            setSelectedPaymentMethodId(null);
-                                            if (method.id === "ONLINE") setOnlineChannel("QR");
-                                        }} />
-                                    </label>
-                                );
-                            })}
-                        </div>
+                        {allowsCod && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {Object.values(PAYMENT_METHODS).map((method) => {
+                                    const isSelected = paymentMethod === method.id;
+                                    return (
+                                        <label key={method.id} className={`flex items-center justify-between p-4 border-2 rounded-xl cursor-pointer ${isSelected ? `${method.colors.border} ${method.colors.bg} ${method.colors.text}` : "border-gray-200"}`}>
+                                            <div>
+                                                <div className="font-medium">{method.label}</div>
+                                                <div className="text-xs text-gray-500">{method.description}</div>
+                                            </div>
+                                            <input type="radio" name="paymentMethod" checked={isSelected} onChange={() => {
+                                                setPaymentMethod(method.id as "ONLINE" | "COD");
+                                                setSelectedPaymentMethodId(null);
+                                                if (method.id === "ONLINE") setOnlineChannel("QR");
+                                            }} />
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                        )}
                         {paymentMethod === "ONLINE" && (
                             <OnlinePaymentPicker
                                 savedMethods={savedMethods}
