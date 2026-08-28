@@ -44,3 +44,10 @@ type OnlinePaymentPickerProps = {
     isDefault: boolean;
   }) => Promise<SavedPaymentMethod>;
 };
+
+const CHANNELS: Array<{ id: OnlineChannel; label: string; hint: string }> = [
+  { id: "WALLET", label: "Ví điện tử", hint: "MoMo · ZaloPay · VNPay" },
+  { id: "CARD", label: "Thẻ quốc tế", hint: "Visa · Mastercard · JCB" },
+  { id: "NAPAS", label: "Thẻ nội địa", hint: "ATM NAPAS · BIN 9704" },
+  { id: "QR", label: "VietQR", hint: "Quét, không liên kết" },
+];
