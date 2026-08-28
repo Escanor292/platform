@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo, useState } from "react";
+
 export type OnlineChannel = "WALLET" | "CARD" | "NAPAS" | "QR";
 
 export type SavedPaymentMethod = {
@@ -20,6 +22,7 @@ type OnlinePaymentPickerProps = {
   onChannelChange: (channel: OnlineChannel) => void;
   onSelectSavedMethod: (id: string | null) => void;
   onSavePaymentMethodChange: (value: boolean) => void;
+  onMethodLinked?: (method: SavedPaymentMethod) => void;
 };
 
 const CHANNELS: Array<{ id: OnlineChannel; label: string }> = [
@@ -28,6 +31,18 @@ const CHANNELS: Array<{ id: OnlineChannel; label: string }> = [
   { id: "NAPAS", label: "Thẻ nội địa NAPAS" },
   { id: "QR", label: "Quét mã QR" },
 ];
+
+const WALLET_PROVIDERS = [
+  { id: "MOMO", label: "MoMo" },
+  { id: "ZALOPAY", label: "ZaloPay" },
+];
+
+const CARD_BRANDS = ["Visa", "Mastercard", "JCB"];
+
+const NAPAS_BANKS = ["Vietcombank", "Techcombank", "MB Bank", "VietinBank", "BIDV", "ACB", "TPBank", "VPBank"];
+
+const inputClass =
+  "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500";
 
 function channelOf(method: SavedPaymentMethod): OnlineChannel {
   const type = method.methodType.toUpperCase();
@@ -44,6 +59,10 @@ function methodIcon(method: SavedPaymentMethod) {
   return "NH";
 }
 
+function last4FromDigits(value: string) {
+  return value.replace(/\D/g, "").slice(-4);
+}
+
 export default function OnlinePaymentPicker({
   savedMethods,
   isAuthenticated,
@@ -53,13 +72,123 @@ export default function OnlinePaymentPicker({
   onChannelChange,
   onSelectSavedMethod,
   onSavePaymentMethodChange,
+  onMethodLinked,
 }: OnlinePaymentPickerProps) {
   const methodsForChannel = savedMethods.filter((method) => channelOf(method) === channel);
+  const [showLinkForm, setShowLinkForm] = useState(false);
+  const [linking, setLinking] = useState(false);
+  const [linkError, setLinkError] = useState("");
+  const [walletProvider, setWalletProvider] = useState("MOMO");
+  const [walletPhone, setWalletPhone] = useState("");
+  const [walletName, setWalletName] = useState("");
+  const [cardBrand, setCardBrand] = useState("Visa");
+  const [cardName, setCardName] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [bankName, setBankName] = useState("Vietcombank");
+  const [accountName, setAccountName] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
 
   const selectChannel = (next: OnlineChannel) => {
     onChannelChange(next);
     onSelectSavedMethod(null);
+    setShowLinkForm(false);
+    setLinkError("");
     if (next === "QR") onSavePaymentMethodChange(false);
+  };
+
+  const formTitle = useMemo(() => {
+    if (channel === "WALLET") return "Liên kết ví điện tử";
+    if (channel === "CARD") return "Thêm thẻ tín dụng / ghi nợ";
+    return "Thêm thẻ nội địa NAPAS";
+  }, [channel]);
+
+  const resetForm = () => {
+    setWalletPhone("");
+    setWalletName("");
+    setCardName("");
+    setCardNumber("");
+    setCardExpiry("");
+    setAccountName("");
+    setAccountNumber("");
+    setLinkError("");
+  };
+
+  const handleLink = async () => {
+    setLinkError("");
+    if (!isAuthenticated) {
+      onSavePaymentMethodChange(true);
+      setLinkError("Đăng nhập để lưu phương thức này. Bạn có thể tiếp tục thanh toán rồi đăng nhập khi bấm Ủng hộ.");
+      return;
+    }
+
+    let methodType = "BANK_ACCOUNT";
+    let provider = "NAPAS";
+    let label = "";
+    let brand: string | null = null;
+    let last4 = "";
+
+    if (channel === "WALLET") {
+      const phone = walletPhone.replace(/\D/g, "");
+      if (phone.length < 9) {
+        setLinkError("Nhập số điện thoại đã đăng ký ví.");
+        return;
+      }
+      methodType = walletProvider;
+      provider = walletProvider;
+      last4 = phone.slice(-4);
+      label = `${walletProvider === "MOMO" ? "MoMo" : "ZaloPay"} ${walletName.trim() || `****${last4}`}`;
+    } else if (channel === "CARD") {
+      last4 = last4FromDigits(cardNumber);
+      if (last4.length !== 4 || !cardName.trim()) {
+        setLinkError("Nhập tên in trên thẻ và số thẻ (ứng dụng chỉ lưu 4 số cuối).");
+        return;
+      }
+      methodType = "CARD";
+      provider = "PAYOS";
+      brand = cardBrand;
+      label = `${cardBrand} •••• ${last4}${cardExpiry ? ` (${cardExpiry})` : ""}`;
+    } else {
+      last4 = last4FromDigits(accountNumber);
+      if (last4.length !== 4 || !accountName.trim()) {
+        setLinkError("Nhập tên chủ thẻ/tài khoản và số thẻ nội địa (ứng dụng chỉ lưu 4 số cuối).");
+        return;
+      }
+      methodType = "BANK_ACCOUNT";
+      provider = "NAPAS";
+      brand = bankName;
+      label = `${bankName} •••• ${last4}`;
+    }
+
+    setLinking(true);
+    try {
+      const response = await fetch("/api/payment-methods", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          methodType,
+          provider,
+          providerMethodRef: `link:${methodType}:${last4}:${Date.now()}`,
+          label,
+          brand,
+          last4,
+          isDefault: methodsForChannel.length === 0,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.method) {
+        throw new Error(data.error || "Không thể liên kết phương thức thanh toán");
+      }
+      onMethodLinked?.(data.method);
+      onSelectSavedMethod(data.method.id);
+      onSavePaymentMethodChange(true);
+      setShowLinkForm(false);
+      resetForm();
+    } catch (error) {
+      setLinkError(error instanceof Error ? error.message : "Không thể liên kết phương thức");
+    } finally {
+      setLinking(false);
+    }
   };
 
   return (
@@ -80,9 +209,7 @@ export default function OnlinePaymentPicker({
               }`}
             >
               {item.label}
-              {active && (
-                <span className="absolute -bottom-1 -right-1 text-[10px] text-green-600">✓</span>
-              )}
+              {active && <span className="absolute -bottom-1 -right-1 text-[10px] text-green-600">✓</span>}
             </button>
           );
         })}
@@ -123,26 +250,29 @@ export default function OnlinePaymentPicker({
           </div>
         ) : (
           <>
-            {methodsForChannel.length === 0 && (
+            {methodsForChannel.length === 0 && !showLinkForm && (
               <p className="text-xs text-gray-500 px-2 py-1">
                 {isAuthenticated
-                  ? "Chưa có phương thức đã liên kết ở nhóm này."
-                  : "Đăng nhập để dùng phương thức đã lưu."}
+                  ? "Chưa có phương thức đã liên kết ở nhóm này. Thêm mới bên dưới."
+                  : "Đăng nhập để lưu phương thức. Bạn vẫn có thể điền form rồi thanh toán qua cổng bảo mật."}
               </p>
             )}
             {methodsForChannel.map((method) => (
               <button
                 key={method.id}
                 type="button"
-                onClick={() => onSelectSavedMethod(method.id)}
+                onClick={() => {
+                  onSelectSavedMethod(method.id);
+                  setShowLinkForm(false);
+                }}
                 className={`w-full flex items-center gap-3 rounded-lg px-2 py-2 text-left transition ${
-                  selectedPaymentMethodId === method.id ? "bg-green-50" : "hover:bg-gray-50"
+                  selectedPaymentMethodId === method.id && !showLinkForm ? "bg-green-50" : "hover:bg-gray-50"
                 }`}
               >
                 <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                  selectedPaymentMethodId === method.id ? "border-green-600" : "border-gray-300"
+                  selectedPaymentMethodId === method.id && !showLinkForm ? "border-green-600" : "border-gray-300"
                 }`}>
-                  {selectedPaymentMethodId === method.id && <span className="w-2 h-2 rounded-full bg-green-600" />}
+                  {selectedPaymentMethodId === method.id && !showLinkForm && <span className="w-2 h-2 rounded-full bg-green-600" />}
                 </span>
                 <span className="w-8 h-8 rounded-md border border-gray-200 bg-white text-[10px] font-bold text-gray-700 flex items-center justify-center">
                   {methodIcon(method)}
@@ -158,15 +288,18 @@ export default function OnlinePaymentPicker({
 
             <button
               type="button"
-              onClick={() => onSelectSavedMethod(null)}
+              onClick={() => {
+                onSelectSavedMethod(null);
+                setShowLinkForm(false);
+              }}
               className={`w-full flex items-center gap-3 rounded-lg px-2 py-2 text-left transition ${
-                !selectedPaymentMethodId ? "bg-green-50" : "hover:bg-gray-50"
+                !selectedPaymentMethodId && !showLinkForm ? "bg-green-50" : "hover:bg-gray-50"
               }`}
             >
               <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                !selectedPaymentMethodId ? "border-green-600" : "border-gray-300"
+                !selectedPaymentMethodId && !showLinkForm ? "border-green-600" : "border-gray-300"
               }`}>
-                {!selectedPaymentMethodId && <span className="w-2 h-2 rounded-full bg-green-600" />}
+                {!selectedPaymentMethodId && !showLinkForm && <span className="w-2 h-2 rounded-full bg-green-600" />}
               </span>
               <span className="text-sm text-gray-800">
                 {channel === "WALLET" && "Thanh toán bằng ví mới qua cổng bảo mật"}
@@ -174,6 +307,139 @@ export default function OnlinePaymentPicker({
                 {channel === "NAPAS" && "Thanh toán bằng thẻ / tài khoản ngân hàng qua cổng bảo mật"}
               </span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setShowLinkForm(true);
+                onSelectSavedMethod(null);
+              }}
+              className={`w-full flex items-center gap-3 rounded-lg px-2 py-2 text-left transition ${
+                showLinkForm ? "bg-green-50" : "hover:bg-gray-50"
+              }`}
+            >
+              <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                showLinkForm ? "border-green-600" : "border-gray-300"
+              }`}>
+                {showLinkForm && <span className="w-2 h-2 rounded-full bg-green-600" />}
+              </span>
+              <span className="text-sm font-medium text-green-700">+ {formTitle}</span>
+            </button>
+
+            {showLinkForm && (
+              <div className="rounded-xl border border-green-200 bg-green-50/40 p-3 space-y-3">
+                {channel === "WALLET" && (
+                  <>
+                    <div className="grid grid-cols-2 gap-2">
+                      {WALLET_PROVIDERS.map((provider) => (
+                        <button
+                          key={provider.id}
+                          type="button"
+                          onClick={() => setWalletProvider(provider.id)}
+                          className={`rounded-lg border px-3 py-2 text-sm ${
+                            walletProvider === provider.id
+                              ? "border-green-600 bg-white text-green-700 font-semibold"
+                              : "border-gray-200 bg-white text-gray-600"
+                          }`}
+                        >
+                          {provider.label}
+                        </button>
+                      ))}
+                    </div>
+                    <input
+                      className={inputClass}
+                      inputMode="numeric"
+                      value={walletPhone}
+                      onChange={(event) => setWalletPhone(event.target.value.replace(/[^0-9]/g, "").slice(0, 11))}
+                      placeholder="Số điện thoại đăng ký ví"
+                    />
+                    <input
+                      className={inputClass}
+                      value={walletName}
+                      onChange={(event) => setWalletName(event.target.value)}
+                      placeholder="Tên hiển thị (tuỳ chọn)"
+                    />
+                  </>
+                )}
+
+                {channel === "CARD" && (
+                  <>
+                    <select className={inputClass} value={cardBrand} onChange={(event) => setCardBrand(event.target.value)}>
+                      {CARD_BRANDS.map((brand) => (
+                        <option key={brand} value={brand}>{brand}</option>
+                      ))}
+                    </select>
+                    <input
+                      className={inputClass}
+                      value={cardName}
+                      onChange={(event) => setCardName(event.target.value)}
+                      placeholder="Tên in trên thẻ"
+                    />
+                    <input
+                      className={inputClass}
+                      inputMode="numeric"
+                      autoComplete="off"
+                      value={cardNumber}
+                      onChange={(event) => {
+                        const digits = event.target.value.replace(/\D/g, "").slice(0, 19);
+                        setCardNumber(digits.replace(/(\d{4})(?=\d)/g, "$1 "));
+                      }}
+                      placeholder="Số thẻ (chỉ lưu 4 số cuối)"
+                    />
+                    <input
+                      className={inputClass}
+                      inputMode="numeric"
+                      value={cardExpiry}
+                      onChange={(event) => {
+                        const digits = event.target.value.replace(/\D/g, "").slice(0, 4);
+                        setCardExpiry(digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits);
+                      }}
+                      placeholder="MM/YY"
+                    />
+                  </>
+                )}
+
+                {channel === "NAPAS" && (
+                  <>
+                    <select className={inputClass} value={bankName} onChange={(event) => setBankName(event.target.value)}>
+                      {NAPAS_BANKS.map((bank) => (
+                        <option key={bank} value={bank}>{bank}</option>
+                      ))}
+                    </select>
+                    <input
+                      className={inputClass}
+                      value={accountName}
+                      onChange={(event) => setAccountName(event.target.value)}
+                      placeholder="Tên chủ thẻ / tài khoản"
+                    />
+                    <input
+                      className={inputClass}
+                      inputMode="numeric"
+                      autoComplete="off"
+                      value={accountNumber}
+                      onChange={(event) => {
+                        const digits = event.target.value.replace(/\D/g, "").slice(0, 19);
+                        setAccountNumber(digits.replace(/(\d{4})(?=\d)/g, "$1 "));
+                      }}
+                      placeholder="Số thẻ nội địa (chỉ lưu 4 số cuối)"
+                    />
+                  </>
+                )}
+
+                <p className="text-[11px] text-gray-500">
+                  Tử Tế Fund không lưu số thẻ đầy đủ, CVV hay mật khẩu ví. Khi thanh toán, cổng PayOS/VietQR sẽ xác thực.
+                </p>
+                {linkError && <p className="text-xs text-red-600">{linkError}</p>}
+                <button
+                  type="button"
+                  disabled={linking}
+                  onClick={handleLink}
+                  className="w-full rounded-lg bg-green-600 disabled:opacity-50 text-white text-sm font-semibold py-2.5"
+                >
+                  {linking ? "Đang liên kết..." : isAuthenticated ? `Lưu ${formTitle.toLowerCase()}` : "Tiếp tục — sẽ yêu cầu đăng nhập"}
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -190,7 +456,7 @@ export default function OnlinePaymentPicker({
             <span className="block text-sm font-medium text-gray-800">Lưu phương thức thanh toán an toàn</span>
             <span className="block text-xs text-gray-500 mt-0.5">
               {isAuthenticated
-                ? "Cổng thanh toán sẽ lưu token bảo mật; Tử Tế Fund không lưu số thẻ hoặc thông tin đăng nhập ví."
+                ? "Chỉ lưu nhãn, nhà cung cấp và 4 số cuối. Số thẻ/CVV không đi qua máy chủ Tử Tế Fund."
                 : "Bạn sẽ được yêu cầu đăng nhập/đăng ký, sau đó quay lại đúng bước thanh toán này."}
             </span>
           </span>
