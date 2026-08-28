@@ -4,7 +4,7 @@ import { useState, useCallback, useMemo, memo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { formatVND } from "@/lib/utils";
-import OnlinePaymentPicker, { type OnlineChannel } from "@/components/campaign/OnlinePaymentPicker";
+import OnlinePaymentPicker, { type OnlineChannel, type SavedPaymentMethod } from "@/components/campaign/OnlinePaymentPicker";
 
 interface Reward {
     id: string;
@@ -103,7 +103,7 @@ const PledgeFormContent = memo(function PledgeFormContent({
     const [shippingMethod, setShippingMethod] = useState<"STANDARD" | "EXPRESS" | "EMAIL" | "DOWNLOAD">(
         preselectedReward?.fulfillmentType && preselectedReward.fulfillmentType !== "PHYSICAL" ? "EMAIL" : "STANDARD"
     );
-    const [savedMethods, setSavedMethods] = useState<Array<{ id: string; methodType: string; provider: string; label: string; last4: string | null; isDefault: boolean }>>([]);
+    const [savedMethods, setSavedMethods] = useState<SavedPaymentMethod[]>([]);
 
     useEffect(() => {
         if (!restoredPayload) return;
@@ -145,6 +145,12 @@ const PledgeFormContent = memo(function PledgeFormContent({
             cancelled = true;
         };
     }, [isAuthenticated]);
+
+    const handleMethodLinked = useCallback((method: SavedPaymentMethod) => {
+        setSavedMethods((current) => [method, ...current.filter((item) => item.id !== method.id)]);
+        setSelectedPaymentMethodId(method.id);
+        setSavePaymentMethod(true);
+    }, []);
 
     const isRewardDonation = donationType === "reward";
     const isGeneralDonation = donationType === "general";
@@ -355,6 +361,7 @@ const PledgeFormContent = memo(function PledgeFormContent({
                                 onChannelChange={setOnlineChannel}
                                 onSelectSavedMethod={setSelectedPaymentMethodId}
                                 onSavePaymentMethodChange={setSavePaymentMethod}
+                                onMethodLinked={handleMethodLinked}
                             />
                         )}
                     </div>
