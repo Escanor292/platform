@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, Search, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 interface SearchResult {
@@ -10,6 +10,30 @@ interface SearchResult {
   email: string;
   role: string;
   image: string | null;
+}
+
+function roleLabel(role: string) {
+  switch (role.toUpperCase()) {
+    case "ADMIN":
+      return "Quản trị";
+    case "CREATOR":
+      return "Creator";
+    case "BACKER":
+      return "Backer";
+    default:
+      return role;
+  }
+}
+
+function roleBadgeClass(role: string) {
+  switch (role.toUpperCase()) {
+    case "ADMIN":
+      return "bg-tblue/10 text-tblue";
+    case "CREATOR":
+      return "bg-pgreen/10 text-pgreen";
+    default:
+      return "bg-cream text-dblue";
+  }
 }
 
 export default function UserSearchForm() {
@@ -46,114 +70,95 @@ export default function UserSearchForm() {
     }
   };
 
-  const getRoleBadgeColor = (role: string) => {
-    switch (role.toUpperCase()) {
-      case "ADMIN":
-        return "bg-purple-100 text-purple-700";
-      case "CREATOR":
-        return "bg-amber-100 text-amber-700";
-      default:
-        return "bg-slate-100 text-slate-600";
-    }
-  };
-
   return (
-    <div className="space-y-6">
-      <div className="mb-8 rounded-3xl border border-emerald-100 bg-white/80 p-8 shadow-sm backdrop-blur">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">
-          Kết nối cộng đồng
-        </div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-          Tìm kiếm người dùng
-        </h1>
-      </div>
-
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <form onSubmit={handleSearch} className="space-y-5">
-          <div>
-            <label htmlFor="user-search" className="block text-sm font-semibold text-slate-900 mb-3">
-              Tìm theo ID, email hoặc tên hiển thị
-            </label>
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-              <input
-                id="user-search"
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Nhập ID, email hoặc tên người dùng..."
-                autoComplete="off"
-                className="h-12 w-full rounded-2xl border border-slate-200 pl-11 pr-4 text-base outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-              />
-            </div>
+    <div className="mx-auto w-full max-w-3xl text-left">
+      <form onSubmit={handleSearch} className="glass rounded-3xl p-4 shadow-soft sm:p-5">
+        <label htmlFor="user-search" className="sr-only">
+          Tìm theo tên, email hoặc ID
+        </label>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+            <input
+              id="user-search"
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Tên hiển thị, email hoặc ID..."
+              autoComplete="off"
+              className="h-12 w-full rounded-2xl border border-white/70 bg-white/80 pl-12 pr-4 text-base text-dblue outline-none transition placeholder:text-gray-400 focus:border-pgreen/40 focus:ring-2 focus:ring-pgreen/20"
+            />
           </div>
-
           <button
             type="submit"
             disabled={isLoading || !searchQuery.trim()}
-            className="h-12 w-full rounded-2xl bg-emerald-600 px-6 font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center gap-2"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-pgreen to-fgreen px-7 font-bold text-white transition hover:shadow-lg hover:shadow-green-200 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isLoading ? (
               <>
                 <Loader2 size={18} className="animate-spin" />
-                Đang tìm...
+                Đang tìm
               </>
             ) : (
               "Tìm kiếm"
             )}
           </button>
-        </form>
-      </div>
+        </div>
+      </form>
 
       {searched && (
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
+        <div className="mt-6 rounded-3xl bg-white/80 p-5 shadow-soft backdrop-blur sm:p-6">
+          <div className="mb-5 flex items-end justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold text-slate-900">Kết quả tìm kiếm</h2>
-              <p className="text-sm text-slate-500">
-                {results.length > 0 ? `Tìm thấy ${results.length} người dùng` : "Thông tin người dùng sẽ hiển thị tại đây."}
+              <h2 className="font-display font-bold text-xl text-dblue">Kết quả</h2>
+              <p className="text-sm text-gray-500">
+                {results.length > 0
+                  ? `${results.length} người dùng phù hợp`
+                  : "Chưa có kết quả phù hợp"}
               </p>
             </div>
           </div>
 
           {error ? (
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
+            <div className="rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
           ) : results.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {results.map((user) => (
                 <Link
                   key={user.id}
                   href={`/profile/${user.id}`}
-                  className="flex items-center gap-4 rounded-2xl border border-emerald-100 bg-emerald-50/40 p-5 transition group hover:bg-emerald-50/60"
+                  className="group flex items-center gap-4 rounded-2xl border border-pgreen/10 bg-cream/60 p-4 transition hover:-translate-y-0.5 hover:border-pgreen/25 hover:bg-white hover:shadow-soft"
                 >
-                  <div className="h-14 w-14 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-sm">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-pgreen to-fgreen font-display text-lg font-bold text-white shadow-sm">
                     {user.image ? (
                       <img src={user.image} alt={user.name || "User"} className="h-full w-full object-cover" />
                     ) : (
                       user.name?.[0]?.toUpperCase() || user.email[0].toUpperCase()
                     )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-slate-900 transition group-hover:text-emerald-700">
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-semibold text-dblue transition group-hover:text-pgreen">
                       {user.name || "Người dùng ẩn danh"}
                     </div>
-                    <div className="text-sm text-slate-600">{user.email}</div>
-                    <div className="text-xs text-slate-500 font-mono mt-1">ID: {user.id}</div>
+                    <div className="truncate text-sm text-gray-500">{user.email}</div>
                   </div>
-                  <div className={`px-3 py-1.5 rounded-full text-xs font-semibold ${getRoleBadgeColor(user.role)}`}>
-                    {user.role}
-                  </div>
+                  <span className={`hidden rounded-full px-3 py-1 text-xs font-bold sm:inline ${roleBadgeClass(user.role)}`}>
+                    {roleLabel(user.role)}
+                  </span>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-gray-300 transition group-hover:translate-x-0.5 group-hover:text-pgreen" />
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 px-6 py-12 text-center">
-              <div className="mb-4 rounded-full bg-white p-4 shadow-sm">
-                <Search className="h-8 w-8 text-slate-400" />
+            <div className="rounded-2xl border border-dashed border-pgreen/20 bg-cream/50 px-6 py-12 text-center">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-sm">
+                <Search className="h-6 w-6 text-pgreen" />
               </div>
-              <h3 className="text-base font-semibold text-slate-900">Không tìm thấy người dùng phù hợp</h3>
-              <p className="mt-2 max-w-md text-sm text-slate-500">
-                Hãy kiểm tra lại ID, email hoặc tên hiển thị đã nhập.
+              <h3 className="font-display font-bold text-dblue">Không tìm thấy người phù hợp</h3>
+              <p className="mx-auto mt-2 max-w-md text-sm text-gray-500">
+                Thử tên hiển thị, email hoặc mã người dùng khác.
               </p>
             </div>
           )}
