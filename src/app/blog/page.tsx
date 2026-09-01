@@ -1,7 +1,3 @@
-// ============================================================
-// Blog List Page
-// ============================================================
-
 import { Suspense } from 'react';
 import { BlogCard } from '@/components/blog/BlogCard';
 import { BlogPostResponse } from '@/types/blog.types';
@@ -30,7 +26,6 @@ async function getBlogPosts(searchParams: any) {
     return { posts: result.posts, total: result.total, page: result.page, limit: result.limit, featuredPosts: featuredResult.posts };
   } catch (error) {
     console.error('Error fetching blog posts:', error);
-    // Return empty result on error
     return { posts: [], total: 0, page: 1, limit: 10, featuredPosts: [] };
   }
 }
@@ -46,33 +41,36 @@ export default async function BlogPage({
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden px-6 py-20 gradient-warm">
-        <div className="absolute inset-0 opacity-30 pointer-events-none" style={{
-          backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(46,139,87,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(47,128,237,0.1) 0%, transparent 50%)'
-        }} />
-        <div className="mx-auto max-w-7xl relative z-10">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full backdrop-blur-md bg-white/55 border border-white/70 text-pgreen text-xs font-bold mb-6 shadow-lg">
-              Câu chuyện cộng đồng
-            </div>
-            <h1 className="font-display font-black text-5xl lg:text-6xl text-dblue mb-6 leading-tight">
-              Blog TửTế Fund
-            </h1>
-            <p className="text-lg text-gray-600 leading-relaxed max-w-2xl">
-              Nơi chia sẻ câu chuyện gây quỹ, hành trình tử tế và những cập nhật minh bạch từ cộng đồng.
-            </p>
+      <section
+        className="relative overflow-hidden px-6 py-20 md:py-28"
+        style={{
+          background: 'linear-gradient(180deg, #F8F7F2 0%, #f0f8f4 50%, #F8F7F2 100%)'
+        }}
+      >
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute left-[5%] top-10 h-80 w-80 rounded-full bg-gradient-to-br from-pgreen/20 via-pgreen/8 to-transparent blur-3xl opacity-70" />
+          <div className="absolute right-[8%] top-32 h-80 w-80 rounded-full bg-gradient-to-tl from-tblue/15 via-transparent to-transparent blur-3xl opacity-60" />
+        </div>
+
+        <div className="relative z-10 mx-auto max-w-7xl text-center">
+          <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/70 bg-white/55 px-5 py-2.5 text-xs font-bold text-pgreen shadow-lg backdrop-blur-md">
+            Câu chuyện cộng đồng
           </div>
+          <h1 className="font-display mb-5 font-black text-4xl text-dblue md:text-5xl lg:text-6xl">
+            Câu chuyện <span className="bg-gradient-to-r from-pgreen via-fgreen to-tblue bg-clip-text text-transparent">tử tế</span> được kể lại
+          </h1>
+          <p className="mx-auto max-w-3xl text-lg leading-relaxed text-gray-600">
+            Nơi chia sẻ hành trình gây quỹ, cập nhật minh bạch và những câu chuyện đồng hành từ cộng đồng TửTế Fund.
+          </p>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div className="mx-auto max-w-7xl px-6 py-10">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <h2 className="font-display text-2xl font-bold text-dblue mb-2">Khám phá bài viết</h2>
+            <h2 className="font-display mb-2 font-bold text-2xl text-dblue md:text-3xl">Khám phá bài viết</h2>
             <p className="text-gray-600">
-              Đọc những câu chuyện thú vị từ các creator và cộng đồng
+              Đọc những câu chuyện từ creator và cộng đồng
             </p>
           </div>
 
@@ -81,20 +79,19 @@ export default async function BlogPage({
               href="/blog/editor"
               className="inline-flex items-center gap-2 rounded-2xl gradient-green px-6 py-3 font-bold text-white transition-all hover:shadow-lg hover:shadow-green-200"
             >
-              <Plus className="w-5 h-5" />
+              <Plus className="h-5 w-5" />
               Viết bài mới
             </Link>
           )}
         </div>
 
-        {/* Featured Posts */}
         {data.featuredPosts && data.featuredPosts.length > 0 && (
           <div className="mb-12">
-            <h3 className="mb-4 flex items-center gap-2 font-display text-xl font-bold text-dblue">
+            <h3 className="mb-4 flex items-center gap-2 font-display font-bold text-xl text-dblue">
               <span className="h-2 w-2 rounded-full bg-pgreen"></span>
               Bài viết nổi bật
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               {data.featuredPosts.map((post: BlogPostResponse) => (
                 <BlogCard key={post.id} post={post} />
               ))}
@@ -102,7 +99,6 @@ export default async function BlogPage({
           </div>
         )}
 
-        {/* Filters */}
         <div className="mb-6 flex flex-wrap gap-2">
           <FilterButton href="/blog" label="Tất cả" active={!params.type} />
           <FilterButton
@@ -122,36 +118,20 @@ export default async function BlogPage({
           />
         </div>
 
-        {/* Blog Grid */}
         <Suspense fallback={<BlogGridSkeleton />}>
           {data.posts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {data.posts.map((post: BlogPostResponse) => (
                 <BlogCard key={post.id} post={post} />
               ))}
             </div>
           ) : (
             <div className="py-16 text-center">
-              <div className="mb-4 text-gray-400">
-                <svg
-                  className="mx-auto h-20 w-20"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
-                  />
-                </svg>
-              </div>
               <h3 className="mb-2 font-display text-2xl font-semibold text-dblue">
                 Chưa có bài viết nào
               </h3>
-              <p className="mb-6 max-w-md mx-auto text-gray-600">
-                Hãy quay lại sau để đọc những câu chuyện thú vị từ cộng đồng crowdfunding
+              <p className="mx-auto mb-6 max-w-md text-gray-600">
+                Hãy quay lại sau để đọc những câu chuyện từ cộng đồng gây quỹ
               </p>
               <Link
                 href="/projects"
@@ -163,7 +143,6 @@ export default async function BlogPage({
           )}
         </Suspense>
 
-        {/* Pagination */}
         {data.total > data.limit && (
           <div className="mt-8 flex justify-center gap-2">
             {Array.from({ length: Math.ceil(data.total / data.limit) }, (_, i) => i + 1).map(
@@ -171,10 +150,11 @@ export default async function BlogPage({
                 <a
                   key={page}
                   href={`/blog?page=${page}${params.type ? `&type=${params.type}` : ''}`}
-                  className={`rounded-full px-4 py-2 font-medium transition-colors ${page === data.page
-                    ? 'bg-pgreen text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
-                    }`}
+                  className={`rounded-full px-4 py-2 font-medium transition-colors ${
+                    page === data.page
+                      ? 'bg-pgreen text-white'
+                      : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-100'
+                  }`}
                 >
                   {page}
                 </a>
@@ -199,10 +179,11 @@ function FilterButton({
   return (
     <a
       href={href}
-      className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${active
-        ? 'bg-pgreen text-white'
-        : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
-        }`}
+      className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+        active
+          ? 'bg-pgreen text-white'
+          : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-100'
+      }`}
     >
       {label}
     </a>
@@ -211,10 +192,10 @@ function FilterButton({
 
 function BlogGridSkeleton() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       {[...Array(6)].map((_, i) => (
-        <div key={i} className="overflow-hidden rounded-3xl bg-white shadow-sm border border-gray-200">
-          <div className="h-48 w-full bg-gray-200 animate-pulse" />
+        <div key={i} className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
+          <div className="h-48 w-full animate-pulse bg-gray-200" />
           <div className="space-y-3 p-6">
             <div className="h-4 w-1/4 animate-pulse rounded bg-gray-200" />
             <div className="h-6 animate-pulse rounded bg-gray-200" />
