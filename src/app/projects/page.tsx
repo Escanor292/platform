@@ -14,7 +14,7 @@ import { CampaignEmptyState } from "@/components/campaigns/CampaignEmptyState";
 import { CampaignResultsHeader } from "@/components/campaigns/CampaignResultsHeader";
 import { CampaignPagination } from "@/components/campaigns/CampaignPagination";
 import { CampaignGridSkeleton } from "@/components/campaigns/CampaignCardSkeleton";
-import { SlidersHorizontal, Loader2 } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 
 export default function ProjectsPage() {
   const router = useRouter();
@@ -25,23 +25,18 @@ export default function ProjectsPage() {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
 
-  // Debounce search query để giảm số lần fetch
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
-  // Memoize filters to prevent unnecessary re-renders
   const filters = useMemo(() => {
     const parsed = parseCampaignFilters(searchParams);
-    // Override với debounced search query
     return { ...parsed, q: debouncedSearchQuery || undefined };
   }, [searchParams, debouncedSearchQuery]);
 
-  // Create stable query string
   const queryString = useMemo(() => {
     const params = filtersToSearchParams(filters);
     return params.toString();
   }, [filters]);
 
-  // Fetch projects
   useEffect(() => {
     let isMounted = true;
 
@@ -85,47 +80,38 @@ export default function ProjectsPage() {
     };
   }, [queryString, filters]);
 
-  // Update URL with new filters
   const updateFilters = useCallback((newFilters: Partial<CampaignFilters>) => {
-    const updated = { ...filters, ...newFilters, page: 1 }; // Reset to page 1 on filter change
+    const updated = { ...filters, ...newFilters, page: 1 };
     const params = filtersToSearchParams(updated);
     router.push(`/projects?${params.toString()}`);
   }, [filters, router]);
 
-  // Handle search với debounce
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
-    // URL sẽ được update khi debouncedSearchQuery thay đổi
   }, []);
 
-  // Update URL khi debounced search query thay đổi
   useEffect(() => {
     if (debouncedSearchQuery !== (searchParams.get('q') || '')) {
       updateFilters({ q: debouncedSearchQuery || undefined });
     }
   }, [debouncedSearchQuery]);
 
-  // Handle sort
   const handleSort = useCallback((sort: SortOption) => {
     updateFilters({ sort });
   }, [updateFilters]);
 
-  // Handle remove filter
   const handleRemoveFilter = useCallback((key: keyof CampaignFilters) => {
     updateFilters({ [key]: undefined });
   }, [updateFilters]);
 
-  // Handle clear all filters
   const handleClearAllFilters = useCallback(() => {
     router.push("/projects");
   }, [router]);
 
-  // Handle advanced filters
   const handleApplyAdvancedFilters = useCallback((newFilters: Partial<CampaignFilters>) => {
     updateFilters(newFilters);
   }, [updateFilters]);
 
-  // Handle pagination
   const handlePageChange = useCallback((page: number) => {
     const updated = { ...filters, page };
     const params = filtersToSearchParams(updated);
@@ -142,42 +128,33 @@ export default function ProjectsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Header */}
       <section
-        className="pt-32 pb-16 px-6 relative"
+        className="relative overflow-hidden px-6 pt-28 pb-16 md:pt-32 md:pb-20"
         style={{
           background: 'linear-gradient(180deg, #F8F7F2 0%, #f0f8f4 50%, #F8F7F2 100%)'
         }}
       >
-        {/* Background elements - separate container with overflow-hidden */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-          <div
-            className="absolute top-10 left-[5%] w-96 h-96 bg-gradient-to-br from-fgreen/20 via-fgreen/8 to-transparent rounded-full blur-3xl opacity-70"
-            style={{ animation: 'pulse 8s ease-in-out infinite' }}
-          />
-          <div
-            className="absolute top-32 right-[8%] w-80 h-80 bg-gradient-to-tl from-tblue/15 via-transparent to-transparent rounded-full blur-3xl opacity-60"
-            style={{ animation: 'pulse 10s ease-in-out 2s infinite' }}
-          />
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute left-[5%] top-10 h-80 w-80 rounded-full bg-gradient-to-br from-pgreen/20 via-pgreen/8 to-transparent blur-3xl opacity-70" />
+          <div className="absolute right-[8%] top-32 h-80 w-80 rounded-full bg-gradient-to-tl from-tblue/15 via-transparent to-transparent blur-3xl opacity-60" />
         </div>
 
-        <div className="max-w-7xl mx-auto relative z-10 overflow-visible">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full backdrop-blur-md bg-white/55 border border-white/70 text-pgreen text-xs font-bold mb-6 shadow-lg">
+        <div className="relative z-10 mx-auto max-w-7xl overflow-visible">
+          <div className="mb-10 text-center">
+            <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/70 bg-white/55 px-5 py-2.5 text-xs font-bold text-pgreen shadow-lg backdrop-blur-md">
               Khám phá cộng đồng
             </div>
-            <h1 className="font-display font-black text-4xl lg:text-6xl text-dblue mb-5">
-              Khám phá chiến dịch
+            <h1 className="font-display mb-5 font-black text-4xl text-dblue md:text-5xl lg:text-6xl">
+              Khám phá <span className="bg-gradient-to-r from-pgreen via-fgreen to-tblue bg-clip-text text-transparent">chiến dịch</span>
             </h1>
-            <p className="mx-auto max-w-2xl text-lg text-gray-600 leading-relaxed">
+            <p className="mx-auto max-w-3xl text-lg leading-relaxed text-gray-600">
               Tìm kiếm và đồng hành cùng những chiến dịch tử tế đang tạo tác động tích cực.
             </p>
           </div>
 
-          {/* Search and Sort */}
-          <div className="max-w-4xl mx-auto relative z-40 overflow-visible">
-            <div className="glass rounded-3xl p-6 shadow-soft">
-              <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative z-40 mx-auto max-w-4xl overflow-visible">
+            <div className="glass rounded-3xl p-5 shadow-soft md:p-6">
+              <div className="flex flex-col gap-4 md:flex-row">
                 <div className="flex-1">
                   <CampaignSearchBar
                     value={searchQuery}
@@ -192,7 +169,7 @@ export default function ProjectsPage() {
                   />
                   <button
                     onClick={() => setShowAdvancedFilters(true)}
-                    className="h-12 px-6 rounded-xl border-2 border-pgreen/20 font-bold text-dblue hover:border-pgreen/40 hover:text-pgreen transition-colors flex items-center gap-2 whitespace-nowrap"
+                    className="flex h-12 items-center gap-2 whitespace-nowrap rounded-xl border-2 border-pgreen/20 px-6 font-bold text-dblue transition-colors hover:border-pgreen/40 hover:text-pgreen"
                   >
                     <SlidersHorizontal size={18} />
                     <span className="hidden sm:inline">Bộ lọc</span>
@@ -200,7 +177,6 @@ export default function ProjectsPage() {
                 </div>
               </div>
 
-              {/* Active Filters */}
               {hasActiveFilters && (
                 <div className="mt-4">
                   <CampaignFilterChips
@@ -215,9 +191,7 @@ export default function ProjectsPage() {
         </div>
       </section>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Results Header */}
+      <div className="mx-auto max-w-7xl px-6 py-8">
         {data && (
           <div className="mb-8">
             <CampaignResultsHeader
@@ -229,12 +203,10 @@ export default function ProjectsPage() {
           </div>
         )}
 
-        {/* Loading State */}
         {isLoading && (
           <CampaignGridSkeleton count={12} />
         )}
 
-        {/* Empty State */}
         {!isLoading && data && data.items.length === 0 && (
           <CampaignEmptyState
             hasFilters={hasActiveFilters}
@@ -242,12 +214,10 @@ export default function ProjectsPage() {
           />
         )}
 
-        {/* Campaign Grid */}
         {!isLoading && data && data.items.length > 0 && (
           <>
             <CampaignGrid projects={data.items} />
 
-            {/* Pagination */}
             {data.totalPages > 1 && (
               <div className="mt-12">
                 <CampaignPagination
@@ -261,7 +231,6 @@ export default function ProjectsPage() {
         )}
       </div>
 
-      {/* Advanced Filters Drawer */}
       {showAdvancedFilters && (
         <CampaignAdvancedFilters
           filters={filters}
