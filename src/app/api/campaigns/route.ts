@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { parseCampaignFilters } from "@/lib/campaign-query-params";
 import { CampaignListResponse, CampaignListItem } from "@/types/campaign";
 import { calculateCompletionState } from "@/lib/campaign-helpers";
+import { generateUniqueCampaignCode, generateUniqueCampaignSlug } from "@/lib/campaign-utils";
 import { auth } from "@/lib/auth";
 import { projectIdSchema } from "@/lib/project/project.validation";
 import {
@@ -19,30 +20,22 @@ import {
   CAMPAIGNS_CACHE_PREFIX,
   cacheInvalidatePrefix,
 } from "@/lib/redis-cache";
+import { persistRichText, RichTextValidationError, isRichTextEmpty } from "@/lib/editor/persist";
 
-/**
- * GET /api/campaigns
- * Search and filter campaigns from database with Redis caching
- */
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const queryString = searchParams.toString();
     const cacheKey = buildCampaignsCacheKey(queryString);
 
-    // Kiểm tra Redis cache trước
     const cachedResponse = await cacheGet<CampaignListResponse>(cacheKey);
     if (cachedResponse) {
       return NextResponse.json(cachedResponse);
     }
 
-    // Parse filters from query params
     const filters = parseCampaignFilters(searchParams);
-
-    // Build Prisma where clause
     const where: any = {};
 
-    // Search filter
     if (filters.q) {
       const query = filters.q.trim().toLowerCase();
       where.OR = [
@@ -52,66 +45,39 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    // Category filter
-    if (filters.category) {
-      where.category = filters.category;
-    }
+    if (filters.category) where.category = filters.category;
+    if (filters.campaignType) where.type = filters.campaignType;
+    if (filters.status) where.status = filters.status;
 
-    // Campaign type filter
-    if (filters.campaignType) {
-      where.type = filters.campaignType;
-    }
-
-    // Status filter
-    if (filters.status) {
-      where.status = filters.status;
-    }
-
-    // Project filter - Validates Requirements 11.1, 11.2, 11.5
     const projectIdFilter = searchParams.get('projectId');
     if (projectIdFilter) {
       if (projectIdFilter === 'null' || projectIdFilter === 'standalone') {
-        // Filter for campaigns with NULL projectId (standalone campaigns)
         where.projectId = null;
       } else {
-        // Filter for campaigns with specific projectId
         where.projectId = projectIdFilter;
       }
     }
 
-    // Created within filter
     if (filters.createdWithin) {
       const now = new Date();
       let daysAgo = 30;
-
       switch (filters.createdWithin) {
         case '7d': daysAgo = 7; break;
         case '30d': daysAgo = 30; break;
         case '90d': daysAgo = 90; break;
         case '365d': daysAgo = 365; break;
       }
-
       const cutoffDate = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
       where.createdAt = { gte: cutoffDate };
     }
 
-    // Fetch campaigns from database
     const campaigns = await prisma.campaigns.findMany({
       where,
       include: {
-        users: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-            status: true,
-          }
-        },
+        users: { select: { id: true, name: true, avatar: true, status: true } },
         _count: {
           select: {
-            pledges: {
-              where: { status: 'SUCCESS' }
-            },
+            pledges: { where: { status: 'SUCCESS' } },
             campaign_followers: true
           }
         }
@@ -119,19 +85,16 @@ export async function GET(req: NextRequest) {
       orderBy: getSortOrder(filters.sort || 'newest'),
     });
 
-    // Transform to CampaignListItem format
     const items: CampaignListItem[] = campaigns.map((campaign) => {
       const progressPercent = Number(campaign.goalAmount) > 0
         ? Math.round((Number(campaign.currentAmount) / Number(campaign.goalAmount)) * 100)
         : 0;
-
       const completionState = calculateCompletionState(
         campaign.status as any,
         campaign.startDate,
         campaign.endDate,
         progressPercent
       );
-
       return {
         id: campaign.id,
         campaignCode: campaign.campaignCode,
@@ -139,73 +102,45 @@ export async function GET(req: NextRequest) {
         title: campaign.title,
         description: campaign.description,
         imageUrl: campaign.imageUrl,
-
         creatorId: campaign.creatorId,
         creatorName: campaign.users.name,
         creatorAvatar: campaign.users.avatar,
         creatorIsPro: campaign.users.status === "PRO",
-
         category: campaign.category,
         tags: campaign.tags,
         campaignType: campaign.type as any,
-
         goalAmount: Number(campaign.goalAmount),
         currentAmount: Number(campaign.currentAmount),
         progressPercent,
-
         totalBackers: campaign._count.pledges,
         totalFollowers: campaign._count.campaign_followers,
-        totalViews: 0, // TODO: Implement view tracking
-        ratingAverage: 0, // TODO: Calculate from reviews
-        ratingCount: 0, // TODO: Count reviews
-
+        totalViews: 0,
+        ratingAverage: 0,
+        ratingCount: 0,
         createdAt: campaign.createdAt,
         updatedAt: campaign.updatedAt,
         startDate: campaign.startDate,
         endDate: campaign.endDate,
-
         status: campaign.status as any,
         completionState,
-        isFeatured: false, // TODO: Add featured flag to schema
+        isFeatured: false,
       };
     });
 
-    // Apply client-side filters that can't be done in Prisma
     let filteredItems = items;
+    if (filters.ratingMin) filteredItems = filteredItems.filter(item => item.ratingAverage >= filters.ratingMin!);
+    if (filters.progressMin !== undefined) filteredItems = filteredItems.filter(item => item.progressPercent >= filters.progressMin!);
+    if (filters.progressMax !== undefined) filteredItems = filteredItems.filter(item => item.progressPercent <= filters.progressMax!);
+    if (filters.completionState) filteredItems = filteredItems.filter(item => item.completionState === filters.completionState);
+    if (filters.isFeatured) filteredItems = filteredItems.filter(item => item.isFeatured);
 
-    // Rating filter
-    if (filters.ratingMin) {
-      filteredItems = filteredItems.filter(item => item.ratingAverage >= filters.ratingMin!);
-    }
-
-    // Progress filter
-    if (filters.progressMin !== undefined) {
-      filteredItems = filteredItems.filter(item => item.progressPercent >= filters.progressMin!);
-    }
-    if (filters.progressMax !== undefined) {
-      filteredItems = filteredItems.filter(item => item.progressPercent <= filters.progressMax!);
-    }
-
-    // Completion state filter
-    if (filters.completionState) {
-      filteredItems = filteredItems.filter(item => item.completionState === filters.completionState);
-    }
-
-    // Featured filter
-    if (filters.isFeatured) {
-      filteredItems = filteredItems.filter(item => item.isFeatured);
-    }
-
-    // Pagination
     const page = filters.page || 1;
     const limit = filters.limit || 12;
     const total = filteredItems.length;
     const totalPages = Math.ceil(total / limit);
     const start = (page - 1) * limit;
-    const end = start + limit;
-    const paginatedItems = filteredItems.slice(start, end);
+    const paginatedItems = filteredItems.slice(start, start + limit);
 
-    // Build response
     const response: CampaignListResponse = {
       items: paginatedItems,
       total,
@@ -215,55 +150,35 @@ export async function GET(req: NextRequest) {
       appliedFilters: filters,
     };
 
-    // Lưu vào Redis cache (TTL mặc định 300s = 5 phút)
     await cacheSet(cacheKey, response, 300);
-
     return NextResponse.json(response);
   } catch (error) {
     console.error("[GET /api/campaigns]", error);
-    return NextResponse.json(
-      { error: "Lỗi server khi tìm kiếm chiến dịch" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Lỗi server khi tìm kiếm chiến dịch" }, { status: 500 });
   }
 }
 
 function getSortOrder(sort: string): any {
   switch (sort) {
-    case 'newest':
-      return { createdAt: 'desc' };
-    case 'oldest':
-      return { createdAt: 'asc' };
-    case 'recently_updated':
-      return { updatedAt: 'desc' };
-    case 'ending_soon':
-      return { endDate: 'asc' };
-    default:
-      return { createdAt: 'desc' };
+    case 'newest': return { createdAt: 'desc' };
+    case 'oldest': return { createdAt: 'asc' };
+    case 'recently_updated': return { updatedAt: 'desc' };
+    case 'ending_soon': return { endDate: 'asc' };
+    default: return { createdAt: 'desc' };
   }
 }
 
-/**
- * POST /api/campaigns
- * Create a new campaign with optional project association
- * Validates: Requirements 8.1, 8.2, 8.3, 8.4, 8.5
- */
 export async function POST(req: NextRequest) {
   try {
-    // Check authentication
     const session = await auth();
     const authError = checkAuthentication(session);
     if (authError) return authError;
 
     const userId = session!.user!.id;
-
-    // Parse request body
     const body = await req.json();
-    const { projectId, ...campaignData } = body;
+    const { projectId } = body;
 
-    // Validate projectId if provided
     if (projectId !== undefined && projectId !== null) {
-      // Validate projectId format (CUID)
       try {
         projectIdSchema.parse(projectId);
       } catch (error) {
@@ -273,33 +188,79 @@ export async function POST(req: NextRequest) {
         throw error;
       }
 
-      // Validate project exists and is owned by authenticated user
       const project = await prisma.projects.findUnique({
         where: { id: projectId },
         select: { creatorId: true },
       });
 
-      if (!project) {
-        return validationErrorResponse('Invalid project ID');
-      }
-
+      if (!project) return validationErrorResponse('Invalid project ID');
       if (project.creatorId !== userId) {
         return forbiddenResponse('Not authorized to add campaigns to this project');
       }
     }
 
-    // Create campaign with optional projectId
+    const title = String(body.title || '').trim();
+    const tagline = String(body.tagline || '').trim();
+    const category = body.mainCategory || body.category;
+    const goalAmount = Number(body.goalAmount);
+
+    if (!title) return validationErrorResponse('Tên chiến dịch là bắt buộc');
+    if (!tagline) return validationErrorResponse('Mô tả ngắn là bắt buộc');
+    if (!category) return validationErrorResponse('Danh mục là bắt buộc');
+    if (!goalAmount || goalAmount <= 0) return validationErrorResponse('Số vốn mục tiêu không hợp lệ');
+
+    let longDescription = '';
+    try {
+      longDescription = persistRichText(body.description || body.longDescription || '');
+    } catch (error) {
+      if (error instanceof RichTextValidationError) {
+        return validationErrorResponse(error.message);
+      }
+      throw error;
+    }
+
+    if (isRichTextEmpty(longDescription)) {
+      return validationErrorResponse('Nội dung chi tiết là bắt buộc');
+    }
+
+    const [campaignCode, slug] = await Promise.all([
+      generateUniqueCampaignCode(),
+      generateUniqueCampaignSlug(title),
+    ]);
+
     const campaign = await prisma.campaigns.create({
       data: {
-        ...campaignData,
+        id: crypto.randomUUID(),
+        campaignCode,
+        slug,
+        title,
+        description: tagline,
+        longDescription,
+        goalAmount,
+        category,
+        tags: body.starterTags || body.tags || [],
+        imageUrl: body.imageUrl || null,
+        images: body.images || [],
+        videoUrl: body.videoUrl || null,
+        endDate: body.endDate ? new Date(body.endDate) : null,
         creatorId: userId,
-        projectId: projectId || null, // Set to NULL if not provided
+        projectId: projectId || null,
+        updatedAt: new Date(),
       },
     });
 
-    // Invalidate campaigns cache khi có campaign mới
-    await cacheInvalidatePrefix(CAMPAIGNS_CACHE_PREFIX);
+    if (Array.isArray(body.linkedBlogIds) && body.linkedBlogIds.length > 0) {
+      await prisma.campaign_blog_links.createMany({
+        data: body.linkedBlogIds.map((blogId: string, index: number) => ({
+          id: crypto.randomUUID(),
+          campaignId: campaign.id,
+          blogPostId: blogId,
+          order: index,
+        })),
+      });
+    }
 
+    await cacheInvalidatePrefix(CAMPAIGNS_CACHE_PREFIX);
     return NextResponse.json(campaign, { status: 201 });
   } catch (error) {
     console.error("[POST /api/campaigns]", error);
