@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { persistRichText, RichTextValidationError } from "@/lib/editor/persist";
 
-/**
- * GET /api/campaigns/[slug]/updates
- * Lấy lịch sử cập nhật của dự án với tìm kiếm và filter
- */
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ slug: string }> }
@@ -25,7 +22,6 @@ export async function GET(
       return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
     }
 
-    // Build where clause
     const where: any = { campaignId: campaign.id };
 
     if (search) {
@@ -42,8 +38,8 @@ export async function GET(
     const updates = await prisma.campaign_updates.findMany({
       where,
       orderBy: [
-        { isPinned: "desc" }, // Ghim lên đầu
-        { createdAt: "desc" }  // Mới nhất
+        { isPinned: "desc" },
+        { createdAt: "desc" }
       ]
     });
 
@@ -54,10 +50,6 @@ export async function GET(
   }
 }
 
-/**
- * POST /api/campaigns/[slug]/updates
- * Đăng tin cập nhật mới (Chỉ Creator)
- */
 export async function POST(
   req: NextRequest,
   context: { params: Promise<{ slug: string }> }
@@ -80,9 +72,18 @@ export async function POST(
       return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
     }
 
-    // Kiểm tra quyền (phải là chủ dự án)
     if (campaign.creatorId !== (session.user as any).id) {
       return NextResponse.json({ error: "Bạn không có quyền đăng cập nhật cho dự án này" }, { status: 403 });
+    }
+
+    let safeContent = "";
+    try {
+      safeContent = persistRichText(content || "");
+    } catch (error) {
+      if (error instanceof RichTextValidationError) {
+        return NextResponse.json({ error: error.message }, { status: 400 });
+      }
+      throw error;
     }
 
     const update = await prisma.campaign_updates.create({
@@ -90,7 +91,7 @@ export async function POST(
         id: crypto.randomUUID(),
         campaignId: campaign.id,
         title,
-        content,
+        content: safeContent,
         imageUrl,
         tags: tags || [],
         isPinned: isPinned || false,
