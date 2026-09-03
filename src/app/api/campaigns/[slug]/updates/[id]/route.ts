@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { persistRichText, RichTextValidationError } from "@/lib/editor/persist";
 
-/**
- * PUT /api/campaigns/[slug]/updates/[id]
- * Cập nhật một update (Chỉ Creator)
- */
 export async function PUT(
     req: NextRequest,
     context: { params: Promise<{ slug: string; id: string }> }
@@ -19,7 +16,6 @@ export async function PUT(
         const { slug, id } = await context.params;
         const { title, content, imageUrl, tags, isPinned } = await req.json();
 
-        // Kiểm tra update có tồn tại và thuộc campaign này không
         const update = await prisma.campaign_updates.findUnique({
             where: { id },
             include: {
@@ -33,21 +29,29 @@ export async function PUT(
             return NextResponse.json({ error: "Update not found" }, { status: 404 });
         }
 
-        // Kiểm tra slug có khớp không
         if (update.campaigns.slug !== slug && update.campaigns.id !== slug) {
             return NextResponse.json({ error: "Update does not belong to this campaign" }, { status: 400 });
         }
 
-        // Kiểm tra quyền (phải là chủ dự án)
         if (update.campaigns.creatorId !== (session.user as any).id) {
             return NextResponse.json({ error: "Bạn không có quyền chỉnh sửa cập nhật này" }, { status: 403 });
+        }
+
+        let safeContent = update.content;
+        try {
+            safeContent = persistRichText(content || "");
+        } catch (error) {
+            if (error instanceof RichTextValidationError) {
+                return NextResponse.json({ error: error.message }, { status: 400 });
+            }
+            throw error;
         }
 
         const updatedUpdate = await prisma.campaign_updates.update({
             where: { id },
             data: {
                 title,
-                content,
+                content: safeContent,
                 imageUrl,
                 tags: tags || [],
                 isPinned: isPinned || false,
@@ -61,10 +65,6 @@ export async function PUT(
     }
 }
 
-/**
- * DELETE /api/campaigns/[slug]/updates/[id]
- * Xóa một update (Chỉ Creator)
- */
 export async function DELETE(
     req: NextRequest,
     context: { params: Promise<{ slug: string; id: string }> }
@@ -77,7 +77,6 @@ export async function DELETE(
 
         const { slug, id } = await context.params;
 
-        // Kiểm tra update có tồn tại và thuộc campaign này không
         const update = await prisma.campaign_updates.findUnique({
             where: { id },
             include: {
@@ -91,20 +90,15 @@ export async function DELETE(
             return NextResponse.json({ error: "Update not found" }, { status: 404 });
         }
 
-        // Kiểm tra slug có khớp không
         if (update.campaigns.slug !== slug && update.campaigns.id !== slug) {
             return NextResponse.json({ error: "Update does not belong to this campaign" }, { status: 400 });
         }
 
-        // Kiểm tra quyền (phải là chủ dự án)
         if (update.campaigns.creatorId !== (session.user as any).id) {
             return NextResponse.json({ error: "Bạn không có quyền xóa cập nhật này" }, { status: 403 });
         }
 
-        await prisma.campaign_updates.delete({
-            where: { id }
-        });
-
+        await prisma.campaign_updates.delete({ where: { id } });
         return NextResponse.json({ success: true, message: "Đã xóa cập nhật thành công" });
     } catch (error: any) {
         console.error("[UPDATE_DELETE_ERROR]", error);
