@@ -42,18 +42,36 @@ function safeHref(value: string | null | undefined): string | null {
   return null;
 }
 
+function readPayload(slot: HTMLDivElement): ProductPayload | null {
+  const raw = slot.getAttribute("data-payload");
+  if (raw) {
+    try {
+      return JSON.parse(decodeURIComponent(raw));
+    } catch {
+      // fall through to attributes
+    }
+  }
+  const title = slot.getAttribute("data-title") || "";
+  if (!title) return null;
+  return {
+    rewardId: slot.getAttribute("data-reward-id"),
+    title,
+    price: slot.getAttribute("data-price") || "",
+    imageUrl: slot.getAttribute("data-image-url"),
+    linkUrl: slot.getAttribute("data-link-url"),
+    campaignId: slot.getAttribute("data-campaign-id"),
+    isPreorder: slot.getAttribute("data-is-preorder") === "true",
+    deliveryDate: slot.getAttribute("data-delivery-date"),
+  };
+}
+
 export function ProductBoxRenderer() {
   const renderBoxes = useCallback(() => {
-    const slots = document.querySelectorAll<HTMLDivElement>('[data-slot="product-box"]');
+    const slots = document.querySelectorAll<HTMLDivElement>('[data-slot="product-box"], [data-type="product-box"]');
     slots.forEach((slot) => {
       if (slot.hasAttribute("data-rendered")) return;
 
-      let payload: ProductPayload | null = null;
-      try {
-        payload = JSON.parse(decodeURIComponent(slot.getAttribute("data-payload") || "{}"));
-      } catch {
-        return;
-      }
+      const payload = readPayload(slot);
       if (!payload || !payload.title) return;
 
       const href = safeHref(payload.linkUrl) || (payload.rewardId ? `/products/${encodeURIComponent(payload.rewardId)}` : null);
