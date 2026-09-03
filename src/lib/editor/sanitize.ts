@@ -1,28 +1,40 @@
 /**
  * Content Sanitization
- * Multi-layer security for user-generated content
+ * Shared allowlist for editor preview, public render, and API persist.
+ * Uses isomorphic-dompurify so API routes and RSC can sanitize on the server.
  */
 
-import DOMPurify, { type Config as DOMPurifyConfig } from 'dompurify';
+import DOMPurify, { type Config as DOMPurifyConfig } from 'isomorphic-dompurify';
 import {
   ALLOWED_HTML_TAGS,
   ALLOWED_HTML_ATTRIBUTES,
-  ALLOWED_URL_SCHEMES,
   ALLOWED_VIDEO_DOMAINS,
 } from './constants';
 import { SanitizeOptions, SanitizeResult } from '@/types/editor';
 
-// ============================================
-// DOMPURIFY CONFIGURATION
-// ============================================
+const HOOK_NAME = 'uponSanitizeElement';
 
-const DEFAULT_SANITIZE_CONFIG: DOMPurifyConfig = {
+function collectAllowedAttrs(): string[] {
+  const set = new Set<string>();
+  Object.values(ALLOWED_HTML_ATTRIBUTES).forEach((attrs) => {
+    attrs.forEach((attr) => set.add(attr));
+  });
+  [
+    'target', 'rel', 'allowfullscreen', 'allow',
+    'data-type', 'data-variant', 'data-payload', 'data-slot',
+    'data-checked', 'data-provider', 'data-src', 'data-width', 'data-height',
+    'data-alignment', 'data-caption', 'data-reward-id', 'data-title',
+    'data-price', 'data-image-url', 'data-link-url', 'data-campaign-id',
+    'data-is-preorder', 'data-delivery-date',
+  ].forEach((attr) => set.add(attr));
+  return Array.from(set);
+}
+
+export const DEFAULT_SANITIZE_CONFIG: DOMPurifyConfig = {
   ALLOWED_TAGS: [...ALLOWED_HTML_TAGS],
-  ALLOWED_ATTR: Object.keys(ALLOWED_HTML_ATTRIBUTES).reduce((acc, tag) => {
-    return [...acc, ...ALLOWED_HTML_ATTRIBUTES[tag]];
-  }, [] as string[]),
-  ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
-  ALLOW_DATA_ATTR: true,
+  ALLOWED_ATTR: collectAllowedAttrs(),
+  ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+  ALLOW_DATA_ATTR: false,
   ALLOW_UNKNOWN_PROTOCOLS: false,
   SAFE_FOR_TEMPLATES: true,
   WHOLE_DOCUMENT: false,
@@ -34,9 +46,63 @@ const DEFAULT_SANITIZE_CONFIG: DOMPurifyConfig = {
   IN_PLACE: false,
 };
 
-// ============================================
-// SANITIZE HTML
-// ============================================
+function hostnameAllowed(hostname: string, domains: readonly string[]): boolean {
+  const host = hostname.toLowerCase();
+  return domains.some((domain) => {
+    const d = domain.toLowerCase();
+    return host === d || host.endsWith(`.${d}`);
+  });
+}
+
+export function isAllowedIframeSrc(src: string, allowedDomains?: readonly string[]): boolean {
+  try {
+    const url = new URL(src);
+    if (!['https:', 'http:'].includes(url.protocol)) return false;
+    const domains = allowedDomains || ALLOWED_VIDEO_DOMAINS;
+    return hostnameAllowed(url.hostname, domains);
+  } catch {
+    return false;
+  }
+}
+
+let hooksInstalled = false;
+
+function ensureIframeHook() {
+  if (hooksInstalled) return;
+  try {
+    DOMPurify.addHook(HOOK_NAME, (node, data) => {
+      if (data.tagName === 'iframe') {
+        const element = node as Element;
+        const src = element.getAttribute('src');
+        if (!src || !isAllowedIframeSrc(src)) {
+          element.parentNode?.removeChild(element);
+        }
+      }
+    });
+    hooksInstalled = true;
+  } catch {
+    hooksInstalled = false;
+  }
+}
+
+function fallbackSanitize(html: string, allowedDomains?: readonly string[]): string {
+  let clean = html
+    .replace(/<script\b[\s\S]*?<\/script>/gi, '')
+    .replace(/<style\b[\s\S]*?<\/style>/gi, '')
+    .replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/data:text\/html/gi, '');
+
+  clean = clean.replace(/<iframe\b([^>]*)>([\s\S]*?)<\/iframe>/gi, (full, attrs) => {
+    const srcMatch = /src\s*=\s*["']([^"']+)["']/i.exec(attrs);
+    if (srcMatch && isAllowedIframeSrc(srcMatch[1], allowedDomains)) {
+      return full;
+    }
+    return '';
+  });
+
+  return clean;
+}
 
 export function sanitizeHtml(
   html: string,
@@ -47,26 +113,17 @@ export function sanitizeHtml(
   const config: DOMPurifyConfig = {
     ...DEFAULT_SANITIZE_CONFIG,
     ...(options.allowedTags && { ALLOWED_TAGS: options.allowedTags }),
-    ...(options.allowedAttributes && { ALLOWED_ATTR: Object.values(options.allowedAttributes).flat() }),
+    ...(options.allowedAttributes && {
+      ALLOWED_ATTR: Object.values(options.allowedAttributes).flat(),
+    }),
   };
 
-  // Add hooks for iframe validation
-  DOMPurify.addHook('uponSanitizeElement', (node, data) => {
-    if (data.tagName === 'iframe') {
-      const element = node as Element;
-      const src = element.getAttribute('src');
-      if (src && !isAllowedIframeSrc(src, options.allowedIframeDomains)) {
-        element.remove();
-      }
-    }
-  });
-
-  const clean = DOMPurify.sanitize(html, config as any);
-
-  // Remove hooks after sanitization
-  DOMPurify.removeAllHooks();
-
-  return clean as unknown as string;
+  try {
+    ensureIframeHook();
+    return DOMPurify.sanitize(html, config as any) as unknown as string;
+  } catch {
+    return fallbackSanitize(html, options.allowedIframeDomains || ALLOWED_VIDEO_DOMAINS);
+  }
 }
 
 export function sanitizeHtmlWithTracking(
@@ -75,54 +132,17 @@ export function sanitizeHtmlWithTracking(
 ): SanitizeResult {
   const original = html;
   const clean = sanitizeHtml(html, options);
-
   const removed: string[] = [];
   const modified = original !== clean;
 
-  // Track what was removed (simplified)
   if (modified) {
-    if (/<script/i.test(original) && !/<script/i.test(clean)) {
-      removed.push('script tags');
-    }
-    if (/on\w+=/i.test(original) && !/on\w+=/i.test(clean)) {
-      removed.push('event handlers');
-    }
-    if (/<iframe/i.test(original) && !/<iframe/i.test(clean)) {
-      removed.push('unsafe iframes');
-    }
+    if (/<script/i.test(original) && !/<script/i.test(clean)) removed.push('script tags');
+    if (/on\w+=/i.test(original) && !/on\w+=/i.test(clean)) removed.push('event handlers');
+    if (/<iframe/i.test(original) && !/<iframe/i.test(clean)) removed.push('unsafe iframes');
   }
 
-  return {
-    clean,
-    removed,
-    modified,
-  };
+  return { clean, removed, modified };
 }
-
-// ============================================
-// IFRAME VALIDATION
-// ============================================
-
-function isAllowedIframeSrc(src: string, allowedDomains?: string[]): boolean {
-  try {
-    const url = new URL(src);
-
-    // Check protocol
-    if (!['https:', 'http:'].includes(url.protocol)) {
-      return false;
-    }
-
-    // Check against allowed domains
-    const domains = allowedDomains || ALLOWED_VIDEO_DOMAINS;
-    return domains.some(domain => url.hostname === domain || url.hostname.endsWith(`.${domain}`));
-  } catch {
-    return false;
-  }
-}
-
-// ============================================
-// SANITIZE FOR PREVIEW
-// ============================================
 
 export function sanitizeForPreview(html: string): string {
   return sanitizeHtml(html, {
@@ -130,64 +150,34 @@ export function sanitizeForPreview(html: string): string {
   });
 }
 
-// ============================================
-// SANITIZE FOR STORAGE
-// ============================================
-
 export function sanitizeForStorage(html: string): string {
-  // More strict sanitization for storage
-  const clean = sanitizeHtml(html);
-
-  // Additional cleanup
-  return clean
-    .replace(/\s+/g, ' ') // Normalize whitespace
-    .replace(/>\s+</g, '><') // Remove whitespace between tags
-    .trim();
+  return sanitizeHtml(html).trim();
 }
-
-// ============================================
-// SANITIZE PLAIN TEXT
-// ============================================
 
 export function sanitizePlainText(text: string): string {
   if (!text || typeof text !== 'string') return '';
 
   return text
-    .replace(/[<>]/g, '') // Remove angle brackets
-    .replace(/javascript:/gi, '') // Remove javascript: protocol
-    .replace(/on\w+=/gi, '') // Remove event handlers
+    .replace(/[<>]/g, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+=/gi, '')
     .trim();
 }
-
-// ============================================
-// SANITIZE URL
-// ============================================
 
 export function sanitizeUrl(url: string): string {
   if (!url || typeof url !== 'string') return '';
 
   try {
     const urlObj = new URL(url);
-
-    // Only allow http and https
-    if (!['http:', 'https:'].includes(urlObj.protocol)) {
-      return '';
-    }
-
-    // Remove javascript: and data: protocols
+    if (!['http:', 'https:'].includes(urlObj.protocol)) return '';
     if (url.toLowerCase().includes('javascript:') || url.toLowerCase().includes('data:')) {
       return '';
     }
-
     return urlObj.toString();
   } catch {
     return '';
   }
 }
-
-// ============================================
-// SANITIZE ATTRIBUTES
-// ============================================
 
 export function sanitizeImageAttributes(attrs: Record<string, any>): Record<string, any> {
   return {
@@ -212,47 +202,30 @@ export function sanitizeLinkAttributes(attrs: Record<string, any>): Record<strin
 
   if (attrs.target === '_blank') {
     sanitized.target = '_blank';
-    sanitized.rel = 'noopener noreferrer'; // Security best practice
+    sanitized.rel = 'noopener noreferrer';
   }
 
   return sanitized;
 }
 
-// ============================================
-// PASTE SANITIZATION
-// ============================================
-
 export function sanitizePastedContent(html: string): string {
-  // Remove common junk from Word/Google Docs
   let clean = html;
-
-  // Remove Word-specific tags
   clean = clean.replace(/<\/?o:p>/gi, '');
   clean = clean.replace(/<\/?w:[^>]*>/gi, '');
   clean = clean.replace(/<\/?m:[^>]*>/gi, '');
-
-  // Remove style attributes (keep only allowed ones)
   clean = clean.replace(/style="[^"]*"/gi, '');
-
-  // Remove class attributes (except allowed ones)
   clean = clean.replace(/class="[^"]*"/gi, '');
-
-  // Remove empty paragraphs
   clean = clean.replace(/<p[^>]*>\s*<\/p>/gi, '');
-
-  // Remove comments
   clean = clean.replace(/<!--[\s\S]*?-->/g, '');
-
-  // Final sanitization
   return sanitizeHtml(clean);
 }
 
-// ============================================
-// EXPORT UTILITIES
-// ============================================
-
 export function stripAllHtml(html: string): string {
-  return DOMPurify.sanitize(html, { ALLOWED_TAGS: [] });
+  try {
+    return DOMPurify.sanitize(html, { ALLOWED_TAGS: [] });
+  } catch {
+    return html.replace(/<[^>]*>/g, '');
+  }
 }
 
 export function extractTextContent(html: string): string {
