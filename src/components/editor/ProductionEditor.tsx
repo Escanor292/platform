@@ -1,6 +1,6 @@
 /**
  * Production-Ready Rich Text Editor
- * Complete editor with all features, optimizations, and security
+ * Single editor used by campaign, blog, and updates.
  */
 
 'use client';
@@ -14,11 +14,10 @@ import { EditorBubbleMenu } from './EditorBubbleMenu';
 import { LinkPopover } from './LinkPopover';
 import { VideoPopover } from './VideoPopover';
 import { ProductBoxPopover } from './ProductBoxPopover';
-import { getLinkAtCursor, isSelectionInsideLink, saveSelection, type SavedSelection } from '@/lib/editor/link-commands';
-import { sanitizeHtml } from '@/lib/editor/sanitize';
-import { getUrlError, normalizeUrl, isValidVideoUrl, getVideoProvider } from '@/lib/editor/validation';
+import { getLinkAtCursor, saveSelection, type SavedSelection } from '@/lib/editor/link-commands';
+import { sanitizePastedContent } from '@/lib/editor/sanitize';
 import { EDITOR_LIMITS, ERROR_MESSAGES } from '@/lib/editor/constants';
-import { RichTextEditorProps, SaveStatus, UploadProgress } from '@/types/editor';
+import { RichTextEditorProps, SaveStatus } from '@/types/editor';
 import { toast } from 'sonner';
 import './editor.css';
 
@@ -31,7 +30,6 @@ export function ProductionEditor({
 }: RichTextEditorProps) {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved');
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -54,10 +52,10 @@ export function ProductionEditor({
   const editorRef = useRef<Editor | null>(null);
   const isMountedRef = useRef(true);
   const onChangeDebounceRef = useRef<NodeJS.Timeout | undefined>(undefined);
-  const isLinkPopoverOpenRef = useRef(false); // Track popover state
-  const isVideoPopoverOpenRef = useRef(false); // Track video popover state
+  const lastEmittedHtmlRef = useRef(content || '');
+  const isLinkPopoverOpenRef = useRef(false);
+  const isVideoPopoverOpenRef = useRef(false);
 
-  // Editor configuration
   const {
     placeholder,
     maxLength = EDITOR_LIMITS.MAX_CONTENT_LENGTH,
@@ -68,9 +66,8 @@ export function ProductionEditor({
     editable = true,
   } = config;
 
-  // Initialize editor
   const editor = useEditor({
-    immediatelyRender: false, // Fix SSR hydration warning
+    immediatelyRender: false,
     extensions: getEditorExtensions({
       placeholder,
       maxLength,
@@ -81,52 +78,50 @@ export function ProductionEditor({
       attributes: {
         class: 'prose prose-lg max-w-none min-h-[420px] px-6 py-6 focus:outline-none',
       },
-      handlePaste: (view, event, slice) => {
-        // Let Tiptap handle paste, it will sanitize through extensions
-        return false;
-      },
-      handleDOMEvents: {
-        // Simplified - no special handling needed
-        // LinkPopover handles its own click outside
+      handlePaste: (_view, event) => {
+        const html = event.clipboardData?.getData('text/html');
+        if (!html || !editorRef.current) return false;
+        event.preventDefault();
+        const clean = sanitizePastedContent(html);
+        editorRef.current.chain().focus().insertContent(clean || event.clipboardData?.getData('text/plain') || '').run();
+        return true;
       },
     },
-    onUpdate: ({ editor }) => {
-      const html = editor.getHTML();
-
-      // Update counts (debounced for performance)
+    onCreate: ({ editor: instance }) => {
+      editorRef.current = instance;
+      lastEmittedHtmlRef.current = instance.getHTML();
+      const cc = instance.storage.characterCount;
+      setWordCount(cc?.words?.() ?? 0);
+      setCharCount(cc?.characters?.() ?? 0);
+    },
+    onUpdate: ({ editor: instance }) => {
+      const html = instance.getHTML();
+      lastEmittedHtmlRef.current = html;
+      const cc = instance.storage.characterCount;
+      setWordCount(cc?.words?.() ?? 0);
+      setCharCount(cc?.characters?.() ?? 0);
       if (onChangeDebounceRef.current) {
         clearTimeout(onChangeDebounceRef.current);
       }
-
       onChangeDebounceRef.current = setTimeout(() => {
         if (isMountedRef.current) {
-          const text = editor.getText();
-          setWordCount(text.split(/\s+/).filter(w => w.length > 0).length);
-          setCharCount(text.length);
+          onChange(html);
         }
-      }, 300);
-
-      // Call onChange callback immediately
-      onChange(html);
-
-      // Handle autosave
+      }, EDITOR_LIMITS.DEBOUNCE_DELAY);
       if (autosave && callbacks.onSave) {
         handleAutosave(html);
-      } else {
-        if (isMountedRef.current) {
-          setSaveStatus('idle');
-        }
+      } else if (isMountedRef.current) {
+        setSaveStatus('idle');
       }
     },
-    onFocus: ({ editor, event }) => {
+    onFocus: () => {
       callbacks.onFocus?.();
     },
-    onBlur: ({ editor, event }) => {
+    onBlur: () => {
       callbacks.onBlur?.();
     },
   });
 
-  // Store editor ref and track mount status
   useEffect(() => {
     isMountedRef.current = true;
     if (editor) {
@@ -137,31 +132,28 @@ export function ProductionEditor({
     };
   }, [editor]);
 
-  // Sync content when prop changes (external updates)
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
-      const { from, to } = editor.state.selection;
-      editor.commands.setContent(content, false);
-      // Restore selection if possible
-      if (from !== to) {
-        editor.commands.setTextSelection({ from, to });
-      }
+    if (!editor) return;
+    const incoming = content || '';
+    if (incoming === lastEmittedHtmlRef.current) return;
+    if (incoming === editor.getHTML()) {
+      lastEmittedHtmlRef.current = incoming;
+      return;
     }
+    editor.commands.setContent(incoming, false);
+    lastEmittedHtmlRef.current = incoming;
   }, [content, editor]);
 
-  // Autosave handler with debounce
   const handleAutosave = useCallback(
-    (content: string) => {
+    (nextContent: string) => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
-
       setSaveStatus('saving');
-
       saveTimeoutRef.current = setTimeout(async () => {
         try {
           if (callbacks.onSave) {
-            await callbacks.onSave(content);
+            await callbacks.onSave(nextContent);
             if (isMountedRef.current) {
               setSaveStatus('saved');
               setLastSaved(new Date());
@@ -179,60 +171,34 @@ export function ProductionEditor({
     [callbacks, autosaveDelay]
   );
 
-  // Cleanup
   useEffect(() => {
     return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-      if (onChangeDebounceRef.current) {
-        clearTimeout(onChangeDebounceRef.current);
-      }
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+      if (onChangeDebounceRef.current) clearTimeout(onChangeDebounceRef.current);
     };
   }, []);
 
-  // Image upload handler
   const handleImageUpload = useCallback(async () => {
     if (!editor) return;
-
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
-
-      // Validate file
       if (file.size > EDITOR_LIMITS.MAX_IMAGE_SIZE) {
         toast.error(ERROR_MESSAGES.FILE_TOO_LARGE);
         return;
       }
-
       try {
         setIsUploading(true);
         callbacks.onUploadStart?.();
-
         const formData = new FormData();
         formData.append('file', file);
-
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!response.ok) {
-          throw new Error('Upload failed');
-        }
-
+        const response = await fetch('/api/upload', { method: 'POST', body: formData });
+        if (!response.ok) throw new Error('Upload failed');
         const data = await response.json();
-
-        // Insert image
-        editor.chain().focus().setImage({
-          src: data.url,
-          alt: file.name,
-        }).run();
-
+        editor.chain().focus().setImage({ src: data.url, alt: file.name }).run();
         callbacks.onUploadComplete?.(data);
         toast.success('Ảnh đã được tải lên');
       } catch (error) {
@@ -243,43 +209,29 @@ export function ProductionEditor({
         setIsUploading(false);
       }
     };
-
     input.click();
   }, [editor, callbacks]);
 
-  // Video embed handler with modern popover
   const handleVideoEmbed = useCallback(() => {
     if (!editorRef.current) return;
-
-    // CRITICAL: Prevent reopen if already open
-    if (isVideoPopoverOpenRef.current) {
-      return;
-    }
-
-    // Set ref BEFORE state
+    if (isVideoPopoverOpenRef.current) return;
     isVideoPopoverOpenRef.current = true;
-
-    // Open popover
     setIsVideoPopoverOpen(true);
   }, []);
 
-  // Close video popover handler
   const handleVideoPopoverClose = useCallback(() => {
     isVideoPopoverOpenRef.current = false;
     setIsVideoPopoverOpen(false);
   }, []);
 
-  // Product box handler
   const handleProductBox = useCallback(() => {
     const currentEditor = editorRef.current;
     if (!currentEditor) return;
-    // Save the cursor before the popover takes focus.
     setProductSavedSelection(saveSelection(currentEditor));
     setProductEditData(null);
     setIsProductPopoverOpen(true);
   }, []);
 
-  // Listen for productbox:edit events dispatched from ProductBox node view
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail;
@@ -291,23 +243,13 @@ export function ProductionEditor({
     return () => window.removeEventListener('productbox:edit', handler);
   }, []);
 
-  // Link insert handler with modern popover
   const handleLinkInsert = useCallback(() => {
     const currentEditor = editorRef.current;
     if (!currentEditor) return;
-
-    // CRITICAL: Prevent reopen if already open
-    if (isLinkPopoverOpenRef.current) {
-      return;
-    }
-
-    // Save selection
+    if (isLinkPopoverOpenRef.current) return;
     const selection = saveSelection(currentEditor);
     setLinkSavedSelection(selection);
-
-    // Check for existing link
     const previousUrl = getLinkAtCursor(currentEditor);
-
     if (previousUrl) {
       setLinkPopoverInitialUrl(previousUrl);
       setIsLinkEditMode(true);
@@ -315,35 +257,25 @@ export function ProductionEditor({
       setLinkPopoverInitialUrl('');
       setIsLinkEditMode(false);
     }
-
-    // Set ref BEFORE state
     isLinkPopoverOpenRef.current = true;
-
-    // Open popover
     setIsLinkPopoverOpen(true);
-  }, []); // Stable reference
+  }, []);
 
-  // Close popover handler
   const handleLinkPopoverClose = useCallback(() => {
     isLinkPopoverOpenRef.current = false;
     setIsLinkPopoverOpen(false);
   }, []);
 
-  // Keyboard shortcuts (fixed - use stable callback)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Only handle if editor is focused
       if (!editorRef.current?.isFocused) return;
-
-      // Ctrl/Cmd + K for link
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
         e.stopPropagation();
         handleLinkInsert();
       }
     };
-
-    document.addEventListener('keydown', handleKeyDown, true); // Capture phase
+    document.addEventListener('keydown', handleKeyDown, true);
     return () => document.removeEventListener('keydown', handleKeyDown, true);
   }, [handleLinkInsert]);
 
@@ -358,7 +290,6 @@ export function ProductionEditor({
 
   return (
     <div className={`w-full overflow-hidden rounded-3xl border border-pgreen/15 bg-white shadow-soft transition-all focus-within:border-pgreen/40 focus-within:ring-4 focus-within:ring-pgreen/10 ${className}`}>
-      {/* Toolbar */}
       <EditorToolbar
         editor={editor}
         onImageUpload={handleImageUpload}
@@ -366,45 +297,11 @@ export function ProductionEditor({
         onLinkInsert={handleLinkInsert}
         onProductBox={handleProductBox}
       />
-
-      {/* Bubble Menu */}
       {enableBubbleMenu && (
-        <EditorBubbleMenu
-          editor={editor}
-          onLinkInsert={handleLinkInsert}
-        />
+        <EditorBubbleMenu editor={editor} onLinkInsert={handleLinkInsert} />
       )}
-
-      {/* Editor Content */}
-      <div
-        className="cursor-text bg-white relative"
-        onClick={() => editor.commands.focus()}
-      >
+      <div className="cursor-text bg-white relative" onClick={() => editor.commands.focus()}>
         <EditorContent editor={editor} />
-
-        {/* Keep selection visible when link popover is open */}
-        {isLinkPopoverOpen && (
-          <style>{`
-            /* Keep selection visible even when editor loses focus */
-            .ProseMirror-selectednode {
-              outline: 2px solid rgba(46, 139, 87, 0.4);
-            }
-            
-            /* Fake selection highlight when popover is open */
-            .ProseMirror::selection,
-            .ProseMirror ::selection {
-              background-color: rgba(46, 139, 87, 0.3) !important;
-            }
-            
-            /* Even when not focused */
-            .ProseMirror:not(:focus)::selection,
-            .ProseMirror:not(:focus) ::selection {
-              background-color: rgba(46, 139, 87, 0.25) !important;
-            }
-          `}</style>
-        )}
-
-        {/* Link Popover */}
         {isLinkPopoverOpen && (
           <LinkPopover
             editor={editor}
@@ -415,17 +312,9 @@ export function ProductionEditor({
             savedSelection={linkSavedSelection}
           />
         )}
-
-        {/* Video Popover */}
         {isVideoPopoverOpen && (
-          <VideoPopover
-            editor={editor}
-            isOpen={isVideoPopoverOpen}
-            onClose={handleVideoPopoverClose}
-          />
+          <VideoPopover editor={editor} isOpen={isVideoPopoverOpen} onClose={handleVideoPopoverClose} />
         )}
-
-        {/* Product Box Popover */}
         {isProductPopoverOpen && (
           <ProductBoxPopover
             editor={editor}
@@ -442,8 +331,6 @@ export function ProductionEditor({
             }}
           />
         )}
-
-        {/* Upload overlay */}
         {isUploading && (
           <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-20">
             <div className="flex flex-col items-center gap-2">
@@ -453,21 +340,9 @@ export function ProductionEditor({
           </div>
         )}
       </div>
-
-      {/* Footer */}
       <div className="px-6 py-3 bg-cream/40 border-t border-pgreen/10 flex justify-between items-center">
-        {/* Save Status */}
         <div className="flex items-center gap-2 text-xs font-medium text-gray-500">
-          <div
-            className={`w-2 h-2 rounded-full transition-colors duration-300 ${saveStatus === 'saved'
-              ? 'bg-pgreen'
-              : saveStatus === 'saving'
-                ? 'bg-fgreen animate-pulse'
-                : saveStatus === 'error'
-                  ? 'bg-red-500'
-                  : 'bg-gray-300'
-              }`}
-          />
+          <div className={`w-2 h-2 rounded-full transition-colors duration-300 ${saveStatus === 'saved' ? 'bg-pgreen' : saveStatus === 'saving' ? 'bg-fgreen animate-pulse' : saveStatus === 'error' ? 'bg-red-500' : 'bg-gray-300'}`} />
           <span>
             {saveStatus === 'saved' && lastSaved
               ? `Đã lưu ${formatRelativeTime(lastSaved)}`
@@ -478,33 +353,22 @@ export function ProductionEditor({
                   : 'Chưa lưu'}
           </span>
         </div>
-
-        {/* Stats */}
         <div className="flex items-center gap-4">
-          <span className="text-xs font-semibold text-gray-400">
-            {wordCount} từ
-          </span>
-          <span className="text-xs font-semibold text-gray-400">
-            {charCount} / {maxLength} ký tự
-          </span>
+          <span className="text-xs font-semibold text-gray-400">{wordCount} từ</span>
+          <span className="text-xs font-semibold text-gray-400">{charCount} / {maxLength} ký tự</span>
         </div>
       </div>
     </div>
   );
 }
 
-// Helper function
 function formatRelativeTime(date: Date): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-
   if (seconds < 10) return 'vừa xong';
   if (seconds < 60) return `${seconds} giây trước`;
-
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes} phút trước`;
-
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours} giờ trước`;
-
   return date.toLocaleDateString('vi-VN');
 }
