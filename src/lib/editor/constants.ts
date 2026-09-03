@@ -5,21 +5,13 @@
 
 import { CalloutVariant } from '@/types/editor';
 
-// ============================================
-// LIMITS
-// ============================================
-
 export const EDITOR_LIMITS = {
-  MAX_CONTENT_LENGTH: 50000, // characters
-  MAX_IMAGE_SIZE: 5 * 1024 * 1024, // 5MB
+  MAX_CONTENT_LENGTH: 50000,
+  MAX_IMAGE_SIZE: 5 * 1024 * 1024,
   MAX_IMAGES_PER_DOCUMENT: 50,
-  AUTOSAVE_DELAY: 2000, // ms
-  DEBOUNCE_DELAY: 300, // ms
+  AUTOSAVE_DELAY: 2000,
+  DEBOUNCE_DELAY: 300,
 } as const;
-
-// ============================================
-// ALLOWED CONTENT
-// ============================================
 
 export const ALLOWED_IMAGE_TYPES = [
   'image/jpeg',
@@ -33,13 +25,12 @@ export const ALLOWED_VIDEO_DOMAINS = [
   'youtube.com',
   'www.youtube.com',
   'youtu.be',
+  'youtube-nocookie.com',
+  'www.youtube-nocookie.com',
   'vimeo.com',
   'www.vimeo.com',
+  'player.vimeo.com',
 ] as const;
-
-// ============================================
-// SANITIZATION
-// ============================================
 
 export const ALLOWED_HTML_TAGS = [
   'p', 'br', 'strong', 'em', 'u', 's', 'strike', 'del', 'code',
@@ -47,28 +38,27 @@ export const ALLOWED_HTML_TAGS = [
   'ul', 'ol', 'li',
   'blockquote', 'pre',
   'a', 'img', 'iframe',
-  'div', 'span',
+  'div', 'span', 'mark',
   'table', 'thead', 'tbody', 'tr', 'th', 'td',
-  'hr',
+  'hr', 'figcaption', 'figure',
 ] as const;
 
 export const ALLOWED_HTML_ATTRIBUTES: Record<string, string[]> = {
   a: ['href', 'title', 'target', 'rel'],
   img: ['src', 'alt', 'title', 'width', 'height', 'data-alignment', 'data-caption'],
-  iframe: ['src', 'width', 'height', 'frameborder', 'allowfullscreen', 'data-provider'],
-  div: ['class', 'data-type', 'data-variant'],
-  span: ['class', 'style'],
+  iframe: ['src', 'width', 'height', 'frameborder', 'allowfullscreen', 'allow', 'data-provider'],
+  div: ['class', 'data-type', 'data-variant', 'data-payload', 'data-slot', 'data-src', 'data-provider', 'data-width', 'data-height', 'data-reward-id', 'data-title', 'data-price', 'data-image-url', 'data-link-url', 'data-campaign-id', 'data-is-preorder', 'data-delivery-date'],
+  span: ['class'],
+  mark: ['class'],
   code: ['class'],
   pre: ['class'],
   td: ['colspan', 'rowspan'],
   th: ['colspan', 'rowspan'],
+  li: ['data-type', 'data-checked'],
+  ul: ['data-type'],
 };
 
 export const ALLOWED_URL_SCHEMES = ['http', 'https', 'mailto'] as const;
-
-// ============================================
-// CALLOUT STYLES
-// ============================================
 
 export const CALLOUT_STYLES: Record<CalloutVariant, {
   container: string;
@@ -97,10 +87,6 @@ export const CALLOUT_STYLES: Record<CalloutVariant, {
   },
 };
 
-// ============================================
-// KEYBOARD SHORTCUTS
-// ============================================
-
 export const KEYBOARD_SHORTCUTS = {
   BOLD: 'Mod-b',
   ITALIC: 'Mod-i',
@@ -121,22 +107,14 @@ export const KEYBOARD_SHORTCUTS = {
   HARD_BREAK: 'Shift-Enter',
 } as const;
 
-// ============================================
-// PLACEHOLDERS
-// ============================================
-
 export const EDITOR_PLACEHOLDERS = {
   CAMPAIGN_DESCRIPTION: 'Hãy kể câu chuyện chiến dịch của bạn... Người ủng hộ muốn biết dự án này về điều gì, tại sao nó quan trọng, và bạn sẽ sử dụng nguồn vốn như thế nào.',
   UPDATE_POST: 'Chia sẻ tiến độ mới nhất của chiến dịch...',
   FAQ: 'Nhập câu trả lời cho câu hỏi này...',
   REWARD_DESCRIPTION: 'Mô tả chi tiết về phần thưởng này...',
   CREATOR_BIO: 'Giới thiệu về bản thân và đội ngũ của bạn...',
-  DEFAULT: 'Bắt đầu viết hoặc gõ / để xem các lệnh...',
+  DEFAULT: 'Bắt đầu viết nội dung...',
 } as const;
-
-// ============================================
-// ERROR MESSAGES
-// ============================================
 
 export const ERROR_MESSAGES = {
   UPLOAD_FAILED: 'Không thể tải ảnh lên. Vui lòng thử lại.',
@@ -147,10 +125,6 @@ export const ERROR_MESSAGES = {
   SAVE_FAILED: 'Không thể lưu nội dung. Vui lòng thử lại.',
   NETWORK_ERROR: 'Lỗi kết nối mạng. Vui lòng kiểm tra và thử lại.',
 } as const;
-
-// ============================================
-// REGEX PATTERNS
-// ============================================
 
 export const URL_REGEX = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
 
