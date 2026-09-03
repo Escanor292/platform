@@ -8,11 +8,8 @@ import {
   forbiddenResponse
 } from "@/lib/project/project.response-handlers";
 import { z } from "zod";
+import { persistRichText, RichTextValidationError } from "@/lib/editor/persist";
 
-/**
- * GET /api/campaigns/[slug]
- * Lấy chi tiết campaign theo ID hoặc slug
- */
 export async function GET(_req: NextRequest, context: { params: Promise<{ slug: string }> }) {
   try {
     const { slug } = await context.params;
@@ -84,14 +81,8 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug: 
   }
 }
 
-/**
- * PUT /api/campaigns/[slug]
- * Cập nhật campaign (chỉ creator hoặc admin)
- * Validates: Requirements 9.1, 9.2, 9.3, 9.4, 9.5
- */
 export async function PUT(req: NextRequest, context: { params: Promise<{ slug: string }> }) {
   try {
-    // Check authentication
     const session = await auth();
     const authError = checkAuthentication(session);
     if (authError) return authError;
@@ -100,9 +91,9 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ slug: s
     const { slug } = await context.params;
     const body = await req.json();
 
-    const campaign = await prisma.campaigns.findUnique({
-      where: { slug },
-      select: { id: true, creatorId: true }
+    const campaign = await prisma.campaigns.findFirst({
+      where: { OR: [{ slug }, { id: slug }] },
+      select: { id: true, creatorId: true, slug: true }
     });
 
     if (!campaign) {
@@ -112,16 +103,24 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ slug: s
       );
     }
 
-    // Check ownership
     if (campaign.creatorId !== userId) {
       return forbiddenResponse('Not authorized to update this campaign');
     }
 
-    // Prepare update data
+    let longDescription: string | null = null;
+    try {
+      longDescription = persistRichText(body.description || body.longDescription || '');
+    } catch (error) {
+      if (error instanceof RichTextValidationError) {
+        return validationErrorResponse(error.message);
+      }
+      throw error;
+    }
+
     const updateData: any = {
       title: body.title,
       description: body.tagline || body.description,
-      longDescription: body.description || body.longDescription || null,
+      longDescription: longDescription || null,
       goalAmount: body.goalAmount,
       category: body.mainCategory || body.category,
       tags: body.starterTags || body.tags || [],
@@ -131,13 +130,10 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ slug: s
       endDate: body.endDate ? new Date(body.endDate) : null,
     };
 
-    // Handle projectId update if provided
     if ('projectId' in body) {
       if (body.projectId === null) {
-        // Allow setting to null to make campaign standalone
         updateData.projectId = null;
       } else {
-        // Validate projectId format (CUID)
         try {
           projectIdSchema.parse(body.projectId);
         } catch (error) {
@@ -147,7 +143,6 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ slug: s
           throw error;
         }
 
-        // Validate project exists and is owned by campaign owner
         const project = await prisma.projects.findUnique({
           where: { id: body.projectId },
           select: { creatorId: true },
@@ -165,23 +160,20 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ slug: s
       }
     }
 
-    // Update campaign data
     const updated = await prisma.campaigns.update({
-      where: { slug },
+      where: { id: campaign.id },
       data: updateData,
     });
 
-    // Update blog links if provided
     if (body.linkedBlogIds !== undefined) {
-      // Delete existing links
       await prisma.campaign_blog_links.deleteMany({
         where: { campaignId: campaign.id },
       });
 
-      // Create new links
       if (Array.isArray(body.linkedBlogIds) && body.linkedBlogIds.length > 0) {
         await prisma.campaign_blog_links.createMany({
           data: body.linkedBlogIds.map((blogId: string, index: number) => ({
+            id: crypto.randomUUID(),
             campaignId: campaign.id,
             blogPostId: blogId,
             order: index,
@@ -197,16 +189,12 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ slug: s
   }
 }
 
-/**
- * DELETE /api/campaigns/[id]
- * Xóa campaign (chỉ cho phép nếu DRAFT, không có pledge)
- */
 export async function DELETE(_req: NextRequest, context: { params: Promise<{ slug: string }> }) {
   try {
     const { slug } = await context.params;
 
-    const campaign = await prisma.campaigns.findUnique({
-      where: { id: slug },
+    const campaign = await prisma.campaigns.findFirst({
+      where: { OR: [{ id: slug }, { slug }] },
       include: { _count: { select: { pledges: true } } },
     });
 
@@ -224,7 +212,7 @@ export async function DELETE(_req: NextRequest, context: { params: Promise<{ slu
       );
     }
 
-    await prisma.campaigns.delete({ where: { id: slug } });
+    await prisma.campaigns.delete({ where: { id: campaign.id } });
     return NextResponse.json({ message: "Đã xóa campaign" });
   } catch (error) {
     console.error("[DELETE /api/campaigns/[id]]", error);

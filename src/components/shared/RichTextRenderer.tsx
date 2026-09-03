@@ -1,7 +1,5 @@
 "use client";
 
-import DOMPurify from "dompurify";
-import { useRef, useSyncExternalStore } from "react";
 import { generateHTML } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
@@ -15,8 +13,8 @@ import TaskItem from "@tiptap/extension-task-item";
 import { ImageWithCaption, VideoEmbed, Callout } from "@/components/editor/extensions";
 import { Node, mergeAttributes } from "@tiptap/core";
 import { ProductBoxRenderer } from "@/components/shared/ProductBoxRenderer";
+import { sanitizeForPreview } from "@/lib/editor/sanitize";
 
-// Render-only ProductBox extension for display: content rendered by ProductBoxRenderer
 const ProductBox = Node.create({
   name: "productBox",
   group: "block",
@@ -57,12 +55,9 @@ const ProductBox = Node.create({
   },
 });
 
-// Extensions list used by the editor
 const TIPTAP_EXTENSIONS = [
   StarterKit.configure({
-    heading: {
-      levels: [1, 2, 3],
-    },
+    heading: { levels: [1, 2, 3] },
   }),
   Link.configure({ openOnClick: false }),
   ImageWithCaption,
@@ -75,13 +70,9 @@ const TIPTAP_EXTENSIONS = [
   Color,
   TaskList,
   TaskItem.configure({ nested: true }),
-  ProductBox, // custom render-only extension — shows interactive product card
+  ProductBox,
 ];
 
-/**
- * Tries to parse the content string as TipTap JSON.
- * Returns the parsed object if valid, or null.
- */
 export function normalizeRichTextContent(content: unknown): string {
   if (typeof content === "string") return content;
   if (content && typeof content === "object") {
@@ -106,37 +97,20 @@ function parseTipTapJson(content: string): object | null {
   return null;
 }
 
-/**
- * Converts content (TipTap JSON string OR plain HTML) to an HTML string.
- */
 function contentToHtml(content: unknown): string {
   const normalized = normalizeRichTextContent(content);
   if (!normalized) return "";
 
-  // Detect TipTap JSON
   const json = parseTipTapJson(normalized);
   if (json) {
     try {
       return generateHTML(json as any, TIPTAP_EXTENSIONS);
     } catch {
-      // Fallback to raw if generateHTML fails
-      return `<p>${normalized}</p>`;
+      return "<p></p>";
     }
   }
 
-  // Already HTML or plain text
   return normalized;
-}
-
-// useSyncExternalStore-based hydration guard (no setState in effect)
-function subscribe() {
-  return () => { };
-}
-function getServerSnapshot() {
-  return false;
-}
-function getClientSnapshot() {
-  return true;
 }
 
 interface RichTextRendererProps {
@@ -144,27 +118,17 @@ interface RichTextRendererProps {
 }
 
 export default function RichTextRenderer({ content }: RichTextRendererProps) {
-  // Safe hydration: false on server, true on client — no setState in effect
-  const mounted = useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
+  const html = contentToHtml(content);
+  const sanitizedHtml = sanitizeForPreview(html);
 
-  if (!mounted) {
-    return (
-      <div
-        className="prose prose-lg max-w-none text-gray-700 leading-relaxed animate-pulse"
-        suppressHydrationWarning
-      />
-    );
+  if (!sanitizedHtml) {
+    return null;
   }
 
-  const html = contentToHtml(content);
-  const sanitizedHtml = DOMPurify.sanitize(html, {
-    ADD_TAGS: ["iframe"],
-    ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "src", "style", "target", "rel", "data-type", "data-variant", "data-payload", "data-slot"],
-  });
-
   return (
-    <div
-      className="prose prose-lg max-w-none text-gray-700 leading-relaxed
+    <>
+      <div
+        className="prose prose-lg max-w-none text-gray-700 leading-relaxed
         prose-headings:text-dblue prose-headings:font-bold
         prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4
         prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3
@@ -175,7 +139,9 @@ export default function RichTextRenderer({ content }: RichTextRendererProps) {
         prose-strong:text-dblue prose-strong:font-semibold
         prose-a:text-pgreen prose-a:underline hover:prose-a:text-dblue prose-a:transition-colors
         prose-blockquote:border-l-4 prose-blockquote:border-pgreen prose-blockquote:bg-cream/60 prose-blockquote:rounded-r-2xl prose-blockquote:pl-4 prose-blockquote:py-1 prose-blockquote:pr-4 prose-blockquote:italic"
-      dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
-    />
+        dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+      />
+      <ProductBoxRenderer />
+    </>
   );
 }
