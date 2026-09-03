@@ -40,7 +40,7 @@ export function slugifyCampaignTitle(title: string): string {
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
-    .replace(/d/g, 'd')
+    .replace(/\u0111/g, 'd')
     .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
@@ -48,10 +48,6 @@ export function slugifyCampaignTitle(title: string): string {
     .slice(0, 72);
 
   return base || 'campaign';
-}
-
-export function slugifyCampaignTitleKeepVietnameseD(title: string): string {
-  return slugifyCampaignTitle(title);
 }
 
 export async function generateUniqueCampaignSlug(title: string): Promise<string> {
