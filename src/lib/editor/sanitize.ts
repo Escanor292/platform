@@ -1,10 +1,10 @@
 /**
  * Content Sanitization
  * Shared allowlist for editor preview, public render, and API persist.
- * Uses isomorphic-dompurify so API routes and RSC can sanitize on the server.
+ * Browser: DOMPurify. Server/API: fallback sanitizer (no extra package).
  */
 
-import DOMPurify, { type Config as DOMPurifyConfig } from 'isomorphic-dompurify';
+import DOMPurify, { type Config as DOMPurifyConfig } from 'dompurify';
 import {
   ALLOWED_HTML_TAGS,
   ALLOWED_HTML_ATTRIBUTES,
@@ -68,6 +68,7 @@ export function isAllowedIframeSrc(src: string, allowedDomains?: readonly string
 let hooksInstalled = false;
 
 function ensureIframeHook() {
+  if (typeof window === 'undefined') return;
   if (hooksInstalled) return;
   try {
     DOMPurify.addHook(HOOK_NAME, (node, data) => {
@@ -109,6 +110,10 @@ export function sanitizeHtml(
   options: SanitizeOptions = {}
 ): string {
   if (!html || typeof html !== 'string') return '';
+
+  if (typeof window === 'undefined') {
+    return fallbackSanitize(html, options.allowedIframeDomains || ALLOWED_VIDEO_DOMAINS);
+  }
 
   const config: DOMPurifyConfig = {
     ...DEFAULT_SANITIZE_CONFIG,
@@ -221,6 +226,9 @@ export function sanitizePastedContent(html: string): string {
 }
 
 export function stripAllHtml(html: string): string {
+  if (typeof window === 'undefined') {
+    return html.replace(/<[^>]*>/g, '');
+  }
   try {
     return DOMPurify.sanitize(html, { ALLOWED_TAGS: [] });
   } catch {
