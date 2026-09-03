@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       }),
       prisma.campaigns.findMany({
         where: {
-          status: { in: ["ACTIVE", "SUCCESSFUL", "COMPLETED"] as any },
+          status: { in: ["ACTIVE", "SUCCESS"] },
           OR: [{ title: { contains: query, mode: "insensitive" } }, { description: { contains: query, mode: "insensitive" } }, { campaignCode: { contains: query, mode: "insensitive" } }],
         },
         select: { title: true, slug: true, description: true },
