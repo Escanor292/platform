@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { COMMAND_REFUSAL, isCommandLikeRequest } from "@/lib/assistant-safety";
+import { arePlatformAssistantWidgetsEnabled } from "@/lib/platform-ai-status";
 
 const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 const MAX_QUESTION_CHARS = 1_200;
@@ -48,6 +49,10 @@ function sanitize(value: unknown, depth = 0): unknown {
 }
 
 function responseText(payload: any) {
+  const parts = payload?.candidates?.[0]?.content?.parts;
+  if (Array.isArray(parts)) {
+    return parts.map((part: { text?: string }) => part?.text || "").join("\n").trim();
+  }
   const output = payload?.output;
   if (Array.isArray(output)) {
     return output.filter((item: any) => item?.type === "text" && typeof item?.text === "string").map((item: any) => item.text).join("\n").trim();
@@ -55,9 +60,43 @@ function responseText(payload: any) {
   return typeof payload?.output_text === "string" ? payload.output_text.trim() : "";
 }
 
+async function callGemini(input: string, signal: AbortSignal) {
+  const key = process.env.GEMINI_API_KEY!;
+  const generateUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(MODEL)}:generateContent?key=${encodeURIComponent(key)}`;
+  const generateBody = {
+    system_instruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
+    contents: [{ role: "user", parts: [{ text: input }] }],
+    generationConfig: { temperature: 0.35, maxOutputTokens: 900 },
+  };
+  const generateResponse = await fetch(generateUrl, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(generateBody),
+    signal,
+    cache: "no-store",
+  });
+  if (generateResponse.ok || ![400, 404].includes(generateResponse.status)) return generateResponse;
+
+  return fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-goog-api-key": key },
+    body: JSON.stringify({
+      model: MODEL,
+      system_instruction: SYSTEM_INSTRUCTION,
+      input,
+      generation_config: { temperature: 0.35, max_output_tokens: 900 },
+    }),
+    signal,
+    cache: "no-store",
+  });
+}
+
 export async function POST(request: NextRequest) {
   if (!process.env.GEMINI_API_KEY) {
     return NextResponse.json({ error: "AI chưa được cấu hình" }, { status: 503, headers: { "Cache-Control": "no-store" } });
+  }
+  if (!(await arePlatformAssistantWidgetsEnabled())) {
+    return NextResponse.json({ error: "Trợ lý AI đang tắt." }, { status: 403, headers: { "Cache-Control": "no-store" } });
   }
   if (!allowed(request)) {
     return NextResponse.json({ error: "Bạn gửi hơi nhanh, hãy thử lại sau một phút nhé." }, { status: 429, headers: { "Cache-Control": "no-store" } });
@@ -76,13 +115,7 @@ export async function POST(request: NextRequest) {
     const timer = setTimeout(() => controller.abort(), 18_000);
     let response: Response;
     try {
-      response = await fetch(`https://generativelanguage.googleapis.com/v1beta/interactions`, {
-        method: "POST",
-        headers: { "content-type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY },
-        body: JSON.stringify({ model: MODEL, system_instruction: SYSTEM_INSTRUCTION, input, generation_config: { temperature: 0.35, max_output_tokens: 900, thinking_level: "low" } }),
-        signal: controller.signal,
-        cache: "no-store",
-      });
+      response = await callGemini(input, controller.signal);
     } finally {
       clearTimeout(timer);
     }
