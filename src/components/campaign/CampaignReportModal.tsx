@@ -9,8 +9,11 @@ import { createPortal } from "react-dom";
 import { toast } from "sonner";
 
 interface CampaignReportModalProps {
-    campaignSlug: string;
-    campaignTitle: string;
+    campaignSlug?: string;
+    campaignTitle?: string;
+    targetType?: "CAMPAIGN" | "PROJECT" | "PRODUCT" | "BLOG" | "PROFILE";
+    targetId?: string;
+    targetTitle?: string;
     isOpen: boolean;
     onClose: () => void;
 }
@@ -26,12 +29,31 @@ const REPORT_REASONS = [
 
 const MAX_IMAGES = 5;
 
+const TARGET_LABELS = {
+    CAMPAIGN: "chiến dịch",
+    PROJECT: "dự án",
+    PRODUCT: "sản phẩm",
+    BLOG: "bài viết",
+    PROFILE: "trang cá nhân",
+} as const;
+
 export default function CampaignReportModal({
     campaignSlug,
     campaignTitle,
+    targetType = "CAMPAIGN",
+    targetId,
+    targetTitle,
     isOpen,
     onClose
 }: CampaignReportModalProps) {
+    const resolvedType = targetType;
+    const resolvedId = targetId || campaignSlug || "";
+    const resolvedTitle = targetTitle || campaignTitle || "";
+    const loginCallback = resolvedType === "CAMPAIGN" && campaignSlug
+        ? `/campaigns/${campaignSlug}`
+        : resolvedId
+            ? `/${resolvedType === "PROJECT" ? "projects" : resolvedType === "PRODUCT" ? "products" : resolvedType === "BLOG" ? "blog" : "profile"}/${resolvedId}`
+            : "/";
     const { data: session, status } = useSession();
     const router = useRouter();
     const [reason, setReason] = useState("");
@@ -95,13 +117,13 @@ export default function CampaignReportModal({
                     </div>
 
                     <p className="text-gray-600 mb-6 text-sm">
-                        Bạn cần đăng nhập để báo cáo chiến dịch này. Điều này giúp chúng tôi xác minh báo cáo và bảo vệ cộng đồng.
+                        Bạn cần đăng nhập để báo cáo {TARGET_LABELS[resolvedType]} này. Điều này giúp chúng tôi xác minh báo cáo và bảo vệ cộng đồng.
                     </p>
 
                     <div className="space-y-3">
                         <Button
                             onClick={() => {
-                                router.push(`/auth/login?callbackUrl=/campaigns/${campaignSlug}`);
+                                router.push(`/auth/login?callbackUrl=${loginCallback}`);
                                 onClose();
                             }}
                             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-[1.2rem]"
@@ -110,7 +132,7 @@ export default function CampaignReportModal({
                         </Button>
                         <Button
                             onClick={() => {
-                                router.push(`/auth/register?callbackUrl=/campaigns/${campaignSlug}`);
+                                router.push(`/auth/register?callbackUrl=${loginCallback}`);
                                 onClose();
                             }}
                             variant="outline"
@@ -185,10 +207,12 @@ export default function CampaignReportModal({
 
         setLoading(true);
         try {
-            const res = await fetch(`/api/campaigns/${campaignSlug}/reports`, {
+            const res = await fetch(`/api/reports`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
+                    targetType: resolvedType,
+                    targetId: resolvedId,
                     reason,
                     description: description.trim(),
                     imageUrls,
@@ -231,8 +255,8 @@ export default function CampaignReportModal({
             >
                 <div className="flex items-start justify-between mb-6">
                     <div className="flex-1">
-                        <h2 className="text-2xl font-black text-gray-900">Báo cáo chiến dịch</h2>
-                        <p className="text-gray-600 text-sm mt-1 truncate">{campaignTitle}</p>
+                        <h2 className="text-2xl font-black text-gray-900">Báo cáo {TARGET_LABELS[resolvedType]}</h2>
+                        <p className="text-gray-600 text-sm mt-1 truncate">{resolvedTitle}</p>
                     </div>
                     <button
                         onClick={onClose}

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { parseOccurredAt, parseReportImages } from "@/lib/content-report";
 
 /**
  * POST /api/campaigns/[slug]/reports
@@ -9,7 +10,6 @@ import { prisma } from "@/lib/prisma";
 export async function POST(req: NextRequest, context: { params: Promise<{ slug: string }> }) {
     try {
         const { slug } = await context.params;
-        // 1. Check authentication - REQUIRED
         const session = await auth();
         if (!session?.user) {
             return NextResponse.json(
@@ -21,7 +21,6 @@ export async function POST(req: NextRequest, context: { params: Promise<{ slug: 
         const userId = (session.user as any).id;
         const { reason, description, imageUrls, occurredAt } = await req.json();
 
-        // 2. Validate input
         if (!reason || !description?.trim()) {
             return NextResponse.json(
                 { error: "Vui lòng cung cấp lý do và mô tả chi tiết" },
@@ -29,22 +28,15 @@ export async function POST(req: NextRequest, context: { params: Promise<{ slug: 
             );
         }
 
-        const images = Array.isArray(imageUrls)
-            ? imageUrls.filter((url: unknown) => typeof url === "string" && /^https?:\/\//.test(url)).slice(0, 5)
-            : [];
-        let incidentAt: Date | null = null;
-        if (typeof occurredAt === "string" && occurredAt.trim()) {
-            const parsed = new Date(occurredAt);
-            if (Number.isNaN(parsed.getTime())) {
-                return NextResponse.json({ error: "Thời gian vụ việc không hợp lệ" }, { status: 400 });
-            }
-            incidentAt = parsed;
+        const images = parseReportImages(imageUrls);
+        const incident = parseOccurredAt(occurredAt);
+        if (!incident.ok) {
+            return NextResponse.json({ error: "Thời gian vụ việc không hợp lệ" }, { status: 400 });
         }
 
-        // 3. Find campaign
         const campaign = await prisma.campaigns.findFirst({
             where: { OR: [{ slug }, { id: slug }] },
-            select: { id: true, title: true }
+            select: { id: true, title: true, slug: true }
         });
 
         if (!campaign) {
@@ -54,11 +46,11 @@ export async function POST(req: NextRequest, context: { params: Promise<{ slug: 
             );
         }
 
-        // 4. Check if user already reported this campaign
         const existingReport = await prisma.campaign_reports.findFirst({
             where: {
-                campaignId: campaign.id,
-                userId: userId
+                targetType: "CAMPAIGN",
+                targetId: campaign.id,
+                userId,
             }
         });
 
@@ -69,16 +61,19 @@ export async function POST(req: NextRequest, context: { params: Promise<{ slug: 
             );
         }
 
-        // 5. Create report
         const report = await prisma.campaign_reports.create({
             data: {
                 id: crypto.randomUUID(),
                 campaignId: campaign.id,
-                userId: userId,
+                targetType: "CAMPAIGN",
+                targetId: campaign.id,
+                targetTitle: campaign.title,
+                targetHref: `/campaigns/${campaign.slug}`,
+                userId,
                 reason,
                 description: description.trim(),
                 imageUrls: images,
-                occurredAt: incidentAt,
+                occurredAt: incident.value,
                 status: "PENDING",
                 updatedAt: new Date()
             },
@@ -113,8 +108,7 @@ export async function GET(req: NextRequest, context: { params: Promise<{ slug: s
         const { slug } = await context.params;
         const session = await auth();
 
-        // Only admins can view reports
-        if (!session?.user || !(session.user as any).isAdmin) {
+        if (!session?.user || ((session.user as any).role !== "ADMIN" && !(session.user as any).isAdmin)) {
             return NextResponse.json(
                 { error: "Không có quyền truy cập" },
                 { status: 403 }
@@ -134,7 +128,7 @@ export async function GET(req: NextRequest, context: { params: Promise<{ slug: s
         }
 
         const reports = await prisma.campaign_reports.findMany({
-            where: { campaignId: campaign.id },
+            where: { targetType: "CAMPAIGN", targetId: campaign.id },
             include: {
                 users: { select: { name: true, email: true, avatar: true } }
             },

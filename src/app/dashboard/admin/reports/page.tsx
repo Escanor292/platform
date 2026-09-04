@@ -15,11 +15,22 @@ interface Report {
     description: string;
     imageUrls?: string[];
     occurredAt?: string | null;
+    targetType?: string;
+    targetTitle?: string;
+    targetHref?: string | null;
     status: string;
     createdAt: string;
     resolvedAt?: string;
     resolution?: string;
 }
+
+const TARGET_LABELS: Record<string, string> = {
+    CAMPAIGN: "Chiến dịch",
+    PROJECT: "Dự án",
+    PRODUCT: "Sản phẩm",
+    BLOG: "Bài viết",
+    PROFILE: "Trang cá nhân",
+};
 
 const REPORT_REASONS: Record<string, string> = {
     FRAUD: "Gian lận",
@@ -122,7 +133,7 @@ export default function ReportsPage() {
             <div className="mx-auto max-w-7xl">
                 <div className="rounded-[2.5rem] border border-gray-100 bg-white p-8 shadow-sm">
                     <h1 className="mb-2 text-3xl font-black text-gray-900">Báo cáo vi phạm</h1>
-                    <p className="mb-8 text-gray-500">Xử lý báo cáo chiến dịch từ người dùng</p>
+                    <p className="mb-8 text-gray-500">Xử lý báo cáo chiến dịch, dự án, sản phẩm, blog và trang cá nhân</p>
 
                     {error && (
                         <div className="mb-6 flex gap-3 rounded-[1.2rem] border border-red-200 bg-red-50 p-4">
@@ -164,7 +175,10 @@ export default function ReportsPage() {
                                         <div className="mb-4 flex items-start justify-between gap-4">
                                             <div className="flex-1">
                                                 <div className="mb-2 flex flex-wrap items-center gap-3">
-                                                    <h3 className="font-semibold text-gray-900">{report.campaign?.title || "Chiến dịch"}</h3>
+                                                    <h3 className="font-semibold text-gray-900">{report.targetTitle || report.campaign?.title || "Nội dung"}</h3>
+                                                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                                                        {TARGET_LABELS[report.targetType || "CAMPAIGN"] || report.targetType}
+                                                    </span>
                                                     <span className={`flex items-center gap-1 text-sm font-semibold ${statusConfig.color}`}>
                                                         <StatusIcon size={16} />
                                                         {statusConfig.label}
@@ -199,14 +213,14 @@ export default function ReportsPage() {
 
                                         <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-gray-500">
                                             <span>Gửi lúc: {new Date(report.createdAt).toLocaleString("vi-VN")}</span>
-                                            {report.campaign?.slug && (
+                                            {(report.targetHref || report.campaign?.slug) && (
                                                 <a
-                                                    href={`/campaigns/${report.campaign.slug}`}
+                                                    href={report.targetHref || `/campaigns/${report.campaign.slug}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="font-semibold text-blue-600 hover:underline"
                                                 >
-                                                    Xem chiến dịch →
+                                                    Xem nội dung →
                                                 </a>
                                             )}
                                         </div>

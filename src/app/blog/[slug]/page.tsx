@@ -16,6 +16,7 @@ import RichTextRenderer from '@/components/shared/RichTextRenderer';
 import { ProductBoxRenderer } from '@/components/shared/ProductBoxRenderer';
 import { auth } from '@/lib/auth';
 import BlogDetailPageClient from './BlogDetailPageClient';
+import ReportButton from '@/components/report/ReportButton';
 import {
   getBlogPostBySlug,
   getBlogPostList,
@@ -285,6 +286,13 @@ export default async function BlogDetailPage({
                 <button className="rounded-full p-2 transition-colors hover:bg-gray-100">
                   <Share2 className="w-5 h-5" />
                 </button>
+                <ReportButton
+                  targetType="BLOG"
+                  targetId={post.id}
+                  targetTitle={post.title}
+                  className="rounded-full p-2 text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600"
+                  label=""
+                />
               </div>
             </div>
           </header>

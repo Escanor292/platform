@@ -23,6 +23,7 @@ import { auth } from '@/lib/auth';
 import ProductGallery from '@/components/products/ProductGallery';
 import { ProductQuickEdit } from '@/components/products/ProductQuickEdit';
 import { AddToCartButton } from '@/components/products/AddToCartButton';
+import ReportButton from '@/components/report/ReportButton';
 import { ProductPurchaseButton } from '@/components/products/ProductPurchaseButton';
 import CampaignRewardDonationButton from '@/components/products/CampaignRewardDonationButton';
 import QuickAddToCartButton from '@/components/products/QuickAddToCartButton';
@@ -314,6 +315,11 @@ export default async function ProductDetailPage({
                     <Share2 size={17} />
                     Chia sẻ
                   </button>
+                  <ReportButton
+                    targetType="PRODUCT"
+                    targetId={reward.id}
+                    targetTitle={reward.title}
+                  />
                 </div>
 
                 {/* Trust badges */}
@@ -516,6 +522,11 @@ export default async function ProductDetailPage({
                   <Share2 size={17} />
                   Chia sẻ
                 </button>
+                <ReportButton
+                  targetType="PRODUCT"
+                  targetId={reward.id}
+                  targetTitle={reward.title}
+                />
               </div>
 
               {/* Trust */}

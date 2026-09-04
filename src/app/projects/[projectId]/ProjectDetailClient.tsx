@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatDate, formatVND } from '@/lib/utils';
 import QuickAddToCartButton from '@/components/products/QuickAddToCartButton';
+import ReportButton from '@/components/report/ReportButton';
 
 interface ProjectDetailClientProps {
     project: PublicProjectDetail;
@@ -101,6 +102,14 @@ export default function ProjectDetailClient({ project }: ProjectDetailClientProp
                                     {project.description}
                                 </p>
                             )}
+                            <div className="mb-8">
+                                <ReportButton
+                                    targetType="PROJECT"
+                                    targetId={project.id}
+                                    targetTitle={project.title}
+                                    className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20"
+                                />
+                            </div>
 
                             {/* Stats */}
                             <div className="flex flex-wrap gap-8">

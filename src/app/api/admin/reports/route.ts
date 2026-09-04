@@ -7,10 +7,14 @@ function isAdminSession(user: { role?: string; isAdmin?: boolean } | null | unde
 }
 
 function serializeReport(report: any) {
+  const campaign = report.campaigns;
   return {
     ...report,
-    campaign: report.campaigns,
+    campaign,
     user: report.users,
+    targetType: report.targetType || "CAMPAIGN",
+    targetTitle: report.targetTitle || campaign?.title || "Nội dung",
+    targetHref: report.targetHref || (campaign?.slug ? `/campaigns/${campaign.slug}` : null),
   };
 }
 

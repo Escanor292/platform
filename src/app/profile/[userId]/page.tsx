@@ -8,6 +8,7 @@ import UserIdDisplay from "@/components/profile/UserIdDisplay";
 import SocialLinks from "@/components/profile/SocialLinks";
 import { SocialLink } from "@/types/social";
 import { StartChatButton } from "@/components/chat/StartChatButton";
+import ReportButton from "@/components/report/ReportButton";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
 import { canExposePrivacyField } from "@/lib/profile-settings";
 import { getProfileThemeStyle, getPublicProfileCustomization, isSectionVisible, normalizeProfileCustomization, resolveProfileLayout } from "@/lib/profile-customization";
@@ -291,6 +292,14 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
                 )}
                 {user.role === "ADMIN" && (
                   <div className="px-3 py-1 bg-red-100 text-red-600 rounded-full text-xs font-black uppercase">Admin</div>
+                )}
+                {!isOwnProfile && (
+                  <ReportButton
+                    targetType="PROFILE"
+                    targetId={user.id}
+                    targetTitle={user.name || "Trang cá nhân"}
+                    className="inline-flex items-center gap-1 rounded-full border border-gray-200 px-3 py-1 text-xs font-bold text-gray-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                  />
                 )}
               </div>
 

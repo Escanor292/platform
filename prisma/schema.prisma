@@ -278,7 +278,11 @@ model campaign_followers {
 
 model campaign_reports {
   id          String               @id
-  campaignId  String
+  campaignId  String?
+  targetType  ReportTargetType     @default(CAMPAIGN)
+  targetId    String
+  targetTitle String?
+  targetHref  String?
   userId      String
   reason      CampaignReportReason
   description String
@@ -290,13 +294,14 @@ model campaign_reports {
   resolution  String?
   createdAt   DateTime             @default(now())
   updatedAt   DateTime
-  campaigns   campaigns            @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaigns   campaigns?           @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   users       users                @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([campaignId, userId])
+  @@unique([targetType, targetId, userId])
   @@index([campaignId])
   @@index([status])
   @@index([userId])
+  @@index([targetType, targetId])
 }
 
 model campaign_updates {
@@ -865,6 +870,14 @@ enum BlogVisibility {
   BACKERS_ONLY
   OWNER_ONLY
   PRIVATE
+}
+
+enum ReportTargetType {
+  CAMPAIGN
+  PROJECT
+  PRODUCT
+  BLOG
+  PROFILE
 }
 
 enum CampaignReportReason {
