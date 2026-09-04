@@ -7,7 +7,7 @@ import UserStatusToggle from "@/components/admin/UserStatusToggle";
 
 export default async function AdminUsersPage() {
   const session = await auth();
-  if (!session?.user || (session.user as any).role !== "ADMIN") redirect("/");
+  if (!session?.user || ((session.user as any).role !== "ADMIN" && !(session.user as any).isAdmin)) redirect("/");
 
   const users = await prisma.users.findMany({
     orderBy: { createdAt: "desc" },
@@ -118,14 +118,14 @@ export default async function AdminUsersPage() {
                   return (
                     <tr key={user.id} className="hover:bg-gray-50 transition">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
+                        <Link href={`/profile/${user.id}`} className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
                             {user.name?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
                           </div>
-                          <div className="font-bold text-gray-900">
+                          <div className="font-bold text-gray-900 hover:text-blue-700">
                             {user.name || "Chưa đặt tên"}
                           </div>
-                        </div>
+                        </Link>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {user.email}

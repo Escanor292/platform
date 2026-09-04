@@ -14,13 +14,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check admin
     const user = await prisma.users.findUnique({
       where: { id: session.user.id },
-      select: { isAdmin: true },
+      select: { isAdmin: true, role: true },
     });
 
-    if (!user?.isAdmin) {
+    if (!user?.isAdmin && user?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -64,7 +63,15 @@ export async function GET(request: NextRequest) {
     ]);
 
     return NextResponse.json({
-      posts,
+      posts: posts.map((post) => ({
+        ...post,
+        author: post.users,
+        _count: {
+          likes: post._count.blog_likes,
+          comments: post._count.blog_comments,
+          bookmarks: post._count.blog_bookmarks,
+        },
+      })),
       total,
       page,
       limit,

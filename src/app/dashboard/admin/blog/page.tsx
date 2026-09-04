@@ -15,11 +15,15 @@ export default function AdminBlogPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/auth/signin');
+      router.push('/auth/login');
     } else if (status === 'authenticated') {
+      if ((session?.user as any)?.role !== 'ADMIN' && !(session?.user as any)?.isAdmin) {
+        router.push('/');
+        return;
+      }
       fetchPosts();
     }
-  }, [status, filter]);
+  }, [status, filter, session]);
 
   const fetchPosts = async () => {
     try {
@@ -69,9 +73,10 @@ export default function AdminBlogPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <h1 className="font-display text-3xl font-bold text-dblue mb-8">Quản lý Blog</h1>
+    <div className="min-h-screen bg-slate-50/50 px-6 py-12">
+      <div className="mx-auto max-w-7xl">
+        <h1 className="mb-2 text-4xl font-black text-gray-900">Quản lý Blog</h1>
+        <p className="mb-8 font-medium text-gray-400">Duyệt bài viết trước khi hiển thị công khai</p>
 
         {/* Filters */}
         <div className="mb-6 flex gap-2">
@@ -130,8 +135,8 @@ export default function AdminBlogPage() {
                     <div className="text-sm text-gray-500">{post.slug}</div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">{post.author.name}</div>
-                    <div className="text-sm text-gray-500">{post.author.email}</div>
+                    <div className="text-sm text-gray-900">{post.author?.name || 'Ẩn danh'}</div>
+                    <div className="text-sm text-gray-500">{post.author?.email}</div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
                     {getTypeLabel(post.type)}
@@ -141,8 +146,8 @@ export default function AdminBlogPage() {
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
                     <div>{post.viewCount} views</div>
-                    <div>{post._count.likes} likes</div>
-                    <div>{post._count.comments} comments</div>
+                    <div>{post._count?.likes ?? 0} likes</div>
+                    <div>{post._count?.comments ?? 0} comments</div>
                   </td>
                   <td className="px-6 py-4 text-right text-sm font-medium">
                     <div className="flex justify-end gap-2">

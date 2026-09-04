@@ -21,10 +21,10 @@ export async function PATCH(
     // Check admin
     const user = await prisma.users.findUnique({
       where: { id: session.user.id },
-      select: { isAdmin: true },
+      select: { isAdmin: true, role: true },
     });
 
-    if (!user?.isAdmin) {
+    if (!user?.isAdmin && user?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

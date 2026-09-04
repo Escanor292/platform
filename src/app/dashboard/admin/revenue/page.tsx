@@ -7,7 +7,7 @@ import { ArrowLeft, DollarSign, TrendingUp, Wallet, CreditCard } from "lucide-re
 
 export default async function AdminRevenuePage() {
   const session = await auth();
-  if (!session?.user || (session.user as any).role !== "ADMIN") redirect("/");
+  if (!session?.user || ((session.user as any).role !== "ADMIN" && !(session.user as any).isAdmin)) redirect("/");
 
   // Thống kê doanh thu
   const [totalPledges, platformRevenue, successfulPledges, recentTransactions] = await Promise.all([
@@ -26,7 +26,7 @@ export default async function AdminRevenuePage() {
       orderBy: { createdAt: "desc" },
       include: {
         campaigns: {
-          select: { title: true, campaignCode: true }
+          select: { title: true, campaignCode: true, slug: true }
         },
         users: {
           select: { name: true, email: true }
@@ -168,12 +168,25 @@ export default async function AdminRevenuePage() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm font-bold text-gray-900 max-w-xs truncate">
-                        {tx.campaigns?.title || "Sản phẩm độc lập"}
-                      </div>
-                      <div className="text-xs text-gray-400 font-mono">
-                        {tx.campaigns?.campaignCode || "—"}
-                      </div>
+                      {tx.campaigns?.slug ? (
+                        <Link href={`/campaigns/${tx.campaigns.slug}`} className="hover:text-purple-700">
+                          <div className="text-sm font-bold text-gray-900 max-w-xs truncate">
+                            {tx.campaigns.title}
+                          </div>
+                          <div className="text-xs text-gray-400 font-mono">
+                            {tx.campaigns.campaignCode}
+                          </div>
+                        </Link>
+                      ) : (
+                        <>
+                          <div className="text-sm font-bold text-gray-900 max-w-xs truncate">
+                            {tx.campaigns?.title || "Sản phẩm độc lập"}
+                          </div>
+                          <div className="text-xs text-gray-400 font-mono">
+                            {tx.campaigns?.campaignCode || "—"}
+                          </div>
+                        </>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-bold text-gray-900">

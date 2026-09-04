@@ -3,241 +3,265 @@ import { prisma } from "@/lib/prisma";
 import { formatVND } from "@/lib/utils";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { 
-  Users, BarChart3, ShieldCheck, 
+import {
+  Users, BarChart3, ShieldCheck,
   TrendingUp, AlertTriangle, DollarSign,
-  Activity, CheckCircle, XCircle, Clock
+  Activity, Clock, FileText, Flag,
 } from "lucide-react";
+
+function monthGrowth(current: number, last: number) {
+  if (last === 0) return current > 0 ? 100 : 0;
+  return Math.round(((current - last) / last) * 100);
+}
 
 export default async function AdminDashboard() {
   const session = await auth();
-  
-  console.log("Admin Dashboard - Session:", session);
-  console.log("Admin Dashboard - User:", session?.user);
-  console.log("Admin Dashboard - Role:", (session?.user as any)?.role);
-  
-  if (!session?.user || (session.user as any).role !== "ADMIN") {
-    console.log("Redirecting - Not admin");
+  if (!session?.user || ((session.user as any).role !== "ADMIN" && !(session.user as any).isAdmin)) {
     redirect("/");
   }
 
-  // Thống kê tổng quan
+  const now = new Date();
+  const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
   const [
-    userCount, 
-    campaignCount, 
-    pendingCampaigns, 
+    userCount,
+    campaignCount,
+    pendingCampaigns,
     activeCampaigns,
     successCampaigns,
     totalPledges,
     totalRevenue,
+    pendingPosts,
+    pendingReports,
+    currentMonthUsers,
+    lastMonthUsers,
     recentUsers,
-    recentCampaigns
+    recentCampaigns,
   ] = await Promise.all([
     prisma.users.count(),
     prisma.campaigns.count(),
     prisma.campaigns.count({ where: { status: "PENDING_REVIEW" } }),
     prisma.campaigns.count({ where: { status: "ACTIVE" } }),
     prisma.campaigns.count({ where: { status: "SUCCESS" } }),
-    prisma.pledges.aggregate({ _sum: { amount: true } }),
-    prisma.pledges.aggregate({ 
+    prisma.pledges.aggregate({ _sum: { amount: true }, where: { status: "SUCCESS" } }),
+    prisma.pledges.aggregate({
       _sum: { platformFee: true },
-      where: { status: "SUCCESS" }
+      where: { status: "SUCCESS" },
     }),
+    prisma.blog_posts.count({ where: { status: "PENDING_REVIEW", deletedAt: null } }),
+    prisma.campaign_reports.count({ where: { status: "PENDING" } }),
+    prisma.users.count({ where: { createdAt: { gte: currentMonth } } }),
+    prisma.users.count({ where: { createdAt: { gte: lastMonth, lt: currentMonth } } }),
     prisma.users.findMany({
       take: 5,
       orderBy: { createdAt: "desc" },
-      select: { id: true, name: true, email: true, role: true, createdAt: true }
+      select: { id: true, name: true, email: true, role: true, createdAt: true },
     }),
     prisma.campaigns.findMany({
       take: 5,
       orderBy: { createdAt: "desc" },
-      include: { users: { select: { name: true, email: true } } }
-    })
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        status: true,
+        users: { select: { name: true } },
+      },
+    }),
   ]);
 
+  const userTrend = monthGrowth(currentMonthUsers, lastMonthUsers);
   const stats = [
-    { 
-      label: "Tổng người dùng", 
-      value: userCount, 
-      icon: Users, 
-      color: "text-blue-600", 
+    {
+      label: "Tổng người dùng",
+      value: userCount,
+      icon: Users,
+      color: "text-blue-600",
       bg: "bg-blue-50",
-      trend: "+12% tháng này"
+      trend: `${userTrend >= 0 ? "+" : ""}${userTrend}% so với tháng trước`,
+      href: "/dashboard/admin/users",
     },
-    { 
-      label: "Tổng chiến dịch", 
-      value: campaignCount, 
-      icon: BarChart3, 
-      color: "text-green-600", 
+    {
+      label: "Tổng chiến dịch",
+      value: campaignCount,
+      icon: BarChart3,
+      color: "text-green-600",
       bg: "bg-green-50",
-      trend: `${activeCampaigns} đang hoạt động`
+      trend: `${activeCampaigns} đang hoạt động`,
+      href: "/dashboard/admin/campaigns",
     },
-    { 
-      label: "Chờ duyệt", 
-      value: pendingCampaigns, 
-      icon: AlertTriangle, 
-      color: "text-amber-600", 
+    {
+      label: "Chờ duyệt",
+      value: pendingCampaigns,
+      icon: AlertTriangle,
+      color: "text-amber-600",
       bg: "bg-amber-50",
-      trend: "Cần xử lý"
+      trend: "Chiến dịch cần xử lý",
+      href: "/dashboard/admin/campaigns?status=PENDING_REVIEW",
     },
-    { 
-      label: "Tổng huy động", 
-      value: formatVND(totalPledges._sum.amount || 0), 
-      icon: TrendingUp, 
-      color: "text-purple-600", 
+    {
+      label: "Tổng huy động",
+      value: formatVND(totalPledges._sum.amount || 0),
+      icon: TrendingUp,
+      color: "text-purple-600",
       bg: "bg-purple-50",
-      trend: `${successCampaigns} thành công`
+      trend: `${successCampaigns} chiến dịch thành công`,
+      href: "/dashboard/admin/revenue",
     },
-    { 
-      label: "Doanh thu sàn", 
-      value: formatVND(totalRevenue._sum.platformFee || 0), 
-      icon: DollarSign, 
-      color: "text-emerald-600", 
+    {
+      label: "Doanh thu sàn",
+      value: formatVND(totalRevenue._sum.platformFee || 0),
+      icon: DollarSign,
+      color: "text-emerald-600",
       bg: "bg-emerald-50",
-      trend: "Phí dịch vụ"
+      trend: "Phí dịch vụ đã thu",
+      href: "/dashboard/admin/revenue",
+    },
+  ];
+
+  const queues = [
+    {
+      label: "Chiến dịch chờ duyệt",
+      count: pendingCampaigns,
+      href: "/dashboard/admin/campaigns?status=PENDING_REVIEW",
+      icon: ShieldCheck,
+      tone: "text-amber-600 bg-amber-50",
+    },
+    {
+      label: "Bài viết chờ duyệt",
+      count: pendingPosts,
+      href: "/dashboard/admin/blog",
+      icon: FileText,
+      tone: "text-blue-600 bg-blue-50",
+    },
+    {
+      label: "Báo cáo chưa xử lý",
+      count: pendingReports,
+      href: "/dashboard/admin/reports",
+      icon: Flag,
+      tone: "text-red-600 bg-red-50",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50/50 py-24 px-6">
-      <div className="max-w-7xl mx-auto space-y-12">
-        
-        {/* Header */}
-        <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-50 text-red-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-red-100">
+    <div className="min-h-screen bg-slate-50/50 px-6 py-12">
+      <div className="mx-auto max-w-7xl space-y-10">
+        <div className="space-y-3">
+          <div className="inline-flex items-center gap-2 rounded-full border border-red-100 bg-red-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-red-600">
             <ShieldCheck size={12} fill="currentColor" /> Admin Control Panel
           </div>
-          <h1 className="text-5xl md:text-6xl font-black text-gray-900 tracking-tighter leading-none">
-            Bảng điều khiển
-          </h1>
-          <p className="text-lg text-gray-400 font-medium">
-            Quản lý và giám sát toàn bộ hệ thống Crowdfunding VN
+          <h1 className="text-5xl font-black tracking-tighter text-gray-900">Bảng điều khiển</h1>
+          <p className="text-lg font-medium text-gray-400">
+            Quản lý người dùng, chiến dịch, blog, huy hiệu, doanh thu và báo cáo trên Tử Tế Fund
           </p>
+          <Link href="/dashboard/admin/analytics" className="inline-block text-sm font-bold text-gray-500 hover:text-gray-900">
+            Xem phân tích xu hướng →
+          </Link>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-          {stats.map((s, i) => (
-            <div key={i} className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-lg transition-all group">
-              <div className={`w-12 h-12 ${s.bg} ${s.color} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-5">
+          {stats.map((s) => (
+            <Link
+              key={s.label}
+              href={s.href}
+              className="group rounded-[2.5rem] border border-gray-100 bg-white p-8 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg"
+            >
+              <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-2xl ${s.bg} ${s.color} transition-transform group-hover:scale-110`}>
                 <s.icon size={24} />
               </div>
-              <div className="text-[10px] text-gray-400 font-black uppercase mb-1">{s.label}</div>
-              <div className="text-2xl font-black text-gray-900 mb-1">{s.value}</div>
-              <div className="text-[9px] text-gray-400 font-medium">{s.trend}</div>
-            </div>
+              <div className="mb-1 text-[10px] font-black uppercase text-gray-400">{s.label}</div>
+              <div className="mb-1 text-2xl font-black text-gray-900">{s.value}</div>
+              <div className="text-[9px] font-medium text-gray-400">{s.trend}</div>
+            </Link>
           ))}
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Link href="/dashboard/admin/users" className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-[2.5rem] p-10 text-white relative overflow-hidden group hover:shadow-2xl transition-all">
-            <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-700" />
-            <div className="relative z-10">
-              <Users size={32} className="mb-4" />
-              <h2 className="text-2xl font-black mb-2">Quản lý người dùng</h2>
-              <p className="text-blue-100 text-sm mb-6">Xem và quản lý tất cả người dùng trong hệ thống</p>
-              <div className="inline-flex items-center gap-2 text-sm font-bold">
-                Xem chi tiết →
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {queues.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              className="flex items-center justify-between rounded-3xl border border-gray-100 bg-white px-6 py-5 transition hover:border-gray-200 hover:shadow-sm"
+            >
+              <div className="flex items-center gap-4">
+                <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${item.tone}`}>
+                  <item.icon size={20} />
+                </div>
+                <div>
+                  <div className="text-sm font-black text-gray-900">{item.label}</div>
+                  <div className="text-xs text-gray-400">Bấm để xử lý</div>
+                </div>
               </div>
-            </div>
-          </Link>
-
-          <Link href="/dashboard/admin/campaigns" className="bg-gradient-to-br from-green-600 to-green-700 rounded-[2.5rem] p-10 text-white relative overflow-hidden group hover:shadow-2xl transition-all">
-            <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-700" />
-            <div className="relative z-10">
-              <ShieldCheck size={32} className="mb-4" />
-              <h2 className="text-2xl font-black mb-2">Xét duyệt chiến dịch</h2>
-              <p className="text-green-100 text-sm mb-6">Phê duyệt và quản lý các chiến dịch gọi vốn</p>
-              <div className="inline-flex items-center gap-2 text-sm font-bold">
-                Xem chi tiết →
-              </div>
-            </div>
-          </Link>
-
-          <Link href="/dashboard/admin/revenue" className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-[2.5rem] p-10 text-white relative overflow-hidden group hover:shadow-2xl transition-all">
-            <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-700" />
-            <div className="relative z-10">
-              <BarChart3 size={32} className="mb-4" />
-              <h2 className="text-2xl font-black mb-2">Báo cáo doanh thu</h2>
-              <p className="text-purple-100 text-sm mb-6">Theo dõi doanh thu và phí dịch vụ</p>
-              <div className="inline-flex items-center gap-2 text-sm font-bold">
-                Xem chi tiết →
-              </div>
-            </div>
-          </Link>
+              <div className="text-2xl font-black text-gray-900">{item.count}</div>
+            </Link>
+          ))}
         </div>
 
-        {/* Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Recent Users */}
-          <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
-            <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-2">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          <div className="rounded-[2.5rem] border border-gray-100 bg-white p-8 shadow-sm">
+            <h3 className="mb-6 flex items-center gap-2 text-xl font-black text-gray-900">
               <Activity size={20} className="text-blue-600" />
               Người dùng mới
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {recentUsers.map((user) => (
-                <div key={user.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition">
+                <Link
+                  key={user.id}
+                  href={`/profile/${user.id}`}
+                  className="flex items-center justify-between rounded-2xl bg-gray-50 p-4 transition hover:bg-gray-100"
+                >
                   <div>
                     <div className="font-bold text-gray-900">{user.name || "Chưa đặt tên"}</div>
                     <div className="text-xs text-gray-400">{user.email}</div>
                   </div>
-                  <div className="text-right">
-                    <div className={`text-[9px] font-black uppercase px-2 py-1 rounded ${
-                      user.role === "ADMIN" ? "bg-red-100 text-red-600" :
-                      user.role === "CREATOR" ? "bg-blue-100 text-blue-600" :
-                      "bg-gray-100 text-gray-600"
-                    }`}>
-                      {user.role}
-                    </div>
+                  <div className={`rounded px-2 py-1 text-[9px] font-black uppercase ${
+                    user.role === "ADMIN" ? "bg-red-100 text-red-600" :
+                    user.role === "CREATOR" || user.role === "CREATOR_PRO" ? "bg-blue-100 text-blue-600" :
+                    "bg-gray-100 text-gray-600"
+                  }`}>
+                    {user.role}
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
             <Link href="/dashboard/admin/users" className="mt-6 block text-center text-sm font-bold text-blue-600 hover:text-blue-700">
-              Xem tất cả →
+              Quản lý người dùng →
             </Link>
           </div>
 
-          {/* Recent Campaigns */}
-          <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
-            <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-2">
+          <div className="rounded-[2.5rem] border border-gray-100 bg-white p-8 shadow-sm">
+            <h3 className="mb-6 flex items-center gap-2 text-xl font-black text-gray-900">
               <Clock size={20} className="text-green-600" />
               Chiến dịch mới
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {recentCampaigns.map((campaign) => (
-                <div key={campaign.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition">
-                  <div className="flex-1">
-                    <div className="font-bold text-gray-900 truncate">{campaign.title}</div>
-                    <div className="text-xs text-gray-400">Bởi {campaign.users.name}</div>
+                <Link
+                  key={campaign.id}
+                  href={`/campaigns/${campaign.slug}`}
+                  className="flex items-center justify-between rounded-2xl bg-gray-50 p-4 transition hover:bg-gray-100"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-bold text-gray-900">{campaign.title}</div>
+                    <div className="text-xs text-gray-400">Bởi {campaign.users.name || "Ẩn danh"}</div>
                   </div>
-                  <div className="text-right ml-4">
-                    <div className={`text-[9px] font-black uppercase px-2 py-1 rounded whitespace-nowrap ${
-                      campaign.status === "ACTIVE" ? "bg-green-100 text-green-600" :
-                      campaign.status === "PENDING_REVIEW" ? "bg-amber-100 text-amber-600" :
-                      campaign.status === "SUCCESS" ? "bg-blue-100 text-blue-600" :
-                      "bg-gray-100 text-gray-600"
-                    }`}>
-                      {campaign.status}
-                    </div>
+                  <div className={`ml-4 whitespace-nowrap rounded px-2 py-1 text-[9px] font-black uppercase ${
+                    campaign.status === "ACTIVE" ? "bg-green-100 text-green-600" :
+                    campaign.status === "PENDING_REVIEW" ? "bg-amber-100 text-amber-600" :
+                    campaign.status === "SUCCESS" ? "bg-blue-100 text-blue-600" :
+                    "bg-gray-100 text-gray-600"
+                  }`}>
+                    {campaign.status}
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
             <Link href="/dashboard/admin/campaigns" className="mt-6 block text-center text-sm font-bold text-green-600 hover:text-green-700">
-              Xem tất cả →
+              Quản lý chiến dịch →
             </Link>
           </div>
         </div>
-
-        {/* Footer */}
-        <footer className="mt-20 py-8 border-t border-gray-100 text-center">
-          <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">
-            © 2026 CFVN HQ - System Version 2.5.0 (Stable)
-          </p>
-        </footer>
       </div>
     </div>
   );
