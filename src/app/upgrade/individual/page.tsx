@@ -9,11 +9,13 @@ import { ArrowRight, Loader2, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ImageUpload } from "@/components/shared/ImageUpload";
+import { decodeCccdQrFromImage } from "@/lib/ekyc/decode-cccd-qr-browser";
 
 export default function UpgradeIndividualPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(false);
+  const [qrNote, setQrNote] = useState("");
   const [formData, setFormData] = useState({
     fullName: "", dateOfBirth: "", idCardNumber: "", idCardType: "CCCD",
     idCardFrontImage: "", idCardBackImage: "", idCardIssueDate: "", idCardIssuePlace: "",
@@ -56,6 +58,30 @@ export default function UpgradeIndividualPage() {
     }).catch(() => null);
   }, [session, status, router]);
 
+  const scanBack = async (file: File) => {
+    try {
+      const parsed = await decodeCccdQrFromImage(file);
+      if (!parsed?.idCardNumber) {
+        setQrNote("Không đọc được QR. Chụp rõ mã ở mặt sau hoặc điền tay.");
+        return;
+      }
+      setFormData((prev) => ({
+        ...prev,
+        fullName: parsed.fullName || prev.fullName,
+        idCardNumber: parsed.idCardNumber || prev.idCardNumber,
+        idCardType: "CCCD",
+        dateOfBirth: (parsed.dateOfBirth || prev.dateOfBirth || "").slice(0, 10),
+        idCardIssueDate: (parsed.idCardIssueDate || prev.idCardIssueDate || "").slice(0, 10),
+        permanentAddress: parsed.permanentAddress || prev.permanentAddress,
+        currentAddress: parsed.permanentAddress || prev.currentAddress,
+      }));
+      setQrNote(`Đã đọc QR: ${parsed.idCardNumber}${parsed.fullName ? ` · ${parsed.fullName}` : ""}`);
+      toast.success("Đã quét QR và điền thông tin CCCD");
+    } catch {
+      setQrNote("Không đọc được QR. Hãy điền tay.");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const missing = [
@@ -88,11 +114,12 @@ export default function UpgradeIndividualPage() {
       <form onSubmit={handleSubmit} className="mx-auto max-w-4xl space-y-6">
         <div className="text-center">
           <h1 className="text-4xl font-black">Nâng cấp Creator — cá nhân</h1>
-          <p className="mt-2 text-gray-600">P0 nộp hồ sơ + ảnh CCCD qua Cloudinary. Nên chạy eKYC trước.</p>
+          <p className="mt-2 text-gray-600">Up mặt sau CCCD để tự điền từ mã QR. Nên chạy /kyc nếu muốn eKYC đủ liveness.</p>
           <p className="mt-2 text-sm"><Link className="font-bold text-emerald-700 underline" href="/kyc?next=/upgrade/individual">Mở /kyc</Link></p>
         </div>
         <section className="rounded-3xl border bg-white p-8 space-y-4">
           <h2 className="flex items-center gap-2 text-2xl font-black"><User className="text-emerald-700" /> Thông tin pháp lý</h2>
+          {qrNote && <p className="text-sm text-emerald-800">{qrNote}</p>}
           <div className="grid gap-4 md:grid-cols-2">
             <Input placeholder="Họ tên pháp lý" value={formData.fullName} onChange={(e) => setFormData({ ...formData, fullName: e.target.value })} required />
             <Input type="date" value={formData.dateOfBirth} onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })} required />
@@ -104,8 +131,8 @@ export default function UpgradeIndividualPage() {
             <Input placeholder="Nơi cấp" value={formData.idCardIssuePlace} onChange={(e) => setFormData({ ...formData, idCardIssuePlace: e.target.value })} />
           </div>
           <div className="grid gap-4 md:grid-cols-2">
-            <ImageUpload label="Ảnh CCCD mặt trước *" value={formData.idCardFrontImage} onChange={(url) => setFormData({ ...formData, idCardFrontImage: url })} />
-            <ImageUpload label="Ảnh CCCD mặt sau *" value={formData.idCardBackImage} onChange={(url) => setFormData({ ...formData, idCardBackImage: url })} />
+            <ImageUpload label="Ảnh CCCD mặt trước *" value={formData.idCardFrontImage} onChange={(url) => setFormData({ ...formData, idCardFrontImage: url })} capture />
+            <ImageUpload label="Ảnh CCCD mặt sau * (ó QR)" value={formData.idCardBackImage} onChange={(url) => setFormData({ ...formData, idCardBackImage: url })} onFile={scanBack} capture />
           </div>
         </section>
         <section className="rounded-3xl border bg-white p-8 space-y-4">
