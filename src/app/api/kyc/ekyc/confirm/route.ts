@@ -5,6 +5,7 @@ import { createAuditLog } from "@/lib/audit";
 import { validateIDCard } from "@/lib/kyc";
 import { notificationService } from "@/services/mongodb/notification.service";
 import { getEkycSession } from "@/lib/ekyc/session-store";
+import { verifyNationalId } from "@/lib/ekyc/national";
 import { EKYC_PASS_SCORE, type IdCardType, type OcrFields } from "@/lib/ekyc/types";
 
 function changed(raw: OcrFields, next: OcrFields) {
@@ -23,27 +24,40 @@ export async function POST(request: NextRequest) {
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const userId = (session.user as { id: string }).id;
     const body = await request.json();
-    const { sessionId, fields, frontImageUrl, backImageUrl, currentAddress } = body || {};
+    const { sessionId, fields, frontImageUrl, backImageUrl, currentAddress, chipDg1, vneidCode } = body || {};
     if (!sessionId || !fields?.fullName || !fields?.idCardNumber || !fields?.idCardType) {
-      return NextResponse.json({ error: "Thieu thong tin xac nhan eKYC." }, { status: 400 });
+      return NextResponse.json({ error: "Thiếu thông tin xác nhận eKYC." }, { status: 400 });
     }
     const rec = await getEkycSession(sessionId, userId);
-    if (!rec?.analyze) return NextResponse.json({ error: "Phien eKYC het han hoac chua phan tich." }, { status: 410 });
+    if (!rec?.analyze) return NextResponse.json({ error: "Phiên eKYC hết hạn hoặc chưa phân tích." }, { status: 410 });
     const idCardType = fields.idCardType as IdCardType;
     if (!validateIDCard(fields.idCardNumber, idCardType)) {
-      return NextResponse.json({ error: "So giay to khong dung dinh dang." }, { status: 400 });
+      return NextResponse.json({ error: "Số giấy tờ không đúng định dạng." }, { status: 400 });
     }
     const existing = await prisma.kyc_info.findFirst({ where: { idCardNumber: fields.idCardNumber, NOT: { userId } } });
-    if (existing) return NextResponse.json({ error: "So giay to da duoc dang ky boi tai khoan khac." }, { status: 400 });
+    if (existing) return NextResponse.json({ error: "Số giấy tờ đã được đăng ký bởi tài khoản khác." }, { status: 400 });
 
     const ocrEdited = changed(rec.analyze.ocr, fields);
+    const national = await verifyNationalId({
+      idCardNumber: fields.idCardNumber,
+      fullName: fields.fullName,
+      dateOfBirth: fields.dateOfBirth,
+      chipDg1: chipDg1 || null,
+      vneidCode: vneidCode || null,
+    });
     const autoVerify = (process.env.EKYC_AUTO_VERIFY || "true") !== "false";
     let status: "VERIFIED" | "PENDING" | "REJECTED" = "PENDING";
     let rejectedReason: string | null = null;
-    if (rec.analyze.verdict === "FAIL" || !rec.analyze.livenessPassed) {
+    if (rec.analyze.verdict === "FAIL" || !rec.analyze.livenessPassed || national.status === "FAIL") {
       status = "REJECTED";
-      rejectedReason = "Khong dat liveness hoac khop khuon mat qua thap.";
-    } else if (autoVerify && rec.analyze.verdict === "PASS" && !ocrEdited && rec.analyze.faceMatchScore >= EKYC_PASS_SCORE) {
+      rejectedReason = national.status === "FAIL" ? national.message : "Không đạt liveness hoặc khớp khuôn mặt quá thấp.";
+    } else if (
+      autoVerify &&
+      rec.analyze.verdict === "PASS" &&
+      !ocrEdited &&
+      rec.analyze.faceMatchScore >= EKYC_PASS_SCORE &&
+      national.status !== "REVIEW"
+    ) {
       status = "VERIFIED";
     }
 
@@ -61,9 +75,9 @@ export async function POST(request: NextRequest) {
       currentAddress: currentAddress || fields.permanentAddress || null,
       verificationStatus: status,
       verifiedAt: status === "VERIFIED" ? new Date() : null,
-      verifiedBy: status === "VERIFIED" ? "EKYC" : null,
+      verifiedBy: status === "VERIFIED" ? (national.status === "PASS" ? "EKYC+P2" : "EKYC") : null,
       rejectedReason,
-      riskLevel: ocrEdited || rec.analyze.verdict === "REVIEW" ? "MEDIUM" : "LOW",
+      riskLevel: ocrEdited || rec.analyze.verdict === "REVIEW" || national.status === "REVIEW" ? "MEDIUM" : "LOW",
       updatedAt: new Date(),
     } as const;
 
@@ -83,24 +97,25 @@ export async function POST(request: NextRequest) {
         provider: rec.analyze.provider,
         ocrEdited,
         faceMatchScore: rec.analyze.faceMatchScore,
-        livenessScore: rec.analyze.livenessScore,
+        national: national.status,
         sessionId,
       },
       ipAddress: request.headers.get("x-forwarded-for"),
       userAgent: request.headers.get("user-agent"),
     });
 
+    const href = { href: "/kyc" };
     if (status === "VERIFIED") {
-      notificationService.send({ userId, type: "KYC_APPROVED", title: "Dinh danh thanh cong", message: "Ho so eKYC da duoc xac nhan. Han muc da tang.", payload: { href: "/kyc" } });
+      notificationService.send({ userId, type: "KYC_APPROVED", title: "Định danh thành công", message: "Hồ sơ eKYC đã được xác nhận. Hạn mức đã tăng.", payload: href });
     } else if (status === "REJECTED") {
-      notificationService.send({ userId, type: "KYC_REJECTED", title: "eKYC chua dat", message: rejectedReason || "Hay chup lai.", payload: { href: "/kyc" } });
+      notificationService.send({ userId, type: "KYC_REJECTED", title: "eKYC chưa đạt", message: rejectedReason || "Hãy chụp lại.", payload: href });
     } else {
-      notificationService.send({ userId, type: "SYSTEM", title: "Ho so eKYC dang cho duyet", message: "Diem khop hoac OCR da sua tay. Admin se hau kiem.", payload: { href: "/kyc" } });
+      notificationService.send({ userId, type: "SYSTEM", title: "Hồ sơ eKYC đang chờ duyệt", message: "Admin sẽ hậu kiểm.", payload: href });
     }
 
-    return NextResponse.json({ success: true, status, ocrEdited, kyc: { id: kyc.id, status } });
+    return NextResponse.json({ success: true, status, ocrEdited, national, kyc: { id: kyc.id, status } });
   } catch (error: any) {
     console.error("[EKYC CONFIRM]", error);
-    return NextResponse.json({ error: error.message || "Xac nhan eKYC that bai" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Xác nhận eKYC thất bại" }, { status: 500 });
   }
 }
