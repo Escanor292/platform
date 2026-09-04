@@ -5,22 +5,35 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle, XCircle, Clock, Eye } from "lucide-react";
 import CampaignReviewActions from "@/components/admin/CampaignReviewActions";
+import AdminLockButton from "@/components/admin/AdminLockButton";
 
 const STATUS_FILTERS = ["PENDING_REVIEW", "ACTIVE", "SUCCESS", "FAILED", "CANCELED", "DRAFT"] as const;
 
 export default async function AdminCampaignsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; q?: string }>;
 }) {
   const session = await auth();
   if (!session?.user || ((session.user as any).role !== "ADMIN" && !(session.user as any).isAdmin)) redirect("/");
 
-  const { status } = await searchParams;
+  const { status, q } = await searchParams;
+  const query = (q || "").trim();
   const activeFilter = STATUS_FILTERS.includes(status as typeof STATUS_FILTERS[number]) ? status : undefined;
 
   const campaigns = await prisma.campaigns.findMany({
-    where: activeFilter ? { status: activeFilter as any } : undefined,
+    where: {
+      ...(activeFilter ? { status: activeFilter as any } : {}),
+      ...(query
+        ? {
+            OR: [
+              { title: { contains: query, mode: "insensitive" } },
+              { campaignCode: { contains: query, mode: "insensitive" } },
+              { slug: { contains: query, mode: "insensitive" } },
+            ],
+          }
+        : {}),
+    },
     orderBy: { createdAt: "desc" },
     include: {
       users: {
@@ -78,10 +91,16 @@ export default async function AdminCampaignsPage({
           <div>
             <h1 className="text-4xl font-black text-gray-900">Quản lý chiến dịch</h1>
             <p className="font-medium text-gray-400">
-              {activeFilter ? `Lọc: ${activeFilter} · ${campaigns.length} kết quả` : `Tổng cộng ${totalCount} chiến dịch`}
+              {query ? `Kết quả cho “${query}” · ${campaigns.length} chiến dịch` : activeFilter ? `Lọc: ${activeFilter} · ${campaigns.length} kết quả` : `Tổng cộng ${totalCount} chiến dịch`}
             </p>
           </div>
         </div>
+
+        <form action="/dashboard/admin/campaigns" className="flex gap-3">
+          {activeFilter ? <input type="hidden" name="status" value={activeFilter} /> : null}
+          <input name="q" defaultValue={query} placeholder="Tìm tên, mã hoặc slug chiến dịch" className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none" />
+          <button className="rounded-2xl bg-gray-900 px-5 py-3 text-sm font-bold text-white">Tìm</button>
+        </form>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
           {summary.map((item) => (
@@ -152,6 +171,9 @@ export default async function AdminCampaignsPage({
                           </Link>
                           {campaign.status === "PENDING_REVIEW" && (
                             <CampaignReviewActions campaignId={campaign.id} />
+                          )}
+                          {(campaign.status === "ACTIVE" || campaign.status === "CANCELED" || campaign.status === "PENDING_REVIEW") && (
+                            <AdminLockButton type="campaign" id={campaign.id} locked={campaign.status === "CANCELED"} />
                           )}
                         </div>
                       </td>

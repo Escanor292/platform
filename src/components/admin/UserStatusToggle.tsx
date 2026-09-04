@@ -24,8 +24,8 @@ export default function UserStatusToggle({
     const [currentStatus, setCurrentStatus] = useState(status);
 
     // Chỉ hiển thị cho CREATOR và BACKER
-    if (userRole !== "CREATOR" && userRole !== "BACKER") {
-        return <span className="text-xs text-gray-400">N/A</span>;
+    if (userRole === "ADMIN") {
+        return <span className="text-xs text-gray-400">Admin</span>;
     }
 
     const isCreator = userRole === "CREATOR";

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { assertCleanContent } from "@/lib/moderation";
 
 export async function POST(req: NextRequest) {
     try {
@@ -59,6 +60,12 @@ export async function POST(req: NextRequest) {
                 { error: "Missing required fields" },
                 { status: 400 }
             );
+        }
+
+        try {
+            await assertCleanContent([title, description]);
+        } catch (error: any) {
+            return NextResponse.json({ error: error.message || "Nội dung chứa từ bị cấm" }, { status: 400 });
         }
 
         // Validate campaign ownership if provided

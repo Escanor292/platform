@@ -5,11 +5,26 @@ import Link from "next/link";
 import { ArrowLeft, Users, Shield, Star, User } from "lucide-react";
 import UserStatusToggle from "@/components/admin/UserStatusToggle";
 
-export default async function AdminUsersPage() {
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
   const session = await auth();
   if (!session?.user || ((session.user as any).role !== "ADMIN" && !(session.user as any).isAdmin)) redirect("/");
 
+  const { q } = await searchParams;
+  const query = (q || "").trim();
+
   const users = await prisma.users.findMany({
+    where: query
+      ? {
+          OR: [
+            { name: { contains: query, mode: "insensitive" } },
+            { email: { contains: query, mode: "insensitive" } },
+          ],
+        }
+      : undefined,
     orderBy: { createdAt: "desc" },
     include: {
       _count: {
@@ -50,9 +65,14 @@ export default async function AdminUsersPage() {
           </Link>
           <div>
             <h1 className="text-4xl font-black text-gray-900">Quản lý người dùng</h1>
-            <p className="text-gray-400 font-medium">Tổng cộng {users.length} người dùng</p>
+            <p className="text-gray-400 font-medium">{query ? `Kết quả cho “${query}” · ${users.length} người` : `Tổng cộng ${users.length} người dùng`}</p>
           </div>
         </div>
+
+        <form action="/dashboard/admin/users" className="flex gap-3">
+          <input name="q" defaultValue={query} placeholder="Tìm theo tên hoặc email" className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none" />
+          <button className="rounded-2xl bg-gray-900 px-5 py-3 text-sm font-bold text-white">Tìm</button>
+        </form>
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { assertCleanContent } from "@/lib/moderation";
 
 export async function GET(
     req: NextRequest,
@@ -86,6 +87,13 @@ export async function PUT(
             onlineDepositPercent,
             codDepositPercent
         } = body;
+
+        try {
+            await assertCleanContent([title, description]);
+        } catch (error: any) {
+            return NextResponse.json({ error: error.message || "Nội dung chứa từ bị cấm" }, { status: 400 });
+        }
+
         const allowedFulfillmentTypes = ["PHYSICAL", "EMAIL", "DOWNLOAD", "LICENSE_KEY", "DIGITAL_COMIC"] as const;
         const normalizedFulfillmentType = fulfillmentType === undefined
             ? undefined

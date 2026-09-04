@@ -155,9 +155,14 @@ export default async function AdminDashboard() {
           <p className="text-lg font-medium text-gray-400">
             Quản lý người dùng, chiến dịch, blog, huy hiệu, doanh thu và báo cáo trên Tử Tế Fund
           </p>
-          <Link href="/dashboard/admin/analytics" className="inline-block text-sm font-bold text-gray-500 hover:text-gray-900">
-            Xem phân tích xu hướng →
-          </Link>
+          <div className="flex flex-wrap gap-4">
+            <Link href="/dashboard/admin/moderation" className="inline-block text-sm font-bold text-red-600 hover:text-red-700">
+              Kiểm duyệt / tìm & khóa nội dung →
+            </Link>
+            <Link href="/dashboard/admin/analytics" className="inline-block text-sm font-bold text-gray-500 hover:text-gray-900">
+              Xem phân tích xu hướng →
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-5">

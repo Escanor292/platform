@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   try {
     const [projects, campaigns, posts, products, users] = await Promise.all([
       prisma.projects.findMany({
-        where: { OR: [{ title: { contains: query, mode: "insensitive" } }, { description: { contains: query, mode: "insensitive" } }] },
+        where: { isLocked: false, OR: [{ title: { contains: query, mode: "insensitive" } }, { description: { contains: query, mode: "insensitive" } }] },
         select: { id: true, title: true, description: true, slug: true },
         take: 5,
         orderBy: { updatedAt: "desc" },

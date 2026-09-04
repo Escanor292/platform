@@ -21,6 +21,7 @@ import {
   cacheInvalidatePrefix,
 } from "@/lib/redis-cache";
 import { persistRichText, RichTextValidationError, isRichTextEmpty } from "@/lib/editor/persist";
+import { assertCleanContent } from "@/lib/moderation";
 
 export async function GET(req: NextRequest) {
   try {
@@ -208,6 +209,12 @@ export async function POST(req: NextRequest) {
     if (!tagline) return validationErrorResponse('Mô tả ngắn là bắt buộc');
     if (!category) return validationErrorResponse('Danh mục là bắt buộc');
     if (!goalAmount || goalAmount <= 0) return validationErrorResponse('Số vốn mục tiêu không hợp lệ');
+
+    try {
+      await assertCleanContent([title, tagline, body.description, body.richDescription]);
+    } catch (error: any) {
+      return validationErrorResponse(error.message || 'Nội dung chứa từ bị cấm');
+    }
 
     let longDescription = '';
     try {

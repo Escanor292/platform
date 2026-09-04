@@ -422,6 +422,7 @@ model projects {
   heroBackgroundType   String                 @default("image") @db.VarChar(16)
   /// Cấu hình nền màu, ví dụ: { "colors": ["#2563eb", "#1d4ed8", "#7c3aed"], "angle": 135 }
   heroBackgroundConfig Json?
+  isLocked             Boolean                @default(false)
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
   users                users                  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
@@ -822,6 +823,7 @@ enum BlacklistType {
   PHONE
   BANK_ACCOUNT
   DEVICE_ID
+  WORD
 }
 
 enum BlogCommentStatus {

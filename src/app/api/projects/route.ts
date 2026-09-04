@@ -11,6 +11,7 @@ import {
   mapZodErrors,
 } from '@/lib/project/project.response-handlers';
 import { z } from 'zod';
+import { assertCleanContent } from '@/lib/moderation';
 
 /**
  * POST /api/projects
@@ -43,6 +44,12 @@ export async function POST(req: NextRequest) {
         return validationErrorResponse(mapZodErrors(error));
       }
       throw error;
+    }
+
+    try {
+      await assertCleanContent([validatedData.title, validatedData.description]);
+    } catch (error: any) {
+      return validationErrorResponse(error.message || 'Nội dung chứa từ bị cấm');
     }
 
     // Create project

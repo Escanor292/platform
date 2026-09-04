@@ -14,6 +14,7 @@ import {
   forbiddenResponse
 } from '@/lib/project/project.response-handlers';
 import { z } from 'zod';
+import { assertCleanContent } from '@/lib/moderation';
 
 /**
  * GET /api/blog/posts
@@ -82,6 +83,12 @@ export async function POST(request: NextRequest) {
         { error: 'Missing required fields: title, type, visibility' },
         { status: 400 }
       );
+    }
+
+    try {
+      await assertCleanContent([body.title, body.excerpt, body.content]);
+    } catch (error: any) {
+      return NextResponse.json({ error: error.message || 'Nội dung chứa từ bị cấm' }, { status: 400 });
     }
 
     // Validate campaign_update requires campaignId

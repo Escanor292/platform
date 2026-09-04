@@ -153,6 +153,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     }
 
     const isOwner = session?.user && (session.user as any).id === project.creatorId;
+    const isAdmin = (session?.user as any)?.role === 'ADMIN' || (session?.user as any)?.isAdmin === true;
+    if ((project as any).isLocked && !isOwner && !isAdmin) {
+        notFound();
+    }
 
     // Find first campaign with rewards
     const campaignWithRewards = project.campaigns.find(c => c.rewards && c.rewards.length > 0);

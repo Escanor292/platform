@@ -112,6 +112,10 @@ export default async function ProductDetailPage({
     project?.creatorId,
   ].filter(Boolean);
   const isOwner = Boolean(currentUserId && ownerIds.includes(currentUserId));
+  const isAdmin = (session?.user as any)?.role === 'ADMIN' || (session?.user as any)?.isAdmin === true;
+  if (!reward.isActive && !isOwner && !isAdmin) {
+    notFound();
+  }
 
   // ---------- Chế độ 1: Sản phẩm thuộc chiến dịch (dạng huy động) ----------
   if (campaign) {
