@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { parseOccurredAt, parseReportImages } from "@/lib/content-report";
+import { validateReportEvidence } from "@/lib/content-report";
 
 /**
  * POST /api/campaigns/[slug]/reports
@@ -28,10 +28,9 @@ export async function POST(req: NextRequest, context: { params: Promise<{ slug: 
             );
         }
 
-        const images = parseReportImages(imageUrls);
-        const incident = parseOccurredAt(occurredAt);
-        if (!incident.ok) {
-            return NextResponse.json({ error: "Thời gian vụ việc không hợp lệ" }, { status: 400 });
+        const evidence = validateReportEvidence(imageUrls, occurredAt);
+        if (!evidence.ok) {
+            return NextResponse.json({ error: evidence.error }, { status: 400 });
         }
 
         const campaign = await prisma.campaigns.findFirst({
@@ -72,8 +71,8 @@ export async function POST(req: NextRequest, context: { params: Promise<{ slug: 
                 userId,
                 reason,
                 description: description.trim(),
-                imageUrls: images,
-                occurredAt: incident.value,
+                imageUrls: evidence.images,
+                occurredAt: evidence.occurredAt,
                 status: "PENDING",
                 updatedAt: new Date()
             },

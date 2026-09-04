@@ -62,7 +62,7 @@ export default function ReportEvidenceFields({
     <>
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">
-          Thời gian vụ việc <span className="text-xs font-normal text-gray-400">(không bắt buộc)</span>
+          Thời gian vụ việc <span className="text-red-500">*</span>
         </label>
         <input
           type="datetime-local"
@@ -74,7 +74,7 @@ export default function ReportEvidenceFields({
       </div>
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">
-          Hình ảnh minh chứng <span className="text-xs font-normal text-gray-400">(không bắt buộc)</span>
+          Hình ảnh minh chứng <span className="text-red-500">*</span>
         </label>
         <div className="flex flex-wrap gap-2">
           {imageUrls.map((url) => (

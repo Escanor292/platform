@@ -88,8 +88,20 @@ export function parseReportImages(imageUrls: unknown) {
 }
 
 export function parseOccurredAt(occurredAt: unknown) {
-  if (typeof occurredAt !== 'string' || !occurredAt.trim()) return { ok: true as const, value: null };
+  if (typeof occurredAt !== 'string' || !occurredAt.trim()) return { ok: false as const };
   const parsed = new Date(occurredAt);
   if (Number.isNaN(parsed.getTime())) return { ok: false as const };
   return { ok: true as const, value: parsed };
+}
+
+export function validateReportEvidence(imageUrls: unknown, occurredAt: unknown) {
+  const images = parseReportImages(imageUrls);
+  const incident = parseOccurredAt(occurredAt);
+  if (!incident.ok) {
+    return { ok: false as const, error: 'Vui lòng chọn thời gian vụ việc' };
+  }
+  if (images.length < 1) {
+    return { ok: false as const, error: 'Vui lòng đính kèm ít nhất 1 hình ảnh minh chứng' };
+  }
+  return { ok: true as const, images, occurredAt: incident.value };
 }

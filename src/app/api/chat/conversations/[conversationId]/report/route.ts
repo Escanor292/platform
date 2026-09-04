@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { reportConversation } from '@/services/mongodb/chat.service';
 import { ReportConversationRequest } from '@/types/chat.types';
+import { validateReportEvidence } from '@/lib/content-report';
 
 export async function POST(
   request: NextRequest,
@@ -44,16 +45,9 @@ export async function POST(
       );
     }
 
-    const images = Array.isArray(imageUrls)
-      ? imageUrls.filter((url) => typeof url === 'string' && /^https?:\/\//.test(url)).slice(0, 5)
-      : [];
-    let incidentAt: Date | null = null;
-    if (typeof occurredAt === 'string' && occurredAt.trim()) {
-      const parsed = new Date(occurredAt);
-      if (Number.isNaN(parsed.getTime())) {
-        return NextResponse.json({ error: 'Thời gian vụ việc không hợp lệ' }, { status: 400 });
-      }
-      incidentAt = parsed;
+    const evidence = validateReportEvidence(imageUrls, occurredAt);
+    if (!evidence.ok) {
+      return NextResponse.json({ error: evidence.error }, { status: 400 });
     }
 
     // Report conversation
@@ -63,7 +57,7 @@ export async function POST(
       reason,
       description,
       messageId,
-      { imageUrls: images, occurredAt: incidentAt }
+      { imageUrls: evidence.images, occurredAt: evidence.occurredAt }
     );
 
     return NextResponse.json({

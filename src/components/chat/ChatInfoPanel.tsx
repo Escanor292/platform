@@ -109,6 +109,14 @@ export function ChatInfoPanel({
       alert("Vui lòng mô tả lý do báo cáo");
       return;
     }
+    if (!reportOccurredAt) {
+      alert("Vui lòng chọn thời gian vụ việc");
+      return;
+    }
+    if (reportImages.length < 1) {
+      alert("Vui lòng đính kèm ít nhất 1 hình ảnh minh chứng");
+      return;
+    }
     try {
       setReporting(true);
       const response = await fetch(
@@ -384,7 +392,7 @@ export function ChatInfoPanel({
             </Button>
             <Button
               onClick={handleReport}
-              disabled={reporting || !reportDescription.trim()}
+              disabled={reporting || !reportDescription.trim() || !reportOccurredAt || reportImages.length < 1}
               className="bg-red-500 hover:bg-red-600 text-white"
             >
               {reporting ? (

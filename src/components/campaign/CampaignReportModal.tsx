@@ -205,6 +205,16 @@ export default function CampaignReportModal({
             return;
         }
 
+        if (!occurredAt) {
+            setError("Vui lòng chọn thời gian vụ việc");
+            return;
+        }
+
+        if (imageUrls.length < 1) {
+            setError("Vui lòng đính kèm ít nhất 1 hình ảnh minh chứng");
+            return;
+        }
+
         setLoading(true);
         try {
             const res = await fetch(`/api/reports`, {
@@ -325,7 +335,7 @@ export default function CampaignReportModal({
 
                         <div>
                             <label className="block text-sm font-semibold text-gray-900 mb-3">
-                                Thời gian vụ việc <span className="text-xs font-medium text-gray-400">(không bắt buộc)</span>
+                                Thời gian vụ việc <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="datetime-local"
@@ -338,7 +348,8 @@ export default function CampaignReportModal({
 
                         <div>
                             <label className="block text-sm font-semibold text-gray-900 mb-3">
-                                Hình ảnh minh chứng <span className="text-xs font-medium text-gray-400">(không bắt buộc, tối đa {MAX_IMAGES} ảnh)</span>
+                                Hình ảnh minh chứng <span className="text-red-500">*</span>
+                                <span className="ml-2 text-xs font-medium text-gray-400">(tối đa {MAX_IMAGES} ảnh)</span>
                             </label>
                             <div className="flex flex-wrap gap-3">
                                 {imageUrls.map((url) => (
@@ -386,7 +397,7 @@ export default function CampaignReportModal({
                         <div className="flex gap-3 pt-4">
                             <Button
                                 type="submit"
-                                disabled={loading || uploading || !reason || description.trim().length < 20}
+                                disabled={loading || uploading || !reason || description.trim().length < 20 || !occurredAt || imageUrls.length < 1}
                                 className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white font-semibold py-3 rounded-[1.2rem] flex items-center justify-center gap-2"
                             >
                                 {loading && <Loader2 className="animate-spin" size={18} />}

@@ -4,9 +4,8 @@ import { prisma } from '@/lib/prisma';
 import {
   REPORT_TARGET_LABELS,
   REPORT_TARGET_TYPES,
-  parseOccurredAt,
-  parseReportImages,
   resolveReportTarget,
+  validateReportEvidence,
   type ReportTargetType,
 } from '@/lib/content-report';
 
@@ -31,9 +30,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Vui lòng chọn lý do và mô tả ít nhất 20 ký tự' }, { status: 400 });
   }
 
-  const incident = parseOccurredAt(body.occurredAt);
-  if (!incident.ok) {
-    return NextResponse.json({ error: 'Thời gian vụ việc không hợp lệ' }, { status: 400 });
+  const evidence = validateReportEvidence(body.imageUrls, body.occurredAt);
+  if (!evidence.ok) {
+    return NextResponse.json({ error: evidence.error }, { status: 400 });
   }
 
   const target = await resolveReportTarget(targetType, targetId);
@@ -60,8 +59,8 @@ export async function POST(req: NextRequest) {
       userId,
       reason,
       description,
-      imageUrls: parseReportImages(body.imageUrls),
-      occurredAt: incident.value,
+      imageUrls: evidence.images,
+      occurredAt: evidence.occurredAt,
       status: 'PENDING',
       updatedAt: new Date(),
     },
