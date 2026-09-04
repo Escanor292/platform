@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { X, Loader2, ImagePlus, FileText, Tag, Lock } from 'lucide-react';
 import { ProductionEditor } from '@/components/editor/ProductionEditor';
 import { ImageUpload } from '@/components/shared/ImageUpload';
+import OwnerEditPanel from '@/components/OwnerEditPanel';
 
 type BlogPost = {
   id: string;
@@ -22,6 +23,7 @@ type BlogPost = {
 
 interface Props {
   post: BlogPost;
+  isOwner: boolean;
   children: React.ReactNode;
 }
 
@@ -31,7 +33,7 @@ interface Props {
  * - Khi bấm "Sửa ngay", mở dialog form sửa bài viết ngay tại chỗ
  *   (gọi PATCH /api/blog/posts/[slug]), sau đó tự làm mới trang.
  */
-export default function BlogDetailPageClient({ post, children }: Props) {
+export default function BlogDetailPageClient({ post, isOwner, children }: Props) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -87,18 +89,21 @@ export default function BlogDetailPageClient({ post, children }: Props) {
     <>
       {children}
 
-      {/* Nút sửa trực tiếp: mở thẳng giao diện chỉnh sửa */}
-      <button
-        type="button"
-        onClick={() => setEditing(true)}
-        className="fixed bottom-6 right-6 z-50 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-5 py-3 text-sm font-semibold text-white shadow-xl transition hover:from-blue-700 hover:to-purple-700"
-      >
-        <FileText className="h-4 w-4" />
-        Sửa ngay
-      </button>
+      {isOwner && (
+        <OwnerEditPanel
+          isOwner={isOwner}
+          blocks={[
+            {
+              label: 'Bài viết',
+              description: 'Tiêu đề, ảnh bìa, nội dung và quyền xem',
+              onEdit: () => setEditing(true),
+            },
+          ]}
+        />
+      )}
 
       {/* Dialog sửa bài viết tại chỗ */}
-      {editing && (
+      {isOwner && editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-4xl max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl">
             {/* Header */}
