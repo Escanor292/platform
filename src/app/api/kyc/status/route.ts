@@ -2,17 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getKYCInfo, getTransactionLimit } from "@/lib/kyc";
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const userId = (session.user as any).id;
+    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const userId = (session.user as { id: string }).id;
     const kyc = await getKYCInfo(userId);
     const limit = await getTransactionLimit(userId);
-
+    const meta = (kyc as any)?.ekycMeta || null;
     return NextResponse.json({
       kyc: kyc ? {
         status: kyc.verificationStatus,
@@ -20,6 +17,12 @@ export async function GET(request: NextRequest) {
         idCardType: kyc.idCardType,
         verifiedAt: kyc.verifiedAt,
         riskLevel: kyc.riskLevel,
+        rejectedReason: kyc.rejectedReason,
+        method: meta?.method || "MANUAL",
+        provider: meta?.provider || null,
+        faceMatchScore: meta?.faceMatchScore ?? null,
+        livenessPassed: meta?.livenessPassed ?? null,
+        ocrEdited: meta?.ocrEdited ?? null,
       } : null,
       limit: {
         maxPerTransaction: Number(limit.maxPerTransaction),
@@ -29,9 +32,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error: any) {
     console.error("[KYC STATUS ERROR]", error);
-    return NextResponse.json(
-      { error: error.message || "Failed to get KYC status" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message || "Failed to get KYC status" }, { status: 500 });
   }
 }
