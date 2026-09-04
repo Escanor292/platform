@@ -113,7 +113,7 @@ export function ProductQuickEdit({ product, isOwner }: ProductQuickEditProps) {
       />
 
       {/* Dialog sửa sản phẩm tại chỗ */}
-      {editing && (
+      {isOwner && editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-3xl max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl">
             {/* Header */}

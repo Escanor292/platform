@@ -133,9 +133,6 @@ export default async function BlogDetailPage({
   const { post, error } = await getBlogPost(slug, currentUserId);
 
   const isAuthor = !!currentUserId && post ? currentUserId === post.author?.id : false;
-  const isAdmin = (session?.user as { role?: string; isAdmin?: boolean } | undefined)?.role === 'ADMIN'
-    || (session?.user as { isAdmin?: boolean } | undefined)?.isAdmin === true;
-  const canEdit = isAuthor || isAdmin;
 
   if (error === 'not-found') {
     notFound();
@@ -175,7 +172,7 @@ export default async function BlogDetailPage({
   const relatedProject = post.project || post.campaign?.project;
 
   return (
-    <BlogDetailPageClient post={post} isOwner={canEdit}>
+    <BlogDetailPageClient post={post} isOwner={isAuthor}>
       <div className="min-h-screen bg-white">
         {/* Breadcrumbs */}
         <div className="border-b border-gray-200 bg-white">

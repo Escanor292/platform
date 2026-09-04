@@ -104,15 +104,14 @@ export default async function ProductDetailPage({
 
   // Kiểm tra quyền chủ sở hữu (cho chỉnh sửa nhanh tại chỗ)
   const session = await auth();
-  const currentUserId = (session?.user as any)?.id;
-  const isAdmin = (session?.user as any)?.isAdmin === true;
+  const currentUserId = (session?.user as any)?.id as string | undefined;
   const ownerIds = [
     campaign?.users?.id,
     campaign?.creatorId,
     campaignProject?.creatorId,
     project?.creatorId,
   ].filter(Boolean);
-  const isOwner = isAdmin || (currentUserId && ownerIds.includes(currentUserId));
+  const isOwner = Boolean(currentUserId && ownerIds.includes(currentUserId));
 
   // ---------- Chế độ 1: Sản phẩm thuộc chiến dịch (dạng huy động) ----------
   if (campaign) {
