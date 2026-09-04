@@ -30,23 +30,27 @@ export async function POST(request: NextRequest) {
       monthlyIncome,
     } = body;
 
-    // Validate
     if (!fullName || !idCardNumber || !idCardType) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Thiếu họ tên hoặc giấy tờ tùy thân." },
         { status: 400 }
       );
     }
 
-    // Validate ID card format
+    if (!idCardFrontImage || !idCardBackImage) {
+      return NextResponse.json(
+        { error: "P0 cần ảnh CCCD mặt trước và mặt sau." },
+        { status: 400 }
+      );
+    }
+
     if (!validateIDCard(idCardNumber, idCardType)) {
       return NextResponse.json(
-        { error: "Invalid ID card number format" },
+        { error: "Số giấy tờ không đúng định dạng." },
         { status: 400 }
       );
     }
 
-    // Kiểm tra ID card đã tồn tại chưa
     const existing = await prisma.kyc_info.findFirst({
       where: {
         idCardNumber,
@@ -56,12 +60,11 @@ export async function POST(request: NextRequest) {
 
     if (existing) {
       return NextResponse.json(
-        { error: "ID card number already registered" },
+        { error: "Số giấy tờ đã được đăng ký bởi tài khoản khác." },
         { status: 400 }
       );
     }
 
-    // Tạo hoặc cập nhật KYC
     const kyc = await prisma.kyc_info.upsert({
       where: { userId },
       create: {
@@ -82,11 +85,6 @@ export async function POST(request: NextRequest) {
         monthlyIncome,
         verificationStatus: "PENDING",
         updatedAt: new Date(),
-        users: {
-          connect: {
-            id: userId,
-          },
-        },
       },
       update: {
         fullName,
@@ -106,20 +104,23 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Audit log
-    await createAuditLog({
-      userId,
-      action: "KYC_SUBMIT",
-      entityType: "KYC",
-      entityId: kyc.id,
-      newValue: { idCardNumber, idCardType },
-      ipAddress: request.headers.get("x-forwarded-for") || null,
-      userAgent: request.headers.get("user-agent") || null,
-    });
+    try {
+      await createAuditLog({
+        userId,
+        action: "KYC_SUBMIT",
+        entityType: "KYC",
+        entityId: kyc.id,
+        newValue: { idCardNumber, idCardType, method: "MANUAL" },
+        ipAddress: request.headers.get("x-forwarded-for") || null,
+        userAgent: request.headers.get("user-agent") || null,
+      });
+    } catch (auditErr) {
+      console.warn("[KYC SUBMIT AUDIT]", auditErr);
+    }
 
     return NextResponse.json({
       success: true,
-      message: "KYC submitted successfully",
+      message: "Đã gửi hồ sơ KYC thủ công. Chờ admin duyệt.",
       kyc: {
         id: kyc.id,
         status: kyc.verificationStatus,

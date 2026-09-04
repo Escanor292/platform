@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const userId = (session.user as { id: string }).id;
     const body = await request.json();
-    const { sessionId, fields, frontImageUrl, backImageUrl, currentAddress, chipDg1, vneidCode } = body || {};
+    const { sessionId, fields, frontImageUrl, backImageUrl, selfieImageUrl, currentAddress, chipDg1, vneidCode } = body || {};
     if (!sessionId || !fields?.fullName || !fields?.idCardNumber || !fields?.idCardType) {
       return NextResponse.json({ error: "Thiếu thông tin xác nhận eKYC." }, { status: 400 });
     }
@@ -87,22 +87,53 @@ export async function POST(request: NextRequest) {
       create: { id: crypto.randomUUID(), userId, ...payload },
     });
 
-    await createAuditLog({
-      userId,
-      action: "KYC_SUBMIT",
-      entityType: "KYC",
-      entityId: kyc.id,
-      newValue: {
-        status,
-        provider: rec.analyze.provider,
-        ocrEdited,
-        faceMatchScore: rec.analyze.faceMatchScore,
-        national: national.status,
-        sessionId,
-      },
-      ipAddress: request.headers.get("x-forwarded-for"),
-      userAgent: request.headers.get("user-agent"),
-    });
+    const method = chipDg1 || vneidCode ? "HYBRID" : "EKYC";
+    const meta = {
+      provider: rec.analyze.provider,
+      sessionId,
+      livenessScore: rec.analyze.livenessScore,
+      faceMatchScore: rec.analyze.faceMatchScore,
+      livenessPassed: rec.analyze.livenessPassed,
+      ocrEdited,
+      ocrRaw: rec.analyze.ocr,
+      verdict: rec.analyze.verdict,
+      method,
+      quality: rec.analyze.quality,
+      confirmedAt: new Date().toISOString(),
+      national: national.status,
+    };
+    try {
+      await prisma.$executeRawUnsafe(
+        `UPDATE "kyc_info" SET "selfieImage" = $1, "consentAt" = $2, "ekycMeta" = $3::jsonb WHERE "userId" = $4`,
+        selfieImageUrl || null,
+        new Date(rec.consentAt),
+        JSON.stringify(meta),
+        userId,
+      );
+    } catch (metaErr) {
+      console.warn("[EKYC META PERSIST]", metaErr);
+    }
+
+    try {
+      await createAuditLog({
+        userId,
+        action: "KYC_SUBMIT",
+        entityType: "KYC",
+        entityId: kyc.id,
+        newValue: {
+          status,
+          provider: rec.analyze.provider,
+          ocrEdited,
+          faceMatchScore: rec.analyze.faceMatchScore,
+          national: national.status,
+          sessionId,
+        },
+        ipAddress: request.headers.get("x-forwarded-for"),
+        userAgent: request.headers.get("user-agent"),
+      });
+    } catch (auditErr) {
+      console.warn("[EKYC AUDIT]", auditErr);
+    }
 
     const href = { href: "/kyc" };
     if (status === "VERIFIED") {
