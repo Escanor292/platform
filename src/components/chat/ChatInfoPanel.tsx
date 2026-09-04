@@ -8,6 +8,7 @@ import { X, Loader2, Search, Flag, Ban } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import ReportEvidenceFields from "@/components/report/ReportEvidenceFields";
 
 interface ChatInfoPanelProps {
   conversationId: string;
@@ -54,6 +55,8 @@ export function ChatInfoPanel({
   const [showReportDialog, setShowReportDialog] = useState(false);
   const [reportReason, setReportReason] = useState("spam");
   const [reportDescription, setReportDescription] = useState("");
+  const [reportOccurredAt, setReportOccurredAt] = useState("");
+  const [reportImages, setReportImages] = useState<string[]>([]);
   const [reporting, setReporting] = useState(false);
 
   // Block state
@@ -116,12 +119,16 @@ export function ChatInfoPanel({
           body: JSON.stringify({
             reason: reportReason,
             description: reportDescription.trim(),
+            imageUrls: reportImages,
+            occurredAt: reportOccurredAt || null,
           }),
         }
       );
       if (response.ok) {
         setShowReportDialog(false);
         setReportDescription("");
+        setReportOccurredAt("");
+        setReportImages([]);
         alert(
           "Cảm ơn bạn đã báo cáo. Đội ngũ quản trị sẽ xem xét trong thời gian sớm nhất."
         );
@@ -363,6 +370,13 @@ export function ChatInfoPanel({
                 className="min-h-24"
               />
             </div>
+            <ReportEvidenceFields
+              occurredAt={reportOccurredAt}
+              onOccurredAtChange={setReportOccurredAt}
+              imageUrls={reportImages}
+              onImageUrlsChange={setReportImages}
+              disabled={reporting}
+            />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowReportDialog(false)}>

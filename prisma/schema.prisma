@@ -282,6 +282,8 @@ model campaign_reports {
   userId      String
   reason      CampaignReportReason
   description String
+  imageUrls   String[]             @default([])
+  occurredAt  DateTime?
   status      ReportStatus         @default(PENDING)
   resolvedAt  DateTime?
   resolvedBy  String?

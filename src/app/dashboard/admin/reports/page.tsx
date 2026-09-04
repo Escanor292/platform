@@ -13,6 +13,8 @@ interface Report {
     user: { name: string; email: string };
     reason: string;
     description: string;
+    imageUrls?: string[];
+    occurredAt?: string | null;
     status: string;
     createdAt: string;
     resolvedAt?: string;
@@ -179,6 +181,20 @@ export default function ReportsPage() {
                                                 Lý do: {REPORT_REASONS[report.reason] || report.reason}
                                             </p>
                                             <p className="whitespace-pre-wrap text-sm text-gray-700">{report.description}</p>
+                                            {report.occurredAt && (
+                                                <p className="mt-3 text-xs font-semibold text-gray-500">
+                                                    Thời gian vụ việc: {new Date(report.occurredAt).toLocaleString("vi-VN")}
+                                                </p>
+                                            )}
+                                            {!!report.imageUrls?.length && (
+                                                <div className="mt-3 flex flex-wrap gap-2">
+                                                    {report.imageUrls.map((url) => (
+                                                        <a key={url} href={url} target="_blank" rel="noopener noreferrer">
+                                                            <img src={url} alt="" className="h-20 w-20 rounded-xl object-cover border border-gray-200" />
+                                                        </a>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-gray-500">

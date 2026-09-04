@@ -19,7 +19,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ slug: 
         }
 
         const userId = (session.user as any).id;
-        const { reason, description } = await req.json();
+        const { reason, description, imageUrls, occurredAt } = await req.json();
 
         // 2. Validate input
         if (!reason || !description?.trim()) {
@@ -27,6 +27,18 @@ export async function POST(req: NextRequest, context: { params: Promise<{ slug: 
                 { error: "Vui lòng cung cấp lý do và mô tả chi tiết" },
                 { status: 400 }
             );
+        }
+
+        const images = Array.isArray(imageUrls)
+            ? imageUrls.filter((url: unknown) => typeof url === "string" && /^https?:\/\//.test(url)).slice(0, 5)
+            : [];
+        let incidentAt: Date | null = null;
+        if (typeof occurredAt === "string" && occurredAt.trim()) {
+            const parsed = new Date(occurredAt);
+            if (Number.isNaN(parsed.getTime())) {
+                return NextResponse.json({ error: "Thời gian vụ việc không hợp lệ" }, { status: 400 });
+            }
+            incidentAt = parsed;
         }
 
         // 3. Find campaign
@@ -65,6 +77,8 @@ export async function POST(req: NextRequest, context: { params: Promise<{ slug: 
                 userId: userId,
                 reason,
                 description: description.trim(),
+                imageUrls: images,
+                occurredAt: incidentAt,
                 status: "PENDING",
                 updatedAt: new Date()
             },

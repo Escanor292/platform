@@ -645,7 +645,8 @@ export async function reportConversation(
   reporterId: string,
   reason: ChatReportReason,
   description: string,
-  messageId?: string
+  messageId?: string,
+  extras?: { imageUrls?: string[]; occurredAt?: Date | null }
 ): Promise<MongoChatReport> {
   if (!ObjectId.isValid(conversationId)) {
     throw new Error('Invalid conversation ID');
@@ -673,6 +674,8 @@ export async function reportConversation(
     reporterId,
     reason,
     description: description.trim(),
+    imageUrls: extras?.imageUrls?.slice(0, 5) || [],
+    occurredAt: extras?.occurredAt || null,
     status: 'pending',
     createdAt: now,
     updatedAt: now,

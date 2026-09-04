@@ -114,6 +114,8 @@ export interface MongoChatReport extends MongoBase {
   reporterId: string; // PostgreSQL user.id
   reason: ChatReportReason;
   description: string;
+  imageUrls?: string[];
+  occurredAt?: Date | null;
   status: ChatReportStatus;
   reviewedAt?: Date | null;
   reviewedBy?: string | null; // Admin user ID
@@ -172,6 +174,8 @@ export interface ReportConversationRequest {
   messageId?: string;
   reason: ChatReportReason;
   description: string;
+  imageUrls?: string[];
+  occurredAt?: string | null;
 }
 
 export interface MarkAsReadResponse {

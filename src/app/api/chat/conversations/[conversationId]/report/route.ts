@@ -27,7 +27,7 @@ export async function POST(
 
     // Parse request body
     const body: ReportConversationRequest = await request.json();
-    const { messageId, reason, description } = body;
+    const { messageId, reason, description, imageUrls, occurredAt } = body;
 
     // Validate input
     if (!reason) {
@@ -44,13 +44,26 @@ export async function POST(
       );
     }
 
+    const images = Array.isArray(imageUrls)
+      ? imageUrls.filter((url) => typeof url === 'string' && /^https?:\/\//.test(url)).slice(0, 5)
+      : [];
+    let incidentAt: Date | null = null;
+    if (typeof occurredAt === 'string' && occurredAt.trim()) {
+      const parsed = new Date(occurredAt);
+      if (Number.isNaN(parsed.getTime())) {
+        return NextResponse.json({ error: 'Thời gian vụ việc không hợp lệ' }, { status: 400 });
+      }
+      incidentAt = parsed;
+    }
+
     // Report conversation
     const report = await reportConversation(
       conversationId,
       userId,
       reason,
       description,
-      messageId
+      messageId,
+      { imageUrls: images, occurredAt: incidentAt }
     );
 
     return NextResponse.json({

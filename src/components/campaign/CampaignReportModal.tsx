@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { AlertCircle, X, Loader2 } from "lucide-react";
+import { AlertCircle, X, Loader2, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createPortal } from "react-dom";
+import { toast } from "sonner";
 
 interface CampaignReportModalProps {
     campaignSlug: string;
@@ -23,6 +24,8 @@ const REPORT_REASONS = [
     { value: "OTHER", label: "Khác" }
 ];
 
+const MAX_IMAGES = 5;
+
 export default function CampaignReportModal({
     campaignSlug,
     campaignTitle,
@@ -33,10 +36,14 @@ export default function CampaignReportModal({
     const router = useRouter();
     const [reason, setReason] = useState("");
     const [description, setDescription] = useState("");
+    const [occurredAt, setOccurredAt] = useState("");
+    const [imageUrls, setImageUrls] = useState<string[]>([]);
+    const [uploading, setUploading] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         setMounted(true);
@@ -126,6 +133,41 @@ export default function CampaignReportModal({
         return createPortal(loginContent, document.body);
     }
 
+    const handleUpload = async (files: FileList | null) => {
+        if (!files?.length) return;
+        const remaining = MAX_IMAGES - imageUrls.length;
+        if (remaining <= 0) {
+            toast.error(`Tối đa ${MAX_IMAGES} ảnh`);
+            return;
+        }
+        const picked = Array.from(files).slice(0, remaining);
+        setUploading(true);
+        try {
+            for (const file of picked) {
+                if (!file.type.startsWith("image/")) {
+                    toast.error("Chỉ nhận file ảnh");
+                    continue;
+                }
+                if (file.size > 5 * 1024 * 1024) {
+                    toast.error(`${file.name} vượt quá 5MB`);
+                    continue;
+                }
+                const formData = new FormData();
+                formData.append("file", file);
+                const res = await fetch("/api/upload", { method: "POST", body: formData });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || "Tải ảnh thất bại");
+                const url = data.secure_url || data.url;
+                if (url) setImageUrls((current) => [...current, url].slice(0, MAX_IMAGES));
+            }
+        } catch (err: any) {
+            toast.error(err.message || "Tải ảnh thất bại");
+        } finally {
+            setUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = "";
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
@@ -148,7 +190,9 @@ export default function CampaignReportModal({
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     reason,
-                    description: description.trim()
+                    description: description.trim(),
+                    imageUrls,
+                    occurredAt: occurredAt || null,
                 })
             });
 
@@ -162,6 +206,8 @@ export default function CampaignReportModal({
             setSuccess(true);
             setReason("");
             setDescription("");
+            setOccurredAt("");
+            setImageUrls([]);
 
             // Close modal after 2 seconds
             setTimeout(() => {
@@ -253,6 +299,58 @@ export default function CampaignReportModal({
                             </p>
                         </div>
 
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-3">
+                                Thời gian vụ việc <span className="text-xs font-medium text-gray-400">(không bắt buộc)</span>
+                            </label>
+                            <input
+                                type="datetime-local"
+                                value={occurredAt}
+                                onChange={(e) => setOccurredAt(e.target.value)}
+                                disabled={loading}
+                                className="w-full px-4 py-3 border border-gray-200 rounded-[1.2rem] focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 bg-white"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-3">
+                                Hình ảnh minh chứng <span className="text-xs font-medium text-gray-400">(không bắt buộc, tối đa {MAX_IMAGES} ảnh)</span>
+                            </label>
+                            <div className="flex flex-wrap gap-3">
+                                {imageUrls.map((url) => (
+                                    <div key={url} className="relative h-20 w-20 overflow-hidden rounded-2xl border border-gray-200">
+                                        <img src={url} alt="" className="h-full w-full object-cover" />
+                                        <button
+                                            type="button"
+                                            onClick={() => setImageUrls((current) => current.filter((item) => item !== url))}
+                                            className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white"
+                                        >
+                                            <X size={10} />
+                                        </button>
+                                    </div>
+                                ))}
+                                {imageUrls.length < MAX_IMAGES && (
+                                    <button
+                                        type="button"
+                                        disabled={loading || uploading}
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-gray-300 text-gray-400 hover:border-gray-500 hover:text-gray-600 disabled:opacity-50"
+                                    >
+                                        {uploading ? <Loader2 size={16} className="animate-spin" /> : <ImagePlus size={16} />}
+                                        <span className="text-[10px] font-bold">Thêm ảnh</span>
+                                    </button>
+                                )}
+                            </div>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp,image/gif"
+                                multiple
+                                className="hidden"
+                                onChange={(event) => handleUpload(event.target.files)}
+                            />
+                        </div>
+
                         {/* Info */}
                         <div className="bg-blue-50 border border-blue-200 rounded-[1.2rem] p-4">
                             <p className="text-sm text-blue-700">
@@ -264,7 +362,7 @@ export default function CampaignReportModal({
                         <div className="flex gap-3 pt-4">
                             <Button
                                 type="submit"
-                                disabled={loading || !reason || description.trim().length < 20}
+                                disabled={loading || uploading || !reason || description.trim().length < 20}
                                 className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white font-semibold py-3 rounded-[1.2rem] flex items-center justify-center gap-2"
                             >
                                 {loading && <Loader2 className="animate-spin" size={18} />}

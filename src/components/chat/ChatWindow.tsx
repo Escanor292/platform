@@ -38,6 +38,7 @@ import {
 import { cn } from '@/lib/utils';
 import { ProductMessageCard, parseProductSegments } from './ProductMessageCard';
 import { EmojiPicker } from './EmojiPicker';
+import ReportEvidenceFields from '@/components/report/ReportEvidenceFields';
 import { ReactionRow } from './MessageReaction';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -249,6 +250,8 @@ export function ChatWindow({
     const [showReportDialog, setShowReportDialog] = useState(false);
     const [reportReason, setReportReason] = useState('spam');
     const [reportDescription, setReportDescription] = useState('');
+    const [reportOccurredAt, setReportOccurredAt] = useState('');
+    const [reportImages, setReportImages] = useState<string[]>([]);
     const [reporting, setReporting] = useState(false);
 
     // Block confirmation state
@@ -531,11 +534,15 @@ export function ChatWindow({
                 body: JSON.stringify({
                     reason: reportReason,
                     description: reportDescription.trim(),
+                    imageUrls: reportImages,
+                    occurredAt: reportOccurredAt || null,
                 }),
             });
             if (response.ok) {
                 setShowReportDialog(false);
                 setReportDescription('');
+                setReportOccurredAt('');
+                setReportImages([]);
                 alert('Cảm ơn bạn đã báo cáo. Đội ngũ quản trị sẽ xem xét trong thời gian sớm nhất.');
             } else {
                 const data = await response.json();
@@ -1222,6 +1229,13 @@ export function ChatWindow({
                                     className="min-h-24"
                                 />
                             </div>
+                            <ReportEvidenceFields
+                                occurredAt={reportOccurredAt}
+                                onOccurredAtChange={setReportOccurredAt}
+                                imageUrls={reportImages}
+                                onImageUrlsChange={setReportImages}
+                                disabled={reporting}
+                            />
                         </div>
                         <DialogFooter>
                             <Button variant="outline" onClick={() => setShowReportDialog(false)}>

@@ -1,0 +1,3 @@
+ALTER TABLE "campaign_reports"
+  ADD COLUMN IF NOT EXISTS "imageUrls" TEXT[] DEFAULT ARRAY[]::TEXT[],
+  ADD COLUMN IF NOT EXISTS "occurredAt" TIMESTAMP(3);
