@@ -159,7 +159,11 @@ export default async function AdminAnalyticsPage() {
             </h2>
             <div className="space-y-4">
               {topCampaigns.map((campaign, index) => (
-                <div key={campaign.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition">
+                <Link
+                  key={campaign.id}
+                  href={`/campaigns/${campaign.slug}`}
+                  className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition"
+                >
                   <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-black text-sm">
                     {index + 1}
                   </div>
@@ -174,7 +178,7 @@ export default async function AdminAnalyticsPage() {
                       {formatVND(Number(campaign.currentAmount))}
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -189,7 +193,11 @@ export default async function AdminAnalyticsPage() {
               {topBackers.map((backer, index) => {
                 const totalAmount = backer.pledges.reduce((sum, p) => sum + Number(p.amount), 0);
                 return (
-                  <div key={backer.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition">
+                  <Link
+                    key={backer.id}
+                    href={`/profile/${backer.id}`}
+                    className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition"
+                  >
                     <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-white font-black text-sm">
                       {index + 1}
                     </div>
@@ -206,7 +214,7 @@ export default async function AdminAnalyticsPage() {
                         {formatVND(totalAmount)}
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>

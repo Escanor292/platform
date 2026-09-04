@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { ensureDefaultBannedWords } from '@/lib/moderation';
 
 function isAdmin(user: any) {
   return user?.role === 'ADMIN' || user?.isAdmin === true;
@@ -11,6 +12,8 @@ export async function GET() {
   if (!session?.user || !isAdmin(session.user)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
+
+  await ensureDefaultBannedWords((session.user as any).id);
 
   const words = await prisma.blacklist.findMany({
     where: { type: 'WORD' as any },
