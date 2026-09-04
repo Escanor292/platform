@@ -130,7 +130,7 @@ export async function getBadges(
   const skip = (page - 1) * limit;
 
   const where: any = {
-    deletedAt: null,
+    deleted_at: null,
   };
 
   if (query.search) {
@@ -145,7 +145,7 @@ export async function getBadges(
   }
 
   if (query.isActive !== undefined) {
-    where.isActive = query.isActive;
+    where.is_active = query.isActive;
   }
 
   const [badges, total] = await Promise.all([
@@ -266,14 +266,15 @@ export async function updateBadge(
     updateData.slug = await generateUniqueBadgeSlug(data.name);
   }
   if (data.description !== undefined) updateData.description = data.description;
-  if (data.iconUrl !== undefined) updateData.iconUrl = data.iconUrl;
-  if (data.iconName !== undefined) updateData.iconName = data.iconName;
+  if (data.iconUrl !== undefined) updateData.icon_url = data.iconUrl;
+  if (data.iconName !== undefined) updateData.icon_name = data.iconName;
   if (data.color !== undefined) updateData.color = data.color;
   if (data.backgroundColor !== undefined)
-    updateData.backgroundColor = data.backgroundColor;
+    updateData.background_color = data.backgroundColor;
   if (data.type !== undefined) updateData.type = data.type;
   if (data.rarity !== undefined) updateData.rarity = data.rarity;
-  if (data.isActive !== undefined) updateData.isActive = data.isActive;
+  if (data.isActive !== undefined) updateData.is_active = data.isActive;
+  updateData.updated_at = new Date();
 
   const badge = await prisma.badges.update({
     where: { id: badge_id },
