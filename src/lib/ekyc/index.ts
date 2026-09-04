@@ -4,3 +4,4 @@ export { analyzeSandbox } from "./sandbox";
 export { analyzeFpt } from "./fpt";
 export { verifyNationalId } from "./national";
 export { lookupBusiness } from "./ekyb";
+export { parseCccdQr } from "./cccd-qr";
