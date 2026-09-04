@@ -29,6 +29,9 @@ export function EkycWizard({ nextHref = "/dashboard" }: { nextHref?: string }) {
   const [camReady, setCamReady] = useState(false);
   const [fields, setFields] = useState<OcrFields>(empty);
   const [scores, setScores] = useState<{ liveness?: number; face?: number; verdict?: string }>({});
+  const [chipDg1, setChipDg1] = useState("");
+  const [vneidCode, setVneidCode] = useState("");
+  const [p2msg, setP2msg] = useState("");
 
   useEffect(() => {
     fetch("/api/kyc/status").then((r) => r.json()).then(setStatus).catch(() => null);
@@ -41,7 +44,7 @@ export function EkycWizard({ nextHref = "/dashboard" }: { nextHref?: string }) {
       streamRef.current = stream;
       if (videoRef.current) { videoRef.current.srcObject = stream; await videoRef.current.play(); }
       setCamReady(true);
-    } catch { toast.error("Khong mo duoc camera. Hay tai anh selfie."); }
+    } catch { toast.error("Không mở được camera. Hãy tải ảnh selfie."); }
   };
 
   const captureSelfie = async () => {
@@ -56,31 +59,31 @@ export function EkycWizard({ nextHref = "/dashboard" }: { nextHref?: string }) {
     try {
       const res = await fetch("/api/upload", { method: "POST", body: form });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Upload selfie that bai");
+      if (!res.ok) throw new Error(data.error || "Upload selfie thất bại");
       setSelfieImageUrl(data.secure_url || data.url);
-      toast.success("Da chup anh chan dung");
+      toast.success("Đã chụp ảnh chân dung");
       streamRef.current?.getTracks().forEach((t) => t.stop()); setCamReady(false);
     } catch (e: any) { toast.error(e.message); } finally { setBusy(false); }
   };
 
   const startSession = async () => {
-    if (!consent) { toast.error("Can dong y dieu khoan du lieu ca nhan."); return; }
+    if (!consent) { toast.error("Cần đồng ý điều khoản dữ liệu cá nhân."); return; }
     setBusy(true);
     try {
       const res = await fetch("/api/kyc/ekyc/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ consent: true }) });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Khong tao duoc phien");
+      if (!res.ok) throw new Error(data.error || "Không tạo được phiên");
       setSessionId(data.sessionId); setStep(1);
     } catch (e: any) { toast.error(e.message); } finally { setBusy(false); }
   };
 
   const analyze = async () => {
-    if (!frontImageUrl || !backImageUrl || !selfieImageUrl) { toast.error("Can du 3 anh."); return; }
+    if (!frontImageUrl || !backImageUrl || !selfieImageUrl) { toast.error("Cần đủ 3 ảnh."); return; }
     setBusy(true);
     try {
       const res = await fetch("/api/kyc/ekyc/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId, frontImageUrl, backImageUrl, selfieImageUrl, hint: fields }) });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Phan tich that bai");
+      if (!res.ok) throw new Error(data.error || "Phân tích thất bại");
       setFields((prev) => ({
         ...prev,
         fullName: data.ocr?.fullName || prev.fullName,
@@ -97,15 +100,44 @@ export function EkycWizard({ nextHref = "/dashboard" }: { nextHref?: string }) {
     } catch (e: any) { toast.error(e.message); } finally { setBusy(false); }
   };
 
+  const runP2 = async () => {
+    setBusy(true);
+    try {
+      const res = await fetch("/api/kyc/ekyc/nfc", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId,
+          idCardNumber: fields.idCardNumber,
+          fullName: fields.fullName,
+          dateOfBirth: fields.dateOfBirth,
+          chipDg1: chipDg1 || null,
+          vneidCode: vneidCode || null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "P2 thất bại");
+      setP2msg(`${data.status}: ${data.message}`);
+      toast.message(data.message);
+    } catch (e: any) { toast.error(e.message); } finally { setBusy(false); }
+  };
+
   const confirm = async () => {
     setBusy(true);
     try {
-      const res = await fetch("/api/kyc/ekyc/confirm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId, fields, frontImageUrl, backImageUrl, selfieImageUrl, currentAddress: fields.permanentAddress }) });
+      const res = await fetch("/api/kyc/ekyc/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId, fields, frontImageUrl, backImageUrl, selfieImageUrl,
+          currentAddress: fields.permanentAddress, chipDg1, vneidCode,
+        }),
+      });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Xac nhan that bai");
-      if (data.status === "VERIFIED") toast.success("Dinh danh thanh cong.");
-      else if (data.status === "REJECTED") toast.error("eKYC chua dat.");
-      else toast.message("Ho so da gui, cho admin hau kiem.");
+      if (!res.ok) throw new Error(data.error || "Xác nhận thất bại");
+      if (data.status === "VERIFIED") toast.success("Định danh thành công.");
+      else if (data.status === "REJECTED") toast.error("eKYC chưa đạt.");
+      else toast.message("Hồ sơ đã gửi, chờ admin hậu kiểm.");
       router.push(nextHref); router.refresh();
     } catch (e: any) { toast.error(e.message); } finally { setBusy(false); }
   };
@@ -113,42 +145,56 @@ export function EkycWizard({ nextHref = "/dashboard" }: { nextHref?: string }) {
   const kyc = status?.kyc;
   return (
     <div className="space-y-6">
-      {kyc?.status === "VERIFIED" && <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6 flex items-center gap-3 text-emerald-800"><CheckCircle /><div><div className="font-bold">Da dinh danh</div><div className="text-sm">{kyc.fullName}</div></div></div>}
+      {kyc?.status === "VERIFIED" && <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6 flex items-center gap-3 text-emerald-800"><CheckCircle /><div><div className="font-bold">Đã định danh</div><div className="text-sm">{kyc.fullName}</div></div></div>}
       {step === 0 && (
         <section className="rounded-3xl border bg-white p-8 shadow-sm">
-          <h2 className="mb-3 flex items-center gap-2 text-2xl font-black"><ShieldCheck className="text-emerald-700" /> Dong y xu ly du lieu</h2>
-          <p className="mb-4 text-gray-600">Anh CCCD va chan dung chi dung de dinh danh, tang han muc va xet Creator. Bao ve theo ND 13/2023/ND-CP.</p>
-          <label className="mb-6 flex items-start gap-3 text-sm"><input type="checkbox" className="mt-1" checked={consent} onChange={(e) => setConsent(e.target.checked)} /> Toi dong y cho phep xu ly giay to tuy than va anh khuon mat.</label>
-          <Button onClick={startSession} disabled={busy} className="h-12 bg-emerald-700 hover:bg-emerald-800">{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Bat dau eKYC <ArrowRight className="ml-2 h-4 w-4" /></Button>
+          <h2 className="mb-3 flex items-center gap-2 text-2xl font-black"><ShieldCheck className="text-emerald-700" /> Đồng ý xử lý dữ liệu</h2>
+          <p className="mb-4 text-gray-600">Ảnh CCCD và chân dung chỉ dùng để định danh theo NĐ 13/2023/NĐ-CP.</p>
+          <label className="mb-6 flex items-start gap-3 text-sm"><input type="checkbox" className="mt-1" checked={consent} onChange={(e) => setConsent(e.target.checked)} /> Tôi đồng ý cho phép xử lý giấy tờ tùy thân và ảnh khuôn mặt.</label>
+          <Button onClick={startSession} disabled={busy} className="h-12 bg-emerald-700 hover:bg-emerald-800">{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Bắt đầu eKYC <ArrowRight className="ml-2 h-4 w-4" /></Button>
         </section>
       )}
-      {step === 1 && <section className="rounded-3xl border bg-white p-8 shadow-sm"><h2 className="mb-4 text-2xl font-black">CCCD mat truoc</h2><ImageUpload value={frontImageUrl} onChange={setFrontImageUrl} /><div className="mt-6 flex gap-3"><Button variant="outline" onClick={() => setStep(0)}>Lai</Button><Button disabled={!frontImageUrl} className="bg-emerald-700 hover:bg-emerald-800" onClick={() => setStep(2)}>Tiep</Button></div></section>}
-      {step === 2 && <section className="rounded-3xl border bg-white p-8 shadow-sm"><h2 className="mb-4 text-2xl font-black">CCCD mat sau</h2><ImageUpload value={backImageUrl} onChange={setBackImageUrl} /><div className="mt-6 flex gap-3"><Button variant="outline" onClick={() => setStep(1)}>Lai</Button><Button disabled={!backImageUrl} className="bg-emerald-700 hover:bg-emerald-800" onClick={() => setStep(3)}>Tiep</Button></div></section>}
+      {step === 1 && <section className="rounded-3xl border bg-white p-8 shadow-sm"><h2 className="mb-4 text-2xl font-black">CCCD mặt trước</h2><ImageUpload value={frontImageUrl} onChange={setFrontImageUrl} /><div className="mt-6 flex gap-3"><Button variant="outline" onClick={() => setStep(0)}>Lại</Button><Button disabled={!frontImageUrl} className="bg-emerald-700 hover:bg-emerald-800" onClick={() => setStep(2)}>Tiếp</Button></div></section>}
+      {step === 2 && <section className="rounded-3xl border bg-white p-8 shadow-sm"><h2 className="mb-4 text-2xl font-black">CCCD mặt sau</h2><ImageUpload value={backImageUrl} onChange={setBackImageUrl} /><div className="mt-6 flex gap-3"><Button variant="outline" onClick={() => setStep(1)}>Lại</Button><Button disabled={!backImageUrl} className="bg-emerald-700 hover:bg-emerald-800" onClick={() => setStep(3)}>Tiếp</Button></div></section>}
       {step === 3 && (
         <section className="rounded-3xl border bg-white p-8 shadow-sm">
           <h2 className="mb-2 flex items-center gap-2 text-2xl font-black"><Camera className="text-emerald-700" /> Liveness</h2>
-          <p className="mb-4 text-sm text-gray-600">Nhin thang camera, du sang, khong khau trang.</p>
           <video ref={videoRef} className="mb-3 aspect-video w-full rounded-2xl bg-black object-cover" playsInline muted />
-          <div className="flex flex-wrap gap-3 mb-4">
-            <Button variant="outline" onClick={startCamera}>Mo camera</Button>
-            <Button disabled={!camReady || busy} className="bg-emerald-700 hover:bg-emerald-800" onClick={captureSelfie}>Chup</Button>
+          <div className="mb-4 flex flex-wrap gap-3">
+            <Button variant="outline" onClick={startCamera}>Mở camera</Button>
+            <Button disabled={!camReady || busy} className="bg-emerald-700 hover:bg-emerald-800" onClick={captureSelfie}>Chụp</Button>
           </div>
           <ImageUpload value={selfieImageUrl} onChange={setSelfieImageUrl} />
-          <div className="mt-6 flex gap-3"><Button variant="outline" onClick={() => setStep(2)}>Lai</Button><Button disabled={!selfieImageUrl || busy} className="bg-emerald-700 hover:bg-emerald-800" onClick={analyze}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Phan tich</Button></div>
+          <div className="mt-6 flex gap-3"><Button variant="outline" onClick={() => setStep(2)}>Lại</Button><Button disabled={!selfieImageUrl || busy} className="bg-emerald-700 hover:bg-emerald-800" onClick={analyze}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Phân tích P1</Button></div>
         </section>
       )}
       {step === 4 && (
         <section className="rounded-3xl border bg-white p-8 shadow-sm">
-          <h2 className="mb-2 text-2xl font-black">Doi chieu OCR</h2>
-          <p className="mb-4 text-sm text-gray-600">Sua tay se chuyen ho so sang admin. Sandbox: so 000000 = FAIL, 111111 = REVIEW.</p>
-          {scores.verdict && <div className="mb-4 rounded-2xl bg-slate-50 p-4 text-sm">May: <b>{scores.verdict}</b> · Liveness {scores.liveness} · Face {scores.face}</div>}
+          <h2 className="mb-2 text-2xl font-black">Đối chiếu OCR</h2>
+          {scores.verdict && <div className="mb-4 rounded-2xl bg-slate-50 p-4 text-sm">Máy: <b>{scores.verdict}</b> · Liveness {scores.liveness} · Face {scores.face}</div>}
           <div className="grid gap-4 md:grid-cols-2">
-            <Input placeholder="Ho ten" value={fields.fullName} onChange={(e) => setFields({ ...fields, fullName: e.target.value })} />
-            <Input placeholder="So giay to" value={fields.idCardNumber} onChange={(e) => setFields({ ...fields, idCardNumber: e.target.value })} />
+            <Input placeholder="Họ tên" value={fields.fullName} onChange={(e) => setFields({ ...fields, fullName: e.target.value })} />
+            <Input placeholder="Số giấy tờ" value={fields.idCardNumber} onChange={(e) => setFields({ ...fields, idCardNumber: e.target.value })} />
             <Input type="date" value={fields.dateOfBirth} onChange={(e) => setFields({ ...fields, dateOfBirth: e.target.value })} />
-            <Input placeholder="Dia chi" value={fields.permanentAddress} onChange={(e) => setFields({ ...fields, permanentAddress: e.target.value })} />
+            <Input placeholder="Địa chỉ" value={fields.permanentAddress} onChange={(e) => setFields({ ...fields, permanentAddress: e.target.value })} />
           </div>
-          <div className="mt-6 flex gap-3"><Button variant="outline" onClick={() => setStep(3)}>Chup lai</Button><Button disabled={busy || !fields.fullName || !fields.idCardNumber} className="bg-emerald-700 hover:bg-emerald-800" onClick={confirm}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Xac nhan</Button></div>
+          <div className="mt-6 flex gap-3"><Button variant="outline" onClick={() => setStep(3)}>Chụp lại</Button><Button disabled={!fields.fullName || !fields.idCardNumber} className="bg-emerald-700 hover:bg-emerald-800" onClick={() => setStep(5)}>Tiếp P2 NFC</Button></div>
+        </section>
+      )}
+      {step === 5 && (
+        <section className="rounded-3xl border bg-white p-8 shadow-sm">
+          <h2 className="mb-2 text-2xl font-black">P2 — NFC / VNeID (tuỳ chọn)</h2>
+          <p className="mb-4 text-sm text-gray-600">Web không đọc được chip ICAO. Nhập mã sandbox hoặc bỏ qua. Có hợp đồng VNeID thì điền env <code>VNEID_API_BASE_URL</code>.</p>
+          <div className="grid gap-4">
+            <Input placeholder="Chip DG1 / mã NFC sandbox" value={chipDg1} onChange={(e) => setChipDg1(e.target.value)} />
+            <Input placeholder="Mã VNeID (nếu có)" value={vneidCode} onChange={(e) => setVneidCode(e.target.value)} />
+          </div>
+          {p2msg && <p className="mt-3 text-sm text-emerald-800">{p2msg}</p>}
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button variant="outline" onClick={() => setStep(4)}>Lại</Button>
+            <Button variant="outline" onClick={runP2} disabled={busy}>Đối soát P2</Button>
+            <Button disabled={busy} className="bg-emerald-700 hover:bg-emerald-800" onClick={confirm}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Xác nhận hồ sơ</Button>
+          </div>
         </section>
       )}
     </div>
