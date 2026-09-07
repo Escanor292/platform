@@ -7,6 +7,7 @@ import { notificationService } from "@/services/mongodb/notification.service";
 import { getEkycSession } from "@/lib/ekyc/session-store";
 import { verifyNationalId } from "@/lib/ekyc/national";
 import { EKYC_PASS_SCORE, type IdCardType, type OcrFields } from "@/lib/ekyc/types";
+import { ekycDisabledResponse, isEkycEnabled } from "@/lib/platform-settings";
 
 function changed(raw: OcrFields, next: OcrFields) {
   return ["fullName", "idCardNumber", "idCardType", "dateOfBirth", "idCardIssueDate", "idCardIssuePlace", "placeOfBirth", "permanentAddress"]
@@ -22,6 +23,9 @@ export async function POST(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!(await isEkycEnabled())) {
+      return NextResponse.json(ekycDisabledResponse(), { status: 403 });
+    }
     const userId = (session.user as { id: string }).id;
     const body = await request.json();
     const { sessionId, fields, frontImageUrl, backImageUrl, selfieImageUrl, currentAddress, chipDg1, vneidCode } = body || {};
