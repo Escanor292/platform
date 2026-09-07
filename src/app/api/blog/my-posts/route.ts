@@ -60,6 +60,7 @@ export async function GET(request: NextRequest) {
                 ...post,
                 rejectionReason: reviewFields[post.id]?.rejectionReason ?? null,
                 reviewedAt: reviewFields[post.id]?.reviewedAt ?? null,
+                scheduledAt: reviewFields[post.id]?.scheduledAt ?? null,
             })),
             total: posts.length,
         });

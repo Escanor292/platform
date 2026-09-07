@@ -63,7 +63,7 @@ export async function generateMetadata({
   try {
     const { post } = await getBlogPost(slug);
 
-    if (!post || post.status !== 'PUBLISHED') {
+    if (!post || post.status !== 'PUBLISHED' || (post.publishedAt && new Date(post.publishedAt).getTime() > Date.now())) {
       return {
         robots: {
           index: false,
@@ -197,6 +197,16 @@ export default async function BlogDetailPage({
         <article className="mx-auto max-w-4xl px-6 py-8">
           {/* Header */}
           <header className="mb-8">
+            {post.status !== 'PUBLISHED' && (
+              <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                Đây là bản xem trước. Bài viết đang ở trạng thái {post.status === 'PENDING_REVIEW' ? 'chờ duyệt' : post.status === 'REJECTED' ? 'bị từ chối' : post.status === 'DRAFT' ? 'nháp' : post.status} và chưa hiện trên trang Blog công khai.
+              </div>
+            )}
+            {post.status === 'PUBLISHED' && post.publishedAt && new Date(post.publishedAt).getTime() > Date.now() && (
+              <div className="mb-4 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+                Bài đã được duyệt và sẽ hiển thị công khai từ {new Date(post.publishedAt).toLocaleString('vi-VN')}.
+              </div>
+            )}
             {/* Type Badge */}
             <div className="mb-4 flex items-center gap-2">
               <span className="rounded-full bg-pgreen/10 px-3 py-1 text-sm font-medium text-pgreen">

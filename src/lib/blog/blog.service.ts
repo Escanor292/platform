@@ -1,8 +1,15 @@
-// ============================================================
-// BLOG SERVICE - Business Logic Layer
-// ============================================================
-
 import { prisma } from '@/lib/prisma';
+import { persistRichText } from '@/lib/editor/persist';
+import { isKYCVerified } from '@/lib/kyc';
+import { createAuditLog } from '@/lib/audit';
+import {
+  clearBlogRejection,
+  getBlogReviewFields,
+  isEditorialBlogType,
+  isPubliclyVisibleBlog,
+  saveBlogSchedule,
+} from '@/lib/blog/blog-review';
+import { notificationService } from '@/services/mongodb/notification.service';
 import {
   createBlogContent,
   getBlogContent,
@@ -18,9 +25,6 @@ import {
   BlogPostResponse,
 } from '@/types/blog.types';
 import { generateUniqueSlug } from './blog.utils';
-import { persistRichText } from '@/lib/editor/persist';
-import { isKYCVerified } from '@/lib/kyc';
-import { clearBlogRejection, isEditorialBlogType } from '@/lib/blog/blog-review';
 
 export async function createBlogPost(currentUserId: string, data: CreateBlogPostRequest): Promise<BlogPostResponse> {
   const user = await prisma.users.findUnique({ where: { id: currentUserId }, select: { isAdmin: true } });
@@ -84,6 +88,17 @@ export async function createBlogPost(currentUserId: string, data: CreateBlogPost
   } catch (error) {
     console.error('[BLOG] Failed to create content in MongoDB, keeping content in PostgreSQL:', error);
   }
+  if (status === 'PENDING_REVIEW') {
+    await notifyAdminsOfBlogSubmission({
+      postId: post.id,
+      slug: post.slug,
+      title: post.title,
+      authorId: currentUserId,
+    });
+  }
+  if (data.scheduledAt) {
+    await saveBlogSchedule(post.id, data.scheduledAt);
+  }
   return formatBlogPostResponse(post);
 }
 
@@ -91,7 +106,12 @@ export async function getBlogPostList(query: BlogPostListQuery, currentUserId?: 
   const page = query.page || 1;
   const limit = query.limit || 10;
   const skip = (page - 1) * limit;
-  const where: any = { deletedAt: null, status: 'PUBLISHED' };
+  const now = new Date();
+  const where: any = {
+    deletedAt: null,
+    status: 'PUBLISHED',
+    OR: [{ publishedAt: null }, { publishedAt: { lte: now } }],
+  };
   if (query.type) where.type = query.type;
   if (query.campaignId) where.campaignId = query.campaignId;
   if (query.projectId !== undefined) {
@@ -101,7 +121,10 @@ export async function getBlogPostList(query: BlogPostListQuery, currentUserId?: 
   if (query.featured) where.isFeatured = true;
   if (query.category) where.categories = { some: { category: { slug: query.category } } };
   if (query.tag) where.tags = { some: { tag: { slug: query.tag } } };
-  if (query.search) where.OR = [{ title: { contains: query.search, mode: 'insensitive' } }, { excerpt: { contains: query.search, mode: 'insensitive' } }];
+  if (query.search) where.AND = [
+    ...(where.AND || []),
+    { OR: [{ title: { contains: query.search, mode: 'insensitive' } }, { excerpt: { contains: query.search, mode: 'insensitive' } }] },
+  ];
   if (!currentUserId) where.visibility = 'PUBLIC';
   let orderBy: any = { publishedAt: 'desc' };
   if (query.sort === 'popular') orderBy = { likeCount: 'desc' };
@@ -143,7 +166,9 @@ export async function getBlogPostBySlug(slug: string, currentUserId?: string): P
   if (!content?.content && !content?.richContent && post.content) {
     content = { content: post.content, richContent: null, tableOfContents: null } as any;
   }
-  await prisma.blog_posts.update({ where: { id: post.id }, data: { viewCount: { increment: 1 } } });
+  if (isPubliclyVisibleBlog(post.status, post.publishedAt)) {
+    await prisma.blog_posts.update({ where: { id: post.id }, data: { viewCount: { increment: 1 } } });
+  }
   let isLiked = false;
   let isBookmarked = false;
   if (currentUserId) {
@@ -154,7 +179,15 @@ export async function getBlogPostBySlug(slug: string, currentUserId?: string): P
     isLiked = !!like;
     isBookmarked = !!bookmark;
   }
-  return { ...formatBlogPostResponse(post), content: content?.content, richContent: content?.richContent, tableOfContents: content?.tableOfContents, isLiked, isBookmarked };
+  const reviewFields = await getBlogReviewFields([post.id]);
+  return {
+    ...formatBlogPostResponse(post, reviewFields[post.id]),
+    content: content?.content,
+    richContent: content?.richContent,
+    tableOfContents: content?.tableOfContents,
+    isLiked,
+    isBookmarked,
+  };
 }
 
 export async function updateBlogPost(postId: string, currentUserId: string, data: UpdateBlogPostRequest): Promise<BlogPostResponse> {
@@ -203,6 +236,9 @@ export async function updateBlogPost(postId: string, currentUserId: string, data
       blog_post_tags: { include: { blog_tags: true } },
     },
   });
+  if (data.scheduledAt !== undefined) {
+    await saveBlogSchedule(postId, data.scheduledAt);
+  }
   return formatBlogPostResponse(updatedPost);
 }
 
@@ -214,10 +250,14 @@ export async function deleteBlogPost(postId: string, currentUserId: string): Pro
   await prisma.blog_posts.update({ where: { id: postId }, data: { deletedAt: new Date() } });
 }
 
-export async function publishBlogPost(postId: string, currentUserId: string): Promise<void> {
+export async function publishBlogPost(
+  postId: string,
+  currentUserId: string,
+  scheduledAt?: string | Date | null
+): Promise<{ status: string }> {
   const post = await prisma.blog_posts.findUnique({
     where: { id: postId },
-    select: { authorId: true, status: true, type: true },
+    select: { authorId: true, status: true, type: true, title: true, slug: true },
   });
   if (!post) throw new Error('Post not found');
   const user = await prisma.users.findUnique({
@@ -228,15 +268,24 @@ export async function publishBlogPost(postId: string, currentUserId: string): Pr
   if (!isAdmin && post.authorId !== currentUserId) {
     throw new Error('You do not have permission to publish this post');
   }
+  if (scheduledAt) {
+    await saveBlogSchedule(postId, scheduledAt);
+  }
   if (!isAdmin && isEditorialBlogType(post.type)) {
     await prisma.blog_posts.update({ where: { id: postId }, data: { status: 'PENDING_REVIEW' } });
     await clearBlogRejection(postId);
-    return;
+    await notifyAdminsOfBlogSubmission({
+      postId,
+      slug: post.slug,
+      title: post.title,
+      authorId: currentUserId,
+    });
+    return { status: 'PENDING_REVIEW' };
   }
   if (!isAdmin && post.type === 'CAMPAIGN_UPDATE') {
     const verified = await isKYCVerified(currentUserId);
     if (!verified) {
-      throw new Error('Can hoan tat KYC truoc khi xuat ban cap nhat chien dich');
+      throw new Error('Cần hoàn tất KYC trước khi xuất bản cập nhật chiến dịch');
     }
   }
   await prisma.blog_posts.update({
@@ -244,6 +293,22 @@ export async function publishBlogPost(postId: string, currentUserId: string): Pr
     data: { status: 'PUBLISHED', publishedAt: new Date() },
   });
   await clearBlogRejection(postId);
+  return { status: 'PUBLISHED' };
+}
+
+export async function withdrawBlogPost(postId: string, currentUserId: string): Promise<void> {
+  const post = await prisma.blog_posts.findUnique({
+    where: { id: postId },
+    select: { authorId: true, status: true },
+  });
+  if (!post) throw new Error('Post not found');
+  if (post.authorId !== currentUserId) {
+    throw new Error('You can only withdraw your own posts');
+  }
+  if (post.status !== 'PENDING_REVIEW') {
+    throw new Error('Chỉ rút được bài đang chờ duyệt');
+  }
+  await prisma.blog_posts.update({ where: { id: postId }, data: { status: 'DRAFT' } });
 }
 
 export async function archiveBlogPost(postId: string, currentUserId: string): Promise<void> {
@@ -274,11 +339,47 @@ export async function toggleBookmark(postId: string, userId: string): Promise<{ 
   return { bookmarked: true };
 }
 
+export async function notifyAdminsOfBlogSubmission(params: {
+  postId: string;
+  slug: string;
+  title: string;
+  authorId: string;
+}): Promise<void> {
+  try {
+    const admins = await prisma.users.findMany({
+      where: {
+        OR: [{ isAdmin: true }, { role: 'ADMIN' }],
+        NOT: { id: params.authorId },
+      },
+      select: { id: true },
+    });
+    notificationService.sendBulk(
+      admins.map((admin) => admin.id),
+      {
+        type: 'BLOG_SUBMITTED',
+        title: 'Bài viết chờ duyệt',
+        message: `Bài “${params.title}” vừa được gửi vào hàng đợi biên tập.`,
+        payload: { href: `/dashboard/admin/blog/${params.postId}` },
+      }
+    );
+    await createAuditLog({
+      userId: params.authorId,
+      action: 'UPDATE',
+      entityType: 'blog_posts',
+      entityId: params.postId,
+      newValue: { status: 'PENDING_REVIEW', slug: params.slug },
+      reason: 'Gửi duyệt bài viết',
+    });
+  } catch (error) {
+    console.error('[BLOG] notifyAdminsOfBlogSubmission failed:', error);
+  }
+}
+
 async function canReadPost(post: any, currentUserId?: string): Promise<boolean> {
-  if (post.status !== 'PUBLISHED') {
+  if (!isPubliclyVisibleBlog(post.status, post.publishedAt)) {
     if (!currentUserId) return false;
-    const user = await prisma.users.findUnique({ where: { id: currentUserId }, select: { isAdmin: true } });
-    return post.authorId === currentUserId || !!user?.isAdmin;
+    const user = await prisma.users.findUnique({ where: { id: currentUserId }, select: { isAdmin: true, role: true } });
+    return post.authorId === currentUserId || !!user?.isAdmin || user?.role === 'ADMIN';
   }
   if (post.visibility === 'PUBLIC') return true;
   if (post.visibility === 'PRIVATE' || post.visibility === 'OWNER_ONLY') {
@@ -306,7 +407,13 @@ async function getOrCreateTag(name: string) {
   return tag;
 }
 
-function formatBlogPostResponse(post: any): BlogPostResponse {
+function formatBlogPostResponse(post: any, review?: {
+  rejectionReason?: string | null;
+  reviewedAt?: Date | null;
+  reviewedBy?: string | null;
+  reviewerNote?: string | null;
+  scheduledAt?: Date | null;
+}): BlogPostResponse {
   const campaign = post.campaign || post.campaigns;
   const project = post.project || post.projects || campaign?.projects;
   return {
@@ -316,7 +423,9 @@ function formatBlogPostResponse(post: any): BlogPostResponse {
     createdAt: post.createdAt, updatedAt: post.updatedAt, viewCount: post.viewCount, likeCount: post.likeCount,
     commentCount: post.commentCount, bookmarkCount: post.bookmarkCount, isFeatured: post.isFeatured,
     wordCount: post.wordCount, readingTimeMinutes: post.readingTimeMinutes,
-    rejectionReason: post.rejectionReason ?? null,
+    rejectionReason: review?.rejectionReason ?? post.rejectionReason ?? null,
+    reviewedAt: review?.reviewedAt ?? post.reviewedAt ?? null,
+    scheduledAt: review?.scheduledAt ?? post.scheduledAt ?? null,
     author: post.author || post.users,
     campaign: campaign ? { id: campaign.id, title: campaign.title, slug: campaign.slug, project: campaign.projects || campaign.project || null } : undefined,
     project: project ? { id: project.id, title: project.title, slug: project.slug } : undefined,

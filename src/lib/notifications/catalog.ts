@@ -13,6 +13,7 @@ export const NOTIFICATION_CATALOG: NotificationCatalogItem[] = [
   { type: 'CAMPAIGN_REJECTED', label: 'Chiến dịch bị từ chối', description: 'Thông báo khi Admin từ chối chiến dịch.' },
   { type: 'BLOG_APPROVED', label: 'Bài viết được duyệt', description: 'Thông báo khi Admin duyệt bài Blog.' },
   { type: 'BLOG_REJECTED', label: 'Bài viết bị từ chối', description: 'Thông báo khi Admin từ chối bài Blog.' },
+  { type: 'BLOG_SUBMITTED', label: 'Bài viết chờ duyệt', description: 'Thông báo cho Admin khi có bài Blog mới gửi duyệt.' },
   { type: 'CAMPAIGN_FOLLOWED', label: 'Có người quan tâm chiến dịch', description: 'Thông báo cho creator khi có người dùng theo dõi chiến dịch.' },
   { type: 'CAMPAIGN_UPDATE', label: 'Cập nhật chiến dịch', description: 'Thông báo khi chiến dịch bạn quan tâm có cập nhật mới.' },
   { type: 'COMMENT_RECEIVED', label: 'Có bình luận mới', description: 'Thông báo cho tác giả khi bài viết có bình luận mới.' },

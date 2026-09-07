@@ -104,6 +104,7 @@ export type NotificationType =
   | 'CAMPAIGN_REJECTED'  // Admin từ chối campaign
   | 'BLOG_APPROVED'      // Admin duyệt bài blog
   | 'BLOG_REJECTED'      // Admin từ chối bài blog
+  | 'BLOG_SUBMITTED'     // Tác giả gửi bài vào hàng đợi duyệt
   | 'CAMPAIGN_FOLLOWED'  // Có người quan tâm campaign
   | 'CAMPAIGN_UPDATE'    // Creator đăng bài update
   | 'COMMENT_RECEIVED'   // Có bình luận mới trên bài viết của mình

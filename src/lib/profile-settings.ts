@@ -73,6 +73,7 @@ export function notificationPreferenceKey(type: NotificationType): keyof Notific
       return 'campaignReview';
     case 'BLOG_APPROVED':
     case 'BLOG_REJECTED':
+    case 'BLOG_SUBMITTED':
       return 'blogReview';
     case 'CAMPAIGN_FOLLOWED':
       return 'campaignFollowed';

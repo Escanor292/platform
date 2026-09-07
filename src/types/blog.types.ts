@@ -93,6 +93,7 @@ export interface CreateBlogPostRequest {
   categoryIds?: string[];
   tags?: string[];
   status?: 'DRAFT' | 'PENDING_REVIEW' | 'PUBLISHED';
+  scheduledAt?: string | Date | null;
 }
 
 export interface UpdateBlogPostRequest {
@@ -108,6 +109,7 @@ export interface UpdateBlogPostRequest {
   visibility?: 'PUBLIC' | 'BACKERS_ONLY' | 'OWNER_ONLY' | 'PRIVATE';
   categoryIds?: string[];
   tags?: string[];
+  scheduledAt?: string | Date | null;
 }
 
 export interface BlogPostListQuery {
@@ -148,6 +150,8 @@ export interface BlogPostResponse {
   wordCount: number;
   readingTimeMinutes: number;
   rejectionReason?: string | null;
+  reviewedAt?: Date | string | null;
+  scheduledAt?: Date | string | null;
   author?: {
     id: string;
     name: string;
