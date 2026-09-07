@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import CreatorDashboardClient from "./CreatorDashboardClient";
+import { getCampaignReviewFields } from "@/lib/moderation/campaign-review";
 
 export default async function CreatorDashboard() {
    const session = await auth();
@@ -9,7 +10,7 @@ export default async function CreatorDashboard() {
 
    const campaigns = await prisma.campaigns.findMany({
       where: { creatorId: (session.user as any).id },
-      include: { _count: { select: { pledges: true } } },
+      include: { _count: { select: { pledges: { where: { status: "SUCCESS" } } } } },
       orderBy: { createdAt: "desc" },
    });
 
@@ -22,6 +23,8 @@ export default async function CreatorDashboard() {
       },
       orderBy: { createdAt: "desc" },
    });
+
+   const extra = await getCampaignReviewFields(campaigns.map((campaign) => campaign.id));
 
    // Serialize the data for client component
    const serializedCampaigns = campaigns.map(campaign => ({
@@ -39,6 +42,7 @@ export default async function CreatorDashboard() {
       endDate: campaign.endDate,
       createdAt: campaign.createdAt,
       projectId: campaign.projectId,
+      rejectionReason: extra[campaign.id]?.rejectionReason ?? null,
       _count: campaign._count,
    }));
 

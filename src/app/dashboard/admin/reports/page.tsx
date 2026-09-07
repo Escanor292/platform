@@ -16,6 +16,7 @@ interface Report {
     imageUrls?: string[];
     occurredAt?: string | null;
     targetType?: string;
+    targetId?: string;
     targetTitle?: string;
     targetHref?: string | null;
     status: string;
@@ -113,6 +114,61 @@ export default function ReportsPage() {
             toast.success(nextStatus === "RESOLVED" ? "Đã giải quyết báo cáo" : nextStatus === "DISMISSED" ? "Đã bác bỏ báo cáo" : "Đã chuyển sang đang xem xét");
         } catch (err: any) {
             toast.error(err.message || "Không thể cập nhật báo cáo");
+        } finally {
+            setUpdatingId(null);
+        }
+    };
+
+    const hideReported = async (report: Report) => {
+        const targetType = report.targetType || "CAMPAIGN";
+        const targetId = report.targetId || report.campaignId;
+        if (!targetId) {
+            toast.error("Không xác định được nội dung để ẩn");
+            return;
+        }
+        const reasonText = `${REPORT_REASONS[report.reason] || report.reason}${report.description ? `: ${report.description}` : ""}`.slice(0, 500);
+        setUpdatingId(report.id);
+        try {
+            if (targetType === "BLOG") {
+                const res = await fetch(`/api/admin/blog/posts/${targetId}/review`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status: "ARCHIVED", reason: reasonText }),
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.error || "Không ẩn được bài viết");
+            } else {
+                const typeMap: Record<string, string> = {
+                    CAMPAIGN: "campaign",
+                    PROJECT: "project",
+                    PRODUCT: "product",
+                    PROFILE: "user",
+                };
+                const type = typeMap[targetType];
+                if (!type) throw new Error("Loại nội dung chưa hỗ trợ ẩn nhanh");
+                const res = await fetch("/api/admin/lock", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ type, id: targetId, locked: true, reason: reasonText }),
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.error || "Không ẩn được nội dung");
+            }
+            const resolveRes = await fetch("/api/admin/reports", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    id: report.id,
+                    status: "RESOLVED",
+                    resolution: `Đã ẩn nội dung. ${reasonText}`,
+                }),
+            });
+            const resolved = await resolveRes.json();
+            if (!resolveRes.ok) throw new Error(resolved.error || "Đã ẩn nhưng chưa cập nhật báo cáo");
+            setReports((current) => current.map((item) => (item.id === report.id ? { ...item, ...resolved } : item)));
+            toast.success("Đã ẩn nội dung và đánh dấu báo cáo đã giải quyết");
+        } catch (err: any) {
+            toast.error(err.message || "Không ẩn được nội dung");
         } finally {
             setUpdatingId(null);
         }
@@ -244,6 +300,14 @@ export default function ReportsPage() {
                                                         Đang xem xét
                                                     </button>
                                                 )}
+                                                <button
+                                                    type="button"
+                                                    disabled={updatingId === report.id}
+                                                    onClick={() => hideReported(report)}
+                                                    className="rounded-lg bg-red-50 px-3 py-2 text-xs font-bold text-red-700 hover:bg-red-100 disabled:opacity-50"
+                                                >
+                                                    Ẩn nội dung ngay
+                                                </button>
                                                 <button
                                                     type="button"
                                                     disabled={updatingId === report.id}

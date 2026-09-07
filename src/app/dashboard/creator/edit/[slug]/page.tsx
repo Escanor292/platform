@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import CampaignEditForm from "@/components/campaign/CampaignEditForm";
+import { getCampaignReviewFields } from "@/lib/moderation/campaign-review";
 
 interface EditCampaignPageProps {
   params: Promise<{ slug: string }>;
@@ -37,6 +38,7 @@ export default async function EditCampaignPage({ params }: EditCampaignPageProps
         },
         orderBy: { order: "asc" },
       },
+      _count: { select: { pledges: { where: { status: "SUCCESS" } } } },
     },
   });
 
@@ -49,6 +51,8 @@ export default async function EditCampaignPage({ params }: EditCampaignPageProps
     redirect(`/campaigns/${campaign.slug}`);
   }
 
+  const review = (await getCampaignReviewFields([campaign.id]))[campaign.id];
+
   // Convert Decimal to number for Client Component
   const campaignData = {
     ...campaign,
@@ -58,6 +62,8 @@ export default async function EditCampaignPage({ params }: EditCampaignPageProps
     images: campaign.images || [], // Ensure images is always an array
     tags: campaign.tags || [], // Ensure tags is always an array
     linkedBlogIds: campaign.campaign_blog_links?.map(link => link.blogPostId) || [], // Extract blog IDs
+    rejectionReason: review?.rejectionReason || null,
+    successPledgeCount: campaign._count.pledges,
     rewards: campaign.rewards.map(reward => ({
       ...reward,
       minAmount: Number(reward.minAmount),

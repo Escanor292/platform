@@ -102,6 +102,7 @@ export type NotificationType =
   | 'PAYMENT_FAILED'     // Backer thanh toán thất bại
   | 'CAMPAIGN_APPROVED'  // Admin duyệt campaign
   | 'CAMPAIGN_REJECTED'  // Admin từ chối campaign
+  | 'CAMPAIGN_SUBMITTED' // Creator gửi chiến dịch vào hàng đợi
   | 'BLOG_APPROVED'      // Admin duyệt bài blog
   | 'BLOG_REJECTED'      // Admin từ chối bài blog
   | 'BLOG_SUBMITTED'     // Tác giả gửi bài vào hàng đợi duyệt
@@ -114,6 +115,7 @@ export type NotificationType =
   | 'REFUND_PROCESSED'   // Hoàn tiền thành công
   | 'KYC_APPROVED'       // KYC được duyệt
   | 'KYC_REJECTED'       // KYC bị từ chối
+  | 'CONTENT_HIDDEN'     // Admin khóa/ẩn dự án, sản phẩm hoặc chiến dịch
   | 'SYSTEM';            // Thông báo hệ thống
 
 export interface NotificationPayload {

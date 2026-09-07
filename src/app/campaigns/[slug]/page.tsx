@@ -14,6 +14,8 @@ import CampaignPageClient from "./CampaignPageClient";
 import { CampaignProvider } from "@/contexts/CampaignContext";
 import { getCampaignTypeLabel } from "@/lib/campaign-helpers";
 import OwnerEditPanel from "@/components/OwnerEditPanel";
+import { isPublicCampaignStatus, campaignModerationLabel } from "@/lib/moderation/policy";
+import { getCampaignReviewFields } from "@/lib/moderation/campaign-review";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -72,6 +74,14 @@ export default async function CampaignDetailPage({ params }: Params) {
    }
 
    const isCreator = session?.user && (session.user as any).id === campaign.creatorId;
+   const isAdmin = session?.user && ((session.user as any).role === "ADMIN" || (session.user as any).isAdmin === true);
+   if (!isPublicCampaignStatus(campaign.status) && !isCreator && !isAdmin) {
+      return notFound();
+   }
+
+   const review = (!isPublicCampaignStatus(campaign.status) && (isCreator || isAdmin))
+      ? (await getCampaignReviewFields([campaign.id]))[campaign.id]
+      : null;
    const percentRaised = Math.round((Number(campaign.currentAmount) / Number(campaign.goalAmount)) * 100);
    const daysLeft = campaign.endDate ? Math.max(0, Math.ceil((new Date(campaign.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : "Vô thời hạn";
 
@@ -135,6 +145,19 @@ export default async function CampaignDetailPage({ params }: Params) {
 
             {/* Main Content - Single Card */}
             <div className="max-w-7xl mx-auto px-6 py-8">
+               {!isPublicCampaignStatus(campaign.status) && (
+                  <div className={`mb-6 rounded-2xl border px-5 py-4 text-sm ${
+                     campaign.status === "PENDING_REVIEW"
+                        ? "border-amber-200 bg-amber-50 text-amber-800"
+                        : campaign.status === "CANCELED"
+                          ? "border-red-200 bg-red-50 text-red-700"
+                          : "border-gray-200 bg-gray-50 text-gray-700"
+                  }`}>
+                     Đây là bản xem trước. Chiến dịch đang ở trạng thái {campaignModerationLabel(campaign.status, review?.moderationAction)}.
+                     {review?.rejectionReason ? ` Lý do: ${review.rejectionReason}` : ""}
+                     {isCreator ? " Công chúng chưa thấy chiến dịch này." : ""}
+                  </div>
+               )}
                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm p-8">
                   {/* Title & Campaign Code - Now Full Width */}
                   <CampaignHeader

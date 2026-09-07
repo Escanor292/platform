@@ -70,6 +70,7 @@ export function notificationPreferenceKey(type: NotificationType): keyof Notific
       return 'pledgeReceived';
     case 'CAMPAIGN_APPROVED':
     case 'CAMPAIGN_REJECTED':
+    case 'CAMPAIGN_SUBMITTED':
       return 'campaignReview';
     case 'BLOG_APPROVED':
     case 'BLOG_REJECTED':
@@ -81,6 +82,9 @@ export function notificationPreferenceKey(type: NotificationType): keyof Notific
     case 'COMMENT_REPLY':
     case 'COMMENT_MENTION':
       return 'comments';
+    case 'CONTENT_HIDDEN':
+    case 'KYC_APPROVED':
+    case 'KYC_REJECTED':
     default:
       return 'system';
   }

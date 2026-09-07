@@ -11,6 +11,7 @@ export const NOTIFICATION_CATALOG: NotificationCatalogItem[] = [
   { type: 'PLEDGE_RECEIVED', label: 'Nhận được ủng hộ', description: 'Thông báo cho chủ chiến dịch khi có người ủng hộ.' },
   { type: 'CAMPAIGN_APPROVED', label: 'Chiến dịch được duyệt', description: 'Thông báo khi Admin phê duyệt chiến dịch.' },
   { type: 'CAMPAIGN_REJECTED', label: 'Chiến dịch bị từ chối', description: 'Thông báo khi Admin từ chối chiến dịch.' },
+  { type: 'CAMPAIGN_SUBMITTED', label: 'Chiến dịch chờ duyệt', description: 'Thông báo cho Admin khi có chiến dịch mới gửi duyệt.' },
   { type: 'BLOG_APPROVED', label: 'Bài viết được duyệt', description: 'Thông báo khi Admin duyệt bài Blog.' },
   { type: 'BLOG_REJECTED', label: 'Bài viết bị từ chối', description: 'Thông báo khi Admin từ chối bài Blog.' },
   { type: 'BLOG_SUBMITTED', label: 'Bài viết chờ duyệt', description: 'Thông báo cho Admin khi có bài Blog mới gửi duyệt.' },
@@ -23,5 +24,6 @@ export const NOTIFICATION_CATALOG: NotificationCatalogItem[] = [
   { type: 'REFUND_PROCESSED', label: 'Hoàn tiền', description: 'Thông báo khi hoàn tiền được xử lý thành công.' },
   { type: 'KYC_APPROVED', label: 'KYC được duyệt', description: 'Thông báo kết quả xác minh danh tính thành công.' },
   { type: 'KYC_REJECTED', label: 'KYC bị từ chối', description: 'Thông báo khi hồ sơ xác minh cần được bổ sung hoặc gửi lại.' },
+  { type: 'CONTENT_HIDDEN', label: 'Nội dung bị ẩn / khóa', description: 'Thông báo khi Admin ẩn dự án, sản phẩm hoặc gỡ chiến dịch vì vi phạm.' },
   { type: 'SYSTEM', label: 'Hệ thống', description: 'Thông báo vận hành và cập nhật quan trọng của nền tảng.' },
 ];

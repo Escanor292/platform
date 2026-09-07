@@ -22,6 +22,7 @@ import {
 } from "@/lib/redis-cache";
 import { persistRichText, RichTextValidationError, isRichTextEmpty } from "@/lib/editor/persist";
 import { assertCleanContent } from "@/lib/moderation";
+import { isPublicCampaignStatus, PUBLIC_CAMPAIGN_STATUSES } from "@/lib/moderation/policy";
 
 export async function GET(req: NextRequest) {
   try {
@@ -48,7 +49,11 @@ export async function GET(req: NextRequest) {
 
     if (filters.category) where.category = filters.category;
     if (filters.campaignType) where.type = filters.campaignType;
-    if (filters.status) where.status = filters.status;
+    if (filters.status && isPublicCampaignStatus(filters.status)) {
+      where.status = filters.status;
+    } else {
+      where.status = { in: [...PUBLIC_CAMPAIGN_STATUSES] };
+    }
 
     const projectIdFilter = searchParams.get('projectId');
     if (projectIdFilter) {

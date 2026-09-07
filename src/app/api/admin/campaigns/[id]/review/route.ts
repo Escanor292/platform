@@ -2,9 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { cacheInvalidatePrefix, CAMPAIGNS_CACHE_PREFIX } from "@/lib/redis-cache";
-import { notificationService } from "@/services/mongodb/notification.service";
+import { applyCampaignReview } from "@/lib/moderation/campaign-review";
+import { normalizeRejectReason } from "@/lib/moderation/policy";
+import { notifyOwner } from "@/lib/moderation/notify-admins";
 
 const ALLOWED_STATUSES = new Set(["ACTIVE", "CANCELED"]);
+
+function isAdmin(user: any) {
+  return user?.role === "ADMIN" || user?.isAdmin === true;
+}
 
 /** PATCH /api/admin/campaigns/[id]/review */
 export async function PATCH(
@@ -13,16 +19,21 @@ export async function PATCH(
 ) {
   try {
     const session = await auth();
-    if (!session?.user || (session.user as any).role !== "ADMIN") {
+    if (!session?.user || !isAdmin(session.user)) {
       return NextResponse.json({ error: "Bạn không có quyền thực hiện thao tác này" }, { status: 403 });
     }
 
     const { id } = await context.params;
     const body = await req.json().catch(() => ({}));
     const status = typeof body.status === "string" ? body.status : "";
+    const reason = typeof body.reason === "string" ? body.reason : "";
+    const reviewerNote = typeof body.reviewerNote === "string" ? body.reviewerNote : "";
 
     if (!ALLOWED_STATUSES.has(status)) {
       return NextResponse.json({ error: "Trạng thái duyệt không hợp lệ" }, { status: 400 });
+    }
+    if (status === "CANCELED" && !normalizeRejectReason(reason)) {
+      return NextResponse.json({ error: "Cần nhập lý do từ chối để creator sửa và gửi lại" }, { status: 400 });
     }
 
     const campaign = await prisma.campaigns.findUnique({
@@ -41,20 +52,30 @@ export async function PATCH(
       );
     }
 
-    const updated = await prisma.campaigns.update({
+    await applyCampaignReview({
+      campaignId: id,
+      status: status as "ACTIVE" | "CANCELED",
+      reason,
+      reviewerId: (session.user as any).id,
+      reviewerNote,
+      action: status === "ACTIVE" ? "APPROVE" : "REJECT",
+    });
+
+    const updated = await prisma.campaigns.findUnique({
       where: { id },
-      data: { status: status as "ACTIVE" | "CANCELED" },
       select: { id: true, title: true, status: true, updatedAt: true },
     });
 
-    notificationService.send({
+    const trimmed = normalizeRejectReason(reason);
+    await notifyOwner({
       userId: campaign.creatorId,
       type: status === "ACTIVE" ? "CAMPAIGN_APPROVED" : "CAMPAIGN_REJECTED",
       title: status === "ACTIVE" ? "Chiến dịch đã được duyệt" : "Chiến dịch chưa được duyệt",
-      message: status === "ACTIVE"
-        ? `Chiến dịch “${campaign.title}” đã được Admin phê duyệt và đang hoạt động.`
-        : `Chiến dịch “${campaign.title}” chưa được phê duyệt. Vui lòng kiểm tra và cập nhật lại nội dung.`,
-      payload: { href: `/campaigns/${campaign.slug}`, campaignId: campaign.id },
+      message:
+        status === "ACTIVE"
+          ? `Chiến dịch “${campaign.title}” đã được Admin phê duyệt và đang hoạt động.`
+          : `Chiến dịch “${campaign.title}” bị từ chối.${trimmed ? ` Lý do: ${trimmed}` : ""} Hãy sửa rồi gửi duyệt lại.`,
+      href: `/dashboard/creator/edit/${campaign.slug}`,
     });
 
     await cacheInvalidatePrefix(CAMPAIGNS_CACHE_PREFIX).catch((cacheError) => {

@@ -26,6 +26,7 @@ interface Campaign {
     _count: {
         pledges: number;
     };
+    rejectionReason?: string | null;
 }
 
 interface ProjectOption {

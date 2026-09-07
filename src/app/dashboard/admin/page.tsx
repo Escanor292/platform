@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import {
   Users, BarChart3, ShieldCheck,
   TrendingUp, AlertTriangle, DollarSign,
-  Activity, Clock, FileText, Flag,
+  Activity, Clock, FileText, Flag, UserCheck, FolderKanban, Package,
 } from "lucide-react";
 
 function monthGrowth(current: number, last: number) {
@@ -34,6 +34,9 @@ export default async function AdminDashboard() {
     totalRevenue,
     pendingPosts,
     pendingReports,
+    pendingKyc,
+    lockedProjects,
+    hiddenProducts,
     currentMonthUsers,
     lastMonthUsers,
     recentUsers,
@@ -51,6 +54,9 @@ export default async function AdminDashboard() {
     }),
     prisma.blog_posts.count({ where: { status: "PENDING_REVIEW", deletedAt: null } }),
     prisma.campaign_reports.count({ where: { status: "PENDING" } }),
+    prisma.kyc_info.count({ where: { verificationStatus: "PENDING" } }),
+    prisma.projects.count({ where: { isLocked: true } }),
+    prisma.rewards.count({ where: { isActive: false } }),
     prisma.users.count({ where: { createdAt: { gte: currentMonth } } }),
     prisma.users.count({ where: { createdAt: { gte: lastMonth, lt: currentMonth } } }),
     prisma.users.findMany({
@@ -136,11 +142,32 @@ export default async function AdminDashboard() {
       tone: "text-blue-600 bg-blue-50",
     },
     {
+      label: "KYC chờ duyệt",
+      count: pendingKyc,
+      href: "/dashboard/admin/kyc",
+      icon: UserCheck,
+      tone: "text-emerald-600 bg-emerald-50",
+    },
+    {
       label: "Báo cáo chưa xử lý",
       count: pendingReports,
       href: "/dashboard/admin/reports",
       icon: Flag,
       tone: "text-red-600 bg-red-50",
+    },
+    {
+      label: "Dự án đang khóa",
+      count: lockedProjects,
+      href: "/dashboard/admin/projects?locked=true",
+      icon: FolderKanban,
+      tone: "text-orange-600 bg-orange-50",
+    },
+    {
+      label: "Sản phẩm đang ẩn",
+      count: hiddenProducts,
+      href: "/dashboard/admin/products?hidden=true",
+      icon: Package,
+      tone: "text-slate-600 bg-slate-100",
     },
   ];
 
@@ -153,7 +180,7 @@ export default async function AdminDashboard() {
           </div>
           <h1 className="text-5xl font-black tracking-tighter text-gray-900">Bảng điều khiển</h1>
           <p className="text-lg font-medium text-gray-400">
-            Quản lý người dùng, chiến dịch, blog, huy hiệu, doanh thu và báo cáo trên Tử Tế Fund
+            Quản lý người dùng, chiến dịch, blog, KYC, dự án, sản phẩm và báo cáo trên Tử Tế Fund
           </p>
           <div className="flex flex-wrap gap-4">
             <Link href="/dashboard/admin/moderation" className="inline-block text-sm font-bold text-red-600 hover:text-red-700">
@@ -182,7 +209,7 @@ export default async function AdminDashboard() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {queues.map((item) => (
             <Link
               key={item.label}
@@ -244,7 +271,7 @@ export default async function AdminDashboard() {
               {recentCampaigns.map((campaign) => (
                 <Link
                   key={campaign.id}
-                  href={`/campaigns/${campaign.slug}`}
+                  href={campaign.status === "PENDING_REVIEW" ? `/dashboard/admin/campaigns/${campaign.id}` : `/campaigns/${campaign.slug}`}
                   className="flex items-center justify-between rounded-2xl bg-gray-50 p-4 transition hover:bg-gray-100"
                 >
                   <div className="min-w-0 flex-1">

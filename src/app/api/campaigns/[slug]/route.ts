@@ -9,6 +9,7 @@ import {
 } from "@/lib/project/project.response-handlers";
 import { z } from "zod";
 import { persistRichText, RichTextValidationError } from "@/lib/editor/persist";
+import { isPublicCampaignStatus } from "@/lib/moderation/policy";
 
 export async function GET(_req: NextRequest, context: { params: Promise<{ slug: string }> }) {
   try {
@@ -72,6 +73,14 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug: 
         { error: "Không tìm thấy campaign" },
         { status: 404 }
       );
+    }
+
+    const session = await auth();
+    const user = session?.user as { id?: string; role?: string; isAdmin?: boolean } | undefined;
+    const isOwner = !!user?.id && user.id === campaign.creatorId;
+    const isAdmin = user?.role === "ADMIN" || user?.isAdmin === true;
+    if (!isPublicCampaignStatus(campaign.status) && !isOwner && !isAdmin) {
+      return NextResponse.json({ error: "Không tìm thấy campaign" }, { status: 404 });
     }
 
     return NextResponse.json(campaign);

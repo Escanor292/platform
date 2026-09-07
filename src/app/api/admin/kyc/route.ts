@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { hoursWaiting, isSlaOverdue } from "@/lib/moderation/policy";
 
 function maskId(value?: string | null) {
   if (!value) return null;
@@ -14,6 +15,7 @@ export async function GET() {
     if (!session?.user || ((session.user as any).role !== "ADMIN" && !(session.user as any).isAdmin)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+    const now = new Date();
     const rows = await prisma.kyc_info.findMany({
       orderBy: { updatedAt: "desc" },
       take: 200,
@@ -34,10 +36,13 @@ export async function GET() {
         idCardBackImage: row.idCardBackImage,
         user: row.users,
         updatedAt: row.updatedAt,
+        createdAt: row.createdAt,
+        slaOverdue: row.verificationStatus === "PENDING" && isSlaOverdue(row.createdAt, 24, now),
+        slaHours: hoursWaiting(row.createdAt, now),
       })),
     });
   } catch (error: any) {
     console.error("[ADMIN KYC LIST]", error);
-    return NextResponse.json({ error: error.message || "Khong tai duoc ho so KYC" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Không tải được hồ sơ KYC" }, { status: 500 });
   }
 }

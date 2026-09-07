@@ -155,7 +155,7 @@ export default function CreateCampaignPage() {
     setFormData({ ...formData, goalAmount: numeric });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, submitForReview = false) => {
     e.preventDefault();
 
     // Validate taxonomy
@@ -191,16 +191,25 @@ export default function CreateCampaignPage() {
     }).then(async (res) => {
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.message || "Lỗi khi tạo chiến dịch");
+        throw new Error(error.message || error.error || "Lỗi khi tạo chiến dịch");
       }
-      return res.json();
+      const campaign = await res.json();
+      if (submitForReview) {
+        const submitRes = await fetch(`/api/campaigns/${campaign.slug}/submit`, { method: "POST" });
+        const submitData = await submitRes.json().catch(() => ({}));
+        if (!submitRes.ok) throw new Error(submitData.error || "Đã tạo nháp nhưng chưa gửi duyệt được");
+        return { ...campaign, submitted: true };
+      }
+      return { ...campaign, submitted: false };
     });
 
     toast.promise(promise, {
-      loading: 'Đang khởi tạo chiến dịch...',
+      loading: submitForReview ? "Đang tạo và gửi duyệt..." : "Đang lưu bản nháp...",
       success: (campaign) => {
-        router.push(`/campaigns/${campaign.slug}`);
-        return '🎉 Tạo chiến dịch thành công!';
+        router.push(`/dashboard/creator/edit/${campaign.slug}`);
+        return campaign.submitted
+          ? "Đã gửi duyệt. Admin sẽ xem trong 24 giờ."
+          : "Đã lưu bản nháp. Gửi duyệt khi sẵn sàng.";
       },
       error: (err) => err.message,
     });
@@ -486,20 +495,28 @@ export default function CreateCampaignPage() {
             </div>
           </section>
 
-          <div className="pt-6 flex justify-end">
+          <div className="pt-6 flex flex-col md:flex-row justify-end gap-3">
             <button
               type="submit"
               disabled={loading}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white px-8 py-4 text-base font-bold text-gray-800 shadow-sm transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 w-full md:w-auto"
+            >
+              {loading ? "Đang lưu..." : "Lưu bản nháp"}
+            </button>
+            <button
+              type="button"
+              disabled={loading}
+              onClick={(event) => handleSubmit(event, true)}
               className="inline-flex items-center justify-center gap-2 rounded-2xl gradient-green px-8 py-4 text-base font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-green-200 disabled:cursor-not-allowed disabled:opacity-60 w-full md:w-auto"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
                   <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Đang tạo chiến dịch...
+                  Đang gửi duyệt...
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  Khởi tạo chiến dịch ngay <Rocket size={20} className="ml-2" />
+                  Tạo và gửi duyệt <Rocket size={20} className="ml-2" />
                 </span>
               )}
             </button>

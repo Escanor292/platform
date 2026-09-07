@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog } from "@/lib/audit";
 import { notificationService } from "@/services/mongodb/notification.service";
+import { normalizeRejectReason } from "@/lib/moderation/policy";
 
 export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
@@ -14,11 +15,11 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
     const { id } = await context.params;
     const body = await request.json().catch(() => ({}));
     const action = body.action === "REJECT" ? "REJECT" : body.action === "APPROVE" ? "APPROVE" : null;
-    const reason = typeof body.reason === "string" ? body.reason.trim() : "";
-    if (!action) return NextResponse.json({ error: "action phai la APPROVE hoac REJECT" }, { status: 400 });
-    if (action === "REJECT" && !reason) return NextResponse.json({ error: "Can ly do khi tu choi." }, { status: 400 });
+    const reason = normalizeRejectReason(body.reason);
+    if (!action) return NextResponse.json({ error: "Thao tác phải là APPROVE hoặc REJECT" }, { status: 400 });
+    if (action === "REJECT" && !reason) return NextResponse.json({ error: "Cần nhập lý do khi từ chối hồ sơ." }, { status: 400 });
     const current = await prisma.kyc_info.findUnique({ where: { id } });
-    if (!current) return NextResponse.json({ error: "Khong tim thay ho so" }, { status: 404 });
+    if (!current) return NextResponse.json({ error: "Không tìm thấy hồ sơ" }, { status: 404 });
     const updated = await prisma.kyc_info.update({
       where: { id },
       data: {
@@ -36,17 +37,18 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
       entityId: id,
       oldValue: { status: current.verificationStatus },
       newValue: { status: updated.verificationStatus, reason },
+      reason: reason || null,
     });
     notificationService.send({
       userId: current.userId,
       type: action === "APPROVE" ? "KYC_APPROVED" : "KYC_REJECTED",
-      title: action === "APPROVE" ? "Ho so dinh danh da duoc duyet" : "Ho so dinh danh bi tu choi",
-      message: action === "APPROVE" ? "Admin da xac nhan danh tinh. Han muc da tang." : reason,
+      title: action === "APPROVE" ? "Hồ sơ định danh đã được duyệt" : "Hồ sơ định danh bị từ chối",
+      message: action === "APPROVE" ? "Admin đã xác nhận danh tính. Hạn mức đã tăng." : reason,
       payload: { href: "/kyc" },
     });
     return NextResponse.json({ success: true, status: updated.verificationStatus });
   } catch (error: any) {
     console.error("[ADMIN KYC REVIEW]", error);
-    return NextResponse.json({ error: error.message || "Khong duyet duoc ho so" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Không duyệt được hồ sơ" }, { status: 500 });
   }
 }

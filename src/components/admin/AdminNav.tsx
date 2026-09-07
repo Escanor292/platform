@@ -2,13 +2,18 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, ShieldCheck, Award, DollarSign, FileText, Flag, ShieldAlert, Settings } from 'lucide-react';
+import {
+  Home, Users, ShieldCheck, Award, DollarSign, FileText, Flag, ShieldAlert, Settings, UserCheck, FolderKanban, Package,
+} from 'lucide-react';
 
 const NAV_ITEMS = [
   { href: '/dashboard/admin', label: 'Tổng quan', icon: Home, exact: true },
   { href: '/dashboard/admin/users', label: 'Người dùng', icon: Users },
   { href: '/dashboard/admin/campaigns', label: 'Chiến dịch', icon: ShieldCheck },
   { href: '/dashboard/admin/blog', label: 'Blog', icon: FileText },
+  { href: '/dashboard/admin/kyc', label: 'KYC', icon: UserCheck },
+  { href: '/dashboard/admin/projects', label: 'Dự án', icon: FolderKanban },
+  { href: '/dashboard/admin/products', label: 'Sản phẩm', icon: Package },
   { href: '/dashboard/admin/badges', label: 'Huy hiệu', icon: Award },
   { href: '/dashboard/admin/revenue', label: 'Doanh thu', icon: DollarSign },
   { href: '/dashboard/admin/reports', label: 'Báo cáo', icon: Flag },

@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import { CampaignGrowthProgress } from '@/components/campaign/CampaignGrowthProgress';
 import { toast } from 'sonner';
+import CampaignSubmitBar from '@/components/campaign/CampaignSubmitBar';
+import { campaignModerationLabel } from '@/lib/moderation/policy';
 
 interface Campaign {
     id: string;
@@ -37,6 +39,7 @@ interface Campaign {
     _count: {
         pledges: number;
     };
+    rejectionReason?: string | null;
 }
 
 interface ProjectOption {
@@ -76,30 +79,40 @@ export default function CampaignListView({ campaigns, projects = [] }: CampaignL
     };
 
     const getStatusBadge = (status: string) => {
-        const statusConfig = {
+        const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
             DRAFT: {
-                label: 'Bản nháp',
+                label: campaignModerationLabel('DRAFT'),
                 color: 'bg-gray-100 text-gray-600',
                 icon: FileText
             },
+            PENDING_REVIEW: {
+                label: campaignModerationLabel('PENDING_REVIEW'),
+                color: 'bg-amber-100 text-amber-700',
+                icon: Clock
+            },
             ACTIVE: {
-                label: 'Đang chạy',
+                label: campaignModerationLabel('ACTIVE'),
                 color: 'bg-emerald-100 text-emerald-600',
                 icon: TrendingUp
             },
-            COMPLETED: {
-                label: 'Hoàn thành',
+            SUCCESS: {
+                label: campaignModerationLabel('SUCCESS'),
                 color: 'bg-blue-100 text-blue-600',
                 icon: CheckCircle
             },
-            CANCELLED: {
-                label: 'Đã hủy',
+            FAILED: {
+                label: campaignModerationLabel('FAILED'),
+                color: 'bg-red-100 text-red-600',
+                icon: XCircle
+            },
+            CANCELED: {
+                label: campaignModerationLabel('CANCELED'),
                 color: 'bg-red-100 text-red-600',
                 icon: XCircle
             }
         };
 
-        const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.DRAFT;
+        const config = statusConfig[status] || statusConfig.DRAFT;
         const Icon = config.icon;
 
         return (
@@ -207,6 +220,14 @@ export default function CampaignListView({ campaigns, projects = [] }: CampaignL
                                             {daysLeft > 0 ? `${daysLeft} ngày` : 'Hết hạn'}
                                         </div>
                                     )}
+                                    <div className="mt-2">
+                                        <CampaignSubmitBar
+                                            slug={campaign.slug}
+                                            status={campaign.status}
+                                            rejectionReason={campaign.rejectionReason}
+                                            successPledgeCount={campaign._count.pledges}
+                                        />
+                                    </div>
                                 </div>
 
                                 {/* Progress */}

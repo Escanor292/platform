@@ -98,6 +98,12 @@ export default function AdminModerationPage() {
           </div>
           <h1 className="text-4xl font-black text-gray-900">Tìm kiếm và khóa nội dung</h1>
           <p className="mt-2 text-gray-500">Tìm chiến dịch, dự án, sản phẩm, tài khoản rồi khóa khi vi phạm. Quản lý từ bị cấm tại đây.</p>
+          <div className="mt-4 flex flex-wrap gap-3 text-sm font-bold">
+            <Link href="/dashboard/admin/campaigns?status=PENDING_REVIEW" className="text-amber-700 hover:underline">Hàng đợi chiến dịch →</Link>
+            <Link href="/dashboard/admin/projects" className="text-orange-700 hover:underline">Khóa dự án →</Link>
+            <Link href="/dashboard/admin/products" className="text-slate-700 hover:underline">Ẩn sản phẩm →</Link>
+            <Link href="/dashboard/admin/kyc" className="text-emerald-700 hover:underline">Hàng đợi KYC →</Link>
+          </div>
         </div>
 
         <form onSubmit={search} className="flex flex-col gap-3 rounded-[2rem] border border-gray-100 bg-white p-5 shadow-sm sm:flex-row">

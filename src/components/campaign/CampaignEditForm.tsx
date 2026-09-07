@@ -17,6 +17,8 @@ import type { MainCategory } from "@/types/taxonomy";
 import { MAIN_CATEGORIES } from "@/types/taxonomy";
 import { validateTaxonomySelection, sanitizeSelectedTags, getInvalidTagsForNewCategory, getTagsByIds } from "@/lib/taxonomy-helpers";
 import Link from "next/link";
+import CampaignSubmitBar from "@/components/campaign/CampaignSubmitBar";
+import { campaignModerationLabel } from "@/lib/moderation/policy";
 
 interface Reward {
   id: string;
@@ -40,6 +42,9 @@ interface Campaign {
   category: string;
   goalAmount: number;
   endDate: Date | null;
+  status?: string;
+  rejectionReason?: string | null;
+  successPledgeCount?: number;
   rewards: Reward[];
 }
 
@@ -459,6 +464,19 @@ export default function CampaignEditForm({ campaign }: CampaignEditFormProps) {
             Hủy
           </Link>
         </div>
+        {campaign.status && (
+          <div className="mt-6 rounded-2xl border border-gray-100 bg-white p-5">
+            <div className="mb-2 text-xs font-black uppercase tracking-widest text-gray-400">
+              Trạng thái: {campaignModerationLabel(campaign.status)}
+            </div>
+            <CampaignSubmitBar
+              slug={campaign.slug}
+              status={campaign.status}
+              rejectionReason={campaign.rejectionReason}
+              successPledgeCount={campaign.successPledgeCount || 0}
+            />
+          </div>
+        )}
       </form>
     </div>
   );
