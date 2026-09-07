@@ -1,16 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getKYCInfo, getTransactionLimit } from "@/lib/kyc";
+import { isEkycEnabled } from "@/lib/platform-settings";
 
 export async function GET(_request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const userId = (session.user as { id: string }).id;
-    const kyc = await getKYCInfo(userId);
-    const limit = await getTransactionLimit(userId);
+    const [kyc, limit, ekycEnabled] = await Promise.all([
+      getKYCInfo(userId),
+      getTransactionLimit(userId),
+      isEkycEnabled(),
+    ]);
     const meta = (kyc as any)?.ekycMeta || null;
     return NextResponse.json({
+      ekycEnabled,
+      kycMode: ekycEnabled ? "EKYC" : "MANUAL",
       kyc: kyc ? {
         status: kyc.verificationStatus,
         fullName: kyc.fullName,

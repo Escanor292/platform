@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { lookupBusiness } from "@/lib/ekyc/ekyb";
+import { ekycDisabledResponse, isEkycEnabled } from "@/lib/platform-settings";
 
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!(await isEkycEnabled())) {
+      return NextResponse.json(ekycDisabledResponse(), { status: 403 });
+    }
     const taxCode = request.nextUrl.searchParams.get("taxCode") || "";
     const record = await lookupBusiness(taxCode);
     if (!record) {

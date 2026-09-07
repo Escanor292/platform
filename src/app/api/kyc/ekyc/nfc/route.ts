@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getEkycSession, saveAnalyze } from "@/lib/ekyc/session-store";
 import { verifyNationalId } from "@/lib/ekyc/national";
+import { ekycDisabledResponse, isEkycEnabled } from "@/lib/platform-settings";
 
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!(await isEkycEnabled())) {
+      return NextResponse.json(ekycDisabledResponse(), { status: 403 });
+    }
     const userId = (session.user as { id: string }).id;
     const body = await request.json();
     const { sessionId, idCardNumber, fullName, dateOfBirth, chipDg1, vneidCode } = body || {};
