@@ -4,9 +4,6 @@
 
 import { ObjectId } from 'mongodb';
 
-// ============================================================
-// MongoDB Content Types
-// ============================================================
 export interface BlogContentBlock {
   id: string;
   type: 'paragraph' | 'heading' | 'image' | 'video' | 'code' | 'quote' | 'list' | 'embed';
@@ -30,9 +27,9 @@ export interface BlogTableOfContents {
 
 export interface BlogContent {
   _id?: ObjectId;
-  postId: string; // UUID from PostgreSQL blog_posts
+  postId: string;
   format: 'markdown' | 'html' | 'rich_json';
-  content?: string; // Markdown or HTML content
+  content?: string;
   richContent?: {
     blocks: BlogContentBlock[];
   };
@@ -75,15 +72,12 @@ export interface BlogVersion {
 export interface BlogViewLog {
   _id?: ObjectId;
   postId: string;
-  userId?: string; // Nullable for anonymous
+  userId?: string;
   ip?: string;
   userAgent?: string;
   viewedAt: Date;
 }
 
-// ============================================================
-// API Request/Response Types
-// ============================================================
 export interface CreateBlogPostRequest {
   title: string;
   excerpt?: string;
@@ -124,7 +118,7 @@ export interface BlogPostListQuery {
   tag?: string;
   type?: string;
   campaignId?: string;
-  projectId?: string; // Filter by project ID or 'null'/'standalone' for platform blogs
+  projectId?: string;
   featured?: boolean;
   sort?: 'latest' | 'popular' | 'most_viewed';
   authorId?: string;
@@ -153,6 +147,7 @@ export interface BlogPostResponse {
   isFeatured: boolean;
   wordCount: number;
   readingTimeMinutes: number;
+  rejectionReason?: string | null;
   author?: {
     id: string;
     name: string;
