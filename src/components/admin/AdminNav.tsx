@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, ShieldCheck, Award, DollarSign, FileText, Flag, ShieldAlert } from 'lucide-react';
+import { Home, Users, ShieldCheck, Award, DollarSign, FileText, Flag, ShieldAlert, Settings } from 'lucide-react';
 
 const NAV_ITEMS = [
   { href: '/dashboard/admin', label: 'Tổng quan', icon: Home, exact: true },
@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { href: '/dashboard/admin/revenue', label: 'Doanh thu', icon: DollarSign },
   { href: '/dashboard/admin/reports', label: 'Báo cáo', icon: Flag },
   { href: '/dashboard/admin/moderation', label: 'Kiểm duyệt', icon: ShieldAlert },
+  { href: '/dashboard/admin/system', label: 'Hệ thống', icon: Settings },
 ] as const;
 
 export default function AdminNav() {
