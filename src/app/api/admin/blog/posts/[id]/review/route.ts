@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { notificationService } from '@/services/mongodb/notification.service';
+import { applyBlogReview } from '@/lib/blog/blog-review';
 
 export async function PATCH(
   request: NextRequest,
@@ -18,7 +19,6 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check admin
     const user = await prisma.users.findUnique({
       where: { id: session.user.id },
       select: { isAdmin: true, role: true },
@@ -32,11 +32,15 @@ export async function PATCH(
     const { id } = params;
     const body = await request.json();
 
-    const { status, reason } = body;
+    const { status, reason } = body as { status?: string; reason?: string };
 
-    if (!['PUBLISHED', 'REJECTED', 'ARCHIVED'].includes(status)) {
+    if (!['PUBLISHED', 'REJECTED', 'ARCHIVED'].includes(status || '')) {
+      return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+    }
+
+    if (status === 'REJECTED' && !String(reason || '').trim()) {
       return NextResponse.json(
-        { error: 'Invalid status' },
+        { error: 'Cần nhập lý do từ chối để tác giả sửa bài' },
         { status: 400 }
       );
     }
@@ -50,23 +54,29 @@ export async function PATCH(
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
 
-    const post = await prisma.blog_posts.update({
-      where: { id },
-      data: {
-        status,
-        publishedAt: status === 'PUBLISHED' ? new Date() : undefined,
-      },
+    await applyBlogReview({
+      postId: id,
+      status: status as 'PUBLISHED' | 'REJECTED' | 'ARCHIVED',
+      reason: reason || null,
+      reviewerId: session.user.id,
     });
 
+    const post = await prisma.blog_posts.findUnique({ where: { id } });
+
     if (status === 'PUBLISHED' || status === 'REJECTED') {
+      const trimmedReason = String(reason || '').trim();
       notificationService.send({
         userId: existingPost.authorId,
         type: status === 'PUBLISHED' ? 'BLOG_APPROVED' : 'BLOG_REJECTED',
         title: status === 'PUBLISHED' ? 'Bài viết đã được duyệt' : 'Bài viết chưa được duyệt',
-        message: status === 'PUBLISHED'
-          ? `Bài viết “${existingPost.title}” đã được Admin duyệt và có thể hiển thị công khai.`
-          : `Bài viết “${existingPost.title}” chưa được Admin duyệt. Vui lòng kiểm tra và cập nhật lại nội dung.`,
-        payload: { href: `/blog/${existingPost.slug}` },
+        message:
+          status === 'PUBLISHED'
+            ? `Бài viết “${existingPost.title}” đã được Admin duyệt và có thể hiển thị công khai.`
+            : `Bài viết “${existingPost.title}” bị từ chối.${trimmedReason ? ` Lý do: ${trimmedReason}` : ''} Hãy sửa và gửi duyệt lại.`,
+        payload: {
+          href: `/blog/editor?slug=${existingPost.slug}`,
+          reason: trimmedReason || undefined,
+        },
       });
     }
 
