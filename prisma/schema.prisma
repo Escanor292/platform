@@ -7,3 +7,25 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model audit_logs {
+  id         String      @id
+  userId     String?
+  action     AuditAction
+  entityType String
+  entityId   String
+  oldValue   Json?
+  newValue   Json?
+  changes    Json?
+  ipAddress  String?
+  userAgent  String?
+  reason     String?
+  metadata   Json?
+  createdAt  DateTime    @default(now())
+  pledges    pledges     @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  users      users?      @relation(fields: [userId], references: [id])
+
+  @@index([createdAt])
+  @@index([entityType, entityId])
+  @@index([userId])
+}
