@@ -31,7 +31,6 @@ export async function PATCH(
     const params = await context.params;
     const { id } = params;
     const body = await request.json();
-
     const { status, reason } = body as { status?: string; reason?: string };
 
     if (!['PUBLISHED', 'REJECTED', 'ARCHIVED'].includes(status || '')) {
@@ -71,7 +70,7 @@ export async function PATCH(
         title: status === 'PUBLISHED' ? 'Bài viết đã được duyệt' : 'Bài viết chưa được duyệt',
         message:
           status === 'PUBLISHED'
-            ? `Бài viết “${existingPost.title}” đã được Admin duyệt và có thể hiển thị công khai.`
+            ? `Bài viết “${existingPost.title}” đã được Admin duyệt và có thể hiển thị công khai.`
             : `Bài viết “${existingPost.title}” bị từ chối.${trimmedReason ? ` Lý do: ${trimmedReason}` : ''} Hãy sửa và gửi duyệt lại.`,
         payload: {
           href: `/blog/editor?slug=${existingPost.slug}`,
