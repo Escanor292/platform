@@ -6,17 +6,22 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, Check, X, Archive } from 'lucide-react';
 
+type Counts = { PENDING_REVIEW: number; PUBLISHED: number; REJECTED: number; DRAFT: number };
+
 export default function AdminBlogPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [posts, setPosts] = useState<any[]>([]);
+  const [counts, setCounts] = useState<Counts>({ PENDING_REVIEW: 0, PUBLISHED: 0, REJECTED: 0, DRAFT: 0 });
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('PENDING_REVIEW');
+  const [rejecting, setRejecting] = useState<{ id: string; title: string } | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/auth/login');
-    } else if (status === 'authenticated') {
+    if (status === 'unauthenticated') router.push('/auth/login');
+    else if (status === 'authenticated') {
       if ((session?.user as any)?.role !== 'ADMIN' && !(session?.user as any)?.isAdmin) {
         router.push('/');
         return;
@@ -27,14 +32,12 @@ export default function AdminBlogPage() {
 
   const fetchPosts = async () => {
     try {
-      const params = new URLSearchParams({
-        ...(filter !== 'all' && { status: filter }),
-      });
-
+      const params = new URLSearchParams({ ...(filter !== 'all' && { status: filter }) });
       const res = await fetch(`/api/admin/blog/posts?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
         setPosts(data.posts);
+        if (data.counts) setCounts(data.counts);
       }
     } catch (error) {
       console.error('Failed to fetch posts:', error);
@@ -43,21 +46,26 @@ export default function AdminBlogPage() {
     }
   };
 
-  const handleReview = async (id: string, status: string) => {
+  const handleReview = async (id: string, nextStatus: string, reason?: string) => {
     try {
+      setSubmitting(true);
       const res = await fetch(`/api/admin/blog/posts/${id}/review`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status: nextStatus, reason }),
       });
-
       if (res.ok) {
+        setRejecting(null);
+        setRejectReason('');
         fetchPosts();
       } else {
-        alert('Không thể cập nhật trạng thái');
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Khong the cap nhat trang thai');
       }
     } catch (error) {
-      alert('Có lỗi xảy ra');
+      alert('Co loi xay ra');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -66,7 +74,7 @@ export default function AdminBlogPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pgreen mx-auto mb-4" />
-          <p className="text-gray-600">Đang tải...</p>
+          <p className="text-gray-600">Dang tai...</p>
         </div>
       </div>
     );
@@ -75,56 +83,34 @@ export default function AdminBlogPage() {
   return (
     <div className="min-h-screen bg-slate-50/50 px-6 py-12">
       <div className="mx-auto max-w-7xl">
-        <h1 className="mb-2 text-4xl font-black text-gray-900">Quản lý Blog</h1>
-        <p className="mb-8 font-medium text-gray-400">Duyệt bài viết trước khi hiển thị công khai</p>
-
-        {/* Filters */}
-        <div className="mb-6 flex gap-2">
-          <FilterButton
-            active={filter === 'PENDING_REVIEW'}
-            onClick={() => setFilter('PENDING_REVIEW')}
-            label="Chờ duyệt"
-          />
-          <FilterButton
-            active={filter === 'PUBLISHED'}
-            onClick={() => setFilter('PUBLISHED')}
-            label="Đã xuất bản"
-          />
-          <FilterButton
-            active={filter === 'REJECTED'}
-            onClick={() => setFilter('REJECTED')}
-            label="Bị từ chối"
-          />
-          <FilterButton
-            active={filter === 'all'}
-            onClick={() => setFilter('all')}
-            label="Tất cả"
-          />
+        <h1 className="mb-2 text-4xl font-black text-gray-900">Quan ly Blog</h1>
+        <p className="mb-8 font-medium text-gray-400">DRAFT to PENDING_REVIEW to PUBLISHED / REJECTED</p>
+        <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+          <div className="rounded-2xl bg-amber-50 px-4 py-3 text-amber-800"><div className="text-xs font-medium uppercase">Cho duyet</div><div className="text-2xl font-black">{counts.PENDING_REVIEW}</div></div>
+          <div className="rounded-2xl bg-emerald-50 px-4 py-3 text-emerald-800"><div className="text-xs font-medium uppercase">Xuat ban</div><div className="text-2xl font-black">{counts.PUBLISHED}</div></div>
+          <div className="rounded-2xl bg-red-50 px-4 py-3 text-red-800"><div className="text-xs font-medium uppercase">Tu choi</div><div className="text-2xl font-black">{counts.REJECTED}</div></div>
+          <div className="rounded-2xl bg-slate-100 px-4 py-3 text-slate-700"><div className="text-xs font-medium uppercase">Nhap</div><div className="text-2xl font-black">{counts.DRAFT}</div></div>
         </div>
-
-        {/* Posts Table */}
+        <div className="mb-6 flex flex-wrap gap-2">
+          {[
+            ['PENDING_REVIEW', `Cho duyet (${counts.PENDING_REVIEW})`],
+            ['PUBLISHED', 'Da xuat ban'],
+            ['REJECTED', 'Bi tu choi'],
+            ['DRAFT', 'Nhap'],
+            ['all', 'Tat ca'],
+          ].map(([key, label]) => (
+            <button key={key} onClick={() => setFilter(key)} className={`rounded-full px-4 py-2 text-sm font-medium ${filter === key ? 'bg-pgreen text-white' : 'bg-white text-gray-700 border border-gray-300'}`}>{label}</button>
+          ))}
+        </div>
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Bài viết
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tác giả
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Loại
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Trạng thái
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Thống kê
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Hành động
-                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Bai viet</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tac gia</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Loai</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trang thai</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Hanh dong</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -133,127 +119,46 @@ export default function AdminBlogPage() {
                   <td className="px-6 py-4">
                     <div className="text-sm font-medium text-gray-900">{post.title}</div>
                     <div className="text-sm text-gray-500">{post.slug}</div>
+                    {post.rejectionReason && <div className="mt-1 text-xs text-red-600">Ly do: {post.rejectionReason}</div>}
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">{post.author?.name || 'Ẩn danh'}</div>
+                    <div className="text-sm text-gray-900">{post.author?.name || 'An danh'}</div>
                     <div className="text-sm text-gray-500">{post.author?.email}</div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {getTypeLabel(post.type)}
-                  </td>
-                  <td className="px-6 py-4">
-                    <StatusBadge status={post.status} />
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    <div>{post.viewCount} views</div>
-                    <div>{post._count?.likes ?? 0} likes</div>
-                    <div>{post._count?.comments ?? 0} comments</div>
-                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{post.type}</td>
+                  <td className="px-6 py-4"><span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold">{post.status}</span></td>
                   <td className="px-6 py-4 text-right text-sm font-medium">
                     <div className="flex justify-end gap-2">
-                      <Link
-                        href={`/blog/${post.slug}`}
-                        className="text-emerald-600 hover:text-emerald-900"
-                        title="Xem"
-                      >
-                        <Eye className="w-5 h-5" />
-                      </Link>
+                      <Link href={`/blog/${post.slug}`} className="text-emerald-600" title="Xem"><Eye className="w-5 h-5" /></Link>
                       {post.status === 'PENDING_REVIEW' && (
                         <>
-                          <button
-                            onClick={() => handleReview(post.id, 'PUBLISHED')}
-                            className="text-green-600 hover:text-green-900"
-                            title="Duyệt"
-                          >
-                            <Check className="w-5 h-5" />
-                          </button>
-                          <button
-                            onClick={() => handleReview(post.id, 'REJECTED')}
-                            className="text-red-600 hover:text-red-900"
-                            title="Từ chối"
-                          >
-                            <X className="w-5 h-5" />
-                          </button>
+                          <button onClick={() => handleReview(post.id, 'PUBLISHED')} className="text-green-600" title="Duyet" disabled={submitting}><Check className="w-5 h-5" /></button>
+                          <button onClick={() => { setRejecting({ id: post.id, title: post.title }); setRejectReason(''); }} className="text-red-600" title="Tu choi" disabled={submitting}><X className="w-5 h-5" /></button>
                         </>
                       )}
-                      <button
-                        onClick={() => handleReview(post.id, 'ARCHIVED')}
-                        className="text-gray-600 hover:text-gray-900"
-                        title="Lưu trữ"
-                      >
-                        <Archive className="w-5 h-5" />
-                      </button>
+                      <button onClick={() => handleReview(post.id, 'ARCHIVED')} className="text-gray-600" title="Luu tru" disabled={submitting}><Archive className="w-5 h-5" /></button>
                     </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-
-          {posts.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
-              Không có bài viết nào
-            </div>
-          )}
+          {posts.length === 0 && <div className="text-center py-12 text-gray-500">Khong co bai viet nao</div>}
         </div>
       </div>
+      {rejecting && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <h2 className="text-lg font-bold text-gray-900">Tu choi bai viet</h2>
+            <p className="mt-1 text-sm text-gray-500">{rejecting.title}</p>
+            <textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} rows={4} className="mt-4 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm" placeholder="Nhap ly do de tac gia sua va gui duyet lai" />
+            <div className="mt-4 flex justify-end gap-2">
+              <button type="button" className="rounded-full border px-4 py-2 text-sm" onClick={() => setRejecting(null)} disabled={submitting}>Huy</button>
+              <button type="button" className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50" disabled={submitting || !rejectReason.trim()} onClick={() => handleReview(rejecting.id, 'REJECTED', rejectReason.trim())}>Tu choi</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
-
-function FilterButton({
-  active,
-  onClick,
-  label,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${active
-        ? 'bg-pgreen text-white'
-        : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
-        }`}
-    >
-      {label}
-    </button>
-  );
-}
-
-function StatusBadge({ status }: { status: string }) {
-  const styles: Record<string, string> = {
-    DRAFT: 'bg-gray-500 text-white',
-    PENDING_REVIEW: 'bg-ebrown text-white',
-    PUBLISHED: 'bg-pgreen text-white',
-    ARCHIVED: 'bg-gray-400 text-white',
-    REJECTED: 'bg-red-600 text-white',
-  };
-
-  const labels: Record<string, string> = {
-    DRAFT: 'Nháp',
-    PENDING_REVIEW: 'Chờ duyệt',
-    PUBLISHED: 'Đã xuất bản',
-    ARCHIVED: 'Lưu trữ',
-    REJECTED: 'Bị từ chối',
-  };
-
-  return (
-    <span className={`rounded-full px-2 py-1 text-xs font-semibold ${styles[status] || 'bg-gray-500 text-white'}`}>
-      {labels[status] || status}
-    </span>
-  );
-}
-
-function getTypeLabel(type: string): string {
-  const labels: Record<string, string> = {
-    PLATFORM: 'Tin tức',
-    CAMPAIGN_UPDATE: 'Cập nhật chiến dịch',
-    ANNOUNCEMENT: 'Thông báo',
-    STORY: 'Câu chuyện',
-    IMPACT_REPORT: 'Báo cáo tác động',
-  };
-  return labels[type] || type;
 }
