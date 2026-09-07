@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { getBlogReviewFields } from '@/lib/blog/blog-review';
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,35 +38,45 @@ export async function GET(request: NextRequest) {
       where.status = status;
     }
 
-    const [posts, total] = await Promise.all([
-      prisma.blog_posts.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          users: {
-            select: { id: true, name: true, email: true, avatar: true },
-          },
-          campaigns: {
-            select: { id: true, title: true, slug: true },
-          },
-          _count: {
-            select: {
-              blog_likes: true,
-              blog_bookmarks: true,
-              blog_comments: true,
+    const [posts, total, pendingCount, publishedCount, rejectedCount, draftCount] =
+      await Promise.all([
+        prisma.blog_posts.findMany({
+          where,
+          skip,
+          take: limit,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            users: {
+              select: { id: true, name: true, email: true, avatar: true },
+            },
+            campaigns: {
+              select: { id: true, title: true, slug: true },
+            },
+            _count: {
+              select: {
+                blog_likes: true,
+                blog_bookmarks: true,
+                blog_comments: true,
+              },
             },
           },
-        },
-      }),
-      prisma.blog_posts.count({ where }),
-    ]);
+        }),
+        prisma.blog_posts.count({ where }),
+        prisma.blog_posts.count({ where: { deletedAt: null, status: 'PENDING_REVIEW' } }),
+        prisma.blog_posts.count({ where: { deletedAt: null, status: 'PUBLISHED' } }),
+        prisma.blog_posts.count({ where: { deletedAt: null, status: 'REJECTED' } }),
+        prisma.blog_posts.count({ where: { deletedAt: null, status: 'DRAFT' } }),
+      ]);
+
+    const reviewFields = await getBlogReviewFields(posts.map((post) => post.id));
 
     return NextResponse.json({
       posts: posts.map((post) => ({
         ...post,
         author: post.users,
+        rejectionReason: reviewFields[post.id]?.rejectionReason ?? null,
+        reviewedAt: reviewFields[post.id]?.reviewedAt ?? null,
+        reviewedBy: reviewFields[post.id]?.reviewedBy ?? null,
         _count: {
           likes: post._count.blog_likes,
           comments: post._count.blog_comments,
@@ -75,6 +86,12 @@ export async function GET(request: NextRequest) {
       total,
       page,
       limit,
+      counts: {
+        PENDING_REVIEW: pendingCount,
+        PUBLISHED: publishedCount,
+        REJECTED: rejectedCount,
+        DRAFT: draftCount,
+      },
     });
   } catch (error: any) {
     console.error('[API] GET /api/admin/blog/posts error:', error);

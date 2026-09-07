@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getBlogReviewFields } from "@/lib/blog/blog-review";
 
-/**
- * GET /api/blog/my-posts
- * Get current user's blog posts
- */
 export async function GET(request: NextRequest) {
     try {
         const session = await auth();
@@ -25,8 +22,7 @@ export async function GET(request: NextRequest) {
             deletedAt: null,
         };
 
-        // Filter by status if provided
-        if (status && status !== "ALL") {
+        if (status && status !== "ALL" && status !== "all") {
             where.status = status;
         }
 
@@ -39,19 +35,32 @@ export async function GET(request: NextRequest) {
                 excerpt: true,
                 coverImage: true,
                 status: true,
+                type: true,
                 publishedAt: true,
                 createdAt: true,
+                updatedAt: true,
                 viewCount: true,
                 likeCount: true,
                 commentCount: true,
+                bookmarkCount: true,
+                isFeatured: true,
+                wordCount: true,
+                readingTimeMinutes: true,
+                authorId: true,
             },
             orderBy: {
                 createdAt: "desc",
             },
         });
 
+        const reviewFields = await getBlogReviewFields(posts.map((post) => post.id));
+
         return NextResponse.json({
-            posts,
+            posts: posts.map((post) => ({
+                ...post,
+                rejectionReason: reviewFields[post.id]?.rejectionReason ?? null,
+                reviewedAt: reviewFields[post.id]?.reviewedAt ?? null,
+            })),
             total: posts.length,
         });
     } catch (error) {
