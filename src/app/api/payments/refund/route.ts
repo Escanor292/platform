@@ -3,10 +3,6 @@ import prisma from "@/lib/prisma";
 import { processCampaignRefund } from "@/lib/payment/refund";
 import { auth } from "@/lib/auth";
 
-/**
- * POST /api/payments/refund
- * Hoàn tiền cho tất cả backers khi campaign bị hủy (chỉ Admin)
- */
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
@@ -18,10 +14,7 @@ export async function POST(req: NextRequest) {
     const { campaignId } = body;
 
     if (!campaignId) {
-      return NextResponse.json(
-        { error: "Thiếu campaignId" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Thieu campaignId" }, { status: 400 });
     }
 
     const campaign = await prisma.campaigns.findUnique({
@@ -29,30 +22,32 @@ export async function POST(req: NextRequest) {
     });
 
     if (!campaign) {
-      return NextResponse.json(
-        { error: "Không tìm thấy dự án" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Khong tim thay du an" }, { status: 404 });
     }
 
-    // Thực hiện quy trình hoàn tiền hàng loạt
-    const result = await processCampaignRefund(campaignId);
-
-    // Cập nhật trạng thái dự án thành CANCELED hoặc FAILED nếu chưa
     if (campaign.status !== "FAILED" && campaign.status !== "CANCELED") {
+      const now = new Date();
       await prisma.campaigns.update({
         where: { id: campaignId },
-        data: { status: "FAILED" },
+        data: {
+          status: "FAILED",
+          closedAmount: campaign.currentAmount,
+          closedAt: now,
+          updatedAt: now,
+        },
       });
     }
 
+    const result = await processCampaignRefund(campaignId);
+
     return NextResponse.json({
-      message: `Quy trình hoàn tiền hoàn tất`,
+      message: "Da hoan so. Chi hoan ngan hang lam tay vi chua co NH trung gian.",
       succeeded: result.refundedCount,
       total: result.total,
+      note: result.note,
     });
   } catch (error: any) {
     console.error("[POST /api/payments/refund]", error);
-    return NextResponse.json({ error: error.message || "Lỗi server" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Loi server" }, { status: 500 });
   }
 }
