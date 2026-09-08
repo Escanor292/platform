@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { submitCampaignForReview } from '@/lib/moderation/campaign-review';
-import { AON_WITH_PRODUCTS_ERROR, campaignHasSellableRewards } from '@/lib/funding-model';
+import { AON_COERCED_TO_KIA_NOTE, campaignHasSellableRewards } from '@/lib/funding-model';
+import { coerceCampaignToKeepItAll } from '@/lib/coerce-keep-it-all';
 
 export async function POST(
   _request: NextRequest,
@@ -33,8 +34,9 @@ export async function POST(
     });
     if (!campaign) return NextResponse.json({ error: 'Khong tim thay chien dich' }, { status: 404 });
 
+    let fundingModelCoerced = false;
     if (campaign.fundingModel === 'ALL_OR_NOTHING' && campaignHasSellableRewards(campaign._count.rewards)) {
-      return NextResponse.json({ error: AON_WITH_PRODUCTS_ERROR }, { status: 400 });
+      fundingModelCoerced = await coerceCampaignToKeepItAll(campaign.id);
     }
 
     const user = await prisma.users.findUnique({
@@ -55,7 +57,12 @@ export async function POST(
       successPledgeCount: campaign._count.pledges,
       isAdmin,
     });
-    return NextResponse.json({ success: true, status: result.status });
+    return NextResponse.json({
+      success: true,
+      status: result.status,
+      fundingModelCoerced,
+      ...(fundingModelCoerced ? { note: AON_COERCED_TO_KIA_NOTE } : {}),
+    });
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || 'Khong gui duyet duoc' },
