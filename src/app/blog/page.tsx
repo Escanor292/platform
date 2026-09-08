@@ -48,12 +48,15 @@ export default async function BlogPage({
   const session = await auth();
   const search = (params.search || '').trim();
   const type = params.type;
-  const blogHref = (next: { type?: string; search?: string; page?: number }) => {
+  const sort = params.sort || 'latest';
+  const blogHref = (next: { type?: string; search?: string; page?: number; sort?: string }) => {
     const query = new URLSearchParams();
     const nextSearch = next.search ?? search;
     const nextType = next.type === undefined ? type : next.type;
+    const nextSort = next.sort ?? sort;
     if (nextSearch) query.set('search', nextSearch);
     if (nextType) query.set('type', nextType);
+    if (nextSort && nextSort !== 'latest') query.set('sort', nextSort);
     if (next.page && next.page > 1) query.set('page', String(next.page));
     const qs = query.toString();
     return qs ? `/blog?${qs}` : '/blog';
@@ -62,7 +65,7 @@ export default async function BlogPage({
   return (
     <div className="min-h-screen bg-white">
       <section
-        className="relative overflow-hidden px-6 py-20 md:py-28"
+        className="relative overflow-hidden px-6 pt-28 pb-16 md:pt-32 md:pb-20"
         style={{
           background: 'linear-gradient(180deg, #F8F7F2 0%, #f0f8f4 50%, #F8F7F2 100%)'
         }}
@@ -72,16 +75,19 @@ export default async function BlogPage({
           <div className="absolute right-[8%] top-32 h-80 w-80 rounded-full bg-gradient-to-tl from-tblue/15 via-transparent to-transparent blur-3xl opacity-60" />
         </div>
 
-        <div className="relative z-10 mx-auto max-w-7xl text-center">
-          <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/70 bg-white/55 px-5 py-2.5 text-xs font-bold text-pgreen shadow-lg backdrop-blur-md">
-            Câu chuyện cộng đồng
+        <div className="relative z-10 mx-auto max-w-7xl overflow-visible">
+          <div className="mb-10 text-center">
+            <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/70 bg-white/55 px-5 py-2.5 text-xs font-bold text-pgreen shadow-lg backdrop-blur-md">
+              Câu chuyện cộng đồng
+            </div>
+            <h1 className="font-display mb-5 font-black text-4xl text-dblue md:text-5xl lg:text-6xl">
+              Câu chuyện <span className="bg-gradient-to-r from-pgreen via-fgreen to-tblue bg-clip-text text-transparent">tử tế</span> được kể lại
+            </h1>
+            <p className="mx-auto max-w-3xl text-lg leading-relaxed text-gray-600">
+              Nơi chia sẻ hành trình gây quỹ, cập nhật minh bạch và những câu chuyện đồng hành từ cộng đồng TửTế Fund.
+            </p>
           </div>
-          <h1 className="font-display mb-5 font-black text-4xl text-dblue md:text-5xl lg:text-6xl">
-            Câu chuyện <span className="bg-gradient-to-r from-pgreen via-fgreen to-tblue bg-clip-text text-transparent">tử tế</span> được kể lại
-          </h1>
-          <p className="mx-auto max-w-3xl text-lg leading-relaxed text-gray-600">
-            Nơi chia sẻ hành trình gây quỹ, cập nhật minh bạch và những câu chuyện đồng hành từ cộng đồng TửTế Fund.
-          </p>
+          <BlogSearchForm defaultSearch={search} type={type} sort={sort} />
         </div>
       </section>
 
@@ -105,10 +111,6 @@ export default async function BlogPage({
           )}
         </div>
 
-        <div className="mb-6">
-          <BlogSearchForm defaultSearch={search} type={type} />
-        </div>
-
         {data.featuredPosts && data.featuredPosts.length > 0 && !search && (
           <div className="mb-12">
             <h3 className="mb-4 flex items-center gap-2 font-display font-bold text-xl text-dblue">
@@ -122,13 +124,6 @@ export default async function BlogPage({
             </div>
           </div>
         )}
-
-        <div className="mb-6 flex flex-wrap gap-2">
-          <FilterButton href={blogHref({ type: '' })} label="Tất cả" active={!type} />
-          <FilterButton href={blogHref({ type: 'PLATFORM' })} label="Tin tức" active={type === 'PLATFORM'} />
-          <FilterButton href={blogHref({ type: 'CAMPAIGN_UPDATE' })} label="Cập nhật chiến dịch" active={type === 'CAMPAIGN_UPDATE'} />
-          <FilterButton href={blogHref({ type: 'STORY' })} label="Câu chuyện" active={type === 'STORY'} />
-        </div>
 
         <Suspense fallback={<BlogGridSkeleton />}>
           {data.posts.length > 0 ? (
@@ -178,29 +173,6 @@ export default async function BlogPage({
         )}
       </div>
     </div>
-  );
-}
-
-function FilterButton({
-  href,
-  label,
-  active,
-}: {
-  href: string;
-  label: string;
-  active: boolean;
-}) {
-  return (
-    <a
-      href={href}
-      className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-        active
-          ? 'bg-pgreen text-white'
-          : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-100'
-      }`}
-    >
-      {label}
-    </a>
   );
 }
 
