@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 const BODY = {
-  error: "Webhook/cong thanh toan da tat. Tu Te Fund doi soat chuyen khoan ngan hang trung gian qua admin settle.",
+  error: "Webhook/cổng thanh toán đã tắt. Tử Tế Fund đối soát chuyển khoản ngân hàng trung gian qua admin settle.",
   code: "ESCROW_BANK_ONLY",
 };
 
