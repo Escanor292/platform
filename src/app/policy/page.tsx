@@ -29,7 +29,13 @@ const ITEMS = [
   {
     href: "/huong-dan/creator",
     title: "Hướng dẫn phân loại chiến dịch",
-    desc: "Nhóm A (không quà) và nhóm B (pre-order / có quà). Không phải tư vấn pháp lý.",
+    desc: "Nhóm A (không quà) và nhóm B (có quà / bán hàng). Không phải tư vấn pháp lý.",
+    icon: BookOpen,
+  },
+  {
+    href: "/huong-dan/thue",
+    title: "Hướng dẫn thuế hàng có sẵn",
+    desc: "Ai nộp thuế, SKU nào, hóa đơn. Pre-order chưa nằm ở đây. Không phải tư vấn pháp lý.",
     icon: BookOpen,
   },
 ];
