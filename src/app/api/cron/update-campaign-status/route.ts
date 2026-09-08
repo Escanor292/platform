@@ -2,9 +2,8 @@ import { NextResponse } from "next/server";
 import { closeExpiredCampaigns } from "@/lib/campaign-lifecycle";
 
 /**
- * CRON API: Đóng chiến dịch hết hạn.
- * All-or-Nothing không đạt mục tiêu → FAILED + hoàn tiền.
- * Keep-It-All không đạt mục tiêu → SUCCESS, không hoàn, vẫn giữ phí sàn.
+ * CRON: Dong chien dich theo ngay het han.
+ * Goal chi xet luc het han (AON khong hang). Khong dong som khi du goal.
  */
 export async function GET() {
   try {
@@ -12,7 +11,7 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       ...result,
-      message: `Đã đóng ${result.closedCount} chiến dịch hết hạn.`,
+      message: `Da dong ${result.closedCount} chien dich het han.`,
     });
   } catch (error: any) {
     console.error("Cron Error (update status):", error);

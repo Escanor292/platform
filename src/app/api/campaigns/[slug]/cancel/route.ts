@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUser } from "@/lib/auth";
+import { processCampaignRefund } from "@/lib/payment/refund";
 
 /**
  * POST /api/campaigns/[slug]/cancel
- * Creator hoặc Admin hủy dự án → tự động đánh dấu hoàn tiền cho tất cả pledges
+ * Creator hoac Admin huy du an -> hoan so (chua chi NH).
  */
 export async function POST(
   request: Request,
@@ -12,84 +13,56 @@ export async function POST(
 ) {
   try {
     const user = await getUser();
-    if (!user) return NextResponse.json({ error: "Chưa đăng nhập" }, { status: 401 });
+    if (!user) return NextResponse.json({ error: "Chua dang nhap" }, { status: 401 });
 
     const { slug: campaignId } = await context.params;
-    const { reason } = await request.json().catch(() => ({ reason: "Creator hủy dự án" }));
+    const { reason } = await request.json().catch(() => ({ reason: "Creator huy du an" }));
 
-    // Tìm dự án theo ID (do dashboard ID)
     const campaign = await prisma.campaigns.findUnique({
       where: { id: campaignId },
-      include: { users: true }
+      include: { users: true },
     });
 
-    if (!campaign) return NextResponse.json({ error: "Dự án không tồn tại" }, { status: 404 });
+    if (!campaign) return NextResponse.json({ error: "Du an khong ton tai" }, { status: 404 });
 
-    // Chỉ Creator sở hữu hoặc Admin mới được hủy
     const isOwner = campaign.creatorId === user.id;
     const isAdmin = user.role === "ADMIN";
     if (!isOwner && !isAdmin) {
-      return NextResponse.json({ error: "Không có quyền hủy dự án này" }, { status: 403 });
+      return NextResponse.json({ error: "Khong co quyen huy du an nay" }, { status: 403 });
     }
 
-    if (campaign.status === "FAILED") {
-      return NextResponse.json({ error: "Dự án đã bị hủy trước đó" }, { status: 400 });
+    if (campaign.status === "FAILED" || campaign.status === "CANCELED") {
+      return NextResponse.json({ error: "Du an da bi huy truoc do" }, { status: 400 });
     }
 
-    // === Bắt đầu quá trình hủy & hoàn tiền ===
-    const successPledges = await prisma.pledges.findMany({
-      where: {
-        campaignId,
-        status: "SUCCESS",
-      }
-    });
-
-    let refundedCount = 0;
-    const refundErrors: string[] = [];
-
-    for (const pledge of successPledges) {
-      try {
-        await prisma.pledges.update({
-          where: { id: pledge.id },
-          data: {
-            refundStatus: "PROCESSING",
-            status: "REFUNDED",
-            fulfillmentStatus: "CANCELED",
-            cancellationReason: typeof reason === "string" ? reason.slice(0, 500) : "Creator hủy chiến dịch",
-            accountingReversedAt: new Date(),
-            updatedAt: new Date(),
-          }
-        });
-
-        refundedCount++;
-      } catch (err: any) {
-        refundErrors.push(`Pledge ${pledge.id}: ${err.message}`);
-      }
-    }
-
-    const totalRefundAmount = successPledges.reduce((sum: number, p: any) => sum + Number(p.totalAmount), 0);
-
+    const now = new Date();
     await prisma.campaigns.update({
       where: { id: campaignId },
       data: {
         status: "FAILED",
         closedAmount: campaign.currentAmount,
-        closedAt: new Date(),
-        currentAmount: 0,
-        updatedAt: new Date(),
-      }
+        closedAt: now,
+        updatedAt: now,
+      },
     });
+
+    if (typeof reason === "string" && reason.trim()) {
+      await prisma.pledges.updateMany({
+        where: { campaignId, status: "SUCCESS" },
+        data: { cancellationReason: reason.trim().slice(0, 500), updatedAt: now },
+      });
+    }
+
+    const result = await processCampaignRefund(campaignId);
 
     return NextResponse.json({
       success: true,
-      message: `Dự án đã được hủy. Đã xử lý hoàn tiền cho ${refundedCount}/${successPledges.length} giao dịch.`,
-      refundedCount,
-      totalRefundAmount,
-      errors: refundErrors.length > 0 ? refundErrors : undefined,
+      message: `Du an da duoc huy. Da xu ly hoan so cho ${result.refundedCount}/${result.total ?? 0} giao dich.`,
+      refundedCount: result.refundedCount,
+      note: result.note,
     });
-
   } catch (error: any) {
     console.error("Cancel campaign error:", error);
-    return NextResponse.json({ error: error.message || "Lỗi hệ thống" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Loi he thong" }, { status: 500 });
   }
 }

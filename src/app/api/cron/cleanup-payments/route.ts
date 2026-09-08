@@ -2,18 +2,19 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 /**
- * CRON API: Dọn dẹp thanh toán bị treo hoặc thất bại lâu ngày
+ * CRON: Don phien chuyen khoan PENDING qua 48h.
+ * Khong dung COD (don cho giao) va khong dung SUCCESS.
  */
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const threshold = new Date(Date.now() - 48 * 60 * 60 * 1000); // 48 giờ trước
+    const threshold = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
-    // 1. Tìm các Pledge PENDING quá 48h
     const stalePledges = await prisma.pledges.findMany({
       where: {
         status: "PENDING",
-        createdAt: { lt: threshold }
-      }
+        createdAt: { lt: threshold },
+        paymentProvider: { not: "COD" },
+      },
     });
 
     for (const pledge of stalePledges) {
@@ -35,18 +36,17 @@ export async function GET(request: Request) {
             status: "FAILED",
             stockReserved: false,
             fulfillmentStatus: pledge.rewardId ? "CANCELED" : "NOT_APPLICABLE",
-            cancellationReason: "Phiên thanh toán đã hết hạn",
+            cancellationReason: "Phien chuyen khoan da het han (chua doi soat)",
             updatedAt: new Date(),
           },
         });
       });
     }
 
-    return NextResponse.json({ 
-        success: true, 
-        message: `Đã đánh dấu thất bại cho ${stalePledges.length} giao dịch hết hạn.` 
+    return NextResponse.json({
+      success: true,
+      message: `Da danh dau that bai cho ${stalePledges.length} giao dich het han.`,
     });
-
   } catch (error: any) {
     console.error("Cron Error (cleanup):", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
