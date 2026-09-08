@@ -42,32 +42,28 @@ function NoteAvatar({
     <button
       type="button"
       onClick={onClick}
-      className={cn(
-        "relative flex w-[72px] shrink-0 flex-col items-center",
-        showBubble ? "pt-9" : "pt-1",
-      )}
+      className="flex w-[76px] shrink-0 flex-col items-center"
       title={bubble || name}
     >
-      {showBubble && (
-        <span
-          className={cn(
-            "absolute left-1/2 top-0 z-10 w-[88px] -translate-x-1/2 rounded-[1.15rem] border px-2 py-1.5 text-center text-[11px] leading-tight line-clamp-2 shadow-sm",
-            empty
-              ? "border-gray-200 bg-white text-gray-400"
-              : "border-gray-200 bg-white text-gray-800",
-          )}
-        >
-          {bubble}
-          <span className="absolute left-1/2 top-full h-2 w-2 -translate-x-1/2 -translate-y-1 rotate-45 border-b border-r border-gray-200 bg-white" />
-        </span>
-      )}
-      <Avatar className="h-14 w-14 border-2 border-white shadow-sm">
+      <div className="flex h-12 w-full items-end justify-center">
+        {showBubble ? (
+          <span
+            className={cn(
+              "w-full rounded-2xl border px-1.5 py-1 text-center text-[10px] leading-tight line-clamp-2 break-all shadow-sm",
+              empty ? "border-gray-200 bg-white text-gray-400" : "border-gray-200 bg-white text-gray-800",
+            )}
+          >
+            {bubble}
+          </span>
+        ) : null}
+      </div>
+      <Avatar className="mt-1.5 h-14 w-14 border-2 border-white shadow-sm">
         <AvatarImage src={avatar} alt={name} />
         <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-sm font-bold text-white">
           {initials(name)}
         </AvatarFallback>
       </Avatar>
-      <span className="mt-1.5 w-full truncate text-center text-[11px] text-gray-600">{caption}</span>
+      <span className="mt-1 w-full truncate text-center text-[11px] text-gray-600">{caption}</span>
     </button>
   );
 }
@@ -88,14 +84,14 @@ export function ChatNotesTray({
 
   return (
     <div className="border-b bg-white">
-      <div className="flex gap-3 overflow-x-auto px-4 pb-3 pt-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex items-start gap-2 overflow-x-auto px-4 pb-3 pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <NoteAvatar
           name={currentUser.name || "Bạn"}
           avatar={currentUser.image || undefined}
           bubble={mine?.note?.trim() || "Ghi chú..."}
           empty={!mine?.note?.trim()}
           showBubble
-          caption="Ghi chú của bạn"
+          caption="Bạn"
           onClick={() => onEditOwn(mine?.note)}
         />
         {others.map((note) => {
