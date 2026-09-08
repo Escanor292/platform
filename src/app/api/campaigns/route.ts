@@ -24,7 +24,7 @@ import { persistRichText, RichTextValidationError, isRichTextEmpty } from "@/lib
 import { assertCleanContent } from "@/lib/moderation";
 import { isPublicCampaignStatus, PUBLIC_CAMPAIGN_STATUSES } from "@/lib/moderation/policy";
 import { permissionDenied, userHasPermission } from "@/lib/permissions";
-import { parseFundingModel } from "@/lib/funding-model";
+import { assertFundingModelAllowed } from "@/lib/funding-model";
 import { parseCampaignType, resolveCampaignTaxonomyInput } from "@/lib/taxonomy-write";
 
 export async function GET(req: NextRequest) {
@@ -166,7 +166,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(response);
   } catch (error) {
     console.error("[GET /api/campaigns]", error);
-    return NextResponse.json({ error: "Lỗi server khi tìm kiếm chiến dịch" }, { status: 500 });
+    return NextResponse.json({ error: "Loi server khi tim kiem chien dich" }, { status: 500 });
   }
 }
 
@@ -188,7 +188,7 @@ export async function POST(req: NextRequest) {
 
     const userId = session!.user!.id;
     if (!(await userHasPermission(session!.user, "campaign.create"))) {
-      return NextResponse.json(permissionDenied("Tài khoản này không được tạo chiến dịch."), { status: 403 });
+      return NextResponse.json(permissionDenied("Tai khoan nay khong duoc tao chien dich."), { status: 403 });
     }
     const body = await req.json();
     const { projectId } = body;
@@ -219,23 +219,28 @@ export async function POST(req: NextRequest) {
     const taxonomy = resolveCampaignTaxonomyInput(body);
     if ("error" in taxonomy) return validationErrorResponse(taxonomy.error);
     const goalAmount = Number(body.goalAmount);
-    const fundingModel = body.fundingModel == null
-      ? "ALL_OR_NOTHING"
-      : parseFundingModel(body.fundingModel);
-    if (!fundingModel) return validationErrorResponse("Mô hình gây quỹ không hợp lệ");
     const campaignType = body.type == null && body.campaignType == null
       ? "REWARD"
       : parseCampaignType(body.type || body.campaignType);
-    if (!campaignType) return validationErrorResponse("Loại chiến dịch không hợp lệ");
+    if (!campaignType) return validationErrorResponse("Loai chien dich khong hop le");
+    const requestedModel = body.fundingModel == null
+      ? (campaignType === "REWARD" ? "KEEP_IT_ALL" : "ALL_OR_NOTHING")
+      : body.fundingModel;
+    const fundingCheck = assertFundingModelAllowed({
+      fundingModel: requestedModel,
+      hasSellableRewards: campaignType === "REWARD",
+    });
+    if (!fundingCheck.ok) return validationErrorResponse(fundingCheck.error);
+    const fundingModel = fundingCheck.model;
 
-    if (!title) return validationErrorResponse('Tên chiến dịch là bắt buộc');
-    if (!tagline) return validationErrorResponse('Mô tả ngắn là bắt buộc');
-    if (!goalAmount || goalAmount <= 0) return validationErrorResponse('Số vốn mục tiêu không hợp lệ');
+    if (!title) return validationErrorResponse('Ten chien dich la bat buoc');
+    if (!tagline) return validationErrorResponse('Mo ta ngan la bat buoc');
+    if (!goalAmount || goalAmount <= 0) return validationErrorResponse('So von muc tieu khong hop le');
 
     try {
       await assertCleanContent([title, tagline, body.description, body.richDescription]);
     } catch (error: any) {
-      return validationErrorResponse(error.message || 'Nội dung chứa từ bị cấm');
+      return validationErrorResponse(error.message || 'Noi dung chua tu bi cam');
     }
 
     let longDescription = '';
@@ -249,7 +254,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (isRichTextEmpty(longDescription)) {
-      return validationErrorResponse('Nội dung chi tiết là bắt buộc');
+      return validationErrorResponse('Noi dung chi tiet la bat buoc');
     }
 
     const [campaignCode, slug] = await Promise.all([
