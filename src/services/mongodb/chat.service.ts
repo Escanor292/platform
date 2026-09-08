@@ -1029,7 +1029,7 @@ export async function getInboxNotes(userId: string): Promise<Array<{
   id: string;
   userId: string;
   note: string;
-  expiresAt: Date;
+  expiresAt: Date | null;
   isOwn: boolean;
   name: string;
   avatar?: string;
@@ -1037,13 +1037,15 @@ export async function getInboxNotes(userId: string): Promise<Array<{
   const db = await getDb();
   const followingIds = await listFollowingIds(userId);
   const authorIds = [userId, ...followingIds];
-  const raw = await db.collection(USER_NOTES_COLLECTION)
-    .find({
-      expiresAt: { $gt: new Date() },
-      userId: { $in: authorIds },
-    })
-    .sort({ updatedAt: -1 })
-    .toArray();
+  const raw = authorIds.length
+    ? await db.collection(USER_NOTES_COLLECTION)
+      .find({
+        expiresAt: { $gt: new Date() },
+        userId: { $in: authorIds },
+      })
+      .sort({ updatedAt: -1 })
+      .toArray()
+    : [];
 
   const latestByUser = new Map<string, any>();
   for (const row of raw) {
@@ -1056,27 +1058,33 @@ export async function getInboxNotes(userId: string): Promise<Array<{
     }
   }
 
-  const owners = [...latestByUser.keys()];
-  if (owners.length === 0) return [];
   const users = await prisma.users.findMany({
-    where: { id: { in: owners } },
+    where: { id: { in: authorIds } },
     select: { id: true, name: true, displayName: true, avatar: true },
   });
   const byId = new Map(users.map((u) => [u.id, u]));
 
-  return owners.map((ownerId) => {
-    const row = latestByUser.get(ownerId);
-    const user = byId.get(ownerId);
-    return {
-      id: String(row._id),
-      userId: ownerId,
-      note: String(row.note || ''),
-      expiresAt: row.expiresAt,
-      isOwn: ownerId === userId,
-      name: user?.displayName || user?.name || 'Người dùng',
-      avatar: user?.avatar || undefined,
-    };
-  }).sort((a, b) => Number(b.isOwn) - Number(a.isOwn));
+  const slots = authorIds
+    .map((ownerId) => {
+      const row = latestByUser.get(ownerId);
+      const user = byId.get(ownerId);
+      if (!user && ownerId !== userId) return null;
+      return {
+        id: row?._id ? String(row._id) : ownerId,
+        userId: ownerId,
+        note: String(row?.note || ''),
+        expiresAt: row?.expiresAt || null,
+        isOwn: ownerId === userId,
+        name: user?.displayName || user?.name || 'Người dùng',
+        avatar: user?.avatar || undefined,
+      };
+    })
+    .filter((slot): slot is NonNullable<typeof slot> => Boolean(slot));
+
+  const own = slots.filter((s) => s.isOwn);
+  const withNote = slots.filter((s) => !s.isOwn && s.note.trim());
+  const withoutNote = slots.filter((s) => !s.isOwn && !s.note.trim());
+  return [...own, ...withNote, ...withoutNote];
 }
 
 /**

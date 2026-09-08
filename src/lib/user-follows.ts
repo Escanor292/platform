@@ -50,7 +50,7 @@ export async function listFollowingIds(followerId: string): Promise<string[]> {
   try {
     await ensureUserFollowersTable();
     const rows = await prisma.$queryRawUnsafe<Array<{ following_id: string }>>(
-      `SELECT following_id FROM user_followers WHERE follower_id = $1`,
+      `SELECT following_id FROM user_followers WHERE follower_id = $1 ORDER BY created_at DESC`,
       followerId,
     );
     return rows.map((row) => row.following_id);

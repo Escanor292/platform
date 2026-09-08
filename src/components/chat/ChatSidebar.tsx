@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -61,6 +62,7 @@ export function ChatSidebar({
     onDeleteConversation,
 }: ChatSidebarProps) {
     const { data: session } = useSession();
+    const router = useRouter();
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState<'messages' | 'requests'>('messages');
     const [notes, setNotes] = useState<InboxNote[]>([]);
@@ -188,6 +190,7 @@ export function ChatSidebar({
                 onOpenUser={(userId) => {
                     const match = conversations.find((c) => c.userId === userId);
                     if (match) onSelectConversation(match.id);
+                    else router.push(`/profile/${userId}`);
                 }}
             />
 
