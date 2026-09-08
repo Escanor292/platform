@@ -64,7 +64,7 @@ export default function NavbarNew() {
     clearCloseTimeout();
     timeoutRef.current = setTimeout(() => {
       setIsDropdownOpen(false);
-    }, 100);
+    }, 250);
   };
 
   const handleTriggerMouseEnter = () => {
@@ -184,10 +184,17 @@ export default function NavbarNew() {
               )}
 
               {/* Profile Dropdown */}
-              <div className="relative">
+              <div
+                className="relative"
+                onMouseEnter={handleTriggerMouseEnter}
+                onMouseLeave={handleTriggerMouseLeave}
+              >
                 <button
                   ref={triggerRef}
+                  type="button"
                   onClick={handleTriggerClick}
+                  aria-expanded={isDropdownOpen}
+                  aria-haspopup="menu"
                   aria-label="Mở menu tài khoản"
                   className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded-xl transition focus-ring"
                 >
@@ -209,8 +216,12 @@ export default function NavbarNew() {
                 {isDropdownOpen && (
                   <div
                     ref={dropdownRef}
-                    className="absolute right-0 top-full mt-1 w-56 bg-white rounded-2xl shadow-premium border border-gray-100 p-2 z-50 animate-in fade-in zoom-in-95 duration-200"
+                    role="menu"
+                    onMouseEnter={handleDropdownMouseEnter}
+                    onMouseLeave={handleDropdownMouseLeave}
+                    className="absolute right-0 top-full z-50 pt-2"
                   >
+                    <div className="w-56 bg-white rounded-2xl shadow-premium border border-gray-100 p-2 animate-in fade-in zoom-in-95 duration-200">
                     {/* User Info */}
                     <div className="px-3 py-2 border-b border-gray-50 mb-2">
                       <p className="text-sm font-bold text-gray-900 truncate">{session.user?.name}</p>
@@ -306,6 +317,7 @@ export default function NavbarNew() {
                       <LogOut size={16} />
                       Đăng xuất
                     </button>
+                    </div>
                   </div>
                 )}
               </div>
