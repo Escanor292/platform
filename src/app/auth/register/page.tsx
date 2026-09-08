@@ -2,7 +2,6 @@
 
 import { signIn } from "next-auth/react";
 import { Globe, Sparkles, Heart, Users, Building2, User as UserIcon, Eye, EyeOff } from "lucide-react";
-import LeafIcon from "@/components/shared/LeafIcon";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -26,6 +25,7 @@ export default function RegisterPage() {
   const [accountType, setAccountType] = useState<"individual" | "organization">("individual");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -36,6 +36,11 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (!acceptedTerms) {
+      setError("Bạn cần đồng ý Điều khoản sử dụng và Chính sách bảo mật.");
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       setError("Mật khẩu xác nhận không khớp");
@@ -56,6 +61,7 @@ export default function RegisterPage() {
         body: JSON.stringify({
           ...formData,
           isOrganization: accountType === "organization",
+          acceptTerms: true,
         }),
       });
 
@@ -65,7 +71,6 @@ export default function RegisterPage() {
         throw new Error(data.error || "Đăng ký thất bại");
       }
 
-      // Auto login after registration
       const result = await signIn("credentials", {
         email: formData.email,
         password: formData.password,
@@ -87,38 +92,32 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream via-white to-fgreen/5 flex items-center justify-center px-4 py-24 relative overflow-hidden">
-      {/* Enhanced Blurry Background */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div
           className="absolute -top-20 -left-20 w-[40rem] h-[40rem] bg-pgreen/10 rounded-full blur-[120px] opacity-60"
-          style={{ animation: 'pulse 15s ease-in-out infinite' }}
+          style={{ animation: "pulse 15s ease-in-out infinite" }}
         />
         <div
           className="absolute -bottom-40 -right-20 w-[50rem] h-[50rem] bg-tblue/10 rounded-full blur-[150px] opacity-40"
-          style={{ animation: 'pulse 20s ease-in-out 2s infinite' }}
+          style={{ animation: "pulse 20s ease-in-out 2s infinite" }}
         />
       </div>
 
       <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-
-        {/* Left Side - Branding */}
         <div className="hidden lg:block space-y-8 animate-fade-in-up">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-fgreen/10 text-pgreen rounded-full text-xs font-black uppercase tracking-widest border border-fgreen/20">
             <Sparkles size={14} className="text-fgreen" />
             Tham gia cộng đồng
           </div>
-
           <h1 className="font-display text-6xl font-black text-gray-900 tracking-tight leading-[1.1]">
             Khởi đầu hành trình
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-pgreen via-fgreen to-tblue mt-2">
               Thay đổi thế giới
             </span>
           </h1>
-
           <p className="text-xl text-gray-600 font-medium leading-relaxed max-w-lg">
             Tham gia cộng đồng TửTế Fund - nơi những ý tưởng tuyệt vời được hiện thực hóa cùng sự ủng hộ của hàng ngàn trái tim.
           </p>
-
           <div className="grid grid-cols-2 gap-6 pt-8">
             <div className="glass-morphism p-6 rounded-3xl border border-white/20">
               <div className="w-12 h-12 bg-pgreen/10 rounded-2xl flex items-center justify-center text-pgreen mb-4">
@@ -127,7 +126,6 @@ export default function RegisterPage() {
               <div className="text-2xl font-black text-gray-900 mb-1">10,000+</div>
               <div className="text-xs text-gray-500 font-bold uppercase tracking-wider">Thành viên</div>
             </div>
-
             <div className="glass-morphism p-6 rounded-3xl border border-white/20">
               <div className="w-12 h-12 bg-fgreen/10 rounded-2xl flex items-center justify-center text-fgreen mb-4">
                 <Heart size={24} />
@@ -138,151 +136,78 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {/* Right Side - Register Form */}
-        <div className="w-full max-w-md mx-auto lg:mx-0 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+        <div className="w-full max-w-md mx-auto lg:mx-0 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
           <div className="glass-morphism p-10 rounded-[3rem] border border-white/20 shadow-premium">
             <div className="text-center mb-10">
-              <h2 className="font-display text-4xl font-black text-gray-900 mb-3 tracking-tight leading-[1.3]">
-                Tạo tài khoản
-              </h2>
-              <p className="text-gray-600 font-medium">
-                Bắt đầu hành trình sáng tạo của bạn ngay hôm nay
-              </p>
+              <h2 className="font-display text-4xl font-black text-gray-900 mb-3 tracking-tight leading-[1.3]">Tạo tài khoản</h2>
+              <p className="text-gray-600 font-medium">Bắt đầu hành trình sáng tạo của bạn ngay hôm nay</p>
             </div>
 
             <div className="space-y-6">
-              {/* Account Type Selection */}
               <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setAccountType("individual")}
-                  className={`p-4 rounded-2xl border-2 transition-all ${accountType === "individual"
-                    ? "border-pgreen bg-pgreen/5"
-                    : "border-gray-200 hover:border-gray-300"
-                    }`}
-                >
+                <button type="button" onClick={() => setAccountType("individual")} className={`p-4 rounded-2xl border-2 transition-all ${accountType === "individual" ? "border-pgreen bg-pgreen/5" : "border-gray-200 hover:border-gray-300"}`}>
                   <UserIcon size={24} className={`mx-auto mb-2 ${accountType === "individual" ? "text-pgreen" : "text-gray-400"}`} />
-                  <div className={`text-sm font-bold ${accountType === "individual" ? "text-pgreen" : "text-gray-600"}`}>
-                    Cá nhân
-                  </div>
+                  <div className={`text-sm font-bold ${accountType === "individual" ? "text-pgreen" : "text-gray-600"}`}>Cá nhân</div>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setAccountType("organization")}
-                  className={`p-4 rounded-2xl border-2 transition-all ${accountType === "organization"
-                    ? "border-pgreen bg-pgreen/5"
-                    : "border-gray-200 hover:border-gray-300"
-                    }`}
-                >
+                <button type="button" onClick={() => setAccountType("organization")} className={`p-4 rounded-2xl border-2 transition-all ${accountType === "organization" ? "border-pgreen bg-pgreen/5" : "border-gray-200 hover:border-gray-300"}`}>
                   <Building2 size={24} className={`mx-auto mb-2 ${accountType === "organization" ? "text-pgreen" : "text-gray-400"}`} />
-                  <div className={`text-sm font-bold ${accountType === "organization" ? "text-pgreen" : "text-gray-600"}`}>
-                    Tổ chức
-                  </div>
+                  <div className={`text-sm font-bold ${accountType === "organization" ? "text-pgreen" : "text-gray-600"}`}>Tổ chức</div>
                 </button>
               </div>
 
-              {/* Registration Form */}
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <input
-                    type="text"
-                    placeholder={accountType === "organization" ? "Tên tổ chức" : "Họ và tên"}
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                    className="w-full h-14 px-4 rounded-2xl border-2 border-gray-200 focus:border-pgreen focus:outline-none transition-colors"
-                  />
+                <input type="text" placeholder={accountType === "organization" ? "Tên tổ chức" : "Họ và tên"} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required className="w-full h-14 px-4 rounded-2xl border-2 border-gray-200 focus:border-pgreen focus:outline-none transition-colors" />
+                <input type="email" placeholder="Email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required className="w-full h-14 px-4 rounded-2xl border-2 border-gray-200 focus:border-pgreen focus:outline-none transition-colors" />
+                <div className="relative">
+                  <input type={showPassword ? "text" : "password"} placeholder="Mật khẩu" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} required minLength={6} className="w-full h-14 px-4 pr-12 rounded-2xl border-2 border-gray-200 focus:border-pgreen focus:outline-none transition-colors" />
+                  <button type="button" onClick={() => setShowPassword((prev) => !prev)} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2 text-gray-400 transition hover:bg-pgreen/10 hover:text-pgreen focus:outline-none focus-visible:ring-2 focus-visible:ring-pgreen/30" aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}>
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
-                <div>
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    required
-                    className="w-full h-14 px-4 rounded-2xl border-2 border-gray-200 focus:border-pgreen focus:outline-none transition-colors"
-                  />
+                <div className="relative">
+                  <input type={showConfirmPassword ? "text" : "password"} placeholder="Xác nhận mật khẩu" value={formData.confirmPassword} onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })} required minLength={6} className="w-full h-14 px-4 pr-12 rounded-2xl border-2 border-gray-200 focus:border-pgreen focus:outline-none transition-colors" />
+                  <button type="button" onClick={() => setShowConfirmPassword((prev) => !prev)} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2 text-gray-400 transition hover:bg-pgreen/10 hover:text-pgreen focus:outline-none focus-visible:ring-2 focus-visible:ring-pgreen/30" aria-label={showConfirmPassword ? "Ẩn mật khẩu xác nhận" : "Hiện mật khẩu xác nhận"}>
+                    {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
-                <div>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Mật khẩu"
-                      value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      required
-                      minLength={6}
-                      className="w-full h-14 px-4 pr-12 rounded-2xl border-2 border-gray-200 focus:border-pgreen focus:outline-none transition-colors"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((prev) => !prev)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2 text-gray-400 transition hover:bg-pgreen/10 hover:text-pgreen focus:outline-none focus-visible:ring-2 focus-visible:ring-pgreen/30"
-                      aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-5 w-5" />
-                      ) : (
-                        <Eye className="h-5 w-5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <div className="relative">
-                    <input
-                      type={showConfirmPassword ? "text" : "password"}
-                      placeholder="Xác nhận mật khẩu"
-                      value={formData.confirmPassword}
-                      onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                      required
-                      minLength={6}
-                      className="w-full h-14 px-4 pr-12 rounded-2xl border-2 border-gray-200 focus:border-pgreen focus:outline-none transition-colors"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword((prev) => !prev)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2 text-gray-400 transition hover:bg-pgreen/10 hover:text-pgreen focus:outline-none focus-visible:ring-2 focus-visible:ring-pgreen/30"
-                      aria-label={showConfirmPassword ? "Ẩn mật khẩu xác nhận" : "Hiện mật khẩu xác nhận"}
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff className="h-5 w-5" />
-                      ) : (
-                        <Eye className="h-5 w-5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
+
+                <label className="flex items-start gap-3 text-xs text-gray-600 leading-relaxed cursor-pointer">
+                  <input type="checkbox" checked={acceptedTerms} onChange={(e) => setAcceptedTerms(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-gray-300 text-pgreen focus:ring-pgreen" />
+                  <span>
+                    Tôi đã đọc và đồng ý với{" "}
+                    <Link href="/policy/terms" target="_blank" className="text-pgreen hover:underline font-semibold">Điều khoản sử dụng</Link>
+                    {", "}
+                    <Link href="/policy/privacy" target="_blank" className="text-pgreen hover:underline font-semibold">Chính sách bảo mật</Link>
+                    {" "}và hiểu Tử Tế Fund không phải quỹ từ thiện hay sàn token.
+                  </span>
+                </label>
 
                 {error && (
-                  <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm font-medium">
-                    {error}
-                  </div>
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm font-medium">{error}</div>
                 )}
 
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full h-14 bg-gradient-to-r from-pgreen to-fgreen hover:from-pgreen/90 hover:to-fgreen/90 text-white rounded-2xl font-bold transition-all hover:shadow-lg hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
+                <button type="submit" disabled={isLoading || !acceptedTerms} className="w-full h-14 bg-gradient-to-r from-pgreen to-fgreen hover:from-pgreen/90 hover:to-fgreen/90 text-white rounded-2xl font-bold transition-all hover:shadow-lg hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
                   {isLoading ? "Đang xử lý..." : "Tạo tài khoản"}
                 </button>
               </form>
 
               <div className="relative my-8">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200" />
-                </div>
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200" /></div>
                 <div className="relative flex justify-center">
-                  <span className="bg-white px-4 text-xs font-black text-gray-400 uppercase tracking-widest">
-                    Hoặc
-                  </span>
+                  <span className="bg-white px-4 text-xs font-black text-gray-400 uppercase tracking-widest">Hoặc</span>
                 </div>
               </div>
 
               <button
-                onClick={() => signIn("google", { callbackUrl })}
-                className="w-full h-14 bg-white hover:bg-gray-50 border-2 border-gray-200 rounded-2xl font-bold text-gray-900 flex items-center justify-center gap-3 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-95"
+                onClick={() => {
+                  if (!acceptedTerms) {
+                    setError("Bạn cần đồng ý Điều khoản sử dụng và Chính sách bảo mật trước khi đăng ký Google.");
+                    return;
+                  }
+                  signIn("google", { callbackUrl });
+                }}
+                disabled={!acceptedTerms}
+                className="w-full h-14 bg-white hover:bg-gray-50 border-2 border-gray-200 rounded-2xl font-bold text-gray-900 flex items-center justify-center gap-3 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Globe size={20} className="text-blue-600" />
                 Đăng ký với Google
@@ -291,32 +216,14 @@ export default function RegisterPage() {
               <div className="text-center">
                 <p className="text-sm text-gray-600 font-medium">
                   Bạn đã có tài khoản?{" "}
-                  <Link
-                    href={`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-                    className="text-pgreen font-black hover:text-fgreen transition-colors underline decoration-2 underline-offset-4"
-                  >
+                  <Link href={`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="text-pgreen font-black hover:text-fgreen transition-colors underline decoration-2 underline-offset-4">
                     Đăng nhập ngay
                   </Link>
-                </p>
-              </div>
-
-              <div className="pt-6 border-t border-gray-100">
-                <p className="text-xs text-gray-500 text-center leading-relaxed">
-                  Bằng việc đăng ký, bạn đồng ý với{" "}
-                  <a href="#" className="text-pgreen hover:underline font-semibold">
-                    Điều khoản dịch vụ
-                  </a>{" "}
-                  và{" "}
-                  <a href="#" className="text-pgreen hover:underline font-semibold">
-                    Chính sách bảo mật
-                  </a>{" "}
-                  của chúng tôi.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Mobile Stats */}
           <div className="lg:hidden grid grid-cols-2 gap-4 mt-8">
             <div className="glass-morphism p-6 rounded-2xl border border-white/20 text-center">
               <div className="text-2xl font-black text-gray-900 mb-1">10,000+</div>
