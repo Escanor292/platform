@@ -19,8 +19,12 @@ export async function recalculateCampaignAmount(
   const pledges = await tx.pledges.findMany({
     where: {
       campaignId,
-      status: { in: ["SUCCESS", "REFUNDED"] },
+      status: "SUCCESS",
       accountingAmount: { gt: 0 },
+      accountingReversedAt: null,
+      NOT: {
+        fulfillmentStatus: { in: [...REVERSING_FULFILLMENT_STATUSES] },
+      },
     },
     select: { accountingAmount: true },
   });
@@ -34,22 +38,22 @@ export async function recalculateCampaignAmount(
 
 export function fulfillmentLabel(status: string) {
   const labels: Record<string, string> = {
-    NOT_APPLICABLE: "Không áp dụng",
-    AWAITING_PAYMENT: "Chờ thanh toán",
-    PROCESSING: "Đang chuẩn bị",
-    SHIPPED: "Đang giao",
-    DELIVERED: "Đã giao",
-    DELIVERY_FAILED: "Giao không thành công",
-    CANCELED: "Đã hủy",
-    RETURN_REQUESTED: "Yêu cầu trả hàng",
-    RETURNED: "Đã trả hàng",
+    NOT_APPLICABLE: "Khong ap dung",
+    AWAITING_PAYMENT: "Cho thanh toan",
+    PROCESSING: "Dang chuan bi",
+    SHIPPED: "Dang giao",
+    DELIVERED: "Da giao",
+    DELIVERY_FAILED: "Giao khong thanh cong",
+    CANCELED: "Da huy",
+    RETURN_REQUESTED: "Yeu cau tra hang",
+    RETURNED: "Da tra hang",
   };
   return labels[status] ?? status;
 }
 
 export function reversalReason(pledge: { fulfillmentStatus: string; deliveryFailureReason: string | null; cancellationReason: string | null; returnReason: string | null }) {
-  if (pledge.fulfillmentStatus === "DELIVERY_FAILED") return pledge.deliveryFailureReason || "Giao hàng không thành công";
-  if (pledge.fulfillmentStatus === "CANCELED") return pledge.cancellationReason || "Hủy đơn hàng";
-  if (pledge.fulfillmentStatus === "RETURNED") return pledge.returnReason || "Trả hàng";
+  if (pledge.fulfillmentStatus === "DELIVERY_FAILED") return pledge.deliveryFailureReason || "Giao hang khong thanh cong";
+  if (pledge.fulfillmentStatus === "CANCELED") return pledge.cancellationReason || "Huy don hang";
+  if (pledge.fulfillmentStatus === "RETURNED") return pledge.returnReason || "Tra hang";
   return null;
 }
