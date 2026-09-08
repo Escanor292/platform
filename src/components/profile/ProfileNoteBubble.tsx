@@ -29,7 +29,7 @@ export function ProfileNoteBubble({
           if (canEdit) setOpen(true);
         }}
         className={cn(
-          "absolute -top-3 left-2 z-20 max-w-[132px] rounded-2xl rounded-bl-md border border-white/80 bg-white px-2.5 py-1.5 text-left text-[11px] leading-tight shadow-md line-clamp-2",
+          "absolute -top-4 left-1/2 z-20 w-max max-w-[148px] -translate-x-1/2 rounded-2xl border border-white/80 bg-white px-2.5 py-1.5 text-center text-[11px] leading-tight shadow-md line-clamp-2",
           note ? "text-gray-800" : "text-gray-400",
           canEdit ? "cursor-pointer hover:shadow-lg" : "cursor-default",
         )}
