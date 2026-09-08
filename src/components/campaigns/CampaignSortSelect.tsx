@@ -40,8 +40,9 @@ export function CampaignSortSelect({ value, onChange }: CampaignSortSelectProps)
   return (
     <div className="relative z-[100] overflow-visible" ref={dropdownRef}>
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full h-12 pl-12 pr-10 rounded-xl border-2 border-pgreen/20 focus:border-pgreen focus:ring-2 focus:ring-pgreen/20 focus:outline-none transition-all font-medium text-sm bg-white cursor-pointer hover:border-pgreen/40 text-dblue flex items-center justify-between"
+        className="relative flex h-12 w-full cursor-pointer items-center justify-between rounded-xl border-2 border-pgreen/20 bg-white pl-12 pr-10 text-sm font-medium text-dblue transition-all hover:border-pgreen/40 focus:border-pgreen focus:outline-none focus:ring-2 focus:ring-pgreen/20"
       >
         <ArrowUpDown className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
         <span className="flex-1 text-left">{selectedOption?.label}</span>
@@ -49,7 +50,7 @@ export function CampaignSortSelect({ value, onChange }: CampaignSortSelectProps)
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 right-0 top-full z-[999] mt-2 w-full bg-white rounded-2xl border border-pgreen/20 shadow-2xl overflow-hidden max-h-72 overflow-y-auto">
+        <div className="absolute left-0 right-0 top-full z-[999] mt-2 max-h-72 w-max min-w-full overflow-y-auto rounded-2xl border border-pgreen/20 bg-white shadow-2xl">
           {sortOptions.map((option) => (
             <button
               key={option.value}

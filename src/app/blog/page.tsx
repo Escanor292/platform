@@ -65,7 +65,7 @@ export default async function BlogPage({
   return (
     <div className="min-h-screen bg-white">
       <section
-        className="relative overflow-hidden px-6 pt-28 pb-16 md:pt-32 md:pb-20"
+        className="relative z-20 overflow-visible px-6 pt-28 pb-16 md:pt-32 md:pb-20"
         style={{
           background: 'linear-gradient(180deg, #F8F7F2 0%, #f0f8f4 50%, #F8F7F2 100%)'
         }}
