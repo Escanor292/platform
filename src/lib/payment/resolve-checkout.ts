@@ -28,7 +28,7 @@ export function decideCheckoutBucket(
   const open = isCampaignOpenForPledges(campaignStatus);
   if (!hasReward) {
     if (!open) {
-      return { ok: false, status: 404, error: "Chien dich khong ton tai hoac chua mo nhan ung ho" };
+      return { ok: false, status: 404, error: "Chiến dịch không tồn tại hoặc chưa mở nhận ủng hộ" };
     }
     return { ok: true, bucket: "CAMPAIGN" };
   }
@@ -36,7 +36,7 @@ export function decideCheckoutBucket(
   if (!campaignStatus || isCampaignClosed(campaignStatus)) {
     return { ok: true, bucket: "PRODUCT" };
   }
-  return { ok: false, status: 404, error: "Chien dich chua mo nhan ung ho" };
+  return { ok: false, status: 404, error: "Chiến dịch chưa mở nhận ủng hộ" };
 }
 
 export async function resolveCheckoutTarget(params: {
@@ -64,11 +64,11 @@ export async function resolveCheckoutTarget(params: {
     : null;
 
   if (params.rewardId && !reward) {
-    return { ok: false, status: 404, error: "Phan qua khong ton tai, da tat hoac khong thuoc chien dich nay" };
+    return { ok: false, status: 404, error: "Phần quà không tồn tại, đã tắt hoặc không thuộc chiến dịch này" };
   }
 
   if (params.campaignId && reward?.campaignId && reward.campaignId !== params.campaignId) {
-    return { ok: false, status: 404, error: "Phan qua khong ton tai, da tat hoac khong thuoc chien dich nay" };
+    return { ok: false, status: 404, error: "Phần quà không tồn tại, đã tắt hoặc không thuộc chiến dịch này" };
   }
 
   const campaignLookupId = params.campaignId || reward?.campaignId || "";
@@ -80,7 +80,7 @@ export async function resolveCheckoutTarget(params: {
     : null;
 
   if (params.campaignId && !campaign) {
-    return { ok: false, status: 404, error: "Chien dich khong ton tai" };
+    return { ok: false, status: 404, error: "Chiến dịch không tồn tại" };
   }
 
   const decision = decideCheckoutBucket(Boolean(reward), campaign?.status);
@@ -93,7 +93,7 @@ export async function resolveCheckoutTarget(params: {
 
   if (decision.bucket === "CAMPAIGN") {
     if (!campaign) {
-      return { ok: false, status: 404, error: "Chien dich khong ton tai hoac chua mo nhan ung ho" };
+      return { ok: false, status: 404, error: "Chiến dịch không tồn tại hoặc chưa mở nhận ủng hộ" };
     }
     return {
       ok: true,
