@@ -4,7 +4,7 @@
 
 | File | Nội dung |
 | --- | --- |
-| [QUY-DINH-PHAP-LUAT.md](./QUY-DINH-PHAP-LUAT.md) | Phân loại dòng tiền A/B, NĐ 93, thuế, ranh giới token, checklist thuyết minh |
+| [QUY-DINH-PHAP-LUAT.md](./QUY-DINH-PHAP-LUAT.md) | Phân loại dòng tiền A/B, NĐ 93, thuế CNKD, checklist thuyết minh. Web3/token chỉ ghi để **loại trừ** — sản phẩm không triển khai. |
 
 Điều khoản runtime (lớp A) nằm trên app:
 

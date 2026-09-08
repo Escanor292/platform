@@ -3,7 +3,8 @@
 > **Loại tài liệu:** nghiên cứu đồ án / thuyết minh (lớp C).  
 > **Không phải:** tư vấn pháp lý, điều khoản người dùng, hay giấy phép hoạt động.  
 > **Ngày soạn:** 08/09/2026. Cập nhật dẫn chiếu trước ngày bảo vệ.  
-> **Sinh viên:** Nguyễn Quách Phú Tài (MSSV 123000609) — ĐH Lạc Hồng, PTUD.
+> **Sinh viên:** Nguyễn Quách Phú Tài (MSSV 123000609) — ĐH Lạc Hồng, PTUD.  
+> **Phạm vi sản phẩm:** Tử Tế Fund **không** nhận, giữ, hay chuyển tài sản mã hóa; **không** có ví Web3, NFT, order book, hay thanh toán crypto. Tài sản số trên sàn = file / key / truyện đưa vào **Kho đồ** sau thanh toán VND.
 
 Tài liệu này trả lời một câu hỏi trước khi viết tính năng: **chiến dịch đang ở nhóm dòng tiền nào?**
 
@@ -22,7 +23,7 @@ Tài liệu này trả lời một câu hỏi trước khi viết tính năng: *
 3. [Nhóm B — quà / pre-order / bán hàng tạo quỹ](#3-nhóm-b--ủng-hộ-có-quà--pre-order--bán-hàng-tạo-quỹ)
 4. [Thủ tục theo mốc thời gian](#4-thủ-tục-theo-mốc-thời-gian)
 5. [Vai trò Tử Tế Fund với tư cách nền tảng](#5-vai-trò-tử-tế-fund-với-tư-cách-nền-tảng)
-6. [Thị trường tài sản mã hóa — chỉ để đặt ranh giới](#6-thị-trường-tài-sản-mã-hóa--chỉ-để-đặt-ranh-giới)
+6. [Phạm vi loại trừ — Web3 / tài sản mã hóa (không triển khai)](#6-phạm-vi-loại-trừ--web3--tài-sản-mã-hóa-không-triển-khai)
 7. [Rủi ro và xử lý trên sản phẩm](#7-rủi-ro-thường-gặp-và-cách-xử-lý-trên-sản-phẩm)
 8. [Checklist thuyết minh đồ án](#8-checklist-đưa-vào-thuyết-minh-đồ-án)
 9. [Văn bản nên dẫn](#9-văn-bản-nên-dẫn)
@@ -40,7 +41,7 @@ Trước khi mở campaign, Creator và nền tảng phải gắn đúng **một
 | --- | --- | --- | --- |
 | **A. Ủng hộ thuần túy** | Không hàng, không quyền dùng | NĐ 93/2021 **nếu đúng phạm vi** từ thiện quy định | Pledge không reward; luôn thanh toán ONLINE |
 | **B. Pre-order / bán quà** | Key, file, quà vật lý, credit | Luật Thương mại + TMĐT + thuế doanh thu | Reward + Kho đồ số + COD tùy sản phẩm |
-| **C. Token / NFT** | Tài sản mã hóa chuyển nhượng được | NQ 05/2025, TT 32 & 41/2026, NĐ 284/2026 | **Chưa triển khai**; chỉ nghiên cứu hybrid |
+| ~~C. Token / NFT~~ | Tài sản mã hóa chuyển nhượng được | NQ 05/2025 và văn bản thuế token | **Không có trên sản phẩm.** Chỉ ghi trong tài liệu đồ án để loại trừ phạm vi. |
 
 ### Phạm vi NĐ 93/2021
 
@@ -151,41 +152,28 @@ Sàn trong nước đã kết nối ngân hàng và lưu lịch sử nộp tiề
 Quy tắc vận hành:
 
 - Không nhận tiền mặt hộ ngoài cổng đã tích hợp.
-- Không quảng cáo chiến dịch token như hàng hóa đã được cấp phép.
 - Có nút báo cáo lạm dụng / hàng lậu / gây quỹ giả.
 - Audit log thanh toán, KYC, hoàn tiền phải đủ để trả lời ngân hàng.
 
-**Một câu dùng trong thuyết minh và footer sản phẩm:**
+**Một câu dùng trong thuyết minh:**
 
-> Tử Tế Fund là nền tảng trung gian thanh toán VND và quản lý campaign. Không phải quỹ từ thiện theo NĐ 93 và không phải sàn tài sản mã hóa. Nghĩa vụ thuế, thông báo chính quyền và đăng ký TMĐT thuộc về Creator theo bản chất dòng tiền thực tế.
+> Tử Tế Fund là nền tảng trung gian thanh toán VND và quản lý campaign. Không phải quỹ từ thiện theo NĐ 93. Nghĩa vụ thuế, thông báo chính quyền và đăng ký TMĐT thuộc về Creator theo bản chất dòng tiền thực tế.
 
 ---
 
-## 6. Thị trường tài sản mã hóa — chỉ để đặt ranh giới
+## 6. Phạm vi loại trừ — Web3 / tài sản mã hóa (**không triển khai**)
 
-Việt Nam đang thí điểm thị trường tài sản mã hóa:
+> **Trạng thái 08/09/2026:** không có giao dịch mã hóa trên Tử Tế Fund. Không ví Web3, không mint/bán NFT, không nhận góp bằng token, không escrow on-chain. Kho đồ chỉ chứa hàng số sau thanh toán VND (file, license key, truyện). Mục này giữ cho đồ án, **không** đưa lên `/policy/*`.
 
-- Nghị quyết 05/2025/NQ-CP
-- Thông tư 32/2026/TT-BTC (thuế, hiệu lực 27/3/2026)
-- Thông tư 41/2026/TT-BTC (kê khai, khấu trừ)
-- Nghị định 284/2026/NĐ-CP về xử phạt
+Khung thí điểm Việt Nam (NQ 05/2025/NQ-CP, TT 32 & 41/2026/TT-BTC, NĐ 284/2026/NĐ-CP) chỉ áp khi có đơn vị được cấp phép và có giao dịch token thật. Sàn này không thuộc đối tượng đó.
 
-CAEX, TCEX và một số đơn vị khác là doanh nghiệp **đã nộp hồ sơ xin phép**, chưa đồng nghĩa đã được cấp phép hoạt động tại thời điểm viết.
+Đừng trộn hai loại “tài sản số”:
 
-| Nội dung | Hướng dẫn đang công bố | Hệ quả với Tử Tế Fund |
-| --- | --- | --- |
-| GTGT chuyển nhượng token | Không chịu GTGT theo TT 32 | Chỉ áp cho giao dịch token đúng nghĩa, **không** áp cho bán file/pre-order fiat |
-| TNCN cá nhân qua sàn có phép | 0,1% trên giá chuyển nhượng từng lần | Sàn đối tác khấu trừ; Fund không tự thu thuế token |
-| TNDN tổ chức trong nước | 20% trên thu nhập chuyển nhượng (có mức giảm DNNVV) | Creator pháp nhân tự hạch toán |
-| Giao dịch ngoài đơn vị có phép | NĐ 284 dự kiến xử phạt khi thị trường chính thức có sàn | Không tự mở order book NFT |
+| Trên Tử Tế Fund | Không có trên Tử Tế Fund |
+| --- | --- |
+| File, key, truyện → Kho đồ sau PayOS / VietQR / SePay | NFT, token, ví crypto, order book, badge on-chain |
 
-### Đừng trộn hai sắc thuế
-
-Bán game 200.000 đồng bằng PayOS là doanh thu hàng hóa/dịch vụ số. Mint NFT trên sàn có phép rồi chuyển nhượng token mới xét TT 32.
-
-Một sản phẩm có thể đi cả hai nhánh; hệ thống phải **tách ledger**, không gắn nhãn “miễn GTGT” cho mọi SKU.
-
-Web3 nếu có chỉ là phụ lục nghiên cứu: badge/NFT lưu niệm **sau** thanh toán fiat, neo hash mốc. Không thay escrow.
+Bán game 200.000 đồng bằng PayOS là doanh thu hàng hóa/dịch vụ số (nhóm B). Không gắn nhãn thuế token cho SKU fiat.
 
 ---
 
@@ -196,8 +184,7 @@ Web3 nếu có chỉ là phụ lục nghiên cứu: badge/NFT lưu niệm **sau*
 | Gọi vốn từ thiện giả | Không quà + mục đích mơ hồ + STK cá nhân | Ép chọn nhóm A/B; khóa campaign; yêu cầu KYC |
 | Trốn thuế pre-order | Bán key nhưng khai donate | Reward digital = nhóm B mặc định |
 | Ngân hàng treo tiền | Payout ngoại tệ lớn | Gói chứng từ dashboard + đối soát |
-| Hàng lậu NFT/file | Hash trùng, report cộng đồng | Gỡ listing, hoàn tiền, khóa user |
-| Tự nhận là sàn token | UI mua bán NFT P2P | Cấm đến khi có đối tác được cấp phép |
+| Hàng lậu file / key | Hash trùng, report cộng đồng | Gỡ listing, hoàn tiền, khóa user |
 
 ---
 
@@ -205,11 +192,11 @@ Web3 nếu có chỉ là phụ lục nghiên cứu: badge/NFT lưu niệm **sau*
 
 Dùng nguyên các gạch đầu dòng này trên slide bảo vệ:
 
-- [ ] Nêu rõ Tử Tế Fund là nền tảng trung gian thanh toán VND + quản lý campaign, **không** phải quỹ từ thiện và **không** phải sàn tài sản mã hóa.
+- [ ] Nêu rõ Tử Tế Fund là nền tảng trung gian thanh toán VND + quản lý campaign, **không** phải quỹ từ thiện.
 - [ ] Hai nhóm chiến dịch: không quà / có quà. Điều khoản hoàn tiền khác nhau.
 - [ ] Creator phải KYC trước khi public.
 - [ ] Website nếu vận hành thương mại cần lộ trình thông báo TMĐT.
-- [ ] Web3 chỉ là phụ lục nghiên cứu: badge/NFT lưu niệm sau thanh toán fiat, neo hash mốc, không thay escrow.
+- [ ] **Web3 / tài sản mã hóa: không triển khai.** Kho đồ = file/key/truyện sau thanh toán fiat.
 - [ ] Mọi số thuế trong slide phải ghi nguồn văn bản và ngày hiệu lực.
 
 ---
@@ -221,13 +208,10 @@ Dùng nguyên các gạch đầu dòng này trên slide bảo vệ:
 | Nghị định 93/2021/NĐ-CP | Đóng góp tự nguyện theo đúng phạm vi |
 | Luật Thương mại; quy định quản lý TMĐT đối với website bán hàng | Nhóm B |
 | Thông tư 40/2021/TT-BTC và hướng dẫn khai thuế cá nhân kinh doanh hiện hành | CNKD / pre-order |
-| Nghị quyết 05/2025/NQ-CP | Thí điểm thị trường tài sản mã hóa |
-| Thông tư 32/2026/TT-BTC | Thuế token (hiệu lực 27/3/2026) |
-| Thông tư 41/2026/TT-BTC | Kê khai, khấu trừ token |
-| Nghị định 284/2026/NĐ-CP | Xử phạt |
+| Nghị quyết 05/2025/NQ-CP; TT 32 & 41/2026/TT-BTC; NĐ 284/2026/NĐ-CP | **Loại trừ phạm vi** — không áp dụng vì sản phẩm không có giao dịch token |
 | Pháp luật bảo vệ dữ liệu cá nhân | Hồ sơ KYC |
 
-Cập nhật lại các dẫn chiếu này trước ngày bảo vệ vì khung thí điểm tài sản mã hóa còn thay đổi nhanh.
+Cập nhật lại các dẫn chiếu này trước ngày bảo vệ. Khung thí điểm tài sản mã hóa **không** là phạm vi sản phẩm hiện tại.
 
 ---
 
@@ -237,15 +221,14 @@ Trạng thái đối chiếu **08/09/2026**. Code là nguồn sự thật runtim
 
 | Quyết định thiết kế | Trên sản phẩm | Ghi chú |
 | --- | --- | --- |
-| Không phải quỹ / không phải sàn token | Copy trên `/policy/terms`, `/policy` | Đúng lớp A |
+| Không phải quỹ từ thiện | Copy trên `/policy/terms`, `/policy` | Đúng lớp A |
 | Hai nhóm A/B | Hướng dẫn `/huong-dan/creator`; điều khoản Creator | **Chưa** có field bắt chọn A/B lúc tạo campaign |
 | KYC trước public | `/kyc`, `/api/kyc/*`, admin eKYC toggle | P0–P2 đã có |
-| Thanh toán VND | PayOS / VietQR / SePay / MoMo kế hoạch | Không Web3 escrow |
+| Thanh toán VND | PayOS / VietQR / SePay / MoMo kế hoạch | Không cổng crypto |
 | Pledge không reward = ONLINE | `PledgeFormContent` ẩn COD khi `!allowsCod` | Đã có |
-| Kho đồ số + thu hồi khi refund | `/purchases`, `grantDigitalWarehouseItem` | Đã có |
+| Kho đồ số + thu hồi khi refund | `/purchases`, `grantDigitalWarehouseItem` | File / key / truyện — **không** NFT |
 | Báo cáo lạm dụng | `CampaignReportModal` | Đã có |
 | Đồng ý điều khoản lúc đăng ký | Checkbox + `acceptTerms` trên `POST /api/auth/register` | Đã có |
-| UI mua bán NFT P2P | Không triển khai | Giữ cấm |
 
 ### Việc còn lại (product, không phải docs)
 
@@ -255,4 +238,4 @@ Trạng thái đối chiếu **08/09/2026**. Code là nguồn sự thật runtim
 
 ---
 
-*Nguồn gốc: tái cấu trúc từ `Quy_Dinh_Phap_Luat.docx` (ghi chú nghiên cứu NĐ 93, TMĐT, thuế CNKD, ranh giới tài sản mã hóa). Dùng cho đồ án Tử Tế Fund.*
+*Nguồn gốc: tái cấu trúc từ `Quy_Dinh_Phap_Luat.docx` (ghi chú nghiên cứu NĐ 93, TMĐT, thuế CNKD). Phần tài sản mã hóa chỉ để loại trừ phạm vi — **hiện không triển khai**.*

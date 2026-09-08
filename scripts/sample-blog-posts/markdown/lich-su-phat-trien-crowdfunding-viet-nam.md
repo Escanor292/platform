@@ -73,7 +73,7 @@ Crowdfunding đã trở thành một phần quan trọng của hệ sinh thái k
 
 ### Xu hướng hiện tại
 - AI và machine learning được áp dụng
-- Blockchain và crypto crowdfunding
+- Thanh toán số VND (ví điện tử, QR)
 - ESG và tác động xã hội được chú trọng
 
 ### Thách thức mới

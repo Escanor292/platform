@@ -17,7 +17,7 @@ Tài liệu yêu cầu chi tiết nằm tại [`SRS-TU-TE-FUND.md`](./SRS-TU-TE-
 9. [`MONGODB_SCHEMA_DBML.txt`](./MONGODB_SCHEMA_DBML.txt) — snapshot collection/index MongoDB từ source runtime.
 10. [`VERCEL_ENV_VARIABLES.txt`](./VERCEL_ENV_VARIABLES.txt) — danh sách biến môi trường do chủ dự án yêu cầu giữ lại; không chia sẻ công khai.
 11. [`VERCEL_ENV_VARIABLES.example.txt`](./VERCEL_ENV_VARIABLES.example.txt) — template placeholder an toàn để tham khảo.
-12. [`phap-luat/QUY-DINH-PHAP-LUAT.md`](./phap-luat/QUY-DINH-PHAP-LUAT.md) — nghiên cứu đồ án: phân loại dòng tiền A/B, NĐ 93, thuế, ranh giới token. **Không** phải điều khoản người dùng (lớp A nằm ở `/policy/*`).
+12. [`phap-luat/QUY-DINH-PHAP-LUAT.md`](./phap-luat/QUY-DINH-PHAP-LUAT.md) — nghiên cứu đồ án: phân loại dòng tiền A/B, NĐ 93, thuế. Web3/token **không triển khai** trên sản phẩm; chỉ ghi để loại trừ phạm vi. **Không** phải điều khoản người dùng (lớp A nằm ở `/policy/*`).
 
 ## Bảo toàn Markdown cũ
 

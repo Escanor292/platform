@@ -178,7 +178,7 @@ export default function RegisterPage() {
                     <Link href="/policy/terms" target="_blank" className="text-pgreen hover:underline font-semibold">Điều khoản sử dụng</Link>
                     {", "}
                     <Link href="/policy/privacy" target="_blank" className="text-pgreen hover:underline font-semibold">Chính sách bảo mật</Link>
-                    {" "}và hiểu Tử Tế Fund không phải quỹ từ thiện hay sàn token.
+                    {" "}và hiểu Tử Tế Fund không phải quỹ từ thiện.
                   </span>
                 </label>
 
