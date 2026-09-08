@@ -26,7 +26,6 @@ export default function FollowButton({
     const [guestEmail, setGuestEmail] = useState('');
     const [showEmailInput, setShowEmailInput] = useState(false);
 
-    // Check follow status on mount
     useEffect(() => {
         checkFollowStatus();
     }, [campaignSlug, session]);
@@ -86,11 +85,11 @@ export default function FollowButton({
                 setShowEmailInput(false);
             } else {
                 const error = await response.json();
-                toast.error(error.error || 'Có lỗi xảy ra');
+                toast.error(error.error || 'Co loi xay ra');
             }
         } catch (error) {
             console.error('Error toggling follow:', error);
-            toast.error('Có lỗi xảy ra khi thực hiện');
+            toast.error('Co loi xay ra khi thuc hien');
         } finally {
             setIsLoading(false);
         }
@@ -111,7 +110,7 @@ export default function FollowButton({
                         type="email"
                         value={guestEmail}
                         onChange={(e) => setGuestEmail(e.target.value)}
-                        placeholder="Nhập email để quan tâm dự án"
+                        placeholder="Nhap email de quan tam du an"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         required
                     />
@@ -119,16 +118,18 @@ export default function FollowButton({
                         <button
                             type="submit"
                             disabled={isLoading || !guestEmail.trim()}
+                            data-analytics-cta="campaign_follow_guest"
+                            data-analytics-label="Quan tam"
                             className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {isLoading ? 'Đang xử lý...' : 'Quan tâm'}
+                            {isLoading ? 'Dang xu ly...' : 'Quan tam'}
                         </button>
                         <button
                             type="button"
                             onClick={() => setShowEmailInput(false)}
                             className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50"
                         >
-                            Hủy
+                            Huy
                         </button>
                     </div>
                 </form>
@@ -141,6 +142,8 @@ export default function FollowButton({
             <button
                 onClick={handleFollow}
                 disabled={isLoading}
+                data-analytics-cta="campaign_follow"
+                data-analytics-label={isFollowing ? 'Bo quan tam' : 'Quan tam'}
                 className={`${getFollowButtonClass(isFollowing, "px-4 py-2")} disabled:opacity-50 disabled:cursor-not-allowed`}
             >
                 {isFollowing ? (
@@ -150,17 +153,17 @@ export default function FollowButton({
                 )}
                 <span>
                     {isLoading
-                        ? 'Đang xử lý...'
+                        ? 'Dang xu ly...'
                         : isFollowing
-                            ? 'Đã quan tâm'
-                            : 'Quan tâm'
+                            ? 'Da quan tam'
+                            : 'Quan tam'
                     }
                 </span>
             </button>
 
             {showCount && (
                 <span className="text-sm text-gray-600 font-medium">
-                    {followersCount.toLocaleString('vi-VN')} người quan tâm
+                    {followersCount.toLocaleString('vi-VN')} nguoi quan tam
                 </span>
             )}
         </div>
