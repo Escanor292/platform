@@ -10,7 +10,7 @@ import {
 import { z } from "zod";
 import { persistRichText, RichTextValidationError } from "@/lib/editor/persist";
 import { isPublicCampaignStatus } from "@/lib/moderation/policy";
-import { canEditFundingModel, parseFundingModel } from "@/lib/funding-model";
+import { assertFundingModelAllowed, canEditFundingModel, campaignHasSellableRewards } from "@/lib/funding-model";
 import { parseCampaignType, resolveCampaignTaxonomyInput } from "@/lib/taxonomy-write";
 import { cacheInvalidatePrefix, CAMPAIGNS_CACHE_PREFIX } from "@/lib/redis-cache";
 
@@ -73,7 +73,7 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug: 
 
     if (!campaign) {
       return NextResponse.json(
-        { error: "Không tìm thấy campaign" },
+        { error: "Khong tim thay campaign" },
         { status: 404 }
       );
     }
@@ -83,13 +83,13 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ slug: 
     const isOwner = !!user?.id && user.id === campaign.creatorId;
     const isAdmin = user?.role === "ADMIN" || user?.isAdmin === true;
     if (!isPublicCampaignStatus(campaign.status) && !isOwner && !isAdmin) {
-      return NextResponse.json({ error: "Không tìm thấy campaign" }, { status: 404 });
+      return NextResponse.json({ error: "Khong tim thay campaign" }, { status: 404 });
     }
 
     return NextResponse.json(campaign);
   } catch (error) {
     console.error("[GET /api/campaigns/[id]]", error);
-    return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
+    return NextResponse.json({ error: "Loi server" }, { status: 500 });
   }
 }
 
@@ -105,12 +105,20 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ slug: s
 
     const campaign = await prisma.campaigns.findFirst({
       where: { OR: [{ slug }, { id: slug }] },
-      select: { id: true, creatorId: true, slug: true, status: true, fundingModel: true, type: true }
+      select: {
+        id: true,
+        creatorId: true,
+        slug: true,
+        status: true,
+        fundingModel: true,
+        type: true,
+        _count: { select: { rewards: true } },
+      }
     });
 
     if (!campaign) {
       return NextResponse.json(
-        { error: "Không tìm thấy campaign" },
+        { error: "Khong tim thay campaign" },
         { status: 404 }
       );
     }
@@ -132,6 +140,8 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ slug: s
     const taxonomy = resolveCampaignTaxonomyInput(body);
     if ("error" in taxonomy) return validationErrorResponse(taxonomy.error);
 
+    const hasProducts = campaignHasSellableRewards(campaign._count.rewards);
+
     const updateData: any = {
       title: body.title,
       description: body.tagline || body.description,
@@ -147,19 +157,24 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ slug: s
 
     if (body.type !== undefined || body.campaignType !== undefined) {
       const campaignType = parseCampaignType(body.type || body.campaignType);
-      if (!campaignType) return validationErrorResponse("Loại chiến dịch không hợp lệ");
+      if (!campaignType) return validationErrorResponse("Loai chien dich khong hop le");
       updateData.type = campaignType;
     }
 
     if (body.fundingModel !== undefined) {
-      const nextModel = parseFundingModel(body.fundingModel);
-      if (!nextModel) return validationErrorResponse("Mô hình gây quỹ không hợp lệ");
-      if (nextModel !== campaign.fundingModel && !canEditFundingModel(campaign.status)) {
-        return validationErrorResponse("Không thể đổi mô hình gây quỹ sau khi chiến dịch đã được duyệt");
+      const fundingCheck = assertFundingModelAllowed({
+        fundingModel: body.fundingModel,
+        hasSellableRewards: hasProducts,
+      });
+      if (!fundingCheck.ok) return validationErrorResponse(fundingCheck.error);
+      if (fundingCheck.model !== campaign.fundingModel && !canEditFundingModel(campaign.status)) {
+        return validationErrorResponse("Khong the doi mo hinh gay quy sau khi chien dich da duoc duyet");
       }
       if (canEditFundingModel(campaign.status)) {
-        updateData.fundingModel = nextModel;
+        updateData.fundingModel = fundingCheck.model;
       }
+    } else if (hasProducts && campaign.fundingModel === "ALL_OR_NOTHING" && canEditFundingModel(campaign.status)) {
+      updateData.fundingModel = "KEEP_IT_ALL";
     }
 
     if ('projectId' in body) {
@@ -219,7 +234,7 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ slug: s
     return NextResponse.json(updated);
   } catch (error) {
     console.error("[PUT /api/campaigns/[slug]]", error);
-    return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
+    return NextResponse.json({ error: "Loi server" }, { status: 500 });
   }
 }
 
@@ -234,22 +249,22 @@ export async function DELETE(_req: NextRequest, context: { params: Promise<{ slu
 
     if (!campaign) {
       return NextResponse.json(
-        { error: "Không tìm thấy campaign" },
+        { error: "Khong tim thay campaign" },
         { status: 404 }
       );
     }
 
     if (campaign._count.pledges > 0) {
       return NextResponse.json(
-        { error: "Không thể xóa campaign đã có người ủng hộ" },
+        { error: "Khong the xoa campaign da co nguoi ung ho" },
         { status: 400 }
       );
     }
 
     await prisma.campaigns.delete({ where: { id: campaign.id } });
-    return NextResponse.json({ message: "Đã xóa campaign" });
+    return NextResponse.json({ message: "Da xoa campaign" });
   } catch (error) {
     console.error("[DELETE /api/campaigns/[id]]", error);
-    return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
+    return NextResponse.json({ error: "Loi server" }, { status: 500 });
   }
 }
