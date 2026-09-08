@@ -6,6 +6,7 @@ import { auth } from '@/lib/auth';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { buildSocialMetadata } from '@/lib/seo';
+import { BlogSearchForm } from '@/components/blog/BlogSearchForm';
 
 export const metadata = buildSocialMetadata({
   title: 'Blog',
@@ -27,7 +28,7 @@ async function getBlogPosts(searchParams: any) {
 
     const [result, featuredResult] = await Promise.all([
       getBlogPostList(query),
-      getBlogPostList({ ...query, featured: true, limit: 3 }),
+      query.search ? Promise.resolve({ posts: [] }) : getBlogPostList({ featured: true, limit: 3 }),
     ]);
 
     return { posts: result.posts, total: result.total, page: result.page, limit: result.limit, featuredPosts: featuredResult.posts };
@@ -45,6 +46,18 @@ export default async function BlogPage({
   const params = await searchParams;
   const data = await getBlogPosts(params);
   const session = await auth();
+  const search = (params.search || '').trim();
+  const type = params.type;
+  const blogHref = (next: { type?: string; search?: string; page?: number }) => {
+    const query = new URLSearchParams();
+    const nextSearch = next.search ?? search;
+    const nextType = next.type === undefined ? type : next.type;
+    if (nextSearch) query.set('search', nextSearch);
+    if (nextType) query.set('type', nextType);
+    if (next.page && next.page > 1) query.set('page', String(next.page));
+    const qs = query.toString();
+    return qs ? `/blog?${qs}` : '/blog';
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -77,7 +90,7 @@ export default async function BlogPage({
           <div>
             <h2 className="font-display mb-2 font-bold text-2xl text-dblue md:text-3xl">Khám phá bài viết</h2>
             <p className="text-gray-600">
-              Đọc những câu chuyện từ creator và cộng đồng
+              {search ? `Kết quả cho “${search}” · ${data.total} bài` : 'Đọc những câu chuyện từ creator và cộng đồng'}
             </p>
           </div>
 
@@ -92,7 +105,11 @@ export default async function BlogPage({
           )}
         </div>
 
-        {data.featuredPosts && data.featuredPosts.length > 0 && (
+        <div className="mb-6">
+          <BlogSearchForm defaultSearch={search} type={type} />
+        </div>
+
+        {data.featuredPosts && data.featuredPosts.length > 0 && !search && (
           <div className="mb-12">
             <h3 className="mb-4 flex items-center gap-2 font-display font-bold text-xl text-dblue">
               <span className="h-2 w-2 rounded-full bg-pgreen"></span>
@@ -107,22 +124,10 @@ export default async function BlogPage({
         )}
 
         <div className="mb-6 flex flex-wrap gap-2">
-          <FilterButton href="/blog" label="Tất cả" active={!params.type} />
-          <FilterButton
-            href="/blog?type=PLATFORM"
-            label="Tin tức"
-            active={params.type === 'PLATFORM'}
-          />
-          <FilterButton
-            href="/blog?type=CAMPAIGN_UPDATE"
-            label="Cập nhật chiến dịch"
-            active={params.type === 'CAMPAIGN_UPDATE'}
-          />
-          <FilterButton
-            href="/blog?type=STORY"
-            label="Câu chuyện"
-            active={params.type === 'STORY'}
-          />
+          <FilterButton href={blogHref({ type: '' })} label="Tất cả" active={!type} />
+          <FilterButton href={blogHref({ type: 'PLATFORM' })} label="Tin tức" active={type === 'PLATFORM'} />
+          <FilterButton href={blogHref({ type: 'CAMPAIGN_UPDATE' })} label="Cập nhật chiến dịch" active={type === 'CAMPAIGN_UPDATE'} />
+          <FilterButton href={blogHref({ type: 'STORY' })} label="Câu chuyện" active={type === 'STORY'} />
         </div>
 
         <Suspense fallback={<BlogGridSkeleton />}>
@@ -135,10 +140,12 @@ export default async function BlogPage({
           ) : (
             <div className="py-16 text-center">
               <h3 className="mb-2 font-display text-2xl font-semibold text-dblue">
-                Chưa có bài viết nào
+                {search ? 'Không tìm thấy bài viết' : 'Chưa có bài viết nào'}
               </h3>
               <p className="mx-auto mb-6 max-w-md text-gray-600">
-                Hãy quay lại sau để đọc những câu chuyện từ cộng đồng gây quỹ
+                {search
+                  ? `Không có bài nào khớp với “${search}”. Thử từ khóa khác hoặc xóa bộ lọc.`
+                  : 'Hãy quay lại sau để đọc những câu chuyện từ cộng đồng gây quỹ'}
               </p>
               <Link
                 href="/projects"
@@ -156,7 +163,7 @@ export default async function BlogPage({
               (page) => (
                 <a
                   key={page}
-                  href={`/blog?page=${page}${params.type ? `&type=${params.type}` : ''}`}
+                  href={blogHref({ page })}
                   className={`rounded-full px-4 py-2 font-medium transition-colors ${
                     page === data.page
                       ? 'bg-pgreen text-white'
