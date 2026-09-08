@@ -7,6 +7,7 @@ import { ObjectId } from 'mongodb';
 import { getDb } from '@/lib/mongodb';
 import { prisma } from '@/lib/prisma';
 import { normalizePrivacySettings } from '@/lib/profile-settings';
+import { listFollowingIds } from '@/lib/user-follows';
 import {
   MongoConversation,
   MongoMessage,
@@ -1034,16 +1035,8 @@ export async function getInboxNotes(userId: string): Promise<Array<{
   avatar?: string;
 }>> {
   const db = await getDb();
-  const convos = await db.collection(CONVERSATIONS_COLLECTION)
-    .find({ participantIds: userId })
-    .project({ participantIds: 1, hiddenBy: 1 })
-    .toArray();
-  const partnerIds = [...new Set(
-    convos
-      .filter((c) => !Array.isArray(c.hiddenBy) || !c.hiddenBy.includes(userId))
-      .flatMap((c) => (c.participantIds || []).filter((id: string) => id !== userId)),
-  )];
-  const authorIds = [userId, ...partnerIds];
+  const followingIds = await listFollowingIds(userId);
+  const authorIds = [userId, ...followingIds];
   const raw = await db.collection(USER_NOTES_COLLECTION)
     .find({
       expiresAt: { $gt: new Date() },

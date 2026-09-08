@@ -10,6 +10,8 @@ import { SocialLink } from "@/types/social";
 import { StartChatButton } from "@/components/chat/StartChatButton";
 import ReportButton from "@/components/report/ReportButton";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
+import { UserFollowButton } from "@/components/profile/UserFollowButton";
+import { getUserFollowStats } from "@/lib/user-follows";
 import { canExposePrivacyField } from "@/lib/profile-settings";
 import { getProfileThemeStyle, getPublicProfileCustomization, isSectionVisible, normalizeProfileCustomization, resolveProfileLayout } from "@/lib/profile-customization";
 
@@ -214,6 +216,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
 
   const isCreator = user.role === "CREATOR";
   const isBacker = user._count.pledges > 0;
+  const followStats = await getUserFollowStats(userId, currentUserId);
 
   return (
     <div className="min-h-screen py-24 px-6" style={{ ...getProfileThemeStyle(profileConfig), backgroundColor: "var(--profile-background)" }}>
@@ -270,15 +273,24 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
               </div>
             )}
 
-            {(!isOwnProfile || showAsPublic) && currentUserId && (
-              <div className="absolute top-6 right-8">
-                <StartChatButton
-                  campaignOwnerId={userId}
-                  campaignOwnerName={user.name || "Người dùng"}
-                  variant="none"
-                  label="Nhắn tin"
-                  className="bg-gradient-to-r from-pgreen to-fgreen text-white rounded-xl text-sm font-bold hover:shadow-lg transition"
-                />
+            {(!isOwnProfile || showAsPublic) && (
+              <div className="absolute top-6 right-8 flex items-center gap-2">
+                {!isOwnProfile && (
+                  <UserFollowButton
+                    userId={userId}
+                    initialIsFollowing={followStats.isFollowing}
+                    initialFollowersCount={followStats.followersCount}
+                  />
+                )}
+                {currentUserId && (
+                  <StartChatButton
+                    campaignOwnerId={userId}
+                    campaignOwnerName={user.name || "Người dùng"}
+                    variant="none"
+                    label="Nhắn tin"
+                    className="rounded-xl border border-gray-200 bg-white text-sm font-bold text-gray-800 hover:bg-gray-50"
+                  />
+                )}
               </div>
             )}
 
@@ -315,6 +327,9 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
                         <MapPin size={16} /> {user.location}
                       </div>
                     )}
+                    <div>
+                      {followStats.followersCount} người theo dõi · {followStats.followingCount} đang theo dõi
+                    </div>
                   </div>
                   <div><UserIdDisplay userId={user.id} /></div>
                   {user.bio && showBio && (<p className="text-gray-600 max-w-3xl leading-relaxed">{user.bio}</p>)}
