@@ -7,6 +7,7 @@ import { Plus, Rocket, Users, Target, Activity, Zap, Grid, List } from "lucide-r
 import { CreatorCampaignCard } from "@/components/dashboard/CreatorCampaignCard";
 import CampaignSearch, { CampaignFilters } from "@/components/dashboard/CampaignSearch";
 import CampaignListView from "@/components/dashboard/CampaignListView";
+import { BrokenLinksPanel } from "@/components/dashboard/BrokenLinksPanel";
 
 interface Campaign {
     id: string;
@@ -39,13 +40,15 @@ interface CreatorDashboardClientProps {
     totalRaised: number;
     totalBackers: number;
     projects: ProjectOption[];
+    isPro?: boolean;
 }
 
 export default function CreatorDashboardClient({
     campaigns = [], // Default value để tránh undefined
     totalRaised = 0,
     totalBackers = 0,
-    projects = []
+    projects = [],
+    isPro = false,
 }: CreatorDashboardClientProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [filters, setFilters] = useState<CampaignFilters>({});
@@ -179,6 +182,8 @@ export default function CreatorDashboardClient({
                         </div>
                     </div>
                 </div>
+
+                <BrokenLinksPanel isPro={isPro} />
 
                 {/* Search and Filters */}
                 <CampaignSearch

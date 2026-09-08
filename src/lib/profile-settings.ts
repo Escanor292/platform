@@ -85,6 +85,7 @@ export function notificationPreferenceKey(type: NotificationType): keyof Notific
     case 'CONTENT_HIDDEN':
     case 'KYC_APPROVED':
     case 'KYC_REJECTED':
+    case 'BROKEN_LINK':
     default:
       return 'system';
   }

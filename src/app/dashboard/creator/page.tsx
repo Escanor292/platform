@@ -25,6 +25,10 @@ export default async function CreatorDashboard() {
    });
 
    const extra = await getCampaignReviewFields(campaigns.map((campaign) => campaign.id));
+   const me = await prisma.users.findUnique({
+      where: { id: (session.user as any).id },
+      select: { status: true },
+   });
 
    // Serialize the data for client component
    const serializedCampaigns = campaigns.map(campaign => ({
@@ -55,6 +59,7 @@ export default async function CreatorDashboard() {
          totalRaised={totalRaised}
          totalBackers={totalBackers}
          projects={projects}
+         isPro={me?.status === "PRO"}
       />
    );
 }

@@ -25,5 +25,6 @@ export const NOTIFICATION_CATALOG: NotificationCatalogItem[] = [
   { type: 'KYC_APPROVED', label: 'KYC được duyệt', description: 'Thông báo kết quả xác minh danh tính thành công.' },
   { type: 'KYC_REJECTED', label: 'KYC bị từ chối', description: 'Thông báo khi hồ sơ xác minh cần được bổ sung hoặc gửi lại.' },
   { type: 'CONTENT_HIDDEN', label: 'Nội dung bị ẩn / khóa', description: 'Thông báo khi Admin ẩn dự án, sản phẩm hoặc gỡ chiến dịch vì vi phạm.' },
+  { type: 'BROKEN_LINK', label: 'Link hỏng (Creator Pro)', description: 'Cảnh báo khi link trong bài viết, chiến dịch, dự án hoặc sản phẩm không mở được.' },
   { type: 'SYSTEM', label: 'Hệ thống', description: 'Thông báo vận hành và cập nhật quan trọng của nền tảng.' },
 ];

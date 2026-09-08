@@ -116,6 +116,7 @@ export type NotificationType =
   | 'KYC_APPROVED'       // KYC được duyệt
   | 'KYC_REJECTED'       // KYC bị từ chối
   | 'CONTENT_HIDDEN'     // Admin khóa/ẩn dự án, sản phẩm hoặc chiến dịch
+  | 'BROKEN_LINK'        // Creator Pro: link trong nội dung bị hỏng
   | 'SYSTEM';            // Thông báo hệ thống
 
 export interface NotificationPayload {
