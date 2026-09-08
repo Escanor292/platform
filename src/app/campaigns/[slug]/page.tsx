@@ -13,7 +13,9 @@ import CampaignActions from "@/components/campaign/CampaignActions";
 import FavoriteCount from "@/components/campaign/FavoriteCount";
 import CampaignPageClient from "./CampaignPageClient";
 import { CampaignProvider } from "@/contexts/CampaignContext";
-import { getCampaignTypeLabel } from "@/lib/campaign-helpers";
+import { getCampaignTypeLabel, getFundingModelLabel } from "@/lib/campaign-helpers";
+import { getTagLabel } from "@/lib/taxonomy-helpers";
+import { getFundingModelDescription } from "@/lib/funding-model";
 import OwnerEditPanel from "@/components/OwnerEditPanel";
 import { isPublicCampaignStatus, campaignModerationLabel } from "@/lib/moderation/policy";
 import { getCampaignReviewFields } from "@/lib/moderation/campaign-review";
@@ -240,6 +242,14 @@ export default async function CampaignDetailPage({ params }: Params) {
                                        <Layers size={12} />
                                        {getCampaignTypeLabel(campaign.type as any)}
                                     </span>
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm bg-gray-50 text-gray-600 border-gray-200">
+                                       {getFundingModelLabel(campaign.fundingModel)}
+                                    </span>
+                                    {campaign.isFeatured && (
+                                       <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm bg-amber-50 text-amber-700 border-amber-100">
+                                          Nổi bật
+                                       </span>
+                                    )}
                                  </div>
 
                                  {/* Secondary Tags */}
@@ -248,7 +258,7 @@ export default async function CampaignDetailPage({ params }: Params) {
                                        {campaign.tags.map((tag: string, index: number) => (
                                           <span key={index} className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-50 text-gray-500 rounded-md border border-gray-100 text-[11px] font-semibold hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer">
                                              <span className="text-gray-400 font-bold">#</span>
-                                             {tag}
+                                             {getTagLabel(tag)}
                                           </span>
                                        ))}
                                     </div>
@@ -331,10 +341,14 @@ export default async function CampaignDetailPage({ params }: Params) {
                                  campaignStatus={campaign.status}
                               />
 
-                              {/* All or Nothing Notice */}
+                              {/* Funding model notice */}
                               {campaign.endDate && (
                                  <div className="text-xs text-gray-500 pt-4 border-t border-gray-200 leading-relaxed">
-                                    <span className="font-semibold">All or nothing.</span> This project will only be funded if it reaches its goal by {formatDate(campaign.endDate)}.
+                                    <span className="font-semibold">{getFundingModelLabel(campaign.fundingModel)}.</span>{" "}
+                                    {getFundingModelDescription(campaign.fundingModel as "ALL_OR_NOTHING" | "KEEP_IT_ALL")}
+                                    {campaign.fundingModel === "ALL_OR_NOTHING"
+                                       ? ` Hạn: ${formatDate(campaign.endDate)}.`
+                                       : ` Hết hạn ${formatDate(campaign.endDate)}, creator vẫn nhận số đã góp.`}
                                  </div>
                               )}
 

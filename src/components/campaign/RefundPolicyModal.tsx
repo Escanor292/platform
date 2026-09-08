@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { getFundingModelDescription, getFundingModelLabel, type FundingModel } from "@/lib/funding-model";
 
 interface RefundPolicyModalProps {
   open: boolean;
   onClose: () => void;
+  fundingModel?: FundingModel | string | null;
 }
 
-export default function RefundPolicyModal({ open, onClose }: RefundPolicyModalProps) {
+export default function RefundPolicyModal({ open, onClose, fundingModel }: RefundPolicyModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
+  const model: FundingModel = fundingModel === "KEEP_IT_ALL" ? "KEEP_IT_ALL" : "ALL_OR_NOTHING";
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -32,10 +35,9 @@ export default function RefundPolicyModal({ open, onClose }: RefundPolicyModalPr
         ref={dialogRef}
         className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto"
       >
-        {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl">
           <h2 id="refund-modal-title" className="font-bold text-lg text-gray-900">
-            🛡️ Chính sách hoàn tiền
+            Chính sách hoàn tiền
           </h2>
           <button
             onClick={onClose}
@@ -46,50 +48,53 @@ export default function RefundPolicyModal({ open, onClose }: RefundPolicyModalPr
           </button>
         </div>
 
-        {/* Content */}
         <div className="px-6 py-5 space-y-6 text-sm text-gray-600">
           <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4">
-            <p className="font-semibold text-indigo-800 mb-1">📌 Cam kết của chúng tôi</p>
-            <p>
-              Toàn bộ tiền ủng hộ được giữ trong hệ thống escrow an toàn.
-              Tiền chỉ được chuyển đến creator khi campaign đạt mục tiêu thành công.
+            <p className="font-semibold text-indigo-800 mb-1">
+              Chiến dịch này dùng {getFundingModelLabel(model)}
             </p>
+            <p>{getFundingModelDescription(model)}</p>
           </div>
 
+          {model === "ALL_OR_NOTHING" ? (
+            <section>
+              <h3 className="font-semibold text-gray-800 mb-2">Khi nào được hoàn?</h3>
+              <ul className="space-y-2 list-disc list-inside text-gray-600">
+                <li>Hết hạn mà chưa đạt mục tiêu → hoàn về người ủng hộ</li>
+                <li>Creator hủy chiến dịch trước khi kết thúc</li>
+                <li>Nền tảng phát hiện vi phạm điều khoản</li>
+              </ul>
+            </section>
+          ) : (
+            <section>
+              <h3 className="font-semibold text-gray-800 mb-2">Keep-It-All không hoàn khi thiếu mục tiêu</h3>
+              <ul className="space-y-2 list-disc list-inside text-gray-600">
+                <li>Hết hạn dù chưa đủ mục tiêu, creator vẫn nhận số đã góp</li>
+                <li>Không hoàn tự động vì thiếu mục tiêu</li>
+                <li>Vẫn hoàn nếu creator hủy trước hạn, hoặc sàn xử lý vi phạm</li>
+              </ul>
+            </section>
+          )}
+
           <section>
-            <h3 className="font-semibold text-gray-800 mb-2">✅ Khi nào được hoàn tiền?</h3>
-            <ul className="space-y-2 list-disc list-inside text-gray-600">
-              <li>Campaign không đạt mục tiêu trong thời hạn quy định</li>
-              <li>Creator chủ động hủy campaign trước khi kết thúc</li>
-              <li>Platform phát hiện vi phạm điều khoản dịch vụ</li>
-              <li>Bạn yêu cầu hủy trong vòng 24 giờ sau khi ủng hộ (nếu campaign chưa thành công)</li>
-            </ul>
+            <h3 className="font-semibold text-gray-800 mb-2">Phí nền tảng</h3>
+            <p>
+              Sàn trừ phí trên số ủng hộ trước khi chi hộ cho creator. Phí không cộng thêm cho người góp.
+              Keep-It-All cũng trừ phí, kể cả khi chưa đạt mục tiêu.
+            </p>
           </section>
 
           <section>
-            <h3 className="font-semibold text-gray-800 mb-2">⏱️ Thời gian hoàn tiền</h3>
+            <h3 className="font-semibold text-gray-800 mb-2">Thời gian hoàn</h3>
             <ul className="space-y-2 list-disc list-inside">
               <li>Ngân hàng trung gian hoàn về STK người chuyển: <strong>1–3 ngày làm việc</strong></li>
             </ul>
           </section>
 
           <section>
-            <h3 className="font-semibold text-gray-800 mb-2">❌ Trường hợp không hoàn tiền</h3>
-            <ul className="space-y-2 list-disc list-inside text-gray-600">
-              <li>Campaign đã đạt mục tiêu và tiền đã được giải ngân cho creator</li>
-              <li>Bạn đã nhận phần thưởng từ creator</li>
-              <li>Quá thời hạn yêu cầu hoàn tiền (90 ngày sau khi campaign kết thúc)</li>
-            </ul>
-          </section>
-
-          <section>
-            <h3 className="font-semibold text-gray-800 mb-2">📞 Liên hệ hỗ trợ</h3>
+            <h3 className="font-semibold text-gray-800 mb-2">Liên hệ hỗ trợ</h3>
             <p>
-              Nếu có vấn đề về hoàn tiền, vui lòng liên hệ:{" "}
-              <a href="mailto:support@crowdfund.vn" className="text-indigo-600 font-medium hover:underline">
-                support@crowdfund.vn
-              </a>{" "}
-              hoặc qua trang{" "}
+              Nếu có vấn đề về hoàn tiền, vui lòng dùng trang{" "}
               <a href="/lookup" className="text-indigo-600 font-medium hover:underline">
                 tra cứu giao dịch
               </a>
@@ -98,7 +103,6 @@ export default function RefundPolicyModal({ open, onClose }: RefundPolicyModalPr
           </section>
         </div>
 
-        {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-100">
           <button
             onClick={onClose}

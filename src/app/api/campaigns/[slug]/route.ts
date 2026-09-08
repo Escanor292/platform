@@ -10,6 +10,9 @@ import {
 import { z } from "zod";
 import { persistRichText, RichTextValidationError } from "@/lib/editor/persist";
 import { isPublicCampaignStatus } from "@/lib/moderation/policy";
+import { canEditFundingModel, parseFundingModel } from "@/lib/funding-model";
+import { parseCampaignType, resolveCampaignTaxonomyInput } from "@/lib/taxonomy-write";
+import { cacheInvalidatePrefix, CAMPAIGNS_CACHE_PREFIX } from "@/lib/redis-cache";
 
 export async function GET(_req: NextRequest, context: { params: Promise<{ slug: string }> }) {
   try {
@@ -102,7 +105,7 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ slug: s
 
     const campaign = await prisma.campaigns.findFirst({
       where: { OR: [{ slug }, { id: slug }] },
-      select: { id: true, creatorId: true, slug: true }
+      select: { id: true, creatorId: true, slug: true, status: true, fundingModel: true, type: true }
     });
 
     if (!campaign) {
@@ -126,18 +129,38 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ slug: s
       throw error;
     }
 
+    const taxonomy = resolveCampaignTaxonomyInput(body);
+    if ("error" in taxonomy) return validationErrorResponse(taxonomy.error);
+
     const updateData: any = {
       title: body.title,
       description: body.tagline || body.description,
       longDescription: longDescription || null,
       goalAmount: body.goalAmount,
-      category: body.mainCategory || body.category,
-      tags: body.starterTags || body.tags || [],
+      category: taxonomy.category,
+      tags: taxonomy.tags,
       imageUrl: body.imageUrl || null,
       images: body.images || [],
       videoUrl: body.videoUrl || null,
       endDate: body.endDate ? new Date(body.endDate) : null,
     };
+
+    if (body.type !== undefined || body.campaignType !== undefined) {
+      const campaignType = parseCampaignType(body.type || body.campaignType);
+      if (!campaignType) return validationErrorResponse("Loại chiến dịch không hợp lệ");
+      updateData.type = campaignType;
+    }
+
+    if (body.fundingModel !== undefined) {
+      const nextModel = parseFundingModel(body.fundingModel);
+      if (!nextModel) return validationErrorResponse("Mô hình gây quỹ không hợp lệ");
+      if (nextModel !== campaign.fundingModel && !canEditFundingModel(campaign.status)) {
+        return validationErrorResponse("Không thể đổi mô hình gây quỹ sau khi chiến dịch đã được duyệt");
+      }
+      if (canEditFundingModel(campaign.status)) {
+        updateData.fundingModel = nextModel;
+      }
+    }
 
     if ('projectId' in body) {
       if (body.projectId === null) {
@@ -173,6 +196,8 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ slug: s
       where: { id: campaign.id },
       data: updateData,
     });
+
+    await cacheInvalidatePrefix(CAMPAIGNS_CACHE_PREFIX).catch(() => undefined);
 
     if (body.linkedBlogIds !== undefined) {
       await prisma.campaign_blog_links.deleteMany({

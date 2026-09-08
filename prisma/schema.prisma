@@ -332,6 +332,8 @@ model campaigns {
   type                CampaignType          @default(REWARD)
   category            String
   tags                String[]              @default([])
+  isFeatured          Boolean               @default(false)
+  fundingModel        FundingModel          @default(ALL_OR_NOTHING)
   goalAmount          Decimal
   currentAmount       Decimal               @default(0)
   closedAmount        Decimal?
@@ -361,6 +363,8 @@ model campaigns {
   @@index([category])
   @@index([projectId])
   @@index([tags])
+  @@index([isFeatured])
+  @@index([fundingModel])
 }
 
 model daily_tip_invoices {
@@ -904,6 +908,11 @@ enum CampaignStatus {
 enum CampaignType {
   REWARD
   DONATION
+}
+
+enum FundingModel {
+  ALL_OR_NOTHING
+  KEEP_IT_ALL
 }
 
 enum IDCardType {

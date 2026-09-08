@@ -9,17 +9,19 @@ export type CampaignStatus =
     | "DRAFT"
     | "PENDING_REVIEW"
     | "ACTIVE"
-    | "PAUSED"
-    | "COMPLETED"
+    | "SUCCESS"
     | "FAILED"
-    | "CANCELED";
+    | "CANCELED"
+    | "PAUSED"
+    | "COMPLETED";
 
 export type CampaignType =
     | "REWARD"
-    | "DONATION"
-    | "EQUITY"
-    | "SUBSCRIPTION"
-    | "PREORDER";
+    | "DONATION";
+
+export type FundingModel =
+    | "ALL_OR_NOTHING"
+    | "KEEP_IT_ALL";
 
 export type CompletionState =
     | "NOT_STARTED"      // Chưa bắt đầu
@@ -69,6 +71,7 @@ export interface CampaignListItem {
     category: string;             // Main category
     tags: string[];               // Starter tags
     campaignType: CampaignType;
+    fundingModel: FundingModel;
 
     // Funding
     goalAmount: number;
@@ -99,6 +102,8 @@ export interface CampaignFilters {
     sort?: SortOption;
     category?: string;
     campaignType?: CampaignType;
+    fundingModel?: FundingModel;
+    tags?: string[];
     status?: CampaignStatus;
     completionState?: CompletionState;
     ratingMin?: number;           // 3, 4, 5

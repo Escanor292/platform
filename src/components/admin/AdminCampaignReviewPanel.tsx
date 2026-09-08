@@ -3,7 +3,9 @@
 import Link from 'next/link';
 import CampaignReviewActions from '@/components/admin/CampaignReviewActions';
 import AdminLockButton from '@/components/admin/AdminLockButton';
+import CampaignFeatureToggle from '@/components/admin/CampaignFeatureToggle';
 import { campaignModerationLabel, canRestoreCanceledCampaign, canTakedownCampaign } from '@/lib/moderation/policy';
+import { getFundingModelLabel } from '@/lib/funding-model';
 
 export default function AdminCampaignReviewPanel({
   campaignId,
@@ -14,6 +16,8 @@ export default function AdminCampaignReviewPanel({
   reviewerNote,
   moderationAction,
   successPledgeCount,
+  isFeatured,
+  fundingModel,
 }: {
   campaignId: string;
   slug: string;
@@ -23,6 +27,8 @@ export default function AdminCampaignReviewPanel({
   reviewerNote: string;
   moderationAction: string | null;
   successPledgeCount: number;
+  isFeatured: boolean;
+  fundingModel?: string | null;
 }) {
   const showRestore = canRestoreCanceledCampaign({ status, moderationAction, successPledgeCount });
 
@@ -32,6 +38,12 @@ export default function AdminCampaignReviewPanel({
         <div className="text-xs font-bold uppercase text-gray-400">Trạng thái</div>
         <div className="mt-1 text-lg font-black text-gray-900">{campaignModerationLabel(status, moderationAction)}</div>
       </div>
+      {fundingModel && (
+        <div className="text-sm text-gray-600">
+          Mô hình: <span className="font-bold text-gray-900">{getFundingModelLabel(fundingModel)}</span>
+        </div>
+      )}
+      <CampaignFeatureToggle campaignId={campaignId} featured={isFeatured} />
       {rejectionReason && (
         <div className="rounded-xl bg-red-50 p-3 text-sm text-red-700">Lý do: {rejectionReason}</div>
       )}

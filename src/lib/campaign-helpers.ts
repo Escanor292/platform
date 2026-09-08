@@ -2,13 +2,13 @@
  * Campaign Helper Functions
  */
 
-import { CampaignStatus, CompletionState, CampaignType } from "@/types/campaign";
+import { CampaignStatus, CompletionState, CampaignType, FundingModel } from "@/types/campaign";
 
 /**
  * Calculate completion state based on campaign data
  */
 export function calculateCompletionState(
-  status: CampaignStatus,
+  status: CampaignStatus | string,
   startDate: Date | string | null,
   endDate: Date | string | null,
   progressPercent: number
@@ -17,26 +17,32 @@ export function calculateCompletionState(
 
   if (status === "PAUSED") return "PAUSED";
   if (status === "DRAFT" || status === "PENDING_REVIEW") return "NOT_STARTED";
+  if (status === "CANCELED") return "FAILED";
+  if (status === "FAILED") return "FAILED";
 
-  // Check if not started yet
   if (startDate) {
-    const startDateObj = typeof startDate === 'string' ? new Date(startDate) : startDate;
+    const startDateObj = typeof startDate === "string" ? new Date(startDate) : startDate;
     if (startDateObj > now) return "NOT_STARTED";
   }
 
-  // Check if ended
-  if (endDate) {
-    const endDateObj = typeof endDate === 'string' ? new Date(endDate) : endDate;
-    if (endDateObj < now) {
-      if (progressPercent >= 100) return "COMPLETED";
-      return "FAILED";
-    }
+  const ended = (() => {
+    if (!endDate) return false;
+    const endDateObj = typeof endDate === "string" ? new Date(endDate) : endDate;
+    return endDateObj < now;
+  })();
+
+  if (status === "SUCCESS" || status === "COMPLETED") {
+    if (ended) return "COMPLETED";
+    if (progressPercent >= 100) return "GOAL_REACHED";
+    return "COMPLETED";
   }
 
-  // Check if goal reached
-  if (progressPercent >= 100) return "GOAL_REACHED";
+  if (ended) {
+    if (progressPercent >= 100) return "COMPLETED";
+    return "FAILED";
+  }
 
-  // Otherwise ongoing
+  if (progressPercent >= 100) return "GOAL_REACHED";
   if (status === "ACTIVE") return "ONGOING";
 
   return "NOT_STARTED";
@@ -60,15 +66,17 @@ export function getCompletionStateLabel(state: CompletionState): string {
 /**
  * Get human-readable campaign type label
  */
-export function getCampaignTypeLabel(type: CampaignType): string {
-  const labels: Record<CampaignType, string> = {
-    REWARD: "Reward-based",
-    DONATION: "Donation-based",
-    EQUITY: "Equity-based",
-    SUBSCRIPTION: "Subscription",
-    PREORDER: "Pre-order",
+export function getCampaignTypeLabel(type: CampaignType | string): string {
+  const labels: Record<string, string> = {
+    REWARD: "Nhận quà",
+    DONATION: "Ủng hộ",
   };
-  return labels[type];
+  return labels[type] || type;
+}
+
+export function getFundingModelLabel(model: FundingModel | string | null | undefined): string {
+  if (model === "KEEP_IT_ALL") return "Keep-It-All";
+  return "All-or-Nothing";
 }
 
 /**
@@ -80,6 +88,7 @@ export function getStatusLabel(status: CampaignStatus): string {
     PENDING_REVIEW: "Chờ duyệt",
     ACTIVE: "Đang hoạt động",
     PAUSED: "Tạm dừng",
+    SUCCESS: "Thành công",
     COMPLETED: "Hoàn thành",
     FAILED: "Thất bại",
     CANCELED: "Đã hủy",

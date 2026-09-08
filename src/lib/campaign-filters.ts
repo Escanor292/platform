@@ -54,6 +54,14 @@ export function applyCampaignFilters(
     filtered = filtered.filter((p) => p.campaignType === filters.campaignType);
   }
 
+  if (filters.fundingModel) {
+    filtered = filtered.filter((p) => p.fundingModel === filters.fundingModel);
+  }
+
+  if (filters.tags?.length) {
+    filtered = filtered.filter((p) => filters.tags!.some((tag) => p.tags.includes(tag)));
+  }
+
   // Status filter
   if (filters.status) {
     filtered = filtered.filter((p) => p.status === filters.status);
@@ -249,6 +257,8 @@ function getFilterDisplayLabel(key: keyof CampaignFilters, value: any): string {
       return value;
     case "campaignType":
       return getCampaignTypeLabel(value);
+    case "fundingModel":
+      return value === "KEEP_IT_ALL" ? "Keep-It-All" : "All-or-Nothing";
     case "status":
       return getStatusLabel(value);
     case "completionState":
@@ -270,11 +280,8 @@ function getFilterDisplayLabel(key: keyof CampaignFilters, value: any): string {
 
 function getCampaignTypeLabel(type: string): string {
   const labels: Record<string, string> = {
-    REWARD: "Reward-based",
-    DONATION: "Donation-based",
-    EQUITY: "Equity-based",
-    SUBSCRIPTION: "Subscription",
-    PREORDER: "Pre-order",
+    REWARD: "Nhận quà",
+    DONATION: "Ủng hộ",
   };
   return labels[type] || type;
 }
@@ -285,6 +292,7 @@ function getStatusLabel(status: string): string {
     PENDING_REVIEW: "Chờ duyệt",
     ACTIVE: "Đang hoạt động",
     PAUSED: "Tạm dừng",
+    SUCCESS: "Thành công",
     COMPLETED: "Hoàn thành",
     FAILED: "Thất bại",
     CANCELED: "Đã hủy",

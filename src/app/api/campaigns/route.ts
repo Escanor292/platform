@@ -24,6 +24,8 @@ import { persistRichText, RichTextValidationError, isRichTextEmpty } from "@/lib
 import { assertCleanContent } from "@/lib/moderation";
 import { isPublicCampaignStatus, PUBLIC_CAMPAIGN_STATUSES } from "@/lib/moderation/policy";
 import { permissionDenied, userHasPermission } from "@/lib/permissions";
+import { parseFundingModel } from "@/lib/funding-model";
+import { parseCampaignType, resolveCampaignTaxonomyInput } from "@/lib/taxonomy-write";
 
 export async function GET(req: NextRequest) {
   try {
@@ -50,6 +52,9 @@ export async function GET(req: NextRequest) {
 
     if (filters.category) where.category = filters.category;
     if (filters.campaignType) where.type = filters.campaignType;
+    if (filters.fundingModel) where.fundingModel = filters.fundingModel;
+    if (filters.isFeatured) where.isFeatured = true;
+    if (filters.tags?.length) where.tags = { hasSome: filters.tags };
     if (filters.status && isPublicCampaignStatus(filters.status)) {
       where.status = filters.status;
     } else {
@@ -116,6 +121,7 @@ export async function GET(req: NextRequest) {
         category: campaign.category,
         tags: campaign.tags,
         campaignType: campaign.type as any,
+        fundingModel: campaign.fundingModel as any,
         goalAmount: Number(campaign.goalAmount),
         currentAmount: Number(campaign.currentAmount),
         progressPercent,
@@ -130,7 +136,7 @@ export async function GET(req: NextRequest) {
         endDate: campaign.endDate,
         status: campaign.status as any,
         completionState,
-        isFeatured: false,
+        isFeatured: campaign.isFeatured,
       };
     });
 
@@ -139,7 +145,6 @@ export async function GET(req: NextRequest) {
     if (filters.progressMin !== undefined) filteredItems = filteredItems.filter(item => item.progressPercent >= filters.progressMin!);
     if (filters.progressMax !== undefined) filteredItems = filteredItems.filter(item => item.progressPercent <= filters.progressMax!);
     if (filters.completionState) filteredItems = filteredItems.filter(item => item.completionState === filters.completionState);
-    if (filters.isFeatured) filteredItems = filteredItems.filter(item => item.isFeatured);
 
     const page = filters.page || 1;
     const limit = filters.limit || 12;
@@ -211,12 +216,20 @@ export async function POST(req: NextRequest) {
 
     const title = String(body.title || '').trim();
     const tagline = String(body.tagline || '').trim();
-    const category = body.mainCategory || body.category;
+    const taxonomy = resolveCampaignTaxonomyInput(body);
+    if ("error" in taxonomy) return validationErrorResponse(taxonomy.error);
     const goalAmount = Number(body.goalAmount);
+    const fundingModel = body.fundingModel == null
+      ? "ALL_OR_NOTHING"
+      : parseFundingModel(body.fundingModel);
+    if (!fundingModel) return validationErrorResponse("Mô hình gây quỹ không hợp lệ");
+    const campaignType = body.type == null && body.campaignType == null
+      ? "REWARD"
+      : parseCampaignType(body.type || body.campaignType);
+    if (!campaignType) return validationErrorResponse("Loại chiến dịch không hợp lệ");
 
     if (!title) return validationErrorResponse('Tên chiến dịch là bắt buộc');
     if (!tagline) return validationErrorResponse('Mô tả ngắn là bắt buộc');
-    if (!category) return validationErrorResponse('Danh mục là bắt buộc');
     if (!goalAmount || goalAmount <= 0) return validationErrorResponse('Số vốn mục tiêu không hợp lệ');
 
     try {
@@ -253,13 +266,15 @@ export async function POST(req: NextRequest) {
         description: tagline,
         longDescription,
         goalAmount,
-        category,
-        tags: body.starterTags || body.tags || [],
+        type: campaignType,
+        category: taxonomy.category,
+        tags: taxonomy.tags,
+        fundingModel,
         imageUrl: body.imageUrl || null,
         images: body.images || [],
         videoUrl: body.videoUrl || null,
         endDate: body.endDate ? new Date(body.endDate) : null,
-        creatorId: userId,
+        creatorId: userId as string,
         projectId: projectId || null,
         updatedAt: new Date(),
       },

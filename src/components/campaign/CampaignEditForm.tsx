@@ -19,6 +19,8 @@ import { validateTaxonomySelection, sanitizeSelectedTags, getInvalidTagsForNewCa
 import Link from "next/link";
 import CampaignSubmitBar from "@/components/campaign/CampaignSubmitBar";
 import { campaignModerationLabel } from "@/lib/moderation/policy";
+import { CampaignTypePicker, FundingModelPicker } from "@/components/create-campaign/funding-fields";
+import { canEditFundingModel, type FundingModel } from "@/lib/funding-model";
 
 interface Reward {
   id: string;
@@ -40,6 +42,9 @@ interface Campaign {
   images: string[];
   videoUrl: string | null;
   category: string;
+  tags?: string[];
+  type?: "REWARD" | "DONATION";
+  fundingModel?: FundingModel;
   goalAmount: number;
   endDate: Date | null;
   status?: string;
@@ -63,7 +68,9 @@ export default function CampaignEditForm({ campaign }: CampaignEditFormProps) {
     mainCategory: (campaign.category && MAIN_CATEGORIES.includes(campaign.category as any))
       ? (campaign.category as MainCategory)
       : null,
-    starterTags: ((campaign as any).tags || []) as string[], // Load tags from campaign
+    starterTags: ((campaign as any).tags || campaign.tags || []) as string[],
+    campaignType: (campaign.type === "DONATION" ? "DONATION" : "REWARD") as "REWARD" | "DONATION",
+    fundingModel: (campaign.fundingModel === "KEEP_IT_ALL" ? "KEEP_IT_ALL" : "ALL_OR_NOTHING") as FundingModel,
     imageUrl: campaign.imageUrl || "",
     images: Array.isArray(campaign.images) ? campaign.images : [],
     endDate: campaign.endDate ? new Date(campaign.endDate).toISOString().split('T')[0] : "",
@@ -397,6 +404,18 @@ export default function CampaignEditForm({ campaign }: CampaignEditFormProps) {
               />
               <p className="text-xs text-gray-500 font-medium">Thời gian tối đa thường là 30 - 60 ngày.</p>
             </div>
+          </div>
+
+          <div className="mt-8 space-y-8 border-t border-gray-100 pt-8">
+            <CampaignTypePicker
+              value={formData.campaignType}
+              onChange={(campaignType) => setFormData({ ...formData, campaignType })}
+            />
+            <FundingModelPicker
+              value={formData.fundingModel}
+              onChange={(fundingModel) => setFormData({ ...formData, fundingModel })}
+              locked={!canEditFundingModel(campaign.status)}
+            />
           </div>
         </div>
 

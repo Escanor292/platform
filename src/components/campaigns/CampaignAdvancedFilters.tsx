@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { X, SlidersHorizontal } from "lucide-react";
-import { CampaignFilters, CampaignType, CampaignStatus, CompletionState, MainCategory } from "@/types/campaign";
+import { CampaignFilters, CampaignType, CompletionState, MainCategory, FundingModel } from "@/types/campaign";
 
 interface CampaignAdvancedFiltersProps {
   filters: CampaignFilters;
@@ -16,11 +16,13 @@ const categories: MainCategory[] = [
 ];
 
 const campaignTypes: { value: CampaignType; label: string }[] = [
-  { value: "REWARD", label: "Reward-based" },
-  { value: "DONATION", label: "Donation-based" },
-  { value: "EQUITY", label: "Equity-based" },
-  { value: "SUBSCRIPTION", label: "Subscription" },
-  { value: "PREORDER", label: "Pre-order" },
+  { value: "REWARD", label: "Nhận quà" },
+  { value: "DONATION", label: "Ủng hộ" },
+];
+
+const fundingModels: { value: FundingModel; label: string; hint: string }[] = [
+  { value: "ALL_OR_NOTHING", label: "All-or-Nothing", hint: "Chỉ nhận nếu đạt mục tiêu" },
+  { value: "KEEP_IT_ALL", label: "Keep-It-All", hint: "Nhận số đã góp khi hết hạn" },
 ];
 
 const completionStates: { value: CompletionState; label: string }[] = [
@@ -51,6 +53,7 @@ export function CampaignAdvancedFilters({ filters, onApply, onClose }: CampaignA
   const [localFilters, setLocalFilters] = useState<Partial<CampaignFilters>>({
     category: filters.category,
     campaignType: filters.campaignType,
+    fundingModel: filters.fundingModel,
     completionState: filters.completionState,
     ratingMin: filters.ratingMin,
     createdWithin: filters.createdWithin,
@@ -128,6 +131,30 @@ export function CampaignAdvancedFilters({ filters, onApply, onClose }: CampaignA
                     }`}
                 >
                   {type.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Funding model */}
+          <div className="space-y-3">
+            <label className="block text-sm font-bold text-dblue uppercase tracking-wider">
+              Mô hình gây quỹ
+            </label>
+            <div className="space-y-2">
+              {fundingModels.map((model) => (
+                <button
+                  key={model.value}
+                  onClick={() => setLocalFilters({ ...localFilters, fundingModel: localFilters.fundingModel === model.value ? undefined : model.value })}
+                  className={`w-full px-4 py-3 rounded-2xl text-sm font-medium text-left transition-colors ${localFilters.fundingModel === model.value
+                    ? "bg-pgreen text-white"
+                    : "bg-cream text-dblue hover:bg-pgreen/10"
+                    }`}
+                >
+                  <div>{model.label}</div>
+                  <div className={`text-xs mt-0.5 ${localFilters.fundingModel === model.value ? "text-white/80" : "text-gray-500"}`}>
+                    {model.hint}
+                  </div>
                 </button>
               ))}
             </div>

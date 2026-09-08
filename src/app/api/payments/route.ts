@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { Decimal } from "@prisma/client/runtime/library";
 import { calculateDepositAmount, normalizeDepositPercent } from "@/lib/preorder-deposit";
 import { buildTransferContent, getEscrowBankAccount } from "@/lib/payment/escrow-account";
+import { calculatePlatformFee, DEFAULT_PLATFORM_FEE_RATE } from "@/lib/funding-model";
 
 const MIN_DONATION_AMOUNT = 50_000;
 const MAX_TIP_PERCENT = 20;
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest) {
     const campaign = campaignId
       ? await prisma.campaigns.findFirst({
           where: { id: campaignId, status: "ACTIVE" },
-          select: { id: true, title: true },
+          select: { id: true, title: true, feeRate: true },
         })
       : null;
 
@@ -159,6 +160,8 @@ export async function POST(request: NextRequest) {
       ? (shippingAddress || ((session?.user as { shippingAddress?: string } | undefined)?.shippingAddress ?? null))
       : null;
     const now = new Date();
+    const feeRate = Number(campaign?.feeRate ?? DEFAULT_PLATFORM_FEE_RATE);
+    const platformFee = calculatePlatformFee(baseAmount, feeRate);
 
     if (paymentMethod === "COD" && !isPreorder) {
       const transactionId = `COD-${crypto.randomUUID()}`;
@@ -185,6 +188,7 @@ export async function POST(request: NextRequest) {
               amount: new Decimal(baseAmount),
               tipAmount: new Decimal(0),
               vatAmount: new Decimal(0),
+              platformFee: new Decimal(platformFee),
               totalAmount: new Decimal(baseAmount + shippingFee),
               depositAmount: new Decimal(0),
               chargeAmount: new Decimal(baseAmount + shippingFee),
@@ -253,6 +257,7 @@ export async function POST(request: NextRequest) {
           amount: new Decimal(baseAmount),
           tipAmount: new Decimal(tipAmount),
           vatAmount: new Decimal(vatAmount),
+          platformFee: new Decimal(platformFee),
           totalAmount: new Decimal(totalAmount),
           depositAmount: new Decimal(depositAmount),
           chargeAmount: new Decimal(chargeAmount),

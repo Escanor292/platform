@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo } from "react";
 import type { MainCategory } from "@/types/taxonomy";
-import { MAX_STARTER_TAGS } from "@/types/taxonomy";
 import {
   getTagGroupsWithTags,
   getRecommendedStarterTags,
@@ -62,7 +61,7 @@ export function StarterTagsSelector({
     return (
       <div className="space-y-3">
         <label className="block text-sm font-medium text-gray-700">
-          Thẻ phụ (tối đa {MAX_STARTER_TAGS})
+          Thẻ phụ
         </label>
         <div className="p-8 text-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
           <p className="text-gray-500">

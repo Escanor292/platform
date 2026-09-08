@@ -262,8 +262,6 @@ const GIAO_DUC_TAXONOMY: CategoryTaxonomy = {
     "webtoon",
     "artbook",
     "album",
-    "video-game",
-    "board-game",
     "fandom",
     "merchandise",
     "game-engine",
@@ -281,7 +279,7 @@ const GIAO_DUC_TAXONOMY: CategoryTaxonomy = {
   ],
   tagGroups: {
     "Loại nội dung": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["khoa-hoc", "hoc-lieu", "sach", "giao-trinh", "ung-dung", "phan-mem", "workshop", "hoi-thao", "podcast"].includes(t.id)
+      ["khoa-hoc", "hoc-lieu", "sach", "giao-trinh", "ung-dung", "phan-mem", "workshop", "hoi-thao", "podcast", "video-game", "board-game"].includes(t.id)
     )),
     "Định dạng phát hành": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       ["mobile-app", "web-app", "platform", "online", "offline", "hybrid", "ebook", "sach-in", "subscription", "one-time"].includes(t.id)
@@ -296,7 +294,7 @@ const GIAO_DUC_TAXONOMY: CategoryTaxonomy = {
       ["idea", "concept", "prototype", "mvp", "beta", "production", "pilot", "trial"].includes(t.id)
     )),
     "Đối tượng hưởng lợi": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["tre-em", "hoc-sinh", "sinh-vien", "nguoi-lon", "nguoi-khuyet-tat", "dan-toc-thieu-so"].includes(t.id)
+      ["tre-em", "hoc-sinh", "sinh-vien", "nguoi-lon", "nguoi-khuyet-tat", "dan-toc-thieu-so", "gamers"].includes(t.id)
     )),
     "Phạm vi": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       ["local", "national", "regional", "global", "urban", "rural"].includes(t.id)
@@ -410,13 +408,13 @@ const CONG_DONG_TAXONOMY: CategoryTaxonomy = {
   ],
   tagGroups: {
     "Loại nội dung": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["su-kien", "chuong-trinh", "workshop", "hoi-thao", "dich-vu", "platform"].includes(t.id))),
+      ["su-kien", "chuong-trinh", "workshop", "hoi-thao", "dich-vu"].includes(t.id))),
     "Định dạng phát hành": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       ["online", "offline", "hybrid", "platform", "marketplace"].includes(t.id))),
     "Mục đích / Phong cách": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       ["community-driven", "social-impact", "non-profit", "bao-ton", "doi-moi", "truyen-thong"].includes(t.id))),
     "Giai đoạn phát triển": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["idea", "concept", "pilot", "trial", "ongoing", "expansion"].includes(t.id))),
+      ["idea", "concept", "pilot", "trial", "expansion"].includes(t.id))),
     "Mô hình / Vận hành": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       ["ngo", "social-enterprise", "cooperative", "donation", "reward-based"].includes(t.id))),
     "Đối tượng hưởng lợi": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
@@ -468,7 +466,7 @@ const CONG_NGHE_TAXONOMY: CategoryTaxonomy = {
   ],
   tagGroups: {
     "Loại nội dung": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["phan-mem", "ung-dung", "thiet-bi", "san-pham-vat-ly", "dich-vu", "platform"].includes(t.id))),
+      ["phan-mem", "ung-dung", "thiet-bi", "san-pham-vat-ly", "dich-vu"].includes(t.id))),
     "Định dạng phát hành": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       ["mobile-app", "web-app", "desktop-app", "saas", "platform", "marketplace", "physical", "subscription", "one-time"].includes(t.id))),
     "Mục đích / Phong cách": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
@@ -528,13 +526,13 @@ const NGHE_THUAT_TAXONOMY: CategoryTaxonomy = {
     "Loại nội dung": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       ["truyen-tranh", "comic", "manga", "webtoon", "minh-hoa", "tranh-ve", "artbook", "phim-ngan", "am-nhac", "album", "animation", "documentary", "podcast"].includes(t.id))),
     "Định dạng phát hành": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["sach-in", "ebook", "digital", "physical", "series", "trien-lam", "streaming", "download", "limited-edition"].includes(t.id))),
+      ["sach-in", "ebook", "digital", "physical", "series", "trien-lam", "streaming", "download"].includes(t.id))),
     "Mục đích / Phong cách": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       ["indie", "sang-tao", "storytelling", "fandom", "community-driven", "experimental", "mainstream", "truyen-thong", "hien-dai"].includes(t.id))),
     "Công nghệ / Kỹ thuật": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       ["digital-art", "3d-art", "animation", "ar-vr"].includes(t.id))),
     "Giai đoạn phát triển": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["idea", "draft", "prototype", "pre-order", "phat-hanh", "series"].includes(t.id))),
+      ["idea", "draft", "prototype", "pre-order", "phat-hanh"].includes(t.id))),
     "Loại sản phẩm": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       ["merchandise", "handmade", "limited-edition", "custom"].includes(t.id))),
     "Mô hình / Vận hành": [],
@@ -724,7 +722,7 @@ const GIAI_TRI_TAXONOMY: CategoryTaxonomy = {
     "Loại sản phẩm": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       ["merchandise", "consumer-product", "limited-edition", "handmade"].includes(t.id))),
     "Công nghệ / Kỹ thuật": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["game-engine", "unity", "unreal", "ar-vr", "3d-art", "animation", "ai"].includes(t.id))),
+      ["game-engine", "unity", "unreal", "ar-vr", "3d-art", "ai"].includes(t.id))),
     "Giai đoạn phát triển": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       ["idea", "concept", "prototype", "alpha", "beta", "pre-order", "phat-hanh", "expansion"].includes(t.id))),
     "Đối tượng hưởng lợi": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
@@ -857,7 +855,7 @@ const KHAN_CAP_TU_THIEN_TAXONOMY: CategoryTaxonomy = {
     "Mục đích / Phong cách": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       [
         "non-profit", "social-impact", "community-driven",
-        "phuc-loi-dong-vat", "bao-ve-moi-truong", "bao-ton-thien-nhien", "tac-dong-xa-hoi",
+        "phuc-loi-dong-vat", "bao-ve-moi-truong", "bao-ton-thien-nhien",
         "cuu-ho-dong-vat", "bao-ve-dong-vat", "chong-nguoc-dai-dong-vat",
         "giam-rac-thai", "tai-che", "bien-doi-khi-hau", "phuc-hoi-he-sinh-thai",
         "chong-o-nhiem", "bao-ve-nguon-nuoc", "song-xanh"
@@ -865,7 +863,7 @@ const KHAN_CAP_TU_THIEN_TAXONOMY: CategoryTaxonomy = {
     "Mô hình / Vận hành": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       [
         "donation", "ngo", "social-enterprise", "phi-loi-nhuan", "tinh-nguyen-vien",
-        "shelter", "doanh-nghiep-xa-hoi", "tinh-nguyen-cuu-ho"
+        "shelter", "tinh-nguyen-cuu-ho"
       ].includes(t.id))),
     "Đối tượng hưởng lợi": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       [
@@ -875,9 +873,9 @@ const KHAN_CAP_TU_THIEN_TAXONOMY: CategoryTaxonomy = {
         "khu-vuc-bi-o-nhiem", "tre-em-vung-anh-huong-moi-truong"
       ].includes(t.id))),
     "Phạm vi": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["local", "regional", "national", "global", "urban", "rural", "thanh-thi", "nong-thon"].includes(t.id))),
+      ["local", "regional", "national", "global", "urban", "rural"].includes(t.id))),
     "Thời gian": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
-      ["urgent", "short-term", "long-term", "ongoing", "one-time-event", "ngan-han", "dai-han"].includes(t.id))),
+      ["urgent", "short-term", "long-term", "ongoing", "one-time-event"].includes(t.id))),
     "Công nghệ / Kỹ thuật": applyVietnameseLabels(ALL_STARTER_TAGS_RAW.filter((t) =>
       ["cleantech", "renewable-energy", "solar", "nang-luong-sach"].includes(t.id))),
     "Định dạng phát hành": [],

@@ -5,7 +5,7 @@ import { Search, Rocket, ArrowRight } from "lucide-react";
 import CampaignGrowthProgress from "@/components/campaign/CampaignGrowthProgress";
 import CreatorLink from "@/components/campaign/CreatorLink";
 import { Tag, Layers } from "lucide-react";
-import { getCampaignTypeLabel } from "@/lib/campaign-helpers";
+import { getCampaignTypeLabel, getFundingModelLabel } from "@/lib/campaign-helpers";
 import { buildSocialMetadata } from "@/lib/seo";
 
 export const metadata = buildSocialMetadata({
@@ -103,6 +103,14 @@ export default async function CampaignsPage() {
                           <Layers size={10} />
                           {getCampaignTypeLabel(campaign.type)}
                         </span>
+                        <span className="px-2 py-1 bg-white/90 backdrop-blur text-[9px] font-black uppercase tracking-wider rounded-lg border border-white/20 text-gray-600">
+                          {getFundingModelLabel(campaign.fundingModel)}
+                        </span>
+                        {campaign.isFeatured && (
+                          <span className="px-2 py-1 bg-amber-100/95 backdrop-blur text-[9px] font-black uppercase tracking-wider rounded-lg border border-amber-200 text-amber-800">
+                            Nổi bật
+                          </span>
+                        )}
                       </div>
                     </div>
                   )}

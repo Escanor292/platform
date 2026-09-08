@@ -17,6 +17,8 @@ import { StarterTagsSelector } from "@/components/create-campaign/starter-tags-s
 import { BlogSelector } from "@/components/create-campaign/blog-selector";
 import type { MainCategory } from "@/types/taxonomy";
 import { validateTaxonomySelection, sanitizeSelectedTags, getInvalidTagsForNewCategory, getTagsByIds } from "@/lib/taxonomy-helpers";
+import { CampaignTypePicker, FundingModelPicker } from "@/components/create-campaign/funding-fields";
+import type { FundingModel } from "@/lib/funding-model";
 
 export default function CreateCampaignPage() {
   const router = useRouter();
@@ -29,6 +31,8 @@ export default function CreateCampaignPage() {
     goalAmount: 1000000,
     mainCategory: null as MainCategory | null,
     starterTags: [] as string[],
+    campaignType: "REWARD" as "REWARD" | "DONATION",
+    fundingModel: "ALL_OR_NOTHING" as FundingModel,
     imageUrl: "",
     images: [] as string[], // Multiple images array
     endDate: "",
@@ -453,6 +457,17 @@ export default function CreateCampaignPage() {
                 />
                 <p className="mt-2 text-xs text-gray-500">Thời gian tối đa thường là 30 - 60 ngày.</p>
               </div>
+            </div>
+
+            <div className="mt-8 space-y-8 border-t border-gray-100 pt-8">
+              <CampaignTypePicker
+                value={formData.campaignType}
+                onChange={(campaignType) => setFormData({ ...formData, campaignType })}
+              />
+              <FundingModelPicker
+                value={formData.fundingModel}
+                onChange={(fundingModel) => setFormData({ ...formData, fundingModel })}
+              />
             </div>
           </section>
 

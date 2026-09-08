@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { formatVND } from '@/lib/utils';
 import CampaignReviewActions from '@/components/admin/CampaignReviewActions';
 import AdminLockButton from '@/components/admin/AdminLockButton';
+import CampaignFeatureToggle from '@/components/admin/CampaignFeatureToggle';
 import { campaignModerationLabel, canRestoreCanceledCampaign, canTakedownCampaign } from '@/lib/moderation/policy';
 
 export type QueueCampaign = {
@@ -25,6 +26,8 @@ export type QueueCampaign = {
   rejectionReason: string | null;
   moderationAction: string | null;
   successPledgeCount: number;
+  isFeatured: boolean;
+  fundingModel?: string | null;
   creator: { id: string; name: string | null; email: string | null };
 };
 
@@ -148,6 +151,11 @@ export default function CampaignQueueClient({ campaigns }: { campaigns: QueueCam
                         <div>
                           <div className="max-w-xs truncate font-bold text-gray-900 hover:text-green-700">{campaign.title}</div>
                           <div className="font-mono text-xs text-gray-400">{campaign.campaignCode}</div>
+                          {campaign.fundingModel && (
+                            <div className="mt-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                              {campaign.fundingModel === 'KEEP_IT_ALL' ? 'Keep-It-All' : 'All-or-Nothing'}
+                            </div>
+                          )}
                           {campaign.slaOverdue && (
                             <div className="mt-1 text-xs font-semibold text-red-600">Quá hạn {Math.round(campaign.slaHours)} giờ</div>
                           )}
@@ -180,6 +188,7 @@ export default function CampaignQueueClient({ campaigns }: { campaigns: QueueCam
                         <Link href={`/dashboard/admin/campaigns/${campaign.id}`} className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600 transition hover:bg-blue-100">
                           <Eye size={12} /> Xem
                         </Link>
+                        <CampaignFeatureToggle campaignId={campaign.id} featured={campaign.isFeatured} />
                         {campaign.status === 'PENDING_REVIEW' && (
                           <CampaignReviewActions campaignId={campaign.id} title={campaign.title} />
                         )}

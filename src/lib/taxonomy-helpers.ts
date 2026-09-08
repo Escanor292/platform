@@ -6,8 +6,9 @@ import type {
   CampaignTaxonomySelection,
   ValidationResult,
 } from "@/types/taxonomy";
+import { MAIN_CATEGORIES } from "@/types/taxonomy";
 import { TAXONOMY_DATA } from "@/data/taxonomy";
-import { MAX_STARTER_TAGS } from "@/types/taxonomy";
+import { canonicalizeTagId, canonicalizeTagIds, HIDDEN_ALIAS_TAG_IDS } from "@/lib/taxonomy-normalize";
 
 /**
  * Get all allowed tag groups for a specific main category
@@ -34,7 +35,7 @@ export function getStarterTagsForCategory(mainCategory: MainCategory | null): St
   const allTags: StarterTag[] = [];
   allowedGroups.forEach((group) => {
     const groupTags = categoryTaxonomy.tagGroups[group] || [];
-    allTags.push(...groupTags);
+    allTags.push(...groupTags.filter((tag) => !HIDDEN_ALIAS_TAG_IDS.has(tag.id)));
   });
 
   return allTags;
@@ -57,7 +58,9 @@ export function getStarterTagsByGroup(
     return [];
   }
 
-  return categoryTaxonomy.tagGroups[tagGroup] || [];
+  return (categoryTaxonomy.tagGroups[tagGroup] || []).filter(
+    (tag) => !HIDDEN_ALIAS_TAG_IDS.has(tag.id)
+  );
 }
 
 /**
@@ -82,18 +85,17 @@ export function isTagAllowedForCategory(
   mainCategory: MainCategory | null
 ): boolean {
   if (!mainCategory) return false;
+  const canonicalId = canonicalizeTagId(tagId);
 
   const categoryTaxonomy = TAXONOMY_DATA.starterTagsByCategory[mainCategory];
   if (!categoryTaxonomy) return false;
 
-  // Check if tag is in disallowed list
-  if (categoryTaxonomy.disallowedStarterTags.includes(tagId)) {
+  if (categoryTaxonomy.disallowedStarterTags.includes(canonicalId)) {
     return false;
   }
 
-  // Check if tag exists in any allowed tag group
   const allowedTags = getStarterTagsForCategory(mainCategory);
-  return allowedTags.some((tag) => tag.id === tagId);
+  return allowedTags.some((tag) => tag.id === canonicalId);
 }
 
 /**
@@ -105,7 +107,9 @@ export function sanitizeSelectedTags(
 ): string[] {
   if (!mainCategory) return [];
 
-  return selectedTags.filter((tagId) => isTagAllowedForCategory(tagId, mainCategory));
+  return canonicalizeTagIds(selectedTags).filter((tagId) =>
+    isTagAllowedForCategory(tagId, mainCategory)
+  );
 }
 
 /**
@@ -128,7 +132,8 @@ export function validateTaxonomySelection(
 
   // Check if all selected tags are allowed for the main category
   if (selection.mainCategory) {
-    const invalidTags = selection.starterTags.filter(
+    const canonicalTags = canonicalizeTagIds(selection.starterTags);
+    const invalidTags = canonicalTags.filter(
       (tagId) => !isTagAllowedForCategory(tagId, selection.mainCategory)
     );
 
@@ -149,7 +154,16 @@ export function validateTaxonomySelection(
  * Get tag object by ID
  */
 export function getTagById(tagId: string): StarterTag | undefined {
-  return TAXONOMY_DATA.allStarterTags.find((tag) => tag.id === tagId);
+  const id = canonicalizeTagId(tagId);
+  return TAXONOMY_DATA.allStarterTags.find((tag) => tag.id === id);
+}
+
+export function getTagLabel(tagId: string): string {
+  return getTagById(tagId)?.label || tagId;
+}
+
+export function isMainCategory(value: unknown): value is MainCategory {
+  return typeof value === "string" && (MAIN_CATEGORIES as readonly string[]).includes(value);
 }
 
 /**
@@ -199,7 +213,9 @@ export function getTagGroupsWithTags(
   const result: Partial<Record<TagGroup, StarterTag[]>> = {};
 
   categoryTaxonomy.allowedTagGroups.forEach((group) => {
-    result[group] = categoryTaxonomy.tagGroups[group] || [];
+    result[group] = (categoryTaxonomy.tagGroups[group] || []).filter(
+      (tag) => !HIDDEN_ALIAS_TAG_IDS.has(tag.id)
+    );
   });
 
   return result as Record<TagGroup, StarterTag[]>;

@@ -68,6 +68,8 @@ export default async function AdminCampaignsPage({
     rejectionReason: extra[campaign.id]?.rejectionReason ?? null,
     moderationAction: extra[campaign.id]?.moderationAction ?? null,
     successPledgeCount: campaign._count.pledges,
+    isFeatured: campaign.isFeatured,
+    fundingModel: campaign.fundingModel,
     creator: campaign.users,
   }));
 

@@ -2,7 +2,10 @@
  * Query Params Helpers for Campaign Filters
  */
 
-import { CampaignFilters, SortOption, CampaignStatus, CampaignType, CompletionState } from "@/types/campaign";
+import { CampaignFilters, SortOption, CampaignStatus, CampaignType, CompletionState, FundingModel } from "@/types/campaign";
+import { getCampaignTypeLabel, getStatusLabel } from "@/lib/campaign-helpers";
+import { getFundingModelLabel } from "@/lib/funding-model";
+import { getTagLabel } from "@/lib/taxonomy-helpers";
 
 /**
  * Parse query params from URL to CampaignFilters
@@ -10,35 +13,40 @@ import { CampaignFilters, SortOption, CampaignStatus, CampaignType, CompletionSt
 export function parseCampaignFilters(searchParams: URLSearchParams): CampaignFilters {
   const filters: CampaignFilters = {};
 
-  // Search query
   const q = searchParams.get("q");
   if (q) filters.q = q.trim();
 
-  // Sort
   const sort = searchParams.get("sort") as SortOption;
   if (sort && isValidSortOption(sort)) filters.sort = sort;
 
-  // Category
   const category = searchParams.get("category");
   if (category) filters.category = category;
 
-  // Campaign type
   const campaignType = searchParams.get("campaignType") as CampaignType;
   if (campaignType && isValidCampaignType(campaignType)) {
     filters.campaignType = campaignType;
   }
 
-  // Status
+  const fundingModel = searchParams.get("fundingModel") as FundingModel;
+  if (fundingModel && isValidFundingModel(fundingModel)) {
+    filters.fundingModel = fundingModel;
+  }
+
+  const tagsParam = searchParams.getAll("tags");
+  const tags = tagsParam
+    .flatMap((value) => value.split(","))
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+  if (tags.length > 0) filters.tags = Array.from(new Set(tags));
+
   const status = searchParams.get("status") as CampaignStatus;
   if (status && isValidStatus(status)) filters.status = status;
 
-  // Completion state
   const completionState = searchParams.get("completionState") as CompletionState;
   if (completionState && isValidCompletionState(completionState)) {
     filters.completionState = completionState;
   }
 
-  // Rating min
   const ratingMin = searchParams.get("ratingMin");
   if (ratingMin) {
     const rating = parseInt(ratingMin, 10);
@@ -47,13 +55,11 @@ export function parseCampaignFilters(searchParams: URLSearchParams): CampaignFil
     }
   }
 
-  // Created within
   const createdWithin = searchParams.get("createdWithin");
   if (createdWithin && isValidTimeRange(createdWithin)) {
     filters.createdWithin = createdWithin;
   }
 
-  // Progress range
   const progressMin = searchParams.get("progressMin");
   if (progressMin) {
     const progress = parseInt(progressMin, 10);
@@ -70,11 +76,9 @@ export function parseCampaignFilters(searchParams: URLSearchParams): CampaignFil
     }
   }
 
-  // Featured
   const isFeatured = searchParams.get("isFeatured");
   if (isFeatured === "true") filters.isFeatured = true;
 
-  // Pagination
   const page = searchParams.get("page");
   if (page) {
     const pageNum = parseInt(page, 10);
@@ -102,6 +106,10 @@ export function filtersToSearchParams(filters: CampaignFilters): URLSearchParams
   if (filters.sort) params.set("sort", filters.sort);
   if (filters.category) params.set("category", filters.category);
   if (filters.campaignType) params.set("campaignType", filters.campaignType);
+  if (filters.fundingModel) params.set("fundingModel", filters.fundingModel);
+  if (filters.tags?.length) {
+    for (const tag of filters.tags) params.append("tags", tag);
+  }
   if (filters.status) params.set("status", filters.status);
   if (filters.completionState) params.set("completionState", filters.completionState);
   if (filters.ratingMin) params.set("ratingMin", filters.ratingMin.toString());
@@ -115,9 +123,6 @@ export function filtersToSearchParams(filters: CampaignFilters): URLSearchParams
   return params;
 }
 
-/**
- * Validation helpers
- */
 function isValidSortOption(value: string): value is SortOption {
   const validOptions: SortOption[] = [
     "newest", "oldest", "most_viewed", "top_rated",
@@ -127,13 +132,16 @@ function isValidSortOption(value: string): value is SortOption {
 }
 
 function isValidCampaignType(value: string): value is CampaignType {
-  const validTypes: CampaignType[] = ["REWARD", "DONATION", "EQUITY", "SUBSCRIPTION", "PREORDER"];
-  return validTypes.includes(value as CampaignType);
+  return value === "REWARD" || value === "DONATION";
+}
+
+function isValidFundingModel(value: string): value is FundingModel {
+  return value === "ALL_OR_NOTHING" || value === "KEEP_IT_ALL";
 }
 
 function isValidStatus(value: string): value is CampaignStatus {
   const validStatuses: CampaignStatus[] = [
-    "DRAFT", "PENDING_REVIEW", "ACTIVE", "PAUSED", "COMPLETED", "FAILED", "CANCELED"
+    "DRAFT", "PENDING_REVIEW", "ACTIVE", "PAUSED", "SUCCESS", "COMPLETED", "FAILED", "CANCELED"
   ];
   return validStatuses.includes(value as CampaignStatus);
 }
@@ -149,9 +157,6 @@ function isValidTimeRange(value: string): boolean {
   return ["7d", "30d", "90d", "365d"].includes(value);
 }
 
-/**
- * Get human-readable filter labels
- */
 export function getFilterLabel(key: keyof CampaignFilters, value: any): string {
   switch (key) {
     case "sort":
@@ -160,6 +165,10 @@ export function getFilterLabel(key: keyof CampaignFilters, value: any): string {
       return value;
     case "campaignType":
       return getCampaignTypeLabel(value);
+    case "fundingModel":
+      return getFundingModelLabel(value);
+    case "tags":
+      return Array.isArray(value) ? value.map((tag) => getTagLabel(String(tag))).join(", ") : getTagLabel(String(value));
     case "status":
       return getStatusLabel(value);
     case "completionState":
@@ -191,30 +200,6 @@ function getSortLabel(sort: SortOption): string {
     recently_updated: "Mới cập nhật",
   };
   return labels[sort];
-}
-
-function getCampaignTypeLabel(type: CampaignType): string {
-  const labels: Record<CampaignType, string> = {
-    REWARD: "Reward-based",
-    DONATION: "Donation-based",
-    EQUITY: "Equity-based",
-    SUBSCRIPTION: "Subscription",
-    PREORDER: "Pre-order",
-  };
-  return labels[type];
-}
-
-function getStatusLabel(status: CampaignStatus): string {
-  const labels: Record<CampaignStatus, string> = {
-    DRAFT: "Nháp",
-    PENDING_REVIEW: "Chờ duyệt",
-    ACTIVE: "Đang hoạt động",
-    PAUSED: "Tạm dừng",
-    COMPLETED: "Hoàn thành",
-    FAILED: "Thất bại",
-    CANCELED: "Đã hủy",
-  };
-  return labels[status];
 }
 
 function getCompletionStateLabel(state: CompletionState): string {

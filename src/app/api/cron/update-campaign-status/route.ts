@@ -1,46 +1,19 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { closeExpiredCampaigns } from "@/lib/campaign-lifecycle";
 
 /**
- * CRON API: Cập nhật trạng thái chiến dịch tự động khi hết hạn
- * Chạy định kỳ (ví dụ: mỗi giờ một lần)
+ * CRON API: Đóng chiến dịch hết hạn.
+ * All-or-Nothing không đạt mục tiêu → FAILED + hoàn tiền.
+ * Keep-It-All không đạt mục tiêu → SUCCESS, không hoàn, vẫn giữ phí sàn.
  */
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const now = new Date();
-
-    // 1. Tìm các chiến dịch ACTIVE đã quá ngày endDate
-    const expiredCampaigns = await prisma.campaigns.findMany({
-      where: {
-        status: "ACTIVE",
-        endDate: { lt: now }
-      }
+    const result = await closeExpiredCampaigns();
+    return NextResponse.json({
+      success: true,
+      ...result,
+      message: `Đã đóng ${result.closedCount} chiến dịch hết hạn.`,
     });
-
-    let updatedCount = 0;
-
-    for (const campaign of expiredCampaigns) {
-       // Nếu đạt mục tiêu -> SUCCESSFUL
-       // Nếu không đạt -> FAILED (Sẽ kích hoạt hoàn tiền)
-       const isSuccess = campaign.currentAmount >= campaign.goalAmount;
-       
-       await prisma.campaigns.update({
-          where: { id: campaign.id },
-             data: {
-             status: isSuccess ? "SUCCESS" : "FAILED",
-             closedAmount: campaign.currentAmount,
-             closedAt: now,
-             updatedAt: now,
-          }
-       });
-       updatedCount++;
-    }
-
-    return NextResponse.json({ 
-        success: true, 
-        message: `Đã cập nhật trạng thái cho ${updatedCount} chiến dịch hết hạn.` 
-    });
-
   } catch (error: any) {
     console.error("Cron Error (update status):", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

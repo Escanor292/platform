@@ -53,6 +53,14 @@ export default async function AdminCampaignPreviewPage({
               <div className="text-xs text-gray-400">Đã huy động</div>
               <div className="font-black">{formatVND(Number(campaign.currentAmount))}</div>
             </div>
+            <div className="rounded-xl bg-slate-50 p-3">
+              <div className="text-xs text-gray-400">Mô hình</div>
+              <div className="font-black">{campaign.fundingModel === "KEEP_IT_ALL" ? "Keep-It-All" : "All-or-Nothing"}</div>
+            </div>
+            <div className="rounded-xl bg-slate-50 p-3">
+              <div className="text-xs text-gray-400">Nổi bật hệ thống</div>
+              <div className="font-black">{campaign.isFeatured ? "Có" : "Không"}</div>
+            </div>
           </div>
           {images[0] && <img src={images[0]} alt={campaign.title} className="mt-6 w-full rounded-2xl object-cover" />}
           <div className="prose mt-8 max-w-none">
@@ -72,6 +80,8 @@ export default async function AdminCampaignPreviewPage({
           reviewerNote={review?.reviewerNote || ''}
           moderationAction={review?.moderationAction || null}
           successPledgeCount={campaign._count.pledges}
+          isFeatured={campaign.isFeatured}
+          fundingModel={campaign.fundingModel}
         />
       </div>
     </div>
