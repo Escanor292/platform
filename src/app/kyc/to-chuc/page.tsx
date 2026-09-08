@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Building2, Loader2 } from "lucide-react";
@@ -9,11 +8,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ImageUpload } from "@/components/shared/ImageUpload";
 import { decodeCccdQrFromImage } from "@/lib/ekyc/decode-cccd-qr-browser";
+import { EkycWizard } from "@/components/kyc/EkycWizard";
 
 export default function OrganizationUpgradePage() {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [looking, setLooking] = useState(false);
+  const [modeReady, setModeReady] = useState(false);
+  const [ekycEnabled, setEkycEnabled] = useState(false);
+  const [kycStatus, setKycStatus] = useState<string | null>(null);
+  const [ekycDone, setEkycDone] = useState(false);
   const [qrNote, setQrNote] = useState("");
   const [form, setForm] = useState({
     taxCode: "", companyName: "", companyAddress: "", representative: "",
@@ -22,6 +26,23 @@ export default function OrganizationUpgradePage() {
     permanentAddress: "", currentAddress: "", phone: "", bankAccount: "", bankName: "",
     displayName: "", bio: "",
   });
+
+  useEffect(() => {
+    fetch("/api/kyc/status")
+      .then((r) => r.json())
+      .then((data) => {
+        const enabled = data?.ekycEnabled !== false;
+        const statusValue = data?.kyc?.status || null;
+        setEkycEnabled(enabled);
+        setKycStatus(statusValue);
+        if (statusValue === "VERIFIED" || statusValue === "PENDING") setEkycDone(true);
+        if (data?.kyc?.fullName) {
+          setForm((p) => ({ ...p, fullName: data.kyc.fullName || p.fullName, representative: data.kyc.fullName || p.representative }));
+        }
+      })
+      .catch(() => null)
+      .finally(() => setModeReady(true));
+  }, []);
 
   const scanBack = async (file: File) => {
     try {
@@ -70,7 +91,7 @@ export default function OrganizationUpgradePage() {
       toast.error("Cần MST, tên công ty và file ĐKKD");
       return;
     }
-    if (!form.fullName || !form.idCardNumber || !form.idCardFrontImage || !form.idCardBackImage) {
+    if (!ekycDone && (!form.fullName || !form.idCardNumber || !form.idCardFrontImage || !form.idCardBackImage)) {
       toast.error("Người đại diện phải có CCCD đủ 2 mặt");
       return;
     }
@@ -83,48 +104,75 @@ export default function OrganizationUpgradePage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Gửi thất bại");
-      toast.success("Hồ sơ eKYB đã gửi. Admin duyệt lại.");
+      toast.success("Hồ sơ doanh nghiệp đã gửi. Admin duyệt lại.");
       router.push("/dashboard");
     } catch (e: any) { toast.error(e.message); } finally { setBusy(false); }
   };
 
+  const showWizard = ekycEnabled && !ekycDone && kycStatus !== "VERIFIED" && kycStatus !== "PENDING";
+
+  if (!modeReady) {
+    return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-emerald-700" /></div>;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 px-4 py-12">
-      <form onSubmit={submit} className="mx-auto max-w-3xl space-y-6">
+      <div className="mx-auto max-w-3xl space-y-6">
         <div className="text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-700 text-white"><Building2 /></div>
-          <h1 className="text-3xl font-black">eKYB — tài khoản doanh nghiệp</h1>
-          <p className="mt-2 text-gray-600">P2: MST + ĐKKD + eKYC người đại diện. Admin phê duyệt cuối.</p>
-          <p className="mt-2 text-sm">Chưa eKYC cá nhân? <Link className="font-bold text-emerald-700 underline" href="/kyc?next=/kyc/to-chuc">Chạy /kyc</Link></p>
+          <h1 className="text-3xl font-black">Nâng cấp Creator — doanh nghiệp</h1>
+          <p className="mt-2 text-gray-600">
+            {showWizard
+              ? "Định danh người đại diện trước, sau đó nộp MST và ĐKKD."
+              : "Nộp mã số thuế và giấy ĐKKD. Admin phê duyệt cuối."}
+          </p>
         </div>
-        <section className="rounded-3xl border bg-white p-6 space-y-4">
-          <h2 className="font-black">Pháp nhân</h2>
-          <div className="flex gap-2">
-            <Input placeholder="Mã số thuế" value={form.taxCode} onChange={(e) => setForm({ ...form, taxCode: e.target.value })} />
-            <Button type="button" variant="outline" onClick={lookup} disabled={looking}>{looking ? <Loader2 className="h-4 w-4 animate-spin" /> : "Tra cứu"}</Button>
-          </div>
-          <Input placeholder="Tên doanh nghiệp" value={form.companyName} onChange={(e) => setForm({ ...form, companyName: e.target.value })} />
-          <Input placeholder="Địa chỉ đăng ký" value={form.companyAddress} onChange={(e) => setForm({ ...form, companyAddress: e.target.value })} />
-          <Input placeholder="Người đại diện pháp luật" value={form.representative} onChange={(e) => setForm({ ...form, representative: e.target.value })} />
-          <ImageUpload label="Giấy ĐKKD / GPKD" value={form.businessLicense} onChange={(url) => setForm({ ...form, businessLicense: url })} />
-          <ImageUpload label="Giấy ủy quyền (nếu cần)" value={form.authorizationUrl} onChange={(url) => setForm({ ...form, authorizationUrl: url })} />
-        </section>
-        <section className="rounded-3xl border bg-white p-6 space-y-4">
-          <h2 className="font-black">eKYC người đại diện</h2>
-          {qrNote && <p className="text-sm text-emerald-800">{qrNote}</p>}
-          <Input placeholder="Họ tên trên CCCD" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
-          <Input placeholder="Số CCCD 12 số" value={form.idCardNumber} onChange={(e) => setForm({ ...form, idCardNumber: e.target.value })} />
-          <Input type="date" value={form.dateOfBirth} onChange={(e) => setForm({ ...form, dateOfBirth: e.target.value })} />
-          <Input placeholder="Địa chỉ thường trú" value={form.permanentAddress} onChange={(e) => setForm({ ...form, permanentAddress: e.target.value })} />
-          <div className="grid gap-4 md:grid-cols-2">
-            <ImageUpload label="CCCD trước" value={form.idCardFrontImage} onChange={(url) => setForm({ ...form, idCardFrontImage: url })} capture />
-            <ImageUpload label="CCCD sau (có QR)" value={form.idCardBackImage} onChange={(url) => setForm({ ...form, idCardBackImage: url })} onFile={scanBack} capture />
-          </div>
-        </section>
-        <Button type="submit" disabled={busy} className="h-12 w-full bg-emerald-700 hover:bg-emerald-800">
-          {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Gửi hồ sơ eKYB
-        </Button>
-      </form>
+
+        {showWizard ? (
+          <EkycWizard
+            onComplete={({ status: next }) => {
+              if (next === "REJECTED") {
+                setKycStatus("REJECTED");
+                return;
+              }
+              setKycStatus(next);
+              setEkycDone(true);
+            }}
+          />
+        ) : (
+          <form onSubmit={submit} className="space-y-6">
+            <section className="rounded-3xl border bg-white p-6 space-y-4">
+              <h2 className="font-black">Pháp nhân</h2>
+              <div className="flex gap-2">
+                <Input placeholder="Mã số thuế" value={form.taxCode} onChange={(e) => setForm({ ...form, taxCode: e.target.value })} />
+                <Button type="button" variant="outline" onClick={lookup} disabled={looking}>{looking ? <Loader2 className="h-4 w-4 animate-spin" /> : "Tra cứu"}</Button>
+              </div>
+              <Input placeholder="Tên doanh nghiệp" value={form.companyName} onChange={(e) => setForm({ ...form, companyName: e.target.value })} />
+              <Input placeholder="Địa chỉ đăng ký" value={form.companyAddress} onChange={(e) => setForm({ ...form, companyAddress: e.target.value })} />
+              <Input placeholder="Người đại diện pháp luật" value={form.representative} onChange={(e) => setForm({ ...form, representative: e.target.value })} />
+              <ImageUpload label="Giấy ĐKKD / GPKD" value={form.businessLicense} onChange={(url) => setForm({ ...form, businessLicense: url })} />
+              <ImageUpload label="Giấy ủy quyền (nếu cần)" value={form.authorizationUrl} onChange={(url) => setForm({ ...form, authorizationUrl: url })} />
+            </section>
+            {!ekycEnabled && (
+              <section className="rounded-3xl border bg-white p-6 space-y-4">
+                <h2 className="font-black">CCCD người đại diện</h2>
+                {qrNote && <p className="text-sm text-emerald-800">{qrNote}</p>}
+                <Input placeholder="Họ tên trên CCCD" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
+                <Input placeholder="Số CCCD 12 số" value={form.idCardNumber} onChange={(e) => setForm({ ...form, idCardNumber: e.target.value })} />
+                <Input type="date" value={form.dateOfBirth} onChange={(e) => setForm({ ...form, dateOfBirth: e.target.value })} />
+                <Input placeholder="Địa chỉ thường trú" value={form.permanentAddress} onChange={(e) => setForm({ ...form, permanentAddress: e.target.value })} />
+                <div className="grid gap-4 md:grid-cols-2">
+                  <ImageUpload label="CCCD trước" value={form.idCardFrontImage} onChange={(url) => setForm({ ...form, idCardFrontImage: url })} capture />
+                  <ImageUpload label="CCCD sau (có QR)" value={form.idCardBackImage} onChange={(url) => setForm({ ...form, idCardBackImage: url })} onFile={scanBack} capture />
+                </div>
+              </section>
+            )}
+            <Button type="submit" disabled={busy} className="h-12 w-full bg-emerald-700 hover:bg-emerald-800">
+              {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Gửi hồ sơ doanh nghiệp
+            </Button>
+          </form>
+        )}
+      </div>
     </div>
   );
 }

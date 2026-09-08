@@ -16,7 +16,13 @@ type OcrFields = {
 };
 const empty: OcrFields = { fullName: "", idCardNumber: "", idCardType: "CCCD", dateOfBirth: "", idCardIssueDate: "", idCardIssuePlace: "", placeOfBirth: "", permanentAddress: "" };
 
-export function EkycWizard({ nextHref = "/dashboard" }: { nextHref?: string }) {
+export function EkycWizard({
+  nextHref = "/dashboard",
+  onComplete,
+}: {
+  nextHref?: string;
+  onComplete?: (result: { status: string }) => void;
+}) {
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -170,6 +176,11 @@ export function EkycWizard({ nextHref = "/dashboard" }: { nextHref?: string }) {
       if (data.status === "VERIFIED") toast.success("Định danh thành công.");
       else if (data.status === "REJECTED") toast.error("eKYC chưa đạt.");
       else toast.message("Hồ sơ đã gửi, chờ admin hậu kiểm.");
+      if (onComplete) {
+        onComplete({ status: data.status });
+        if (data.status === "REJECTED") setStep(1);
+        return;
+      }
       router.push(nextHref); router.refresh();
     } catch (e: any) { toast.error(e.message); } finally { setBusy(false); }
   };

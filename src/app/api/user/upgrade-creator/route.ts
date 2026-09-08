@@ -16,13 +16,18 @@ export async function POST(req: NextRequest) {
     const data = await req.json();
     const { type, ...formData } = data;
     const isOrg = type === "organization" || user.isOrganization;
-    if (!formData.fullName || !formData.idCardNumber) {
+    const existingKyc = await prisma.kyc_info.findUnique({ where: { userId: user.id } });
+    const fullName = formData.fullName || existingKyc?.fullName;
+    const idCardNumber = formData.idCardNumber || existingKyc?.idCardNumber;
+    const idCardFrontImage = formData.idCardFrontImage || existingKyc?.idCardFrontImage;
+    const idCardBackImage = formData.idCardBackImage || existingKyc?.idCardBackImage;
+    if (!fullName || !idCardNumber) {
       return NextResponse.json({ error: "Thieu ho ten hoac so giay to" }, { status: 400 });
     }
-    if (!formData.idCardFrontImage || !formData.idCardBackImage) {
+    if (!idCardFrontImage || !idCardBackImage) {
       return NextResponse.json({ error: "Can anh CCCD mat truoc va mat sau" }, { status: 400 });
     }
-    if (isOrg && !formData.taxCode && !formData.businessLicense) {
+    if (isOrg && !formData.taxCode && !formData.businessLicense && !user.businessLicense) {
       return NextResponse.json({ error: "Doanh nghiep can MST hoac giay DKKD" }, { status: 400 });
     }
     await prisma.users.update({
@@ -39,19 +44,22 @@ export async function POST(req: NextRequest) {
         role: "CREATOR_PENDING",
       },
     });
+    const keepVerified = existingKyc?.verificationStatus === "VERIFIED";
     const kycData: any = {
-      fullName: formData.fullName,
-      idCardNumber: formData.idCardNumber,
-      idCardType: formData.idCardType || "CCCD",
-      idCardFrontImage: formData.idCardFrontImage,
-      idCardBackImage: formData.idCardBackImage,
-      idCardIssueDate: formData.idCardIssueDate ? new Date(formData.idCardIssueDate) : null,
-      idCardIssuePlace: formData.idCardIssuePlace || null,
-      dateOfBirth: formData.dateOfBirth ? new Date(formData.dateOfBirth) : null,
-      permanentAddress: formData.permanentAddress || null,
-      currentAddress: formData.currentAddress || null,
-      occupation: isOrg ? `ORG:${formData.taxCode || ""}` : formData.occupation || null,
-      verificationStatus: "PENDING",
+      fullName,
+      idCardNumber,
+      idCardType: formData.idCardType || existingKyc?.idCardType || "CCCD",
+      idCardFrontImage,
+      idCardBackImage,
+      idCardIssueDate: formData.idCardIssueDate ? new Date(formData.idCardIssueDate) : existingKyc?.idCardIssueDate || null,
+      idCardIssuePlace: formData.idCardIssuePlace || existingKyc?.idCardIssuePlace || null,
+      dateOfBirth: formData.dateOfBirth ? new Date(formData.dateOfBirth) : existingKyc?.dateOfBirth || null,
+      permanentAddress: formData.permanentAddress || existingKyc?.permanentAddress || null,
+      currentAddress: formData.currentAddress || existingKyc?.currentAddress || null,
+      occupation: isOrg ? `ORG:${formData.taxCode || ""}` : formData.occupation || existingKyc?.occupation || null,
+      verificationStatus: keepVerified ? "VERIFIED" : existingKyc?.verificationStatus || "PENDING",
+      verifiedAt: keepVerified ? existingKyc?.verifiedAt : existingKyc?.verifiedAt || null,
+      verifiedBy: keepVerified ? existingKyc?.verifiedBy : existingKyc?.verifiedBy || null,
       updatedAt: new Date(),
     };
     await prisma.kyc_info.upsert({
