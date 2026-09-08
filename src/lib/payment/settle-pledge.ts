@@ -6,7 +6,6 @@ import { onPledgeSuccess } from "@/lib/tax/on-pledge-success";
 export async function settlePledgeAsPaid(pledgeId: string, meta?: { transactionId?: string; reason?: string; userId?: string | null }) {
   const pledge = await prisma.pledges.findUnique({
     where: { id: pledgeId },
-    include: { campaigns: { select: { goalAmount: true, status: true } } },
   });
 
   if (!pledge) return { ok: false as const, reason: "not-found" as const };
@@ -33,23 +32,6 @@ export async function settlePledgeAsPaid(pledgeId: string, meta?: { transactionI
       });
       if (pledge.campaignId) await recalculateCampaignAmount(tx, pledge.campaignId);
     });
-
-    if (pledge.campaignId && pledge.campaigns) {
-      const campaign = await prisma.campaigns.findUnique({
-        where: { id: pledge.campaignId },
-        select: { currentAmount: true, goalAmount: true, status: true },
-      });
-      if (
-        campaign &&
-        campaign.status === "ACTIVE" &&
-        Number(campaign.currentAmount) >= Number(campaign.goalAmount)
-      ) {
-        await prisma.campaigns.update({
-          where: { id: pledge.campaignId },
-          data: { status: "SUCCESS", updatedAt: new Date() },
-        });
-      }
-    }
 
     await createAuditLog({
       userId: meta?.userId || pledge.userId,
