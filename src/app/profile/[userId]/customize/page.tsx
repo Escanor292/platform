@@ -4,6 +4,7 @@ import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Eye, Sparkles } from 'lucide-react';
 import ProfileCustomizationEditor from '@/components/profile/ProfileCustomizationEditor';
+import { userHasPermission } from '@/lib/permissions';
 
 interface CustomizeProfilePageProps {
   params: Promise<{ userId: string }>;
@@ -19,6 +20,7 @@ export default async function CustomizeProfilePage({ params }: CustomizeProfileP
     : undefined);
 
   if (!sessionUserId || sessionUserId !== userId) redirect(`/profile/${userId}`);
+  if (!(await userHasPermission(session.user as any, 'profile.customize'))) redirect(`/profile/${userId}`);
 
   const user = await prisma.users.findUnique({ where: { id: userId }, select: { id: true, name: true } });
   if (!user) notFound();

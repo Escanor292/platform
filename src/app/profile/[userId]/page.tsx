@@ -14,6 +14,7 @@ import { UserFollowButton } from "@/components/profile/UserFollowButton";
 import { ProfileNoteBubble } from "@/components/profile/ProfileNoteBubble";
 import { getUserFollowStats } from "@/lib/user-follows";
 import { getActiveSelfNote } from "@/services/mongodb/chat.service";
+import { userHasPermission } from "@/lib/permissions";
 import { canExposePrivacyField } from "@/lib/profile-settings";
 import { getProfileThemeStyle, getPublicProfileCustomization, isSectionVisible, normalizeProfileCustomization, resolveProfileLayout } from "@/lib/profile-customization";
 
@@ -220,6 +221,8 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
   const isBacker = user._count.pledges > 0;
   const followStats = await getUserFollowStats(userId, currentUserId);
   const profileNote = await getActiveSelfNote(userId);
+  const canEditProfile = isOwnProfile && (await userHasPermission(session?.user as any, "profile.edit"));
+  const canCustomizeProfile = isOwnProfile && (await userHasPermission(session?.user as any, "profile.customize"));
 
   return (
     <div className="min-h-screen py-24 px-6" style={{ ...getProfileThemeStyle(profileConfig), backgroundColor: "var(--profile-background)" }}>
@@ -257,12 +260,16 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
                 <Link href={`/profile/${userId}?preview=public`} className="px-4 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl text-sm font-bold transition flex items-center gap-2" title="Xem giao diện công khai">
                   <Eye size={16} /> Chế độ xem
                 </Link>
+                {canCustomizeProfile && (
                 <Link href={`/profile/${userId}/customize`} className="px-4 py-2 bg-gray-100 text-gray-900 rounded-xl text-sm font-bold hover:bg-gray-200 transition flex items-center gap-2">
                   <Palette size={16} /> Giao diện
                 </Link>
+                )}
+                {canEditProfile && (
                 <Link href={`/profile/${userId}/edit`} className="px-4 py-2 bg-gray-100 text-gray-900 rounded-xl text-sm font-bold hover:bg-gray-200 transition flex items-center gap-2">
                   <Settings size={16} /> Chỉnh sửa
                 </Link>
+                )}
                 {user.role === "ADMIN" && (
                   <Link href="/dashboard/admin" className="px-4 py-2 bg-red-600 text-white rounded-xl text-sm font-bold hover:bg-red-700 transition flex items-center gap-2">
                     <ShieldCheck size={16} /> Quản trị

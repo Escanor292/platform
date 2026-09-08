@@ -36,13 +36,21 @@ export async function GET() {
   return NextResponse.json(payload(await getPermissionMap()));
 }
 
-export async function PUT() {
+export async function PUT(request: NextRequest) {
   const session = await auth();
   if (!session?.user || !isAdmin(session.user)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  const map = await savePermissionMap({ ...DEFAULT_PERMISSION_MAP });
-  return NextResponse.json({ success: true, ...payload(map) });
+  const body = await request.json().catch(() => ({}));
+  if (body.reset) {
+    const map = await savePermissionMap({ ...DEFAULT_PERMISSION_MAP });
+    return NextResponse.json({ success: true, ...payload(map) });
+  }
+  if (body.map && typeof body.map === "object") {
+    const map = await savePermissionMap(body.map);
+    return NextResponse.json({ success: true, ...payload(map) });
+  }
+  return NextResponse.json({ error: "Thiếu bản phân quyền để lưu." }, { status: 400 });
 }
 
 export async function PATCH(request: NextRequest) {

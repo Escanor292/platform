@@ -29,5 +29,9 @@ describe("permissions bitfield", () => {
     expect(hasBit(dirty.ADMIN, "admin.panel")).toBe(true);
     expect(hasBit(DEFAULT_PERMISSION_MAP.CREATOR_PRO, "link.health")).toBe(true);
     expect(hasBit(DEFAULT_PERMISSION_MAP.BACKER, "campaign.create")).toBe(false);
+    expect(hasBit(DEFAULT_PERMISSION_MAP.CREATOR, "profile.customize")).toBe(true);
+    expect(hasBit(DEFAULT_PERMISSION_MAP.BACKER, "profile.customize")).toBe(false);
+    const migrated = sanitizePermissionMap({ BACKER: 1985, v: 1 });
+    expect(hasBit(migrated.BACKER, "profile.edit")).toBe(true);
   });
 });

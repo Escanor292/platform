@@ -1,11 +1,11 @@
 "use client";
 
 import { Fragment, useMemo, useState } from "react";
-import { KeyRound, Loader2, Lock, RotateCcw, Search } from "lucide-react";
+import { Check, KeyRound, Loader2, Lock, RotateCcw, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { AccountType, PermissionKey } from "@/lib/permissions-catalog";
-import { hasBit, isLocked } from "@/lib/permissions-catalog";
+import { hasBit, isLocked, setBit } from "@/lib/permissions-catalog";
 
 type AccountMeta = { key: AccountType; label: string; hint: string; color: string };
 type PermMeta = { key: PermissionKey; bit: number; group: string; label: string; description: string };
@@ -24,6 +24,10 @@ function countOn(mask: number, permissions: PermMeta[]) {
   return permissions.filter((p) => hasBit(mask, p.key)).length;
 }
 
+function mapsEqual(a: Record<AccountType, number>, b: Record<AccountType, number>) {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
 export function PermissionsMatrix({
   accountTypes,
   groups,
@@ -37,10 +41,12 @@ export function PermissionsMatrix({
   initialMap: Record<AccountType, number>;
   defaults: Record<AccountType, number>;
 }) {
-  const [map, setMap] = useState(initialMap);
+  const [saved, setSaved] = useState(initialMap);
+  const [draft, setDraft] = useState(initialMap);
   const [query, setQuery] = useState("");
-  const [pending, setPending] = useState<string | null>(null);
-  const [resetting, setResetting] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const dirty = !mapsEqual(draft, saved);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -50,53 +56,37 @@ export function PermissionsMatrix({
     );
   }, [permissions, query]);
 
-  const patch = async (accountType: AccountType, permission: PermissionKey, enabled: boolean) => {
+  const toggle = (accountType: AccountType, permission: PermissionKey, enabled: boolean) => {
     if (isLocked(accountType, permission) && !enabled) {
       toast.error("Không tắt được quyền bắt buộc của Admin");
       return;
     }
-    const token = `${accountType}:${permission}`;
-    setPending(token);
-    const previous = map;
-    setMap((cur) => {
-      const bit = 1 << permissions.find((p) => p.key === permission)!.bit;
-      const nextMask = enabled ? cur[accountType] | bit : cur[accountType] & ~bit;
-      return { ...cur, [accountType]: nextMask };
-    });
+    setDraft((cur) => ({ ...cur, [accountType]: setBit(cur[accountType], permission, enabled) }));
+  };
+
+  const persist = async (payload: Record<string, unknown>, success: string) => {
+    setSaving(true);
     try {
       const res = await fetch("/api/admin/permissions", {
-        method: "PATCH",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accountType, permission, enabled }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Không lưu được");
-      setMap(data.map);
-    } catch (error: any) {
-      setMap(previous);
-      toast.error(error.message);
-    } finally {
-      setPending(null);
-    }
-  };
-
-  const reset = async () => {
-    setResetting(true);
-    try {
-      const res = await fetch("/api/admin/permissions", { method: "PUT" });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Không khôi phục được");
-      setMap(data.map);
-      toast.success("Đã về quyền mặc định");
+      setSaved(data.map);
+      setDraft(data.map);
+      toast.success(success);
+      setConfirmOpen(false);
     } catch (error: any) {
       toast.error(error.message);
     } finally {
-      setResetting(false);
+      setSaving(false);
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-28">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-gray-900 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white">
@@ -104,7 +94,7 @@ export function PermissionsMatrix({
           </div>
           <h1 className="text-4xl font-black tracking-tight text-gray-900">Phân quyền tài khoản</h1>
           <p className="mt-2 max-w-2xl text-sm text-gray-500">
-            Mỗi ô là một bit. Bật/tắt ngay trên lưới — loại tài khoản nào làm được việc gì hiện rõ một nhìn.
+            Bật/tắt trên lưới chỉ là bản nháp. Quyền chỉ áp dụng sau khi bấm lưu và xác nhận.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -119,11 +109,10 @@ export function PermissionsMatrix({
           </div>
           <button
             type="button"
-            onClick={reset}
-            disabled={resetting}
-            className="inline-flex h-11 items-center gap-2 rounded-2xl border border-gray-200 bg-white px-4 text-sm font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-60"
+            onClick={() => setDraft(defaults)}
+            className="inline-flex h-11 items-center gap-2 rounded-2xl border border-gray-200 bg-white px-4 text-sm font-bold text-gray-700 hover:bg-gray-50"
           >
-            {resetting ? <Loader2 size={16} className="animate-spin" /> : <RotateCcw size={16} />}
+            <RotateCcw size={16} />
             Mặc định
           </button>
         </div>
@@ -131,7 +120,7 @@ export function PermissionsMatrix({
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
         {accountTypes.map((type) => {
-          const on = countOn(map[type.key], permissions);
+          const on = countOn(draft[type.key], permissions);
           const tone = COLOR[type.color] || COLOR.slate;
           return (
             <div key={type.key} className="rounded-3xl border border-gray-100 bg-white p-4 shadow-sm">
@@ -143,7 +132,7 @@ export function PermissionsMatrix({
                 <span className="text-base font-bold text-gray-300">/{permissions.length}</span>
               </div>
               <div className="mt-1 text-xs text-gray-400">{type.hint}</div>
-              <div className="mt-2 font-mono text-[10px] text-gray-400">0x{map[type.key].toString(16).toUpperCase()}</div>
+              <div className="mt-2 font-mono text-[10px] text-gray-400">0x{draft[type.key].toString(16).toUpperCase()}</div>
             </div>
           );
         })}
@@ -186,18 +175,17 @@ export function PermissionsMatrix({
                           <div className="mt-1 font-mono text-[10px] text-gray-300">bit {perm.bit} · {perm.key}</div>
                         </td>
                         {accountTypes.map((type) => {
-                          const on = hasBit(map[type.key], perm.key);
+                          const on = hasBit(draft[type.key], perm.key);
                           const locked = isLocked(type.key, perm.key);
-                          const token = `${type.key}:${perm.key}`;
                           const tone = COLOR[type.color] || COLOR.slate;
-                          const changed = hasBit(map[type.key], perm.key) !== hasBit(defaults[type.key], perm.key);
+                          const changed = hasBit(draft[type.key], perm.key) !== hasBit(defaults[type.key], perm.key);
                           return (
                             <td key={type.key} className="border-t border-gray-100 px-3 py-4 text-center">
                               <button
                                 type="button"
-                                disabled={locked || pending === token}
-                                onClick={() => patch(type.key, perm.key, !on)}
-                                title={locked ? "Bắt buộc với Admin" : on ? "Đang bật — bấm để tắt" : "Đang tắt — bấm để bật"}
+                                disabled={locked}
+                                onClick={() => toggle(type.key, perm.key, !on)}
+                                title={locked ? "Bắt buộc với Admin" : on ? "Bản nháp: đang bật" : "Bản nháp: đang tắt"}
                                 className={cn(
                                   "relative mx-auto flex h-8 w-14 items-center rounded-full transition",
                                   on ? tone.on : "bg-gray-200",
@@ -210,11 +198,7 @@ export function PermissionsMatrix({
                                     on && "translate-x-6",
                                   )}
                                 >
-                                  {pending === token ? (
-                                    <Loader2 size={12} className="animate-spin text-gray-400" />
-                                  ) : locked ? (
-                                    <Lock size={11} className="text-gray-400" />
-                                  ) : null}
+                                  {locked ? <Lock size={11} className="text-gray-400" /> : null}
                                 </span>
                               </button>
                               {changed && <div className="mt-1 text-[9px] font-bold uppercase tracking-wider text-amber-500">khác mặc định</div>}
@@ -230,6 +214,60 @@ export function PermissionsMatrix({
           </table>
         </div>
       </div>
+
+      {dirty && (
+        <div className="fixed inset-x-0 bottom-4 z-40 px-4">
+          <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 rounded-2xl border border-gray-900 bg-gray-900 px-4 py-3 text-white shadow-2xl">
+            <p className="text-sm font-semibold">Có thay đổi chưa lưu. Quyền chưa áp dụng cho người dùng.</p>
+            <div className="flex shrink-0 gap-2">
+              <button
+                type="button"
+                onClick={() => setDraft(saved)}
+                className="inline-flex h-10 items-center gap-1 rounded-xl bg-white/10 px-3 text-sm font-bold hover:bg-white/20"
+              >
+                <X size={14} /> Hủy
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmOpen(true)}
+                className="inline-flex h-10 items-center gap-1 rounded-xl bg-white px-4 text-sm font-black text-gray-900"
+              >
+                <Check size={14} /> Lưu phân quyền
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirmOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
+            <h2 className="text-xl font-black text-gray-900">Xác nhận lưu phân quyền?</h2>
+            <p className="mt-2 text-sm text-gray-500">
+              Thay đổi sẽ áp dụng ngay cho mọi tài khoản theo loại. Admin không thể bị tắt quyền vào trang quản trị.
+            </p>
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmOpen(false)}
+                disabled={saving}
+                className="h-11 rounded-xl border border-gray-200 px-4 text-sm font-bold text-gray-700"
+              >
+                Quay lại
+              </button>
+              <button
+                type="button"
+                onClick={() => persist({ map: draft }, "Đã lưu phân quyền")}
+                disabled={saving}
+                className="inline-flex h-11 items-center gap-2 rounded-xl bg-gray-900 px-5 text-sm font-black text-white disabled:opacity-60"
+              >
+                {saving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                Xác nhận lưu
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

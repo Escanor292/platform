@@ -7,10 +7,20 @@ import {
   type ProfileCustomizationConfig,
 } from "@/lib/profile-customization";
 import { NextResponse } from "next/server";
+import { permissionDenied, userHasPermission } from "@/lib/permissions";
 
 const cloneDefault = () => JSON.parse(JSON.stringify(DEFAULT_PROFILE_CUSTOMIZATION)) as ProfileCustomizationConfig;
 
 type CustomizationAction = "save" | "publish" | "restore" | "restore_version" | "reset";
+
+async function requireCustomize() {
+  const session = await auth();
+  if (!session?.user) return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
+  if (!(await userHasPermission(session.user as any, "profile.customize"))) {
+    return { error: NextResponse.json(permissionDenied("Tài khoản này không được tùy chỉnh giao diện hồ sơ."), { status: 403 }) };
+  }
+  return {};
+}
 
 async function getCurrentUserId() {
   const session = await auth();
@@ -89,6 +99,8 @@ function jsonConfig(value: unknown) {
 
 export async function GET() {
   try {
+    const gate = await requireCustomize();
+    if (gate.error) return gate.error;
     const userId = await getCurrentUserId();
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -146,6 +158,8 @@ export async function GET() {
 
 export async function PATCH(request: Request) {
   try {
+    const gate = await requireCustomize();
+    if (gate.error) return gate.error;
     const userId = await getCurrentUserId();
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

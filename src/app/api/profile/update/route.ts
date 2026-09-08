@@ -2,11 +2,15 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { normalizeNotificationSettings, normalizePrivacySettings } from "@/lib/profile-settings";
+import { permissionDenied, userHasPermission } from "@/lib/permissions";
 
 export async function POST(req: Request) {
   try {
     const session = await auth();
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!(await userHasPermission(session.user as any, "profile.edit"))) {
+      return NextResponse.json(permissionDenied("Tài khoản này không được sửa trang cá nhân."), { status: 403 });
+    }
 
     const body = await req.json();
     const { name, bio, location, website, phone, shippingAddress, image, coverImage, socialLinks } = body;

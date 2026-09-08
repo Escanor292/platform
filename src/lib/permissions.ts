@@ -1,6 +1,7 @@
 import { getPlatformSetting, setPlatformSetting } from "@/lib/platform-settings";
 import {
   DEFAULT_PERMISSION_MAP,
+  PERMISSIONS_VERSION,
   hasBit,
   resolveAccountType,
   sanitizePermissionMap,
@@ -15,6 +16,7 @@ export {
   DEFAULT_PERMISSION_MAP,
   PERMISSIONS,
   PERMISSION_GROUPS,
+  PERMISSIONS_VERSION,
   bitOf,
   hasBit,
   isLocked,
@@ -38,7 +40,7 @@ export async function getPermissionMap(): Promise<PermissionMap> {
 
 export async function savePermissionMap(map: PermissionMap): Promise<PermissionMap> {
   const next = sanitizePermissionMap(map);
-  await setPlatformSetting(ROLE_PERMISSIONS_KEY, JSON.stringify(next));
+  await setPlatformSetting(ROLE_PERMISSIONS_KEY, JSON.stringify({ v: PERMISSIONS_VERSION, ...next }));
   return next;
 }
 
