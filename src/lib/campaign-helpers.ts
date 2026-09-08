@@ -28,7 +28,6 @@ export function calculateCompletionState(
     return endDateObj < now;
   })();
 
-  // Dong theo ngay het han. Du goal giua chung khong dong chien dich.
   if (status === "SUCCESS" || status === "COMPLETED") {
     if (!ended) return progressPercent >= 100 ? "GOAL_REACHED" : "ONGOING";
     return "COMPLETED";
@@ -47,20 +46,20 @@ export function calculateCompletionState(
 
 export function getCompletionStateLabel(state: CompletionState): string {
   const labels: Record<CompletionState, string> = {
-    NOT_STARTED: "Chua bat dau",
-    ONGOING: "Dang gay quy",
-    GOAL_REACHED: "Da dat muc tieu",
-    COMPLETED: "Da hoan thanh",
-    FAILED: "Da ket thuc",
-    PAUSED: "Tam dung",
+    NOT_STARTED: "Chưa bắt đầu",
+    ONGOING: "Đang gây quỹ",
+    GOAL_REACHED: "Đã đạt mục tiêu",
+    COMPLETED: "Đã hoàn thành",
+    FAILED: "Đã kết thúc",
+    PAUSED: "Tạm dừng",
   };
   return labels[state];
 }
 
 export function getCampaignTypeLabel(type: CampaignType | string): string {
   const labels: Record<string, string> = {
-    REWARD: "Nhan qua",
-    DONATION: "Ung ho",
+    REWARD: "Nhận quà",
+    DONATION: "Ủng hộ",
   };
   return labels[type] || type;
 }
@@ -72,14 +71,14 @@ export function getFundingModelLabel(model: FundingModel | string | null | undef
 
 export function getStatusLabel(status: CampaignStatus): string {
   const labels: Record<CampaignStatus, string> = {
-    DRAFT: "Nhap",
-    PENDING_REVIEW: "Cho duyet",
-    ACTIVE: "Dang hoat dong",
-    PAUSED: "Tam dung",
-    SUCCESS: "Thanh cong",
-    COMPLETED: "Hoan thanh",
-    FAILED: "That bai",
-    CANCELED: "Da huy",
+    DRAFT: "Nháp",
+    PENDING_REVIEW: "Chờ duyệt",
+    ACTIVE: "Đang hoạt động",
+    PAUSED: "Tạm dừng",
+    SUCCESS: "Thành công",
+    COMPLETED: "Hoàn thành",
+    FAILED: "Thất bại",
+    CANCELED: "Đã hủy",
   };
   return labels[status];
 }
@@ -117,11 +116,11 @@ export function getDaysRemaining(endDate: Date | string | null): number | null {
 
 export function formatDaysRemaining(endDate: Date | string | null): string {
   const days = getDaysRemaining(endDate);
-  if (days === null) return "Vo thoi han";
-  if (days < 0) return "Da ket thuc";
-  if (days === 0) return "Ket thuc hom nay";
-  if (days === 1) return "Con 1 ngay";
-  return `Con ${days} ngay`;
+  if (days === null) return "Vô thời hạn";
+  if (days < 0) return "Đã kết thúc";
+  if (days === 0) return "Kết thúc hôm nay";
+  if (days === 1) return "Còn 1 ngày";
+  return `Còn ${days} ngày`;
 }
 
 export function formatDateVN(date: Date | string | null): string {
@@ -141,7 +140,7 @@ export function formatDateVNLong(date: Date | string | null): string {
   const day = dateObj.getDate();
   const month = dateObj.getMonth() + 1;
   const year = dateObj.getFullYear();
-  return `Ngay ${day} thang ${month} nam ${year}`;
+  return `Ngày ${day} tháng ${month} năm ${year}`;
 }
 
 export function formatDateTimeVN(date: Date | string | null): string {
