@@ -16,7 +16,7 @@ export const PERMISSION_GROUPS = [
   { key: "admin", label: "Quản trị" },
 ] as const;
 
-export const PERMISSIONS_VERSION = 2;
+export const PERMISSIONS_VERSION = 3;
 
 export const PERMISSIONS = [
   { key: "blog.write", bit: 0, group: "content", label: "Viết blog", description: "Tạo và sửa bài viết của mình" },
@@ -36,6 +36,7 @@ export const PERMISSIONS = [
   { key: "profile.edit", bit: 14, group: "account", label: "Sửa trang cá nhân", description: "Đổi tên, bio, ảnh, liên hệ" },
   { key: "profile.customize", bit: 15, group: "account", label: "Tùy chỉnh giao diện chuyên nghiệp", description: "Theme, layout, khối nổi bật trên hồ sơ" },
   { key: "report.submit", bit: 16, group: "community", label: "Gửi báo cáo vi phạm", description: "Tố cáo nội dung / người dùng" },
+  { key: "profile.template_publish", bit: 17, group: "account", label: "Chia sẻ mẫu giao diện", description: "Công khai / gửi duyệt mẫu hồ sơ cho cộng đồng" },
 ] as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[number]["key"];
@@ -85,6 +86,7 @@ const CREATOR_KEYS: PermissionKey[] = [
   "project.create",
   "product.manage",
   "profile.customize",
+  "profile.template_publish",
 ];
 
 export const DEFAULT_PERMISSION_MAP: PermissionMap = {
@@ -134,7 +136,8 @@ export function sanitizePermissionMap(
   }
   const shouldMigrate = options?.migrate !== false && version < PERMISSIONS_VERSION;
   if (shouldMigrate) {
-    const inherited = PERMISSIONS.filter((p) => p.bit >= 14).reduce((mask, perm) => mask | (1 << perm.bit), 0);
+    const fromBit = version < 2 ? 14 : 17;
+    const inherited = PERMISSIONS.filter((p) => p.bit >= fromBit).reduce((mask, perm) => mask | (1 << perm.bit), 0);
     for (const type of ACCOUNT_TYPES) {
       next[type.key] = (next[type.key] & ~inherited) | (DEFAULT_PERMISSION_MAP[type.key] & inherited);
     }

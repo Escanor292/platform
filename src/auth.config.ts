@@ -24,7 +24,8 @@ export const authConfig = {
         nextUrl.pathname.startsWith("/campaigns") ||
         nextUrl.pathname.startsWith("/lookup") ||
         nextUrl.pathname.startsWith("/policy") ||
-        nextUrl.pathname.startsWith("/gioi-thieu");
+        nextUrl.pathname.startsWith("/gioi-thieu") ||
+        nextUrl.pathname.startsWith("/t/");
       const isAuthRoute =
         nextUrl.pathname.startsWith("/auth/login") ||
         nextUrl.pathname.startsWith("/auth/register");

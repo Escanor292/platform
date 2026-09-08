@@ -12,6 +12,7 @@ import ReportButton from "@/components/report/ReportButton";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
 import { UserFollowButton } from "@/components/profile/UserFollowButton";
 import { ProfileNoteBubble } from "@/components/profile/ProfileNoteBubble";
+import { ShareProfileThemeButton } from "@/components/profile/ShareProfileThemeButton";
 import { getUserFollowStats } from "@/lib/user-follows";
 import { getActiveSelfNote } from "@/services/mongodb/chat.service";
 import { userHasPermission } from "@/lib/permissions";
@@ -260,6 +261,9 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
                 <Link href={`/profile/${userId}?preview=public`} className="px-4 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl text-sm font-bold transition flex items-center gap-2" title="Xem giao diện công khai">
                   <Eye size={16} /> Chế độ xem
                 </Link>
+                {canCustomizeProfile && (
+                <ShareProfileThemeButton defaultTitle={user.name ? `Giao diện ${user.name}` : "Giao diện của tôi"} />
+                )}
                 {canCustomizeProfile && (
                 <Link href={`/profile/${userId}/customize`} className="px-4 py-2 bg-gray-100 text-gray-900 rounded-xl text-sm font-bold hover:bg-gray-200 transition flex items-center gap-2">
                   <Palette size={16} /> Giao diện

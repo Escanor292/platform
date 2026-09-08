@@ -39,4 +39,22 @@ describe("permissions bitfield", () => {
     expect(hasBit(saved.BACKER, "profile.edit")).toBe(false);
     expect(hasBit(saved.ADMIN, "admin.panel")).toBe(true);
   });
+
+  it("gives creators the template publish bit by default", () => {
+    expect(hasBit(DEFAULT_PERMISSION_MAP.CREATOR, "profile.template_publish")).toBe(true);
+    expect(hasBit(DEFAULT_PERMISSION_MAP.CREATOR_PRO, "profile.template_publish")).toBe(true);
+    expect(hasBit(DEFAULT_PERMISSION_MAP.BACKER, "profile.template_publish")).toBe(false);
+  });
+
+  it("migrates v2 maps with the new template publish bit", () => {
+    const oldCreator = DEFAULT_PERMISSION_MAP.CREATOR & ~(1 << 17);
+    const migrated = sanitizePermissionMap({
+      v: 2,
+      CREATOR: oldCreator,
+      BACKER: DEFAULT_PERMISSION_MAP.BACKER,
+    });
+    expect(hasBit(oldCreator, "profile.template_publish")).toBe(false);
+    expect(hasBit(migrated.CREATOR, "profile.template_publish")).toBe(true);
+    expect(hasBit(migrated.BACKER, "profile.template_publish")).toBe(false);
+  });
 });

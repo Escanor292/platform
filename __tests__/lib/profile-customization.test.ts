@@ -1,5 +1,6 @@
 import {
   applyPresetLayout,
+  applyShareableTemplate,
   DEFAULT_PROFILE_CUSTOMIZATION,
   getOrderedSections,
   getOrderedTabSections,
@@ -8,6 +9,7 @@ import {
   normalizeProfileCustomization,
   parseProfileCustomization,
   PROFILE_SECTION_IDS,
+  toShareableTemplate,
 } from '@/lib/profile-customization';
 
 describe('profile customization contract', () => {
@@ -81,5 +83,53 @@ describe('profile customization contract', () => {
 
     expect(getPreferredProfileTab(staleShop)).toBe('products');
     expect(getOrderedTabSections(staleShop).filter((section) => section.visible).map((section) => section.id)[0]).toBe('products');
+  });
+
+  it('strips featured content and disables A/B from a shared template', () => {
+    const source = {
+      ...DEFAULT_PROFILE_CUSTOMIZATION,
+      theme: { ...DEFAULT_PROFILE_CUSTOMIZATION.theme, primary: '#123456' },
+      featured: {
+        projectIds: ['clh3x0k2n0000qz8k9v0q1w2x'],
+        campaignIds: ['clh3x0k2n0000qz8k9v0q1w2y'],
+        rewardIds: ['steal-me'],
+        blogPostIds: ['clh3x0k2n0000qz8k9v0q1w2z'],
+      },
+      experiment: { enabled: true, variantBPreset: 'shop' as const, allocationPercent: 40 },
+    };
+
+    const shared = toShareableTemplate(source);
+    expect(shared.theme.primary).toBe('#123456');
+    expect(shared.featured).toEqual({ projectIds: [], campaignIds: [], rewardIds: [], blogPostIds: [] });
+    expect(shared.experiment).toEqual({ enabled: false, variantBPreset: 'shop', allocationPercent: 0 });
+  });
+
+  it('applies a shared template without overwriting the owner featured block', () => {
+    const current = {
+      ...DEFAULT_PROFILE_CUSTOMIZATION,
+      featured: {
+        projectIds: ['clh3x0k2n0000qz8k9v0q1w2x'],
+        campaignIds: ['clh3x0k2n0000qz8k9v0q1w2y'],
+        rewardIds: ['keep-me'],
+        blogPostIds: [],
+      },
+      experiment: { enabled: true, variantBPreset: 'shop' as const, allocationPercent: 30 },
+    };
+    const template = {
+      ...DEFAULT_PROFILE_CUSTOMIZATION,
+      theme: { ...DEFAULT_PROFILE_CUSTOMIZATION.theme, primary: '#abcdef' },
+      featured: {
+        projectIds: ['clzzzzzzzzzzzzzzzzzzzzzzz'],
+        campaignIds: [],
+        rewardIds: ['steal'],
+        blogPostIds: ['clh3x0k2n0000qz8k9v0q1w2z'],
+      },
+      experiment: { enabled: true, variantBPreset: 'community' as const, allocationPercent: 90 },
+    };
+
+    const next = applyShareableTemplate(current, template);
+    expect(next.theme.primary).toBe('#abcdef');
+    expect(next.featured).toEqual(current.featured);
+    expect(next.experiment).toEqual(current.experiment);
   });
 });

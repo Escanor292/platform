@@ -309,3 +309,24 @@ export function getProfileThemeStyle(config: ProfileCustomizationConfig) {
     fontFamily: fonts.body,
   } as React.CSSProperties;
 }
+
+export function toShareableTemplate(config: ProfileCustomizationConfig): ProfileCustomizationConfig {
+  const next = normalizeProfileCustomization(config);
+  return {
+    ...next,
+    featured: { projectIds: [], campaignIds: [], rewardIds: [], blogPostIds: [] },
+    experiment: { enabled: false, variantBPreset: next.experiment.variantBPreset, allocationPercent: 0 },
+  };
+}
+
+export function applyShareableTemplate(
+  current: ProfileCustomizationConfig,
+  template: ProfileCustomizationConfig,
+): ProfileCustomizationConfig {
+  const shareable = toShareableTemplate(template);
+  return {
+    ...shareable,
+    featured: current.featured,
+    experiment: current.experiment,
+  };
+}

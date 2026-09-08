@@ -16,6 +16,7 @@ export async function middleware(request: NextRequest) {
       pathname.startsWith("/gioi-thieu") ||
       pathname.startsWith("/blog") ||
       pathname.startsWith("/projects") ||
+      pathname.startsWith("/t/") ||
       (pathname.startsWith("/profile/") && !pathname.startsWith("/profile/edit")) ||
       pathname.startsWith("/users/search");
 

@@ -23,6 +23,7 @@ import {
 } from '@/lib/profile-customization';
 import ProfileStudioPreview from '@/components/profile/ProfileStudioPreview';
 import SectionDragList from '@/components/profile/SectionDragList';
+import { ProfileTemplateLibrary } from '@/components/profile/ProfileTemplateLibrary';
 
 type Option = { id: string; title: string; slug?: string; status?: string; projectId?: string | null; campaignId?: string | null };
 type Options = { projects: Option[]; campaigns: Option[]; rewards: Option[]; blogPosts: Option[] };
@@ -143,7 +144,7 @@ export default function ProfileCustomizationEditor() {
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(380px,0.9fr)]">
         <div className="space-y-8">
           <section className="rounded-[2.5rem] border border-pgreen/10 bg-white/90 p-6 shadow-soft backdrop-blur sm:p-8">
-            <div className="mb-4 flex items-center gap-2"><LayoutTemplate className="text-pgreen" size={20} /><h2 className="font-display text-xl font-black text-dblue">Mẫu giao diện</h2></div>
+            <div className="mb-4 flex items-center gap-2"><LayoutTemplate className="text-pgreen" size={20} /><h2 className="font-display text-xl font-black text-dblue">Mẫu hệ thống</h2></div>
             <div className="grid gap-3 sm:grid-cols-2">
               {PROFILE_PRESETS.map((preset) => (
                 <button key={preset} onClick={() => applyPreset(preset)} className={`rounded-2xl border p-4 text-left transition ${config.preset === preset ? 'border-pgreen bg-fgreen/10 ring-2 ring-fgreen/20' : 'border-gray-200 hover:border-pgreen/40'}`}>
@@ -153,6 +154,8 @@ export default function ProfileCustomizationEditor() {
               ))}
             </div>
           </section>
+
+          <ProfileTemplateLibrary config={config} onApply={(next) => { setConfig(next); setMessage('Đã áp dụng mẫu vào bản nháp.'); }} />
 
           <section className="rounded-[2.5rem] border border-pgreen/10 bg-white/90 p-6 shadow-soft backdrop-blur sm:p-8">
             <div className="mb-4 flex items-center gap-2"><Palette className="text-pgreen" size={20} /><h2 className="font-display text-xl font-black text-dblue">Màu sắc và phong cách</h2></div>
