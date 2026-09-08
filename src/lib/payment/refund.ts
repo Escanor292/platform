@@ -1,12 +1,13 @@
 import prisma from "@/lib/prisma";
 import { revokeDigitalWarehouseItem } from "@/lib/digital-warehouse";
+import { recalculateCampaignAmount } from "@/lib/order-fulfillment";
 
 export async function processCampaignRefund(campaignId: string) {
   try {
     const campaign = await prisma.campaigns.findUnique({ where: { id: campaignId } });
-    if (!campaign) throw new Error("Campaign không tồn tại");
+    if (!campaign) throw new Error("Campaign khong ton tai");
     if (campaign.status !== "FAILED" && campaign.status !== "CANCELED") {
-      throw new Error("Dự án chưa ở trạng thái có thể hoàn tiền (phải là FAILED hoặc CANCELED)");
+      throw new Error("Du an chua o trang thai co the hoan tien (phai la FAILED hoac CANCELED)");
     }
 
     const pledges = await prisma.pledges.findMany({
@@ -14,31 +15,47 @@ export async function processCampaignRefund(campaignId: string) {
     });
 
     if (pledges.length === 0) {
-      return { success: true, refundedCount: 0 };
+      await prisma.$transaction((tx) => recalculateCampaignAmount(tx, campaignId));
+      return {
+        success: true,
+        refundedCount: 0,
+        total: 0,
+        note: "So sach. Chi hoan ngan hang lam tay vi chua co NH trung gian.",
+      };
     }
 
     let refundedCount = 0;
+    const now = new Date();
     for (const pledge of pledges) {
       try {
-        await prisma.pledges.update({ where: { id: pledge.id }, data: { refundStatus: "PROCESSING" } });
-        const refundSuccess = true;
-        if (refundSuccess) {
-          await prisma.pledges.update({
-            where: { id: pledge.id },
-            data: { refundStatus: "COMPLETED", refundedAt: new Date(), status: "REFUNDED" },
-          });
-          await revokeDigitalWarehouseItem(pledge.id);
-          refundedCount++;
-        } else {
-          await prisma.pledges.update({ where: { id: pledge.id }, data: { refundStatus: "FAILED" } });
-        }
+        await prisma.pledges.update({
+          where: { id: pledge.id },
+          data: {
+            refundStatus: "COMPLETED",
+            refundedAt: now,
+            status: "REFUNDED",
+            accountingReversedAt: now,
+            fulfillmentStatus: pledge.rewardId ? "CANCELED" : "NOT_APPLICABLE",
+            cancellationReason: pledge.cancellationReason || "Hoan so khi chien dich that bai/huy",
+            updatedAt: now,
+          },
+        });
+        await revokeDigitalWarehouseItem(pledge.id);
+        refundedCount++;
       } catch (err) {
-        console.error(`[REFUND_ERROR] Lỗi khi hoàn tiền giao dịch ${pledge.transactionId}`, err);
+        console.error(`[REFUND_ERROR] Loi khi hoan tien giao dich ${pledge.transactionId}`, err);
         await prisma.pledges.update({ where: { id: pledge.id }, data: { refundStatus: "FAILED" } });
       }
     }
 
-    return { success: true, refundedCount, total: pledges.length };
+    await prisma.$transaction((tx) => recalculateCampaignAmount(tx, campaignId));
+
+    return {
+      success: true,
+      refundedCount,
+      total: pledges.length,
+      note: "So sach. Chi hoan ngan hang lam tay vi chua co NH trung gian.",
+    };
   } catch (error) {
     console.error("[REFUND_PROCESS_ERROR]", error);
     throw error;
