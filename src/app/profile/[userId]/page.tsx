@@ -11,7 +11,9 @@ import { StartChatButton } from "@/components/chat/StartChatButton";
 import ReportButton from "@/components/report/ReportButton";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
 import { UserFollowButton } from "@/components/profile/UserFollowButton";
+import { ProfileNoteBubble } from "@/components/profile/ProfileNoteBubble";
 import { getUserFollowStats } from "@/lib/user-follows";
+import { getActiveSelfNote } from "@/services/mongodb/chat.service";
 import { canExposePrivacyField } from "@/lib/profile-settings";
 import { getProfileThemeStyle, getPublicProfileCustomization, isSectionVisible, normalizeProfileCustomization, resolveProfileLayout } from "@/lib/profile-customization";
 
@@ -217,6 +219,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
   const isCreator = user.role === "CREATOR";
   const isBacker = user._count.pledges > 0;
   const followStats = await getUserFollowStats(userId, currentUserId);
+  const profileNote = await getActiveSelfNote(userId);
 
   return (
     <div className="min-h-screen py-24 px-6" style={{ ...getProfileThemeStyle(profileConfig), backgroundColor: "var(--profile-background)" }}>
@@ -232,12 +235,20 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
 
           <div className="relative px-8 pb-8 pt-20">
             <div className="absolute -top-16 left-8">
-              <div className="w-32 h-32 rounded-[2rem] bg-white border-4 border-white shadow-xl flex items-center justify-center text-4xl font-black text-white bg-gradient-to-br from-blue-600 to-purple-600 overflow-hidden">
-                {user.image ? (
-                  <img src={user.image} alt={user.name || "User"} className="w-full h-full object-cover" />
-                ) : (
-                  user.name?.[0]?.toUpperCase() || user.email[0].toUpperCase()
-                )}
+              <div className="relative">
+                <ProfileNoteBubble
+                  userId={userId}
+                  userName={user.name || "Bạn"}
+                  initialNote={profileNote}
+                  canEdit={isOwnProfile && !showAsPublic}
+                />
+                <div className="w-32 h-32 rounded-[2rem] bg-white border-4 border-white shadow-xl flex items-center justify-center text-4xl font-black text-white bg-gradient-to-br from-blue-600 to-purple-600 overflow-hidden">
+                  {user.image ? (
+                    <img src={user.image} alt={user.name || "User"} className="w-full h-full object-cover" />
+                  ) : (
+                    user.name?.[0]?.toUpperCase() || user.email[0].toUpperCase()
+                  )}
+                </div>
               </div>
             </div>
 

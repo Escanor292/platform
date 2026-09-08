@@ -85,7 +85,7 @@ export function EditNoteDialog({
 
         <div className="space-y-4">
           <div className="text-sm text-gray-500">
-            Ghi chú hiện trên avatar của bạn trong 24 giờ, giống ghi chú Instagram.
+            Ghi chú hiện trên avatar trang cá nhân và trong chat, tự hết sau 24 giờ.
           </div>
 
           <Textarea

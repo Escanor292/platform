@@ -1025,6 +1025,25 @@ export async function getUserNotes(userId: string): Promise<any[]> {
   return notes;
 }
 
+export async function getActiveSelfNote(userId: string): Promise<string | null> {
+  try {
+    const db = await getDb();
+    const row = await db.collection(USER_NOTES_COLLECTION).findOne(
+      {
+        userId,
+        targetUserId: userId,
+        expiresAt: { $gt: new Date() },
+      },
+      { sort: { updatedAt: -1 } },
+    );
+    const text = String(row?.note || '').trim();
+    return text || null;
+  } catch (error) {
+    console.warn('[CHAT] getActiveSelfNote', error);
+    return null;
+  }
+}
+
 export async function getInboxNotes(userId: string): Promise<Array<{
   id: string;
   userId: string;
