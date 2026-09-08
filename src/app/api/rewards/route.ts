@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { assertCleanContent } from "@/lib/moderation";
+import { AON_WITH_PRODUCTS_ERROR } from "@/lib/funding-model";
 
 export async function POST(req: NextRequest) {
     try {
@@ -44,17 +45,16 @@ export async function POST(req: NextRequest) {
         const normalizedOnlineDepositPercent = parseDepositPercent(onlineDepositPercent, 30);
         const normalizedCodDepositPercent = parseDepositPercent(codDepositPercent, 50);
         if (normalizedOnlineDepositPercent === null || normalizedCodDepositPercent === null) {
-            return NextResponse.json({ error: "Tỷ lệ cọc phải là số nguyên từ 1% đến 99%" }, { status: 400 });
+            return NextResponse.json({ error: "Ty le coc phai la so nguyen tu 1% den 99%" }, { status: 400 });
         }
         const parsedDeliveryDate = deliveryDate ? new Date(deliveryDate) : null;
         if (preorderEnabled && (!parsedDeliveryDate || Number.isNaN(parsedDeliveryDate.getTime()) || parsedDeliveryDate <= new Date())) {
             return NextResponse.json(
-                { error: "Sản phẩm đặt trước phải có ngày dự kiến giao hàng trong tương lai" },
+                { error: "San pham dat truoc phai co ngay du kien giao hang trong tuong lai" },
                 { status: 400 }
             );
         }
 
-        // Validate required fields
         if (!title || !minAmount) {
             return NextResponse.json(
                 { error: "Missing required fields" },
@@ -65,10 +65,9 @@ export async function POST(req: NextRequest) {
         try {
             await assertCleanContent([title, description]);
         } catch (error: any) {
-            return NextResponse.json({ error: error.message || "Nội dung chứa từ bị cấm" }, { status: 400 });
+            return NextResponse.json({ error: error.message || "Noi dung chua tu bi cam" }, { status: 400 });
         }
 
-        // Validate campaign ownership if provided
         const resolvedCampaignId = campaignId;
         if (campaignId) {
             const campaign = await prisma.campaigns.findFirst({
@@ -76,6 +75,7 @@ export async function POST(req: NextRequest) {
                     id: campaignId,
                     creatorId: (session.user as any).id,
                 },
+                select: { id: true, fundingModel: true, projectId: true, creatorId: true },
             });
             if (!campaign) {
                 return NextResponse.json(
@@ -83,9 +83,11 @@ export async function POST(req: NextRequest) {
                     { status: 404 }
                 );
             }
+            if (campaign.fundingModel === "ALL_OR_NOTHING") {
+                return NextResponse.json({ error: AON_WITH_PRODUCTS_ERROR }, { status: 400 });
+            }
         }
 
-        // Validate project ownership if provided
         if (projectId) {
             const project = await prisma.projects.findFirst({
                 where: {
@@ -101,7 +103,6 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        // Resolve project linkage
         let resolvedProjectId: string | null = projectId || null;
         let resolvedIncludedInProject = isIncludedInProject === false ? false : true;
         if (campaignId) {
@@ -110,7 +111,6 @@ export async function POST(req: NextRequest) {
                 select: { projectId: true, creatorId: true },
             });
             if (campaign?.projectId) {
-                // Sản phẩm tạo từ chiến dịch: tự động thuộc về dự án của chiến dịch
                 if (resolvedIncludedInProject) {
                     resolvedProjectId = campaign.projectId;
                 }
@@ -122,7 +122,6 @@ export async function POST(req: NextRequest) {
             resolvedIncludedInProject = false;
         }
 
-        // Create reward
         const reward = await prisma.rewards.create({
             data: {
                 id: crypto.randomUUID(),
