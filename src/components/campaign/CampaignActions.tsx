@@ -16,7 +16,6 @@ export default function CampaignActions({ campaignTitle, campaignSlug, campaignI
     const [showReportModal, setShowReportModal] = useState(false);
 
     useEffect(() => {
-        // Check if campaign is already favorited
         const stored = localStorage.getItem("favoriteCampaigns");
         if (stored) {
             try {
@@ -41,38 +40,33 @@ export default function CampaignActions({ campaignTitle, campaignSlug, campaignI
         }
 
         if (isFavorited) {
-            // Remove from favorites
             favoriteIds = favoriteIds.filter(id => id !== campaignId);
             localStorage.setItem("favoriteCampaigns", JSON.stringify(favoriteIds));
             setIsFavorited(false);
-            alert("Đã bỏ khỏi danh sách quan tâm!");
+            alert("Da bo khoi danh sach quan tam!");
         } else {
-            // Add to favorites
             favoriteIds.push(campaignId);
             localStorage.setItem("favoriteCampaigns", JSON.stringify(favoriteIds));
             setIsFavorited(true);
-            alert("Đã thêm vào danh sách quan tâm!");
+            alert("Da them vao danh sach quan tam!");
         }
     };
 
     const handleShare = async () => {
         const url = `${window.location.origin}/campaigns/${campaignSlug}`;
-
-        // Check if Web Share API is available
         if (navigator.share) {
             try {
                 await navigator.share({
                     title: campaignTitle,
-                    text: `Xem dự án gọi vốn: ${campaignTitle}`,
+                    text: `Xem du an goi von: ${campaignTitle}`,
                     url: url,
                 });
             } catch (err) {
                 console.log("Share cancelled");
             }
         } else {
-            // Fallback: Copy to clipboard
             navigator.clipboard.writeText(url);
-            alert("Đã copy link dự án!");
+            alert("Da copy link du an!");
         }
     };
 
@@ -81,28 +75,34 @@ export default function CampaignActions({ campaignTitle, campaignSlug, campaignI
             <div className="flex items-center gap-3">
                 <button
                     onClick={handleFavorite}
+                    data-analytics-cta="campaign_favorite"
+                    data-analytics-label={isFavorited ? "Bo quan tam" : "Quan tam"}
                     className={getFollowButtonClass(isFavorited, "flex-1 py-3 px-4")}
-                    title={isFavorited ? "Đã quan tâm" : "Quan tâm"}
+                    title={isFavorited ? "Da quan tam" : "Quan tam"}
                 >
                     <HeartHandshake
                         size={16}
                         className={getFollowIconClass(isFavorited)}
                     />
-                    {isFavorited ? "Đã quan tâm" : "Quan tâm"}
+                    {isFavorited ? "Da quan tam" : "Quan tam"}
                 </button>
 
                 <button
                     onClick={handleShare}
+                    data-analytics-cta="campaign_share"
+                    data-analytics-label="Chia se"
                     className="border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold p-3 rounded-lg transition-colors"
-                    title="Chia sẻ"
+                    title="Chia se"
                 >
                     <Share2 size={18} className="text-gray-600" />
                 </button>
 
                 <button
                     onClick={() => setShowReportModal(true)}
+                    data-analytics-cta="campaign_report"
+                    data-analytics-label="Bao cao chien dich"
                     className="border border-gray-300 hover:bg-red-50 text-gray-700 hover:text-red-600 font-semibold p-3 rounded-lg transition-colors"
-                    title="Báo cáo chiến dịch"
+                    title="Bao cao chien dich"
                 >
                     <Flag size={18} className="text-gray-600 hover:text-red-600" />
                 </button>
