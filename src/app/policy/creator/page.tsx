@@ -29,20 +29,14 @@ export default function CreatorTermsPage() {
       <PolicyCard title="3. Tiền, quà và hoàn">
         <ul className="list-disc pl-5 space-y-2">
           <li>Sàn khóa cổng nhận đúng hạn đã công bố.</li>
-          <li>Reward số được ghi vào Kho đồ khi thanh toán SUCCESS; refund thì thu hồi asset.</li>
+          <li>Reward số (file, key, truyện) được ghi vào Kho đồ khi thanh toán SUCCESS; refund thì thu hồi quyền dùng.</li>
           <li>Creator chịu trách nhiệm giao quà đúng mô tả. Sàn có thể hoàn hộ và khóa chiến dịch khi gian lận.</li>
         </ul>
       </PolicyCard>
 
       <PolicyCard title="4. Nghĩa vụ ngoài sàn">
         <p>
-          Thuế, hóa đơn, thông báo UBND nếu chiến dịch đúng phạm vi NĐ 93, và thông báo/đăng ký TMĐT nếu bán hàng thường xuyên là nghĩa vụ của Creator. Tử Tế Fund không kê khai thuế hộ và không cấp phép hoạt động token.
-        </p>
-      </PolicyCard>
-
-      <PolicyCard title="5. Token / NFT">
-        <p>
-          Web3 nếu có chỉ là phụ lục: badge/NFT lưu niệm sau thanh toán fiat hoặc neo hash mốc. Cấm mở order book, nhận góp bằng token, hoặc tuyên bố sàn đã được cấp phép tài sản mã hóa.
+          Thuế, hóa đơn, thông báo UBND nếu chiến dịch đúng phạm vi NĐ 93, và thông báo/đăng ký TMĐT nếu bán hàng thường xuyên là nghĩa vụ của Creator. Tử Tế Fund không kê khai thuế hộ.
         </p>
       </PolicyCard>
     </PolicyShell>

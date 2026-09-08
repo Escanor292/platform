@@ -52,7 +52,6 @@ export default function CreatorGuidePage() {
           <li>Đã chọn A hoặc B; có reward thì không được để A.</li>
           <li>Điều khoản hoàn gắn với từng reward (nhóm B) hoặc nêu cách hoàn nếu không triển khai (nhóm A).</li>
           <li>Không dán STK cá nhân khi dùng mô hình trung gian.</li>
-          <li>Không quảng cáo NFT/token như hàng đã cấp phép.</li>
         </ul>
       </section>
 

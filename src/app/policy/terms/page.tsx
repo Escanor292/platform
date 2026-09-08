@@ -9,7 +9,7 @@ export default function TermsPage() {
     >
       <PolicyCard title="1. Sàn này là gì">
         <p>
-          Tử Tế Fund là nền tảng trung gian: giúp Creator đăng chiến dịch, Backer ủng hộ bằng VND qua cổng thanh toán đã tích hợp, và lưu lịch sử giao dịch. Sàn không phải quỹ từ thiện, không phải tổ chức vận động theo NĐ 93/2021/NĐ-CP, và không phải sàn tài sản mã hóa.
+          Tử Tế Fund là nền tảng trung gian: giúp Creator đăng chiến dịch, Backer ủng hộ bằng VND qua cổng thanh toán đã tích hợp, và lưu lịch sử giao dịch. Sàn không phải quỹ từ thiện và không phải tổ chức vận động theo NĐ 93/2021/NĐ-CP.
         </p>
       </PolicyCard>
 
@@ -30,7 +30,7 @@ export default function TermsPage() {
             <strong>Nhóm A — ủng hộ không quà:</strong> Backer không nhận hàng, file, key hay quyền dùng. Thanh toán ONLINE.
           </li>
           <li>
-            <strong>Nhóm B — pre-order / có quà:</strong> Backer nhận quà vật lý hoặc số. Áp dụng TMĐT, giao hàng, Kho đồ số và chính sách hoàn theo từng reward.
+            <strong>Nhóm B — pre-order / có quà:</strong> Backer nhận quà vật lý hoặc số (file, key, truyện). Áp dụng TMĐT, giao hàng, Kho đồ số và chính sách hoàn theo từng reward.
           </li>
         </ul>
         <p>
@@ -61,7 +61,6 @@ export default function TermsPage() {
           <li>Gây quỹ giả, mục đích mơ hồ, hoặc gắn STK cá nhân để né mô hình trung gian.</li>
           <li>Khai ủng hộ/từ thiện cho chiến dịch thực chất là bán hàng.</li>
           <li>Đăng hàng lậu, nội dung xâm phạm bản quyền, hoặc lừa đảo.</li>
-          <li>Quảng cáo token/NFT như hàng hóa đã được cấp phép, hoặc mở mua bán P2P tài sản mã hóa trên sàn.</li>
         </ul>
       </PolicyCard>
 

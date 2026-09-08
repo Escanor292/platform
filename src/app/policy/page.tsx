@@ -5,7 +5,7 @@ const ITEMS = [
   {
     href: "/policy/terms",
     title: "Điều khoản sử dụng",
-    desc: "Quy tắc dùng sàn, vai trò Tử Tế Fund, cấm gây quỹ giả và token.",
+    desc: "Quy tắc dùng sàn, vai trò Tử Tế Fund và cấm gây quỹ giả.",
     icon: FileText,
   },
   {
@@ -50,7 +50,7 @@ export default function PolicyIndexPage() {
       </h1>
       <p className="text-gray-500 text-lg leading-relaxed mb-10">
         Tử Tế Fund là nền tảng trung gian thanh toán VND và quản lý chiến dịch.
-        Không phải quỹ từ thiện theo NĐ 93 và không phải sàn tài sản mã hóa.
+        Không phải quỹ từ thiện theo NĐ 93.
       </p>
 
       <div className="grid gap-4">
