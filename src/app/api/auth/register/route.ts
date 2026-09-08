@@ -6,9 +6,8 @@ import { checkBlacklist } from "@/lib/blacklist";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, email, password, confirmPassword, isOrganization } = body;
+    const { name, email, password, confirmPassword, isOrganization, acceptTerms } = body;
 
-    // 1. Validation
     if (!name || typeof name !== "string" || name.trim().length === 0) {
       return NextResponse.json(
         { error: "Vui lòng nhập họ và tên hợp lệ" },
@@ -37,9 +36,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (acceptTerms !== true) {
+      return NextResponse.json(
+        { error: "Bạn cần đồng ý Điều khoản sử dụng và Chính sách bảo mật để tạo tài khoản." },
+        { status: 400 }
+      );
+    }
+
     const normalizedEmail = email.toLowerCase().trim();
 
-    // 2. Blacklist Check
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
     const blacklistResult = await checkBlacklist({
       email: normalizedEmail,
@@ -53,7 +58,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3. Check existing user
     const existingUser = await prisma.users.findUnique({
       where: { email: normalizedEmail },
     });
@@ -65,11 +69,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 4. Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // 5. Create user
     const user = await prisma.users.create({
       data: {
         id: crypto.randomUUID(),
