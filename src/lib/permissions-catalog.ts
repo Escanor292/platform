@@ -1,8 +1,7 @@
 export const ACCOUNT_TYPES = [
   { key: "GUEST", label: "Khách", hint: "Chưa đăng nhập", color: "slate" },
-  { key: "BACKER", label: "Backer", hint: "Người ủng hộ", color: "sky" },
-  { key: "CREATOR_PENDING", label: "Creator chờ", hint: "Đang xét nâng cấp", color: "amber" },
-  { key: "CREATOR", label: "Creator", hint: "Chủ chiến dịch", color: "emerald" },
+  { key: "BACKER", label: "Backer", hint: "Người ủng hộ — gồm cả hồ sơ đang chờ duyệt Creator", color: "sky" },
+  { key: "CREATOR", label: "Creator", hint: "Chủ chiến dịch đã được duyệt", color: "emerald" },
   { key: "CREATOR_PRO", label: "Creator Pro", hint: "Gói Pro", color: "violet" },
   { key: "ADMIN", label: "Admin", hint: "Quản trị nền tảng", color: "rose" },
 ] as const;
@@ -82,7 +81,6 @@ const CREATOR_KEYS: PermissionKey[] = [
 export const DEFAULT_PERMISSION_MAP: PermissionMap = {
   GUEST: maskFromKeys(["pledge.create"]),
   BACKER: maskFromKeys(BACKER_KEYS),
-  CREATOR_PENDING: maskFromKeys(BACKER_KEYS),
   CREATOR: maskFromKeys(CREATOR_KEYS),
   CREATOR_PRO: maskFromKeys([...CREATOR_KEYS, "link.health"]),
   ADMIN: maskFromKeys(PERMISSIONS.map((p) => p.key)),
@@ -102,7 +100,6 @@ export function resolveAccountType(user?: {
   if (user.role === "ADMIN" || user.isAdmin) return "ADMIN";
   if (user.role === "CREATOR" && user.status === "PRO") return "CREATOR_PRO";
   if (user.role === "CREATOR") return "CREATOR";
-  if (user.role === "CREATOR_PENDING") return "CREATOR_PENDING";
   return "BACKER";
 }
 

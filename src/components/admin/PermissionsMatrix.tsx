@@ -129,7 +129,7 @@ export function PermissionsMatrix({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
         {accountTypes.map((type) => {
           const on = countOn(map[type.key], permissions);
           const tone = COLOR[type.color] || COLOR.slate;

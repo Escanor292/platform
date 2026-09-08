@@ -19,6 +19,7 @@ describe("permissions bitfield", () => {
   it("maps user to account type", () => {
     expect(resolveAccountType(null)).toBe("GUEST");
     expect(resolveAccountType({ role: "BACKER" })).toBe("BACKER");
+    expect(resolveAccountType({ role: "CREATOR_PENDING" })).toBe("BACKER");
     expect(resolveAccountType({ role: "CREATOR", status: "PRO" })).toBe("CREATOR_PRO");
     expect(resolveAccountType({ role: "ADMIN" })).toBe("ADMIN");
   });
