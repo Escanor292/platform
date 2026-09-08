@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Home, Users, ShieldCheck, Award, DollarSign, FileText, Flag, ShieldAlert, Settings, UserCheck, FolderKanban, Package,
+  Home, Users, ShieldCheck, Award, DollarSign, FileText, Flag, ShieldAlert, Settings, UserCheck, FolderKanban, Package, KeyRound,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { href: '/dashboard/admin/revenue', label: 'Doanh thu', icon: DollarSign },
   { href: '/dashboard/admin/reports', label: 'Báo cáo', icon: Flag },
   { href: '/dashboard/admin/moderation', label: 'Kiểm duyệt', icon: ShieldAlert },
+  { href: '/dashboard/admin/permissions', label: 'Phân quyền', icon: KeyRound },
   { href: '/dashboard/admin/system', label: 'Hệ thống', icon: Settings },
 ] as const;
 

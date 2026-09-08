@@ -15,6 +15,7 @@ import {
 } from '@/lib/project/project.response-handlers';
 import { z } from 'zod';
 import { assertCleanContent } from '@/lib/moderation';
+import { permissionDenied, userHasPermission } from '@/lib/permissions';
 
 /**
  * GET /api/blog/posts
@@ -73,6 +74,9 @@ export async function POST(request: NextRequest) {
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (!(await userHasPermission(session.user, 'blog.write'))) {
+      return NextResponse.json(permissionDenied('Tài khoản này không được viết blog.'), { status: 403 });
     }
 
     const body: CreateBlogPostRequest & { projectId?: string | null } = await request.json();

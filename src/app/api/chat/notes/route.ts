@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getInboxNotes, createUserNote } from '@/services/mongodb/chat.service';
 import { CreateUserNoteRequest } from '@/types/chat.types';
+import { permissionDenied, userHasPermission } from '@/lib/permissions';
 
 export async function GET(request: NextRequest) {
   try {
@@ -51,6 +52,9 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = session.user.id;
+    if (!(await userHasPermission(session.user, 'note.use'))) {
+      return NextResponse.json(permissionDenied('Tài khoản này không dùng ghi chú 24 giờ.'), { status: 403 });
+    }
 
     // Parse request body
     const body: CreateUserNoteRequest = await request.json();

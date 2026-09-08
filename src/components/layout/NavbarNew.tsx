@@ -12,6 +12,7 @@ import LeafIcon from "../shared/LeafIcon";
 import { ChatNotificationBadge } from "@/components/chat/ChatNotificationBadge";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { CartDropdown } from "@/components/products/CartProvider";
+import { useMyPermissions } from "@/hooks/useMyPermissions";
 
 export default function NavbarNew() {
   const { data: session } = useSession();
@@ -24,6 +25,7 @@ export default function NavbarNew() {
 
   const user = session?.user as any;
   const isAdmin = user?.role === "ADMIN" || user?.isAdmin === true;
+  const { can } = useMyPermissions();
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -174,7 +176,7 @@ export default function NavbarNew() {
               </Link>
 
               {/* Chỉ hiển thị nút "Gây quỹ ngay" cho CREATOR và ADMIN */}
-              {(user?.role === "CREATOR" || user?.role === "ADMIN" || isAdmin) && (
+              {(can("campaign.create") || isAdmin) && (
                 <Link
                   href="/campaigns/create"
                   className="rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-green-200" style={{ background: "var(--profile-gradient, linear-gradient(135deg, #2E8B57, #6BCB77))" }}
@@ -239,7 +241,7 @@ export default function NavbarNew() {
                     </Link>
 
                     {/* Hiển thị nút "Nâng cấp" cho BACKER */}
-                    {user?.role === "BACKER" && (
+                    {can("kyc.submit") && user?.role === "BACKER" && (
                       <Link
                         href={user?.isOrganization ? "/upgrade/organization" : "/upgrade/individual"}
                         className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-gradient-to-r from-pgreen to-fgreen rounded-xl hover:shadow-lg transition cursor-pointer outline-none"
@@ -251,7 +253,7 @@ export default function NavbarNew() {
                     )}
 
                     {/* Chỉ hiển thị "Quản lý chiến dịch" cho CREATOR và ADMIN */}
-                    {(user?.role === "CREATOR" || user?.role === "ADMIN" || isAdmin) && (
+                    {(can("campaign.manage") || isAdmin) && (
                       <Link
                         href="/dashboard/creator"
                         className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50"
@@ -366,7 +368,7 @@ export default function NavbarNew() {
             <>
 
               {/* Chỉ hiển thị nút "Gây quỹ ngay" cho CREATOR và ADMIN */}
-              {(user?.role === "CREATOR" || user?.role === "ADMIN" || isAdmin) && (
+              {(can("campaign.create") || isAdmin) && (
                 <Link
                   href="/campaigns/create"
                   className="mt-2 py-3 text-center rounded-xl gradient-green text-white font-semibold"

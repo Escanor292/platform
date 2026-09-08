@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { followUser, getUserFollowStats, unfollowUser } from "@/lib/user-follows";
+import { permissionDenied, userHasPermission } from "@/lib/permissions";
 
 type Params = { params: Promise<{ userId: string }> };
 
@@ -17,6 +18,9 @@ export async function POST(_req: Request, { params }: Params) {
   const followerId = (session?.user as { id?: string } | undefined)?.id;
   if (!followerId) {
     return NextResponse.json({ error: "Cần đăng nhập để theo dõi." }, { status: 401 });
+  }
+  if (!(await userHasPermission(session.user, "follow.users"))) {
+    return NextResponse.json(permissionDenied("Tài khoản này không được theo dõi người dùng."), { status: 403 });
   }
   const { userId } = await params;
   try {

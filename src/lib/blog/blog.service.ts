@@ -25,9 +25,10 @@ import {
   BlogPostResponse,
 } from '@/types/blog.types';
 import { generateUniqueSlug } from './blog.utils';
+import { userHasPermission } from '@/lib/permissions';
 
 export async function createBlogPost(currentUserId: string, data: CreateBlogPostRequest): Promise<BlogPostResponse> {
-  const user = await prisma.users.findUnique({ where: { id: currentUserId }, select: { isAdmin: true } });
+  const user = await prisma.users.findUnique({ where: { id: currentUserId }, select: { isAdmin: true, role: true, status: true } });
   if (!user?.isAdmin) {
     if (data.type === 'PLATFORM' || data.type === 'ANNOUNCEMENT') {
       throw new Error('Only administrators can create platform announcements');
@@ -47,7 +48,9 @@ export async function createBlogPost(currentUserId: string, data: CreateBlogPost
   const readingTimeMinutes = calculateReadingTime(wordCount);
   let status = data.status || 'DRAFT';
   if (status === 'PUBLISHED' && !user?.isAdmin) {
-    if (data.type === 'CAMPAIGN_UPDATE' && (await isKYCVerified(currentUserId))) {
+    if (await userHasPermission(user, 'blog.publish_direct')) {
+      status = 'PUBLISHED';
+    } else if (data.type === 'CAMPAIGN_UPDATE' && (await isKYCVerified(currentUserId))) {
       status = 'PUBLISHED';
     } else {
       status = 'PENDING_REVIEW';
@@ -262,7 +265,7 @@ export async function publishBlogPost(
   if (!post) throw new Error('Post not found');
   const user = await prisma.users.findUnique({
     where: { id: currentUserId },
-    select: { isAdmin: true, role: true },
+    select: { isAdmin: true, role: true, status: true },
   });
   const isAdmin = !!user?.isAdmin || user?.role === 'ADMIN';
   if (!isAdmin && post.authorId !== currentUserId) {
@@ -272,6 +275,14 @@ export async function publishBlogPost(
     await saveBlogSchedule(postId, scheduledAt);
   }
   if (!isAdmin && isEditorialBlogType(post.type)) {
+    if (await userHasPermission(user, 'blog.publish_direct')) {
+      await prisma.blog_posts.update({
+        where: { id: postId },
+        data: { status: 'PUBLISHED', publishedAt: new Date() },
+      });
+      await clearBlogRejection(postId);
+      return { status: 'PUBLISHED' };
+    }
     await prisma.blog_posts.update({ where: { id: postId }, data: { status: 'PENDING_REVIEW' } });
     await clearBlogRejection(postId);
     await notifyAdminsOfBlogSubmission({

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { permissionDenied, userHasPermission } from "@/lib/permissions";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,6 +13,9 @@ export async function POST(req: NextRequest) {
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
     if (user.role !== "BACKER") {
       return NextResponse.json({ error: "Chi tai khoan Backer moi co the nang cap" }, { status: 403 });
+    }
+    if (!(await userHasPermission(user, "kyc.submit"))) {
+      return NextResponse.json(permissionDenied("Tài khoản này không được nộp hồ sơ nâng cấp."), { status: 403 });
     }
     const data = await req.json();
     const { type, ...formData } = data;

@@ -23,6 +23,7 @@ import {
 import { persistRichText, RichTextValidationError, isRichTextEmpty } from "@/lib/editor/persist";
 import { assertCleanContent } from "@/lib/moderation";
 import { isPublicCampaignStatus, PUBLIC_CAMPAIGN_STATUSES } from "@/lib/moderation/policy";
+import { permissionDenied, userHasPermission } from "@/lib/permissions";
 
 export async function GET(req: NextRequest) {
   try {
@@ -181,6 +182,9 @@ export async function POST(req: NextRequest) {
     if (authError) return authError;
 
     const userId = session!.user!.id;
+    if (!(await userHasPermission(session!.user, "campaign.create"))) {
+      return NextResponse.json(permissionDenied("Tài khoản này không được tạo chiến dịch."), { status: 403 });
+    }
     const body = await req.json();
     const { projectId } = body;
 

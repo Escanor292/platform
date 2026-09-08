@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notificationService } from "@/services/mongodb/notification.service";
 import { PUBLIC_CAMPAIGN_STATUSES } from "@/lib/moderation/policy";
 import { extractHttpUrls, probeHttpUrl } from "@/lib/link-health";
+import { getPermissionMap, hasBit, resolveAccountType, userHasPermission } from "@/lib/permissions";
 
 export type LinkEntityType = "blog" | "campaign" | "project" | "product";
 
@@ -149,14 +150,21 @@ export async function scanCreatorLinks(options?: { ownerId?: string; limit?: num
   const limit = Math.min(options?.limit || 20, 40);
   let ownerIds = options?.ownerId ? [options.ownerId] : [];
   if (ownerIds.length === 0) {
-    const pros = await prisma.users.findMany({
-      where: { status: "PRO" },
-      select: { id: true },
-      take: 50,
+    const map = await getPermissionMap();
+    const candidates = await prisma.users.findMany({
+      where: { status: { not: "BANNED" } },
+      select: { id: true, role: true, status: true, isAdmin: true },
+      take: 200,
     });
-    ownerIds = pros.map((user) => user.id);
+    ownerIds = candidates
+      .filter((user) => hasBit(map[resolveAccountType(user)], "link.health"))
+      .map((user) => user.id)
+      .slice(0, 50);
   } else {
-    const allowed = await isCreatorPro(ownerIds[0]);
+    const allowed = await userHasPermission(
+      await prisma.users.findUnique({ where: { id: ownerIds[0] }, select: { role: true, status: true, isAdmin: true } }),
+      "link.health",
+    );
     if (!allowed) return { checked: 0, broken: 0, notified: 0, skipped: true as const };
   }
   if (ownerIds.length === 0) {

@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import CreatorDashboardClient from "./CreatorDashboardClient";
 import { getCampaignReviewFields } from "@/lib/moderation/campaign-review";
+import { userHasPermission } from "@/lib/permissions";
 
 export default async function CreatorDashboard() {
    const session = await auth();
@@ -25,10 +26,7 @@ export default async function CreatorDashboard() {
    });
 
    const extra = await getCampaignReviewFields(campaigns.map((campaign) => campaign.id));
-   const me = await prisma.users.findUnique({
-      where: { id: (session.user as any).id },
-      select: { status: true },
-   });
+   const canScanLinks = await userHasPermission(session.user as any, "link.health");
 
    // Serialize the data for client component
    const serializedCampaigns = campaigns.map(campaign => ({
@@ -59,7 +57,7 @@ export default async function CreatorDashboard() {
          totalRaised={totalRaised}
          totalBackers={totalBackers}
          projects={projects}
-         isPro={me?.status === "PRO"}
+         isPro={canScanLinks}
       />
    );
 }

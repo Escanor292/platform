@@ -1,19 +1,20 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { isCreatorPro, listBrokenLinks, scanCreatorLinks } from "@/lib/link-checks";
+import { listBrokenLinks, scanCreatorLinks } from "@/lib/link-checks";
+import { permissionDenied, userHasPermission } from "@/lib/permissions";
 
-async function requirePro() {
+async function requireLinkHealth() {
   const session = await auth();
   const userId = (session?.user as { id?: string } | undefined)?.id;
   if (!userId) return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
-  if (!(await isCreatorPro(userId))) {
-    return { error: NextResponse.json({ error: "Tính năng dành cho Creator Pro.", pro: false }, { status: 403 }) };
+  if (!(await userHasPermission(session!.user, "link.health"))) {
+    return { error: NextResponse.json({ ...permissionDenied("Tính năng dành cho tài khoản được cấp quyền cảnh báo link hỏng."), pro: false }, { status: 403 }) };
   }
   return { userId };
 }
 
 export async function GET() {
-  const gate = await requirePro();
+  const gate = await requireLinkHealth();
   if ("error" in gate && gate.error) return gate.error;
   const rows = await listBrokenLinks(gate.userId!);
   return NextResponse.json({
@@ -31,7 +32,7 @@ export async function GET() {
 }
 
 export async function POST() {
-  const gate = await requirePro();
+  const gate = await requireLinkHealth();
   if ("error" in gate && gate.error) return gate.error;
   const result = await scanCreatorLinks({ ownerId: gate.userId, limit: 15 });
   const rows = await listBrokenLinks(gate.userId!);
