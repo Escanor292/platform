@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Source_Sans_3 } from "next/font/google";
+import { Nunito, Playfair_Display, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import NavbarNew from "@/components/layout/NavbarNew";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
@@ -26,6 +26,13 @@ const sourceSans = Source_Sans_3({
   subsets: ["latin", "vietnamese"],
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-source-sans",
+  display: "swap",
+});
+
+const nunito = Nunito({
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "600", "700", "800"],
+  variable: "--font-nunito",
   display: "swap",
 });
 
@@ -82,7 +89,7 @@ export default async function RootLayout({
 
   return (
     <html lang="vi">
-      <body className={`${playfair.variable} ${sourceSans.variable}`}>
+      <body className={`${playfair.variable} ${sourceSans.variable} ${nunito.variable}`}>
         <Ga4Script measurementId={ga4MeasurementId} />
         <Providers>
           <CartProvider>

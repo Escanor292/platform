@@ -56,5 +56,5 @@ export default function ProfileThemeShell({ children }: { children: React.ReactN
       }
     : {};
 
-  return <div style={shellStyle as React.CSSProperties}>{children}</div>;
+  return <div style={{ ...(shellStyle as React.CSSProperties), fontFamily: isProfile ? 'var(--profile-font)' : undefined }}>{children}</div>;
 }

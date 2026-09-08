@@ -268,6 +268,26 @@ export function getProfileThemeStyle(config: ProfileCustomizationConfig) {
   const rgb = theme.primary.slice(1).match(/.{2}/g)?.map((value) => parseInt(value, 16)) ?? [15, 118, 110];
   const luminance = (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / 255;
   const contrastText = luminance > 0.62 ? "#091428" : "#ffffff";
+  const fonts = {
+    modern: {
+      body: "var(--font-source-sans), 'Source Sans 3', ui-sans-serif, system-ui, sans-serif",
+      display: "var(--font-source-sans), 'Source Sans 3', ui-sans-serif, system-ui, sans-serif",
+    },
+    serif: {
+      body: "var(--font-playfair), 'Playfair Display', Georgia, serif",
+      display: "var(--font-playfair), 'Playfair Display', Georgia, serif",
+    },
+    friendly: {
+      body: "var(--font-nunito), Nunito, ui-rounded, 'Trebuchet MS', sans-serif",
+      display: "var(--font-nunito), Nunito, ui-rounded, sans-serif",
+    },
+  }[theme.fontPreset];
+  const card =
+    theme.cardStyle === "elevated"
+      ? { shadow: "0 12px 28px color-mix(in srgb, var(--profile-text) 12%, transparent)", border: "0px solid transparent" }
+      : theme.cardStyle === "bordered"
+        ? { shadow: "none", border: "1px solid color-mix(in srgb, var(--profile-primary) 22%, transparent)" }
+        : { shadow: "none", border: "0px solid transparent" };
   return {
     "--profile-primary": theme.primary,
     "--profile-secondary": theme.secondary,
@@ -278,5 +298,12 @@ export function getProfileThemeStyle(config: ProfileCustomizationConfig) {
     "--profile-contrast": contrastText,
     "--profile-gradient": `linear-gradient(${theme.gradientAngle}deg, ${theme.gradientColors.join(", ")})`,
     "--profile-radius": theme.radius === "pill" ? "999px" : theme.radius === "soft" ? "1rem" : "2rem",
+    "--profile-font": fonts.body,
+    "--profile-font-display": fonts.display,
+    "--profile-card-shadow": card.shadow,
+    "--profile-card-border": card.border,
+    "--profile-pad": theme.density === "compact" ? "0.55rem" : "0.95rem",
+    "--profile-gap": theme.density === "compact" ? "0.4rem" : "0.75rem",
+    fontFamily: fonts.body,
   } as React.CSSProperties;
 }

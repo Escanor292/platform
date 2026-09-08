@@ -225,7 +225,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
   const canCustomizeProfile = isOwnProfile && (await userHasPermission(session?.user as any, "profile.customize"));
 
   return (
-    <div className="min-h-screen py-24 px-6" style={{ ...getProfileThemeStyle(profileConfig), backgroundColor: "var(--profile-background)" }}>
+    <div className="min-h-screen py-24 px-6" style={{ ...getProfileThemeStyle(profileConfig), backgroundColor: "var(--profile-background)", fontFamily: "var(--profile-font)" }}>
       <div className="mx-auto max-w-6xl space-y-8">
         <div className="overflow-hidden border border-[color:var(--profile-primary)]/10 bg-[var(--profile-surface)] shadow-sm" style={{ borderRadius: "var(--profile-radius)" }}>
           <div className="relative h-64" style={{ background: "var(--profile-gradient)" }}>
