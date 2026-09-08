@@ -116,7 +116,7 @@ export default function ProfileStudioPreview({
       className={`overflow-hidden bg-[var(--profile-background)] text-[var(--profile-text)] ${mode === 'mobile' ? 'mx-auto max-w-[360px]' : 'w-full'}`}
       style={{
         ...themeStyle,
-        borderRadius: 'var(--profile-radius)',
+        borderRadius: 'var(--profile-shell-radius)',
         fontFamily: 'var(--profile-font)',
         boxShadow: 'var(--profile-card-shadow)',
         border: 'var(--profile-card-border)',
@@ -149,7 +149,7 @@ export default function ProfileStudioPreview({
               style={{
                 color: 'var(--profile-muted)',
                 background: 'var(--profile-background)',
-                borderRadius: 'var(--profile-radius)',
+                borderRadius: 'var(--profile-card-radius)',
                 padding: 'var(--profile-pad)',
               }}
             >
@@ -164,7 +164,7 @@ export default function ProfileStudioPreview({
           <div
             className="flex flex-wrap bg-[var(--profile-surface)]"
             style={{
-              borderRadius: 'var(--profile-radius)',
+              borderRadius: 'var(--profile-card-radius)',
               border: 'var(--profile-card-border)',
               boxShadow: config.theme.cardStyle === 'elevated' ? 'var(--profile-card-shadow)' : 'none',
               gap: 'var(--profile-gap)',
@@ -200,7 +200,7 @@ export default function ProfileStudioPreview({
         <div
           className="bg-[var(--profile-surface)]"
           style={{
-            borderRadius: 'var(--profile-radius)',
+            borderRadius: 'var(--profile-card-radius)',
             border: 'var(--profile-card-border)',
             boxShadow: 'var(--profile-card-shadow)',
             padding: 'var(--profile-pad)',
@@ -218,7 +218,7 @@ export default function ProfileStudioPreview({
                 key={label}
                 className="bg-[var(--profile-background)]"
                 style={{
-                  borderRadius: 'var(--profile-radius)',
+                  borderRadius: 'var(--profile-card-radius)',
                   border: config.theme.cardStyle === 'bordered' ? 'var(--profile-card-border)' : '0px solid transparent',
                   boxShadow: config.theme.cardStyle === 'elevated' ? 'var(--profile-card-shadow)' : 'none',
                   padding: 'var(--profile-pad)',

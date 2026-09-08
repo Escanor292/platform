@@ -227,7 +227,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
   return (
     <div className="min-h-screen py-24 px-6" style={{ ...getProfileThemeStyle(profileConfig), backgroundColor: "var(--profile-background)", fontFamily: "var(--profile-font)" }}>
       <div className="mx-auto max-w-6xl space-y-8">
-        <div className="overflow-hidden border border-[color:var(--profile-primary)]/10 bg-[var(--profile-surface)] shadow-sm" style={{ borderRadius: "var(--profile-radius)" }}>
+        <div className="overflow-hidden border border-[color:var(--profile-primary)]/10 bg-[var(--profile-surface)] shadow-sm" style={{ borderRadius: "var(--profile-shell-radius)" }}>
           <div className="relative h-64" style={{ background: "var(--profile-gradient)" }}>
             {user.coverImage ? (
               <img src={user.coverImage} alt="Cover" className="w-full h-full object-cover" />
@@ -416,14 +416,14 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
         {isSectionVisible(profileConfig, "analytics") && (profileConfig.analytics.showSupportStats || profileConfig.analytics.showProgressStats) && (
           <section className="grid gap-4 sm:grid-cols-2">
             {profileConfig.analytics.showProgressStats && isCreator && (
-              <div className="border border-[color:var(--profile-primary)]/10 bg-[var(--profile-surface)] p-6 shadow-sm" style={{ borderRadius: "var(--profile-radius)" }}>
+              <div className="border border-[color:var(--profile-primary)]/10 bg-[var(--profile-surface)] p-6 shadow-sm" style={{ borderRadius: "var(--profile-card-radius)" }}>
                 <div className="text-xs font-black uppercase tracking-[0.2em] text-[var(--profile-muted)]">Tổng huy động</div>
                 <div className="mt-2 text-3xl font-black text-[var(--profile-primary)]">{formatVND(totalRaised)}</div>
                 <div className="mt-1 text-sm text-[var(--profile-muted)]">{successfulCampaigns} chiến dịch đã thành công</div>
               </div>
             )}
             {profileConfig.analytics.showSupportStats && isBacker && (
-              <div className="border border-[color:var(--profile-primary)]/10 bg-[var(--profile-surface)] p-6 shadow-sm" style={{ borderRadius: "var(--profile-radius)" }}>
+              <div className="border border-[color:var(--profile-primary)]/10 bg-[var(--profile-surface)] p-6 shadow-sm" style={{ borderRadius: "var(--profile-card-radius)" }}>
                 <div className="text-xs font-black uppercase tracking-[0.2em] text-[var(--profile-muted)]">Hoạt động ủng hộ</div>
                 <div className="mt-2 text-3xl font-black text-[var(--profile-secondary)]">{formatVND(totalSupported)}</div>
                 <div className="mt-1 text-sm text-[var(--profile-muted)]">{user._count.pledges} lượt ủng hộ</div>

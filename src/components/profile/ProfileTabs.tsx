@@ -273,17 +273,20 @@ export function ProfileTabs({
     return (
         <div className="space-y-6" style={{ color: 'var(--profile-text)' }}>
             {/* Tabs Navigation */}
-            <div className="bg-[var(--profile-surface)] border border-[color:var(--profile-primary)]/10 p-2 shadow-sm" style={{ borderRadius: 'var(--profile-radius)' }}>
+            <div className="bg-[var(--profile-surface)] border border-[color:var(--profile-primary)]/10 p-2 shadow-sm" style={{ borderRadius: 'var(--profile-card-radius)' }}>
                 <div className="flex flex-wrap gap-2">
                     {visibleTabs.map((tab) => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`px-6 py-3 rounded-[1.5rem] font-bold text-sm transition-all ${activeTab === tab.id
+                            className={`px-6 py-3 font-bold text-sm transition-all ${activeTab === tab.id
                                 ? 'shadow-lg'
                                 : 'bg-white text-gray-700 border border-gray-200 hover:border-[color:var(--profile-primary)] hover:text-[color:var(--profile-primary)]'
                                 }`}
-                            style={activeTab === tab.id ? { background: 'var(--profile-primary)', color: 'var(--profile-contrast)' } : undefined}
+                            style={{
+                                borderRadius: 'var(--profile-radius)',
+                                ...(activeTab === tab.id ? { background: 'var(--profile-primary)', color: 'var(--profile-contrast)' } : {}),
+                            }}
                         >
                             {tab.label}
                             {tab.count !== undefined && (
@@ -297,7 +300,7 @@ export function ProfileTabs({
             </div>
 
             {/* Tab Content */}
-            <div className="bg-[var(--profile-surface)] border border-[color:var(--profile-primary)]/10 p-8 shadow-sm" style={{ borderRadius: 'var(--profile-radius)' }}>
+            <div className="bg-[var(--profile-surface)] border border-[color:var(--profile-primary)]/10 p-8 shadow-sm" style={{ borderRadius: 'var(--profile-card-radius)' }}>
                 {/* Projects Tab */}
                 {activeTab === 'projects' && (
                     <div>
