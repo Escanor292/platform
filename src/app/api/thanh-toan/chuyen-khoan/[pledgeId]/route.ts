@@ -13,7 +13,7 @@ export async function GET(
 ) {
   const { pledgeId } = await context.params;
   if (!pledgeId) {
-    return NextResponse.json({ error: "Thiếu mã ủng hộ" }, { status: 400 });
+    return NextResponse.json({ error: "Thieu ma ung ho" }, { status: 400 });
   }
 
   const session = await auth();
@@ -35,7 +35,7 @@ export async function GET(
   });
 
   if (!pledge) {
-    return NextResponse.json({ error: "Không tìm thấy lệnh ủng hộ" }, { status: 404 });
+    return NextResponse.json({ error: "Khong tim thay lenh ung ho" }, { status: 404 });
   }
 
   const email = session?.user?.email?.trim().toLowerCase();
@@ -43,7 +43,7 @@ export async function GET(
     (session?.user?.id && pledge.userId === session.user.id) ||
     (email && pledge.email?.toLowerCase() === email);
   if (pledge.userId && !owns && (session?.user as { role?: string } | undefined)?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Không có quyền xem lệnh chuyển khoản này" }, { status: 403 });
+    return NextResponse.json({ error: "Khong co quyen xem lenh chuyen khoan nay" }, { status: 403 });
   }
 
   const escrow = getEscrowBankAccount();
@@ -51,6 +51,10 @@ export async function GET(
     ? pledge.payosOrderCode.replace(/^TUTE/, "TUTE ")
     : buildTransferContent(pledge.id);
   const amount = Number(pledge.chargeAmount || pledge.totalAmount || pledge.amount);
+
+  const note = pledge.campaignId
+    ? "Tien vao tai khoan ngan hang trung gian, khong chuyen cho creator. San giu den ngay dong chien dich roi moi chi ho hoac hoan. Du muc tieu giua chung van chay den han."
+    : "Tien vao tai khoan ngan hang trung gian cua san. Don hang khong gan chien dich gay quy — doi soat roi giao, khong theo All-or-Nothing.";
 
   return NextResponse.json({
     pledgeId: pledge.id,
@@ -63,6 +67,6 @@ export async function GET(
       content,
       qrUrl: buildVietQrImageUrl({ amount, addInfo: content, account: escrow }),
     },
-    note: "Tiền vào tài khoản ngân hàng trung gian, không chuyển cho creator. Sàn giữ đến khi chiến dịch kết thúc rồi mới chi hộ hoặc hoàn.",
+    note,
   });
 }
