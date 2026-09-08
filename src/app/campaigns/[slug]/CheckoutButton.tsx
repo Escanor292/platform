@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { CreditCard, Wallet, QrCode, ShieldCheck, Heart, User, Mail, Info } from "lucide-react";
+import { useState } from "react";
+import { QrCode, ShieldCheck, Heart, User, Mail, Info } from "lucide-react";
 import { formatVND } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 
@@ -33,16 +33,6 @@ export default function CheckoutButton({
   const [displayName, setDisplayName] = useState(session?.user?.name || "");
   const [guestEmail, setGuestEmail] = useState(session?.user?.email || "");
   const [isAnonymous, setIsAnonymous] = useState(false);
-  const [ipAddress, setIpAddress] = useState("");
-
-  // Fetch IP for metadata
-  useEffect(() => {
-    fetch("https://api.ipify.org?format=json")
-      .then(res => res.json())
-      .then(data => setIpAddress(data.ip))
-      .catch(() => {});
-  }, []);
-
   const totalTip = Math.round((amount * tipPercentage) / 100);
   const totalAmount = amount + totalTip;
 
@@ -51,48 +41,29 @@ export default function CheckoutButton({
     setAmount(r.amount);
   };
 
-  const handleCreatePayment = async (method: string) => {
+  const handleCreatePayment = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/payment/${method.toLowerCase()}/create`, {
+      const res = await fetch("/api/payments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: totalAmount,
+          amount,
           campaignId,
           rewardId: selectedReward?.id,
-          tipAmount: totalTip,
-          
-          // Guest / Anonymous Metadata
+          platformTipPercent: tipPercentage,
+          paymentMethod: "ONLINE",
           guestEmail: guestEmail || null,
           displayName: isAnonymous ? "Người dùng ẩn danh" : (displayName || "Người ủng hộ"),
           isAnonymous,
-          ipAddress,
         }),
       });
 
       const data = await res.json();
-      
-      // SePay trả về checkoutFields, cần submit form
-      if (data.checkoutFields && data.checkoutUrl) {
-        const form = document.createElement("form");
-        form.method = "POST";
-        form.action = data.checkoutUrl;
-        
-        Object.entries(data.checkoutFields).forEach(([key, value]) => {
-          const input = document.createElement("input");
-          input.type = "hidden";
-          input.name = key;
-          input.value = String(value);
-          form.appendChild(input);
-        });
-        
-        document.body.appendChild(form);
-        form.submit();
-      } else if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl; // Direct redirect
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl;
       } else {
-        alert("Lỗi: " + (data.error || "Không thể tạo link thanh toán"));
+        alert("Lỗi: " + (data.error || "Không tạo được lệnh chuyển khoản"));
       }
     } catch (err) {
       alert("Lỗi kết nối");
@@ -252,66 +223,10 @@ export default function CheckoutButton({
             {step === 3 && (
               <div className="space-y-6">
                 <h3 className="text-2xl font-black text-gray-900">Hình thức thanh toán</h3>
+                <p className="text-sm text-gray-500">Tiền vào tài khoản ngân hàng trung gian. Người sáng tạo chỉ nhận khi chiến dịch kết thúc và đạt mục tiêu.</p>
                 <div className="grid grid-cols-1 gap-3">
                   <button 
-                    onClick={() => handleCreatePayment("PayOS")}
-                    disabled={loading}
-                    className="flex items-center justify-between p-5 rounded-2xl bg-blue-50 border-2 border-blue-100 hover:border-blue-600 transition-all btn-click-scale group disabled:opacity-50"
-                  >
-                    <div className="flex items-center gap-4">
-                       <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                          <QrCode className="text-blue-600" size={24} />
-                       </div>
-                       <div className="text-left">
-                          <div className="font-black text-blue-900">Ví / VietQR (PayOS)</div>
-                          <div className="text-[10px] text-blue-400 font-bold uppercase">Xác thực tức thì</div>
-                       </div>
-                    </div>
-                    <div className="w-8 h-8 rounded-full bg-blue-600/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                       <ArrowRight size={18} className="text-blue-600" />
-                    </div>
-                  </button>
-
-                  <button 
-                    onClick={() => handleCreatePayment("MoMo")}
-                    disabled={loading}
-                    className="flex items-center justify-between p-5 rounded-2xl bg-pink-50 border-2 border-pink-100 hover:border-momo transition-all btn-click-scale group disabled:opacity-50"
-                  >
-                    <div className="flex items-center gap-4">
-                       <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                          <Wallet className="text-pink-600" size={24} />
-                       </div>
-                       <div className="text-left">
-                          <div className="font-black text-pink-900">Ví MoMo</div>
-                          <div className="text-[10px] text-pink-400 font-bold uppercase">Tin dùng bởi 30M+</div>
-                       </div>
-                    </div>
-                    <div className="w-8 h-8 rounded-full bg-pink-600/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                       <ArrowRight size={18} className="text-pink-600" />
-                    </div>
-                  </button>
-
-                  <button 
-                    onClick={() => handleCreatePayment("VNPay")}
-                    disabled={loading}
-                    className="flex items-center justify-between p-5 rounded-2xl bg-indigo-50 border-2 border-indigo-100 hover:border-indigo-600 transition-all btn-click-scale group disabled:opacity-50"
-                  >
-                    <div className="flex items-center gap-4">
-                       <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                          <CreditCard className="text-indigo-600" size={24} />
-                       </div>
-                       <div className="text-left">
-                          <div className="font-black text-indigo-900">VNPay (ATM / Visa)</div>
-                          <div className="text-[10px] text-indigo-400 font-bold uppercase">Ngân hàng nội địa</div>
-                       </div>
-                    </div>
-                    <div className="w-8 h-8 rounded-full bg-indigo-600/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                       <ArrowRight size={18} className="text-indigo-600" />
-                    </div>
-                  </button>
-
-                  <button 
-                    onClick={() => handleCreatePayment("SePay")}
+                    onClick={() => handleCreatePayment()}
                     disabled={loading}
                     className="flex items-center justify-between p-5 rounded-2xl bg-emerald-50 border-2 border-emerald-100 hover:border-emerald-600 transition-all btn-click-scale group disabled:opacity-50"
                   >
@@ -320,8 +235,8 @@ export default function CheckoutButton({
                           <QrCode className="text-emerald-600" size={24} />
                        </div>
                        <div className="text-left">
-                          <div className="font-black text-emerald-900">SePay (QR Banking)</div>
-                          <div className="text-[10px] text-emerald-400 font-bold uppercase">Chuyển khoản nhanh</div>
+                          <div className="font-black text-emerald-900">Chuyển khoản ngân hàng trung gian</div>
+                          <div className="text-[10px] text-emerald-500 font-bold uppercase">Giữ hộ đến ngày đóng chiến dịch</div>
                        </div>
                     </div>
                     <div className="w-8 h-8 rounded-full bg-emerald-600/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">

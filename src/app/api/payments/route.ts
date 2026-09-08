@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Decimal } from "@prisma/client/runtime/library";
-import { createPayOSPaymentLink } from "@/lib/payment/payos";
 import { calculateDepositAmount, normalizeDepositPercent } from "@/lib/preorder-deposit";
+import { buildTransferContent, getEscrowBankAccount } from "@/lib/payment/escrow-account";
 
 const MIN_DONATION_AMOUNT = 50_000;
 const MAX_TIP_PERCENT = 20;
@@ -127,23 +127,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (paymentMethodId) {
-      if (!session?.user?.id) {
-        return NextResponse.json({ error: "Bạn cần đăng nhập để dùng phương thức đã liên kết" }, { status: 401 });
-      }
-      const linkedMethod = await prisma.payment_methods.findFirst({
-        where: { id: paymentMethodId, userId: session.user.id, status: "ACTIVE" },
-        select: { id: true, provider: true, methodType: true },
-      });
-      if (!linkedMethod) {
-        return NextResponse.json({ error: "Phương thức thanh toán đã liên kết không còn khả dụng" }, { status: 404 });
-      }
-      if (paymentMethod !== "ONLINE") {
-        return NextResponse.json({ error: "Phương thức liên kết chỉ dùng cho thanh toán trực tuyến" }, { status: 400 });
-      }
       return NextResponse.json({
-        error: "Cổng thanh toán lưu token chưa được kích hoạt cho merchant này. Vui lòng chọn Tiếp tục thanh toán trực tuyến để mở hosted checkout.",
-        code: "LINKED_METHOD_ADAPTER_NOT_CONFIGURED",
-      }, { status: 503 });
+        error: "Nền tảng không liên kết ví/thẻ. Hãy chuyển khoản vào tài khoản ngân hàng trung gian.",
+        code: "ESCROW_BANK_ONLY",
+      }, { status: 400 });
     }
 
     const isPreorder = Boolean(reward?.isPreorder);
@@ -285,57 +272,36 @@ export async function POST(request: NextRequest) {
           fulfillmentType: reward?.fulfillmentType ?? null,
           fulfillmentStatus: reward ? "AWAITING_PAYMENT" : "NOT_APPLICABLE",
           ipAddress,
-          paymentProvider: paymentMethod === "COD" ? "PAYOS_COD_DEPOSIT" : "PAYOS",
-          transactionId: `ONLINE-${crypto.randomUUID()}`,
+          paymentProvider: paymentMethod === "COD" ? "BANK_ESCROW_DEPOSIT" : "BANK_ESCROW",
+          transactionId: `ESCROW-${crypto.randomUUID()}`,
           status: "PENDING",
           updatedAt: now,
         },
       });
     });
 
-    const orderCode = Number(`${Date.now()}${Math.floor(Math.random() * 10)}`.slice(-15));
+    const transferContent = buildTransferContent(pledge.id);
+    const escrow = getEscrowBankAccount();
     const baseUrl = getBaseUrl(request);
-    let paymentUrl: string;
-
-    try {
-      if (process.env.NODE_ENV === "development") {
-          paymentUrl = `${baseUrl}/api/payment/payos/mock-checkout?orderCode=${orderCode}&amount=${chargeAmount}&pledgeId=${encodeURIComponent(pledge.id)}`;
-      } else {
-        const paymentLink = await createPayOSPaymentLink({
-          orderCode,
-          amount: Math.round(chargeAmount),
-          description: `${reward ? "Mua " + reward.title : "Ung ho " + (campaign?.title || "chien dich")}`.slice(0, 32),
-          cancelUrl: `${baseUrl}/campaigns`,
-          returnUrl: `${baseUrl}/payment-success?status=success&ref=${encodeURIComponent(pledge.id)}`,
-        });
-        paymentUrl = paymentLink.checkoutUrl;
-      }
-    } catch (error) {
-      console.error("[PAYMENTS_API] Hosted checkout creation failed", error instanceof Error ? error.message : "unknown error");
-      await prisma.$transaction(async (tx) => {
-        const current = await tx.pledges.findUnique({ where: { id: pledge.id }, select: { stockReserved: true, rewardId: true, quantity: true } });
-        if (current?.stockReserved && current.rewardId) {
-          await tx.rewards.update({ where: { id: current.rewardId }, data: { stock: { increment: current.quantity }, updatedAt: new Date() } });
-        }
-        if (current) {
-          await tx.pledges.update({ where: { id: pledge.id }, data: { stockReserved: false, status: "FAILED", fulfillmentStatus: "CANCELED", cancellationReason: "Không tạo được phiên thanh toán", updatedAt: new Date() } });
-        }
-      });
-      return NextResponse.json({ error: "Cổng thanh toán trực tuyến chưa sẵn sàng. Vui lòng thử lại sau." }, { status: 503 });
-    }
+    const paymentUrl = `${baseUrl}/thanh-toan/chuyen-khoan?pledge=${encodeURIComponent(pledge.id)}`;
 
     await prisma.pledges.update({
       where: { id: pledge.id },
-      data: { payosOrderCode: orderCode.toString(), updatedAt: new Date() },
+      data: { payosOrderCode: transferContent.replace(/\s/g, ""), updatedAt: new Date() },
     });
 
     return NextResponse.json({
-      message: "Đã tạo phiên thanh toán trực tuyến",
+      message: "Chuyển khoản vào tài khoản ngân hàng trung gian. Tiền được giữ đến khi chiến dịch kết thúc.",
       pledgeId: pledge.id,
       paymentUrl,
-      orderCode,
-      paymentProvider: "PAYOS_HOSTED",
-      paymentMethodSavePending: savePaymentMethod && Boolean(session?.user?.id),
+      paymentProvider: "BANK_ESCROW",
+      transfer: {
+        bankName: escrow.bankName,
+        accountNumber: escrow.accountNumber,
+        accountHolder: escrow.accountHolder,
+        content: transferContent,
+        amount: chargeAmount,
+      },
       isPreorder,
       chargeAmount,
       depositAmount,

@@ -4,7 +4,6 @@ import { useState, useCallback, useMemo, memo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { formatVND } from "@/lib/utils";
-import OnlinePaymentPicker, { type OnlineChannel, type SavedPaymentMethod } from "@/components/campaign/OnlinePaymentPicker";
 
 interface Reward {
     id: string;
@@ -51,7 +50,7 @@ const PAYMENT_METHODS = {
     ONLINE: {
         id: "ONLINE",
         label: "Thanh toán online",
-        description: "Ví điện tử, ngân hàng, thẻ hoặc quét mã QR",
+        description: "Chuyển khoản vào tài khoản ngân hàng trung gian",
         colors: {
             border: "border-green-500",
             bg: "bg-green-50",
@@ -96,14 +95,10 @@ const PledgeFormContent = memo(function PledgeFormContent({
     const [guestEmail, setGuestEmail] = useState("");
     const [shippingAddress, setShippingAddress] = useState("");
     const [paymentMethod, setPaymentMethod] = useState<"ONLINE" | "COD">("ONLINE");
-    const [savePaymentMethod, setSavePaymentMethod] = useState(false);
-    const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<string | null>(null);
-    const [onlineChannel, setOnlineChannel] = useState<OnlineChannel>("QR");
     const [quantity, setQuantity] = useState(Math.min(99, Math.max(1, initialQuantity)));
     const [shippingMethod, setShippingMethod] = useState<"STANDARD" | "EXPRESS" | "EMAIL" | "DOWNLOAD">(
         preselectedReward?.fulfillmentType && preselectedReward.fulfillmentType !== "PHYSICAL" ? "EMAIL" : "STANDARD"
     );
-    const [savedMethods, setSavedMethods] = useState<SavedPaymentMethod[]>([]);
 
     useEffect(() => {
         if (!restoredPayload) return;
@@ -117,8 +112,6 @@ const PledgeFormContent = memo(function PledgeFormContent({
         if (typeof restoredPayload.guestEmail === "string") setGuestEmail(restoredPayload.guestEmail);
         if (typeof restoredPayload.shippingAddress === "string") setShippingAddress(restoredPayload.shippingAddress);
         if (restoredPayload.paymentMethod === "ONLINE" || restoredPayload.paymentMethod === "COD") setPaymentMethod(restoredPayload.paymentMethod);
-        setSelectedPaymentMethodId(restoredPayload.paymentMethodId || null);
-        if (typeof restoredPayload.savePaymentMethod === "boolean") setSavePaymentMethod(restoredPayload.savePaymentMethod);
         if (typeof restoredPayload.quantity === "number") setQuantity(Math.min(99, Math.max(1, restoredPayload.quantity)));
         if (restoredPayload.shippingMethod) setShippingMethod(restoredPayload.shippingMethod);
     }, [restoredPayload]);
@@ -126,31 +119,6 @@ const PledgeFormContent = memo(function PledgeFormContent({
     const isAuthenticated = status === "authenticated" && session?.user;
     const isLoading = status === "loading";
     const currentUser = session?.user;
-
-    useEffect(() => {
-        if (!isAuthenticated) {
-            setSavedMethods([]);
-            return;
-        }
-        let cancelled = false;
-        fetch("/api/payment-methods")
-            .then((response) => (response.ok ? response.json() : { methods: [] }))
-            .then((data) => {
-                if (!cancelled) setSavedMethods(data.methods ?? []);
-            })
-            .catch(() => {
-                if (!cancelled) setSavedMethods([]);
-            });
-        return () => {
-            cancelled = true;
-        };
-    }, [isAuthenticated]);
-
-    const handleMethodLinked = useCallback((method: SavedPaymentMethod) => {
-        setSavedMethods((current) => [method, ...current.filter((item) => item.id !== method.id)]);
-        setSelectedPaymentMethodId(method.id);
-        setSavePaymentMethod(true);
-    }, []);
 
     const isRewardDonation = donationType === "reward";
     const isGeneralDonation = donationType === "general";
@@ -197,33 +165,6 @@ const PledgeFormContent = memo(function PledgeFormContent({
                 setLoading(false);
                 return;
             }
-            if (savePaymentMethod && onlineChannel !== "QR" && !isAuthenticated) {
-                const sessionResponse = await fetch("/api/checkout-sessions", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        campaignId,
-                        rewardId: isRewardDonation ? effectiveSelectedRewardId : undefined,
-                        amount: unitAmount,
-                        quantity,
-                        shippingMethod,
-                        platformTipPercent: effectiveTipPercent,
-                        isAnonymous,
-                        displayName: isAnonymous ? undefined : displayName || undefined,
-                        guestEmail: guestEmail || undefined,
-                        shippingAddress: needsShippingAddress ? shippingAddress : undefined,
-                        paymentMethod,
-                        paymentMethodId: selectedPaymentMethodId || undefined,
-                        savePaymentMethod: true,
-                        returnPath: window.location.pathname,
-                    }),
-                });
-                const sessionData = await sessionResponse.json();
-                if (!sessionResponse.ok || !sessionData.loginUrl) throw new Error(sessionData.error || "Không thể lưu phiên thanh toán");
-                router.push(sessionData.loginUrl);
-                return;
-            }
-
             const res = await fetch("/api/payments", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -236,8 +177,6 @@ const PledgeFormContent = memo(function PledgeFormContent({
                     platformTipPercent: tipPercent,
                     isAnonymous,
                     paymentMethod,
-                    paymentMethodId: selectedPaymentMethodId || undefined,
-                    savePaymentMethod: savePaymentMethod && Boolean(isAuthenticated) && onlineChannel !== "QR",
                     displayName: isAnonymous ? undefined : isAuthenticated ? currentUser?.name || undefined : displayName || undefined,
                     guestEmail: isAuthenticated ? currentUser?.email || undefined : guestEmail || undefined,
                     shippingAddress: needsShippingAddress
@@ -255,7 +194,7 @@ const PledgeFormContent = memo(function PledgeFormContent({
         } finally {
             setLoading(false);
         }
-    }, [campaignId, currentUser, displayName, effectiveSelectedRewardId, effectiveTipPercent, guestEmail, isAnonymous, isAuthenticated, isDigitalProduct, isRewardDonation, needsProductEmail, needsShippingAddress, onlineChannel, paymentMethod, quantity, router, savePaymentMethod, selectedPaymentMethodId, shippingAddress, shippingMethod, tipPercent, unitAmount, userHasShippingAddress]);
+    }, [campaignId, currentUser, displayName, effectiveSelectedRewardId, effectiveTipPercent, guestEmail, isAnonymous, isAuthenticated, isDigitalProduct, isRewardDonation, needsProductEmail, needsShippingAddress, paymentMethod, quantity, router, shippingAddress, shippingMethod, tipPercent, unitAmount, userHasShippingAddress]);
 
     const currentMethod = PAYMENT_METHODS[paymentMethod];
 
@@ -327,8 +266,8 @@ const PledgeFormContent = memo(function PledgeFormContent({
                             <label className="block text-sm font-semibold text-gray-700">Phương thức thanh toán</label>
                             <p className="text-xs text-gray-500 mt-1">
                                 {allowsCod
-                                    ? "Chọn online rồi chọn ví, thẻ hoặc quét QR nếu không muốn liên kết thẻ."
-                                    : "Ủng hộ không nhận quà luôn thanh toán online — chọn ví, thẻ hoặc quét QR."}
+                                    ? "Chuyển khoản vào ngân hàng trung gian, hoặc COD nếu nhận quà vật lý."
+                                    : "Ủng hộ không nhận quà: chuyển khoản vào tài khoản ngân hàng trung gian. Không chuyển cho creator."}
                             </p>
                         </div>
                         {allowsCod && (
@@ -343,8 +282,6 @@ const PledgeFormContent = memo(function PledgeFormContent({
                                             </div>
                                             <input type="radio" name="paymentMethod" checked={isSelected} onChange={() => {
                                                 setPaymentMethod(method.id as "ONLINE" | "COD");
-                                                setSelectedPaymentMethodId(null);
-                                                if (method.id === "ONLINE") setOnlineChannel("QR");
                                             }} />
                                         </label>
                                     );
@@ -352,17 +289,10 @@ const PledgeFormContent = memo(function PledgeFormContent({
                             </div>
                         )}
                         {paymentMethod === "ONLINE" && (
-                            <OnlinePaymentPicker
-                                savedMethods={savedMethods}
-                                isAuthenticated={Boolean(isAuthenticated)}
-                                channel={onlineChannel}
-                                selectedPaymentMethodId={selectedPaymentMethodId}
-                                savePaymentMethod={savePaymentMethod}
-                                onChannelChange={setOnlineChannel}
-                                onSelectSavedMethod={setSelectedPaymentMethodId}
-                                onSavePaymentMethodChange={setSavePaymentMethod}
-                                onMethodLinked={handleMethodLinked}
-                            />
+                            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+                                Sau khi xác nhận, bạn chuyển khoản vào <strong>tài khoản ngân hàng trung gian</strong>.
+                                Tiền được giữ đến khi chiến dịch kết thúc — đạt mục tiêu thì chi cho creator, không đạt thì hoàn.
+                            </div>
                         )}
                     </div>
 

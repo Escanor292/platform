@@ -69,10 +69,7 @@ export default function RefundPolicyModal({ open, onClose }: RefundPolicyModalPr
           <section>
             <h3 className="font-semibold text-gray-800 mb-2">⏱️ Thời gian hoàn tiền</h3>
             <ul className="space-y-2 list-disc list-inside">
-              <li>Chuyển khoản ngân hàng: <strong>3–7 ngày làm việc</strong></li>
-              <li>VNPay / MoMo: <strong>1–3 ngày làm việc</strong></li>
-              <li>PayOS: <strong>1–2 ngày làm việc</strong></li>
-              <li>SePay: <strong>1–3 ngày làm việc</strong></li>
+              <li>Ngân hàng trung gian hoàn về STK người chuyển: <strong>1–3 ngày làm việc</strong></li>
             </ul>
           </section>
 

@@ -196,8 +196,8 @@ export default function UpgradeIndividualPage() {
               <Input placeholder="Điện thoại" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
               <Input placeholder="Địa chỉ hiện tại" value={formData.currentAddress} onChange={(e) => setFormData({ ...formData, currentAddress: e.target.value })} />
               <div className="grid gap-4 md:grid-cols-2">
-                <Input placeholder="Số tài khoản" value={formData.bankAccount} onChange={(e) => setFormData({ ...formData, bankAccount: e.target.value })} />
-                <Input placeholder="Ngân hàng" value={formData.bankName} onChange={(e) => setFormData({ ...formData, bankName: e.target.value })} />
+                <Input placeholder="STK nhận chi hộ khi chiến dịch kết thúc" value={formData.bankAccount} onChange={(e) => setFormData({ ...formData, bankAccount: e.target.value })} />
+                <Input placeholder="Ngân hàng nhận chi hộ" value={formData.bankName} onChange={(e) => setFormData({ ...formData, bankName: e.target.value })} />
               </div>
             </section>
             <Button type="submit" disabled={loading} className="h-14 w-full bg-emerald-700 text-lg font-bold hover:bg-emerald-800">

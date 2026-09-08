@@ -28,9 +28,10 @@ export default function CreatorTermsPage() {
 
       <PolicyCard title="3. Tiền, quà và hoàn">
         <ul className="list-disc pl-5 space-y-2">
-          <li>Sàn khóa cổng nhận đúng hạn đã công bố.</li>
-          <li>Reward số (file, key, truyện) được ghi vào Kho đồ khi thanh toán SUCCESS; refund thì thu hồi quyền dùng.</li>
-          <li>Creator chịu trách nhiệm giao quà đúng mô tả. Sàn có thể hoàn hộ và khóa chiến dịch khi gian lận.</li>
+          <li>Creator không liên kết PayOS/MoMo/VNPay. Chỉ khai số tài khoản nhận chi hộ.</li>
+          <li>Tiền backer nằm ở ngân hàng trung gian đến ngày đóng chiến dịch. Đạt mục tiêu thì ngân hàng chi hộ về STK đã khai; không đạt thì hoàn backer.</li>
+          <li>Reward số (file, key, truyện) ghi vào Kho đồ khi lệnh giữ hộ được đối soát; refund thì thu hồi quyền dùng.</li>
+          <li>Creator chịu trách nhiệm giao quà đúng mô tả. Sàn có thể yêu cầu ngân hàng hoàn hộ và khóa chiến dịch khi gian lận.</li>
         </ul>
       </PolicyCard>
 

@@ -9,7 +9,7 @@ export default function TermsPage() {
     >
       <PolicyCard title="1. Sàn này là gì">
         <p>
-          Tử Tế Fund là nền tảng trung gian: giúp Creator đăng chiến dịch, Backer ủng hộ bằng VND qua cổng thanh toán đã tích hợp, và lưu lịch sử giao dịch. Sàn không phải quỹ từ thiện và không phải tổ chức vận động theo NĐ 93/2021/NĐ-CP.
+          Tử Tế Fund là nền tảng trung gian: giúp Creator đăng chiến dịch, Backer ủng hộ bằng VND qua tài khoản ngân hàng trung gian, và lưu lịch sử giao dịch. Sàn không phải quỹ từ thiện và không phải tổ chức vận động theo NĐ 93/2021/NĐ-CP. Creator không kết nối PayOS/MoMo/VNPay — chỉ khai STK để nhận chi hộ khi chiến dịch kết thúc.
         </p>
       </PolicyCard>
 
@@ -48,7 +48,7 @@ export default function TermsPage() {
 
       <PolicyCard title="4. Thanh toán và hoàn tiền">
         <p>
-          Tiền đi qua cổng đã tích hợp (PayOS, VietQR, SePay, MoMo/VNPay khi bật). Không nộp tiền mặt cho nhân sự sàn. Hoàn tiền theo{" "}
+          Backer chuyển khoản vào tài khoản ngân hàng trung gian. Tiền được giữ đến khi chiến dịch kết thúc, rồi chi hộ creator hoặc hoàn backer. Không nộp tiền mặt cho nhân sự sàn. Hoàn tiền theo{" "}
           <Link href="/policy/refund" className="text-pgreen font-bold hover:underline">
             Chính sách hoàn tiền
           </Link>
