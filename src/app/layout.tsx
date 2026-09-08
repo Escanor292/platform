@@ -51,13 +51,13 @@ const siteUrl = getSiteUrl();
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${SITE_NAME} - ${SITE_TAGLINE} | Nen tang gay quy cong dong`,
+    default: `${SITE_NAME} - ${SITE_TAGLINE} | Nền tảng gây quỹ cộng đồng`,
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
   manifest: "/manifest.json",
   applicationName: SITE_NAME,
-  keywords: ["gay quy", "crowdfunding", "Tu Te Fund", "chien dich", "tu thien", "Viet Nam"],
+  keywords: ["gây quỹ", "crowdfunding", "Tử Tế Fund", "chiến dịch", "từ thiện", "Việt Nam"],
   openGraph: {
     type: "website",
     locale: "vi_VN",
