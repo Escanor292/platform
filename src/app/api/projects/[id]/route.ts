@@ -10,30 +10,20 @@ import {
     mapZodErrors,
 } from '@/lib/project/project.response-handlers';
 import { z } from 'zod';
+import { sumProjectMoney } from '@/lib/money-buckets';
 
-/**
- * GET /api/projects/[id]
- * Get a single project by ID with associated campaigns and blog posts
- * 
- * Validates: Requirements 20.1, 20.2, 20.3, 20.4, 20.5, 20.6
- */
 export async function GET(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        // Check authentication
         const session = await auth();
         const authError = checkAuthentication(session);
         if (authError) return authError;
 
-        // TypeScript knows session exists after authentication check
         const userId = session!.user!.id as string;
-
-        // Await params to get the project ID
         const { id: projectId } = await params;
 
-        // Validate projectId format
         let validatedProjectId;
         try {
             validatedProjectId = projectIdSchema.parse(projectId);
@@ -44,10 +34,9 @@ export async function GET(
             throw error;
         }
 
-        // Get project detail with authorization check
         const projectDetail = await getProjectById(validatedProjectId, userId);
+        const money = await sumProjectMoney(validatedProjectId);
 
-        // Convert Date objects to ISO 8601 strings for response
         const response = {
             id: projectDetail.id,
             creatorId: projectDetail.creatorId,
@@ -64,6 +53,9 @@ export async function GET(
             updatedAt: projectDetail.updatedAt.toISOString(),
             campaignCount: projectDetail.campaignCount,
             blogPostCount: projectDetail.blogPostCount,
+            campaignTotal: money.campaignTotal,
+            productTotal: money.productTotal,
+            projectTotal: money.projectTotal,
             campaigns: projectDetail.campaigns,
             blogPosts: projectDetail.blogPosts.map((post) => ({
                 id: post.id,
@@ -91,29 +83,18 @@ export async function GET(
     }
 }
 
-/**
- * PATCH /api/projects/[id]
- * Update a project's title and/or description
- * 
- * Validates: Requirements 6.1, 6.2, 6.3, 6.4, 6.5, 6.6
- */
 export async function PATCH(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        // Check authentication
         const session = await auth();
         const authError = checkAuthentication(session);
         if (authError) return authError;
 
-        // TypeScript knows session exists after authentication check
         const userId = session!.user!.id as string;
-
-        // Await params to get the project ID
         const { id: projectId } = await params;
 
-        // Validate projectId format
         let validatedProjectId;
         try {
             validatedProjectId = projectIdSchema.parse(projectId);
@@ -124,7 +105,6 @@ export async function PATCH(
             throw error;
         }
 
-        // Parse and validate request body
         let body;
         try {
             body = await req.json();
@@ -142,14 +122,12 @@ export async function PATCH(
             throw error;
         }
 
-        // Update project with ownership validation
         const updatedProject = await updateProject(
             validatedProjectId,
             userId,
             validatedInput
         );
 
-        // Convert Date objects to ISO 8601 strings for response
         const response = {
             id: updatedProject.id,
             creatorId: updatedProject.creatorId,
@@ -185,29 +163,18 @@ export async function PATCH(
     }
 }
 
-/**
- * DELETE /api/projects/[id]
- * Delete a project (orphans associated campaigns and blog posts)
- * 
- * Validates: Requirements 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 18.5
- */
 export async function DELETE(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        // Check authentication
         const session = await auth();
         const authError = checkAuthentication(session);
         if (authError) return authError;
 
-        // TypeScript knows session exists after authentication check
         const userId = session!.user!.id as string;
-
-        // Await params to get the project ID
         const { id: projectId } = await params;
 
-        // Validate projectId format
         let validatedProjectId;
         try {
             validatedProjectId = projectIdSchema.parse(projectId);
@@ -218,10 +185,8 @@ export async function DELETE(
             throw error;
         }
 
-        // Delete project with ownership validation
         await deleteProject(validatedProjectId, userId);
 
-        // Log deletion operation (Requirement 18.5)
         console.log('[DELETE /api/projects/[id]]', {
             operation: 'deleteProject',
             userId,
@@ -229,7 +194,6 @@ export async function DELETE(
             timestamp: new Date().toISOString(),
         });
 
-        // Return 204 No Content on success
         return new NextResponse(null, { status: 204 });
     } catch (error) {
         const projectId = await params.then(p => p.id).catch(() => 'unknown');
