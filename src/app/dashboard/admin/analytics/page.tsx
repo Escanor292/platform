@@ -4,12 +4,12 @@ import { formatVND } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, TrendingUp, TrendingDown, Activity } from "lucide-react";
+import BehaviorInsights from "@/components/admin/BehaviorInsights";
 
 export default async function AdminAnalyticsPage() {
   const session = await auth();
   if (!session?.user || (session.user as any).role !== "ADMIN") redirect("/");
 
-  // Lấy dữ liệu theo tháng
   const now = new Date();
   const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -94,42 +94,41 @@ export default async function AdminAnalyticsPage() {
   return (
     <div className="min-h-screen bg-slate-50/50 py-24 px-6">
       <div className="max-w-7xl mx-auto space-y-8">
-
-        {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link href="/dashboard/admin" className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center hover:bg-gray-100 transition border border-gray-200">
             <ArrowLeft size={20} />
           </Link>
           <div>
-            <h1 className="text-4xl font-black text-gray-900">Phân tích & Thống kê</h1>
-            <p className="text-gray-400 font-medium">Theo dõi xu hướng và hiệu suất</p>
+            <h1 className="text-4xl font-black text-gray-900">Phan tich & Thong ke</h1>
+            <p className="text-gray-400 font-medium">Theo doi xu huong, hieu suat va hanh vi nguoi dung</p>
           </div>
         </div>
 
-        {/* Growth Stats */}
+        <BehaviorInsights />
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white p-8 rounded-3xl border border-gray-100">
             <div className="flex items-center justify-between mb-4">
-              <div className="text-sm text-gray-400 font-bold">Người dùng mới</div>
+              <div className="text-sm text-gray-400 font-bold">Nguoi dung moi</div>
               <div className={`flex items-center gap-1 text-sm font-bold ${userGrowth >= 0 ? "text-green-600" : "text-red-600"}`}>
                 {userGrowth >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
                 {Math.abs(userGrowth)}%
               </div>
             </div>
             <div className="text-3xl font-black text-gray-900 mb-2">{currentMonthUsers}</div>
-            <div className="text-xs text-gray-400">Tháng này: {currentMonthUsers} | Tháng trước: {lastMonthUsers}</div>
+            <div className="text-xs text-gray-400">Thang nay: {currentMonthUsers} | Thang truoc: {lastMonthUsers}</div>
           </div>
 
           <div className="bg-white p-8 rounded-3xl border border-gray-100">
             <div className="flex items-center justify-between mb-4">
-              <div className="text-sm text-gray-400 font-bold">Chiến dịch mới</div>
+              <div className="text-sm text-gray-400 font-bold">Chien dich moi</div>
               <div className={`flex items-center gap-1 text-sm font-bold ${campaignGrowth >= 0 ? "text-green-600" : "text-red-600"}`}>
                 {campaignGrowth >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
                 {Math.abs(campaignGrowth)}%
               </div>
             </div>
             <div className="text-3xl font-black text-gray-900 mb-2">{currentMonthCampaigns}</div>
-            <div className="text-xs text-gray-400">Tháng này: {currentMonthCampaigns} | Tháng trước: {lastMonthCampaigns}</div>
+            <div className="text-xs text-gray-400">Thang nay: {currentMonthCampaigns} | Thang truoc: {lastMonthCampaigns}</div>
           </div>
 
           <div className="bg-white p-8 rounded-3xl border border-gray-100">
@@ -144,18 +143,16 @@ export default async function AdminAnalyticsPage() {
               {formatVND(currentMonthPledges._sum.amount || 0)}
             </div>
             <div className="text-xs text-gray-400">
-              So với tháng trước: {formatVND(lastMonthPledges._sum.amount || 0)}
+              So voi thang truoc: {formatVND(lastMonthPledges._sum.amount || 0)}
             </div>
           </div>
         </div>
 
-        {/* Top Campaigns & Backers */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Top Campaigns */}
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
             <h2 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2">
               <Activity size={20} className="text-blue-600" />
-              Top 10 chiến dịch
+              Top 10 chien dich
             </h2>
             <div className="space-y-4">
               {topCampaigns.map((campaign, index) => (
@@ -183,11 +180,10 @@ export default async function AdminAnalyticsPage() {
             </div>
           </div>
 
-          {/* Top Backers */}
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
             <h2 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2">
               <Activity size={20} className="text-green-600" />
-              Top 10 người ủng hộ
+              Top 10 nguoi ung ho
             </h2>
             <div className="space-y-4">
               {topBackers.map((backer, index) => {
@@ -203,10 +199,10 @@ export default async function AdminAnalyticsPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="font-bold text-gray-900 truncate">
-                        {backer.name || "Ẩn danh"}
+                        {backer.name || "An danh"}
                       </div>
                       <div className="text-xs text-gray-400">
-                        {backer._count.pledges} đóng góp
+                        {backer._count.pledges} dong gop
                       </div>
                     </div>
                     <div className="text-right">
