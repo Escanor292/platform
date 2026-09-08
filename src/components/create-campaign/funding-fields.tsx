@@ -89,7 +89,7 @@ export function FundingModelPicker({
       </div>
       {hasSellableRewards ? (
         <p className="text-xs font-medium text-amber-700">
-          Chien dich dang ban san pham (pre-order hoac hang co san) bat buoc Keep-It-All. Doi All-or-Nothing chi khi go het phan qua.
+          Da co phan qua — he thong giu Keep-It-All. Khong doi lai All-or-Nothing khi con san pham.
         </p>
       ) : locked ? (
         <p className="text-xs font-medium text-amber-700">
@@ -97,7 +97,7 @@ export function FundingModelPicker({
         </p>
       ) : (
         <p className="text-xs text-gray-500">
-          Chien dich dong theo ngay het han, khong dong som khi du muc tieu. All-or-Nothing chi khi khong ban san pham.
+          Chien dich dong theo ngay het han. Them phan qua se tu doi Keep-It-All. All-or-Nothing chi khi chua ban san pham.
         </p>
       )}
     </div>
