@@ -112,17 +112,28 @@ export function resolveAccountType(user?: {
   return "BACKER";
 }
 
-export function sanitizePermissionMap(input: unknown): PermissionMap {
+function parseMask(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value >>> 0;
+  if (typeof value === "string" && value.trim() !== "") {
+    const num = Number(value);
+    if (Number.isFinite(num)) return num >>> 0;
+  }
+  return null;
+}
+
+export function sanitizePermissionMap(
+  input: unknown,
+  options?: { migrate?: boolean },
+): PermissionMap {
   const raw = input && typeof input === "object" ? (input as Record<string, unknown>) : {};
-  const version = typeof raw.v === "number" ? raw.v : 1;
+  const version = typeof raw.v === "number" ? raw.v : Number(raw.v) || 1;
   const next = { ...DEFAULT_PERMISSION_MAP };
   for (const type of ACCOUNT_TYPES) {
-    const value = raw[type.key];
-    if (typeof value === "number" && Number.isFinite(value)) {
-      next[type.key] = value >>> 0;
-    }
+    const parsed = parseMask(raw[type.key]);
+    if (parsed != null) next[type.key] = parsed;
   }
-  if (version < PERMISSIONS_VERSION) {
+  const shouldMigrate = options?.migrate !== false && version < PERMISSIONS_VERSION;
+  if (shouldMigrate) {
     const inherited = PERMISSIONS.filter((p) => p.bit >= 14).reduce((mask, perm) => mask | (1 << perm.bit), 0);
     for (const type of ACCOUNT_TYPES) {
       next[type.key] = (next[type.key] & ~inherited) | (DEFAULT_PERMISSION_MAP[type.key] & inherited);

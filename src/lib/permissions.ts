@@ -39,7 +39,7 @@ export async function getPermissionMap(): Promise<PermissionMap> {
 }
 
 export async function savePermissionMap(map: PermissionMap): Promise<PermissionMap> {
-  const next = sanitizePermissionMap(map);
+  const next = sanitizePermissionMap({ ...map, v: PERMISSIONS_VERSION }, { migrate: false });
   await setPlatformSetting(ROLE_PERMISSIONS_KEY, JSON.stringify({ v: PERMISSIONS_VERSION, ...next }));
   return next;
 }

@@ -70,7 +70,7 @@ export function PermissionsMatrix({
       const res = await fetch("/api/admin/permissions", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...payload, v: 2 }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Không lưu được");

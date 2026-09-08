@@ -31,7 +31,12 @@ describe("permissions bitfield", () => {
     expect(hasBit(DEFAULT_PERMISSION_MAP.BACKER, "campaign.create")).toBe(false);
     expect(hasBit(DEFAULT_PERMISSION_MAP.CREATOR, "profile.customize")).toBe(true);
     expect(hasBit(DEFAULT_PERMISSION_MAP.BACKER, "profile.customize")).toBe(false);
-    const migrated = sanitizePermissionMap({ BACKER: 1985, v: 1 });
-    expect(hasBit(migrated.BACKER, "profile.edit")).toBe(true);
+    const saved = sanitizePermissionMap(
+      { v: 2, GUEST: 0, BACKER: 0, CREATOR: 0, CREATOR_PRO: 0, ADMIN: 0 },
+      { migrate: false },
+    );
+    expect(hasBit(saved.BACKER, "blog.write")).toBe(false);
+    expect(hasBit(saved.BACKER, "profile.edit")).toBe(false);
+    expect(hasBit(saved.ADMIN, "admin.panel")).toBe(true);
   });
 });
