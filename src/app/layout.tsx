@@ -10,6 +10,7 @@ import QuickPageAssistant from "@/components/public/QuickPageAssistant";
 import PlatformHelpAssistant from "@/components/public/PlatformHelpAssistant";
 import PlatformAssistantGate from "@/components/public/PlatformAssistantGate";
 import ProfileThemeShell from "@/components/profile/ProfileThemeShell";
+import BehaviorTracker from "@/components/analytics/BehaviorTracker";
 import { Toaster } from "sonner";
 import { Ga4Script } from "@/components/seo/Ga4Script";
 import { getGa4MeasurementId } from "@/lib/platform-settings";
@@ -50,13 +51,13 @@ const siteUrl = getSiteUrl();
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${SITE_NAME} - ${SITE_TAGLINE} | Nền tảng gây quỹ cộng đồng`,
+    default: `${SITE_NAME} - ${SITE_TAGLINE} | Nen tang gay quy cong dong`,
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
   manifest: "/manifest.json",
   applicationName: SITE_NAME,
-  keywords: ["gây quỹ", "crowdfunding", "Tử Tế Fund", "chiến dịch", "từ thiện", "Việt Nam"],
+  keywords: ["gay quy", "crowdfunding", "Tu Te Fund", "chien dich", "tu thien", "Viet Nam"],
   openGraph: {
     type: "website",
     locale: "vi_VN",
@@ -106,6 +107,7 @@ export default async function RootLayout({
                 <QuickPageAssistant />
                 <PlatformHelpAssistant />
               </PlatformAssistantGate>
+              <BehaviorTracker />
             </div>
           </ProfileThemeShell>
           </CartProvider>

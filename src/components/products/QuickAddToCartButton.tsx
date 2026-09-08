@@ -15,10 +15,6 @@ interface QuickAddToCartButtonProps {
   className?: string;
 }
 
-/**
- * Nút thêm sản phẩm vào giỏ hàng dạng icon, dùng cho product card và trang chi tiết.
- * Sự kiện được chặn để không kích hoạt link/card cha.
- */
 export default function QuickAddToCartButton({
   rewardId,
   title,
@@ -54,13 +50,15 @@ export default function QuickAddToCartButton({
     <button
       type="button"
       onClick={handleAdd}
+      data-analytics-cta="add_to_cart"
+      data-analytics-label="Them vao gio hang"
       className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border shadow-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-pgreen focus-visible:ring-offset-2 active:scale-95 ${
         added
           ? "border-emerald-500 bg-emerald-50 text-emerald-700"
           : "border-emerald-200 bg-white text-emerald-700 hover:-translate-y-0.5 hover:border-emerald-400 hover:bg-emerald-50 hover:shadow-md"
       } ${className}`}
-      aria-label={added ? `Đã thêm ${title} vào giỏ hàng` : `Thêm ${title} vào giỏ hàng`}
-      title={added ? "Đã thêm vào giỏ hàng" : inCart ? "Thêm thêm một sản phẩm" : "Thêm vào giỏ hàng"}
+      aria-label={added ? `Da them ${title} vao gio hang` : `Them ${title} vao gio hang`}
+      title={added ? "Da them vao gio hang" : inCart ? "Them them mot san pham" : "Them vao gio hang"}
     >
       {added ? <Check className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
     </button>
