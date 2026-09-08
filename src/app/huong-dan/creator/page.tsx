@@ -35,15 +35,33 @@ export default function CreatorGuidePage() {
         </section>
         <section className="bg-white rounded-[2rem] border border-pgreen/20 p-7">
           <p className="text-xs font-black uppercase tracking-widest text-pgreen mb-2">Nhóm B</p>
-          <h2 className="text-2xl font-black text-gray-900 mb-3">Có quà / pre-order</h2>
+          <h2 className="text-2xl font-black text-gray-900 mb-3">Có quà / bán hàng</h2>
           <ul className="text-sm text-gray-600 space-y-2 list-disc pl-5">
             <li>Key, file, quà vật lý, credit = bán hàng.</li>
-            <li>Có thể COD tùy sản phẩm; số vào Kho đồ khi SUCCESS.</li>
+            <li>Hàng có sẵn: giao / vào Kho đồ khi thanh toán SUCCESS.</li>
+            <li>Pre-order đang tách — chưa áp hướng dẫn thuế trang này.</li>
             <li>Thuế tính trên doanh thu bán trước, phần “trích quỹ” tính sau.</li>
-            <li>Website bán thường xuyên cần lộ trình thông báo TMĐT.</li>
           </ul>
         </section>
       </div>
+
+      <section className="bg-white rounded-[2rem] border border-gray-100 p-8 mb-6">
+        <h2 className="text-xl font-black text-gray-900 mb-3">SKU có sẵn (nhóm B)</h2>
+        <ul className="text-sm text-gray-700 space-y-2 list-disc pl-5">
+          <li>Vật lý — giao tận nơi / COD.</li>
+          <li>Tải file — ebook, ảnh, video vào Kho đồ.</li>
+          <li>Mã bản quyền — key vào Kho đồ.</li>
+          <li>Truyện số — đọc / file trong Kho đồ.</li>
+          <li>Gửi email — tài sản số gửi mail.</li>
+        </ul>
+        <p className="text-sm text-gray-600 mt-4">
+          Thuế, hóa đơn và việc sàn chưa khấu trừ hộ nằm ở{" "}
+          <Link href="/huong-dan/thue" className="text-pgreen font-bold hover:underline">
+            Hướng dẫn thuế hàng có sẵn
+          </Link>
+          .
+        </p>
+      </section>
 
       <section className="bg-cream/60 rounded-[2rem] border border-gray-100 p-8 mb-6">
         <h2 className="text-xl font-black text-gray-900 mb-3">Checklist trước khi bấm Public</h2>
