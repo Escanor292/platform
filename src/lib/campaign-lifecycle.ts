@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { processCampaignRefund } from "@/lib/payment/refund";
-import { shouldRefundOnDeadline, type FundingModel } from "@/lib/funding-model";
+import { campaignHasSellableRewards, shouldRefundOnDeadline, type FundingModel } from "@/lib/funding-model";
 
 export async function closeExpiredCampaigns(now = new Date()) {
   const expiredCampaigns = await prisma.campaigns.findMany({
@@ -13,6 +13,7 @@ export async function closeExpiredCampaigns(now = new Date()) {
       currentAmount: true,
       goalAmount: true,
       fundingModel: true,
+      _count: { select: { rewards: true } },
     },
   });
 
@@ -22,9 +23,11 @@ export async function closeExpiredCampaigns(now = new Date()) {
 
   for (const campaign of expiredCampaigns) {
     const reachedGoal = Number(campaign.currentAmount) >= Number(campaign.goalAmount);
+    const hasProducts = campaignHasSellableRewards(campaign._count.rewards);
     const refund = shouldRefundOnDeadline({
       fundingModel: campaign.fundingModel as FundingModel,
       reachedGoal,
+      hasSellableRewards: hasProducts,
     });
     const nextStatus = refund ? "FAILED" : "SUCCESS";
 

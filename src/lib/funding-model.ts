@@ -4,6 +4,9 @@ export type FundingModel = (typeof FUNDING_MODELS)[number];
 
 export const DEFAULT_PLATFORM_FEE_RATE = 0.08;
 
+export const AON_WITH_PRODUCTS_ERROR =
+  "Chien dich co ban san pham (pre-order hoac hang co san) khong duoc All-or-Nothing. Doi Keep-It-All truoc khi them phan qua.";
+
 export function parseFundingModel(value: unknown): FundingModel | null {
   if (value === "ALL_OR_NOTHING" || value === "KEEP_IT_ALL") return value;
   return null;
@@ -16,25 +19,44 @@ export function getFundingModelLabel(model: FundingModel | string | null | undef
 
 export function getFundingModelDescription(model: FundingModel): string {
   if (model === "KEEP_IT_ALL") {
-    return "Hết hạn vẫn nhận số đã góp, dù chưa đủ mục tiêu. Không hoàn tự động. Sàn vẫn trừ phí nền tảng trước khi chi hộ.";
+    return "Het han van nhan so da gop, du chua du muc tieu. Khong hoan vi miss goal. Chien dich dong theo ngay het han, khong dong som khi du muc tieu.";
   }
-  return "Chỉ nhận tiền nếu đạt mục tiêu khi hết hạn. Không đạt → hoàn cho người ủng hộ.";
+  return "Chi dung khi khong ban san pham. Dong theo ngay het han: dat muc tieu thi chi ho, khong dat thi hoan. Du goal giua chung van chay den han.";
 }
 
-/** Chỉ được đổi khi chưa duyệt (nháp / chờ duyệt). */
+/** Chi duoc doi khi chua duyet (nhap / cho duyet). */
 export function canEditFundingModel(status: string | null | undefined): boolean {
   return status === "DRAFT" || status === "PENDING_REVIEW" || !status;
+}
+
+export function campaignHasSellableRewards(rewardCount: number | null | undefined): boolean {
+  return Number(rewardCount || 0) > 0;
+}
+
+/** AON cam khi da/sap co SKU. Tra error neu conflict; khong tu im lang doi model. */
+export function assertFundingModelAllowed(params: {
+  fundingModel: FundingModel | string | null | undefined;
+  hasSellableRewards: boolean;
+}): { ok: true; model: FundingModel } | { ok: false; error: string } {
+  const model = parseFundingModel(params.fundingModel);
+  if (!model) return { ok: false, error: "Mo hinh gay quy khong hop le" };
+  if (params.hasSellableRewards && model === "ALL_OR_NOTHING") {
+    return { ok: false, error: AON_WITH_PRODUCTS_ERROR };
+  }
+  return { ok: true, model };
 }
 
 export function shouldRefundOnDeadline(params: {
   fundingModel: FundingModel | string | null | undefined;
   reachedGoal: boolean;
+  hasSellableRewards?: boolean;
 }): boolean {
+  if (params.hasSellableRewards) return false;
   if (params.reachedGoal) return false;
   return params.fundingModel !== "KEEP_IT_ALL";
 }
 
-/** Phí sàn trừ trên số ủng hộ, không cộng thêm cho backer. Áp dụng cả AON và Keep-It-All. */
+/** Phi san tru tren so ung ho, khong cong them cho backer. Ap dung ca AON va Keep-It-All. */
 export function calculatePlatformFee(
   amount: number,
   feeRate: number | null | undefined = DEFAULT_PLATFORM_FEE_RATE,
