@@ -8,23 +8,15 @@ import {
     mapZodErrors,
 } from '@/lib/project/project.response-handlers';
 import { z } from 'zod';
+import { campaignRaisedAmount, sumProjectMoney } from '@/lib/money-buckets';
 
-/**
- * GET /api/projects/public/[id]
- * Get a single project by ID with associated campaigns and blog posts (PUBLIC - no authentication required)
- * 
- * This endpoint is publicly accessible for viewing project details without authentication.
- * It reuses the same data structure as the authenticated endpoint but skips ownership validation.
- */
 export async function GET(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        // Await params to get the project ID
         const { id: projectId } = await params;
 
-        // Validate projectId format
         let validatedProjectId;
         try {
             validatedProjectId = projectIdSchema.parse(projectId);
@@ -35,7 +27,6 @@ export async function GET(
             throw error;
         }
 
-        // Fetch project with associated data using parameterized query (no ownership check)
         const project = await prisma.projects.findUnique({
             where: { id: validatedProjectId },
             include: {
@@ -48,6 +39,7 @@ export async function GET(
                         type: true,
                         goalAmount: true,
                         currentAmount: true,
+                        closedAmount: true,
                         imageUrl: true,
                         createdAt: true,
                         rewards: {
@@ -84,7 +76,6 @@ export async function GET(
                     select: { rewardId: true, order: true },
                     orderBy: { order: 'asc' },
                 },
-                // Linked blog posts (may not belong to the project directly)
                 project_blog_links: {
                     include: {
                         blog_posts: {
@@ -104,17 +95,15 @@ export async function GET(
             },
         });
 
-        // Return 404 if project not found
         if (!project) {
             const { notFoundResponse } = await import('@/lib/project/project.response-handlers');
             return notFoundResponse('Project not found');
         }
 
-        // Calculate counts
         const campaignCount = project.campaigns.length;
         const blogPostCount = project.blog_posts.length;
+        const money = await sumProjectMoney(project.id);
 
-        // Convert Date objects to ISO 8601 strings for response
         const response = {
             id: project.id,
             creatorId: project.creatorId,
@@ -131,6 +120,9 @@ export async function GET(
             updatedAt: project.updatedAt.toISOString(),
             campaignCount,
             blogPostCount: Math.max(blogPostCount, project.project_blog_links.length),
+            campaignTotal: money.campaignTotal,
+            productTotal: money.productTotal,
+            projectTotal: money.projectTotal,
             campaigns: project.campaigns.map((c) => ({
                 id: c.id,
                 title: c.title,
@@ -138,7 +130,9 @@ export async function GET(
                 status: c.status,
                 type: c.type,
                 goalAmount: c.goalAmount.toNumber(),
-                currentAmount: c.currentAmount.toNumber(),
+                currentAmount: Number(c.currentAmount),
+                closedAmount: c.closedAmount != null ? Number(c.closedAmount) : null,
+                raisedAmount: campaignRaisedAmount(c),
                 imageUrl: c.imageUrl,
                 createdAt: c.createdAt.toISOString(),
                 rewards: c.rewards.map((r) => ({
@@ -164,7 +158,6 @@ export async function GET(
                     coverImage: b.coverImage,
                     publishedAt: b.publishedAt ? b.publishedAt.toISOString() : null,
                 })),
-                // Include linked blog posts that are not directly owned by the project
                 ...project.project_blog_links
                     .map((l) => l.blog_posts)
                     .filter((bp): bp is NonNullable<typeof bp> => bp !== null)
