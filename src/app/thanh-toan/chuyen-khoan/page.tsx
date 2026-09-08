@@ -114,6 +114,10 @@ function TransferInner() {
       </div>
 
       <p className="text-sm leading-relaxed text-gray-600">{data.note}</p>
+      <p className="text-sm leading-relaxed text-gray-600">
+        Chứng nhận ủng hộ hoặc biên lai thanh toán sẽ được cấp và gửi email sau khi sàn đối soát tiền vào tài khoản trung gian.
+        Đăng nhập đúng email để lưu vào Kho đồ.
+      </p>
       <p className="text-xs text-gray-400">
         Trạng thái hiện tại: {data.status === "PENDING" ? "Chờ tiền vào tài khoản giữ hộ" : data.status}.
         Ghi đúng nội dung chuyển khoản để đối soát.

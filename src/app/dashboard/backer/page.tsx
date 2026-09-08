@@ -13,6 +13,7 @@ export default async function BackerDashboard() {
     where: { userId: (session.user as any).id },
     include: {
       campaigns: { select: { title: true, slug: true, status: true, imageUrl: true } },
+      donation_certificate: { select: { code: true, documentKind: true } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -63,6 +64,14 @@ export default async function BackerDashboard() {
                     </div>
 
                     <div className="flex items-center gap-4">
+                      {pledge.donation_certificate ? (
+                        <Link
+                          href={`/chung-tu/${pledge.donation_certificate.code}`}
+                          className="px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-700"
+                        >
+                          {pledge.donation_certificate.code}
+                        </Link>
+                      ) : null}
                       <span className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 ${pledge.status === "SUCCESS" ? "bg-emerald-50 text-emerald-600" : "bg-orange-50 text-orange-600"
                         }`}>
                         {pledge.status === "SUCCESS" ? <CheckCircle2 size={14} /> : <Clock size={14} />}

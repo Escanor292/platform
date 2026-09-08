@@ -16,17 +16,27 @@ export default function CreatorTaxGuidePage() {
         Hướng dẫn — không phải tư vấn pháp lý
       </p>
       <h1 className="font-display text-4xl md:text-5xl font-black text-gray-900 mb-4 tracking-tight">
-        Thuế khi bán hàng có sẵn
+        Thuế, chứng từ và sổ sách
       </h1>
       <p className="text-gray-500 text-lg leading-relaxed mb-10">
-        Chỉ áp cho SKU <strong>có sẵn</strong> (availability = Có sẵn, không bật đặt trước).
-        Pre-order / đang phát triển xem sau. Mức % dưới đây là khung pháp luật 2026 để Creator đối chiếu,
-        không phải cam kết sàn đang khấu trừ hộ.
+        Ba luồng tiền trên sàn: ủng hộ không nhận quà, có quà giao ngay, có quà đặt trước.
+        Trang này nói chứng từ và sổ sách. Mức % là khung pháp luật 2026 để đối chiếu,
+        không phải cam kết sàn đang khấu trừ hộ. Đặt trước chưa tự quyết toán thuế.
       </p>
 
       <section className="bg-amber-50 border border-amber-200 rounded-[2rem] p-6 mb-8 text-sm text-amber-950 leading-relaxed">
         Tử Tế Fund <strong>chưa</strong> khấu trừ, kê khai hay nộp thay thuế như Shopee. Creator tự theo dõi
-        doanh thu, hóa đơn và tờ khai. Sàn cấp sao kê thanh toán VND và lịch sử Kho đồ.
+        doanh thu, hóa đơn và tờ khai. Sàn cấp <strong>chứng nhận ủng hộ</strong> / <strong>biên lai thanh toán</strong>
+        (không phải hóa đơn GTGT), sao kê CSV và Kho đồ.
+      </section>
+
+      <section className="bg-white rounded-[2rem] border border-gray-100 p-8 mb-6">
+        <h2 className="text-xl font-black text-gray-900 mb-4">Ba luồng tiền</h2>
+        <ul className="text-sm text-gray-700 space-y-2 list-disc pl-5">
+          <li><strong>Ủng hộ không nhận quà:</strong> khách (kể cả chưa đăng nhập) nhập email. Sau đối soát, cấp chứng nhận <code>TT-UH-YYYYMM-XXXX</code>, gửi mail; đăng nhập đúng email thì vào Kho đồ.</li>
+          <li><strong>Có quà — giao ngay:</strong> hàng có sẵn. Người mua trả giá niêm yết, không thấy dòng +VAT. Sàn cấp biên lai thanh toán. Creator tự xuất HĐ GTGT nếu đủ điều kiện.</li>
+          <li><strong>Có quà — đặt trước:</strong> dùng chung checkout/giữ hộ, <strong>chưa</strong> tự cấp chứng từ thuế. Sẽ xem sau.</li>
+        </ul>
       </section>
 
       <section className="bg-white rounded-[2rem] border border-gray-100 p-8 mb-6">
@@ -84,11 +94,13 @@ export default function CreatorTaxGuidePage() {
       </section>
 
       <section className="bg-white rounded-[2rem] border border-gray-100 p-8 mb-6">
-        <h2 className="text-xl font-black text-gray-900 mb-4">Hóa đơn</h2>
+        <h2 className="text-xl font-black text-gray-900 mb-4">Hóa đơn và chứng từ</h2>
         <ul className="text-sm text-gray-700 space-y-2 list-disc pl-5">
+          <li>Chứng nhận / biên lai sàn = đối chiếu thanh toán, <strong>không phải HĐ GTGT</strong>.</li>
           <li>Hóa đơn đơn hàng do <strong>Creator</strong> xuất cho người mua — sàn không xuất hộ.</li>
           <li>Hộ / cá nhân doanh thu năm trên 1 tỷ: bắt buộc HĐĐT.</li>
-          <li>Khi sàn có phí dịch vụ, pháp nhân sàn xuất hóa đơn phí cho Creator, tách khỏi hóa đơn bán hàng.</li>
+          <li>Phí dịch vụ 8% là ước tính trừ phía Creator, không cộng vào giá backer. GTGT trên phí dịch vụ là nghĩa vụ pháp nhân sàn khi xuất hóa đơn phí — hiện chưa xuất.</li>
+          <li>Creator xem sổ tại <Link href="/dashboard/creator/thue" className="text-pgreen font-bold hover:underline">/dashboard/creator/thue</Link>.</li>
         </ul>
       </section>
 

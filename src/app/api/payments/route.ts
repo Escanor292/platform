@@ -122,9 +122,13 @@ export async function POST(request: NextRequest) {
     }
 
     const authenticatedEmail = session?.user?.email?.trim() || "";
-    const finalEmail = authenticatedEmail || guestEmail;
-    if ((paymentMethod === "COD" || reward) && !isValidInternalEmail(finalEmail)) {
-      return NextResponse.json({ error: "Vui lòng cung cấp email hợp lệ để nhận xác nhận đơn hàng" }, { status: 400 });
+    const finalEmail = (authenticatedEmail || guestEmail).trim().toLowerCase();
+    if (!isValidInternalEmail(finalEmail)) {
+      return NextResponse.json({
+        error: reward
+          ? "Vui lòng cung cấp email hợp lệ để nhận xác nhận đơn hàng"
+          : "Vui lòng nhập email để nhận chứng nhận ủng hộ",
+      }, { status: 400 });
     }
 
     if (paymentMethodId) {

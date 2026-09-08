@@ -160,6 +160,11 @@ const PledgeFormContent = memo(function PledgeFormContent({
                 setLoading(false);
                 return;
             }
+            if (!isAuthenticated && !guestEmail.trim()) {
+                setError("Vui lòng nhập email để nhận chứng nhận hoặc biên lai");
+                setLoading(false);
+                return;
+            }
             if (needsProductEmail && !isAuthenticated && !guestEmail.trim()) {
                 setError(isDigitalProduct ? "Vui lòng nhập email để nhận tài sản số" : "Vui lòng nhập email để nhận thông tin giao hàng");
                 setLoading(false);
@@ -254,7 +259,14 @@ const PledgeFormContent = memo(function PledgeFormContent({
                     </label>
 
                     {!isAuthenticated && (
-                        <input type="email" value={guestEmail} onChange={(event) => setGuestEmail(event.target.value)} placeholder="Email nhận xác nhận" className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm" required={Boolean(needsProductEmail)} />
+                        <div>
+                            <input type="email" value={guestEmail} onChange={(event) => setGuestEmail(event.target.value)} placeholder="Email nhận chứng nhận / biên lai" className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm" required />
+                            <p className="mt-1 text-xs text-gray-500">
+                                {isGeneralDonation
+                                    ? "Bắt buộc. Chứng nhận ủng hộ sẽ gửi về email này; đăng nhập sau để lưu vào Kho đồ."
+                                    : "Bắt buộc. Biên lai và thông tin nhận hàng gửi về email này."}
+                            </p>
+                        </div>
                     )}
 
                     {needsShippingAddress && !userHasShippingAddress && (

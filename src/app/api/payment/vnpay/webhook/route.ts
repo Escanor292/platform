@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog } from "@/lib/audit";
 import { recalculateCampaignAmount } from "@/lib/order-fulfillment";
+import { onPledgeSuccess } from "@/lib/tax/on-pledge-success";
 import { notificationService } from "@/services/mongodb/notification.service";
 import crypto from "crypto";
 
@@ -127,6 +128,7 @@ export async function GET(request: NextRequest) {
         newValue: { status: "SUCCESS", transactionId: transactionNo },
         reason: "VNPay payment successful",
       });
+      await onPledgeSuccess(pledge.id);
 
       // Send campaign notifications only when this pledge is attributed to a campaign.
       if (pledge.campaigns && pledge.campaignId) {

@@ -4,13 +4,14 @@ import { formatVND } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, DollarSign, TrendingUp, Wallet, CreditCard } from "lucide-react";
+import SettleButton from "./SettleButton";
 
 export default async function AdminRevenuePage() {
   const session = await auth();
   if (!session?.user || ((session.user as any).role !== "ADMIN" && !(session.user as any).isAdmin)) redirect("/");
 
   // Thống kê doanh thu
-  const [totalPledges, platformRevenue, successfulPledges, recentTransactions] = await Promise.all([
+  const [totalPledges, platformRevenue, successfulPledges, recentTransactions, pendingEscrow] = await Promise.all([
     prisma.pledges.aggregate({
       _sum: { amount: true, totalAmount: true },
       _count: true
@@ -30,9 +31,19 @@ export default async function AdminRevenuePage() {
         },
         users: {
           select: { name: true, email: true }
-        }
+        },
+        donation_certificate: { select: { code: true } },
       }
-    })
+    }),
+    prisma.pledges.findMany({
+      take: 20,
+      where: { status: "PENDING", paymentProvider: { in: ["BANK_ESCROW", "BANK_ESCROW_DEPOSIT"] } },
+      orderBy: { createdAt: "desc" },
+      include: {
+        campaigns: { select: { title: true, slug: true } },
+        users: { select: { name: true, email: true } },
+      },
+    }),
   ]);
 
   const totalAmount = Number(totalPledges._sum.amount || 0);
@@ -126,6 +137,39 @@ export default async function AdminRevenuePage() {
           </div>
         </div>
 
+        {pendingEscrow.length > 0 && (
+          <div className="bg-white rounded-3xl border border-amber-100 shadow-sm overflow-hidden">
+            <div className="p-8 border-b border-gray-100">
+              <h2 className="text-2xl font-black text-gray-900">Chờ đối soát chuyển khoản</h2>
+              <p className="text-sm text-gray-400 mt-1">Xác nhận tiền đã vào TK trung gian để cấp chứng từ / biên lai</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-amber-50 border-b border-amber-100">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase">Lệnh</th>
+                    <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase">Chiến dịch</th>
+                    <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase">Email</th>
+                    <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase">Số tiền</th>
+                    <th className="px-6 py-4"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {pendingEscrow.map((tx) => (
+                    <tr key={tx.id}>
+                      <td className="px-6 py-4 font-mono text-xs">{tx.id.slice(0, 8)}</td>
+                      <td className="px-6 py-4 text-sm font-bold">{tx.campaigns?.title || "—"}</td>
+                      <td className="px-6 py-4 text-sm">{tx.email || tx.users?.email || "—"}</td>
+                      <td className="px-6 py-4 text-sm font-bold">{formatVND(Number(tx.chargeAmount || tx.totalAmount))}</td>
+                      <td className="px-6 py-4"><SettleButton pledgeId={tx.id} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         {/* Recent Transactions */}
         <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="p-8 border-b border-gray-100">
@@ -156,6 +200,9 @@ export default async function AdminRevenuePage() {
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
                     Ngày
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-wider">
+                    Chứng từ
                   </th>
                 </tr>
               </thead>
@@ -207,6 +254,15 @@ export default async function AdminRevenuePage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {new Date(tx.createdAt).toLocaleDateString("vi-VN")}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {tx.donation_certificate ? (
+                        <Link href={`/chung-tu/${tx.donation_certificate.code}`} className="font-mono text-xs text-pgreen hover:underline">
+                          {tx.donation_certificate.code}
+                        </Link>
+                      ) : (
+                        <SettleButton pledgeId={tx.id} />
+                      )}
                     </td>
                   </tr>
                 ))}

@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 import WarehouseClient from "@/components/purchases/WarehouseClient";
 import { isDigitalFulfillment } from "@/lib/warehouse-ui";
 import { DEMO_WAREHOUSE_USER_ID, seedDemoWarehouseItems } from "@/lib/digital-warehouse";
+import { claimCertificatesForUser } from "@/lib/tax/certificate";
 
 export default async function PurchasesPage({
   searchParams,
@@ -19,26 +20,41 @@ export default async function PurchasesPage({
     await seedDemoWarehouseItems(userId);
   }
 
+  await claimCertificatesForUser({
+    id: userId,
+    email: session?.user?.email,
+  });
+
   const params = searchParams ? await searchParams : {};
   const highlightId = typeof params.item === "string" ? params.item : undefined;
 
-  const pledges = await prisma.pledges.findMany({
-    where: {
-      userId,
-      status: "SUCCESS",
-      OR: [
-        { fulfillmentType: { in: ["EMAIL", "DOWNLOAD", "LICENSE_KEY", "DIGITAL_COMIC"] } },
-        { rewards: { fulfillmentType: { in: ["EMAIL", "DOWNLOAD", "LICENSE_KEY", "DIGITAL_COMIC"] } } },
-      ],
-    },
-    orderBy: { createdAt: "desc" },
-    include: {
-      rewards: { select: { id: true, title: true, fulfillmentType: true, productImages: true } },
-      digitalAsset: { select: { assetUrl: true, encryptedValue: true, assetType: true, status: true } },
-    },
-  });
+  const [pledges, certificates] = await Promise.all([
+    prisma.pledges.findMany({
+      where: {
+        userId,
+        status: "SUCCESS",
+        OR: [
+          { fulfillmentType: { in: ["EMAIL", "DOWNLOAD", "LICENSE_KEY", "DIGITAL_COMIC"] } },
+          { rewards: { fulfillmentType: { in: ["EMAIL", "DOWNLOAD", "LICENSE_KEY", "DIGITAL_COMIC"] } } },
+        ],
+      },
+      orderBy: { createdAt: "desc" },
+      include: {
+        rewards: { select: { id: true, title: true, fulfillmentType: true, productImages: true } },
+        digitalAsset: { select: { assetUrl: true, encryptedValue: true, assetType: true, status: true } },
+      },
+    }),
+    prisma.donation_certificates.findMany({
+      where: {
+        status: { not: "REVOKED" },
+        OR: [{ backerUserId: userId }, { claimedByUserId: userId }],
+      },
+      include: { campaigns: { select: { title: true } } },
+      orderBy: { issuedAt: "desc" },
+    }),
+  ]);
 
-  const items = pledges
+  const digitalItems = pledges
     .filter((pledge) => isDigitalFulfillment(pledge.fulfillmentType || pledge.rewards?.fulfillmentType))
     .map((pledge) => ({
       pledgeId: pledge.id,
@@ -52,7 +68,27 @@ export default async function PurchasesPage({
       assetUrl: pledge.digitalAsset?.assetUrl || null,
       licenseKey: pledge.digitalAsset?.assetType === "LICENSE_KEY" ? pledge.digitalAsset.encryptedValue : null,
       status: pledge.digitalAsset?.status || "DELIVERED",
+      href: null as string | null,
     }));
+
+  const certificateItems = certificates.map((certificate) => ({
+    pledgeId: certificate.pledgeId,
+    purchasedAt: certificate.issuedAt.toISOString(),
+    quantity: 1,
+    amount: Number(certificate.amount),
+    title: certificate.documentKind === "CERTIFICATE"
+      ? `Chứng nhận ủng hộ · ${certificate.campaigns?.title || certificate.code}`
+      : `Biên lai · ${certificate.campaigns?.title || certificate.code}`,
+    rewardId: null,
+    fulfillmentType: "CERTIFICATE",
+    cover: null,
+    assetUrl: null,
+    licenseKey: certificate.code,
+    status: "DELIVERED",
+    href: `/chung-tu/${certificate.code}`,
+  }));
+
+  const items = [...certificateItems, ...digitalItems];
 
   return (
     <main className="min-h-screen gradient-warm py-12">
@@ -62,7 +98,7 @@ export default async function PurchasesPage({
             <p className="text-sm font-bold uppercase tracking-wider text-pgreen">Tài khoản của bạn</p>
             <h1 className="mt-1 font-display text-4xl font-bold text-dblue">Kho đồ</h1>
             <p className="mt-2 max-w-xl text-sm text-gray-500">
-              Mọi tài khoản đều có kho đồ. Game, truyện tranh, ảnh, video và mã bản quyền sẽ vào đây ngay sau khi thanh toán thành công.
+              Mọi tài khoản đều có kho đồ. Chứng nhận ủng hộ, biên lai, game, truyện, ảnh, video và mã bản quyền vào đây sau khi đối soát thanh toán.
             </p>
           </div>
           <Link

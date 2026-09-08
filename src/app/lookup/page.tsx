@@ -78,7 +78,8 @@ export default function LookupPage() {
             Tra cứu giao dịch
           </h1>
           <p className="text-xl text-gray-600 font-medium max-w-2xl mx-auto leading-relaxed">
-            Nhập mã giao dịch của bạn để kiểm tra trạng thái và thông tin chi tiết một cách minh bạch.
+            Nhập mã giao dịch hoặc mã chứng từ <span className="font-mono text-base">TT-UH-YYYYMM-XXXX</span>
+            để kiểm tra trạng thái, chứng nhận ủng hộ và biên lai thanh toán.
           </p>
         </div>
 

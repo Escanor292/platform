@@ -144,10 +144,15 @@ export default function CreatorDashboardClient({
                         <p className="text-lg text-gray-400 font-medium">Theo dõi và quản lý hành trình sáng tạo của bạn.</p>
                     </div>
 
+                    <div className="flex flex-col gap-3">
                     <Link href="/campaigns/create" className="h-20 px-10 bg-blue-600 text-white font-black rounded-3xl hover:bg-black transition flex items-center gap-3 shadow-xl active:scale-95">
                         <Plus size={24} />
                         Bắt đầu chiến dịch mới
                     </Link>
+                    <Link href="/dashboard/creator/thue" className="h-12 px-8 border border-gray-200 bg-white text-gray-800 font-bold rounded-2xl hover:border-pgreen hover:text-pgreen transition flex items-center justify-center">
+                        Sổ thuế / sao kê
+                    </Link>
+                    </div>
                 </div>
 
                 {/* Stats Grid */}

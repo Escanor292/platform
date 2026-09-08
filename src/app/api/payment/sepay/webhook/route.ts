@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog } from "@/lib/audit";
 import { recalculateCampaignAmount } from "@/lib/order-fulfillment";
-import { grantDigitalWarehouseItem } from "@/lib/digital-warehouse";
+import { onPledgeSuccess } from "@/lib/tax/on-pledge-success";
 import { getSePay } from "@/lib/payment/sepay";
 
 export async function POST(request: NextRequest) {
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: "Pledge not found" }, { status: 404 });
     }
     if (pledge.status === "SUCCESS" || pledge.status === "REFUNDED") {
-      if (pledge.status === "SUCCESS") await grantDigitalWarehouseItem(pledge.id);
+      if (pledge.status === "SUCCESS") await onPledgeSuccess(pledge.id);
       return NextResponse.json({ success: true, message: "Already processed" });
     }
 
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
         newValue: { status: "SUCCESS", transactionId: transaction.transaction_id },
         reason: "SePay payment successful",
       });
-      await grantDigitalWarehouseItem(pledge.id);
+      await onPledgeSuccess(pledge.id);
       return NextResponse.json({ success: true, message: "Payment processed successfully" });
     }
 

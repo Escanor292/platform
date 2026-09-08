@@ -1,6 +1,6 @@
 export const DIGITAL_FULFILLMENT_TYPES = ["EMAIL", "DOWNLOAD", "LICENSE_KEY", "DIGITAL_COMIC"] as const;
 export type DigitalFulfillmentType = (typeof DIGITAL_FULFILLMENT_TYPES)[number];
-export type WarehouseCategory = "all" | "game" | "comic" | "image" | "video" | "ebook" | "key" | "other";
+export type WarehouseCategory = "all" | "game" | "comic" | "image" | "video" | "ebook" | "key" | "certificate" | "other";
 
 export function isDigitalFulfillment(type?: string | null): type is DigitalFulfillmentType {
   return DIGITAL_FULFILLMENT_TYPES.includes(type as DigitalFulfillmentType);
@@ -8,6 +8,7 @@ export function isDigitalFulfillment(type?: string | null): type is DigitalFulfi
 
 export function warehouseCategory(type?: string | null, title?: string | null): Exclude<WarehouseCategory, "all"> {
   const haystack = `${type || ""} ${title || ""}`.toLowerCase();
+  if (type === "CERTIFICATE") return "certificate";
   if (type === "LICENSE_KEY" || /\bgame\b|steam|key|ban quyen|bản quyền/.test(haystack)) return "game";
   if (type === "DIGITAL_COMIC" || /truyen|truyện|comic|manga|webtoon/.test(haystack)) return "comic";
   if (/anh|ảnh|image|art pack|wallpaper|poster/.test(haystack)) return "image";
@@ -26,6 +27,7 @@ export function warehouseCategoryLabel(category: WarehouseCategory) {
     video: "Video",
     ebook: "Ebook",
     key: "Mã bản quyền",
+    certificate: "Chứng nhận",
     other: "Khác",
   };
   return labels[category];

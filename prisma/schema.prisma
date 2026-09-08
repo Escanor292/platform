@@ -57,6 +57,36 @@ model backer_invoices {
   pledges       pledges       @relation(fields: [pledgeId], references: [id], onDelete: Cascade)
 }
 
+model donation_certificates {
+  id              String             @id
+  code            String             @unique
+  pledgeId        String             @unique
+  campaignId      String?
+  creatorId       String?
+  backerUserId    String?
+  guestEmail      String?
+  displayName     String
+  amount          Decimal
+  flowType        MoneyFlowType
+  documentKind    TaxDocumentKind
+  status          CertificateStatus  @default(ISSUED)
+  issuedAt        DateTime           @default(now())
+  emailSentAt     DateTime?
+  claimedAt       DateTime?
+  claimedByUserId String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime
+  pledges         pledges            @relation(fields: [pledgeId], references: [id], onDelete: Cascade)
+  campaigns       campaigns?         @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  backer          users?             @relation("certificate_backer", fields: [backerUserId], references: [id], onDelete: SetNull)
+  claimedBy       users?             @relation("certificate_claimed_by", fields: [claimedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([guestEmail])
+  @@index([backerUserId, status])
+  @@index([creatorId, flowType])
+  @@index([campaignId])
+}
+
 model badges {
   id               String        @id
   name             String        @db.VarChar(100)
@@ -359,6 +389,7 @@ model campaigns {
   reviews             reviews[]
   rewards             rewards[]
   reward_digital_assets reward_digital_assets[]
+  donation_certificates donation_certificates[]
 
   @@index([category])
   @@index([projectId])
@@ -532,6 +563,7 @@ model pledges {
   receivedAt         DateTime?
   audit_logs         audit_logs[]
   backer_invoices    backer_invoices?
+  donation_certificate donation_certificates?
   campaigns          campaigns?       @relation(fields: [campaignId], references: [id])
   rewards            rewards?         @relation(fields: [rewardId], references: [id])
   product_reviews    product_reviews?
@@ -769,6 +801,8 @@ model users {
   kyc_info                                   kyc_info?
   platform_invoices                          platform_invoices[]
   pledges                                    pledges[]
+  donation_certificates_as_backer            donation_certificates[] @relation("certificate_backer")
+  donation_certificates_claimed              donation_certificates[] @relation("certificate_claimed_by")
   projects                                   projects[]
   reviews                                    reviews[]
   product_reviews                            product_reviews[]
@@ -926,6 +960,23 @@ enum InvoiceStatus {
   PAID
   OVERDUE
   CANCELLED
+}
+
+enum MoneyFlowType {
+  NO_GIFT
+  GIFT_NOW
+  PREORDER
+}
+
+enum TaxDocumentKind {
+  CERTIFICATE
+  RECEIPT
+}
+
+enum CertificateStatus {
+  ISSUED
+  CLAIMED
+  REVOKED
 }
 
 enum KYCStatus {

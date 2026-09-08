@@ -132,10 +132,9 @@ export function generateInvoiceHTML(invoice: any): string {
 <body>
   <div class="invoice">
     <div class="header">
-      <h1>HÓA ĐƠN ĐIỆN TỬ</h1>
-      <p>CROWDFUNDING VN - NỀN TẢNG GỌI VỐN CỘNG ĐỒNG</p>
-      <p>Địa chỉ: [Địa chỉ công ty] | Điện thoại: [SĐT] | Email: support@crowdfundingvn.com</p>
-      <p>Mã số thuế: [Mã số thuế công ty]</p>
+      <h1>BIÊN LAI THANH TOÁN</h1>
+      <p>TỬ TẾ FUND — NỀN TẢNG GÂY QUỸ CỘNG ĐỒNG</p>
+      <p>Chứng từ nội bộ · không phải hóa đơn GTGT</p>
     </div>
 
     <div class="invoice-info">
@@ -194,13 +193,13 @@ export function generateInvoiceHTML(invoice: any): string {
     </table>
 
     <div class="stamp">
-      <p>Hóa đơn được tạo tự động bởi hệ thống</p>
+      <p>Biên lai được tạo tự động để đối chiếu thanh toán. Không phải hóa đơn GTGT.</p>
       <p>Ngày in: ${formatDate(new Date())}</p>
     </div>
 
     <div class="footer">
-      <p>Cảm ơn bạn đã ủng hộ dự án trên Crowdfunding VN!</p>
-      <p>Mọi thắc mắc vui lòng liên hệ: support@crowdfundingvn.com</p>
+      <p>Cảm ơn bạn đã ủng hộ trên Tử Tế Fund.</p>
+      <p>Hóa đơn GTGT (nếu cần) do Creator xuất. Mọi thắc mắc: hello@tutefund.vn</p>
     </div>
   </div>
 </body>

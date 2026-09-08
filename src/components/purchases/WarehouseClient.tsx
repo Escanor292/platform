@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { BookOpen, Download, Gamepad2, Image as ImageIcon, KeyRound, Mail, PackageOpen, Video } from "lucide-react";
+import { BookOpen, Download, FileCheck, Gamepad2, Image as ImageIcon, KeyRound, Mail, PackageOpen, Video } from "lucide-react";
 import { formatVND } from "@/lib/utils";
 import { warehouseCategory, warehouseCategoryLabel, type WarehouseCategory } from "@/lib/warehouse-ui";
 
@@ -18,9 +18,10 @@ export type WarehouseItem = {
   assetUrl?: string | null;
   licenseKey?: string | null;
   status?: string | null;
+  href?: string | null;
 };
 
-const FILTERS: WarehouseCategory[] = ["all", "game", "comic", "image", "video", "ebook", "key"];
+const FILTERS: WarehouseCategory[] = ["all", "certificate", "game", "comic", "image", "video", "ebook", "key"];
 
 function TypeIcon({ category }: { category: Exclude<WarehouseCategory, "all"> }) {
   const common = { size: 16 };
@@ -30,6 +31,7 @@ function TypeIcon({ category }: { category: Exclude<WarehouseCategory, "all"> })
   if (category === "video") return <Video {...common} />;
   if (category === "ebook") return <BookOpen {...common} />;
   if (category === "key") return <KeyRound {...common} />;
+  if (category === "certificate") return <FileCheck {...common} />;
   return <Download {...common} />;
 }
 
@@ -100,7 +102,11 @@ export default function WarehouseClient({ items, highlightId }: { items: Warehou
                   </div>
                 </div>
                 <div className="border-t border-gray-50 bg-cream/40 px-5 py-4">
-                  {item.licenseKey ? (
+                  {item.href ? (
+                    <Link href={item.href} className="inline-flex items-center gap-2 font-semibold text-pgreen hover:underline">
+                      <FileCheck size={16} /> Xem chứng từ
+                    </Link>
+                  ) : item.licenseKey ? (
                     <p className="rounded-xl bg-white px-3 py-2 font-mono text-sm text-dblue">{item.licenseKey}</p>
                   ) : item.assetUrl ? (
                     <a href={item.assetUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-semibold text-pgreen hover:underline">

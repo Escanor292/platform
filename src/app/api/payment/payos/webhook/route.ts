@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog } from "@/lib/audit";
 import { recalculateCampaignAmount } from "@/lib/order-fulfillment";
-import { grantDigitalWarehouseItem } from "@/lib/digital-warehouse";
+import { onPledgeSuccess } from "@/lib/tax/on-pledge-success";
 import crypto from "crypto";
 
 export async function POST(request: NextRequest) {
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (pledge.status === "SUCCESS" && pledge.webhookProcessedAt) {
-      await grantDigitalWarehouseItem(pledge.id);
+      await onPledgeSuccess(pledge.id);
       return NextResponse.json({ success: true, message: "Already processed" });
     }
 
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
         metadata: { orderCode, reference, transactionDateTime, webhookRequestId: requestId },
       });
 
-      await grantDigitalWarehouseItem(pledge.id);
+      await onPledgeSuccess(pledge.id);
 
       return NextResponse.json({
         success: true,
