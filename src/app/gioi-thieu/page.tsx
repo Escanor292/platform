@@ -1,5 +1,12 @@
 import Link from "next/link";
 import { HeartHandshake, Eye, ShieldCheck, Users, Sparkles, HandHeart, ArrowRight, CheckCircle2 } from "lucide-react";
+import { buildSocialMetadata } from "@/lib/seo";
+
+export const metadata = buildSocialMetadata({
+  title: "Giới thiệu",
+  description: "Tử Tế Fund kết nối người có ý tưởng, dự án hoặc hoàn cảnh cần hỗ trợ với cộng đồng sẵn sàng đồng hành.",
+  path: "/gioi-thieu",
+});
 
 export default function GioiThieuPage() {
   return (

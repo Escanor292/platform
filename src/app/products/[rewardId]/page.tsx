@@ -5,6 +5,7 @@
  */
 
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import {
   ShieldCheck,
   Package,
@@ -28,9 +29,32 @@ import { ProductPurchaseButton } from '@/components/products/ProductPurchaseButt
 import CampaignRewardDonationButton from '@/components/products/CampaignRewardDonationButton';
 import QuickAddToCartButton from '@/components/products/QuickAddToCartButton';
 import ProductReviews from '@/components/products/ProductReviews';
+import { absoluteUrl, buildSocialMetadata } from '@/lib/seo';
 
 function daysBetween(a: Date, b: Date): number {
   return Math.ceil((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ rewardId: string }>;
+}): Promise<Metadata> {
+  const { rewardId } = await params;
+  const reward = await prisma.rewards.findUnique({
+    where: { id: rewardId },
+    select: { title: true, description: true, productImages: true, isActive: true, updatedAt: true },
+  });
+  if (!reward || !reward.isActive) {
+    return { title: 'Sản phẩm', robots: { index: false, follow: false } };
+  }
+  return buildSocialMetadata({
+    title: reward.title,
+    description: reward.description,
+    path: `/products/${rewardId}`,
+    image: reward.productImages?.[0],
+    modifiedTime: reward.updatedAt.toISOString(),
+  });
 }
 
 export default async function ProductDetailPage({
@@ -101,7 +125,7 @@ export default async function ProductDetailPage({
       )
     : 0;
 
-  const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://platform-guypmwy3d-escanor292s-projects.vercel.app'}/products/${reward.id}`;
+  const shareUrl = absoluteUrl(`/products/${reward.id}`);
 
   // Kiểm tra quyền chủ sở hữu (cho chỉnh sửa nhanh tại chỗ)
   const session = await auth();

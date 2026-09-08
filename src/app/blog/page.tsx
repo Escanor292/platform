@@ -5,6 +5,13 @@ import { getBlogPostList } from '@/lib/blog/blog.service';
 import { auth } from '@/lib/auth';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
+import { buildSocialMetadata } from '@/lib/seo';
+
+export const metadata = buildSocialMetadata({
+  title: 'Blog',
+  description: 'Câu chuyện, thông báo và nhật ký tác động từ cộng đồng Tử Tế Fund.',
+  path: '/blog',
+});
 
 async function getBlogPosts(searchParams: any) {
   try {

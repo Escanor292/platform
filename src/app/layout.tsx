@@ -11,6 +11,9 @@ import PlatformHelpAssistant from "@/components/public/PlatformHelpAssistant";
 import PlatformAssistantGate from "@/components/public/PlatformAssistantGate";
 import ProfileThemeShell from "@/components/profile/ProfileThemeShell";
 import { Toaster } from "sonner";
+import { Ga4Script } from "@/components/seo/Ga4Script";
+import { getGa4MeasurementId } from "@/lib/platform-settings";
+import { DEFAULT_OG_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, getSiteUrl } from "@/lib/seo";
 
 const playfair = Playfair_Display({
   subsets: ["latin", "vietnamese"],
@@ -35,25 +38,52 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+const siteUrl = getSiteUrl();
+
 export const metadata: Metadata = {
-  title: "TửTế Fund - Lấy sự tử tế trồng tương lai | Nền tảng gây quỹ cộng đồng #2 Việt Nam",
-  description: "Lấy sự tử tế trồng tương lai. Nền tảng gây quỹ cộng đồng minh bạch #2 Việt Nam.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: `${SITE_NAME} - ${SITE_TAGLINE} | Nền tảng gây quỹ cộng đồng`,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
   manifest: "/manifest.json",
+  applicationName: SITE_NAME,
+  keywords: ["gây quỹ", "crowdfunding", "Tử Tế Fund", "chiến dịch", "từ thiện", "Việt Nam"],
+  openGraph: {
+    type: "website",
+    locale: "vi_VN",
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} - ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
+    url: siteUrl,
+    images: [{ url: DEFAULT_OG_PATH, width: 1200, height: 630, alt: SITE_NAME }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} - ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
+    images: [DEFAULT_OG_PATH],
+  },
+  robots: { index: true, follow: true },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "TửTế Fund",
+    title: SITE_NAME,
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const ga4MeasurementId = await getGa4MeasurementId();
+
   return (
     <html lang="vi">
       <body className={`${playfair.variable} ${sourceSans.variable}`}>
+        <Ga4Script measurementId={ga4MeasurementId} />
         <Providers>
           <CartProvider>
           <Toaster position="top-center" richColors theme="light" />

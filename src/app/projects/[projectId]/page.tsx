@@ -1,12 +1,33 @@
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import { auth } from '@/lib/auth';
 import ProjectDetailClient from './ProjectDetailClient';
 import { PublicProjectDetail } from '@/types/project-detail';
 import OwnerEditPanel from '@/components/OwnerEditPanel';
 import { ProjectDetailPageClient } from './ProjectDetailPageClient';
+import { buildSocialMetadata } from '@/lib/seo';
 
 interface ProjectPageProps {
     params: Promise<{ projectId: string }>;
+}
+
+export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
+    const { projectId } = await params;
+    const { prisma } = await import('@/lib/prisma');
+    const project = await prisma.projects.findUnique({
+        where: { id: projectId },
+        select: { title: true, description: true, coverImage: true, isLocked: true, updatedAt: true },
+    });
+    if (!project || project.isLocked) {
+        return { title: 'Dự án', robots: { index: false, follow: false } };
+    }
+    return buildSocialMetadata({
+        title: project.title,
+        description: project.description,
+        path: `/projects/${projectId}`,
+        image: project.coverImage,
+        modifiedTime: project.updatedAt.toISOString(),
+    });
 }
 
 async function getProjectDetail(projectId: string): Promise<PublicProjectDetail | null> {

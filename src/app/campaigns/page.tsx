@@ -6,6 +6,13 @@ import CampaignGrowthProgress from "@/components/campaign/CampaignGrowthProgress
 import CreatorLink from "@/components/campaign/CreatorLink";
 import { Tag, Layers } from "lucide-react";
 import { getCampaignTypeLabel } from "@/lib/campaign-helpers";
+import { buildSocialMetadata } from "@/lib/seo";
+
+export const metadata = buildSocialMetadata({
+  title: "Khám phá chiến dịch",
+  description: "Các chiến dịch gây quỹ đang mở trên Tử Tế Fund. Ủng hộ ý tưởng, hoàn cảnh và sản phẩm tử tế.",
+  path: "/campaigns",
+});
 
 export default async function CampaignsPage() {
   const campaigns = await prisma.campaigns.findMany({

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import prisma from "@/lib/prisma";
 import { formatVND, formatDate } from "@/lib/utils";
 import CampaignGrowthProgress from "@/components/campaign/CampaignGrowthProgress";
@@ -16,8 +17,37 @@ import { getCampaignTypeLabel } from "@/lib/campaign-helpers";
 import OwnerEditPanel from "@/components/OwnerEditPanel";
 import { isPublicCampaignStatus, campaignModerationLabel } from "@/lib/moderation/policy";
 import { getCampaignReviewFields } from "@/lib/moderation/campaign-review";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { absoluteUrl, buildSocialMetadata, pickImageUrl, toPlainDescription } from "@/lib/seo";
 
 type Params = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+   const { slug } = await params;
+   const campaign = await prisma.campaigns.findFirst({
+      where: { OR: [{ slug }, { id: slug }] },
+      select: {
+         title: true,
+         slug: true,
+         description: true,
+         imageUrl: true,
+         images: true,
+         status: true,
+         updatedAt: true,
+      },
+   });
+   if (!campaign || !isPublicCampaignStatus(campaign.status)) {
+      return { title: "Chiến dịch", robots: { index: false, follow: false } };
+   }
+   return buildSocialMetadata({
+      title: campaign.title,
+      description: campaign.description,
+      path: `/campaigns/${campaign.slug}`,
+      image: campaign.imageUrl || campaign.images?.[0],
+      type: "article",
+      modifiedTime: campaign.updatedAt.toISOString(),
+   });
+}
 
 export default async function CampaignDetailPage({ params }: Params) {
    const { slug } = await params;
@@ -132,6 +162,19 @@ export default async function CampaignDetailPage({ params }: Params) {
    return (
       <CampaignProvider>
          <div className="min-h-screen bg-gray-50">
+            {isPublicCampaignStatus(campaign.status) && (
+               <JsonLd
+                  data={{
+                     "@context": "https://schema.org",
+                     "@type": "WebPage",
+                     name: campaign.title,
+                     description: toPlainDescription(campaign.description),
+                     url: absoluteUrl(`/campaigns/${campaign.slug}`),
+                     image: pickImageUrl(campaign.imageUrl, campaign.images?.[0]),
+                     isPartOf: { "@type": "WebSite", name: "Tử Tế Fund" },
+                  }}
+               />
+            )}
             {/* Header with breadcrumb */}
             <div className="border-b border-gray-200 bg-white pt-20">
                <div className="max-w-7xl mx-auto px-6 py-4">

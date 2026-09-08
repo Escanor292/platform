@@ -8,7 +8,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { Eye, Heart, Bookmark, Share2, Clock } from 'lucide-react';
+import { Eye, Heart, Bookmark, Clock } from 'lucide-react';
 import { BlogPostResponse } from '@/types/blog.types';
 import { BlogCommentSection } from '@/components/blog/BlogCommentSection';
 import { Metadata } from 'next';
@@ -17,6 +17,9 @@ import { ProductBoxRenderer } from '@/components/shared/ProductBoxRenderer';
 import { auth } from '@/lib/auth';
 import BlogDetailPageClient from './BlogDetailPageClient';
 import ReportButton from '@/components/report/ReportButton';
+import { ShareButton } from '@/components/seo/ShareButton';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { absoluteUrl, buildSocialMetadata } from '@/lib/seo';
 import {
   getBlogPostBySlug,
   getBlogPostList,
@@ -58,7 +61,6 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
   try {
     const { post } = await getBlogPost(slug);
@@ -72,51 +74,20 @@ export async function generateMetadata({
       };
     }
 
-    const title = `${post.title} | TừTế Fund Blog`;
-    const description = post.excerpt || post.content?.substring(0, 160) || '';
-    const url = `${baseUrl}/blog/${slug}`;
-    const imageUrl = post.coverImage || `${baseUrl}/og-image.jpg`;
-
-    return {
-      title,
-      description,
-      alternates: {
-        canonical: url,
-      },
-      openGraph: {
-        title,
-        description,
-        url,
-        siteName: 'TừTế Fund',
-        locale: 'vi_VN',
-        type: 'article',
-        publishedTime: post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
-        modifiedTime: new Date(post.updatedAt).toISOString(),
-        authors: [post.author?.name || ''],
-        images: [
-          {
-            url: imageUrl,
-            width: 1200,
-            height: 630,
-            alt: post.title,
-          },
-        ],
-      } as const,
-      twitter: {
-        card: 'summary_large_image',
-        title,
-        description,
-        images: [imageUrl],
-      },
-      robots: {
-        index: true,
-        follow: true,
-      },
-    };
+    return buildSocialMetadata({
+      title: post.title,
+      description: post.excerpt || post.content,
+      path: `/blog/${slug}`,
+      image: post.coverImage,
+      type: 'article',
+      publishedTime: post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
+      modifiedTime: new Date(post.updatedAt).toISOString(),
+      authors: post.author?.name ? [post.author.name] : undefined,
+    });
   } catch (error) {
     return {
-      title: 'Blog | TừTế Fund',
-      description: 'Tin tức, câu chuyện và cập nhật từ cộng đồng crowdfunding TừTế Fund',
+      title: 'Blog',
+      description: 'Tin tức, câu chuyện và cập nhật từ cộng đồng gây quỹ Tử Tế Fund',
     };
   }
 }
@@ -293,9 +264,12 @@ export default async function BlogDetailPage({
                 <button className="rounded-full p-2 transition-colors hover:bg-gray-100">
                   <Bookmark className="w-5 h-5" />
                 </button>
-                <button className="rounded-full p-2 transition-colors hover:bg-gray-100">
-                  <Share2 className="w-5 h-5" />
-                </button>
+                <ShareButton
+                  title={post.title}
+                  text={post.excerpt || post.title}
+                  path={`/blog/${post.slug}`}
+                  className="rounded-full p-2 transition-colors hover:bg-gray-100"
+                />
                 <ReportButton
                   targetType="BLOG"
                   targetId={post.id}
@@ -449,24 +423,20 @@ export default async function BlogDetailPage({
           {/* Comments Section */}
           <BlogCommentSection postSlug={post.slug} />
 
-          {/* JSON-LD Structured Data */}
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify({
-                '@context': 'https://schema.org',
-                '@type': 'BlogPosting',
-                headline: post.title,
-                description: post.excerpt || '',
-                image: post.coverImage,
-                author: {
-                  '@type': 'Person',
-                  name: post.author?.name || '',
-                },
-                datePublished: post.publishedAt,
-                dateModified: post.updatedAt,
-                url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/blog/${post.slug}`,
-              }),
+          <JsonLd
+            data={{
+              '@context': 'https://schema.org',
+              '@type': 'BlogPosting',
+              headline: post.title,
+              description: post.excerpt || '',
+              image: post.coverImage,
+              author: {
+                '@type': 'Person',
+                name: post.author?.name || '',
+              },
+              datePublished: post.publishedAt,
+              dateModified: post.updatedAt,
+              url: absoluteUrl(`/blog/${post.slug}`),
             }}
           />
         </article>
