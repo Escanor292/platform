@@ -628,10 +628,10 @@ export function ProjectFormDialog({
                       onClick={() => {
                         const escapeHtml = (value: string) =>
                           value
-                            .replace(/&/g, "&")
-                            .replace(/</g, "<")
-                            .replace(/>/g, ">")
-                            .replace(/"/g, """);
+                            .replace(/&/g, "\u0026amp;")
+                            .replace(/</g, "\u0026lt;")
+                            .replace(/>/g, "\u0026gt;")
+                            .replace(/"/g, "\u0026quot;");
                         const html = fixtureSections
                           .map((section) => `<h2>${escapeHtml(section.title)}</h2>${section.body ? `<p>${escapeHtml(section.body)}</p>` : ""}`)
                           .join("");

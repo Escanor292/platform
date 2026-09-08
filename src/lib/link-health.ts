@@ -7,7 +7,7 @@ const SKIP_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
 export function normalizeHttpUrl(raw: string): string | null {
   const trimmed = String(raw || "")
     .trim()
-    .replace(/&/g, "&")
+    .replace(/\u0026amp;/g, "\u0026")
     .replace(/[.,;:!?)\\]+$/g, "");
   if (!trimmed || trimmed.startsWith("/") || trimmed.startsWith("#") || trimmed.startsWith("mailto:") || trimmed.startsWith("tel:") || trimmed.startsWith("javascript:") || trimmed.startsWith("data:")) {
     return null;
