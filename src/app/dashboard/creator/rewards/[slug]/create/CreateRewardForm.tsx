@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Gift, Package, Calendar, FileText, Eye, EyeOff } from "lucide-react";
+import { Gift, Package, Calendar, Eye, EyeOff } from "lucide-react";
 import { DateInput } from "@/components/shared/DateInput";
 import { CurrencyInput } from "@/components/shared/CurrencyInput";
 
@@ -39,7 +39,7 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (formData.isPreorder && !formData.deliveryDate) {
-            toast.error("Vui lòng chọn ngày dự kiến giao hàng cho sản phẩm đặt trước");
+            toast.error("Vui lòng chọn ngày dự kiến giao hàng cho đơn đặt trước");
             return;
         }
         setIsLoading(true);
@@ -61,7 +61,7 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                     onlineDepositPercent: Number(formData.onlineDepositPercent),
                     codDepositPercent: Number(formData.codDepositPercent),
                     isActive: formData.isActive,
-                    availability: formData.availability,
+                    availability: formData.isPreorder ? "DEVELOPMENT" : "AVAILABLE",
                     fulfillmentType: formData.fulfillmentType,
                 }),
             });
@@ -97,13 +97,12 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                     </div>
                     <div>
                         <h2 className="text-xl font-bold text-gray-900">Thông tin quà tặng</h2>
-                        <p className="text-gray-500 text-sm">Tạo gói quà tặng hấp dẫn cho người ủng hộ</p>
+                        <p className="text-gray-500 text-sm">Có quà: giao ngay hoặc đặt trước. Ủng hộ không quà là luồng pledge riêng.</p>
                     </div>
                 </div>
             </div>
 
             <form onSubmit={handleSubmit} className="p-8 space-y-6">
-                {/* Title */}
                 <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
                         Tên quà tặng *
@@ -119,7 +118,6 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                     />
                 </div>
 
-                {/* Description */}
                 <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
                         Mô tả chi tiết
@@ -134,66 +132,45 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                     />
                 </div>
 
-                {/* Product Type */}
                 <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
-                        Loại sản phẩm/quà tặng *
+                        Khi nào giao quà *
                     </label>
                     <div className="grid gap-3 sm:grid-cols-2">
                         <button
                             type="button"
-                            onClick={() => setFormData(prev => ({ ...prev, availability: "AVAILABLE", deliveryDate: "" }))}
-                            className={`rounded-2xl border p-4 text-left transition ${formData.availability === "AVAILABLE" ? "border-pgreen bg-fgreen/10 ring-2 ring-pgreen/20" : "border-gray-200 hover:border-pgreen/40"}`}
+                            onClick={() => setFormData(prev => ({ ...prev, availability: "AVAILABLE", isPreorder: false, deliveryDate: "" }))}
+                            className={`rounded-2xl border p-4 text-left transition ${!formData.isPreorder ? "border-pgreen bg-fgreen/10 ring-2 ring-pgreen/20" : "border-gray-200 hover:border-pgreen/40"}`}
                         >
                             <div className="flex items-center gap-3">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-fgreen/15">
                                     <Package className="text-pgreen" size={20} />
                                 </div>
                                 <div>
-                                    <div className="font-semibold text-gray-900">Có sẵn</div>
-                                    <div className="text-xs text-gray-500">Mua bán như sản phẩm thương mại điện tử</div>
+                                    <div className="font-semibold text-gray-900">Giao ngay</div>
+                                    <div className="text-xs text-gray-500">Hàng có sẵn. Trả xong là giao / vào Kho đồ</div>
                                 </div>
                             </div>
                         </button>
                         <button
                             type="button"
-                            onClick={() => setFormData(prev => ({ ...prev, availability: "DEVELOPMENT" }))}
-                            className={`rounded-2xl border p-4 text-left transition ${formData.availability === "DEVELOPMENT" ? "border-dblue bg-blue-50 ring-2 ring-dblue/20" : "border-gray-200 hover:border-dblue/40"}`}
+                            onClick={() => setFormData(prev => ({ ...prev, availability: "DEVELOPMENT", isPreorder: true }))}
+                            className={`rounded-2xl border p-4 text-left transition ${formData.isPreorder ? "border-amber-400 bg-amber-50 ring-2 ring-amber-200" : "border-gray-200 hover:border-amber-300"}`}
                         >
                             <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50">
-                                    <FileText className="text-dblue" size={20} />
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100">
+                                    <Calendar className="text-amber-700" size={20} />
                                 </div>
                                 <div>
-                                    <div className="font-semibold text-gray-900">Đang phát triển</div>
-                                    <div className="text-xs text-gray-500">Ủng hộ trước, có thể cần ngày giao dự kiến</div>
+                                    <div className="font-semibold text-gray-900">Đặt trước</div>
+                                    <div className="text-xs text-gray-500">Có quà, giao đúng ngày dự kiến. Có thể thu cọc</div>
                                 </div>
                             </div>
                         </button>
                     </div>
-                </div>
-
-                {/* Pre-order toggle */}
-                <div className={`flex items-center justify-between gap-4 rounded-2xl border p-4 transition ${formData.isPreorder ? 'border-amber-300 bg-amber-50' : 'border-gray-200 bg-gray-50'}`}>
-                    <div className="flex items-center gap-3">
-                        <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${formData.isPreorder ? 'bg-amber-100' : 'bg-white'}`}>
-                            <Calendar className={formData.isPreorder ? 'text-amber-700' : 'text-gray-500'} size={20} />
-                        </div>
-                        <div>
-                            <div className="font-semibold text-gray-900">Cho phép đặt hàng trước</div>
-                            <div className="text-xs text-gray-500">Bật khi sản phẩm chưa sẵn sàng và cần giao vào một ngày dự kiến</div>
-                        </div>
-                    </div>
-                    <button
-                        type="button"
-                        role="switch"
-                        aria-checked={formData.isPreorder}
-                        aria-label="Cho phép đặt hàng trước"
-                        onClick={() => setFormData(prev => ({ ...prev, isPreorder: !prev.isPreorder, deliveryDate: prev.isPreorder ? '' : prev.deliveryDate }))}
-                        className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${formData.isPreorder ? 'bg-amber-500' : 'bg-gray-300'}`}
-                    >
-                        <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${formData.isPreorder ? 'translate-x-6' : 'translate-x-1'}`} />
-                    </button>
+                    <p className="text-xs text-gray-500 mt-2">
+                        Ủng hộ không nhận quà không tạo ở đây — dùng nút pledge không reward trên chiến dịch.
+                    </p>
                 </div>
 
                 <div>
@@ -209,10 +186,9 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                         <option value="LICENSE_KEY">Mã bản quyền — Kho đã mua</option>
                         <option value="DIGITAL_COMIC">Truyện số — Kho đã mua</option>
                     </select>
-                    <p className="text-xs text-gray-500 mt-1">COD chỉ mở cho sản phẩm vật lý có sẵn.</p>
+                    <p className="text-xs text-gray-500 mt-1">COD chỉ mở cho sản phẩm vật lý giao ngay.</p>
                 </div>
 
-                {/* Min Amount */}
                 <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
                         Mức ủng hộ tối thiểu *
@@ -231,7 +207,6 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                     </p>
                 </div>
 
-                {/* Max Quantity */}
                 <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
                         Số lượng giới hạn
@@ -248,12 +223,8 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                             className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-pgreen/30 focus:border-transparent transition"
                         />
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                        Số lượng tối đa có thể phát hành (để trống nếu không giới hạn)
-                    </p>
                 </div>
 
-                {/* Pre-order delivery date */}
                 {formData.isPreorder && <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
                         Ngày dự kiến giao hàng *
@@ -265,9 +236,6 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                         required
                         min={new Date().toISOString().split('T')[0]}
                     />
-                    <p className="text-xs text-gray-500 mt-1">
-                        Ngày này sẽ được hiển thị cho khách hàng trước khi đặt hàng.
-                    </p>
                 </div>}
 
                 {formData.isPreorder && (
@@ -285,11 +253,9 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                     </div>
                 )}
 
-                {/* Status Toggle */}
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
                     <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${formData.isActive ? 'bg-fgreen/10' : 'bg-gray-100'
-                            }`}>
+                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${formData.isActive ? 'bg-fgreen/10' : 'bg-gray-100'}`}>
                             {formData.isActive ? (
                                 <Eye className="text-pgreen" size={20} />
                             ) : (
@@ -311,17 +277,14 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                     <button
                         type="button"
                         onClick={toggleActive}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData.isActive ? 'bg-pgreen' : 'bg-gray-200'
-                            }`}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData.isActive ? 'bg-pgreen' : 'bg-gray-200'}`}
                     >
                         <span
-                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.isActive ? 'translate-x-6' : 'translate-x-1'
-                                }`}
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.isActive ? 'translate-x-6' : 'translate-x-1'}`}
                         />
                     </button>
                 </div>
 
-                {/* Submit Buttons */}
                 <div className="flex gap-4 pt-6">
                     <button
                         type="button"
