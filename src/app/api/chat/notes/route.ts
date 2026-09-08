@@ -8,7 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { getUserNotes, createUserNote } from '@/services/mongodb/chat.service';
+import { getInboxNotes, createUserNote } from '@/services/mongodb/chat.service';
 import { CreateUserNoteRequest } from '@/types/chat.types';
 
 export async function GET(request: NextRequest) {
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     const userId = session.user.id;
 
     // Get user notes
-    const notes = await getUserNotes(userId);
+    const notes = await getInboxNotes(userId);
 
     return NextResponse.json({
       notes,

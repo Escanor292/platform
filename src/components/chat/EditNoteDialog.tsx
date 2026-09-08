@@ -13,6 +13,7 @@ interface EditNoteDialogProps {
   targetUserName: string;
   existingNote?: string;
   noteId?: string;
+  onSaved?: () => void;
 }
 
 export function EditNoteDialog({
@@ -22,6 +23,7 @@ export function EditNoteDialog({
   targetUserName,
   existingNote = "",
   noteId,
+  onSaved,
 }: EditNoteDialogProps) {
   const [note, setNote] = useState(existingNote);
   const [loading, setLoading] = useState(false);
@@ -62,8 +64,7 @@ export function EditNoteDialog({
 
       if (response.ok) {
         onOpenChange(false);
-        // Reload notes in parent component
-        window.location.reload();
+        onSaved?.();
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Không thể lưu ghi chú");
@@ -79,18 +80,18 @@ export function EditNoteDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Ghi chú cho {targetUserName}</DialogTitle>
+          <DialogTitle>Ghi chú 24 giờ</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="text-sm text-gray-500">
-            Ghi chú này sẽ tự động hết hạn sau 24 giờ.
+            Ghi chú hiện trên avatar của bạn trong 24 giờ, giống ghi chú Instagram.
           </div>
 
           <Textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="Nhập ghi chú..."
+            placeholder="Bạn đang nghĩ gì?"
             className="min-h-[100px] resize-none"
             maxLength={500}
           />

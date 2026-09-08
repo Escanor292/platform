@@ -1,18 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Search, Users, MessageSquarePlus, Trash2, Edit2, Clock } from 'lucide-react';
+import { Search, Users, MessageSquarePlus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { UserAvatar } from './UserAvatar';
 import { NewMessageDialog } from './NewMessageDialog';
 import { EditNoteDialog } from './EditNoteDialog';
+import { ChatNotesTray, type InboxNote } from './ChatNotesTray';
 
 interface Message {
     id: string;
@@ -33,10 +34,15 @@ interface Conversation {
 }
 
 interface UserNote {
-    _id: string;
-    targetUserId: string;
+    _id?: string;
+    id?: string;
+    targetUserId?: string;
+    userId?: string;
     note: string;
-    expiresAt: Date;
+    expiresAt?: Date;
+    isOwn?: boolean;
+    name?: string;
+    avatar?: string;
 }
 
 interface ChatSidebarProps {
@@ -57,11 +63,10 @@ export function ChatSidebar({
     const { data: session } = useSession();
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState<'messages' | 'requests'>('messages');
-    const [notes, setNotes] = useState<UserNote[]>([]);
-    const [showNotes, setShowNotes] = useState(false);
+    const [notes, setNotes] = useState<InboxNote[]>([]);
     const [showNewMessageDialog, setShowNewMessageDialog] = useState(false);
     const [showEditNoteDialog, setShowEditNoteDialog] = useState(false);
-    const [selectedNoteUser, setSelectedNoteUser] = useState<{ id: string; name: string; note?: string } | null>(null);
+    const [ownNoteDraft, setOwnNoteDraft] = useState<string | undefined>(undefined);
 
     // Filter conversations based on search
     const filteredConversations = conversations.filter((conv) =>
@@ -92,26 +97,30 @@ export function ChatSidebar({
         return text.slice(0, maxLength) + '...';
     };
 
-    // Load user notes
+    // Load inbox notes (Instagram-style tray)
     const loadNotes = async () => {
         try {
             const response = await fetch('/api/chat/notes');
             if (response.ok) {
                 const data = await response.json();
-                setNotes(data.notes);
+                const list = (data.notes || []).map((note: UserNote) => ({
+                    id: String(note.id || note._id || note.userId),
+                    userId: String(note.userId || note.targetUserId || ''),
+                    note: note.note,
+                    isOwn: Boolean(note.isOwn),
+                    name: note.name || 'Người dùng',
+                    avatar: note.avatar,
+                }));
+                setNotes(list);
             }
         } catch (error) {
             console.error('Failed to load notes:', error);
         }
     };
 
-    // Toggle notes section
-    const toggleNotes = () => {
-        if (!showNotes) {
-            loadNotes();
-        }
-        setShowNotes(!showNotes);
-    };
+    useEffect(() => {
+        loadNotes();
+    }, []);
 
     // Delete conversation
     const handleDeleteConversation = async (conversationId: string) => {
@@ -177,6 +186,24 @@ export function ChatSidebar({
                 </div>
             </div>
 
+            {/* Instagram-style 24h notes above avatars */}
+            <ChatNotesTray
+                notes={notes}
+                currentUser={{
+                    id: session?.user?.id,
+                    name: session?.user?.name,
+                    image: session?.user?.image,
+                }}
+                onEditOwn={(existing) => {
+                    setOwnNoteDraft(existing);
+                    setShowEditNoteDialog(true);
+                }}
+                onOpenUser={(userId) => {
+                    const match = conversations.find((c) => c.userId === userId);
+                    if (match) onSelectConversation(match.id);
+                }}
+            />
+
             {/* Tabs */}
             <div className="flex border-b">
                 <button
@@ -201,36 +228,6 @@ export function ChatSidebar({
                 >
                     Yêu cầu
                 </button>
-            </div>
-
-            {/* 24h Notes Section */}
-            <div className="border-b">
-                <button
-                    onClick={toggleNotes}
-                    className="w-full px-4 py-2 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                >
-                    <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-gray-500" />
-                        <span className="text-sm font-medium text-gray-700">Ghi chú 24h</span>
-                    </div>
-                    <Edit2 className="h-4 w-4 text-gray-400" />
-                </button>
-                {showNotes && (
-                    <div className="px-4 pb-3 space-y-2">
-                        {notes.length === 0 ? (
-                            <p className="text-xs text-gray-500">Chưa có ghi chú nào</p>
-                        ) : (
-                            notes.map((note) => (
-                                <div
-                                    key={note._id}
-                                    className="bg-yellow-50 p-2 rounded-lg text-sm text-gray-700"
-                                >
-                                    {note.note}
-                                </div>
-                            ))
-                        )}
-                    </div>
-                )}
             </div>
 
             {/* Conversations List */}
@@ -356,15 +353,14 @@ export function ChatSidebar({
             />
 
             {/* Edit Note Dialog */}
-            {selectedNoteUser && (
-                <EditNoteDialog
-                    open={showEditNoteDialog}
-                    onOpenChange={setShowEditNoteDialog}
-                    targetUserId={selectedNoteUser.id}
-                    targetUserName={selectedNoteUser.name}
-                    existingNote={selectedNoteUser.note}
-                />
-            )}
+            <EditNoteDialog
+                open={showEditNoteDialog}
+                onOpenChange={setShowEditNoteDialog}
+                targetUserId={session?.user?.id || ''}
+                targetUserName={session?.user?.name || 'Bạn'}
+                existingNote={ownNoteDraft}
+                onSaved={loadNotes}
+            />
         </div>
     );
 }

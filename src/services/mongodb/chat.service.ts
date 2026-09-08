@@ -974,9 +974,22 @@ export async function createUserNote(
     throw new Error('Target user not found');
   }
 
-  // Create note
   const now = new Date();
-  const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
+  const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+  // Upsert an active note for this author + target (Instagram-style self notes reuse one slot)
+  const existing = await userNotesCollection.findOne({
+    userId,
+    targetUserId,
+    expiresAt: { $gt: now },
+  });
+  if (existing?._id) {
+    await userNotesCollection.updateOne(
+      { _id: existing._id },
+      { $set: { note: note.trim(), expiresAt, updatedAt: now } },
+    );
+    return { ...existing, note: note.trim(), expiresAt, updatedAt: now };
+  }
 
   const newNote = {
     userId,
@@ -1009,6 +1022,68 @@ export async function getUserNotes(userId: string): Promise<any[]> {
     .toArray();
 
   return notes;
+}
+
+export async function getInboxNotes(userId: string): Promise<Array<{
+  id: string;
+  userId: string;
+  note: string;
+  expiresAt: Date;
+  isOwn: boolean;
+  name: string;
+  avatar?: string;
+}>> {
+  const db = await getDb();
+  const convos = await db.collection(CONVERSATIONS_COLLECTION)
+    .find({ participantIds: userId })
+    .project({ participantIds: 1, hiddenBy: 1 })
+    .toArray();
+  const partnerIds = [...new Set(
+    convos
+      .filter((c) => !Array.isArray(c.hiddenBy) || !c.hiddenBy.includes(userId))
+      .flatMap((c) => (c.participantIds || []).filter((id: string) => id !== userId)),
+  )];
+  const authorIds = [userId, ...partnerIds];
+  const raw = await db.collection(USER_NOTES_COLLECTION)
+    .find({
+      expiresAt: { $gt: new Date() },
+      userId: { $in: authorIds },
+    })
+    .sort({ updatedAt: -1 })
+    .toArray();
+
+  const latestByUser = new Map<string, any>();
+  for (const row of raw) {
+    const isSelf = row.userId === row.targetUserId;
+    const ownerId = isSelf ? row.userId : (row.userId === userId ? row.targetUserId : row.userId);
+    if (!authorIds.includes(ownerId)) continue;
+    const prev = latestByUser.get(ownerId);
+    if (!prev || (isSelf && !prev.isSelf)) {
+      latestByUser.set(ownerId, { ...row, ownerId, isSelf });
+    }
+  }
+
+  const owners = [...latestByUser.keys()];
+  if (owners.length === 0) return [];
+  const users = await prisma.users.findMany({
+    where: { id: { in: owners } },
+    select: { id: true, name: true, displayName: true, avatar: true },
+  });
+  const byId = new Map(users.map((u) => [u.id, u]));
+
+  return owners.map((ownerId) => {
+    const row = latestByUser.get(ownerId);
+    const user = byId.get(ownerId);
+    return {
+      id: String(row._id),
+      userId: ownerId,
+      note: String(row.note || ''),
+      expiresAt: row.expiresAt,
+      isOwn: ownerId === userId,
+      name: user?.displayName || user?.name || 'Người dùng',
+      avatar: user?.avatar || undefined,
+    };
+  }).sort((a, b) => Number(b.isOwn) - Number(a.isOwn));
 }
 
 /**
