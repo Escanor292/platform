@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { projectIdSchema } from '@/lib/project/project.validation';
-import { prisma } from '@/lib/prisma';
 import { logError } from '@/lib/project/project.errors';
 import {
     handleServiceError,
@@ -8,7 +7,7 @@ import {
     mapZodErrors,
 } from '@/lib/project/project.response-handlers';
 import { z } from 'zod';
-import { campaignRaisedAmount, sumProjectMoney } from '@/lib/money-buckets';
+import { getPublicProjectDetail } from '@/lib/project/get-public-project-detail';
 
 export async function GET(
     req: NextRequest,
@@ -27,153 +26,13 @@ export async function GET(
             throw error;
         }
 
-        const project = await prisma.projects.findUnique({
-            where: { id: validatedProjectId },
-            include: {
-                campaigns: {
-                    select: {
-                        id: true,
-                        title: true,
-                        slug: true,
-                        status: true,
-                        type: true,
-                        goalAmount: true,
-                        currentAmount: true,
-                        closedAmount: true,
-                        imageUrl: true,
-                        createdAt: true,
-                        rewards: {
-                            select: {
-                                id: true,
-                                title: true,
-                                description: true,
-                                minAmount: true,
-                                maxQuantity: true,
-                                deliveryDate: true,
-                                isPreorder: true,
-                                onlineDepositPercent: true,
-                                codDepositPercent: true,
-                                isActive: true,
-                                createdAt: true,
-                            },
-                            orderBy: { createdAt: 'asc' },
-                        },
-                    },
-                    orderBy: { createdAt: 'desc' },
-                },
-                blog_posts: {
-                    select: {
-                        id: true,
-                        title: true,
-                        slug: true,
-                        excerpt: true,
-                        coverImage: true,
-                        publishedAt: true,
-                    },
-                    orderBy: { createdAt: 'desc' },
-                },
-                project_reward_links: {
-                    select: { rewardId: true, order: true },
-                    orderBy: { order: 'asc' },
-                },
-                project_blog_links: {
-                    include: {
-                        blog_posts: {
-                            select: {
-                                id: true,
-                                title: true,
-                                slug: true,
-                                excerpt: true,
-                                coverImage: true,
-                                publishedAt: true,
-                                status: true,
-                            },
-                        },
-                    },
-                    orderBy: { order: 'asc' },
-                },
-            },
-        });
-
+        const project = await getPublicProjectDetail(validatedProjectId);
         if (!project) {
             const { notFoundResponse } = await import('@/lib/project/project.response-handlers');
             return notFoundResponse('Project not found');
         }
 
-        const campaignCount = project.campaigns.length;
-        const blogPostCount = project.blog_posts.length;
-        const money = await sumProjectMoney(project.id);
-
-        const response = {
-            id: project.id,
-            creatorId: project.creatorId,
-            title: project.title,
-            slug: project.slug,
-            description: project.description,
-            coverImage: project.coverImage,
-            richDescription: project.richDescription,
-            heroBackgroundType: project.heroBackgroundType,
-            heroBackgroundConfig: project.heroBackgroundConfig,
-            linkedBlogPostIds: project.project_blog_links.map((l) => l.blogPostId),
-            linkedRewardIds: project.project_reward_links.map((l) => l.rewardId),
-            createdAt: project.createdAt.toISOString(),
-            updatedAt: project.updatedAt.toISOString(),
-            campaignCount,
-            blogPostCount: Math.max(blogPostCount, project.project_blog_links.length),
-            campaignTotal: money.campaignTotal,
-            productTotal: money.productTotal,
-            projectTotal: money.projectTotal,
-            campaigns: project.campaigns.map((c) => ({
-                id: c.id,
-                title: c.title,
-                slug: c.slug,
-                status: c.status,
-                type: c.type,
-                goalAmount: c.goalAmount.toNumber(),
-                currentAmount: Number(c.currentAmount),
-                closedAmount: c.closedAmount != null ? Number(c.closedAmount) : null,
-                raisedAmount: campaignRaisedAmount(c),
-                imageUrl: c.imageUrl,
-                createdAt: c.createdAt.toISOString(),
-                rewards: c.rewards.map((r) => ({
-                    id: r.id,
-                    title: r.title,
-                    description: r.description,
-                    minAmount: r.minAmount.toNumber(),
-                    maxQuantity: r.maxQuantity,
-                    deliveryDate: r.deliveryDate ? r.deliveryDate.toISOString() : null,
-                    isPreorder: r.isPreorder,
-                    onlineDepositPercent: r.onlineDepositPercent,
-                    codDepositPercent: r.codDepositPercent,
-                    isActive: r.isActive,
-                    createdAt: r.createdAt.toISOString(),
-                })),
-            })),
-            blogPosts: [
-                ...project.blog_posts.map((b) => ({
-                    id: b.id,
-                    title: b.title,
-                    slug: b.slug,
-                    excerpt: b.excerpt,
-                    coverImage: b.coverImage,
-                    publishedAt: b.publishedAt ? b.publishedAt.toISOString() : null,
-                })),
-                ...project.project_blog_links
-                    .map((l) => l.blog_posts)
-                    .filter((bp): bp is NonNullable<typeof bp> => bp !== null)
-                    .filter((bp) => !project.blog_posts.some((owned) => owned.id === bp.id))
-                    .map((bp) => ({
-                        id: bp.id,
-                        title: bp.title,
-                        slug: bp.slug,
-                        excerpt: bp.excerpt,
-                        coverImage: bp.coverImage,
-                        publishedAt: bp.publishedAt ? bp.publishedAt.toISOString() : null,
-                    })),
-            ],
-        };
-
-        return NextResponse.json(response, { status: 200 });
+        return NextResponse.json(project, { status: 200 });
     } catch (error) {
         const projectId = await params.then(p => p.id).catch(() => 'unknown');
         logError(error as Error, {

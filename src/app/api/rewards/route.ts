@@ -63,6 +63,13 @@ export async function POST(req: NextRequest) {
             );
         }
 
+        if (!campaignId && !projectId) {
+            return NextResponse.json(
+                { error: "Can them chien dich hoac du an de tao san pham" },
+                { status: 400 }
+            );
+        }
+
         try {
             await assertCleanContent([title, description]);
         } catch (error: any) {
@@ -148,6 +155,22 @@ export async function POST(req: NextRequest) {
                 updatedAt: new Date(),
             },
         });
+
+        if (resolvedProjectId) {
+            await prisma.project_reward_links.upsert({
+                where: {
+                    projectId_rewardId: {
+                        projectId: resolvedProjectId,
+                        rewardId: reward.id,
+                    },
+                },
+                create: {
+                    projectId: resolvedProjectId,
+                    rewardId: reward.id,
+                },
+                update: {},
+            });
+        }
 
         return NextResponse.json({
             ...reward,

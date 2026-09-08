@@ -29,7 +29,8 @@ interface Reward {
         title: string;
         campaignCode: string;
         status: string;
-    };
+    } | null;
+    successHref?: string;
 }
 
 interface EditRewardFormProps {
@@ -89,7 +90,10 @@ export default function EditRewardForm({ reward }: EditRewardFormProps) {
             }
 
             toast.success("Cập nhật quà tặng thành công!");
-            router.push(`/dashboard/creator/rewards/${reward.campaign.slug}`);
+            router.push(
+                reward.successHref
+                || (reward.campaign ? `/dashboard/creator/rewards/${reward.campaign.slug}` : "/dashboard/creator/projects")
+            );
         } catch (error) {
             toast.error("Lỗi cập nhật quà tặng");
         } finally {

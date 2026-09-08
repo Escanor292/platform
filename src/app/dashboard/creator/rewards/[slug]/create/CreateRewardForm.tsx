@@ -16,10 +16,12 @@ interface Campaign {
 }
 
 interface CreateRewardFormProps {
-    campaign: Campaign;
+    campaign?: Campaign | null;
+    projectId?: string;
+    successHref?: string;
 }
 
-export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
+export default function CreateRewardForm({ campaign, projectId, successHref }: CreateRewardFormProps) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -38,6 +40,10 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!campaign?.id && !projectId) {
+            toast.error("Thiếu chiến dịch hoặc dự án để gắn sản phẩm");
+            return;
+        }
         if (formData.isPreorder && !formData.deliveryDate) {
             toast.error("Vui lòng chọn ngày dự kiến giao hàng cho đơn đặt trước");
             return;
@@ -51,7 +57,8 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    campaignId: campaign.id,
+                    campaignId: campaign?.id || undefined,
+                    projectId: projectId || undefined,
                     title: formData.title,
                     description: formData.description || null,
                     minAmount: parseFloat(formData.minAmount),
@@ -63,6 +70,7 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                     isActive: formData.isActive,
                     availability: formData.isPreorder ? "DEVELOPMENT" : "AVAILABLE",
                     fulfillmentType: formData.fulfillmentType,
+                    isIncludedInProject: Boolean(projectId || campaign?.id),
                 }),
             });
 
@@ -70,8 +78,8 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                 throw new Error("Failed to create reward");
             }
 
-            toast.success("Tạo quà tặng thành công!");
-            router.push(`/dashboard/creator/rewards/${campaign.slug}`);
+            toast.success(projectId && !campaign ? "Tạo sản phẩm dự án thành công!" : "Tạo quà tặng thành công!");
+            router.push(successHref || (campaign ? `/dashboard/creator/rewards/${campaign.slug}` : "/dashboard/creator/projects"));
         } catch (error) {
             toast.error("Lỗi tạo quà tặng");
         } finally {
@@ -96,8 +104,8 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                         <Gift className="text-pgreen" size={24} />
                     </div>
                     <div>
-                        <h2 className="text-xl font-bold text-gray-900">Thông tin quà tặng</h2>
-                        <p className="text-gray-500 text-sm">Có quà: giao ngay hoặc đặt trước. Ủng hộ không quà là luồng pledge riêng.</p>
+                        <h2 className="text-xl font-bold text-gray-900">{projectId && !campaign ? "Thông tin sản phẩm" : "Thông tin quà tặng"}</h2>
+                        <p className="text-gray-500 text-sm">{projectId && !campaign ? "Sản phẩm thuộc dự án, bán độc lập hoặc gắn thêm vào chiến dịch sau." : "Có quà: giao ngay hoặc đặt trước. Ủng hộ không quà là luồng pledge riêng."}</p>
                     </div>
                 </div>
             </div>
@@ -298,7 +306,7 @@ export default function CreateRewardForm({ campaign }: CreateRewardFormProps) {
                         disabled={isLoading || !formData.title || !formData.minAmount}
                         className="flex-1 px-6 py-3 gradient-green text-white rounded-2xl font-semibold hover:shadow-lg hover:shadow-green-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {isLoading ? 'Đang tạo...' : 'Tạo quà tặng'}
+                        {isLoading ? 'Đang tạo...' : (projectId && !campaign ? 'Tạo sản phẩm' : 'Tạo quà tặng')}
                     </button>
                 </div>
             </form>

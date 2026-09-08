@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import Link from "next/link";
 import {
   Dialog,
   DialogContent,
@@ -18,6 +19,9 @@ import RichTextRenderer from "@/components/shared/RichTextRenderer";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { fixtureFromSections, isTipTapDoc, parseFixtureSections, type FixtureSection } from "@/lib/project/rich-text";
+import { generateHTML } from "@tiptap/core";
+import StarterKit from "@tiptap/starter-kit";
 
 import {
   Loader2,
@@ -59,6 +63,7 @@ interface Reward {
   minAmount: number;
   isActive: boolean;
   campaignTitle?: string;
+  campaignSlug?: string | null;
   imageUrl?: string | null;
 }
 
@@ -78,7 +83,20 @@ interface ProjectFormDialogProps {
     linkedBlogPostIds: string[];
     linkedRewardIds: string[];
   } | null;
+  defaultTab?: string;
   onSuccess: () => void;
+}
+
+function toEditorHtml(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (isTipTapDoc(value)) {
+    try {
+      return generateHTML(value as any, [StarterKit]);
+    } catch {
+      return "";
+    }
+  }
+  return "";
 }
 
 /**
@@ -89,11 +107,12 @@ export function ProjectFormDialog({
   open,
   onOpenChange,
   project,
+  defaultTab = "basic",
   onSuccess,
 }: ProjectFormDialogProps) {
   const isEdit = Boolean(project);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("basic");
+  const [activeTab, setActiveTab] = useState(defaultTab);
 
   // Basic info
   const [title, setTitle] = useState("");
@@ -103,6 +122,7 @@ export function ProjectFormDialog({
   // Media & rich description
   const [coverImage, setCoverImage] = useState("");
   const [richDescription, setRichDescription] = useState("");
+  const [fixtureSections, setFixtureSections] = useState<FixtureSection[] | null>(null);
 
   // Hero background (image or multi-color gradient)
   const [heroBgType, setHeroBgType] = useState<"image" | "color">("image");
@@ -120,16 +140,20 @@ export function ProjectFormDialog({
   // Initialize form from existing project
   useEffect(() => {
     if (!open) return;
+    setActiveTab(defaultTab || "basic");
     if (project) {
       setTitle(project.title);
       setSlug(project.slug || "");
       setDescription(project.description || "");
       setCoverImage(project.coverImage || "");
-      setRichDescription(
-        typeof project.richDescription === "string"
-          ? project.richDescription
-          : ""
-      );
+      const fixture = parseFixtureSections(project.richDescription);
+      if (fixture) {
+        setFixtureSections(fixture);
+        setRichDescription("");
+      } else {
+        setFixtureSections(null);
+        setRichDescription(toEditorHtml(project.richDescription));
+      }
       setSelectedBlogIds(project.linkedBlogPostIds || []);
       setSelectedRewardIds(project.linkedRewardIds || []);
       setHeroBgType(project.heroBackgroundType === "color" ? "color" : "image");
@@ -150,7 +174,7 @@ export function ProjectFormDialog({
       fetchBlogPosts();
       fetchRewards();
     }
-  }, [open, project?.id]);
+  }, [open, project?.id, defaultTab]);
 
   const resetForm = () => {
     setTitle("");
@@ -158,6 +182,7 @@ export function ProjectFormDialog({
     setDescription("");
     setCoverImage("");
     setRichDescription("");
+    setFixtureSections(null);
     setHeroBgType("image");
     setHeroBgColors([]);
     setHeroBgAngle(135);
@@ -190,14 +215,22 @@ export function ProjectFormDialog({
       const data = await res.json();
       if (res.ok) {
         const all: Reward[] = [];
-        (data.campaigns || []).forEach((c: any) => {
-          (c.rewards || []).forEach((r: any) => {
-            all.push({
-              ...r,
-              campaignTitle: c.title,
-              imageUrl: r.imageUrl || null,
-            });
+        const seen = new Set<string>();
+        const pushReward = (r: any, campaignTitle?: string, campaignSlug?: string | null) => {
+          if (!r?.id || seen.has(r.id)) return;
+          seen.add(r.id);
+          all.push({
+            ...r,
+            campaignTitle,
+            campaignSlug: campaignSlug || null,
+            imageUrl: r.imageUrl || (Array.isArray(r.productImages) && r.productImages[0]) || null,
           });
+        };
+        (data.campaigns || []).forEach((c: any) => {
+          (c.rewards || []).forEach((r: any) => pushReward(r, c.title, c.slug));
+        });
+        (data.projectsWithRewards || []).forEach((p: any) => {
+          (p.rewards || []).forEach((r: any) => pushReward(r, p.title || "Sản phẩm dự án", null));
         });
         setRewards(all);
       }
@@ -239,7 +272,9 @@ export function ProjectFormDialog({
         description: description.trim() || undefined,
         slug: slug.trim() || undefined,
         coverImage: coverImage || undefined,
-        richDescription: richDescription || undefined,
+        richDescription: fixtureSections
+          ? fixtureFromSections(fixtureSections)
+          : (richDescription || undefined),
         heroBackgroundType: heroBgType,
         heroBackgroundConfig:
           heroBgType === "color"
@@ -548,26 +583,94 @@ export function ProjectFormDialog({
                 Nội dung chi tiết của dự án hiển thị trên trang công khai. Hỗ trợ định dạng chữ,
                 tiêu đề, danh sách, ảnh, video và khung sản phẩm.
               </p>
-              <div className="border border-gray-200 rounded-2xl overflow-hidden">
-                <ProductionEditor
-                  content={richDescription}
-                  onChange={setRichDescription}
-                  config={{
-                    placeholder: "Viết mô tả chi tiết cho dự án của bạn...",
-                    autosave: false,
-                    enableBubbleMenu: true,
-                  }}
-                />
-              </div>
-              {richDescription && (
-                <details className="mt-4 group">
-                  <summary className="text-xs font-semibold text-gray-500 cursor-pointer hover:text-blue-600 select-none">
-                    Xem trước nội dung đã soạn
-                  </summary>
-                  <div className="mt-3 border border-gray-100 rounded-2xl p-6 bg-gray-50/50">
-                    <RichTextRenderer content={richDescription} />
+              {fixtureSections ? (
+                <div className="space-y-4 border border-gray-200 rounded-2xl p-5 bg-gray-50/50">
+                  <p className="text-sm text-gray-600">
+                    Dự án đang dùng các mục giới thiệu sẵn. Bạn có thể sửa tiêu đề, thêm nội dung từng mục,
+                    hoặc chuyển sang trình soạn thảo phong phú.
+                  </p>
+                  {fixtureSections.map((section, index) => (
+                    <div key={`${section.title}-${index}`} className="space-y-2 rounded-xl border border-gray-200 bg-white p-4">
+                      <Input
+                        value={section.title}
+                        onChange={(event) => {
+                          const next = [...fixtureSections];
+                          next[index] = { ...next[index], title: event.target.value };
+                          setFixtureSections(next);
+                        }}
+                        className="h-11 font-semibold"
+                      />
+                      <Textarea
+                        value={section.body}
+                        onChange={(event) => {
+                          const next = [...fixtureSections];
+                          next[index] = { ...next[index], body: event.target.value };
+                          setFixtureSections(next);
+                        }}
+                        rows={3}
+                        placeholder="Nội dung mục này (không bắt buộc)"
+                      />
+                    </div>
+                  ))}
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setFixtureSections([
+                        ...fixtureSections,
+                        { title: `Mục ${fixtureSections.length + 1}`, body: "" },
+                      ])}
+                      className="text-sm font-bold text-purple-600 hover:text-purple-700"
+                    >
+                      Thêm mục
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const escapeHtml = (value: string) =>
+                          value
+                            .replace(/&/g, "&")
+                            .replace(/</g, "<")
+                            .replace(/>/g, ">")
+                            .replace(/"/g, """);
+                        const html = fixtureSections
+                          .map((section) => `<h2>${escapeHtml(section.title)}</h2>${section.body ? `<p>${escapeHtml(section.body)}</p>` : ""}`)
+                          .join("");
+                        setRichDescription(html);
+                        setFixtureSections(null);
+                      }}
+                      className="text-sm font-bold text-gray-600 hover:text-gray-800"
+                    >
+                      Chuyển sang soạn thảo phong phú
+                    </button>
                   </div>
-                </details>
+                  <div className="border border-gray-100 rounded-2xl p-6 bg-white">
+                    <RichTextRenderer content={fixtureFromSections(fixtureSections)} />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="border border-gray-200 rounded-2xl overflow-hidden">
+                    <ProductionEditor
+                      content={richDescription}
+                      onChange={setRichDescription}
+                      config={{
+                        placeholder: "Viết mô tả chi tiết cho dự án của bạn...",
+                        autosave: false,
+                        enableBubbleMenu: true,
+                      }}
+                    />
+                  </div>
+                  {richDescription && (
+                    <details className="mt-4 group">
+                      <summary className="text-xs font-semibold text-gray-500 cursor-pointer hover:text-blue-600 select-none">
+                        Xem trước nội dung đã soạn
+                      </summary>
+                      <div className="mt-3 border border-gray-100 rounded-2xl p-6 bg-gray-50/50">
+                        <RichTextRenderer content={richDescription} />
+                      </div>
+                    </details>
+                  )}
+                </>
               )}
             </div>
           </TabsContent>
@@ -650,8 +753,18 @@ export function ProjectFormDialog({
                 Sản phẩm liên kết ({selectedRewardIds.length})
               </label>
               <p className="text-xs text-gray-400 font-medium">
-                Chọn sản phẩm từ các chiến dịch của bạn để hiển thị trong dự án.
+                Chọn sản phẩm có sẵn của bạn để hiển thị trong dự án. Sản phẩm thuộc chiến dịch của dự án
+                vẫn hiện trên trang dự án dù không gắn tay.
               </p>
+              {project?.id && (
+                <Link
+                  href={`/dashboard/creator/projects/${project.id}/rewards/create`}
+                  className="inline-flex items-center gap-2 text-sm font-bold text-blue-600 hover:text-blue-700"
+                >
+                  <PlusCircle className="w-4 h-4" />
+                  Tạo sản phẩm mới thuộc dự án
+                </Link>
+              )}
               <ScrollArea className="h-64 rounded-2xl border border-gray-100 bg-gray-50/50">
                 <div className="p-4 space-y-2">
                   {loadingRewards ? (
@@ -706,11 +819,24 @@ export function ProjectFormDialog({
                               {r.title}
                             </p>
                             <p className="text-xs text-gray-400 truncate">
-                              Chiến dịch: {r.campaignTitle}
+                              {r.campaignTitle ? `Chiến dịch: ${r.campaignTitle}` : "Sản phẩm dự án"}
                             </p>
                           </div>
                           {selected && (
                             <Check size={16} className="text-blue-600 flex-shrink-0" />
+                          )}
+                          {project?.id && (
+                            <Link
+                              href={
+                                r.campaignSlug
+                                  ? `/dashboard/creator/rewards/${r.campaignSlug}/edit/${r.id}`
+                                  : `/dashboard/creator/projects/${project.id}/rewards/${r.id}/edit`
+                              }
+                              onClick={(event) => event.stopPropagation()}
+                              className="text-xs font-bold text-blue-600 hover:text-blue-700 flex-shrink-0"
+                            >
+                              Sửa
+                            </Link>
                           )}
                         </div>
                       );

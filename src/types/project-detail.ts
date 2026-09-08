@@ -19,8 +19,13 @@ export interface PublicProjectDetail {
     updatedAt: string;
     campaignCount: number;
     blogPostCount: number;
+    campaignTotal: number;
+    productTotal: number;
+    projectTotal: number;
+    isLocked?: boolean;
     campaigns: PublicCampaign[];
     blogPosts: PublicBlogPost[];
+    catalogRewards: PublicReward[];
 }
 
 export interface PublicCampaign {
@@ -31,8 +36,12 @@ export interface PublicCampaign {
     type: string;
     goalAmount: number;
     currentAmount: number;
+    closedAmount?: number | null;
+    raisedAmount?: number;
     imageUrl: string | null;
     createdAt: string;
+    startDate?: string | null;
+    endDate?: string | null;
     rewards: PublicReward[];
 }
 
@@ -48,6 +57,13 @@ export interface PublicReward {
     isPreorder: boolean;
     isActive: boolean;
     createdAt: string;
+    fulfillmentType?: string | null;
+    campaignId?: string | null;
+    campaignSlug?: string | null;
+    campaignTitle?: string | null;
+    campaignStatus?: string | null;
+    campaignType?: string | null;
+    projectId?: string | null;
 }
 
 export interface PublicBlogPost {

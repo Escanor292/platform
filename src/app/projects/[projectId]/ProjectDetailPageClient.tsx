@@ -10,7 +10,6 @@ import { ProjectFormDialog } from '@/components/dashboard/ProjectFormDialog';
 interface ProjectDetailPageClientProps {
   project: PublicProjectDetail;
   isOwner: boolean;
-  campaignWithRewards?: { slug: string } | undefined;
 }
 
 /**
@@ -21,10 +20,10 @@ interface ProjectDetailPageClientProps {
 export function ProjectDetailPageClient({
   project,
   isOwner,
-  campaignWithRewards,
 }: ProjectDetailPageClientProps) {
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogTab, setDialogTab] = useState('basic');
 
   const editProject = {
     id: project.id,
@@ -33,8 +32,10 @@ export function ProjectDetailPageClient({
     description: project.description,
     coverImage: project.coverImage,
     richDescription: project.richDescription,
-    linkedBlogPostIds: (project as any).linkedBlogPostIds || [],
-    linkedRewardIds: (project as any).linkedRewardIds || [],
+    heroBackgroundType: project.heroBackgroundType,
+    heroBackgroundConfig: project.heroBackgroundConfig,
+    linkedBlogPostIds: project.linkedBlogPostIds || [],
+    linkedRewardIds: project.linkedRewardIds || [],
   };
 
   return (
@@ -46,23 +47,26 @@ export function ProjectDetailPageClient({
           {
             label: 'Thông tin dự án',
             description: 'Tiêu đề, mô tả, ảnh bìa, liên kết',
-            onEdit: () => setDialogOpen(true),
+            onEdit: () => {
+              setDialogTab('basic');
+              setDialogOpen(true);
+            },
           },
-          ...(campaignWithRewards
-            ? [
-                {
-                  label: 'Sản phẩm/Rewards',
-                  editUrl: `/dashboard/creator/rewards/${campaignWithRewards.slug}`,
-                  description: 'Quản lý quà tặng',
-                },
-              ]
-            : []),
+          {
+            label: 'Sản phẩm dự án',
+            description: 'Gắn, gỡ hoặc tạo sản phẩm thuộc dự án — không cần vào chiến dịch',
+            onEdit: () => {
+              setDialogTab('links');
+              setDialogOpen(true);
+            },
+          },
         ]}
       />
       <ProjectFormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         project={dialogOpen ? editProject : null}
+        defaultTab={dialogTab}
         onSuccess={() => {
           setDialogOpen(false);
           router.refresh();

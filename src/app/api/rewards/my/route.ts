@@ -41,7 +41,6 @@ export async function GET() {
             prisma.campaigns.findMany({
                 where: {
                     creatorId,
-                    status: { in: ["ACTIVE", "SUCCESS", "DRAFT"] },
                 },
                 select: {
                     id: true,
@@ -70,6 +69,11 @@ export async function GET() {
                         where: { isActive: true },
                         orderBy: { createdAt: "asc" },
                     },
+                    project_reward_links: {
+                        select: {
+                            rewards: { select: rewardSelect },
+                        },
+                    },
                 },
                 orderBy: { createdAt: "desc" },
             }),
@@ -82,6 +86,7 @@ export async function GET() {
             soldCount: reward._count?.pledges ?? 0,
             minAmount: Number(reward.minAmount),
             maxAmount: reward.maxAmount == null ? null : Number(reward.maxAmount),
+            imageUrl: Array.isArray(reward.productImages) && reward.productImages.length > 0 ? reward.productImages[0] : null,
             _count: reward._count,
         }));
 
@@ -90,10 +95,21 @@ export async function GET() {
                 ...campaign,
                 rewards: serializeRewards(campaign.rewards),
             })),
-            projectsWithRewards: projects.map((project) => ({
-                ...project,
-                rewards: serializeRewards(project.rewards),
-            })),
+            projectsWithRewards: projects.map((project) => {
+                const { project_reward_links, rewards, ...rest } = project;
+                const linked = project_reward_links
+                    .map((link) => link.rewards)
+                    .filter((item): item is NonNullable<typeof item> => Boolean(item));
+                const byId = new Map<string, any>();
+                for (const item of [...rewards, ...linked]) {
+                    if (item?.isActive === false) continue;
+                    byId.set(item.id, item);
+                }
+                return {
+                    ...rest,
+                    rewards: serializeRewards([...byId.values()]),
+                };
+            }),
         });
     } catch (error) {
         console.error("[GET /api/rewards/my]", error);
