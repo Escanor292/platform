@@ -301,7 +301,7 @@ export async function updateTemplate(
   const title = patch.title !== undefined ? cleanText(patch.title, 60) : current.title;
   if (title.length < 2) throw new Error("Đặt tên mẫu ít nhất 2 ký tự.");
   const description = patch.description !== undefined ? cleanText(patch.description, 200) : current.description;
-  let visibility = patch.visibility || current.visibility;
+  const visibility = patch.visibility || current.visibility;
   if (visibility === "PUBLIC" && !opts.canPublish && !opts.isAdmin) {
     throw new Error("Tài khoản này chưa được chia sẻ mẫu công khai.");
   }
