@@ -45,6 +45,8 @@ interface PledgeFormContentProps {
 }
 
 const PLATFORM_TIP_OPTIONS = [0, 5, 10, 15];
+const SLIDER_TIP_MAX = 100;
+const INPUT_TIP_MAX = 1000;
 
 const PAYMENT_METHODS = {
     ONLINE: {
@@ -72,6 +74,20 @@ const PAYMENT_METHODS = {
         },
     },
 } as const;
+
+function clampTipPercent(value: number) {
+    if (!Number.isFinite(value)) return 0;
+    return Math.min(Math.max(Math.round(value), 0), INPUT_TIP_MAX);
+}
+
+function getSliderColors(accent: string) {
+    switch (accent) {
+        case "amber":
+            return { primary: "rgb(217 119 6)", secondary: "rgb(245 158 11)" };
+        default:
+            return { primary: "rgb(22 163 74)", secondary: "rgb(16 185 129)" };
+    }
+}
 
 const PledgeFormContent = memo(function PledgeFormContent({
     campaignId,
@@ -106,7 +122,9 @@ const PledgeFormContent = memo(function PledgeFormContent({
             setCustomAmount(restoredPayload.amount);
             setDisplayCustomAmount(restoredPayload.amount.toLocaleString("de-DE"));
         }
-        if (typeof restoredPayload.platformTipPercent === "number") setTipPercent(restoredPayload.platformTipPercent);
+        if (typeof restoredPayload.platformTipPercent === "number") {
+            setTipPercent(clampTipPercent(restoredPayload.platformTipPercent));
+        }
         if (typeof restoredPayload.isAnonymous === "boolean") setIsAnonymous(restoredPayload.isAnonymous);
         if (typeof restoredPayload.displayName === "string") setDisplayName(restoredPayload.displayName);
         if (typeof restoredPayload.guestEmail === "string") setGuestEmail(restoredPayload.guestEmail);
@@ -202,6 +220,9 @@ const PledgeFormContent = memo(function PledgeFormContent({
     }, [campaignId, currentUser, displayName, effectiveSelectedRewardId, effectiveTipPercent, guestEmail, isAnonymous, isAuthenticated, isDigitalProduct, isRewardDonation, needsProductEmail, needsShippingAddress, paymentMethod, quantity, router, shippingAddress, shippingMethod, tipPercent, unitAmount, userHasShippingAddress]);
 
     const currentMethod = PAYMENT_METHODS[paymentMethod];
+    const sliderColors = getSliderColors(currentMethod.colors.accent);
+    const sliderValue = Math.min(tipPercent, SLIDER_TIP_MAX);
+    const isAmberTip = currentMethod.colors.accent === "amber";
 
     return (
         <div className={showHeader ? "bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden" : ""}>
@@ -244,12 +265,59 @@ const PledgeFormContent = memo(function PledgeFormContent({
                     ) : null}
 
                     {!isReadyProduct && (
-                        <div className="flex gap-2">
-                            {PLATFORM_TIP_OPTIONS.map((pct) => (
-                                <button key={pct} type="button" onClick={() => setTipPercent(pct)} className={`flex-1 text-sm py-2 rounded-lg border ${tipPercent === pct ? "bg-green-600 text-white border-green-600" : "border-gray-200"}`}>
-                                    {pct === 0 ? "Không tip" : `${pct}%`}
-                                </button>
-                            ))}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Tip hỗ trợ nền tảng (tùy chọn)
+                            </label>
+                            <div className="flex gap-2 mb-3">
+                                {PLATFORM_TIP_OPTIONS.map((pct) => (
+                                    <button
+                                        key={pct}
+                                        type="button"
+                                        onClick={() => setTipPercent(pct)}
+                                        className={`flex-1 text-sm py-2 rounded-lg border transition ${
+                                            tipPercent === pct
+                                                ? isAmberTip
+                                                    ? "bg-amber-600 text-white border-amber-600"
+                                                    : "bg-green-600 text-white border-green-600"
+                                                : "border-gray-200 hover:bg-gray-50"
+                                        }`}
+                                    >
+                                        {pct === 0 ? "Không tip" : `${pct}%`}
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <input
+                                    type="range"
+                                    min={0}
+                                    max={SLIDER_TIP_MAX}
+                                    value={sliderValue}
+                                    onChange={(event) => setTipPercent(clampTipPercent(Number(event.target.value)))}
+                                    className={`flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer ${isAmberTip ? "accent-amber-600" : "accent-green-600"}`}
+                                    style={{
+                                        background: `linear-gradient(to right, ${sliderColors.primary} 0%, ${sliderColors.primary} ${sliderValue}%, rgb(229 231 235) ${sliderValue}%, rgb(229 231 235) 100%)`,
+                                    }}
+                                    aria-label="Thanh chỉnh phần trăm tip"
+                                />
+                                <div className="flex items-center gap-1">
+                                    <input
+                                        type="number"
+                                        min={0}
+                                        max={INPUT_TIP_MAX}
+                                        value={tipPercent}
+                                        onChange={(event) => setTipPercent(clampTipPercent(Number(event.target.value)))}
+                                        className={`w-16 px-2 py-1 text-center text-sm font-bold border border-gray-200 rounded-lg outline-none focus:ring-2 ${
+                                            isAmberTip ? "text-amber-700 focus:ring-amber-500" : "text-green-700 focus:ring-green-500"
+                                        }`}
+                                        aria-label="Ô nhập phần trăm tip"
+                                    />
+                                    <span className="text-sm font-medium text-gray-500">%</span>
+                                </div>
+                            </div>
+                            <p className="mt-2 text-xs text-gray-500">
+                                Kéo thanh 0–{SLIDER_TIP_MAX}% hoặc nhập trực tiếp 0–{INPUT_TIP_MAX}%. Tip hiện tại: {formatVND(finalTipAmount)}.
+                            </p>
                         </div>
                     )}
 
@@ -308,9 +376,27 @@ const PledgeFormContent = memo(function PledgeFormContent({
                         )}
                     </div>
 
-                    <div className="bg-gray-50 rounded-xl p-4 text-sm flex justify-between font-bold">
-                        <span>{isPreorder && paymentMethod === "COD" ? "Số tiền cọc" : "Tổng cộng"}</span>
-                        <span className={currentMethod.colors.text}>{formatVND(finalChargeAmount)}</span>
+                    <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
+                        <div className="flex justify-between text-gray-600">
+                            <span>{isReadyProduct ? "Giá sản phẩm" : "Số tiền ủng hộ"}</span>
+                            <span>{formatVND(productSubtotal)}</span>
+                        </div>
+                        {!isReadyProduct && paymentMethod !== "COD" && (
+                            <div className="flex justify-between text-gray-600">
+                                <span>Tip nền tảng ({effectiveTipPercent}%)</span>
+                                <span>{formatVND(finalTipAmount)}</span>
+                            </div>
+                        )}
+                        {shippingFee > 0 && (
+                            <div className="flex justify-between text-gray-600">
+                                <span>Phí giao nhanh</span>
+                                <span>{formatVND(shippingFee)}</span>
+                            </div>
+                        )}
+                        <div className="flex justify-between font-bold text-gray-900 pt-2 border-t border-gray-200">
+                            <span>{isPreorder && paymentMethod === "COD" ? "Số tiền cọc" : "Tổng cộng"}</span>
+                            <span className={currentMethod.colors.text}>{formatVND(finalChargeAmount)}</span>
+                        </div>
                     </div>
 
                     <button type="submit" disabled={loading || productSubtotal < 50000} className={`w-full bg-gradient-to-r ${currentMethod.colors.button} disabled:opacity-50 text-white font-semibold py-3.5 rounded-xl`}>
