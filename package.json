@@ -9,7 +9,7 @@
     "lint": "eslint",
     "analyze": "ANALYZE=true next build",
     "postinstall": "prisma generate",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build",
+    "vercel-build": "prisma generate && node scripts/prisma-migrate-deploy.mjs && next build",
     "seed:test2": "tsx scripts/seed-test2-creator.ts",
     "clear:campaigns": "tsx scripts/clear-all-campaigns.ts",
     "clear:campaigns:seed": "tsx scripts/clear-campaigns-for-seed.ts",
