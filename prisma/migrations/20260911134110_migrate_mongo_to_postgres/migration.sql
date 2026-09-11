@@ -1,4 +1,4 @@
-﻿-- CreateEnum
+-- CreateEnum
 CREATE TYPE "CampaignCommentStatus" AS ENUM ('PENDING', 'APPROVED', 'HIDDEN', 'DELETED');
 
 -- DropForeignKey
