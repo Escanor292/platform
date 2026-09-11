@@ -57,29 +57,27 @@ export async function onPledgeSuccess(pledgeId: string) {
     }
   }
 
-  if (tax.issued) {
+  if (tax.issued && pledge.userId) {
     const kindLabel = tax.certificate.documentKind === "CERTIFICATE"
-      ? "Chung nhan ung ho"
-      : "Bien lai thanh toan";
+      ? "Chứng nhận ủng hộ"
+      : "Biên lai thanh toán";
     const campaignTitle = pledge.campaigns?.title?.trim();
-    if (pledge.userId) {
-      notificationService.send({
-        userId: pledge.userId,
-        type: "PAYMENT_SUCCESS",
-        title: "Da vao kho do",
-        message: campaignTitle
-          ? `${kindLabel} ${tax.certificate.code} · ${campaignTitle} da vao kho do cua ban`
-          : `${kindLabel} ${tax.certificate.code} da vao kho do cua ban`,
-        payload: {
-          href: `/purchases?item=${encodeURIComponent(pledge.id)}`,
-          pledgeId: pledge.id,
-          extra: {
-            certificateCode: tax.certificate.code,
-            documentKind: tax.certificate.documentKind,
-          },
+    notificationService.send({
+      userId: pledge.userId,
+      type: "PAYMENT_SUCCESS",
+      title: "Đã vào kho đồ",
+      message: campaignTitle
+        ? `${kindLabel} ${tax.certificate.code} · ${campaignTitle} đã vào kho đồ của bạn`
+        : `${kindLabel} ${tax.certificate.code} đã vào kho đồ của bạn`,
+      payload: {
+        href: `/purchases?item=${encodeURIComponent(pledge.id)}`,
+        pledgeId: pledge.id,
+        extra: {
+          certificateCode: tax.certificate.code,
+          documentKind: tax.certificate.documentKind,
         },
-      });
-    }
+      },
+    });
   }
 
   await grantDigitalWarehouseItem(pledge.id);
