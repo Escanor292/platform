@@ -1,4 +1,4 @@
-import { getOrderedTabSections, isSectionVisible, type ProfileCustomizationConfig } from "@/lib/profile-customization";
+import { getOrderedTabSectionsFor, isLayoutSectionVisible, profileAudience, type ProfileCustomizationConfig } from "@/lib/profile-customization";
 
 export type ProfileTabType = "projects" | "campaigns" | "products" | "blog" | "pledges" | "badges";
 
@@ -23,42 +23,44 @@ export function buildProfileTabItems(
     pledgeCount: number;
   },
 ): ProfileTabItem[] {
-  const tabOrder = getOrderedTabSections(profileConfig).map(item => item.id);
+  const audience = profileAudience(options.isOwnProfile, options.showAsPublic);
+  const ownerView = audience === "owner";
+  const tabOrder = getOrderedTabSectionsFor(profileConfig, audience).map(item => item.id);
   const items: ProfileTabItem[] = [
     {
       id: "projects",
       label: "Dự án",
       count: options.projectCount,
-      show: isSectionVisible(profileConfig, "projects") && ((options.isOwnProfile && !options.showAsPublic) || options.projectCount > 0),
+      show: ownerView || (isLayoutSectionVisible(profileConfig, "projects", audience) && options.projectCount > 0),
     },
     {
       id: "campaigns",
       label: "Chiến dịch",
       count: options.campaignCount,
-      show: isSectionVisible(profileConfig, "campaigns") && ((options.isOwnProfile && !options.showAsPublic) || (options.isCreator && options.campaignCount > 0)),
+      show: ownerView || (isLayoutSectionVisible(profileConfig, "campaigns", audience) && options.campaignCount > 0),
     },
     {
       id: "products",
       label: "Sản phẩm",
       count: options.productCount,
-      show: isSectionVisible(profileConfig, "products") && ((options.isOwnProfile && !options.showAsPublic) || options.productCount > 0),
+      show: ownerView || (isLayoutSectionVisible(profileConfig, "products", audience) && options.productCount > 0),
     },
     {
       id: "blog",
       label: "Blog",
       count: options.blogCount,
-      show: isSectionVisible(profileConfig, "blog") && ((options.isOwnProfile && !options.showAsPublic) || options.blogCount > 0),
+      show: ownerView || (isLayoutSectionVisible(profileConfig, "blog", audience) && options.blogCount > 0),
     },
     {
       id: "pledges",
       label: "Đã ủng hộ",
       count: options.pledgeCount,
-      show: isSectionVisible(profileConfig, "pledges") && options.isBacker && options.pledgeCount > 0 && options.isOwnProfile && !options.showAsPublic,
+      show: ownerView,
     },
     {
       id: "badges",
       label: "Huy hiệu",
-      show: isSectionVisible(profileConfig, "badges"),
+      show: ownerView || isLayoutSectionVisible(profileConfig, "badges", audience),
     },
   ];
 

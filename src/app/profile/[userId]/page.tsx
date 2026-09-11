@@ -17,7 +17,7 @@ import { getUserFollowStats } from "@/lib/user-follows";
 import { getActiveSelfNote } from "@/services/mongodb/chat.service";
 import { userHasPermission } from "@/lib/permissions";
 import { canExposePrivacyField } from "@/lib/profile-settings";
-import { getProfileThemeStyle, getPublicProfileCustomization, isSectionVisible, normalizeProfileCustomization, resolveProfileLayout } from "@/lib/profile-customization";
+import { getProfileThemeStyle, getPublicProfileCustomization, isLayoutSectionVisible, normalizeProfileCustomization, profileAudience, resolveProfileLayout } from "@/lib/profile-customization";
 
 interface ProfilePageProps {
   params: Promise<{ userId: string }>;
@@ -175,6 +175,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
   const profileConfig = resolveProfileLayout(
     profileIsPublic ? getPublicProfileCustomization(storedProfileConfig, userId) : storedProfileConfig
   );
+  const audience = profileAudience(isOwnProfile, showAsPublic);
   const showLocation = canExposePrivacyField(user.role, user.privacySettings, 'location', !profileIsPublic);
   const showBio = canExposePrivacyField(user.role, user.privacySettings, 'bio', !profileIsPublic);
   const showWebsite = canExposePrivacyField(user.role, user.privacySettings, 'website', !profileIsPublic);
@@ -337,7 +338,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
                 )}
               </div>
 
-              {isSectionVisible(profileConfig, "about") && (
+              {isLayoutSectionVisible(profileConfig, "about", audience) && (
                 <>
                   <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--profile-muted)]">
                     <div className="flex items-center gap-1">
@@ -368,7 +369,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
                 </>
               )}
 
-              {isSectionVisible(profileConfig, "analytics") && (
+              {isLayoutSectionVisible(profileConfig, "analytics", audience) && (
                 <div className="flex flex-wrap gap-8 pt-4">
                   {isCreator && (
                     <>
@@ -417,7 +418,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
           profileConfig={profileConfig}
         />
 
-        {isSectionVisible(profileConfig, "analytics") && (profileConfig.analytics.showSupportStats || profileConfig.analytics.showProgressStats) && (
+        {isLayoutSectionVisible(profileConfig, "analytics", audience) && (profileConfig.analytics.showSupportStats || profileConfig.analytics.showProgressStats) && (
           <section className="grid gap-4 sm:grid-cols-2">
             {profileConfig.analytics.showProgressStats && isCreator && (
               <div className="border border-[color:var(--profile-primary)]/10 bg-[var(--profile-surface)] p-6 shadow-sm" style={{ borderRadius: "var(--profile-card-radius)" }}>
@@ -436,7 +437,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
           </section>
         )}
 
-        {isSectionVisible(profileConfig, "achievements") && (isCreator || isBacker) && (
+        {isLayoutSectionVisible(profileConfig, "achievements", audience) && (isCreator || isBacker) && (
           <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-6">
             <h3 className="text-lg font-black text-gray-900 mb-4">Thành tích</h3>
             <div className="space-y-3">

@@ -12,7 +12,7 @@ import { ProfileBlogCard } from '@/components/profile/ProfileBlogCard';
 import { UserBadgeList } from '@/components/badge/UserBadgeList';
 import { AddProductModal } from '@/components/profile/AddProductModal';
 import QuickAddToCartButton from '@/components/products/QuickAddToCartButton';
-import { getOrderedTabSections, getPreferredProfileTab, getSectionLimit, isSectionVisible, type ProfileCustomizationConfig } from '@/lib/profile-customization';
+import { getOrderedTabSectionsFor, getPreferredProfileTabFor, getSectionLimit, isLayoutSectionVisible, profileAudience, type ProfileCustomizationConfig } from '@/lib/profile-customization';
 
 type TabType = 'projects' | 'campaigns' | 'products' | 'blog' | 'pledges' | 'badges';
 
@@ -207,7 +207,9 @@ export function ProfileTabs({
     const totalProducts = products.length;
     const totalGifts = gifts.length;
 
-    const tabOrder = getOrderedTabSections(profileConfig).map((item) => item.id);
+    const audience = profileAudience(isOwnProfile, showAsPublic);
+    const ownerView = audience === 'owner';
+    const tabOrder = getOrderedTabSectionsFor(profileConfig, audience).map((item) => item.id);
 
     // Define tabs based on view mode
     const tabs: { id: TabType; label: string; count?: number; show: boolean }[] = [
@@ -215,36 +217,36 @@ export function ProfileTabs({
             id: 'projects',
             label: 'Dự án',
             count: orderedProjects.length,
-            show: isSectionVisible(profileConfig, 'projects') && ((isOwnProfile && !showAsPublic) || orderedProjects.length > 0),
+            show: ownerView || (isLayoutSectionVisible(profileConfig, 'projects', audience) && orderedProjects.length > 0),
         },
         {
             id: 'campaigns',
             label: 'Chiến dịch',
             count: orderedCampaigns.length,
-            show: isSectionVisible(profileConfig, 'campaigns') && ((isOwnProfile && !showAsPublic) || (isCreator && orderedCampaigns.length > 0)),
+            show: ownerView || (isLayoutSectionVisible(profileConfig, 'campaigns', audience) && orderedCampaigns.length > 0),
         },
         {
             id: 'products',
             label: 'Sản phẩm',
             count: totalProducts,
-            show: isSectionVisible(profileConfig, 'products') && ((isOwnProfile && !showAsPublic) || totalProducts > 0),
+            show: ownerView || (isLayoutSectionVisible(profileConfig, 'products', audience) && totalProducts > 0),
         },
         {
             id: 'blog',
             label: 'Blog',
             count: orderedBlogPosts.length,
-            show: isSectionVisible(profileConfig, 'blog') && ((isOwnProfile && !showAsPublic) || orderedBlogPosts.length > 0),
+            show: ownerView || (isLayoutSectionVisible(profileConfig, 'blog', audience) && orderedBlogPosts.length > 0),
         },
         {
             id: 'pledges',
             label: 'Đã ủng hộ',
             count: limitedPledges.length,
-            show: isSectionVisible(profileConfig, 'pledges') && isBacker && limitedPledges.length > 0 && isOwnProfile && !showAsPublic,
+            show: ownerView,
         },
         {
             id: 'badges',
             label: 'Huy hiệu',
-            show: isSectionVisible(profileConfig, 'badges'),
+            show: ownerView || isLayoutSectionVisible(profileConfig, 'badges', audience),
         },
     ].sort((a, b) => {
         const ai = tabOrder.indexOf(a.id);
@@ -255,7 +257,7 @@ export function ProfileTabs({
     const visibleTabs = tabs.filter((tab) => tab.show);
 
     const getDefaultTab = (): TabType => {
-        const preferred = getPreferredProfileTab(profileConfig);
+        const preferred = getPreferredProfileTabFor(profileConfig, audience);
         if (visibleTabs.some((tab) => tab.id === preferred)) return preferred;
         const withContent = visibleTabs.find((tab) => (tab.count ?? 1) > 0);
         return withContent?.id ?? visibleTabs[0]?.id ?? 'campaigns';

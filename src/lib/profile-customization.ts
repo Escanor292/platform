@@ -81,19 +81,34 @@ export const ProfileCtaSchema = z.object({
   action: z.enum(["projects", "campaigns", "products", "blog", "chat"]),
 });
 
-export const ProfileCustomizationSchema = z.object({
+export const ProfileCustomizationObjectSchema = z.object({
   preset: z.enum(PROFILE_PRESETS),
   theme: ProfileThemeSchema,
   sections: z.array(ProfileSectionSchema).length(PROFILE_SECTION_IDS.length),
+  ownerSections: z.array(ProfileSectionSchema).length(PROFILE_SECTION_IDS.length),
   featured: ProfileFeaturedSchema,
   analytics: ProfileAnalyticsSchema,
   experiment: ProfileExperimentSchema,
   cta: ProfileCtaSchema,
 });
 
+export const ProfileCustomizationSchema = z.preprocess((value) => {
+  if (!value || typeof value !== "object") return value;
+  const raw = { ...(value as Record<string, unknown>) };
+  const sections = Array.isArray(raw.sections) ? raw.sections : [];
+  if (!Array.isArray(raw.ownerSections) || raw.ownerSections.length !== PROFILE_SECTION_IDS.length) {
+    raw.ownerSections = sections.map((item) => {
+      if (!item || typeof item !== "object") return item;
+      return { ...(item as Record<string, unknown>), visible: true };
+    });
+  }
+  return raw;
+}, ProfileCustomizationObjectSchema);
+
 export type ProfileTheme = z.infer<typeof ProfileThemeSchema>;
 export type ProfileSection = z.infer<typeof ProfileSectionSchema>;
-export type ProfileCustomizationConfig = z.infer<typeof ProfileCustomizationSchema>;
+export type ProfileCustomizationConfig = z.infer<typeof ProfileCustomizationObjectSchema>;
+export type ProfileAudience = "owner" | "guest";
 
 const section = (id: ProfileSectionId, order: number, visible = true, limit = 6): ProfileSection => ({
   id,
@@ -101,6 +116,20 @@ const section = (id: ProfileSectionId, order: number, visible = true, limit = 6)
   visible,
   limit,
 });
+
+const defaultSections: ProfileSection[] = [
+  section("hero", 0, true, 1),
+  section("about", 1, true, 1),
+  section("projects", 2, true, 3),
+  section("campaigns", 3, true, 6),
+  section("products", 4, true, 8),
+  section("blog", 5, true, 6),
+  section("pledges", 6, true, 6),
+  section("badges", 7, true, 20),
+  section("achievements", 8, true, 6),
+  section("analytics", 9, true, 6),
+  section("cta", 10, false, 1),
+];
 
 export const DEFAULT_PROFILE_CUSTOMIZATION: ProfileCustomizationConfig = {
   preset: "creator",
@@ -120,19 +149,8 @@ export const DEFAULT_PROFILE_CUSTOMIZATION: ProfileCustomizationConfig = {
     heroStyle: "cover",
     reducedMotion: false,
   },
-  sections: [
-    section("hero", 0, true, 1),
-    section("about", 1, true, 1),
-    section("projects", 2, true, 3),
-    section("campaigns", 3, true, 6),
-    section("products", 4, true, 8),
-    section("blog", 5, true, 6),
-    section("pledges", 6, true, 6),
-    section("badges", 7, true, 20),
-    section("achievements", 8, true, 6),
-    section("analytics", 9, true, 6),
-    section("cta", 10, false, 1),
-  ],
+  sections: defaultSections.map((item) => ({ ...item })),
+  ownerSections: defaultSections.map((item) => ({ ...item, visible: true })),
   featured: {
     projectIds: [],
     campaignIds: [],
@@ -235,14 +253,48 @@ export function applyPresetLayout(config: ProfileCustomizationConfig, preset: Pr
 }
 
 export function getOrderedTabSections(config: ProfileCustomizationConfig) {
-  return getOrderedSections(resolveProfileLayout(config)).filter((item): item is ProfileSection & { id: ProfileTabSectionId } =>
+  return getOrderedTabSectionsFor(config, "guest");
+}
+
+export function profileAudience(isOwnProfile: boolean, showAsPublic: boolean): ProfileAudience {
+  return isOwnProfile && !showAsPublic ? "owner" : "guest";
+}
+
+export function getLayoutSections(config: ProfileCustomizationConfig, audience: ProfileAudience): ProfileSection[] {
+  if (audience === "owner") {
+    const list = config.ownerSections?.length === PROFILE_SECTION_IDS.length ? config.ownerSections : config.sections;
+    return [...list].sort((a, b) => a.order - b.order);
+  }
+  return getOrderedSections(resolveProfileLayout(config));
+}
+
+export function isLayoutSectionVisible(
+  config: ProfileCustomizationConfig,
+  id: ProfileSectionId,
+  audience: ProfileAudience,
+) {
+  if (audience === "owner" && (PROFILE_TAB_SECTION_IDS as readonly string[]).includes(id)) return true;
+  if (audience === "guest" && id === "pledges") return false;
+  return getLayoutSections(config, audience).find((item) => item.id === id)?.visible ?? true;
+}
+
+export function getOrderedTabSectionsFor(config: ProfileCustomizationConfig, audience: ProfileAudience) {
+  return getLayoutSections(config, audience).filter((item): item is ProfileSection & { id: ProfileTabSectionId } =>
     (PROFILE_TAB_SECTION_IDS as readonly string[]).includes(item.id),
   );
 }
 
-export function getPreferredProfileTab(config: ProfileCustomizationConfig): ProfileTabSectionId {
-  const firstVisible = getOrderedTabSections(config).find((item) => item.visible);
+export function getPreferredProfileTabFor(
+  config: ProfileCustomizationConfig,
+  audience: ProfileAudience = "guest",
+): ProfileTabSectionId {
+  const tabs = getOrderedTabSectionsFor(config, audience);
+  const firstVisible = tabs.find((item) => isLayoutSectionVisible(config, item.id, audience));
   return firstVisible?.id ?? "campaigns";
+}
+
+export function getPreferredProfileTab(config: ProfileCustomizationConfig): ProfileTabSectionId {
+  return getPreferredProfileTabFor(config, "guest");
 }
 
 export function getPublicProfileCustomization(config: ProfileCustomizationConfig, userId: string) {
@@ -316,6 +368,7 @@ export function toShareableTemplate(config: ProfileCustomizationConfig): Profile
     ...next,
     featured: { projectIds: [], campaignIds: [], rewardIds: [], blogPostIds: [] },
     experiment: { enabled: false, variantBPreset: next.experiment.variantBPreset, allocationPercent: 0 },
+    ownerSections: next.sections.map((item) => ({ ...item, visible: true })),
   };
 }
 
@@ -328,5 +381,6 @@ export function applyShareableTemplate(
     ...shareable,
     featured: current.featured,
     experiment: current.experiment,
+    ownerSections: current.ownerSections,
   };
 }

@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import {
-  getOrderedTabSections,
-  getPreferredProfileTab,
+  getOrderedTabSectionsFor,
+  getPreferredProfileTabFor,
   getProfileThemeStyle,
-  isSectionVisible,
+  isLayoutSectionVisible,
   PROFILE_TAB_LABELS,
+  type ProfileAudience,
   type ProfileCustomizationConfig,
   type ProfileTabSectionId,
 } from '@/lib/profile-customization';
@@ -83,15 +84,20 @@ function PreviewFooter() {
 export default function ProfileStudioPreview({
   config,
   mode,
+  audience = 'guest',
 }: {
   config: ProfileCustomizationConfig;
   mode: PreviewMode;
+  audience?: ProfileAudience;
 }) {
   const tabs = useMemo(
-    () => getOrderedTabSections(config).filter((item) => item.visible),
-    [config],
+    () =>
+      getOrderedTabSectionsFor(config, audience).filter((item) =>
+        isLayoutSectionVisible(config, item.id, audience),
+      ),
+    [config, audience],
   );
-  const preferred = getPreferredProfileTab(config);
+  const preferred = getPreferredProfileTabFor(config, audience);
   const [activeTab, setActiveTab] = useState<ProfileTabSectionId>(preferred);
   useEffect(() => {
     setActiveTab(preferred);
@@ -125,7 +131,7 @@ export default function ProfileStudioPreview({
       <PreviewHeader mode={mode} />
 
       <div className="overflow-hidden bg-[var(--profile-surface)]">
-        {isSectionVisible(config, 'hero') && (
+        {isLayoutSectionVisible(config, 'hero', audience) && (
           <div
             className="relative"
             style={{
@@ -139,11 +145,11 @@ export default function ProfileStudioPreview({
             />
           </div>
         )}
-        <div className="px-4 pb-4" style={{ paddingTop: isSectionVisible(config, 'hero') ? '2rem' : '1rem' }}>
+        <div className="px-4 pb-4" style={{ paddingTop: isLayoutSectionVisible(config, 'hero', audience) ? '2rem' : '1rem' }}>
           <div className="text-base font-black" style={{ color: 'var(--profile-text)', fontFamily: 'var(--profile-font-display)' }}>
             Tên hiển thị
           </div>
-          {isSectionVisible(config, 'about') && (
+          {isLayoutSectionVisible(config, 'about', audience) && (
             <div
               className="mt-3 text-[11px] leading-relaxed"
               style={{

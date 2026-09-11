@@ -1,98 +1,121 @@
-import type { ProfileCustomizationConfig, ProfileSectionId } from "@/lib/profile-customization";
+import {
+  PROFILE_TAB_SECTION_IDS,
+  type ProfileAudience,
+  type ProfileCustomizationConfig,
+  type ProfileSection,
+  type ProfileSectionId,
+} from "@/lib/profile-customization";
 
 export const STUDIO_CHROME_IDS = ["hero", "about"] as const;
-export const STUDIO_PUBLIC_TAB_IDS = ["products", "campaigns", "projects", "blog", "badges"] as const;
-export const STUDIO_OWNER_TAB_IDS = ["pledges"] as const;
+export const STUDIO_GUEST_TAB_IDS = ["products", "campaigns", "projects", "blog", "badges"] as const;
+export const STUDIO_OWNER_TAB_IDS = PROFILE_TAB_SECTION_IDS;
 export const STUDIO_EXTRA_IDS = ["achievements", "analytics"] as const;
 
-export type StudioGroupId = "chrome" | "publicTabs" | "ownerTabs" | "extra";
+export type StudioGroupId = "chrome" | "tabs" | "extra";
 
 export const STUDIO_SECTION_HINTS: Record<Exclude<ProfileSectionId, "cta">, string> = {
-  hero: "Luôn nằm đầu trang công khai",
+  hero: "Luôn nằm đầu trang",
   about: "Luôn nằm dưới ảnh bìa",
-  products: "Tab công khai",
-  campaigns: "Tab công khai",
-  projects: "Tab công khai",
-  pledges: "Chỉ chủ trang thấy khi xem profile của mình",
-  blog: "Tab công khai",
-  badges: "Tab công khai",
+  products: "Tab sản phẩm",
+  campaigns: "Tab chiến dịch",
+  projects: "Tab dự án",
+  pledges: "Tab đã ủng hộ — chỉ chính chủ thấy",
+  blog: "Tab blog",
+  badges: "Tab huy hiệu",
   achievements: "Khối phụ, không nằm trong thanh tab",
-  analytics: "Bật/tắt thống kê, không nằm trong thanh tab",
+  analytics: "Khối thống kê, không nằm trong thanh tab",
 };
 
-const GROUP_IDS: Record<StudioGroupId, readonly string[]> = {
-  chrome: STUDIO_CHROME_IDS,
-  publicTabs: STUDIO_PUBLIC_TAB_IDS,
-  ownerTabs: STUDIO_OWNER_TAB_IDS,
-  extra: STUDIO_EXTRA_IDS,
-};
+function tabIdsFor(audience: ProfileAudience): readonly string[] {
+  return audience === "owner" ? STUDIO_OWNER_TAB_IDS : STUDIO_GUEST_TAB_IDS;
+}
 
-export function groupOfSection(id: string): StudioGroupId | null {
+function groupIds(audience: ProfileAudience, group: StudioGroupId): readonly string[] {
+  if (group === "chrome") return STUDIO_CHROME_IDS;
+  if (group === "extra") return STUDIO_EXTRA_IDS;
+  return tabIdsFor(audience);
+}
+
+export function groupOfSection(id: string, audience: ProfileAudience): StudioGroupId | null {
   if ((STUDIO_CHROME_IDS as readonly string[]).includes(id)) return "chrome";
-  if ((STUDIO_PUBLIC_TAB_IDS as readonly string[]).includes(id)) return "publicTabs";
-  if ((STUDIO_OWNER_TAB_IDS as readonly string[]).includes(id)) return "ownerTabs";
   if ((STUDIO_EXTRA_IDS as readonly string[]).includes(id)) return "extra";
+  if (tabIdsFor(audience).includes(id)) return "tabs";
   return null;
 }
 
-export function orderedStudioSections(config: ProfileCustomizationConfig) {
-  return [...config.sections].sort((a, b) => a.order - b.order).filter((item) => item.id !== "cta");
+function layoutList(config: ProfileCustomizationConfig, audience: ProfileAudience): ProfileSection[] {
+  return audience === "owner" ? config.ownerSections : config.sections;
 }
 
-export function orderedGroupSections(config: ProfileCustomizationConfig, group: StudioGroupId) {
-  const allowed = new Set(GROUP_IDS[group]);
-  return orderedStudioSections(config).filter((item) => allowed.has(item.id));
+export function orderedStudioSections(config: ProfileCustomizationConfig, audience: ProfileAudience) {
+  return [...layoutList(config, audience)].sort((a, b) => a.order - b.order).filter((item) => item.id !== "cta");
 }
 
-function rebuildSectionOrder(config: ProfileCustomizationConfig): ProfileCustomizationConfig {
-  const byId = new Map(config.sections.map((item) => [item.id, item]));
-  const pick = (ids: readonly string[]) =>
-    ids
-      .map((id) => byId.get(id as ProfileSectionId))
-      .filter((item): item is NonNullable<typeof item> => Boolean(item));
+export function orderedGroupSections(
+  config: ProfileCustomizationConfig,
+  group: StudioGroupId,
+  audience: ProfileAudience,
+) {
+  const allowed = new Set(groupIds(audience, group));
+  return orderedStudioSections(config, audience).filter((item) => allowed.has(item.id));
+}
 
-  const publicTabs = orderedGroupSections(config, "publicTabs").map((item) => item.id);
-  const extras = orderedGroupSections(config, "extra").map((item) => item.id);
-  const sequence = [
-    ...STUDIO_CHROME_IDS,
-    ...publicTabs,
-    ...STUDIO_OWNER_TAB_IDS,
-    ...extras,
-    "cta",
-  ];
-
-  return {
-    ...config,
-    sections: sequence
-      .map((id) => byId.get(id as ProfileSectionId))
-      .filter((item): item is NonNullable<typeof item> => Boolean(item))
-      .map((item, order) => ({ ...item, order })),
-  };
+function rebuildSectionOrder(
+  config: ProfileCustomizationConfig,
+  audience: ProfileAudience,
+): ProfileCustomizationConfig {
+  const list = layoutList(config, audience);
+  const byId = new Map(list.map((item) => [item.id, item]));
+  const tabs = orderedGroupSections(config, "tabs", audience).map((item) => item.id);
+  const extras = orderedGroupSections(config, "extra", audience).map((item) => item.id);
+  const sequence = [...STUDIO_CHROME_IDS, ...tabs, ...extras, "cta"];
+  const nextList = sequence
+    .map((id) => byId.get(id as ProfileSectionId))
+    .filter((item): item is ProfileSection => Boolean(item))
+    .map((item, order) => ({ ...item, order }));
+  if (audience === "owner") return { ...config, ownerSections: nextList };
+  return { ...config, sections: nextList };
 }
 
 export function moveStudioSection(
   config: ProfileCustomizationConfig,
   fromId: string,
   toId: string,
+  audience: ProfileAudience,
 ): ProfileCustomizationConfig {
   const next = JSON.parse(JSON.stringify(config)) as ProfileCustomizationConfig;
-  const fromGroup = groupOfSection(fromId);
-  const toGroup = groupOfSection(toId);
-  if (!fromGroup || !toGroup || fromGroup !== toGroup) return rebuildSectionOrder(next);
-  if (fromGroup === "chrome" || fromGroup === "ownerTabs") return rebuildSectionOrder(next);
+  const fromGroup = groupOfSection(fromId, audience);
+  const toGroup = groupOfSection(toId, audience);
+  if (!fromGroup || !toGroup || fromGroup !== toGroup) return rebuildSectionOrder(next, audience);
+  if (fromGroup === "chrome") return rebuildSectionOrder(next, audience);
 
-  const visible = orderedGroupSections(next, fromGroup);
+  const visible = orderedGroupSections(next, fromGroup, audience);
   const from = visible.findIndex((item) => item.id === fromId);
   const to = visible.findIndex((item) => item.id === toId);
-  if (from < 0 || to < 0 || from === to) return rebuildSectionOrder(next);
+  if (from < 0 || to < 0 || from === to) return rebuildSectionOrder(next, audience);
   const [moved] = visible.splice(from, 1);
   visible.splice(to, 0, moved);
 
-  const byId = new Map(next.sections.map((item) => [item.id, item]));
+  const byId = new Map(layoutList(next, audience).map((item) => [item.id, item]));
   visible.forEach((item, index) => {
     const current = byId.get(item.id);
     if (current) byId.set(item.id, { ...current, order: index });
   });
-  next.sections = Array.from(byId.values());
-  return rebuildSectionOrder(next);
+  const merged = Array.from(byId.values());
+  if (audience === "owner") next.ownerSections = merged;
+  else next.sections = merged;
+  return rebuildSectionOrder(next, audience);
+}
+
+export function setStudioSectionVisible(
+  config: ProfileCustomizationConfig,
+  id: string,
+  visible: boolean,
+  audience: ProfileAudience,
+): ProfileCustomizationConfig {
+  const patch = (item: ProfileSection) => (item.id === id ? { ...item, visible } : item);
+  if (audience === "owner") {
+    return { ...config, ownerSections: config.ownerSections.map(patch) };
+  }
+  return { ...config, sections: config.sections.map(patch) };
 }

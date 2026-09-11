@@ -4,8 +4,10 @@ import {
   DEFAULT_PROFILE_CUSTOMIZATION,
   getOrderedSections,
   getOrderedTabSections,
+  getOrderedTabSectionsFor,
   getPreferredProfileTab,
   getPublicProfileCustomization,
+  isLayoutSectionVisible,
   normalizeProfileCustomization,
   parseProfileCustomization,
   PROFILE_SECTION_IDS,
@@ -131,5 +133,39 @@ describe('profile customization contract', () => {
     expect(next.theme.primary).toBe('#abcdef');
     expect(next.featured).toEqual(current.featured);
     expect(next.experiment).toEqual(current.experiment);
+  });
+
+  it('fills owner layout for legacy configs and keeps owner tabs independent of guest hides', () => {
+    const { ownerSections: _ignored, ...legacy } = DEFAULT_PROFILE_CUSTOMIZATION;
+    const config = normalizeProfileCustomization({
+      ...legacy,
+      sections: DEFAULT_PROFILE_CUSTOMIZATION.sections.map((section) =>
+        ['projects', 'campaigns', 'products'].includes(section.id) ? { ...section, visible: false } : section,
+      ),
+    });
+
+    expect(config.ownerSections).toHaveLength(PROFILE_SECTION_IDS.length);
+    expect(isLayoutSectionVisible(config, 'projects', 'guest')).toBe(false);
+    expect(isLayoutSectionVisible(config, 'projects', 'owner')).toBe(true);
+    expect(getOrderedTabSectionsFor(config, 'owner').map((section) => section.id)).toEqual(
+      expect.arrayContaining(['projects', 'campaigns', 'products', 'blog', 'pledges', 'badges']),
+    );
+  });
+
+  it('keeps the owner layout when applying a shared template', () => {
+    const current = {
+      ...DEFAULT_PROFILE_CUSTOMIZATION,
+      ownerSections: DEFAULT_PROFILE_CUSTOMIZATION.ownerSections.map((section) =>
+        section.id === 'blog' ? { ...section, order: 0 } : section,
+      ),
+    };
+    const template = {
+      ...DEFAULT_PROFILE_CUSTOMIZATION,
+      theme: { ...DEFAULT_PROFILE_CUSTOMIZATION.theme, primary: '#123456' },
+    };
+
+    const next = applyShareableTemplate(current, template);
+    expect(next.theme.primary).toBe('#123456');
+    expect(next.ownerSections).toEqual(current.ownerSections);
   });
 });

@@ -18,6 +18,7 @@ import {
   applyPresetLayout,
   DEFAULT_PROFILE_CUSTOMIZATION,
   PROFILE_PRESETS,
+  type ProfileAudience,
   type ProfileCustomizationConfig,
   type ProfilePreset,
 } from '@/lib/profile-customization';
@@ -49,6 +50,31 @@ function cloneConfig(value: ProfileCustomizationConfig) {
   return JSON.parse(JSON.stringify(value)) as ProfileCustomizationConfig;
 }
 
+function AudienceSwitch({ value, onChange }: { value: ProfileAudience; onChange: (next: ProfileAudience) => void }) {
+  return (
+    <div className="grid grid-cols-2 rounded-full bg-cream p-1" role="tablist" aria-label="Chế độ bố cục">
+      {([
+        { id: 'owner', label: 'Chính chủ' },
+        { id: 'guest', label: 'Khách' },
+      ] as const).map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          role="tab"
+          aria-selected={value === item.id}
+          onClick={() => onChange(item.id)}
+          className={`inline-flex items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black transition ${
+            value === item.id ? 'bg-pgreen text-white shadow-sm' : 'text-gray-500 hover:text-dblue'
+          }`}
+        >
+          <span className={`h-2 w-2 rounded-full ${value === item.id ? 'bg-white' : 'bg-gray-300'}`} />
+          {item.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function toggleId(ids: string[], id: string, max: number) {
   if (ids.includes(id)) return ids.filter((item) => item !== id);
   if (ids.length >= max) return ids;
@@ -60,6 +86,7 @@ export default function ProfileCustomizationEditor() {
   const [options, setOptions] = useState<Options>({ projects: [], campaigns: [], rewards: [], blogPosts: [] });
   const [versions, setVersions] = useState<Array<{ id: string; version: number; action: string; createdAt: string }>>([]);
   const [previewMode, setPreviewMode] = useState<PreviewMode>('desktop');
+  const [audience, setAudience] = useState<ProfileAudience>('guest');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -185,8 +212,16 @@ export default function ProfileCustomizationEditor() {
           </section>
 
           <section className="rounded-[2.5rem] border border-pgreen/10 bg-white/90 p-6 shadow-soft backdrop-blur sm:p-8">
-            <div className="mb-4 flex items-center justify-between"><div className="flex items-center gap-2"><GripVertical className="text-pgreen" size={20} /><h2 className="font-display text-xl font-black text-dblue">Section và kéo-thả</h2></div><span className="text-xs font-semibold text-gray-400">Kéo để sắp xếp</span></div>
-            <SectionDragList config={config} onChange={setConfig} />
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2"><GripVertical className="text-pgreen" size={20} /><h2 className="font-display text-xl font-black text-dblue">Section và kéo-thả</h2></div>
+              <AudienceSwitch value={audience} onChange={setAudience} />
+            </div>
+            <p className="mb-4 text-sm text-gray-500">
+              {audience === 'owner'
+                ? 'Bố cục khi bạn vào trang của mình. Tab luôn đủ, kể cả khi chưa có nội dung.'
+                : 'Bố cục khách thấy. Ẩn/hiện và thứ tự chỉ áp dụng với người khác (và Chế độ xem).'}
+            </p>
+            <SectionDragList config={config} onChange={setConfig} audience={audience} />
           </section>
 
           <section className="rounded-[2.5rem] border border-pgreen/10 bg-white/90 p-6 shadow-soft backdrop-blur sm:p-8">
@@ -221,7 +256,19 @@ export default function ProfileCustomizationEditor() {
         </div>
 
         <aside className="h-fit space-y-4 xl:sticky xl:top-6">
-          <div className="rounded-[2.5rem] border border-pgreen/10 bg-white/90 p-4 shadow-soft backdrop-blur"><div className="mb-4 flex items-center justify-between"><div className="flex items-center gap-2 font-display text-xl font-black text-dblue"><Eye size={18} className="text-pgreen" /> Xem trước</div><div className="flex gap-1 rounded-xl border border-gray-200 bg-cream/70 p-1"><button onClick={() => setPreviewMode('desktop')} className={`rounded-lg px-2 py-1 text-xs font-bold ${previewMode === 'desktop' ? 'bg-white text-dblue' : 'text-gray-500'}`}>Desktop</button><button onClick={() => setPreviewMode('mobile')} className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-bold ${previewMode === 'mobile' ? 'bg-white text-dblue' : 'text-gray-500'}`}><Smartphone size={12} /> Mobile</button></div></div><ProfileStudioPreview config={config} mode={previewMode} /></div>
+          <div className="rounded-[2.5rem] border border-pgreen/10 bg-white/90 p-4 shadow-soft backdrop-blur">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2 font-display text-xl font-black text-dblue"><Eye size={18} className="text-pgreen" /> Xem trước</div>
+              <div className="flex flex-wrap items-center gap-2">
+                <AudienceSwitch value={audience} onChange={setAudience} />
+                <div className="flex gap-1 rounded-xl border border-gray-200 bg-cream/70 p-1">
+                  <button type="button" onClick={() => setPreviewMode('desktop')} className={`rounded-lg px-2 py-1 text-xs font-bold ${previewMode === 'desktop' ? 'bg-white text-dblue' : 'text-gray-500'}`}>Desktop</button>
+                  <button type="button" onClick={() => setPreviewMode('mobile')} className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-bold ${previewMode === 'mobile' ? 'bg-white text-dblue' : 'text-gray-500'}`}><Smartphone size={12} /> Mobile</button>
+                </div>
+              </div>
+            </div>
+            <ProfileStudioPreview config={config} mode={previewMode} audience={audience} />
+          </div>
           <div className="rounded-[2rem] border border-pgreen/10 bg-white/90 p-5 shadow-soft"><div className="mb-3 flex items-center justify-between"><h3 className="font-black text-dblue">Lịch sử phiên bản</h3><span className="text-xs text-gray-400">12 bản gần nhất</span></div>{versions.length === 0 ? <p className="text-sm text-gray-500">Chưa có snapshot. Hãy lưu bản nháp hoặc xuất bản.</p> : <div className="space-y-2">{versions.map((version) => <div key={version.id} className="flex items-center justify-between gap-3 rounded-xl bg-cream/70 px-3 py-2"><div><div className="text-sm font-bold text-gray-700">Bản {version.version} · {version.action}</div><div className="text-xs text-gray-400">{new Date(version.createdAt).toLocaleString('vi-VN')}</div></div><button onClick={() => save('restore_version', version.id)} disabled={saving} className="shrink-0 rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs font-bold text-gray-600 hover:border-pgreen/40 hover:text-pgreen">Khôi phục</button></div>)}</div>}</div>
         </aside>
       </div>
