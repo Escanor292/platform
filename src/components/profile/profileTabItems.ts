@@ -21,6 +21,7 @@ export function buildProfileTabItems(
     productCount: number;
     blogCount: number;
     pledgeCount: number;
+    badgeCount?: number;
   },
 ): ProfileTabItem[] {
   const audience = profileAudience(options.isOwnProfile, options.showAsPublic);
@@ -55,12 +56,13 @@ export function buildProfileTabItems(
       id: "pledges",
       label: "Đã ủng hộ",
       count: options.pledgeCount,
-      show: ownerView,
+      show: ownerView || (isLayoutSectionVisible(profileConfig, "pledges", audience) && options.pledgeCount > 0),
     },
     {
       id: "badges",
       label: "Huy hiệu",
-      show: ownerView || isLayoutSectionVisible(profileConfig, "badges", audience),
+      count: options.badgeCount || 0,
+      show: ownerView || (isLayoutSectionVisible(profileConfig, "badges", audience) && (options.badgeCount || 0) > 0),
     },
   ];
 

@@ -124,7 +124,7 @@ const defaultSections: ProfileSection[] = [
   section("campaigns", 3, true, 6),
   section("products", 4, true, 8),
   section("blog", 5, true, 6),
-  section("pledges", 6, true, 6),
+  section("pledges", 6, false, 6),
   section("badges", 7, true, 20),
   section("achievements", 8, true, 6),
   section("analytics", 9, true, 6),
@@ -180,7 +180,7 @@ export const PRESET_SECTION_LAYOUT: Record<ProfilePreset, { visible: ProfileSect
     order: ["hero", "about", "blog", "projects", "campaigns", "products", "pledges", "badges", "achievements", "analytics", "cta"],
   },
   creator: {
-    visible: PROFILE_SECTION_IDS.filter((id) => id !== "cta"),
+    visible: PROFILE_SECTION_IDS.filter((id) => id !== "cta" && id !== "pledges"),
     order: [...PROFILE_SECTION_IDS],
   },
   project: {
@@ -188,7 +188,7 @@ export const PRESET_SECTION_LAYOUT: Record<ProfilePreset, { visible: ProfileSect
     order: ["hero", "about", "projects", "campaigns", "blog", "achievements", "products", "pledges", "badges", "analytics", "cta"],
   },
   shop: {
-    visible: ["hero", "about", "products", "campaigns", "pledges"],
+    visible: ["hero", "about", "products", "campaigns"],
     order: ["hero", "about", "products", "campaigns", "pledges", "projects", "blog", "badges", "achievements", "analytics", "cta"],
   },
   community: {
@@ -274,7 +274,6 @@ export function isLayoutSectionVisible(
   audience: ProfileAudience,
 ) {
   if (audience === "owner" && (PROFILE_TAB_SECTION_IDS as readonly string[]).includes(id)) return true;
-  if (audience === "guest" && id === "pledges") return false;
   return getLayoutSections(config, audience).find((item) => item.id === id)?.visible ?? true;
 }
 

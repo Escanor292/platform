@@ -68,7 +68,6 @@ describe('profile customization contract', () => {
     expect(getOrderedTabSections(shop).filter((section) => section.visible).map((section) => section.id)).toEqual([
       'products',
       'campaigns',
-      'pledges',
     ]);
     expect(getPreferredProfileTab(shop)).toBe('products');
   });
@@ -150,6 +149,13 @@ describe('profile customization contract', () => {
     expect(getOrderedTabSectionsFor(config, 'owner').map((section) => section.id)).toEqual(
       expect.arrayContaining(['projects', 'campaigns', 'products', 'blog', 'pledges', 'badges']),
     );
+  });
+
+  it('keeps pledges off for guests by default and on for the owner', () => {
+    const config = DEFAULT_PROFILE_CUSTOMIZATION;
+    expect(isLayoutSectionVisible(config, 'pledges', 'guest')).toBe(false);
+    expect(isLayoutSectionVisible(config, 'pledges', 'owner')).toBe(true);
+    expect(isLayoutSectionVisible(config, 'badges', 'guest')).toBe(true);
   });
 
   it('keeps the owner layout when applying a shared template', () => {

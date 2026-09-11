@@ -7,7 +7,7 @@ import {
 } from "@/lib/profile-customization";
 
 export const STUDIO_CHROME_IDS = ["hero", "about"] as const;
-export const STUDIO_GUEST_TAB_IDS = ["products", "campaigns", "projects", "blog", "badges"] as const;
+export const STUDIO_GUEST_TAB_IDS = ["products", "campaigns", "projects", "blog", "pledges", "badges"] as const;
 export const STUDIO_OWNER_TAB_IDS = PROFILE_TAB_SECTION_IDS;
 export const STUDIO_EXTRA_IDS = ["achievements", "analytics"] as const;
 
@@ -19,7 +19,7 @@ export const STUDIO_SECTION_HINTS: Record<Exclude<ProfileSectionId, "cta">, stri
   products: "Tab sản phẩm",
   campaigns: "Tab chiến dịch",
   projects: "Tab dự án",
-  pledges: "Tab đã ủng hộ — chỉ chính chủ thấy",
+  pledges: "Tab đã ủng hộ — mặc định ẩn với khách, bật khi muốn công khai",
   blog: "Tab blog",
   badges: "Tab huy hiệu",
   achievements: "Khối phụ, không nằm trong thanh tab",

@@ -223,6 +223,15 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
   const isBacker = user._count.pledges > 0;
   const followStats = await getUserFollowStats(userId, currentUserId);
   const profileNote = await getActiveSelfNote(userId);
+  const badgeCount = await prisma.user_badges.count({
+    where: {
+      user_id: userId,
+      is_visible: true,
+      revoked_at: null,
+      OR: [{ expires_at: null }, { expires_at: { gt: new Date() } }],
+      badges: { is_active: true, deleted_at: null },
+    },
+  });
   const canEditProfile = isOwnProfile && (await userHasPermission(session?.user as any, "profile.edit"));
   const canCustomizeProfile = isOwnProfile && (await userHasPermission(session?.user as any, "profile.customize"));
 
@@ -416,6 +425,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
           isCreator={isCreator}
           isBacker={isBacker}
           profileConfig={profileConfig}
+          badgeCount={badgeCount}
         />
 
         {isLayoutSectionVisible(profileConfig, "analytics", audience) && (profileConfig.analytics.showSupportStats || profileConfig.analytics.showProgressStats) && (

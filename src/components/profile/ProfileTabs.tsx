@@ -27,6 +27,7 @@ interface ProfileTabsProps {
     isCreator: boolean;
     isBacker: boolean;
     profileConfig: ProfileCustomizationConfig;
+    badgeCount?: number;
 }
 
 // Helper component for Badges tab with empty state handling
@@ -81,6 +82,7 @@ export function ProfileTabs({
     isCreator,
     isBacker,
     profileConfig,
+    badgeCount = 0,
 }: ProfileTabsProps) {
     // Crash prevention: fallback to empty arrays
     const safeProjects = projects || [];
@@ -241,12 +243,13 @@ export function ProfileTabs({
             id: 'pledges',
             label: 'Đã ủng hộ',
             count: limitedPledges.length,
-            show: ownerView,
+            show: ownerView || (isLayoutSectionVisible(profileConfig, 'pledges', audience) && limitedPledges.length > 0),
         },
         {
             id: 'badges',
             label: 'Huy hiệu',
-            show: ownerView || isLayoutSectionVisible(profileConfig, 'badges', audience),
+            count: badgeCount,
+            show: ownerView || (isLayoutSectionVisible(profileConfig, 'badges', audience) && badgeCount > 0),
         },
     ].sort((a, b) => {
         const ai = tabOrder.indexOf(a.id);
@@ -271,6 +274,8 @@ export function ProfileTabs({
             setActiveTab(getDefaultTab());
         }
     }, [visibleTabKey]);
+
+    if (visibleTabs.length === 0) return null;
 
     return (
         <div className="space-y-6" style={{ color: 'var(--profile-text)' }}>
