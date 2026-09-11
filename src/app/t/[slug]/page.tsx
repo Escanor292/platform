@@ -13,9 +13,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const template = await getTemplateBySlug(slug);
   if (!template) return { title: "Mẫu giao diện" };
-  if (template.status !== "PUBLISHED" || (template.visibility !== "PUBLIC" && template.visibility !== "UNLISTED")) {
-    return { title: "Mẫu giao diện" };
-  }
+  const shareable =
+    template.visibility === "PRIVATE" ||
+    (template.status === "PUBLISHED" && (template.visibility === "PUBLIC" || template.visibility === "UNLISTED"));
+  if (!shareable) return { title: "Mẫu giao diện" };
   return buildSocialMetadata({
     title: template.title,
     description: template.description || "Mẫu giao diện trang cá nhân trên Tử Tế Fund.",

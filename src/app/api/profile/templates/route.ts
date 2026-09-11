@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
   }
   try {
     const config = normalizeProfileCustomization(source);
-    if (body.fromPublished && visibility === "UNLISTED") {
+    if (body.fromPublished && visibility !== "PUBLIC") {
       const template = await sharePublishedAsUnlisted({
         authorId: userId,
         title: body.title,

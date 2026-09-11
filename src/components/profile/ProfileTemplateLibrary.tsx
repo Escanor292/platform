@@ -36,7 +36,7 @@ export function ProfileTemplateLibrary({
   const [mine, setMine] = useState<Template[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [visibility, setVisibility] = useState<"PRIVATE" | "UNLISTED" | "PUBLIC">("PRIVATE");
+  const [visibility, setVisibility] = useState<"PRIVATE" | "PUBLIC">("PRIVATE");
   const [busy, setBusy] = useState(false);
 
   const load = () => {
@@ -133,14 +133,14 @@ export function ProfileTemplateLibrary({
           maxLength={200}
         />
         <div className="flex flex-wrap items-center gap-2">
-          {(["PRIVATE", "UNLISTED", "PUBLIC"] as const).map((item) => (
+          {(["PRIVATE", "PUBLIC"] as const).map((item) => (
             <button
               key={item}
               type="button"
               onClick={() => setVisibility(item)}
               className={`rounded-full px-3 py-1 text-xs font-bold ${visibility === item ? "bg-pgreen text-white" : "bg-gray-100 text-gray-600"}`}
             >
-              {item === "PRIVATE" ? "Riêng tư" : item === "UNLISTED" ? "Link" : "Công khai"}
+              {item === "PRIVATE" ? "Riêng tư" : "Công khai"}
             </button>
           ))}
           <button
@@ -186,11 +186,9 @@ export function ProfileTemplateLibrary({
                 <button type="button" disabled={busy} onClick={() => apply(item.id)} className="inline-flex items-center gap-1 rounded-lg bg-pgreen px-2.5 py-1 text-xs font-bold text-white">
                   <Check size={12} /> Dùng
                 </button>
-                {item.visibility !== "PRIVATE" && (
-                  <button type="button" onClick={() => share(item.slug)} className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-bold text-gray-600">
-                    {item.visibility === "PUBLIC" ? <Globe size={12} /> : <Link2 size={12} />} Copy link
-                  </button>
-                )}
+                <button type="button" onClick={() => share(item.slug)} className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-bold text-gray-600">
+                  {item.visibility === "PUBLIC" ? <Globe size={12} /> : <Link2 size={12} />} Copy link
+                </button>
                 {tab === "mine" && (
                   <button type="button" onClick={() => remove(item.id)} className="inline-flex items-center gap-1 rounded-lg border border-red-100 px-2.5 py-1 text-xs font-bold text-red-600">
                     <Trash2 size={12} /> Xóa

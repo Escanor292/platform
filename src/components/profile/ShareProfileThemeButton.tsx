@@ -15,7 +15,7 @@ export function ShareProfileThemeButton({ defaultTitle }: { defaultTitle: string
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: defaultTitle || "Giao diện của tôi",
-          visibility: "UNLISTED",
+          visibility: "PRIVATE",
           fromPublished: true,
         }),
       });

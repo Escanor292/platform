@@ -211,6 +211,7 @@ export function canViewTemplate(
   if (viewer?.id && viewer.id === template.authorId) return true;
   if (viewer?.role === "ADMIN" || viewer?.isAdmin) return true;
   if (template.visibility === "UNLISTED" && template.status === "PUBLISHED") return true;
+  if (template.visibility === "PRIVATE") return true;
   return false;
 }
 
@@ -433,7 +434,7 @@ export async function sharePublishedAsUnlisted(input: {
     `SELECT t.*, u.name AS author_name, COALESCE(u.image, u.avatar) AS author_avatar
      FROM profile_templates t
      LEFT JOIN users u ON u.id = t.author_id
-     WHERE t.author_id = $1 AND t.visibility = 'UNLISTED'
+     WHERE t.author_id = $1 AND t.visibility IN ('UNLISTED', 'PRIVATE')
      ORDER BY t.updated_at DESC
      LIMIT 1`,
     input.authorId,
@@ -441,7 +442,7 @@ export async function sharePublishedAsUnlisted(input: {
   if (existing[0]) {
     await prisma.$executeRawUnsafe(
       `UPDATE profile_templates
-       SET title = $2, config = $3::jsonb, status = 'PUBLISHED',
+       SET title = $2, config = $3::jsonb, visibility = 'PRIVATE', status = 'DRAFT',
            published_at = COALESCE(published_at, NOW()), updated_at = NOW()
        WHERE id = $1`,
       existing[0].id,
@@ -455,7 +456,7 @@ export async function sharePublishedAsUnlisted(input: {
   return createTemplate({
     authorId: input.authorId,
     title,
-    visibility: "UNLISTED",
+    visibility: "PRIVATE",
     config: parsed.data,
     canPublish: true,
   });
