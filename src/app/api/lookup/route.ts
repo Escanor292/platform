@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
 
     if (!transactionId) {
       return NextResponse.json(
-        { error: "Vui lòng cung cấp mã giao dịch hoặc mã chứng từ" },
+        { error: "Vui long cung cap ma giao dich hoac ma chung tu" },
         { status: 400 }
       );
     }
@@ -23,10 +23,12 @@ export async function GET(request: NextRequest) {
         },
       });
       if (!certificate) {
-        return NextResponse.json({ error: "Không tìm thấy chứng từ với mã này" }, { status: 404 });
+        return NextResponse.json({ error: "Khong tim thay chung tu voi ma nay" }, { status: 404 });
       }
       const pledge = certificate.pledges;
       return NextResponse.json({
+        pledgeId: pledge.id,
+        rewardId: pledge.rewardId,
         transactionId: pledge.transactionId,
         certificateCode: certificate.code,
         documentKind: certificate.documentKind,
@@ -71,16 +73,18 @@ export async function GET(request: NextRequest) {
 
     if (!pledge) {
       return NextResponse.json(
-        { error: "Không tìm thấy giao dịch nào với mã này" },
+        { error: "Khong tim thay giao dich nao voi ma nay" },
         { status: 404 }
       );
     }
 
-    const safeData = {
+    return NextResponse.json({
+      pledgeId: pledge.id,
+      rewardId: pledge.rewardId,
       transactionId: pledge.transactionId,
       certificateCode: pledge.donation_certificate?.code || null,
       documentKind: pledge.donation_certificate?.documentKind || null,
-      displayName: pledge.isAnonymous ? "Người dùng ẩn danh" : (pledge.displayName || "Khách"),
+      displayName: pledge.isAnonymous ? "Nguoi dung an danh" : (pledge.displayName || "Khach"),
       amount: pledge.amount,
       tipAmount: pledge.tipAmount,
       vatAmount: pledge.vatAmount,
@@ -95,13 +99,11 @@ export async function GET(request: NextRequest) {
         campaignCode: pledge.campaigns.campaignCode,
         imageUrl: pledge.campaigns.imageUrl,
       } : null,
-    };
-
-    return NextResponse.json(safeData);
+    });
   } catch (error) {
     console.error("[LOOKUP_API]", error);
     return NextResponse.json(
-      { error: "Lỗi hệ thống trong quá trình tra cứu" },
+      { error: "Loi he thong trong qua trinh tra cuu" },
       { status: 500 }
     );
   }

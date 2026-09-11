@@ -1,21 +1,22 @@
 import { prisma } from "@/lib/prisma";
 import { grantDigitalWarehouseItem } from "@/lib/digital-warehouse";
 import { createBackerInvoice } from "@/lib/invoice-generator";
+import { notificationService } from "@/services/mongodb/notification.service";
 import { estimatePlatformFee } from "@/lib/tax/money-flow";
 import { issueTaxDocumentForPledge, sendCertificateEmail } from "@/lib/tax/certificate";
 
 /**
- * Gọi sau khi pledge đã SUCCESS. Idempotent.
- * - Ước tính phí sàn trên sổ Creator (không cộng vào giá backer)
- * - Cấp chứng nhận (không quà) hoặc biên lai (giao ngay)
- * - Gửi email nếu có địa chỉ
- * - Đưa tài sản số vào kho đồ
+ * Goi sau khi pledge da SUCCESS. Idempotent.
+ * - Uoc tinh phi san tren so Creator (khong cong vao gia backer)
+ * - Cap chung nhan (khong qua) hoac bien lai (giao ngay)
+ * - Gui email neu co dia chi
+ * - Dua tai san so / chung tu vao kho do
  */
 export async function onPledgeSuccess(pledgeId: string) {
   const pledge = await prisma.pledges.findUnique({
     where: { id: pledgeId },
     include: {
-      campaigns: { select: { feeRate: true } },
+      campaigns: { select: { feeRate: true, title: true } },
     },
   });
 
@@ -32,9 +33,20 @@ export async function onPledgeSuccess(pledgeId: string) {
     });
   }
 
-  const tax = await issueTaxDocumentForPledge(pledge.id);
-  if (tax.issued && tax.created && tax.certificate.guestEmail) {
-    await sendCertificateEmail(tax.certificate.code);
+  let tax: Awaited<ReturnType<typeof issueTaxDocumentForPledge>>;
+  try {
+    tax = await issueTaxDocumentForPledge(pledge.id);
+  } catch (error) {
+    console.error("[TAX] issue failed", error);
+    tax = { issued: false as const, reason: "pledge-not-success" as const };
+  }
+
+  if (tax.issued && tax.certificate.guestEmail) {
+    try {
+      await sendCertificateEmail(tax.certificate.code);
+    } catch (error) {
+      console.error("[TAX] certificate email failed", error);
+    }
   }
 
   if (tax.issued && tax.certificate.documentKind === "RECEIPT") {
@@ -42,6 +54,31 @@ export async function onPledgeSuccess(pledgeId: string) {
       await createBackerInvoice(pledge.id);
     } catch (error) {
       console.error("[TAX] backer receipt failed", error);
+    }
+  }
+
+  if (tax.issued) {
+    const kindLabel = tax.certificate.documentKind === "CERTIFICATE"
+      ? "Chung nhan ung ho"
+      : "Bien lai thanh toan";
+    const campaignTitle = pledge.campaigns?.title?.trim();
+    if (pledge.userId) {
+      notificationService.send({
+        userId: pledge.userId,
+        type: "PAYMENT_SUCCESS",
+        title: "Da vao kho do",
+        message: campaignTitle
+          ? `${kindLabel} ${tax.certificate.code} · ${campaignTitle} da vao kho do cua ban`
+          : `${kindLabel} ${tax.certificate.code} da vao kho do cua ban`,
+        payload: {
+          href: `/purchases?item=${encodeURIComponent(pledge.id)}`,
+          pledgeId: pledge.id,
+          extra: {
+            certificateCode: tax.certificate.code,
+            documentKind: tax.certificate.documentKind,
+          },
+        },
+      });
     }
   }
 
