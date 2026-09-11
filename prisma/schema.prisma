@@ -371,6 +371,7 @@ model campaigns {
   currentAmount       Decimal               @default(0)
   closedAmount        Decimal?
   closedAt            DateTime?
+  fulfillmentConfirmedAt DateTime?
   status              CampaignStatus        @default(DRAFT)
   startDate           DateTime?
   endDate             DateTime?
@@ -566,6 +567,7 @@ model pledges {
   payosOrderCode     String?          @unique
   webhookProcessedAt DateTime?
   receivedAt         DateTime?
+  handedToCarrierAt  DateTime?
   audit_logs         audit_logs[]
   backer_invoices    backer_invoices?
   donation_certificate donation_certificates?

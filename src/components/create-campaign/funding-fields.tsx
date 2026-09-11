@@ -4,8 +4,8 @@ import type { FundingModel } from "@/lib/funding-model";
 import { getFundingModelDescription, getFundingModelLabel } from "@/lib/funding-model";
 
 const TYPES: { value: "REWARD" | "DONATION"; label: string; hint: string }[] = [
-  { value: "REWARD", label: "Nhan qua", hint: "Nguoi ung ho co the chon phan qua tuong ung muc gop." },
-  { value: "DONATION", label: "Ung ho", hint: "Gop khong bat buoc nhan qua. Phu hop gay quy cong dong." },
+  { value: "DONATION", label: "Từ thiện / Quyên góp", hint: "Cho đi vì nhân đạo, không nhận lại lợi ích tài chính hay vật chất lớn. Hết hạn thường khoảng 2 tháng." },
+  { value: "REWARD", label: "Nhận quà tri ân", hint: "Nhận sản phẩm mẫu, hiện vật lưu niệm, hàng có sẵn hoặc pre-order khi dự án hoàn thành." },
 ];
 
 const MODELS: FundingModel[] = ["ALL_OR_NOTHING", "KEEP_IT_ALL"];
@@ -20,7 +20,7 @@ export function CampaignTypePicker({
   return (
     <div className="space-y-3">
       <label className="block text-sm font-bold text-dblue">
-        Loai chien dich <span className="text-red-500">*</span>
+        Loại chiến dịch <span className="text-red-500">*</span>
       </label>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {TYPES.map((item) => {
@@ -50,7 +50,6 @@ export function FundingModelPicker({
   value,
   onChange,
   locked = false,
-  hasSellableRewards = false,
 }: {
   value: FundingModel;
   onChange: (value: FundingModel) => void;
@@ -60,24 +59,22 @@ export function FundingModelPicker({
   return (
     <div className="space-y-3">
       <label className="block text-sm font-bold text-dblue">
-        Mo hinh gay quy <span className="text-red-500">*</span>
+        Mô hình gây quỹ <span className="text-red-500">*</span>
       </label>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {MODELS.map((model) => {
           const selected = value === model;
-          const aonBlocked = hasSellableRewards && model === "ALL_OR_NOTHING";
-          const disabled = locked || aonBlocked;
           return (
             <button
               key={model}
               type="button"
-              disabled={disabled}
+              disabled={locked}
               onClick={() => onChange(model)}
               className={`rounded-2xl border p-4 text-left transition ${
                 selected
                   ? "border-pgreen bg-pgreen/10 shadow-sm"
                   : "border-gray-200 bg-white hover:border-pgreen/40"
-              } ${disabled ? "cursor-not-allowed opacity-70" : ""}`}
+              } ${locked ? "cursor-not-allowed opacity-70" : ""}`}
             >
               <div className="text-sm font-black text-dblue">{getFundingModelLabel(model)}</div>
               <p className="mt-1 text-xs leading-relaxed text-gray-500">
@@ -87,17 +84,13 @@ export function FundingModelPicker({
           );
         })}
       </div>
-      {hasSellableRewards ? (
+      {locked ? (
         <p className="text-xs font-medium text-amber-700">
-          Da co phan qua — he thong giu Keep-It-All. Khong doi lai All-or-Nothing khi con san pham.
-        </p>
-      ) : locked ? (
-        <p className="text-xs font-medium text-amber-700">
-          Mo hinh da khoa sau khi admin duyet. Khong the doi All-or-Nothing / Keep-It-All.
+          Mô hình đã khóa sau khi admin duyệt.
         </p>
       ) : (
         <p className="text-xs text-gray-500">
-          Chien dich dong theo ngay het han. Them phan qua se tu doi Keep-It-All. All-or-Nothing chi khi chua ban san pham.
+          All-or-Nothing vẫn dùng được khi có hàng: hết hạn có nút xác nhận giao dù chưa đủ goal. Hoàn khi trễ 2 ngày không đưa vận chuyển.
         </p>
       )}
     </div>

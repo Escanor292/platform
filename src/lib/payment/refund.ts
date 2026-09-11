@@ -2,6 +2,41 @@ import prisma from "@/lib/prisma";
 import { revokeDigitalWarehouseItem } from "@/lib/digital-warehouse";
 import { recalculateCampaignAmount } from "@/lib/order-fulfillment";
 
+export async function refundPledgeLedger(pledgeId: string, reason: string) {
+  const now = new Date();
+  const pledge = await prisma.pledges.findUnique({
+    where: { id: pledgeId },
+    select: {
+      id: true,
+      campaignId: true,
+      rewardId: true,
+      status: true,
+      refundStatus: true,
+      cancellationReason: true,
+    },
+  });
+  if (!pledge || pledge.status !== "SUCCESS" || pledge.refundStatus === "COMPLETED") {
+    return false;
+  }
+  await prisma.pledges.update({
+    where: { id: pledge.id },
+    data: {
+      refundStatus: "COMPLETED",
+      refundedAt: now,
+      status: "REFUNDED",
+      accountingReversedAt: now,
+      fulfillmentStatus: pledge.rewardId ? "CANCELED" : "NOT_APPLICABLE",
+      cancellationReason: pledge.cancellationReason || reason,
+      updatedAt: now,
+    },
+  });
+  await revokeDigitalWarehouseItem(pledge.id);
+  if (pledge.campaignId) {
+    await prisma.$transaction((tx) => recalculateCampaignAmount(tx, pledge.campaignId!));
+  }
+  return true;
+}
+
 export async function processCampaignRefund(campaignId: string) {
   try {
     const campaign = await prisma.campaigns.findUnique({ where: { id: campaignId } });
@@ -25,23 +60,10 @@ export async function processCampaignRefund(campaignId: string) {
     }
 
     let refundedCount = 0;
-    const now = new Date();
     for (const pledge of pledges) {
       try {
-        await prisma.pledges.update({
-          where: { id: pledge.id },
-          data: {
-            refundStatus: "COMPLETED",
-            refundedAt: now,
-            status: "REFUNDED",
-            accountingReversedAt: now,
-            fulfillmentStatus: pledge.rewardId ? "CANCELED" : "NOT_APPLICABLE",
-            cancellationReason: pledge.cancellationReason || "Hoàn sổ khi chiến dịch thất bại/hủy",
-            updatedAt: now,
-          },
-        });
-        await revokeDigitalWarehouseItem(pledge.id);
-        refundedCount++;
+        const ok = await refundPledgeLedger(pledge.id, "Hoàn sổ khi chiến dịch thất bại/hủy");
+        if (ok) refundedCount++;
       } catch (err) {
         console.error(`[REFUND_ERROR] Lỗi khi hoàn tiền giao dịch ${pledge.transactionId}`, err);
         await prisma.pledges.update({ where: { id: pledge.id }, data: { refundStatus: "FAILED" } });

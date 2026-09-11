@@ -29,6 +29,7 @@ export async function closeExpiredCampaigns(now = new Date()) {
       reachedGoal,
       hasSellableRewards: hasProducts,
     });
+    // Có hàng: chốt hạn vẫn SUCCESS (miss goal cũng giao). Không quà AON miss goal → FAILED + hoàn.
     const nextStatus = refund ? "FAILED" : "SUCCESS";
 
     await prisma.campaigns.update({

@@ -6,6 +6,7 @@ import { FileText, Settings, Gift, Tag, Layers } from "lucide-react";
 import { CampaignGrowthProgress } from "@/components/campaign/CampaignGrowthProgress";
 import { getCampaignTypeLabel } from "@/lib/campaign-helpers";
 import CampaignSubmitBar from "@/components/campaign/CampaignSubmitBar";
+import { ConfirmFulfillmentButton } from "@/components/campaign/ConfirmFulfillmentButton";
 import { campaignModerationLabel } from "@/lib/moderation/policy";
 
 interface CreatorCampaignCardProps {
@@ -26,6 +27,8 @@ interface CreatorCampaignCardProps {
             pledges: number;
         };
         rejectionReason?: string | null;
+        hasProducts?: boolean;
+        fulfillmentConfirmedAt?: string | Date | null;
     };
 }
 
@@ -100,6 +103,12 @@ export function CreatorCampaignCard({ campaign }: CreatorCampaignCardProps) {
                     status={campaign.status}
                     rejectionReason={campaign.rejectionReason}
                     successPledgeCount={campaign._count.pledges}
+                />
+                <ConfirmFulfillmentButton
+                    slug={campaign.slug}
+                    status={campaign.status}
+                    hasProducts={Boolean(campaign.hasProducts)}
+                    confirmedAt={campaign.fulfillmentConfirmedAt}
                 />
                 <div className="flex gap-2">
                 <Link

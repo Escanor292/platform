@@ -135,6 +135,7 @@ export function ProjectFormDialog({
   const [loadingBlogs, setLoadingBlogs] = useState(false);
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [selectedRewardIds, setSelectedRewardIds] = useState<string[]>([]);
+  const [hasProducts, setHasProducts] = useState(false);
   const [loadingRewards, setLoadingRewards] = useState(false);
 
   // Initialize form from existing project
@@ -156,6 +157,7 @@ export function ProjectFormDialog({
       }
       setSelectedBlogIds(project.linkedBlogPostIds || []);
       setSelectedRewardIds(project.linkedRewardIds || []);
+      setHasProducts((project.linkedRewardIds || []).length > 0);
       setHeroBgType(project.heroBackgroundType === "color" ? "color" : "image");
       setHeroBgColors(
         Array.isArray(project.heroBackgroundConfig?.colors)
@@ -188,6 +190,7 @@ export function ProjectFormDialog({
     setHeroBgAngle(135);
     setSelectedBlogIds([]);
     setSelectedRewardIds([]);
+    setHasProducts(false);
     setActiveTab("basic");
   };
 
@@ -284,7 +287,7 @@ export function ProjectFormDialog({
               }
             : null,
         blogPostIds: selectedBlogIds,
-        rewardIds: selectedRewardIds,
+        rewardIds: hasProducts ? selectedRewardIds : [],
       };
 
       const url = project
@@ -747,10 +750,32 @@ export function ProjectFormDialog({
               </ScrollArea>
             </div>
 
+            <div className="space-y-3">
+              <label className="flex items-start gap-3 rounded-2xl border border-gray-200 bg-white p-4 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="mt-1 h-4 w-4 accent-blue-600"
+                  checked={hasProducts}
+                  onChange={(event) => {
+                    const next = event.target.checked;
+                    setHasProducts(next);
+                    if (!next) setSelectedRewardIds([]);
+                  }}
+                />
+                <span>
+                  <span className="block text-sm font-black text-gray-900 uppercase tracking-widest">
+                    Dự án có sản phẩm
+                  </span>
+                  <span className="block text-xs text-gray-500 mt-1">
+                    Tích nếu có hàng có sẵn, pre-order hoặc quà tri ân. Bỏ tích nếu chỉ quyên góp, không nhận lại vật chất.
+                  </span>
+                </span>
+              </label>
+              {hasProducts ? (
             <div className="space-y-2">
               <label className="text-sm font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
                 <Package size={16} className="text-blue-600" />
-                Sản phẩm liên kết ({selectedRewardIds.length})
+                Chọn sản phẩm ({selectedRewardIds.length})
               </label>
               <p className="text-xs text-gray-400 font-medium">
                 Chọn sản phẩm có sẵn của bạn để hiển thị trong dự án. Sản phẩm thuộc chiến dịch của dự án
@@ -844,6 +869,12 @@ export function ProjectFormDialog({
                   )}
                 </div>
               </ScrollArea>
+            </div>
+              ) : (
+                <p className="text-xs text-gray-500 px-1">
+                  Không chọn sản phẩm. Chiến dịch gắn dự án này sẽ theo luồng quyên góp (All-or-Nothing hoàn nếu hết hạn chưa đủ goal).
+                </p>
+              )}
             </div>
           </TabsContent>
           </div>

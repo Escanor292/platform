@@ -4,11 +4,11 @@ export type FundingModel = (typeof FUNDING_MODELS)[number];
 
 export const DEFAULT_PLATFORM_FEE_RATE = 0.08;
 
-export const AON_WITH_PRODUCTS_ERROR =
-  "Chiến dịch có bán sản phẩm (pre-order hoặc hàng có sẵn) không được All-or-Nothing. Hệ thống tự đổi Keep-It-All khi thêm phần quà.";
+/** Hạn gây quỹ mặc định cho chiến dịch không quà (khoảng 2 tháng). */
+export const DEFAULT_DONATION_DURATION_DAYS = 60;
 
-export const AON_COERCED_TO_KIA_NOTE =
-  "Đã tự đổi Keep-It-All vì chiến dịch có bán sản phẩm.";
+/** Sau hạn gửi hàng, creator có 2 ngày để giao cho vận chuyển. */
+export const CARRIER_HANDOFF_GRACE_DAYS = 2;
 
 export function parseFundingModel(value: unknown): FundingModel | null {
   if (value === "ALL_OR_NOTHING" || value === "KEEP_IT_ALL") return value;
@@ -22,9 +22,9 @@ export function getFundingModelLabel(model: FundingModel | string | null | undef
 
 export function getFundingModelDescription(model: FundingModel): string {
   if (model === "KEEP_IT_ALL") {
-    return "Hết hạn vẫn nhận số đã góp, dù chưa đủ mục tiêu. Không hoàn vì miss goal. Chiến dịch đóng theo ngày hết hạn, không đóng sớm khi đủ mục tiêu.";
+    return "Không quà: hết hạn giữ số đã góp dù chưa đủ mục tiêu. Có hàng/pre-order: vẫn giao; hoàn nếu trễ quá 2 ngày không đưa vận chuyển.";
   }
-  return "Chỉ dùng khi chưa bán sản phẩm. Thêm phần quà sẽ tự đổi Keep-It-All. Đóng theo ngày hết hạn: đạt mục tiêu thì chi hộ, không đạt thì hoàn.";
+  return "Không quà: hết hạn (thường 2 tháng) chưa đủ mục tiêu thì hoàn. Có hàng: chốt hạn vẫn xác nhận giao dù miss goal; hoàn nếu trễ 2 ngày không đưa vận chuyển.";
 }
 
 export function canEditFundingModel(status: string | null | undefined): boolean {
@@ -35,28 +35,28 @@ export function campaignHasSellableRewards(rewardCount: number | null | undefine
   return Number(rewardCount || 0) > 0;
 }
 
+export function defaultEndDateForType(campaignType: string, now = new Date()): Date {
+  const days = campaignType === "DONATION" ? DEFAULT_DONATION_DURATION_DAYS : DEFAULT_DONATION_DURATION_DAYS;
+  return new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+}
+
 export function coerceToKeepItAllIfProducts(
   fundingModel: FundingModel | string | null | undefined,
-  hasSellableRewards: boolean,
+  _hasSellableRewards: boolean,
 ): FundingModel | null {
-  const model = parseFundingModel(fundingModel);
-  if (!model) return null;
-  if (hasSellableRewards && model === "ALL_OR_NOTHING") return "KEEP_IT_ALL";
-  return model;
+  return parseFundingModel(fundingModel);
 }
 
 export function assertFundingModelAllowed(params: {
   fundingModel: FundingModel | string | null | undefined;
-  hasSellableRewards: boolean;
+  hasSellableRewards?: boolean;
 }): { ok: true; model: FundingModel } | { ok: false; error: string } {
   const model = parseFundingModel(params.fundingModel);
   if (!model) return { ok: false, error: "Mô hình gây quỹ không hợp lệ" };
-  if (params.hasSellableRewards && model === "ALL_OR_NOTHING") {
-    return { ok: false, error: AON_WITH_PRODUCTS_ERROR };
-  }
   return { ok: true, model };
 }
 
+/** Hoàn vì miss goal chỉ khi All-or-Nothing, không có hàng, chưa đủ mục tiêu. */
 export function shouldRefundOnDeadline(params: {
   fundingModel: FundingModel | string | null | undefined;
   reachedGoal: boolean;
@@ -64,7 +64,7 @@ export function shouldRefundOnDeadline(params: {
 }): boolean {
   if (params.hasSellableRewards) return false;
   if (params.reachedGoal) return false;
-  return params.fundingModel !== "KEEP_IT_ALL";
+  return params.fundingModel === "ALL_OR_NOTHING";
 }
 
 export function calculatePlatformFee(
@@ -77,4 +77,36 @@ export function calculatePlatformFee(
       ? Number(feeRate)
       : DEFAULT_PLATFORM_FEE_RATE;
   return Math.round(amount * rate);
+}
+
+export function shipByDate(params: {
+  deliveryDate?: Date | string | null;
+  campaignEndDate?: Date | string | null;
+}): Date | null {
+  const raw = params.deliveryDate || params.campaignEndDate;
+  if (!raw) return null;
+  const date = raw instanceof Date ? raw : new Date(raw);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+export function carrierHandoffDeadline(shipBy: Date, now = new Date()): Date {
+  return new Date(shipBy.getTime() + CARRIER_HANDOFF_GRACE_DAYS * 24 * 60 * 60 * 1000);
+}
+
+export function isPastCarrierHandoffSla(params: {
+  deliveryDate?: Date | string | null;
+  campaignEndDate?: Date | string | null;
+  handedToCarrierAt?: Date | string | null;
+  fulfillmentStatus?: string | null;
+  now?: Date;
+}): boolean {
+  const shipped = ["SHIPPED", "DELIVERED"].includes(String(params.fulfillmentStatus || ""));
+  if (shipped || params.handedToCarrierAt) return false;
+  const shipBy = shipByDate({
+    deliveryDate: params.deliveryDate,
+    campaignEndDate: params.campaignEndDate,
+  });
+  if (!shipBy) return false;
+  const now = params.now || new Date();
+  return now.getTime() > carrierHandoffDeadline(shipBy).getTime();
 }

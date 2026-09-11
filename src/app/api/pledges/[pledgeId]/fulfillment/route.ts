@@ -149,6 +149,7 @@ export async function PATCH(request: NextRequest, { params }: Context) {
           ...(nextStatus === "CANCELED" ? { cancellationReason: reason } : {}),
           ...(nextStatus === "RETURNED" ? { returnReason: reason } : {}),
           ...(nextStatus === "DELIVERED" ? { receivedAt: new Date(), paidAmount: new Decimal(deliveredPaidAmount), remainingAmount: 0 } : {}),
+          ...(nextStatus === "SHIPPED" ? { handedToCarrierAt: new Date() } : {}),
           ...(reversing ? {
             accountingAmount: new Decimal(nextAccountingAmount),
             refundAmount: new Decimal(cancellationSettlement.refundAmount),

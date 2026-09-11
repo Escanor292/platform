@@ -1,0 +1,2 @@
+ALTER TABLE "campaigns" ADD COLUMN IF NOT EXISTS "fulfillmentConfirmedAt" TIMESTAMP(3);
+ALTER TABLE "pledges" ADD COLUMN IF NOT EXISTS "handedToCarrierAt" TIMESTAMP(3);

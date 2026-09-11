@@ -12,22 +12,15 @@ export function applyFundingModelUpdate(params: {
       hasSellableRewards: params.hasProducts,
     });
     if (!fundingCheck.ok) {
-      if (params.currentModel === "ALL_OR_NOTHING" && params.hasProducts) {
-        return { ok: true, fundingModel: "KEEP_IT_ALL" };
-      }
       return { ok: false, error: fundingCheck.error };
     }
     if (fundingCheck.model !== params.currentModel) {
-      const safeCoerce = params.currentModel === "ALL_OR_NOTHING" && fundingCheck.model === "KEEP_IT_ALL";
-      if (!safeCoerce && !canEditFundingModel(params.status)) {
-        return { ok: false, error: "Khong the doi mo hinh gay quy sau khi chien dich da duoc duyet" };
+      if (!canEditFundingModel(params.status)) {
+        return { ok: false, error: "Không thể đổi mô hình gây quỹ sau khi chiến dịch đã được duyệt" };
       }
       return { ok: true, fundingModel: fundingCheck.model };
     }
     return { ok: true };
-  }
-  if (params.hasProducts && params.currentModel === "ALL_OR_NOTHING") {
-    return { ok: true, fundingModel: "KEEP_IT_ALL" };
   }
   return { ok: true };
 }

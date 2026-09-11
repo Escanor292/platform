@@ -31,11 +31,11 @@ export default function CreateCampaignPage() {
     goalAmount: 1000000,
     mainCategory: null as MainCategory | null,
     starterTags: [] as string[],
-    campaignType: "REWARD" as "REWARD" | "DONATION",
+    campaignType: "DONATION" as "REWARD" | "DONATION",
     fundingModel: "ALL_OR_NOTHING" as FundingModel,
     imageUrl: "",
     images: [] as string[], // Multiple images array
-    endDate: "",
+    endDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
     linkedBlogIds: [] as string[], // Blog posts linked to campaign
   });
 
@@ -455,7 +455,7 @@ export default function CreateCampaignPage() {
                   required
                   min={new Date().toISOString().split('T')[0]}
                 />
-                <p className="mt-2 text-xs text-gray-500">Thời gian tối đa thường là 30 - 60 ngày.</p>
+                <p className="mt-2 text-xs text-gray-500">Mặc định khoảng 2 tháng. Chiến dịch không quà All-or-Nothing hoàn nếu hết hạn chưa đủ goal.</p>
               </div>
             </div>
 

@@ -1,10 +1,4 @@
-import { prisma } from "@/lib/prisma";
-
-/** Them phan qua / SKU thi tu doi AON -> Keep-It-All (an toan hon cho backer). */
-export async function coerceCampaignToKeepItAll(campaignId: string): Promise<boolean> {
-  const result = await prisma.campaigns.updateMany({
-    where: { id: campaignId, fundingModel: "ALL_OR_NOTHING" },
-    data: { fundingModel: "KEEP_IT_ALL", updatedAt: new Date() },
-  });
-  return result.count > 0;
+/** All-or-Nothing được phép khi có hàng. Không còn tự đổi Keep-It-All. */
+export async function coerceCampaignToKeepItAll(_campaignId: string): Promise<boolean> {
+  return false;
 }

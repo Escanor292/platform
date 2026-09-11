@@ -28,6 +28,8 @@ interface Campaign {
         pledges: number;
     };
     rejectionReason?: string | null;
+    hasProducts?: boolean;
+    fulfillmentConfirmedAt?: string | Date | null;
 }
 
 interface ProjectOption {

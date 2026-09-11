@@ -11,7 +11,7 @@ export default async function CreatorDashboard() {
 
    const campaigns = await prisma.campaigns.findMany({
       where: { creatorId: (session.user as any).id },
-      include: { _count: { select: { pledges: { where: { status: "SUCCESS" } } } } },
+      include: { _count: { select: { pledges: { where: { status: "SUCCESS" } }, rewards: true } } },
       orderBy: { createdAt: "desc" },
    });
 
@@ -45,6 +45,8 @@ export default async function CreatorDashboard() {
       createdAt: campaign.createdAt,
       projectId: campaign.projectId,
       rejectionReason: extra[campaign.id]?.rejectionReason ?? null,
+      hasProducts: (campaign._count as { rewards?: number }).rewards ? campaign._count.rewards > 0 : false,
+      fulfillmentConfirmedAt: (campaign as { fulfillmentConfirmedAt?: Date | null }).fulfillmentConfirmedAt ?? null,
       _count: campaign._count,
    }));
 

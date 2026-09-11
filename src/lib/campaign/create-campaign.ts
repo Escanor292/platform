@@ -14,7 +14,7 @@ import { CAMPAIGNS_CACHE_PREFIX, cacheInvalidatePrefix } from "@/lib/redis-cache
 import { persistRichText, RichTextValidationError, isRichTextEmpty } from "@/lib/editor/persist";
 import { assertCleanContent } from "@/lib/moderation";
 import { permissionDenied, userHasPermission } from "@/lib/permissions";
-import { assertFundingModelAllowed } from "@/lib/funding-model";
+import { assertFundingModelAllowed, defaultEndDateForType } from "@/lib/funding-model";
 import { parseCampaignType, resolveCampaignTaxonomyInput } from "@/lib/taxonomy-write";
 
 export async function POST(req: NextRequest) {
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
         imageUrl: body.imageUrl || null,
         images: body.images || [],
         videoUrl: body.videoUrl || null,
-        endDate: body.endDate ? new Date(body.endDate) : null,
+        endDate: body.endDate ? new Date(body.endDate) : defaultEndDateForType(campaignType),
         creatorId: userId as string,
         projectId: projectId || null,
         updatedAt: new Date(),

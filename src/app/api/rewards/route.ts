@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { assertCleanContent } from "@/lib/moderation";
-import { AON_COERCED_TO_KIA_NOTE } from "@/lib/funding-model";
-import { coerceCampaignToKeepItAll } from "@/lib/coerce-keep-it-all";
 
 export async function POST(req: NextRequest) {
     try {
@@ -77,23 +75,19 @@ export async function POST(req: NextRequest) {
         }
 
         const resolvedCampaignId = campaignId;
-        let fundingModelCoerced = false;
         if (campaignId) {
             const campaign = await prisma.campaigns.findFirst({
                 where: {
                     id: campaignId,
                     creatorId: (session.user as any).id,
                 },
-                select: { id: true, fundingModel: true, projectId: true, creatorId: true },
+                select: { id: true, projectId: true, creatorId: true },
             });
             if (!campaign) {
                 return NextResponse.json(
                     { error: "Campaign not found or access denied" },
                     { status: 404 }
                 );
-            }
-            if (campaign.fundingModel === "ALL_OR_NOTHING") {
-                fundingModelCoerced = await coerceCampaignToKeepItAll(campaign.id);
             }
         }
 
@@ -174,8 +168,6 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({
             ...reward,
-            fundingModelCoerced,
-            ...(fundingModelCoerced ? { note: AON_COERCED_TO_KIA_NOTE } : {}),
         });
     } catch (error) {
         console.error("[POST /api/rewards]", error);
