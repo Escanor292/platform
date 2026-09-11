@@ -1,18 +1,27 @@
 /**
- * MongoDB Services — Barrel Export
- *
- * Import từ đây thay vì import trực tiếp từng file:
- * import { commentService, notificationService } from '@/services/mongodb';
+ * MongoDB Services — DEPRECATED.
+ * Đã migrate toàn bộ sang PostgreSQL/Prisma.
+ * File này re-export từ services/pg để không phá import cũ.
+ * TODO: Cập nhật caller sang import trực tiếp từ @/services/pg
  */
 
-export { activityLogService }     from './activity-log.service';
-export { analyticsService }       from './analytics.service';
-export { auditLogMongoService }   from './audit-log.service';
-export { campaignContentService } from './campaign-content.service';
-export { campaignUpdateService }  from './campaign-update.service';
-export { commentService }         from './comment.service';
-export { notificationService }    from './notification.service';
-export { userMetadataService }    from './user-metadata.service';
+export { notificationService } from '@/services/pg/notification.service';
+export { activityLogService } from '@/services/pg/activity-log.service';
+export { analyticsService } from '@/services/pg/analytics.service';
+export { commentService } from '@/services/pg/comment.service';
+export { userMetadataService } from '@/services/pg/user-metadata.service';
+export { campaignUpdateService } from '@/services/pg/campaign-update.service';
+export { campaignContentService } from '@/services/pg/campaign-content.service';
 
-// Re-export types từ mongodb.types
+// auditLogMongoService — dừng dual-write, dùng Prisma audit_logs trực tiếp
+export const auditLogMongoService = {
+    log: (_data: unknown) => undefined,
+    getEntityLogs: async () => [] as any[],
+    getUserLogs: async () => [] as any[],
+    getLogsByAction: async () => [] as any[],
+    aggregateByAction: async () => [] as any[],
+    getByPgId: async () => null,
+    ensureIndexes: async () => undefined,
+};
+
 export type * from '@/types/mongodb.types';

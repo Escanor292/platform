@@ -1,66 +1,38 @@
-import { MongoClient, Db } from 'mongodb';
-
-if (!process.env.MONGODB_URI) {
-  throw new Error('MONGODB_URI is missing in .env');
-}
-
-const uri    = process.env.MONGODB_URI;
-const dbName = process.env.MONGODB_DB_NAME || 'crowdfunding_vn';
-
-const options = {
-  connectTimeoutMS:      10000,
-  socketTimeoutMS:       45000,
-  serverSelectionTimeoutMS: 10000,
-  maxPoolSize:           10, // Connection pool
-};
-
-let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
-
-declare global {
-  var _mongoClientPromise: Promise<MongoClient> | undefined;
-}
-
-if (process.env.NODE_ENV === 'development') {
-  // Dev: giữ connection qua HMR reloads
-  if (!global._mongoClientPromise) {
-    client = new MongoClient(uri, options);
-    global._mongoClientPromise = client.connect();
-  }
-  clientPromise = global._mongoClientPromise;
-} else {
-  // Production: module-level singleton đủ dùng
-  client = new MongoClient(uri, options);
-  clientPromise = client.connect();
-}
-
 /**
- * Lấy database instance.
+ * MongoDB client — DEPRECATED.
+ * Đã migrate toàn bộ sang PostgreSQL/Prisma (Neon).
+ * App không còn cần MONGODB_URI để boot.
  *
- * FIX #1: Không cache dbInstance ở module scope.
- * MongoClient đã có connection pooling nội bộ — gọi .db() nhiều lần
- * là O(1) và luôn dùng connection đang sống.
- * Cache module-scope nguy hiểm vì nếu connection ngắt và reconnect,
- * dbInstance cũ trỏ vào DB object đã chết → mọi query fail vĩnh viễn.
+ * File này chỉ còn để script migrate-mongo-to-pg.ts có thể
+ * import khi MONGODB_URI được set tường minh.
  */
-export async function getDb(): Promise<Db> {
-  try {
-    const connectedClient = await clientPromise;
-    return connectedClient.db(dbName);
-  } catch (error) {
-    console.error('[MONGODB] Failed to connect:', error);
-    throw error;
+
+let _warnedOnce = false;
+
+function warnOnce() {
+  if (!_warnedOnce) {
+    console.warn(
+      '[MONGODB] getDb() được gọi nhưng MongoDB đã bị gỡ khỏi app. ' +
+      'Nếu đang chạy script migrate, set MONGODB_URI trong .env.'
+    );
+    _warnedOnce = true;
   }
 }
 
-/** Lấy raw MongoClient (hiếm khi cần) */
-export function getMongoClient(): Promise<MongoClient> {
-  return clientPromise;
+export async function getDb(): Promise<never> {
+  warnOnce();
+  throw new Error(
+    'MongoDB đã bị gỡ. Caller cần chuyển sang PostgreSQL/Prisma. ' +
+    'Xem src/services/pg/ để dùng service tương đương.'
+  );
 }
 
-/** Đóng kết nối thủ công (chỉ dùng trong scripts, không dùng trong app) */
+export function getMongoClient(): Promise<never> {
+  return getDb();
+}
+
 export async function closeConnection(): Promise<void> {
-  if (client) await client.close();
+  // no-op
 }
 
-export default clientPromise;
+export default { connect: () => Promise.resolve() } as any;

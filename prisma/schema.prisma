@@ -237,6 +237,9 @@ model blog_posts {
   campaign_blog_links  campaign_blog_links[]
   project_blog_links   project_blog_links[]
   rewards              rewards[]
+  blog_drafts          blog_drafts?
+  blog_versions        blog_versions[]
+  blog_view_logs       blog_view_logs[]
 
   @@index([authorId])
   @@index([campaignId])
@@ -390,6 +393,8 @@ model campaigns {
   rewards             rewards[]
   reward_digital_assets reward_digital_assets[]
   donation_certificates donation_certificates[]
+  campaign_comments   campaign_comments[]
+  campaign_contents   campaign_contents[]
 
   @@index([category])
   @@index([projectId])
@@ -812,6 +817,12 @@ model users {
   user_badges_user_badges_assigned_byTousers user_badges[]        @relation("user_badges_assigned_byTousers")
   user_badges_user_badges_revoked_byTousers  user_badges[]        @relation("user_badges_revoked_byTousers")
   user_badges_user_badges_user_idTousers     user_badges[]        @relation("user_badges_user_idTousers")
+  notifications                              notifications[]
+  campaign_comments                          campaign_comments[]
+  campaign_comment_reactions                 campaign_comment_reactions[]
+  user_metadata                              user_metadata?
+  user_notes_authored                        user_notes[]         @relation("user_notes_author")
+  user_notes_received                        user_notes[]         @relation("user_notes_target")
 }
 
 model password_reset_tokens {
@@ -1078,4 +1089,286 @@ enum UserStatus {
   NORMAL
   PRO
   BANNED
+}
+
+// ─── Enums mới cho MongoDB → PG migration ───────────────────────────────────
+
+enum CampaignCommentStatus {
+  PENDING
+  APPROVED
+  HIDDEN
+  DELETED
+}
+
+// ─── Models mới (MongoDB → PostgreSQL) ──────────────────────────────────────
+
+model notifications {
+  id        String    @id @default(cuid())
+  userId    String
+  type      String    @db.VarChar(64)
+  title     String
+  message   String
+  payload   Json      @default("{}")
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  users     users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([createdAt])
+}
+
+model activity_logs_v2 {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String   @db.VarChar(64)
+  entityType String   @db.VarChar(64)
+  entityId   String
+  details    Json?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([createdAt(sort: Desc)])
+}
+
+model campaign_comments {
+  id              String                       @id @default(cuid())
+  campaignId      String
+  userId          String
+  userName        String
+  userAvatar      String?
+  content         String
+  parentId        String?
+  depth           Int                          @default(0)
+  isEdited        Boolean                      @default(false)
+  isDeleted       Boolean                      @default(false)
+  status          CampaignCommentStatus        @default(APPROVED)
+  replyCount      Int                          @default(0)
+  editHistory     Json                         @default("[]")
+  createdAt       DateTime                     @default(now())
+  updatedAt       DateTime                     @updatedAt
+  campaigns       campaigns                    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  users           users                        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent          campaign_comments?           @relation("campaign_comment_replies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies         campaign_comments[]          @relation("campaign_comment_replies")
+  comment_reactions campaign_comment_reactions[]
+
+  @@index([campaignId, createdAt(sort: Desc)])
+  @@index([campaignId, parentId, createdAt])
+  @@index([parentId, createdAt])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([status])
+}
+
+model campaign_comment_reactions {
+  id        String            @id @default(cuid())
+  commentId String
+  userId    String
+  type      String            @db.VarChar(16)
+  createdAt DateTime          @default(now())
+  comment   campaign_comments @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  users     users             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, userId, type])
+  @@index([commentId])
+}
+
+model campaign_contents {
+  id             String    @id @default(cuid())
+  campaignId     String
+  lastSavedBy    String
+  version        Int       @default(1)
+  sections       Json      @default("[]")
+  mediaGallery   Json      @default("[]")
+  customFields   Json      @default("{}")
+  isDraft        Boolean   @default(true)
+  publishedAt    DateTime?
+  versionHistory Json      @default("[]")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  campaigns      campaigns @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, isDraft])
+  @@index([campaignId])
+}
+
+model user_metadata {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  preferences Json    @default("{}")
+  onboarding  Json    @default("{}")
+  stats       Json    @default("{}")
+  tags        String[] @default([])
+  customData  Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model analytics_events {
+  id         String   @id @default(cuid())
+  eventName  String   @db.VarChar(64)
+  userId     String?
+  campaignId String?
+  sessionId  String?
+  path       String?
+  payload    Json?
+  device     Json?
+  createdAt  DateTime @default(now())
+
+  @@index([eventName])
+  @@index([userId])
+  @@index([campaignId])
+  @@index([path, eventName])
+  @@index([createdAt(sort: Desc)])
+}
+
+model analytics_settings {
+  id        String   @id @default("behavior")
+  ttlDays   Int      @default(180)
+  updatedBy String?
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model blog_drafts {
+  id                  String     @id @default(cuid())
+  postId              String     @unique
+  authorId            String
+  titleSnapshot       String?
+  excerptSnapshot     String?
+  contentSnapshot     String?
+  richContentSnapshot Json?
+  autosavedAt         DateTime   @default(now())
+  blog_posts          blog_posts @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([authorId])
+}
+
+model blog_versions {
+  id                  String     @id @default(cuid())
+  postId              String
+  versionNumber       Int
+  authorId            String
+  titleSnapshot       String?
+  excerptSnapshot     String?
+  contentSnapshot     String?
+  richContentSnapshot Json?
+  changeNote          String?
+  createdAt           DateTime   @default(now())
+  blog_posts          blog_posts @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, versionNumber])
+  @@index([postId, versionNumber(sort: Desc)])
+}
+
+model blog_view_logs {
+  id        String     @id @default(cuid())
+  postId    String
+  userId    String?
+  ip        String?
+  userAgent String?
+  viewedAt  DateTime   @default(now())
+  blog_posts blog_posts @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId, viewedAt(sort: Desc)])
+  @@index([userId])
+}
+
+model conversations {
+  id              String         @id @default(cuid())
+  conversationKey String         @unique
+  type            String         @default("direct") @db.VarChar(32)
+  participantIds  String[]
+  participants    Json           @default("[]")
+  campaignData    Json?
+  lastMessage     Json?
+  unreadCount     Json           @default("{}")
+  isActive        Boolean        @default(true)
+  isReported      Boolean        @default(false)
+  blockedBy       String[]       @default([])
+  hiddenBy        String[]       @default([])
+  typingBy        Json           @default("{}")
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  messages        messages[]
+  chat_reports    chat_reports[]
+
+  @@index([participantIds])
+  @@index([updatedAt(sort: Desc)])
+}
+
+model messages {
+  id                String            @id @default(cuid())
+  conversationId    String
+  senderId          String
+  senderName        String
+  senderAvatar      String?
+  text              String
+  type              String            @default("text") @db.VarChar(32)
+  attachments       Json              @default("[]")
+  readBy            String[]          @default([])
+  isDeleted         Boolean           @default(false)
+  sensitive         Boolean           @default(false)
+  revealedBy        String[]          @default([])
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  conversations     conversations     @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  message_reactions message_reactions[]
+
+  @@index([conversationId, createdAt(sort: Desc)])
+  @@index([senderId])
+}
+
+model message_reactions {
+  id        String   @id @default(cuid())
+  messageId String
+  emoji     String   @db.VarChar(16)
+  userIds   String[] @default([])
+  messages  messages @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, emoji])
+  @@index([messageId])
+}
+
+model chat_reports {
+  id             String        @id @default(cuid())
+  conversationId String
+  messageId      String?
+  reporterId     String
+  reason         String        @db.VarChar(32)
+  description    String
+  imageUrls      String[]      @default([])
+  occurredAt     DateTime?
+  status         String        @default("pending") @db.VarChar(32)
+  reviewedAt     DateTime?
+  reviewedBy     String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  conversations  conversations @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([reporterId])
+  @@index([status])
+}
+
+model user_notes {
+  id           String   @id @default(cuid())
+  userId       String
+  targetUserId String
+  note         String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  users        users    @relation("user_notes_author", fields: [userId], references: [id], onDelete: Cascade)
+  target       users    @relation("user_notes_target", fields: [targetUserId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@index([targetUserId, expiresAt])
 }

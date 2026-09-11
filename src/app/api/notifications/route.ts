@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { notificationService } from '@/services/mongodb/notification.service';
+import { notificationService } from '@/services/pg/notification.service';
 
 function unauthorized() {
   return NextResponse.json({ error: 'Bạn cần đăng nhập' }, { status: 401 });
@@ -12,15 +12,11 @@ export async function GET(request: NextRequest) {
 
   const limitParam = Number(new URL(request.url).searchParams.get('limit') || 30);
   const limit = Math.min(Math.max(limitParam, 1), 50);
-  const [rows, unreadCount] = await Promise.all([
+
+  const [notifications, unreadCount] = await Promise.all([
     notificationService.getForUser(session.user.id, limit),
     notificationService.countUnread(session.user.id),
   ]);
-
-  const notifications = rows.map((row: any) => {
-    const { _id, ...notification } = row;
-    return { id: String(_id), ...notification };
-  });
 
   return NextResponse.json({ notifications, unreadCount });
 }

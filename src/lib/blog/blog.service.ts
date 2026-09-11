@@ -9,7 +9,7 @@ import {
   isPubliclyVisibleBlog,
   saveBlogSchedule,
 } from '@/lib/blog/blog-review';
-import { notificationService } from '@/services/mongodb/notification.service';
+import { notificationService } from '@/services/pg/notification.service';
 import {
   createBlogContent,
   getBlogContent,
@@ -17,7 +17,7 @@ import {
   createVersion,
   calculateWordCount,
   calculateReadingTime,
-} from '@/services/mongodb/blog.service';
+} from '@/services/pg/blog.service';
 import {
   CreateBlogPostRequest,
   UpdateBlogPostRequest,
@@ -86,10 +86,9 @@ export async function createBlogPost(currentUserId: string, data: CreateBlogPost
     },
   });
   try {
-    const mongoContentId = await createBlogContent({ postId: post.id, format: data.richContent ? 'rich_json' : 'markdown', content: safeContent, richContent: data.richContent, wordCount, readingTimeMinutes });
-    await prisma.blog_posts.update({ where: { id: post.id }, data: { mongoContentId } });
+    await createBlogContent({ postId: post.id, format: data.richContent ? 'rich_json' : 'markdown', content: safeContent, richContent: data.richContent, wordCount, readingTimeMinutes });
   } catch (error) {
-    console.error('[BLOG] Failed to create content in MongoDB, keeping content in PostgreSQL:', error);
+    console.error('[BLOG] Failed to save content:', error);
   }
   if (status === 'PENDING_REVIEW') {
     await notifyAdminsOfBlogSubmission({
