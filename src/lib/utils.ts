@@ -120,6 +120,79 @@ export function formatDistanceToNow(date: Date): string {
 }
 
 /**
+ * Chuyển số tiền VNĐ sang chữ tiếng Việt.
+ * Ví dụ: 1_000_000 → "Một triệu đồng"
+ */
+const _UNIT_VI = ["", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"];
+const _GROUP_VI = ["", "nghìn", "triệu", "tỷ"];
+
+function _readGroup(n: number): string {
+  if (n === 0) return "";
+  const hundreds = Math.floor(n / 100);
+  const tens = Math.floor((n % 100) / 10);
+  const ones = n % 10;
+  const parts: string[] = [];
+  if (hundreds > 0) parts.push(`${_UNIT_VI[hundreds]} trăm`);
+  if (tens > 1) {
+    parts.push(`${_UNIT_VI[tens]} mươi`);
+    if (ones > 0) parts.push(ones === 1 ? "mốt" : ones === 5 ? "lăm" : _UNIT_VI[ones]);
+  } else if (tens === 1) {
+    parts.push("mười");
+    if (ones > 0) parts.push(ones === 5 ? "lăm" : _UNIT_VI[ones]);
+  } else if (ones > 0) {
+    if (hundreds > 0) parts.push(`lẻ ${_UNIT_VI[ones]}`);
+    else parts.push(_UNIT_VI[ones]);
+  }
+  return parts.join(" ");
+}
+
+export function numberToVietnameseWords(amount: number): string {
+  const n = Math.round(Math.abs(amount));
+  if (n === 0) return "Không đồng";
+  const groups: number[] = [];
+  let tmp = n;
+  while (tmp > 0) {
+    groups.push(tmp % 1000);
+    tmp = Math.floor(tmp / 1000);
+  }
+  const parts: string[] = [];
+  for (let i = groups.length - 1; i >= 0; i--) {
+    if (groups[i] === 0) continue;
+    const text = _readGroup(groups[i]);
+    parts.push(i > 0 ? `${text} ${_GROUP_VI[i]}` : text);
+  }
+  const result = parts.join(" ").replace(/\s+/g, " ").trim();
+  return result.charAt(0).toUpperCase() + result.slice(1) + " đồng";
+}
+
+/**
+ * Che email: nguyenvan@example.com → n*****n@e****e.com
+ */
+export function maskEmail(email: string | null | undefined): string {
+  if (!email) return "";
+  const [local, domain] = email.split("@");
+  if (!domain) return email;
+  const maskedLocal = local.length <= 2
+    ? local[0] + "*"
+    : local[0] + "*".repeat(local.length - 2) + local[local.length - 1];
+  const [domainName, ...tld] = domain.split(".");
+  const maskedDomain = domainName.length <= 2
+    ? domainName[0] + "*"
+    : domainName[0] + "*".repeat(domainName.length - 2) + domainName[domainName.length - 1];
+  return `${maskedLocal}@${maskedDomain}.${tld.join(".")}`;
+}
+
+/**
+ * Che SĐT: 0912345678 → 091***5678
+ */
+export function maskPhone(phone: string | null | undefined): string {
+  if (!phone) return "";
+  const p = phone.replace(/\s+/g, "");
+  if (p.length < 6) return p;
+  return p.slice(0, 3) + "*".repeat(p.length - 6) + p.slice(-3);
+}
+
+/**
  * Extracts plain text from TipTap JSON for preview descriptions.
  */
 export function extractTextFromDescription(description: string): string {

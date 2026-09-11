@@ -222,57 +222,194 @@ export function certificateHtml(input: {
   flowType: MoneyFlow;
   displayName: string;
   amount: number;
+  amountWords?: string;
   campaignTitle?: string | null;
+  creatorName?: string | null;
+  creatorKycVerified?: boolean;
   transactionId?: string | null;
   issuedAt: Date;
-  guestEmail?: string | null;
+  /** Email đầy đủ của chính chủ — chứng từ riêng tư, không che */
+  ownerEmail?: string | null;
+  /** SĐT đầy đủ của chính chủ — chứng từ riêng tư, không che */
+  ownerPhone?: string | null;
+  tipAmount?: number;
+  verifyUrl?: string;
 }) {
-  const kindLabel = documentKindLabel(input.documentKind);
-  const flowLabel = moneyFlowLabel(input.flowType);
   const amount = Number(input.amount).toLocaleString("vi-VN");
+  const amountWords = input.amountWords || `${amount} đồng`;
   const issued = new Intl.DateTimeFormat("vi-VN", {
     dateStyle: "long",
     timeStyle: "short",
     timeZone: "Asia/Ho_Chi_Minh",
   }).format(input.issuedAt);
+  const verifyUrl = input.verifyUrl || `https://tutefund.vn/chung-tu/${input.code}`;
+  const kycLabel = input.creatorKycVerified ? "Đã xác minh" : "Chưa xác minh";
 
   return `<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>${kindLabel} ${input.code}</title>
+  <title>Giấy Chứng Nhận ${input.code} — Tử Tế Fund</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f3efe6; color: #1c2118; margin: 0; padding: 32px; }
-    .sheet { max-width: 720px; margin: 0 auto; background: #fff; border: 1px solid #d7d2c6; border-radius: 24px; padding: 40px; }
-    h1 { font-size: 28px; margin: 0 0 8px; }
-    .code { font-size: 22px; letter-spacing: 0.12em; font-weight: 800; color: #1a6b46; }
-    .muted { color: #667; font-size: 13px; line-height: 1.6; }
-    table { width: 100%; border-collapse: collapse; margin: 24px 0; }
-    td { padding: 10px 0; border-bottom: 1px solid #eee; font-size: 14px; }
-    .stamp { margin-top: 28px; font-size: 12px; color: #888; }
-    @media print { body { background: #fff; padding: 0; } .sheet { border: none; } }
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&display=swap');
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f3efe6; color: #1F4E79; margin: 0; padding: 24px; }
+    .sheet {
+      max-width: 780px; margin: 0 auto; background: #fff;
+      border: 2px solid #c8d8b0; border-radius: 16px; padding: 40px 48px;
+      position: relative;
+    }
+    .sheet::before {
+      content: '';
+      position: absolute; inset: 8px;
+      border: 1px dashed #c8d8b0;
+      border-radius: 12px;
+      pointer-events: none;
+    }
+    /* Header */
+    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 2px solid #2E8B57; }
+    .logo-block { display: flex; flex-direction: column; }
+    .logo-name { font-family: 'Playfair Display', Georgia, serif; font-size: 22px; font-weight: 900; color: #2E8B57; letter-spacing: 0.06em; }
+    .logo-sub { font-size: 11px; color: #6B7280; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px; }
+    .header-right { text-align: right; font-size: 12px; }
+    .header-right .label { color: #6B7280; text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px; }
+    .code-val { font-family: monospace; font-size: 15px; font-weight: 800; color: #1F4E79; letter-spacing: 0.1em; }
+    /* Stamp seal */
+    .stamp-outer {
+      width: 88px; height: 88px; border-radius: 50%;
+      border: 3px solid #2E8B57;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; font-size: 8px; font-weight: 800;
+      color: #2E8B57; letter-spacing: 0.06em; line-height: 1.3;
+      margin-top: 4px; padding: 4px;
+      text-transform: uppercase;
+    }
+    /* Title */
+    .title-block { text-align: center; margin: 20px 0 16px; }
+    .main-title { font-family: 'Playfair Display', Georgia, serif; font-size: 26px; font-weight: 900; color: #1F4E79; letter-spacing: 0.04em; }
+    .sub-title { font-family: 'Playfair Display', Georgia, serif; font-size: 14px; color: #2E8B57; font-weight: 700; margin-top: 4px; letter-spacing: 0.08em; }
+    .divider { border: none; border-top: 1px solid #d1e4c0; margin: 16px 0; }
+    /* Vinh danh block */
+    .honor-block { background: #f0f7ec; border: 1px solid #c8e0b0; border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; }
+    .honor-label { font-size: 10px; color: #2E8B57; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 6px; }
+    .honor-name { font-family: 'Playfair Display', Georgia, serif; font-size: 20px; font-weight: 900; color: #1F4E79; }
+    .honor-meta { font-size: 12px; color: #4B5563; margin-top: 4px; line-height: 1.6; }
+    /* Info table */
+    .info-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 13px; }
+    .info-table td { padding: 8px 0; border-bottom: 1px solid #e8f0e0; }
+    .info-table td:first-child { color: #6B7280; width: 46%; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .info-table td:last-child { font-weight: 600; color: #1F4E79; }
+    .amount-big { font-size: 18px; font-weight: 900; color: #2E8B57; }
+    /* Gratitude */
+    .gratitude { background: #fefdf9; border-left: 3px solid #2E8B57; padding: 12px 16px; margin: 16px 0; font-size: 12.5px; color: #374151; line-height: 1.7; font-style: italic; }
+    /* Signature row */
+    .sig-row { display: flex; gap: 32px; margin-top: 24px; }
+    .sig-box { flex: 1; border: 1px solid #c8d8b0; border-radius: 8px; padding: 16px; text-align: center; min-height: 90px; }
+    .sig-title { font-size: 11px; color: #6B7280; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 4px; }
+    .sig-name { font-size: 13px; font-weight: 700; color: #1F4E79; margin-top: 8px; }
+    .sig-note { font-size: 10px; color: #9CA3AF; margin-top: 2px; }
+    .sig-digital { font-size: 10px; color: #2E8B57; margin-top: 6px; }
+    /* Footer */
+    .cert-footer { margin-top: 20px; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 10px; color: #9CA3AF; text-align: center; line-height: 1.6; }
+    .disclaimer { font-size: 11px; color: #6B7280; background: #f9fafb; border-radius: 6px; padding: 10px 14px; margin-top: 14px; line-height: 1.6; }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .sheet { border: 1px solid #c8d8b0; border-radius: 0; box-shadow: none; }
+      .sheet::before { display: none; }
+    }
   </style>
 </head>
 <body>
   <div class="sheet">
-    <p class="muted">Tử Tế Fund · chứng từ điện tử</p>
-    <h1>${kindLabel}</h1>
-    <p class="code">${input.code}</p>
-    <table>
-      <tr><td>Loại khoản</td><td style="text-align:right">${flowLabel}</td></tr>
-      <tr><td>Người ủng hộ</td><td style="text-align:right">${input.displayName}</td></tr>
-      ${input.guestEmail ? `<tr><td>Email nhận</td><td style="text-align:right">${input.guestEmail}</td></tr>` : ""}
-      ${input.campaignTitle ? `<tr><td>Chiến dịch</td><td style="text-align:right">${input.campaignTitle}</td></tr>` : ""}
-      <tr><td>Số tiền</td><td style="text-align:right"><strong>${amount}đ</strong></td></tr>
-      ${input.transactionId ? `<tr><td>Mã giao dịch</td><td style="text-align:right">${input.transactionId}</td></tr>` : ""}
-      <tr><td>Ngày cấp</td><td style="text-align:right">${issued}</td></tr>
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="logo-block">
+        <span class="logo-name">🌱 TỬ TẾ FUND</span>
+        <span class="logo-sub">Nền tảng gây quỹ cộng đồng</span>
+      </div>
+      <div class="header-right">
+        <div class="label">Mã xác thực</div>
+        <div class="code-val">${input.code}</div>
+        <div class="stamp-outer">TỬ TẾ<br/>FUND<br/>·<br/>CHỨNG TỪ<br/>ĐIỆN TỬ</div>
+      </div>
+    </div>
+
+    <!-- TITLE -->
+    <div class="title-block">
+      <div class="main-title">GIẤY CHỨNG NHẬN</div>
+      <div class="sub-title">TẤM LÒNG VÀNG ĐỒNG HÀNH</div>
+    </div>
+    <hr class="divider" />
+
+    <!-- VINH DANH -->
+    <div class="honor-block">
+      <div class="honor-label">Trân trọng vinh danh và tri ân</div>
+      <div class="honor-name">${input.displayName}</div>
+      <div class="honor-meta">
+        ${input.ownerEmail ? `Email: ${input.ownerEmail}` : ""}
+        ${input.ownerPhone ? `&nbsp;&nbsp;|&nbsp;&nbsp;SĐT: ${input.ownerPhone}` : ""}
+      </div>
+      <div class="honor-meta" style="margin-top:4px">Đã tự nguyện đóng góp, không nhận sản phẩm/quà tặng, đồng hành cùng:</div>
+    </div>
+
+    <!-- BẢNG DỰ ÁN + CHI TIẾT -->
+    <table class="info-table">
+      ${input.campaignTitle ? `<tr><td>Tên chiến dịch</td><td>${input.campaignTitle}</td></tr>` : ""}
+      ${input.creatorName ? `<tr><td>Người gọi vốn</td><td>${input.creatorName} <span style="font-size:11px;color:#6B7280;">(KYC: ${kycLabel})</span></td></tr>` : ""}
+      <tr><td>Hình thức</td><td>Quyên góp tự nguyện không nhận quà (NO_GIFT)</td></tr>
+      ${input.transactionId ? `<tr><td>Mã giao dịch</td><td style="font-family:monospace;font-size:12px">${input.transactionId}</td></tr>` : ""}
+      <tr>
+        <td>Số tiền</td>
+        <td>
+          <span class="amount-big">${amount} VNĐ</span><br/>
+          <span style="font-size:11px;color:#4B5563;">(${amountWords})</span>
+        </td>
+      </tr>
+      ${input.tipAmount && input.tipAmount > 0 ? `<tr><td>Ủng hộ thêm nền tảng</td><td>${Number(input.tipAmount).toLocaleString("vi-VN")} VNĐ</td></tr>` : ""}
+      <tr><td>Phương thức</td><td>Chuyển khoản tài khoản ngân hàng trung gian (BANK_ESCROW)</td></tr>
+      <tr><td>Thời gian cấp</td><td>${issued}</td></tr>
+      <tr><td>Tên vinh danh</td><td>${input.displayName}</td></tr>
     </table>
-    <p class="muted">
-      Đây là ${kindLabel.toLowerCase()} do nền tảng cấp để đối chiếu thanh toán.
-      <strong>Không phải hóa đơn GTGT / hóa đơn điện tử theo Nghị định 123</strong>.
-      Người mua lẻ không bị cộng VAT trên giá niêm yết. Hóa đơn GTGT (nếu có) do Creator xuất.
-    </p>
-    <p class="stamp">Tử Tế Fund · sổ sách nội bộ · ${input.code}</p>
+
+    <!-- LỜI TRI ÂN -->
+    <div class="gratitude">
+      Cảm ơn bạn đã tin tưởng và chọn đồng hành cùng chiến dịch này trên Tử Tế Fund. Tấm lòng của bạn là nguồn
+      động lực quý giá cho người gọi vốn và cộng đồng. Chứng từ này ghi nhận sự đóng góp tự nguyện của bạn
+      như một dấu ấn thiện tâm đáng trân trọng.
+    </div>
+
+    <!-- CHỮ KÝ -->
+    <div style="font-size:12px;color:#6B7280;margin-bottom:8px;">Ngày cấp: ${issued}</div>
+    <div class="sig-row">
+      <div class="sig-box">
+        <div class="sig-title">Đại diện nền tảng</div>
+        <div class="sig-title">Tử Tế Fund</div>
+        <div class="sig-digital">✦ Chữ ký số hệ thống ✦</div>
+        <div class="sig-name">Ban Vận Hành</div>
+        <div class="sig-note">Xuất tự động, có giá trị xác thực tại link bên dưới</div>
+      </div>
+      <div class="sig-box">
+        <div class="sig-title">Người gọi vốn</div>
+        ${input.creatorName ? `<div class="sig-name">${input.creatorName}</div>` : ""}
+        <div class="sig-note" style="margin-top:10px">Chứng từ do sàn cấp.<br/>Creator xác nhận khi đối soát.</div>
+      </div>
+    </div>
+
+    <!-- DISCLAIMER -->
+    <div class="disclaimer">
+      ⓘ Đây là chứng từ đối chiếu thanh toán nội bộ do Tử Tế Fund cấp tự động sau khi xác nhận tiền vào
+      tài khoản ngân hàng trung gian. <strong>Không phải hóa đơn GTGT / hóa đơn điện tử theo Nghị định 123/2020/NĐ-CP.</strong>
+      Tử Tế Fund là sàn trung gian, không phải quỹ từ thiện được cấp phép. Người đóng góp trả giá niêm yết,
+      không cộng VAT trên checkout. Hóa đơn GTGT (nếu có) do Creator tự xuất khi đủ điều kiện.
+    </div>
+
+    <!-- FOOTER -->
+    <div class="cert-footer">
+      Xuất tự động từ hệ thống Tử Tế Fund &nbsp;·&nbsp; Không phải hóa đơn GTGT
+      &nbsp;·&nbsp; Đối soát: <strong>${verifyUrl}</strong>
+    </div>
+
   </div>
 </body>
 </html>`;
