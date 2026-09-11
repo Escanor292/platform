@@ -32,37 +32,37 @@ export function buildProfileTabItems(
       id: "projects",
       label: "Dự án",
       count: options.projectCount,
-      show: ownerView || (isLayoutSectionVisible(profileConfig, "projects", audience) && options.projectCount > 0),
+      show: isLayoutSectionVisible(profileConfig, "projects", audience) && (ownerView || options.projectCount > 0),
     },
     {
       id: "campaigns",
       label: "Chiến dịch",
       count: options.campaignCount,
-      show: ownerView || (isLayoutSectionVisible(profileConfig, "campaigns", audience) && options.campaignCount > 0),
+      show: isLayoutSectionVisible(profileConfig, "campaigns", audience) && (ownerView || options.campaignCount > 0),
     },
     {
       id: "products",
       label: "Sản phẩm",
       count: options.productCount,
-      show: ownerView || (isLayoutSectionVisible(profileConfig, "products", audience) && options.productCount > 0),
+      show: isLayoutSectionVisible(profileConfig, "products", audience) && (ownerView || options.productCount > 0),
     },
     {
       id: "blog",
       label: "Blog",
       count: options.blogCount,
-      show: ownerView || (isLayoutSectionVisible(profileConfig, "blog", audience) && options.blogCount > 0),
+      show: isLayoutSectionVisible(profileConfig, "blog", audience) && (ownerView || options.blogCount > 0),
     },
     {
       id: "pledges",
       label: "Đã ủng hộ",
       count: options.pledgeCount,
-      show: ownerView || (isLayoutSectionVisible(profileConfig, "pledges", audience) && options.pledgeCount > 0),
+      show: isLayoutSectionVisible(profileConfig, "pledges", audience) && (ownerView || options.pledgeCount > 0),
     },
     {
       id: "badges",
       label: "Huy hiệu",
       count: options.badgeCount || 0,
-      show: ownerView || (isLayoutSectionVisible(profileConfig, "badges", audience) && (options.badgeCount || 0) > 0),
+      show: isLayoutSectionVisible(profileConfig, "badges", audience) && (ownerView || (options.badgeCount || 0) > 0),
     },
   ];
 

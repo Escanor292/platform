@@ -158,6 +158,17 @@ describe('profile customization contract', () => {
     expect(isLayoutSectionVisible(config, 'badges', 'guest')).toBe(true);
   });
 
+  it('lets the owner hide a tab without changing the guest layout', () => {
+    const hidden = {
+      ...DEFAULT_PROFILE_CUSTOMIZATION,
+      ownerSections: DEFAULT_PROFILE_CUSTOMIZATION.ownerSections.map((section) =>
+        section.id === 'blog' ? { ...section, visible: false } : section,
+      ),
+    };
+    expect(isLayoutSectionVisible(hidden, 'blog', 'owner')).toBe(false);
+    expect(isLayoutSectionVisible(hidden, 'blog', 'guest')).toBe(true);
+  });
+
   it('keeps the owner layout when applying a shared template', () => {
     const current = {
       ...DEFAULT_PROFILE_CUSTOMIZATION,

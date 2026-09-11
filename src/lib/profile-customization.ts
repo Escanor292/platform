@@ -273,7 +273,6 @@ export function isLayoutSectionVisible(
   id: ProfileSectionId,
   audience: ProfileAudience,
 ) {
-  if (audience === "owner" && (PROFILE_TAB_SECTION_IDS as readonly string[]).includes(id)) return true;
   return getLayoutSections(config, audience).find((item) => item.id === id)?.visible ?? true;
 }
 

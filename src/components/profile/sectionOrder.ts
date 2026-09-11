@@ -19,7 +19,7 @@ export const STUDIO_SECTION_HINTS: Record<Exclude<ProfileSectionId, "cta">, stri
   products: "Tab sản phẩm",
   campaigns: "Tab chiến dịch",
   projects: "Tab dự án",
-  pledges: "Tab đã ủng hộ — mặc định ẩn với khách, bật khi muốn công khai",
+  pledges: "Tab đã ủng hộ",
   blog: "Tab blog",
   badges: "Tab huy hiệu",
   achievements: "Khối phụ, không nằm trong thanh tab",

@@ -2,7 +2,6 @@
 
 import { ChevronDown, ChevronUp, GripVertical } from 'lucide-react';
 import {
-  PROFILE_TAB_SECTION_IDS,
   type ProfileAudience,
   type ProfileCustomizationConfig,
   type ProfileSection,
@@ -42,7 +41,7 @@ function groupsFor(audience: ProfileAudience): Array<{ id: StudioGroupId; title:
       {
         id: 'tabs',
         title: 'Thanh tab của chính chủ',
-        hint: 'Kéo để đổi thứ tự. Các tab luôn hiện khi bạn vào trang của mình, kể cả khi trống.',
+        hint: 'Kéo để đổi thứ tự. Tắt ô hiện thì tab đó ẩn khi bạn vào trang của mình.',
         sortable: true,
       },
       {
@@ -162,7 +161,6 @@ export default function SectionDragList({
   audience: ProfileAudience;
 }) {
   const [dragId, setDragId] = useState<string | null>(null);
-  const tabSet = new Set(PROFILE_TAB_SECTION_IDS as readonly string[]);
 
   return (
     <div className="space-y-6">
@@ -182,7 +180,7 @@ export default function SectionDragList({
                 index={index}
                 items={items}
                 sortable={group.sortable}
-                lockVisible={audience === 'owner' && tabSet.has(item.id)}
+                lockVisible={false}
                 dragId={dragId}
                 setDragId={setDragId}
                 config={config}

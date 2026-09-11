@@ -219,37 +219,37 @@ export function ProfileTabs({
             id: 'projects',
             label: 'Dự án',
             count: orderedProjects.length,
-            show: ownerView || (isLayoutSectionVisible(profileConfig, 'projects', audience) && orderedProjects.length > 0),
+            show: isLayoutSectionVisible(profileConfig, 'projects', audience) && (ownerView || orderedProjects.length > 0),
         },
         {
             id: 'campaigns',
             label: 'Chiến dịch',
             count: orderedCampaigns.length,
-            show: ownerView || (isLayoutSectionVisible(profileConfig, 'campaigns', audience) && orderedCampaigns.length > 0),
+            show: isLayoutSectionVisible(profileConfig, 'campaigns', audience) && (ownerView || orderedCampaigns.length > 0),
         },
         {
             id: 'products',
             label: 'Sản phẩm',
             count: totalProducts,
-            show: ownerView || (isLayoutSectionVisible(profileConfig, 'products', audience) && totalProducts > 0),
+            show: isLayoutSectionVisible(profileConfig, 'products', audience) && (ownerView || totalProducts > 0),
         },
         {
             id: 'blog',
             label: 'Blog',
             count: orderedBlogPosts.length,
-            show: ownerView || (isLayoutSectionVisible(profileConfig, 'blog', audience) && orderedBlogPosts.length > 0),
+            show: isLayoutSectionVisible(profileConfig, 'blog', audience) && (ownerView || orderedBlogPosts.length > 0),
         },
         {
             id: 'pledges',
             label: 'Đã ủng hộ',
             count: limitedPledges.length,
-            show: ownerView || (isLayoutSectionVisible(profileConfig, 'pledges', audience) && limitedPledges.length > 0),
+            show: isLayoutSectionVisible(profileConfig, 'pledges', audience) && (ownerView || limitedPledges.length > 0),
         },
         {
             id: 'badges',
             label: 'Huy hiệu',
             count: badgeCount,
-            show: ownerView || (isLayoutSectionVisible(profileConfig, 'badges', audience) && badgeCount > 0),
+            show: isLayoutSectionVisible(profileConfig, 'badges', audience) && (ownerView || badgeCount > 0),
         },
     ].sort((a, b) => {
         const ai = tabOrder.indexOf(a.id);
