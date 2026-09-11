@@ -35,6 +35,13 @@ function TypeIcon({ category }: { category: Exclude<WarehouseCategory, "all"> })
   return <Download {...common} />;
 }
 
+function statusLabel(status?: string | null) {
+  if (status === "DELIVERED") return "Da nhan";
+  if (status === "PROCESSING") return "Dang cap chung tu";
+  if (status === "AWAITING_PAYMENT") return "Cho doi soat tien";
+  return "Trong kho";
+}
+
 export default function WarehouseClient({ items, highlightId }: { items: WarehouseItem[]; highlightId?: string }) {
   const [filter, setFilter] = useState<WarehouseCategory>("all");
 
@@ -72,10 +79,10 @@ export default function WarehouseClient({ items, highlightId }: { items: Warehou
       {visible.length === 0 ? (
         <div className="rounded-3xl border border-white/60 bg-white/80 p-12 text-center shadow-soft">
           <PackageOpen className="mx-auto mb-4 text-fgreen" size={48} />
-          <p className="font-display text-xl font-bold text-dblue">Kho đồ đang trống</p>
-          <p className="mt-2 text-sm text-gray-500">Sản phẩm số sau khi thanh toán sẽ xuất hiện ngay tại đây.</p>
+          <p className="font-display text-xl font-bold text-dblue">Kho do dang trong</p>
+          <p className="mt-2 text-sm text-gray-500">Chung nhan ung ho va san pham so se xuat hien tai day sau thanh toan.</p>
           <Link href="/projects" className="mt-6 inline-flex rounded-full px-5 py-2.5 text-sm font-semibold text-white" style={{ background: "linear-gradient(135deg, #2E8B57, #6BCB77)" }}>
-            Khám phá sản phẩm
+            Kham pha san pham
           </Link>
         </div>
       ) : (
@@ -98,25 +105,31 @@ export default function WarehouseClient({ items, highlightId }: { items: Warehou
                     ) : (
                       <h2 className="mt-2 font-display text-lg font-bold text-dblue">{item.title}</h2>
                     )}
-                    <p className="mt-1 text-xs text-gray-500">Vào kho {new Date(item.purchasedAt).toLocaleDateString("vi-VN")} · {item.quantity} sản phẩm</p>
+                    <p className="mt-1 text-xs text-gray-500">Vao kho {new Date(item.purchasedAt).toLocaleDateString("vi-VN")} · {item.quantity} san pham</p>
                   </div>
                 </div>
                 <div className="border-t border-gray-50 bg-cream/40 px-5 py-4">
                   {item.href ? (
                     <Link href={item.href} className="inline-flex items-center gap-2 font-semibold text-pgreen hover:underline">
-                      <FileCheck size={16} /> Xem chứng từ
+                      <FileCheck size={16} /> Xem chung tu
                     </Link>
                   ) : item.licenseKey ? (
                     <p className="rounded-xl bg-white px-3 py-2 font-mono text-sm text-dblue">{item.licenseKey}</p>
                   ) : item.assetUrl ? (
                     <a href={item.assetUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-semibold text-pgreen hover:underline">
-                      {item.fulfillmentType === "EMAIL" ? <Mail size={16} /> : <Download size={16} />} Mở trong kho đồ
+                      {item.fulfillmentType === "EMAIL" ? <Mail size={16} /> : <Download size={16} />} Mo trong kho do
                     </a>
+                  ) : item.fulfillmentType === "CERTIFICATE" ? (
+                    <p className="text-sm text-amber-700">
+                      {item.status === "PROCESSING"
+                        ? "Tien da doi soat. Dang cap ma TT-UH."
+                        : "Cho san doi soat tien vao tai khoan trung gian roi cap giay chung nhan."}
+                    </p>
                   ) : (
-                    <p className="text-sm text-amber-700">Đã vào kho đồ. Nhà sáng tạo đang bổ sung file tải.</p>
+                    <p className="text-sm text-amber-700">Da vao kho do. Nha sang tao dang bo sung file tai.</p>
                   )}
                   <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
-                    <span>{item.status === "DELIVERED" ? "Đã nhận" : "Trong kho"}</span>
+                    <span>{statusLabel(item.status)}</span>
                     <span className="font-semibold text-dblue">{formatVND(item.amount)}</span>
                   </div>
                 </div>
