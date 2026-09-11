@@ -1,5 +1,5 @@
 {
-  "buildCommand": "prisma generate && node scripts/prisma-migrate-deploy.mjs && next build",
+  "buildCommand": "prisma generate && (prisma migrate deploy || (prisma migrate resolve --rolled-back 20260911134110_migrate_mongo_to_postgres && prisma migrate deploy)) && next build",
   "framework": "nextjs",
   "regions": [
     "sin1"
