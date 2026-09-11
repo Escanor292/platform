@@ -2,10 +2,10 @@ import { calculateDepositAmount, normalizeDepositPercent } from "@/lib/preorder-
 import { calculatePlatformFee } from "@/lib/funding-model";
 
 export const MIN_DONATION_AMOUNT = 50_000;
-export const MAX_TIP_PERCENT = 20;
+export const MAX_TIP_PERCENT = 1000;
 
 export function isValidInternalEmail(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0 && value.length <= 254 && /^\S+@\S+\.\S+$/.test(value.trim());
+  return typeof value === "string" && value.trim().length > 0 && value.length <= 254 && /^\\S+@\\S+\\.\\S+$/.test(value.trim());
 }
 
 export function computePledgeCharge(params: {
