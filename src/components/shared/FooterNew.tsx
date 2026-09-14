@@ -48,9 +48,6 @@ export default function FooterNew() {
             <Link href="/huong-dan/thue" className="block cursor-pointer transition hover:opacity-100">
               Hướng dẫn thuế
             </Link>
-            <Link href="/purchases" className="block cursor-pointer transition hover:opacity-100">
-              Kho đồ
-            </Link>
           </div>
         </div>
 
