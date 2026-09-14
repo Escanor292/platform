@@ -400,14 +400,11 @@ export function certificateHtml(input: {
     <div class="disclaimer">
       ⓘ Đây là chứng từ đối chiếu thanh toán nội bộ do Tử Tế Fund cấp tự động sau khi xác nhận tiền vào
       tài khoản ngân hàng trung gian. <strong>Không phải hóa đơn GTGT / hóa đơn điện tử theo Nghị định 123/2020/NĐ-CP.</strong>
-      Tử Tế Fund là sàn trung gian, không phải quỹ từ thiện được cấp phép. Người đóng góp trả giá niêm yết,
-      không cộng VAT trên checkout. Hóa đơn GTGT (nếu có) do Creator tự xuất khi đủ điều kiện.
     </div>
 
     <!-- FOOTER -->
     <div class="cert-footer">
-      Xuất tự động từ hệ thống Tử Tế Fund &nbsp;·&nbsp; Không phải hóa đơn GTGT
-      &nbsp;·&nbsp; Đối soát: <strong>${verifyUrl}</strong>
+      Đối soát: <strong>${verifyUrl}</strong>
     </div>
 
   </div>

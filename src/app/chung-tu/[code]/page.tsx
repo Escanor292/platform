@@ -361,15 +361,11 @@ export default async function CertificatePage({
         <aside className="bg-gray-50 rounded-xl px-4 py-3 text-xs text-gray-500 leading-relaxed mb-5">
           <span className="font-bold text-dblue">⚠ Lưu ý:</span> Đây là chứng từ đối chiếu thanh toán nội bộ,{" "}
           <strong>không phải hóa đơn GTGT / hóa đơn điện tử theo NĐ 123/2020/NĐ-CP</strong>. Chỉ cấp sau khi
-          admin xác nhận tiền đã vào tài khoản ngân hàng trung gian. Tử Tế Fund là sàn trung gian, không tự
-          xưng là Quỹ từ thiện được cấp phép. Người đóng góp trả giá niêm yết, không cộng VAT. Hóa đơn GTGT
-          (nếu có) do Creator tự xuất khi đủ điều kiện.
+          admin xác nhận tiền đã vào tài khoản ngân hàng trung gian.
         </aside>
 
         {/* ── FOOTER VERIFY ── */}
         <footer className="border-t border-gray-100 pt-4 text-center text-[11px] text-gray-400 leading-relaxed">
-          Xuất tự động từ hệ thống Tử Tế Fund &nbsp;·&nbsp; Không phải hóa đơn GTGT
-          <br />
           Đối soát:{" "}
           <a href={verifyUrl} className="text-pgreen hover:underline font-medium break-all">
             {verifyUrl}
