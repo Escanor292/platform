@@ -47,6 +47,13 @@ interface PledgeFormContentProps {
 const PLATFORM_TIP_OPTIONS = [0, 5, 10, 15];
 const SLIDER_TIP_MAX = 100;
 const INPUT_TIP_MAX = 1000;
+const PRESET_AMOUNTS = [50_000, 100_000, 150_000, 200_000, 500_000, 1_000_000];
+
+function formatPresetLabel(amount: number) {
+    if (amount >= 1_000_000 && amount % 1_000_000 === 0) return `${amount / 1_000_000}tr`;
+    if (amount >= 1_000 && amount % 1_000 === 0) return `${amount / 1_000}k`;
+    return formatVND(amount);
+}
 
 const PAYMENT_METHODS = {
     ONLINE: {
@@ -261,6 +268,28 @@ const PledgeFormContent = memo(function PledgeFormContent({
                                 setCustomAmount(numeric);
                                 setDisplayCustomAmount(numeric ? numeric.toLocaleString("de-DE") : "");
                             }} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm" />
+                            <div className="flex flex-wrap gap-2 mt-2">
+                                {PRESET_AMOUNTS.map((amount) => {
+                                    const isSelected = customAmount === amount;
+                                    return (
+                                        <button
+                                            key={amount}
+                                            type="button"
+                                            onClick={() => {
+                                                setCustomAmount(amount);
+                                                setDisplayCustomAmount(amount.toLocaleString("de-DE"));
+                                            }}
+                                            className={`text-xs font-semibold border rounded-lg px-2.5 py-1.5 transition ${
+                                                isSelected
+                                                    ? "bg-green-600 text-white border-green-600"
+                                                    : "border-gray-200 text-gray-700 hover:bg-green-50 hover:border-green-300"
+                                            }`}
+                                        >
+                                            {formatPresetLabel(amount)}
+                                        </button>
+                                    );
+                                })}
+                            </div>
                         </div>
                     ) : null}
 
