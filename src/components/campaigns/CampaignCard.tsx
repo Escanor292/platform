@@ -43,7 +43,7 @@ export const CampaignCard = memo(function CampaignCard({ project }: CampaignCard
   return (
     <Link
       href={`/campaigns/${project.slug}`}
-      className="group bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+      className="group h-full flex flex-col bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
     >
       {/* Thumbnail */}
       <div className="relative h-[210px] md:h-[200px] lg:h-[220px] overflow-hidden bg-gray-100">
@@ -82,9 +82,9 @@ export const CampaignCard = memo(function CampaignCard({ project }: CampaignCard
       </div>
 
       {/* Content */}
-      <div className="p-6 space-y-4">
+      <div className="p-6 flex flex-col flex-1 min-h-0">
         {/* Category & Type */}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-nowrap gap-2 overflow-hidden h-6 mb-4">
           <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-tblue/10 text-tblue rounded-md text-[9px] font-black uppercase tracking-wider border border-tblue/20 italic">
             <Tag size={10} />
             {project.category}
@@ -102,64 +102,69 @@ export const CampaignCard = memo(function CampaignCard({ project }: CampaignCard
         </div>
 
         {project.tags?.length > 0 && (
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-nowrap gap-1 overflow-hidden h-6 mb-4">
             {project.tags.slice(0, 3).map((tag) => (
-              <span key={tag} className="px-2 py-0.5 rounded-md bg-gray-50 text-[10px] font-semibold text-gray-500">
+              <span key={tag} className="shrink-0 px-2 py-0.5 rounded-md bg-gray-50 text-[10px] font-semibold text-gray-500">
                 #{getTagLabel(tag)}
               </span>
             ))}
           </div>
         )}
 
-        {/* Title */}
-        <h3 className="font-display font-bold text-lg text-dblue line-clamp-2 group-hover:text-pgreen transition-colors leading-tight">
+        {/* Title: max 2 lines, overflow becomes … */}
+        <h3
+          title={project.title}
+          className="font-display font-bold text-lg text-dblue line-clamp-2 min-h-[2.75rem] overflow-hidden break-words group-hover:text-pgreen transition-colors leading-tight"
+        >
           {project.title}
         </h3>
 
         {/* Description */}
-        <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+        <p className="text-sm text-gray-600 line-clamp-2 min-h-[2.5rem] overflow-hidden leading-relaxed mt-2">
           {extractTextFromDescription(project.description) || "Chiến dịch đang cập nhật mô tả."}
         </p>
 
         {/* Progress */}
-        <CampaignGrowthProgress
-          currentAmount={project.currentAmount}
-          goalAmount={project.goalAmount}
-          variant="compact"
-          size="sm"
-          showTree={false}
-        />
+        <div className="mt-4">
+          <CampaignGrowthProgress
+            currentAmount={project.currentAmount}
+            goalAmount={project.goalAmount}
+            variant="compact"
+            size="sm"
+            showTree={false}
+          />
+        </div>
 
-        {/* Stats */}
-        <div className="flex items-center justify-between pt-2 border-t border-gray-100 text-xs text-gray-500">
-          <span className="font-medium">
-            {project.totalBackers} ủng hộ
-          </span>
-          {project.endDate && (
+        {/* Stats + CTA stay pinned to the bottom so buttons line up across cards */}
+        <div className="mt-auto pt-4">
+          <div className="flex items-center justify-between pt-2 border-t border-gray-100 text-xs text-gray-500">
             <span className="font-medium">
-              {formatDaysRemaining(project.endDate)}
+              {project.totalBackers} ủng hộ
             </span>
-          )}
-        </div>
-
-        {/* Action Button */}
-        <div className="pt-2">
-          <div className="block w-full text-center px-4 py-2.5 rounded-xl gradient-green text-white font-bold text-sm group-hover:shadow-lg transition-all">
-            Xem chi tiết
-          </div>
-        </div>
-
-        {/* Creator */}
-        <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
-          <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
-            {project.creatorName.charAt(0)}
-          </div>
-          <span className="text-xs text-dblue font-medium">
-            {project.creatorName}
-            {project.creatorIsPro && (
-              <span className="ml-1 text-pgreen">✓</span>
+            {project.endDate && (
+              <span className="font-medium">
+                {formatDaysRemaining(project.endDate)}
+              </span>
             )}
-          </span>
+          </div>
+
+          <div className="pt-4">
+            <div className="block w-full text-center px-4 py-2.5 rounded-xl gradient-green text-white font-bold text-sm group-hover:shadow-lg transition-all">
+              Xem chi tiết
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 pt-4 border-t border-gray-100 mt-4">
+            <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
+              {project.creatorName.charAt(0)}
+            </div>
+            <span className="text-xs text-dblue font-medium truncate">
+              {project.creatorName}
+              {project.creatorIsPro && (
+                <span className="ml-1 text-pgreen">✓</span>
+              )}
+            </span>
+          </div>
         </div>
       </div>
     </Link>
