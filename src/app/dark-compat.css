@@ -1,0 +1,217 @@
+/* Dark mode compatibility — remap light-only utilities site-wide.
+   Escape hatch: add class dark-keep to keep a light surface.
+*/
+
+html.dark {
+  --background: #070f1c;
+  --foreground: #eef3f9;
+  --surface: #101b2e;
+  --surface-2: #162338;
+  --muted: #c3cdda;
+  --border: rgba(232, 239, 247, 0.14);
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+html.dark .bg-white:not(.dark-keep),
+html.dark .bg-white\/80:not(.dark-keep),
+html.dark .bg-white\/90:not(.dark-keep),
+html.dark .bg-white\/95:not(.dark-keep),
+html.dark .bg-white\/70:not(.dark-keep),
+html.dark .bg-white\/60:not(.dark-keep),
+html.dark .bg-white\/55:not(.dark-keep),
+html.dark .bg-white\/50:not(.dark-keep),
+html.dark .bg-white\/40:not(.dark-keep) {
+  background-color: var(--surface) !important;
+}
+
+html.dark .bg-cream,
+html.dark .bg-gray-50,
+html.dark .bg-slate-50,
+html.dark .bg-neutral-50,
+html.dark .bg-zinc-50,
+html.dark .bg-stone-50,
+html.dark .bg-gray-100,
+html.dark .bg-slate-100,
+html.dark .bg-neutral-100 {
+  background-color: var(--surface-2) !important;
+}
+
+html.dark .bg-gray-200,
+html.dark .bg-slate-200 {
+  background-color: #1c2b44 !important;
+}
+
+html.dark .text-dblue,
+html.dark .text-gray-900,
+html.dark .text-slate-900,
+html.dark .text-neutral-900,
+html.dark .text-zinc-900,
+html.dark .text-black {
+  color: #f3f6fb !important;
+}
+
+html.dark .text-gray-800,
+html.dark .text-slate-800,
+html.dark .text-neutral-800 {
+  color: #e4ebf4 !important;
+}
+
+html.dark .text-gray-700,
+html.dark .text-slate-700,
+html.dark .text-neutral-700 {
+  color: #d3dde8 !important;
+}
+
+html.dark .text-gray-600,
+html.dark .text-slate-600,
+html.dark .text-neutral-600 {
+  color: #c2cddb !important;
+}
+
+html.dark .text-gray-500,
+html.dark .text-slate-500,
+html.dark .text-neutral-500 {
+  color: #a9b7c9 !important;
+}
+
+html.dark .text-gray-400,
+html.dark .text-slate-400 {
+  color: #93a4b8 !important;
+}
+
+html.dark .text-gray-300 {
+  color: #c5d0de !important;
+}
+
+html.dark .text-pgreen {
+  color: #6BCB77 !important;
+}
+
+html.dark .border-white,
+html.dark .border-white\/20,
+html.dark .border-white\/30,
+html.dark .border-white\/50,
+html.dark .border-white\/70,
+html.dark .border-white\/80,
+html.dark .border-gray-50,
+html.dark .border-gray-100,
+html.dark .border-gray-200,
+html.dark .border-slate-100,
+html.dark .border-slate-200 {
+  border-color: rgba(232, 239, 247, 0.12) !important;
+}
+
+html.dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(232, 239, 247, 0.12) !important;
+}
+
+html.dark .shadow-md,
+html.dark .shadow-lg,
+html.dark .shadow-xl,
+html.dark .shadow-2xl,
+html.dark .shadow-soft,
+html.dark .shadow-premium {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35) !important;
+}
+
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not(.dark-keep),
+html.dark textarea:not(.dark-keep),
+html.dark select:not(.dark-keep) {
+  background-color: var(--surface-2);
+  color: var(--foreground);
+  border-color: var(--border);
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #8b9cb3;
+}
+
+html.dark option {
+  background-color: var(--surface);
+  color: var(--foreground);
+}
+
+html.dark .hover\:bg-gray-50:hover,
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-white:hover,
+html.dark .hover\:bg-white\/80:hover,
+html.dark .focus\:bg-slate-50:focus {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+html.dark .hover\:text-dblue:hover {
+  color: #6BCB77 !important;
+}
+
+html.dark .gradient-green .bg-white,
+html.dark .gradient-green .bg-white\/10,
+html.dark .gradient-green .bg-white\/5,
+html.dark .dark-keep,
+html.dark .dark-keep.bg-white {
+  background-color: #ffffff !important;
+}
+
+html.dark .gradient-green .text-pgreen {
+  color: #2E8B57 !important;
+}
+
+.hero-canvas {
+  background: linear-gradient(180deg, #F8F7F2 0%, #f0f8f4 25%, #ecf2f9 55%, #f4f3f0 80%, #F8F7F2 100%);
+}
+html.dark .hero-canvas {
+  background: linear-gradient(180deg, #070f1c 0%, #0b1628 40%, #10203a 72%, #070f1c 100%);
+}
+
+.hero-glass {
+  background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.3) 100%);
+}
+html.dark .hero-glass {
+  background: linear-gradient(135deg, rgba(16, 27, 46, 0.88) 0%, rgba(11, 22, 40, 0.72) 100%);
+  border-color: rgba(232, 239, 247, 0.12);
+}
+
+html.dark .prose .callout {
+  background-color: #132338;
+  color: #e8eef7;
+}
+html.dark .prose .callout[data-variant="info"] {
+  background-color: #10233c;
+  color: #bfdbfe;
+}
+html.dark .prose .callout[data-variant="warning"] {
+  background-color: #3a2a12;
+  color: #fde68a;
+}
+html.dark .prose .callout[data-variant="success"] {
+  background-color: #10291c;
+  color: #bbf7d0;
+}
+html.dark .prose .callout[data-variant="danger"] {
+  background-color: #3a1515;
+  color: #fecaca;
+}
+html.dark .prose iframe {
+  border-color: rgba(232, 239, 247, 0.12);
+}
+
+html.dark {
+  scrollbar-color: #2a3d5c #070f1c;
+}
+html.dark ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+html.dark ::-webkit-scrollbar-track {
+  background: #070f1c;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: #2a3d5c;
+  border-radius: 999px;
+}

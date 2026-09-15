@@ -7,7 +7,7 @@ import { useI18n } from "@/i18n";
 import { THEME_STORAGE_KEY, setPreferenceCookie } from "@/lib/preferences";
 
 const btnClass =
-  "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-gray-600 transition hover:bg-gray-50 hover:text-pgreen focus-ring dark:text-slate-300 dark:hover:bg-white/10";
+  "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-slate-700 transition hover:bg-gray-50 hover:text-pgreen focus-ring dark:text-slate-100 dark:hover:bg-white/10";
 
 export default function ThemeToggle() {
   const { t } = useI18n();
@@ -34,7 +34,7 @@ export default function ThemeToggle() {
 
   return (
     <button type="button" onClick={toggle} aria-label={label} title={label} className={btnClass}>
-      {isDark ? <Sun size={18} /> : <Moon size={18} />}
+      {isDark ? <Sun size={18} strokeWidth={2.25} /> : <Moon size={18} strokeWidth={2.25} />}
     </button>
   );
 }

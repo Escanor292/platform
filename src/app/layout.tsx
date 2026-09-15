@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Nunito, Playfair_Display, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
+import "./dark-compat.css";
 import NavbarNew from "@/components/layout/NavbarNew";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import FooterNew from "@/components/shared/FooterNew";
