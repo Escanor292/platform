@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 11;
+export const PRESENTATION_SEED_VERSION = 12;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -84,7 +84,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       cards: [
         {
           title: "Creator",
-          body: "Người mở nghề nhỏ, nhượng quyền F&B, thủ công, khóa học, sản phẩm sáng tạo. Cần pre-order để biết nhập bao nhiêu, cộng đồng đồng hành — không chỉ một đơn rời trên Shopee.",
+          body: "Cá nhân hoặc doanh nghiệp: mở nghề nhỏ, nhượng quyền F&B, thủ công, khóa học, sản phẩm sáng tạo. Cần pre-order để biết nhập bao nhiêu, cộng đồng đồng hành — không chỉ một đơn rời trên Shopee.",
         },
         {
           title: "Backer — Cho đi",
