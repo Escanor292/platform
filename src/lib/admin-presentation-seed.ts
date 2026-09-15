@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 14;
+export const PRESENTATION_SEED_VERSION = 15;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -146,7 +146,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           ],
         ],
       },
-      note: "SLA gửi hàng (Delivery SLA) = ngày hẹn giao ghi trên chiến dịch + 2 ngày. Nhận đủ = xác nhận trên Kho đồ, quét vé / nhận tại quán, hoặc vận chuyển báo phát thành công mà 7 ngày không khiếu nại. Vốn sản xuất không lấy từ tiền đang giữ — sàn không ứng vốn.",
+      note: "SLA gửi hàng (cam kết thời hạn gửi hàng) = ngày hẹn giao ghi trên chiến dịch + 2 ngày — áp cho hàng ship / nhận tại chỗ, không áp cho vé đã cấp. Vé/phiếu vào Kho đồ = đã giao quà; giải ngân khi chốt chiến dịch. Hàng vật lý: nhận đủ = xác nhận trên Kho đồ, hoặc vận chuyển báo phát thành công mà 7 ngày không khiếu nại. Vốn sản xuất không lấy từ tiền đang giữ — sàn không ứng vốn.",
     },
     {
       kicker: "Luồng hàng Reward",
@@ -155,7 +155,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         { n: "01", t: "Thanh toán", d: "PayOS / VietQR. Tiền vào luồng cổng — chưa về creator." },
         { n: "02", t: "Đối soát & giữ", d: "Xác nhận đã nhận. Cấp biên lai. Giữ theo từng đơn, không giải ngân sớm." },
         { n: "03", t: "Gửi hoặc sẵn sàng nhận", d: "Đúng SLA gửi hàng. Giao vận chuyển, hoặc mở nhận tại quán. Trễ SLA → hoàn đơn đó." },
-        { n: "04", t: "Nhận đủ", d: "Xác nhận trên Kho đồ, quét vé tại quán, hoặc 7 ngày không khiếu nại sau khi phát thành công. Thiếu / hỏng → khiếu nại, đơn chưa giải ngân." },
+        { n: "04", t: "Nhận đủ", d: "Hàng ship: xác nhận trên Kho đồ, hoặc 7 ngày không khiếu nại sau khi phát thành công. Vé/phiếu: đã nằm trong Kho đồ = đã giao quà — quét tại quán chỉ để đổi ưu đãi, không phải mốc giải ngân." },
         { n: "05", t: "Chốt + giải ngân đơn", d: "Chiến dịch đã kết thúc và đơn đó đã nhận đủ → giải ngân đơn đó. Đơn khác chưa nhận thì vẫn giữ." },
       ],
     },
@@ -225,7 +225,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
     {
       kicker: "Case",
       title: "Khai trương quán gà rán nhượng quyền",
-      body: "Cùng một chiến dịch: đặt combo (Reward) và ủng hộ không lấy hàng (Donation). Số trên ảnh là minh họa giao diện, không phải số liệu vận hành thật.",
+      body: "Cùng một chiến dịch: vé Reward (phiếu giảm hoặc combo) và ủng hộ không lấy hàng (Donation). Vé vào Kho đồ là đã nhận quà — không giữ tiền chờ quét tại quán. Số trên ảnh là minh họa giao diện, không phải số liệu vận hành thật.",
       blocks: [
         {
           heading: "1. Chỉ chạy truyền thống",
@@ -244,28 +244,28 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           ],
         },
         {
-          heading: "2. Reward — đặt combo, giữ tiền, nhận rồi mới giải ngân",
+          heading: "2. Reward — vé/phiếu vào Kho đồ, giải ngân khi chốt",
           headingTone: "emerald",
           figures: [
             {
               key: "ga-ran-nen-tang.jpg",
               alt: "Chiến dịch đặt combo trên Tử Tế Fund",
-              caption: "Trang chiến dịch: tiến độ, nút đặt combo. Số vé trên ảnh là minh họa.",
+              caption: "Trang chiến dịch: tiến độ, nút đặt vé/combo. Số trên ảnh là minh họa.",
             },
             {
               key: "ve-uu-dai.jpg",
               alt: "Vé ưu đãi khai trương trong Kho đồ",
-              caption: "Vé trong Kho đồ: dùng ngày khác nếu bận khai trương. Quét vé tại quán = đã nhận.",
+              caption: "Vé trong Kho đồ = quà đã nhận: phiếu giảm giá hoặc combo đặc biệt. Dùng ngày khác nếu bận khai trương. Quét QR tại quán chỉ để đổi ưu đãi.",
             },
           ],
           bullets: [
-            "Đặt combo → tiền giữ, chưa về quán.",
-            "Quét vé / nhận combo tại quán = đơn đã nhận đủ.",
-            "Chiến dịch chốt + đơn đã nhận → mới giải ngân đúng đơn đó. Đơn chưa nhận thì chưa về creator.",
+            "Đặt vé / phiếu / combo → tiền giữ đến khi chốt chiến dịch, chưa về quán.",
+            "Vé vào Kho đồ là đã giao quà — không chờ quét mới tính là nhận hàng.",
+            "Chiến dịch kết thúc → giải ngân. Quét tại quán = đổi ưu đãi, không phải mốc giữ tiền.",
           ],
         },
         {
-          heading: "3. Donation — ủng hộ không lấy combo",
+          heading: "3. Donation — ủng hộ không lấy vé",
           headingTone: "navy",
           figures: [
             {
@@ -281,7 +281,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
             },
             {
               title: "Hai đầu ra, không trộn",
-              body: "Combo = biên lai + vé + khóa nhận hàng. Ủng hộ = chứng nhận, giải ngân khi chốt chiến dịch. Cùng hồ sơ quán, pháp lý tách.",
+              body: "Vé/phiếu = biên lai + quà đã cấp điện tử, giải ngân khi chốt. Ủng hộ = chứng nhận, giải ngân khi chốt. Cùng hồ sơ quán, pháp lý tách.",
             },
           ],
         },
@@ -454,8 +454,8 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
             "Chọn combo / vé / pre-order (đặt trước)",
             "Thanh toán — tiền giữ theo đơn (escrow — giữ hộ)",
             "Biên lai INV- + vé/quà trong Kho đồ",
-            "Nhận: quét vé, xác nhận, hoặc 7 ngày không khiếu nại",
-            "Trễ SLA (cam kết thời hạn gửi hàng) → hoàn đơn. Đã nhận + đã chốt → giải ngân đúng đơn",
+            "Vé/phiếu: đã có trong Kho đồ = đã nhận quà. Hàng ship: xác nhận hoặc 7 ngày không khiếu nại",
+            "Vé/phiếu: giải ngân khi chốt chiến dịch. Hàng ship: chốt + đã nhận đủ. Trễ SLA gửi hàng (hàng vật lý) → hoàn đơn",
           ],
         },
         {
