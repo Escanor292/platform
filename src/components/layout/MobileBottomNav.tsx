@@ -16,36 +16,42 @@ export default function MobileBottomNav() {
 
   const navItems = [
     {
+      id: "home",
       label: t("mobile.home"),
       href: "/",
       icon: Home,
     },
     {
+      id: "explore",
       label: t("mobile.explore"),
       href: "/projects",
       icon: Compass,
     },
     {
+      id: "messages",
       label: t("mobile.messages"),
       href: session ? "/chat" : "/auth/login",
       icon: MessageCircle,
       hasBadge: true,
     },
     {
+      id: "notifications",
       label: t("mobile.notifications"),
       href: session ? "/notifications" : "/auth/login",
       icon: Bell,
     },
     {
+      id: "profile",
       label: t("mobile.profile"),
       href: userId ? `/profile/${userId}` : session ? "/dashboard" : "/auth/login",
       icon: User,
     },
-  ];
+  ] as const;
 
   return (
-    <div
+    <nav
       className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white/80 pb-safe backdrop-blur-md transition-colors duration-300 md:hidden dark:border-white/10 dark:bg-slate-900/80"
+      aria-label="Mobile"
       style={{
         backgroundColor:
           "color-mix(in srgb, var(--profile-shell-surface, var(--surface)) 92%, transparent)",
@@ -53,14 +59,17 @@ export default function MobileBottomNav() {
           "color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 14%, transparent)",
       }}
     >
-      <div className="flex justify-around items-center h-16">
+      <div className="flex h-16 flex-nowrap items-center justify-around overflow-hidden">
         {navItems.map((item) => {
-          const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+          const isActive =
+            item.href === "/"
+              ? pathname === "/"
+              : pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
             <Link
-              key={item.href}
+              key={item.id}
               href={item.href}
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 relative transition-colors ${
+              className={`flex h-full min-w-0 flex-1 flex-col items-center justify-center space-y-1 relative transition-colors ${
                 isActive ? "text-pgreen" : "text-gray-500 dark:text-slate-400"
               }`}
             >
@@ -70,19 +79,19 @@ export default function MobileBottomNav() {
                   strokeWidth={isActive ? 2.5 : 2}
                   className={isActive ? "text-pgreen" : "text-gray-500 dark:text-slate-400"}
                 />
-                {item.hasBadge && session && (
+                {"hasBadge" in item && item.hasBadge && session && (
                   <div className="absolute -top-1 -right-2">
                     <ChatNotificationBadge />
                   </div>
                 )}
               </div>
-              <span className={`text-[10px] font-medium ${isActive ? "text-pgreen" : "text-gray-500 dark:text-slate-400"}`}>
+              <span className={`max-w-full truncate px-0.5 text-[10px] font-medium ${isActive ? "text-pgreen" : "text-gray-500 dark:text-slate-400"}`}>
                 {item.label}
               </span>
             </Link>
           );
         })}
       </div>
-    </div>
+    </nav>
   );
 }
