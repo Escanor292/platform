@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 4;
+export const PRESENTATION_SEED_VERSION = 5;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -93,33 +93,33 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
     {
       kicker: "Giữ tiền và hoàn tiền",
       title: "All-or-Nothing và Keep-It-All",
-      body: "Thời hạn chiến dịch gây quỹ thường khoảng 2 tháng. Hạn gửi vận chuyển = ngày hẹn giao ghi trên chiến dịch, cộng thêm 2 ngày. Không tính 2 ngày ngay sau khi thanh toán.",
+      body: "Tiền không về creator khi vừa thanh toán. Sàn giữ đến khi đủ điều kiện giải ngân. Reward: chỉ giải ngân khi chiến dịch đã kết thúc và khách đã nhận đủ hàng — gửi ĐVVC chưa phải lúc rút tiền.",
       table: {
         headers: ["Mô hình", "Donation (không quà)", "Reward (có giao hàng)"],
         rows: [
           [
             "All-or-Nothing",
-            "Hết hạn mà không đạt goal → hoàn toàn bộ. Đạt goal → giải ngân sau khi chốt chiến dịch.",
-            "Creator vẫn bấm xác nhận giao kể cả khi chưa đạt goal. Giải ngân khi đã gửi ĐVVC. Không gửi trong hạn (ngày hẹn + 2 ngày) → hủy và hoàn. Không bấm giao và không đạt goal → hoàn.",
+            "Hết hạn không đạt goal → hoàn toàn bộ. Đạt goal → giải ngân sau khi chốt chiến dịch (không có hàng để nhận).",
+            "Creator vẫn bấm xác nhận gửi ĐVVC kể cả chưa đạt goal. Không gửi trong hạn (ngày hẹn + 2 ngày) → hủy và hoàn. Đã gửi và khách nhận đủ + chiến dịch đã chốt → mới giải ngân. Chưa nhận đủ hàng thì chưa giải ngân.",
           ],
           [
             "Keep-It-All",
-            "Không đạt goal vẫn giữ tiền ủng hộ sau khi chốt. Không phải quỹ được cấp phép; người ủng hộ không nhận lợi nhuận.",
-            "Không giữ tiền nếu không giao. Quá hạn gửi ĐVVC (ngày hẹn + 2 ngày) → hoàn, kể cả khi đã đủ hay chưa đủ goal.",
+            "Không đạt goal vẫn giữ tiền ủng hộ, giải ngân sau khi chốt chiến dịch. Không phải quỹ được cấp phép; người ủng hộ không nhận lợi nhuận.",
+            "Cùng một khóa: chốt chiến dịch và khách đã nhận đủ hàng mới giải ngân. Quá hạn gửi ĐVVC (ngày hẹn + 2 ngày) hoặc khách không nhận đủ → hoàn, kể cả đã đủ hay chưa đủ goal.",
           ],
         ],
       },
-      note: "Hàng có sẵn: ngày hẹn giao có thể là ngay sau thanh toán. Pre-order: ngày hẹn là mốc creator công bố trên chiến dịch. Trễ quá 2 ngày sau mốc đó mới hủy và hoàn.",
+      note: "Hàng có sẵn: ngày hẹn giao có thể sát thanh toán. Pre-order: ngày hẹn do creator ghi trên chiến dịch. Trễ quá 2 ngày sau mốc đó mà chưa đưa ĐVVC → hủy hoàn. Đưa ĐVVC rồi vẫn giữ tiền đến khi khách xác nhận đã nhận đủ.",
     },
     {
       kicker: "Luồng hàng Reward",
-      title: "Đối soát, giữ, giao, rồi mới giải ngân",
+      title: "Giữ tiền đến khi chốt chiến dịch và khách nhận đủ",
       steps: [
         { n: "01", t: "Thanh toán", d: "PayOS / VietQR. Tiền vào luồng cổng — chưa về creator." },
-        { n: "02", t: "Đối soát", d: "Admin/cổng xác nhận đã nhận. Chứng từ hoặc biên lai mới được cấp." },
-        { n: "03", t: "Giữ theo mô hình", d: "AoN chờ goal + hạn. KiA donation: giữ sau chốt. Reward: giữ đến khi gửi ĐVVC." },
-        { n: "04", t: "Gửi ĐVVC", d: "Hạn = ngày hẹn trên chiến dịch + 2 ngày. Trễ → hoàn." },
-        { n: "05", t: "Giải ngân / hoàn", d: "Backer theo dõi Kho đồ và /lookup. Khiếu nại trên cùng hồ sơ." },
+        { n: "02", t: "Đối soát & giữ", d: "Xác nhận đã nhận tiền. Cấp biên lai. Toàn bộ nằm trong giữ, không giải ngân sớm." },
+        { n: "03", t: "Gửi ĐVVC", d: "Hạn = ngày hẹn trên chiến dịch + 2 ngày. Nút xác nhận giao vẫn bấm được khi chưa đạt goal. Trễ → hoàn." },
+        { n: "04", t: "Khách nhận đủ", d: "Backer xác nhận đã nhận đủ hàng trong Kho đồ. Thiếu / hỏng / không tới → khiếu nại, chưa giải ngân." },
+        { n: "05", t: "Chốt + giải ngân", d: "Chỉ khi chiến dịch đã kết thúc và khách đã nhận đủ. Thiếu một trong hai điều kiện thì tiền vẫn giữ hoặc hoàn." },
       ],
     },
     {
@@ -302,8 +302,8 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         },
         {
           n: "02",
-          t: "Giải ngân theo mốc",
-          d: "Không đổ hết tiền cho creator một lần. Reward: giữ đến khi gửi ĐVVC; có thể chia mốc sản xuất → giao hàng. Không giao đúng hạn (ngày hẹn + 2 ngày) → hoàn.",
+          t: "Giữ đến khi nhận đủ",
+          d: "Reward: không đổ tiền một lần khi gửi ĐVVC. Chỉ giải ngân khi chiến dịch đã kết thúc và khách đã nhận đủ hàng. Trễ hạn gửi ĐVVC (ngày hẹn + 2 ngày) hoặc không nhận đủ → hoàn.",
         },
         {
           n: "03",
@@ -341,7 +341,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       body: "Cho đi thì có giấy. Nhận lại thì có hàng. Không đủ goal thì rõ hoàn hay giữ. Không đối đầu sàn lớn — mượn họ kể chuyện, đưa người về hồ sơ dự án.",
       bullets: [
         "Hai nhánh, hai chứng từ — không trộn ủng hộ với mua, không biến Reward thành chia lãi.",
-        "Hạn giao = ngày hẹn + 2 ngày. Không giao thì hoàn. Giải ngân theo mốc, không đổ một lần.",
+        "Hạn giao = ngày hẹn + 2 ngày. Reward chỉ giải ngân khi chiến dịch đã chốt và khách đã nhận đủ hàng.",
         "Không phải P2P nên không lấy trần NĐ 94 làm “giấy thông hành”. Vẫn phải TMĐT, thuế, KYC/KYB, AML.",
       ],
     },
