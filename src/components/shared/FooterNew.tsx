@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Facebook, Instagram, Mail } from "lucide-react";
 import LeafIcon from "./LeafIcon";
+import BrandMark from "@/components/layout/BrandMark";
 import { useI18n } from "@/i18n";
 
 export default function FooterNew() {
@@ -20,7 +21,7 @@ export default function FooterNew() {
             <div className="w-8 h-8 rounded-lg gradient-green flex items-center justify-center ring-1 ring-white/20">
               <LeafIcon className="w-5 h-5" />
             </div>
-            <span className="font-display text-lg font-bold">TửTế Fund</span>
+            <BrandMark className="font-display text-lg font-bold" />
           </div>
           <p className="text-sm leading-relaxed opacity-60" style={{ color: "var(--profile-contrast, #ffffff)" }}>
             {t("footer.tagline")}
@@ -81,7 +82,7 @@ export default function FooterNew() {
       </div>
 
       <div className="mx-auto mt-8 max-w-7xl border-t border-white/10 pt-6 text-center text-xs opacity-40" style={{ color: "var(--profile-contrast, #ffffff)" }}>
-        {t("footer.rights")}
+        {t("footer.rights", { brand: t("brand.name") })}
       </div>
     </footer>
   );
