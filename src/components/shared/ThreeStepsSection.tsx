@@ -1,31 +1,11 @@
 import { Edit3, Share2, Gift } from 'lucide-react';
+import T from '@/i18n/T';
 
 export default function ThreeStepsSection() {
   const steps = [
-    {
-      icon: Edit3,
-      number: 1,
-      title: 'Tạo chiến dịch',
-      description: 'Chia sẻ câu chuyện, mục tiêu, và tại sao bạn cần hỗ trợ',
-      gradient: 'gradient-green',
-      delay: '0s'
-    },
-    {
-      icon: Share2,
-      number: 2,
-      title: 'Chia sẻ rộng rãi',
-      description: 'Lan tỏa đến bạn bè, gia đình, cộng đồng yêu thương',
-      gradient: 'gradient-blue',
-      delay: '0.2s'
-    },
-    {
-      icon: Gift,
-      number: 3,
-      title: 'Nhận ủng hộ',
-      description: 'Minh bạch, an toàn, nhanh chóng',
-      gradient: 'bg-gradient-to-br from-ebrown to-amber-600',
-      delay: '0.4s'
-    }
+    { icon: Edit3, number: 1, title: 'steps.t1' as const, description: 'steps.d1' as const, gradient: 'gradient-green', delay: '0s' },
+    { icon: Share2, number: 2, title: 'steps.t2' as const, description: 'steps.d2' as const, gradient: 'gradient-blue', delay: '0.2s' },
+    { icon: Gift, number: 3, title: 'steps.t3' as const, description: 'steps.d3' as const, gradient: 'bg-gradient-to-br from-ebrown to-amber-600', delay: '0.4s' },
   ];
 
   return (
@@ -33,21 +13,21 @@ export default function ThreeStepsSection() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="font-display font-bold text-3xl lg:text-4xl text-dblue mb-3">
-            Hành trình 3 bước đơn giản
+            <T k="steps.title" />
           </h2>
           <p className="text-gray-600 text-lg">
-            Từ ý tưởng đến hiện thực chỉ trong vài phút
+            <T k="steps.sub" />
           </p>
         </div>
-        
+
         <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-10">
           {steps.map((step, index) => {
             const Icon = step.icon;
             return (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="text-center group"
-                style={{ 
+                style={{
                   animation: 'fadeInUp 0.6s ease-out forwards',
                   animationDelay: step.delay,
                   opacity: 0
@@ -62,10 +42,10 @@ export default function ThreeStepsSection() {
                   </div>
                 </div>
                 <h3 className="font-display font-bold text-dblue text-xl mb-2">
-                  {step.title}
+                  <T k={step.title} />
                 </h3>
                 <p className="text-gray-600 leading-relaxed">
-                  {step.description}
+                  <T k={step.description} />
                 </p>
               </div>
             );
