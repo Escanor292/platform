@@ -185,10 +185,11 @@ export default async function AdminDashboard() {
           <div className="flex flex-wrap gap-4">
             <Link
               href="/dashboard/admin/thuyet-trinh"
-              className="inline-flex items-center gap-2 rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-black text-white shadow-sm hover:bg-emerald-800"
+              aria-label="Thuyết trình mô hình lai"
+              title="Thuyết trình"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-700 text-white shadow-sm hover:bg-emerald-800"
             >
-              <Presentation size={18} />
-              Mở thuyết trình mô hình lai
+              <Presentation size={20} />
             </Link>
             <Link href="/dashboard/admin/moderation" className="inline-block self-center text-sm font-bold text-red-600 hover:text-red-700">
               Kiểm duyệt / tìm & khóa nội dung →
