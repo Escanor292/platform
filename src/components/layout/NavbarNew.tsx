@@ -9,6 +9,7 @@ import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import LeafIcon from "../shared/LeafIcon";
+import BrandMark from "@/components/layout/BrandMark";
 import { ChatNotificationBadge } from "@/components/chat/ChatNotificationBadge";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { CartDropdown } from "@/components/products/CartProvider";
@@ -105,9 +106,7 @@ export default function NavbarNew() {
           <div className="w-10 h-10 rounded-xl gradient-green flex items-center justify-center">
             <LeafIcon className="w-6 h-6" />
           </div>
-          <span className="font-display font-bold text-xl text-dblue group-hover:text-pgreen transition dark:text-slate-100">
-            TửTế Fund
-          </span>
+          <BrandMark className="font-display font-bold text-xl text-dblue group-hover:text-pgreen transition dark:text-slate-100" />
         </Link>
 
         <div className="hidden md:flex items-center gap-6">
