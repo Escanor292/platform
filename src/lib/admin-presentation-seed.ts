@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 10;
+export const PRESENTATION_SEED_VERSION = 11;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -40,42 +40,42 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
     },
     {
       kicker: "Thị trường",
-      title: "Khoảng trống thị trường crowdfunding",
-      body: "Không thay Facebook, không đánh Shopee. Tử Tế Fund giữ hồ sơ chiến dịch, dòng tiền đối soát và chứng từ nội địa — mượn MXH kể chuyện rồi đưa người về đây.",
+      title: "Crowdfunding tại Việt Nam — khoảng trống lai",
+      body: "Không so Shopee: đó là bán SKU có sẵn. Ngách này là huy động vốn / đặt trước. Comicola mạnh văn hóa nhưng thiếu khóa hoàn. App thiện nguyện minh bạch nhưng 100% cho đi. Kickstarter lớn nhưng lệch thanh toán và pháp lý VN. MXH lan tỏa nhưng không có bên giữ tiền.",
       table: {
-        headers: ["Nền tảng", "Mốc / quy mô", "Điểm mạnh", "Điểm yếu", "Tử Tế Fund"],
+        headers: ["Nền tảng", "Đại diện / mốc", "Điểm mạnh", "Gót chân Achilles", "Khoảng trống Tử Tế Fund"],
         rows: [
           [
-            "Kickstarter / Indiegogo",
-            "2008–2009. Reward toàn cầu.",
-            "Cộng đồng lớn. Pre-order / Reward chuẩn. Indiegogo có Keep-It-All.",
-            "Thanh toán quốc tế. Không chứng từ / pháp lý nội địa VN.",
-            "VietQR / PayOS. Giấy TT-UH và biên lai INV-. AoN và KiA trên cùng nền tảng.",
+            "Văn hóa & sáng tạo",
+            "Comicola — truyện tranh, boardgame, fandom (vd. Thỏ Bảy Màu).",
+            "Tệp fan dày. Bán trước sản phẩm văn hóa Việt.",
+            "Chủ yếu nghệ thuật/giải trí. Thiếu giữ tiền theo SLA giao. Phụ thuộc uy tín tác giả.",
+            "Hybrid không giới hạn một ngành. Reward khóa hoàn theo SLA gửi hàng; Donation cùng hồ sơ.",
           ],
           [
-            "GoFundMe",
-            "2010. Chuyên donation.",
-            "Kêu gọi hoàn cảnh, cá nhân, dễ ủng hộ.",
-            "Yếu Reward. Minh bạch giải ngân hạn chế. Không hồ sơ giao hàng.",
-            "Hai nhánh trên một chiến dịch. Donation giải ngân khi chốt; Reward khóa theo đơn.",
+            "Từ thiện / xã hội",
+            "Thiện Nguyện MB, Kindmate.",
+            "Sao kê, tài khoản minh bạch, niềm tin cộng đồng.",
+            "Thuần Donation. Không Reward, không giao hàng, không dành khởi nghiệp thương mại.",
+            "Cùng chiến dịch: cho đi có giấy TT-UH, nhận lại có biên lai + giữ tiền đến khi nhận đủ.",
           ],
           [
-            "Facebook / Zalo / ví",
-            "Kênh phổ biến tại VN.",
-            "Lan tỏa nhanh. Thanh toán 1 chạm.",
-            "Trôi bài. Không SLA giao. Không chứng từ, không nhật ký dự án.",
-            "Mượn MXH dẫn về hồ sơ chiến dịch tập trung. Giữ tiền, hoàn, kho đồ.",
+            "Sàn quốc tế",
+            "Kickstarter / Indiegogo (2008–2009). Backer toàn cầu.",
+            "Quy trình Reward chuẩn. Indiegogo có Keep-It-All. Chiến dịch lớn.",
+            "Visa/Stripe, ngôn ngữ, ship/tax. Khó đòi khi ngâm vốn. Không chứng từ nội địa VN.",
+            "Nội địa hóa: VietQR / PayOS / VNPay. eKYC. Escrow theo đơn. Giấy TT-UH / INV-.",
           ],
           [
-            "Shopee / Lazada",
-            "Sàn TMĐT SKU có sẵn.",
-            "Logistic, đánh giá, traffic mua sắm.",
-            "Không gây quỹ lai. Pre-order dễ trộn với hàng có sẵn. Không giấy ủng hộ.",
-            "Không đối đầu logistic. Reward = đặt trước có SLA; Donation tách pháp lý.",
+            "Gây quỹ MXH",
+            "Facebook / TikTok / Zalo.",
+            "Viral, chi phí vào ban đầu thấp, nói chuyện trực tiếp.",
+            "Không bên thứ ba giữ tiền. Trôi bài. Thiếu SLA và hồ sơ pháp lý khi chậm giao.",
+            "Mượn MXH dẫn về hồ sơ. Tiền giữ trên STK trung gian đến khi chốt + nhận đủ — không tự xưng trung gian NHNN.",
           ],
         ],
       },
-      note: "Năm ra mắt là mốc công khai của từng nền tảng, không phải số liệu nội bộ. Tử Tế Fund không thay bảng tin MXH và không thay sàn bán SKU.",
+      note: "Lấp chỗ: minh bạch kiểu kênh thiện nguyện + khóa tiền/hàng kiểu TMĐT, trên một nền tảng crowdfunding nội địa. Không đối đầu bảng tin MXH. Không giải ngân theo mốc sản xuất — Reward giải ngân từng đơn khi chiến dịch đã chốt và khách đã nhận đủ.",
     },
     {
       kicker: "Khách hàng nhắm đến",
