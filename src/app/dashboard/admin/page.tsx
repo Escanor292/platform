@@ -8,6 +8,7 @@ import {
   TrendingUp, AlertTriangle, DollarSign,
   Activity, Clock, FileText, Flag, UserCheck, FolderKanban, Package, Presentation,
 } from "lucide-react";
+import { isPresentationActive } from "@/lib/admin-presentation";
 
 function monthGrowth(current: number, last: number) {
   if (last === 0) return current > 0 ? 100 : 0;
@@ -41,6 +42,7 @@ export default async function AdminDashboard() {
     lastMonthUsers,
     recentUsers,
     recentCampaigns,
+    presentationOn,
   ] = await Promise.all([
     prisma.users.count(),
     prisma.campaigns.count(),
@@ -75,6 +77,7 @@ export default async function AdminDashboard() {
         users: { select: { name: true } },
       },
     }),
+    isPresentationActive(),
   ]);
 
   const userTrend = monthGrowth(currentMonthUsers, lastMonthUsers);
@@ -183,14 +186,16 @@ export default async function AdminDashboard() {
             Quản lý người dùng, chiến dịch, blog, KYC, dự án, sản phẩm và báo cáo trên Tử Tế Fund
           </p>
           <div className="flex flex-wrap gap-4">
-            <Link
-              href="/dashboard/admin/thuyet-trinh"
-              aria-label="Thuyết trình mô hình lai"
-              title="Thuyết trình"
-              className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-700 text-white shadow-sm hover:bg-emerald-800"
-            >
-              <Presentation size={20} />
-            </Link>
+            {presentationOn ? (
+              <Link
+                href="/dashboard/admin/thuyet-trinh"
+                aria-label="Thuyết trình mô hình lai"
+                title="Thuyết trình"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-700 text-white shadow-sm hover:bg-emerald-800"
+              >
+                <Presentation size={20} />
+              </Link>
+            ) : null}
             <Link href="/dashboard/admin/moderation" className="inline-block self-center text-sm font-bold text-red-600 hover:text-red-700">
               Kiểm duyệt / tìm & khóa nội dung →
             </Link>

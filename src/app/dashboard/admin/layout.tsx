@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 import AdminUserMenu from "@/components/admin/AdminUserMenu";
 import AdminNav from "@/components/admin/AdminNav";
+import { isPresentationActive } from "@/lib/admin-presentation";
 
 export default async function AdminLayout({
   children,
@@ -15,6 +16,8 @@ export default async function AdminLayout({
   if (!session?.user || ((session.user as any).role !== "ADMIN" && !(session.user as any).isAdmin)) {
     redirect("/");
   }
+
+  const showPresentation = await isPresentationActive();
 
   return (
     <div className="min-h-screen bg-slate-50/50">
@@ -31,7 +34,7 @@ export default async function AdminLayout({
                   <div className="text-[9px] font-bold uppercase tracking-wider text-gray-400">Tử Tế Fund</div>
                 </div>
               </Link>
-              <AdminNav />
+              <AdminNav showPresentation={showPresentation} />
             </div>
             <AdminUserMenu user={session.user} />
           </div>

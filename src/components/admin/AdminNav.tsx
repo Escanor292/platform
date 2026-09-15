@@ -2,13 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import type { LucideIcon } from 'lucide-react';
 import {
   Home, Users, ShieldCheck, Award, DollarSign, FileText, Flag, ShieldAlert, Settings, UserCheck, FolderKanban, Package, KeyRound, LayoutTemplate, Presentation,
 } from 'lucide-react';
 
-const NAV_ITEMS = [
+type NavItem = { href: string; label: string; icon: LucideIcon; exact?: boolean };
+
+const BASE_NAV: NavItem[] = [
   { href: '/dashboard/admin', label: 'Tổng quan', icon: Home, exact: true },
-  { href: '/dashboard/admin/thuyet-trinh', label: 'Thuyết trình', icon: Presentation, exact: true },
   { href: '/dashboard/admin/users', label: 'Người dùng', icon: Users },
   { href: '/dashboard/admin/campaigns', label: 'Chiến dịch', icon: ShieldCheck },
   { href: '/dashboard/admin/blog', label: 'Blog', icon: FileText },
@@ -22,14 +24,21 @@ const NAV_ITEMS = [
   { href: '/dashboard/admin/permissions', label: 'Phân quyền', icon: KeyRound },
   { href: '/dashboard/admin/templates', label: 'Mẫu giao diện', icon: LayoutTemplate },
   { href: '/dashboard/admin/system', label: 'Hệ thống', icon: Settings },
-] as const;
+];
 
-export default function AdminNav() {
+export default function AdminNav({ showPresentation = false }: { showPresentation?: boolean }) {
   const pathname = usePathname();
+  const items: NavItem[] = showPresentation
+    ? [
+        BASE_NAV[0],
+        { href: '/dashboard/admin/thuyet-trinh', label: 'Thuyết trình', icon: Presentation, exact: true },
+        ...BASE_NAV.slice(1),
+      ]
+    : BASE_NAV;
 
   return (
     <div className="hidden items-center gap-1 overflow-x-auto md:flex">
-      {NAV_ITEMS.map((item) => {
+      {items.map((item) => {
         const active = item.exact
           ? pathname === item.href
           : pathname === item.href || pathname.startsWith(`${item.href}/`);
