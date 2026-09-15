@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 16;
+export const PRESENTATION_SEED_VERSION = 17;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -260,7 +260,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           ],
           bullets: [
             "Đặt vé / phiếu / combo → tiền giữ đến khi chốt chiến dịch, chưa về quán.",
-            "Vé vào Kho đồ là đã giao quà — không chờ quét mới tính là nhận hàng.",
+            "Vé vào Kho đồ là đã giao quà (phiếu giảm hoặc combo đặc biệt).",
             "Chiến dịch kết thúc → giải ngân. Quét tại quán = đổi ưu đãi, không phải mốc giữ tiền.",
           ],
         },
