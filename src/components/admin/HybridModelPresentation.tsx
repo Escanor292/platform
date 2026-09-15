@@ -28,6 +28,8 @@ import type {
   PresentationFigure,
   PresentationSlide,
 } from "@/lib/admin-presentation-types";
+import { CertificateDocument } from "@/components/tax/CertificateDocument";
+import { InvoiceDocument } from "@/components/invoice/InvoiceDocument";
 
 const KICKER_ICON = {
   "Tầm nhìn": Target,
@@ -341,7 +343,15 @@ function SlideView({ slide }: { slide: PresentationSlide }) {
       ))}
 
       {slide.figures?.length ? (
-        <div className={`grid items-start gap-6 ${slide.figures.length > 1 ? "md:grid-cols-2" : ""}`}>
+        <div
+          className={`grid items-start gap-8 ${
+            slide.figures.some((f) => isLiveDocument(f.key))
+              ? ""
+              : slide.figures.length > 1
+                ? "md:grid-cols-2"
+                : ""
+          }`}
+        >
           {slide.figures.map((fig) => (
             <Figure key={fig.key + fig.caption} fig={fig} />
           ))}
@@ -391,7 +401,116 @@ function CardGrid({ cards }: { cards: PresentationCard[] }) {
   );
 }
 
+function isLiveDocument(key: string) {
+  return (
+    key === "chung-nhan-tt-uh.jpg" ||
+    key === "bien-lai-thanh-toan.jpg" ||
+    key === "donation-reward.jpg"
+  );
+}
+
+const DEMO_CERTIFICATE = {
+  code: "TT-UH-202609-403A",
+  displayName: "Admin",
+  email: "admin@gmail.com",
+  phone: null as string | null,
+  campaignTitle: "[FIXTURE-2026] Workshop phòng thu miễn phí",
+  campaignHref: null as string | null,
+  creatorName: "Test Creator",
+  kycVerified: false,
+  kycLabel: "Chưa xác minh",
+  flowLabel: "Ủng hộ không nhận quà",
+  flowCode: "NO_GIFT",
+  transactionId: "MANUAL-UH-1789363024229-849cc3",
+  amount: 500000,
+  amountWords: "Năm trăm nghìn đồng",
+  tipAmount: 0,
+  paymentLabel: "Chuyển khoản tài khoản ngân hàng trung gian",
+  paymentCode: "BANK_ESCROW",
+  issuedFormatted: "lúc 12:17 14 tháng 9, 2026",
+  verifyUrl: "https://2s-projects.vercel.app/chung-tu/TT-UH-202609-403A",
+};
+
+const DEMO_INVOICE = {
+  invoiceNumber: "INV-20260914-8K2P1",
+  issuedAt: "14/09/2026 12:17",
+  transactionId: "PAYOS-1789363999123",
+  paymentMethod: "PayOS",
+  backerName: "Admin",
+  backerEmail: "admin@gmail.com",
+  backerPhone: null as string | null,
+  campaignTitle: "Combo khai trương quán gà rán",
+  amount: 199000,
+  tipAmount: 0,
+  platformFee: 0,
+  vatAmount: 0,
+  totalAmount: 199000,
+};
+
+function DemoCertificate() {
+  const [verifyUrl, setVerifyUrl] = useState(
+    "https://2s-projects.vercel.app/chung-tu/TT-UH-202609-403A",
+  );
+  useEffect(() => {
+    setVerifyUrl(`${window.location.origin}/chung-tu/TT-UH-202609-403A`);
+  }, []);
+
+  return (
+    <div className="rounded-[1.75rem] bg-[#f3efe6] p-3 sm:p-6">
+      <CertificateDocument data={{ ...DEMO_CERTIFICATE, verifyUrl }}>
+        <span className="rounded-full bg-pgreen px-5 py-2.5 text-sm font-bold text-white">In chứng từ</span>
+        <Link
+          href="/purchases"
+          className="rounded-full border border-pgreen px-5 py-2.5 text-sm font-bold text-pgreen"
+        >
+          Đã lưu trong Kho đồ
+        </Link>
+        <Link
+          href="/lookup?code=TT-UH-202609-403A"
+          className="rounded-full border px-5 py-2.5 text-sm font-bold text-gray-500"
+        >
+          Tra cứu giao dịch
+        </Link>
+      </CertificateDocument>
+    </div>
+  );
+}
+
+function DemoInvoice() {
+  return (
+    <div className="overflow-hidden rounded-[1.75rem] border border-gray-100 bg-gray-100 p-3 sm:p-6">
+      <InvoiceDocument data={DEMO_INVOICE} />
+    </div>
+  );
+}
+
 function Figure({ fig }: { fig: PresentationFigure }) {
+  if (fig.key === "chung-nhan-tt-uh.jpg") {
+    return (
+      <figure>
+        <DemoCertificate />
+        <figcaption className="px-1 py-3 text-left text-sm text-gray-500">{fig.caption}</figcaption>
+      </figure>
+    );
+  }
+  if (fig.key === "bien-lai-thanh-toan.jpg") {
+    return (
+      <figure>
+        <DemoInvoice />
+        <figcaption className="px-1 py-3 text-left text-sm text-gray-500">{fig.caption}</figcaption>
+      </figure>
+    );
+  }
+  if (fig.key === "donation-reward.jpg") {
+    return (
+      <figure className="grid gap-8">
+        <DemoCertificate />
+        <DemoInvoice />
+        <figcaption className="px-1 text-left text-sm text-gray-500">{fig.caption}</figcaption>
+      </figure>
+    );
+  }
+
   return (
     <figure className="overflow-hidden rounded-[1.75rem] border border-gray-100 bg-white shadow-sm">
       {/* eslint-disable-next-line @next/next/no-img-element */}

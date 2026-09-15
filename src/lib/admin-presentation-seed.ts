@@ -25,7 +25,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         {
           key: "donation-reward.jpg",
           alt: "Hai nhánh: ủng hộ nhận giấy chứng nhận, đặt hàng nhận sản phẩm",
-          caption: "Giao diện thật: giấy /chung-tu (TT-UH) và biên lai INV- trên cùng một nền tảng.",
+          caption: "Hai đầu ra của hệ thống: giấy chứng nhận /chung-tu (TT-UH) và biên lai INV- — render đúng layout nền tảng.",
         },
       ],
     },
@@ -70,12 +70,12 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         {
           key: "chung-nhan-tt-uh.jpg",
           alt: "Mẫu giấy chứng nhận ủng hộ TT-UH",
-          caption: "Donation: trang /chung-tu — GIẤY CHỨNG NHẬN · TẤM LÒNG VÀNG, mã TT-UH, mộc và QR đối soát.",
+          caption: "Donation: đúng trang /chung-tu — GIẤY CHỨNG NHẬN · TẤM LÒNG VÀNG, mã TT-UH, mộc, QR đối soát.",
         },
         {
           key: "bien-lai-thanh-toan.jpg",
           alt: "Mẫu biên lai thanh toán Reward",
-          caption: "Reward: biên lai INV-YYYYMMDD do hệ thống xuất — chứng từ nội bộ, không phải hóa đơn GTGT.",
+          caption: "Reward: biên lai INV-YYYYMMDD — cùng layout hệ thống xuất, chứng từ nội bộ, không phải hóa đơn GTGT.",
         },
       ],
     },
