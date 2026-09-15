@@ -108,6 +108,8 @@ Sửa schema Prisma: migration trong `prisma/migrations/`. Không “sửa schem
 5. Push `main` với email `nguyenquachphutai@gmail.com`.
 6. Docs đồ án: `docs/SRS-TU-TE-FUND.md`, `docs/system-map/`, `docs/phap-luat/`. `docs/archive/` là lịch sử, không phải nguồn sự thật.
 7. Mongo script (`mongo:init`, `scripts/init-mongodb.js`, …) là leftover — đừng phụ thuộc.
+8. Không thêm script debug (`check-*`, `dump_*`, `inspect_*`, `reset_pw`, `list_users`) vào `scripts/`. Folder này chỉ giữ seed / migrate / CI / DBML.
+
 
 ---
 
