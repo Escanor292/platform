@@ -13,8 +13,8 @@ html.dark {
 }
 
 html.dark body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--profile-shell-background, var(--background));
+  color: var(--profile-shell-text, var(--foreground));
 }
 
 html.dark .bg-white:not(.dark-keep),
@@ -26,7 +26,7 @@ html.dark .bg-white\/60:not(.dark-keep),
 html.dark .bg-white\/55:not(.dark-keep),
 html.dark .bg-white\/50:not(.dark-keep),
 html.dark .bg-white\/40:not(.dark-keep) {
-  background-color: var(--surface) !important;
+  background-color: var(--profile-shell-surface, var(--surface)) !important;
 }
 
 html.dark .bg-cream,
@@ -38,7 +38,7 @@ html.dark .bg-stone-50,
 html.dark .bg-gray-100,
 html.dark .bg-slate-100,
 html.dark .bg-neutral-100 {
-  background-color: var(--surface-2) !important;
+  background-color: var(--profile-shell-background, var(--surface-2)) !important;
 }
 
 html.dark .bg-gray-200,
@@ -52,7 +52,7 @@ html.dark .text-slate-900,
 html.dark .text-neutral-900,
 html.dark .text-zinc-900,
 html.dark .text-black {
-  color: #f3f6fb !important;
+  color: var(--profile-shell-text, #f3f6fb) !important;
 }
 
 html.dark .text-gray-800,
@@ -70,13 +70,13 @@ html.dark .text-neutral-700 {
 html.dark .text-gray-600,
 html.dark .text-slate-600,
 html.dark .text-neutral-600 {
-  color: #c2cddb !important;
+  color: var(--profile-shell-muted, #c2cddb) !important;
 }
 
 html.dark .text-gray-500,
 html.dark .text-slate-500,
 html.dark .text-neutral-500 {
-  color: #a9b7c9 !important;
+  color: var(--profile-shell-muted, #a9b7c9) !important;
 }
 
 html.dark .text-gray-400,
