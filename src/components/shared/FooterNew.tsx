@@ -1,10 +1,19 @@
+"use client";
+
 import Link from "next/link";
 import { Facebook, Instagram, Mail } from "lucide-react";
 import LeafIcon from "./LeafIcon";
+import { useI18n } from "@/i18n";
 
 export default function FooterNew() {
+  const { t } = useI18n();
+
   return (
-    <footer id="ho-tro" className="bg-dblue px-6 py-12 pb-24 text-white transition-colors duration-300 md:pb-12" style={{ backgroundColor: "var(--profile-shell-primary, #1F4E79)", color: "var(--profile-contrast, #ffffff)" }}>
+    <footer
+      id="ho-tro"
+      className="bg-dblue px-6 py-12 pb-24 text-white transition-colors duration-300 md:pb-12 dark:bg-gray-900"
+      style={{ backgroundColor: "var(--profile-shell-primary, #1F4E79)", color: "var(--profile-contrast, #ffffff)" }}
+    >
       <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-8">
         <div>
           <div className="flex items-center gap-2 mb-4">
@@ -14,45 +23,45 @@ export default function FooterNew() {
             <span className="font-display text-lg font-bold">TửTế Fund</span>
           </div>
           <p className="text-sm leading-relaxed opacity-60" style={{ color: "var(--profile-contrast, #ffffff)" }}>
-            Lấy sự tử tế trồng tương lai. Nền tảng gây quỹ cộng đồng minh bạch #2 Việt Nam.
+            {t("footer.tagline")}
           </p>
         </div>
 
         <div>
-          <h4 className="font-semibold mb-4 text-sm">Khám phá</h4>
+          <h4 className="font-semibold mb-4 text-sm">{t("footer.explore")}</h4>
           <div className="space-y-2 text-sm opacity-60" style={{ color: "var(--profile-contrast, #ffffff)" }}>
             <Link href="/campaigns" className="block cursor-pointer transition hover:opacity-100">
-              Chiến dịch
+              {t("footer.campaigns")}
             </Link>
             <Link href="/gioi-thieu" className="block cursor-pointer transition hover:opacity-100">
-              Giới thiệu
+              {t("footer.about")}
             </Link>
             <Link href="/lookup" className="block cursor-pointer transition hover:opacity-100">
-              Tra cứu
+              {t("footer.lookup")}
             </Link>
           </div>
         </div>
 
         <div>
-          <h4 className="font-semibold mb-4 text-sm">Hỗ trợ</h4>
+          <h4 className="font-semibold mb-4 text-sm">{t("footer.support")}</h4>
           <div className="space-y-2 text-sm opacity-60" style={{ color: "var(--profile-contrast, #ffffff)" }}>
             <Link href="/huong-dan/creator" className="block cursor-pointer transition hover:opacity-100">
-              Hướng dẫn Creator
+              {t("footer.creatorGuide")}
             </Link>
             <Link href="/policy/terms" className="block cursor-pointer transition hover:opacity-100">
-              Điều khoản sử dụng
+              {t("footer.terms")}
             </Link>
             <Link href="/policy/privacy" className="block cursor-pointer transition hover:opacity-100">
-              Chính sách bảo mật
+              {t("footer.privacy")}
             </Link>
             <Link href="/huong-dan/thue" className="block cursor-pointer transition hover:opacity-100">
-              Hướng dẫn thuế
+              {t("footer.taxGuide")}
             </Link>
           </div>
         </div>
 
         <div>
-          <h4 className="font-semibold mb-4 text-sm">Liên hệ</h4>
+          <h4 className="font-semibold mb-4 text-sm">{t("footer.contact")}</h4>
           <div className="space-y-2 text-sm opacity-60" style={{ color: "var(--profile-contrast, #ffffff)" }}>
             <p>hello@tutefund.vn</p>
             <p>1900 xxxx</p>
@@ -72,7 +81,7 @@ export default function FooterNew() {
       </div>
 
       <div className="mx-auto mt-8 max-w-7xl border-t border-white/10 pt-6 text-center text-xs opacity-40" style={{ color: "var(--profile-contrast, #ffffff)" }}>
-        © 2024 TửTế Fund. Mọi quyền được bảo lưu.
+        {t("footer.rights")}
       </div>
     </footer>
   );

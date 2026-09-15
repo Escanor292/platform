@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import {
-  Rocket, User, LogOut, UserCircle, PlusCircle, Menu, X, ChevronDown, Settings, ShieldCheck, FolderKanban, HeartHandshake, MessageCircle, PackageOpen, Bell
+  Rocket, LogOut, UserCircle, Menu, X, ChevronDown, Settings, ShieldCheck, FolderKanban, HeartHandshake, MessageCircle, PackageOpen, Bell
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
@@ -13,9 +13,17 @@ import { ChatNotificationBadge } from "@/components/chat/ChatNotificationBadge";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { CartDropdown } from "@/components/products/CartProvider";
 import { useMyPermissions } from "@/hooks/useMyPermissions";
+import { useI18n } from "@/i18n";
+import ChromeToggles from "@/components/layout/ChromeToggles";
+
+const navLinkClass =
+  "text-sm font-medium text-gray-600 transition relative group hover:text-pgreen dark:text-slate-300";
+const menuItemClass =
+  "flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/5";
 
 export default function NavbarNew() {
   const { data: session } = useSession();
+  const { t } = useI18n();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -27,7 +35,6 @@ export default function NavbarNew() {
   const isAdmin = user?.role === "ADMIN" || user?.isAdmin === true;
   const { can } = useMyPermissions();
 
-  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {
@@ -36,7 +43,6 @@ export default function NavbarNew() {
     };
   }, []);
 
-  // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -50,8 +56,8 @@ export default function NavbarNew() {
     };
 
     if (isDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [isDropdownOpen]);
 
@@ -69,138 +75,116 @@ export default function NavbarNew() {
     }, 250);
   };
 
-  const handleTriggerMouseEnter = () => {
-    clearCloseTimeout();
-    setIsDropdownOpen(true);
-  };
-
-  const handleTriggerMouseLeave = () => {
-    setCloseTimeout();
-  };
-
-  const handleDropdownMouseEnter = () => {
-    clearCloseTimeout();
-  };
-
-  const handleDropdownMouseLeave = () => {
-    setCloseTimeout();
-  };
-
-  const handleTriggerClick = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
   const handleLogout = async () => {
     setIsDropdownOpen(false);
     toast.promise(signOut({ redirect: false }), {
-      loading: 'Đang xử lý...',
+      loading: t("toast.logoutLoading"),
       success: () => {
-        router.push('/');
+        router.push("/");
         router.refresh();
-        return 'Đăng xuất thành công!';
+        return t("toast.logoutSuccess");
       },
-      error: 'Lỗi đăng xuất',
+      error: t("toast.logoutError"),
     });
   };
 
   return (
-    <nav className="sticky top-0 z-50 glass border-b border-white/30 transition-colors duration-300" style={{ backgroundColor: "color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 7%, var(--profile-shell-surface, #ffffff) 93%)", borderColor: "color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 18%, transparent)", boxShadow: "0 6px 24px color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 9%, transparent)" }}>
+    <nav
+      className="sticky top-0 z-50 glass border-b border-white/30 transition-colors duration-300 dark:border-white/10"
+      style={{
+        backgroundColor:
+          "color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 7%, var(--profile-shell-surface, var(--surface)) 93%)",
+        borderColor:
+          "color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 18%, transparent)",
+        boxShadow:
+          "0 6px 24px color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 9%, transparent)",
+      }}
+    >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6">
-        {/* Logo */}
         <Link href="/" className="flex items-center gap-2 cursor-pointer group">
           <div className="w-10 h-10 rounded-xl gradient-green flex items-center justify-center">
             <LeafIcon className="w-6 h-6" />
           </div>
-          <span className="font-display font-bold text-xl text-dblue group-hover:text-pgreen transition">
+          <span className="font-display font-bold text-xl text-dblue group-hover:text-pgreen transition dark:text-slate-100">
             TửTế Fund
           </span>
         </Link>
 
-        {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6">
-          <Link
-            href="/"
-            className="text-sm font-medium text-gray-600 hover:text-pgreen transition relative group"
-          >
-            Trang chủ
+          <Link href="/" className={navLinkClass}>
+            {t("nav.home")}
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-pgreen group-hover:w-full transition-all duration-300" />
           </Link>
-          <Link
-            href="/gioi-thieu"
-            className="text-sm font-medium text-gray-600 hover:text-pgreen transition relative group"
-          >
-            Giới thiệu
+          <Link href="/gioi-thieu" className={navLinkClass}>
+            {t("nav.about")}
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-pgreen group-hover:w-full transition-all duration-300" />
           </Link>
-          <Link
-            href="/projects"
-            className="text-sm font-medium text-gray-600 hover:text-pgreen transition relative group"
-          >
-            Khám phá
+          <Link href="/projects" className={navLinkClass}>
+            {t("nav.explore")}
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-pgreen group-hover:w-full transition-all duration-300" />
           </Link>
-          <Link
-            href="/blog"
-            className="text-sm font-medium text-gray-600 hover:text-pgreen transition relative group"
-          >
-            Blog
+          <Link href="/blog" className={navLinkClass}>
+            {t("nav.blog")}
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-pgreen group-hover:w-full transition-all duration-300" />
           </Link>
-          <Link
-            href="/users/search"
-            className="text-sm font-medium text-gray-600 hover:text-pgreen transition relative group"
-          >
-            Người dùng
+          <Link href="/users/search" className={navLinkClass}>
+            {t("nav.users")}
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-pgreen group-hover:w-full transition-all duration-300" />
           </Link>
         </div>
 
-        {/* Auth Actions */}
         <div className="hidden md:flex items-center gap-3">
+          <ChromeToggles />
           {session ? (
             <>
-              {/* Giỏ hàng */}
               <CartDropdown />
-
-              {/* Personal notifications */}
               <NotificationBell />
-
-              {/* Chat Link */}
               <Link
                 href="/chat"
-                className="relative p-2 text-gray-600 hover:text-pgreen hover:bg-gray-50 rounded-xl transition"
-                title="Tin nhắn"
+                className="relative p-2 text-gray-600 hover:text-pgreen hover:bg-gray-50 rounded-xl transition dark:text-slate-300 dark:hover:bg-white/10"
+                title={t("nav.messages")}
               >
                 <MessageCircle size={20} />
                 <ChatNotificationBadge />
               </Link>
 
-              {/* Chỉ hiển thị nút "Gây quỹ ngay" cho CREATOR và ADMIN */}
               {(can("campaign.create") || isAdmin) && (
                 <Link
                   href="/campaigns/create"
-                  className="rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-green-200" style={{ background: "var(--profile-gradient, linear-gradient(135deg, #2E8B57, #6BCB77))" }}
+                  className="rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-green-200"
+                  style={{ background: "var(--profile-gradient, linear-gradient(135deg, #2E8B57, #6BCB77))" }}
                 >
-                  Gây quỹ ngay
+                  {t("cta.startCampaign")}
                 </Link>
               )}
 
-              {/* Profile Dropdown */}
               <div
                 className="relative"
-                onMouseEnter={handleTriggerMouseEnter}
-                onMouseLeave={handleTriggerMouseLeave}
+                onMouseEnter={() => {
+                  clearCloseTimeout();
+                  setIsDropdownOpen(true);
+                }}
+                onMouseLeave={setCloseTimeout}
               >
                 <button
                   ref={triggerRef}
                   type="button"
-                  onClick={handleTriggerClick}
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   aria-expanded={isDropdownOpen}
                   aria-haspopup="menu"
-                  aria-label="Mở menu tài khoản"
-                  className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded-xl transition focus-ring"
+                  aria-label={t("nav.accountMenu")}
+                  className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded-xl transition focus-ring dark:hover:bg-white/10"
                 >
-                  <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border font-bold" style={{ backgroundColor: "color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 10%, transparent)", borderColor: "color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 22%, transparent)", color: "var(--profile-shell-primary, #2E8B57)" }}>
+                  <div
+                    className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border font-bold"
+                    style={{
+                      backgroundColor:
+                        "color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 10%, transparent)",
+                      borderColor:
+                        "color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 22%, transparent)",
+                      color: "var(--profile-shell-primary, #2E8B57)",
+                    }}
+                  >
                     {session.user?.image ? (
                       <img src={session.user.image} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
@@ -209,116 +193,86 @@ export default function NavbarNew() {
                   </div>
                   <ChevronDown
                     size={16}
-                    className={`text-gray-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''
-                      }`}
+                    className={`text-gray-400 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`}
                   />
                 </button>
 
-                {/* Dropdown Menu */}
                 {isDropdownOpen && (
                   <div
                     ref={dropdownRef}
                     role="menu"
-                    onMouseEnter={handleDropdownMouseEnter}
-                    onMouseLeave={handleDropdownMouseLeave}
+                    onMouseEnter={clearCloseTimeout}
+                    onMouseLeave={setCloseTimeout}
                     className="absolute right-0 top-full z-50 pt-2"
                   >
-                    <div className="w-56 bg-white rounded-2xl shadow-premium border border-gray-100 p-2 animate-in fade-in zoom-in-95 duration-200">
-                    {/* User Info */}
-                    <div className="px-3 py-2 border-b border-gray-50 mb-2">
-                      <p className="text-sm font-bold text-gray-900 truncate">{session.user?.name}</p>
-                      <p className="text-xs text-gray-400 truncate">{session.user?.email}</p>
-                    </div>
+                    <div className="w-56 bg-white rounded-2xl shadow-premium border border-gray-100 p-2 animate-in fade-in zoom-in-95 duration-200 dark:bg-slate-900 dark:border-white/10">
+                      <div className="px-3 py-2 border-b border-gray-50 mb-2 dark:border-white/10">
+                        <p className="text-sm font-bold text-gray-900 truncate dark:text-slate-100">{session.user?.name}</p>
+                        <p className="text-xs text-gray-400 truncate">{session.user?.email}</p>
+                      </div>
 
-                    {/* Menu Items */}
-                    <Link
-                      href="/dashboard"
-                      className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50"
-                      onClick={() => setIsDropdownOpen(false)}
-                    >
-                      <UserCircle size={16} />
-                      Trang cá nhân
-                    </Link>
-
-                    {/* Hiển thị nút "Nâng cấp" cho BACKER */}
-                    {can("kyc.submit") && user?.role === "BACKER" && (
-                      <Link
-                        href={user?.isOrganization ? "/upgrade/organization" : "/upgrade/individual"}
-                        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-gradient-to-r from-pgreen to-fgreen rounded-xl hover:shadow-lg transition cursor-pointer outline-none"
-                        onClick={() => setIsDropdownOpen(false)}
-                      >
-                        <Rocket size={16} />
-                        Nâng cấp Creator
+                      <Link href="/dashboard" className={menuItemClass} onClick={() => setIsDropdownOpen(false)}>
+                        <UserCircle size={16} />
+                        {t("nav.profile")}
                       </Link>
-                    )}
 
-                    {/* Chỉ hiển thị "Quản lý chiến dịch" cho CREATOR và ADMIN */}
-                    {(can("campaign.manage") || isAdmin) && (
-                      <Link
-                        href="/dashboard/creator"
-                        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50"
-                        onClick={() => setIsDropdownOpen(false)}
-                      >
-                        <FolderKanban size={16} />
-                        Quản lý chiến dịch
+                      {can("kyc.submit") && user?.role === "BACKER" && (
+                        <Link
+                          href={user?.isOrganization ? "/upgrade/organization" : "/upgrade/individual"}
+                          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-gradient-to-r from-pgreen to-fgreen rounded-xl hover:shadow-lg transition cursor-pointer outline-none"
+                          onClick={() => setIsDropdownOpen(false)}
+                        >
+                          <Rocket size={16} />
+                          {t("nav.upgrade")}
+                        </Link>
+                      )}
+
+                      {(can("campaign.manage") || isAdmin) && (
+                        <Link href="/dashboard/creator" className={menuItemClass} onClick={() => setIsDropdownOpen(false)}>
+                          <FolderKanban size={16} />
+                          {t("nav.manageCampaigns")}
+                        </Link>
+                      )}
+
+                      <Link href="/dashboard/favorites" className={menuItemClass} onClick={() => setIsDropdownOpen(false)}>
+                        <HeartHandshake size={16} />
+                        {t("nav.favorites")}
                       </Link>
-                    )}
 
-                    <Link
-                      href="/dashboard/favorites"
-                      className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50"
-                      onClick={() => setIsDropdownOpen(false)}
-                    >
-                      <HeartHandshake size={16} />
-                      Chiến dịch quan tâm
-                    </Link>
-
-                    <Link
-                      href="/purchases"
-                      className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50"
-                      onClick={() => setIsDropdownOpen(false)}
-                    >
-                      <PackageOpen size={16} />
-                      Kho đã mua
-                    </Link>
-
-                    <Link
-                      href="/chat"
-                      className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50 relative"
-                      onClick={() => setIsDropdownOpen(false)}
-                    >
-                      <MessageCircle size={16} />
-                      Tin nhắn
-                      <ChatNotificationBadge />
-                    </Link>
-
-                    <Link
-                      href="/profile/edit"
-                      className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-slate-50 hover:text-pgreen transition cursor-pointer outline-none focus:bg-slate-50"
-                      onClick={() => setIsDropdownOpen(false)}
-                    >
-                      <Settings size={16} />
-                      Cài đặt
-                    </Link>
-
-                    {isAdmin && (
-                      <Link
-                        href="/dashboard/admin"
-                        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition cursor-pointer outline-none focus:bg-red-50"
-                        onClick={() => setIsDropdownOpen(false)}
-                      >
-                        <ShieldCheck size={16} />
-                        Quản trị
+                      <Link href="/purchases" className={menuItemClass} onClick={() => setIsDropdownOpen(false)}>
+                        <PackageOpen size={16} />
+                        {t("nav.purchases")}
                       </Link>
-                    )}
 
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition outline-none focus:bg-red-50 mt-1 cursor-pointer"
-                    >
-                      <LogOut size={16} />
-                      Đăng xuất
-                    </button>
+                      <Link href="/chat" className={`${menuItemClass} relative`} onClick={() => setIsDropdownOpen(false)}>
+                        <MessageCircle size={16} />
+                        {t("nav.messages")}
+                        <ChatNotificationBadge />
+                      </Link>
+
+                      <Link href="/profile/edit" className={menuItemClass} onClick={() => setIsDropdownOpen(false)}>
+                        <Settings size={16} />
+                        {t("nav.settings")}
+                      </Link>
+
+                      {isAdmin && (
+                        <Link
+                          href="/dashboard/admin"
+                          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition cursor-pointer outline-none focus:bg-red-50 dark:hover:bg-red-950/40"
+                          onClick={() => setIsDropdownOpen(false)}
+                        >
+                          <ShieldCheck size={16} />
+                          {t("nav.admin")}
+                        </Link>
+                      )}
+
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition outline-none focus:bg-red-50 mt-1 cursor-pointer dark:hover:bg-red-950/40"
+                      >
+                        <LogOut size={16} />
+                        {t("nav.logout")}
+                      </button>
                     </div>
                   </div>
                 )}
@@ -328,80 +282,86 @@ export default function NavbarNew() {
             <>
               <Link
                 href="/auth/login"
-                className="text-sm font-semibold text-pgreen hover:text-dblue transition"
+                className="text-sm font-semibold text-pgreen hover:text-dblue transition dark:hover:text-fgreen"
               >
-                Đăng nhập
+                {t("auth.login")}
               </Link>
               <Link
                 href="/campaigns/create"
-                className="rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-green-200" style={{ background: "var(--profile-gradient, linear-gradient(135deg, #2E8B57, #6BCB77))" }}
+                className="rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-green-200"
+                style={{ background: "var(--profile-gradient, linear-gradient(135deg, #2E8B57, #6BCB77))" }}
               >
-                Gây quỹ ngay
+                {t("cta.startCampaign")}
               </Link>
             </>
           )}
         </div>
 
-        {/* Mobile Toggle */}
-        <button
-          className="md:hidden p-2 text-gray-900 focus-ring rounded-lg"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        <div className="flex items-center gap-1 md:hidden">
+          <ChromeToggles />
+          <button
+            className="p-2 text-gray-900 focus-ring rounded-lg dark:text-slate-100"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label={isMenuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
+          >
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
 
-      {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden max-h-[70vh] overflow-y-auto px-6 pb-4 flex flex-col gap-1 bg-white border-t border-gray-100">
-          <Link href="/" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
-            Trang chủ
+        <div className="md:hidden max-h-[70vh] overflow-y-auto px-6 pb-4 flex flex-col gap-1 bg-white border-t border-gray-100 dark:bg-slate-900 dark:border-white/10">
+          <div className="flex items-center justify-between py-2">
+            <ChromeToggles />
+          </div>
+          <Link href="/" className="py-2 text-sm font-medium text-gray-600 dark:text-slate-300" onClick={() => setIsMenuOpen(false)}>
+            {t("nav.home")}
           </Link>
-          <Link href="/gioi-thieu" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
-            Giới thiệu
+          <Link href="/gioi-thieu" className="py-2 text-sm font-medium text-gray-600 dark:text-slate-300" onClick={() => setIsMenuOpen(false)}>
+            {t("nav.about")}
           </Link>
-          <Link href="/projects" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
-            Khám phá
+          <Link href="/projects" className="py-2 text-sm font-medium text-gray-600 dark:text-slate-300" onClick={() => setIsMenuOpen(false)}>
+            {t("nav.explore")}
           </Link>
-          <Link href="/blog" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
-            Blog
+          <Link href="/blog" className="py-2 text-sm font-medium text-gray-600 dark:text-slate-300" onClick={() => setIsMenuOpen(false)}>
+            {t("nav.blog")}
           </Link>
-          <Link href="/users/search" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
-            Người dùng
+          <Link href="/users/search" className="py-2 text-sm font-medium text-gray-600 dark:text-slate-300" onClick={() => setIsMenuOpen(false)}>
+            {t("nav.users")}
           </Link>
 
           {session ? (
             <>
-              <Link href="/dashboard" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700" onClick={() => setIsMenuOpen(false)}>
-                <UserCircle size={16} /> Trang cá nhân
+              <Link href="/dashboard" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 dark:text-slate-200" onClick={() => setIsMenuOpen(false)}>
+                <UserCircle size={16} /> {t("nav.profile")}
               </Link>
-              <Link href="/notifications" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700" onClick={() => setIsMenuOpen(false)}>
-                <Bell size={16} /> Thông báo
+              <Link href="/notifications" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 dark:text-slate-200" onClick={() => setIsMenuOpen(false)}>
+                <Bell size={16} /> {t("nav.notifications")}
               </Link>
-              <Link href="/chat" className="relative flex items-center gap-2 py-2 text-sm font-medium text-gray-700" onClick={() => setIsMenuOpen(false)}>
-                <MessageCircle size={16} /> Tin nhắn
+              <Link href="/chat" className="relative flex items-center gap-2 py-2 text-sm font-medium text-gray-700 dark:text-slate-200" onClick={() => setIsMenuOpen(false)}>
+                <MessageCircle size={16} /> {t("nav.messages")}
                 <ChatNotificationBadge />
               </Link>
-              <Link href="/cart" className="py-2 text-sm font-medium text-gray-700" onClick={() => setIsMenuOpen(false)}>
-                Giỏ hàng
+              <Link href="/cart" className="py-2 text-sm font-medium text-gray-700 dark:text-slate-200" onClick={() => setIsMenuOpen(false)}>
+                {t("nav.cart")}
               </Link>
-              <Link href="/purchases" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700" onClick={() => setIsMenuOpen(false)}>
-                <PackageOpen size={16} /> Kho đã mua
+              <Link href="/purchases" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 dark:text-slate-200" onClick={() => setIsMenuOpen(false)}>
+                <PackageOpen size={16} /> {t("nav.purchases")}
               </Link>
-              <Link href="/dashboard/favorites" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700" onClick={() => setIsMenuOpen(false)}>
-                <HeartHandshake size={16} /> Chiến dịch quan tâm
+              <Link href="/dashboard/favorites" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 dark:text-slate-200" onClick={() => setIsMenuOpen(false)}>
+                <HeartHandshake size={16} /> {t("nav.favorites")}
               </Link>
               {(can("campaign.manage") || isAdmin) && (
-                <Link href="/dashboard/creator" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700" onClick={() => setIsMenuOpen(false)}>
-                  <FolderKanban size={16} /> Quản lý chiến dịch
+                <Link href="/dashboard/creator" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 dark:text-slate-200" onClick={() => setIsMenuOpen(false)}>
+                  <FolderKanban size={16} /> {t("nav.manageCampaigns")}
                 </Link>
               )}
-              <Link href="/profile/edit" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700" onClick={() => setIsMenuOpen(false)}>
-                <Settings size={16} /> Cài đặt
+              <Link href="/profile/edit" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 dark:text-slate-200" onClick={() => setIsMenuOpen(false)}>
+                <Settings size={16} /> {t("nav.settings")}
               </Link>
               {isAdmin && (
                 <Link href="/dashboard/admin" className="flex items-center gap-2 py-2 text-sm font-medium text-red-600" onClick={() => setIsMenuOpen(false)}>
-                  <ShieldCheck size={16} /> Quản trị
+                  <ShieldCheck size={16} /> {t("nav.admin")}
                 </Link>
               )}
               {(can("campaign.create") || isAdmin) && (
@@ -410,14 +370,11 @@ export default function NavbarNew() {
                   className="mt-2 py-3 text-center rounded-xl gradient-green text-white font-semibold"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Gây quỹ ngay
+                  {t("cta.startCampaign")}
                 </Link>
               )}
-              <button
-                onClick={handleLogout}
-                className="py-2 text-sm font-medium text-red-600 text-left"
-              >
-                Đăng xuất
+              <button onClick={handleLogout} className="py-2 text-sm font-medium text-red-600 text-left">
+                {t("nav.logout")}
               </button>
             </>
           ) : (
@@ -427,14 +384,14 @@ export default function NavbarNew() {
                 className="py-2 text-sm font-medium text-pgreen"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Đăng nhập
+                {t("auth.login")}
               </Link>
               <Link
                 href="/campaigns/create"
                 className="mt-2 py-3 text-center rounded-xl gradient-green text-white font-semibold"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Gây quỹ ngay
+                {t("cta.startCampaign")}
               </Link>
             </>
           )}

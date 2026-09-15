@@ -11,10 +11,11 @@ import PlatformHelpAssistant from "@/components/public/PlatformHelpAssistant";
 import PlatformAssistantGate from "@/components/public/PlatformAssistantGate";
 import ProfileThemeShell from "@/components/profile/ProfileThemeShell";
 import BehaviorTracker from "@/components/analytics/BehaviorTracker";
-import { Toaster } from "sonner";
+import ThemedToaster from "@/components/layout/ThemedToaster";
 import { Ga4Script } from "@/components/seo/Ga4Script";
 import { getGa4MeasurementId } from "@/lib/platform-settings";
 import { DEFAULT_OG_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, getSiteUrl } from "@/lib/seo";
+import { PREFERENCE_BOOTSTRAP_SCRIPT } from "@/lib/preferences";
 
 const playfair = Playfair_Display({
   subsets: ["latin", "vietnamese"],
@@ -38,7 +39,10 @@ const nunito = Nunito({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#10b981",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#10b981" },
+    { media: "(prefers-color-scheme: dark)", color: "#091428" },
+  ],
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -87,14 +91,17 @@ export default async function RootLayout({
   const ga4MeasurementId = await getGa4MeasurementId();
 
   return (
-    <html lang="vi">
+    <html lang="vi" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: PREFERENCE_BOOTSTRAP_SCRIPT }} />
+      </head>
       <body className={`${playfair.variable} ${sourceSans.variable} ${nunito.variable}`}>
         <Ga4Script measurementId={ga4MeasurementId} />
         <Providers>
           <CartProvider>
-          <Toaster position="top-center" richColors theme="light" />
+          <ThemedToaster />
           <ProfileThemeShell>
-            <div className="flex min-h-screen flex-col pb-20 md:pb-0">
+            <div className="flex min-h-screen flex-col bg-background pb-20 text-foreground md:pb-0">
               <NavbarNew />
               <main className="flex-grow">
                 {children}
