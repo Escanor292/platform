@@ -61,6 +61,7 @@ const KICKER_ICON = {
   "Khách hàng nhắm đến": Users,
   Case: Store,
   "Công ty tương lai": Building2,
+  "Phụ lục": FolderTree,
 } as const;
 
 function mediaUrl(key: string) {

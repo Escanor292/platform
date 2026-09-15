@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 13;
+export const PRESENTATION_SEED_VERSION = 14;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -195,117 +195,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           ],
         ],
       },
-      note: "Chi hộ từ tài khoản ngân hàng trung gian + cổng thanh toán. Không tự nhận là trung gian thanh toán theo giấy phép NHNN. Webhook và cron (đóng chiến dịch hết hạn, hoàn trễ SLA) chạy trên hệ thống thật.",
-    },
-    {
-      kicker: "Luồng người dùng",
-      title: "Bốn vai — xếp dọc theo người",
-      body: "Creator cá nhân hoặc doanh nghiệp. Backer tách Cho đi / Nhận lại. Admin duyệt. Mỗi hàng một người, bước đi từ trên xuống.",
-      lanes: [
-        {
-          title: "Creator — cá nhân hoặc doanh nghiệp",
-          tone: "navy",
-          steps: [
-            "Đăng ký / đăng nhập",
-            "eKYC hoặc KYB (MST VietQR)",
-            "Tạo chiến dịch: Donation, Reward, hoặc cả hai; chọn AoN / KiA",
-            "Nhận ủng hộ / đơn — tiền đang giữ, chưa về STK",
-            "Reward: gửi ĐVVC hoặc mở nhận tại chỗ đúng SLA",
-            "Chi hộ từng đơn khi chiến dịch đã chốt và khách đã nhận đủ",
-          ],
-        },
-        {
-          title: "Backer — Cho đi (Donation)",
-          tone: "rose",
-          steps: [
-            "Vào hồ sơ chiến dịch (có thể từ MXH)",
-            "Ủng hộ, không chọn quà",
-            "PayOS / VietQR → webhook SUCCESS",
-            "Giấy TT-UH vào Kho đồ",
-            "Giải ngân khi chốt chiến dịch (AoN đạt mục tiêu, hoặc KiA)",
-          ],
-        },
-        {
-          title: "Backer — Nhận lại (Reward)",
-          tone: "emerald",
-          steps: [
-            "Chọn combo / vé / pre-order",
-            "Thanh toán — tiền giữ theo đơn",
-            "Biên lai INV- + vé/quà trong Kho đồ",
-            "Nhận: quét vé, xác nhận, hoặc 7 ngày không khiếu nại",
-            "Trễ SLA gửi hàng → hoàn đơn. Đã nhận + đã chốt → giải ngân đúng đơn",
-          ],
-        },
-        {
-          title: "Admin",
-          steps: [
-            "Duyệt KYC / chiến dịch / kiểm duyệt",
-            "Theo dõi SLA, hoàn trễ, khóa nội dung",
-            "Mở thuyết trình nội bộ (nút xanh dashboard)",
-          ],
-        },
-      ],
-    },
-    {
-      kicker: "CSDL",
-      title: "Schema lõi — Neon Postgres",
-      body: "Không vẽ hết 50+ bảng. Chỉ vòng gây quỹ lai: người → chiến dịch → đơn → chứng từ. Chat/blog nằm Mongo hoặc bảng phụ, không đi vào escrow.",
-      schema: [
-        {
-          title: "Định danh",
-          items: [
-            "users (role, STK nhận chi hộ)",
-            "kyc_info (CCCD, selfie, ekycMeta, consentAt)",
-            "transaction_limits",
-          ],
-        },
-        {
-          title: "Hồ sơ dự án",
-          items: [
-            "projects → campaigns",
-            "campaigns.type Donation|Reward",
-            "campaigns.fundingModel AoN|KiA",
-            "rewards (fulfillment, SLA giao)",
-          ],
-        },
-        {
-          title: "Dòng tiền / đơn",
-          items: [
-            "pledges.status PENDING → SUCCESS → RELEASED|REFUNDED",
-            "pledges.fulfillmentStatus, handedToCarrierAt, receivedAt",
-            "pledges.platformFee (~8%)",
-            "checkout_sessions, payment_methods",
-          ],
-        },
-        {
-          title: "Chứng từ",
-          items: [
-            "donation_certificates (mã TT-UH)",
-            "backer_invoices (mã INV-)",
-            "reward_digital_assets / Kho đồ",
-            "platform_invoices (phí sàn)",
-          ],
-        },
-      ],
-      note: "PII KYC hiện plaintext trên Neon; ảnh CCCD trên Cloudinary. Chat: MongoDB. Cache: Redis. Không vẽ hết blog_*, conversations.",
-    },
-    {
-      kicker: "Mã nguồn",
-      title: "src/lib — nghiệp vụ, không phải UI",
-      body: "App Router nằm src/app. Dưới đây là thư viện lõi của mô hình lai. Tên file đúng repo.",
-      tree: [
-        { path: "src/lib/payment/", note: "create-pledge, escrow, PayOS, VietQR/Sepay, VNPay, settle-pledge, refund" },
-        { path: "src/lib/tax/", note: "certificate TT-UH, ledger, on-pledge-success, money-flow" },
-        { path: "src/lib/ekyc/", note: "VNPT / FPT / sandbox, QR CCCD, ekyb MST VietQR" },
-        { path: "src/lib/campaign/", note: "create-campaign, update, apply-funding-model-update" },
-        { path: "src/lib/funding-model.ts", note: "AoN / KiA" },
-        { path: "src/lib/campaign-lifecycle.ts", note: "đóng hạn, chốt chiến dịch" },
-        { path: "src/lib/order-fulfillment.ts", note: "PROCESSING → gửi / nhận" },
-        { path: "src/lib/ship-sla.ts", note: "SLA gửi hàng = ngày hẹn + 2 ngày" },
-        { path: "src/lib/money-buckets.ts", note: "bucket giữ / chi / hoàn" },
-        { path: "src/lib/digital-warehouse.ts", note: "Kho đồ backer" },
-        { path: "src/lib/prisma.ts · mongodb.ts · redis.ts", note: "Neon Postgres, chat Mongo, cache Redis" },
-      ],
+      note: "Chi hộ từ tài khoản ngân hàng trung gian + cổng thanh toán. Không tự nhận là trung gian thanh toán theo giấy phép NHNN. Webhook (cổng báo đã nhận tiền) và cron (đóng chiến dịch hết hạn, hoàn trễ SLA — cam kết thời hạn gửi hàng) chạy trên hệ thống thật.",
     },
     {
       kicker: "Chứng từ & giao dịch",
@@ -525,8 +415,118 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       body: "Cho đi thì có giấy. Nhận lại thì có hàng. Không đủ mục tiêu thì rõ hoàn hay giữ. Không đối đầu sàn lớn — mượn họ kể chuyện, đưa người về hồ sơ dự án.",
       bullets: [
         "Hai nhánh, hai chứng từ — không trộn ủng hộ với mua, không biến Reward thành chia lãi.",
-        "Reward: giữ theo đơn đến khi chiến dịch chốt và khách nhận đủ. Trễ SLA gửi hàng thì hoàn.",
-        "Không lấy trần P2P làm giấy thông hành. Vẫn phải thương mại điện tử, thuế, KYC/KYB, phòng chống rửa tiền.",
+        "Reward: giữ theo đơn đến khi chiến dịch chốt và khách nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng) thì hoàn.",
+        "Không lấy trần P2P (cho vay ngang hàng) làm giấy thông hành. Vẫn phải thương mại điện tử, thuế, KYC (xác minh cá nhân) / KYB (xác minh doanh nghiệp), phòng chống rửa tiền.",
+      ],
+    },
+    {
+      kicker: "Phụ lục",
+      title: "Luồng người dùng — bốn vai",
+      body: "Phụ lục kỹ thuật, tách khỏi mạch thuyết trình. Creator cá nhân hoặc doanh nghiệp. Backer tách Cho đi / Nhận lại. Admin duyệt. Mỗi hàng một người, bước đi từ trên xuống.",
+      lanes: [
+        {
+          title: "Creator — cá nhân hoặc doanh nghiệp",
+          tone: "navy",
+          steps: [
+            "Đăng ký / đăng nhập",
+            "eKYC (định danh điện tử) hoặc KYB (xác minh doanh nghiệp, MST — mã số thuế qua VietQR)",
+            "Tạo chiến dịch: Donation (cho đi), Reward (nhận lại), hoặc cả hai; chọn AoN (All-or-Nothing — đạt mục tiêu mới giữ) / KiA (Keep-It-All — giữ kể cả chưa đạt)",
+            "Nhận ủng hộ / đơn — tiền đang giữ, chưa về STK (số tài khoản) creator",
+            "Reward: gửi ĐVVC (đơn vị vận chuyển) hoặc mở nhận tại chỗ đúng SLA (cam kết thời hạn gửi hàng = ngày hẹn + 2 ngày)",
+            "Chi hộ từng đơn khi chiến dịch đã chốt và khách đã nhận đủ",
+          ],
+        },
+        {
+          title: "Backer — Cho đi (Donation / quyên góp)",
+          tone: "rose",
+          steps: [
+            "Vào hồ sơ chiến dịch (có thể từ MXH — mạng xã hội)",
+            "Ủng hộ, không chọn quà",
+            "PayOS / VietQR → webhook (cổng báo đã nhận tiền) SUCCESS",
+            "Giấy TT-UH (chứng nhận ủng hộ) vào Kho đồ",
+            "Giải ngân khi chốt chiến dịch (AoN đạt mục tiêu, hoặc KiA)",
+          ],
+        },
+        {
+          title: "Backer — Nhận lại (Reward / đặt trước)",
+          tone: "emerald",
+          steps: [
+            "Chọn combo / vé / pre-order (đặt trước)",
+            "Thanh toán — tiền giữ theo đơn (escrow — giữ hộ)",
+            "Biên lai INV- + vé/quà trong Kho đồ",
+            "Nhận: quét vé, xác nhận, hoặc 7 ngày không khiếu nại",
+            "Trễ SLA (cam kết thời hạn gửi hàng) → hoàn đơn. Đã nhận + đã chốt → giải ngân đúng đơn",
+          ],
+        },
+        {
+          title: "Admin (quản trị)",
+          steps: [
+            "Duyệt KYC (xác minh cá nhân) / chiến dịch / kiểm duyệt",
+            "Theo dõi SLA (cam kết thời hạn gửi hàng), hoàn trễ, khóa nội dung",
+            "Mở thuyết trình nội bộ (nút xanh dashboard)",
+          ],
+        },
+      ],
+    },
+    {
+      kicker: "Phụ lục",
+      title: "Schema lõi — Neon Postgres",
+      body: "Phụ lục kỹ thuật. Không vẽ hết 50+ bảng. Chỉ vòng gây quỹ lai: người → chiến dịch → đơn → chứng từ. Chat/blog nằm Mongo hoặc bảng phụ, không đi vào escrow (giữ hộ tiền).",
+      schema: [
+        {
+          title: "Định danh",
+          items: [
+            "users (vai trò, STK — số tài khoản nhận chi hộ)",
+            "kyc_info (CCCD, selfie, ekycMeta, consentAt — đồng ý NĐ 13)",
+            "transaction_limits (hạn mức giao dịch)",
+          ],
+        },
+        {
+          title: "Hồ sơ dự án",
+          items: [
+            "projects → campaigns",
+            "campaigns.type Donation (cho đi) | Reward (nhận lại)",
+            "campaigns.fundingModel AoN (đạt mới giữ) | KiA (giữ cả khi chưa đạt)",
+            "rewards (giao hàng, SLA — cam kết thời hạn gửi hàng)",
+          ],
+        },
+        {
+          title: "Dòng tiền / đơn",
+          items: [
+            "pledges.status PENDING (chờ) → SUCCESS (đã giữ) → RELEASED (đã chi) | REFUNDED (đã hoàn)",
+            "pledges.fulfillmentStatus, handedToCarrierAt (giao ĐVVC), receivedAt (đã nhận)",
+            "pledges.platformFee (phí sàn ~8%)",
+            "checkout_sessions, payment_methods",
+          ],
+        },
+        {
+          title: "Chứng từ",
+          items: [
+            "donation_certificates (mã TT-UH — chứng nhận ủng hộ)",
+            "backer_invoices (mã INV- — biên lai nội bộ)",
+            "reward_digital_assets / Kho đồ",
+            "platform_invoices (hóa đơn phí sàn)",
+          ],
+        },
+      ],
+      note: "PII (dữ liệu định danh) KYC hiện plaintext trên Neon; ảnh CCCD trên Cloudinary. Chat: MongoDB. Cache: Redis. Không vẽ hết blog_*, conversations.",
+    },
+    {
+      kicker: "Phụ lục",
+      title: "src/lib — nghiệp vụ, không phải UI",
+      body: "Phụ lục kỹ thuật. App Router nằm src/app. Dưới đây là thư viện lõi của mô hình lai. Tên file đúng repo.",
+      tree: [
+        { path: "src/lib/payment/", note: "tạo đơn, escrow (giữ hộ), PayOS, VietQR/Sepay, VNPay, đối soát, hoàn" },
+        { path: "src/lib/tax/", note: "giấy TT-UH (chứng nhận ủng hộ), sổ, khi pledges SUCCESS" },
+        { path: "src/lib/ekyc/", note: "định danh điện tử VNPT/FPT, QR CCCD, KYB MST (mã số thuế)" },
+        { path: "src/lib/campaign/", note: "tạo/sửa chiến dịch, đổi mô hình gây quỹ" },
+        { path: "src/lib/funding-model.ts", note: "AoN (đạt mới giữ) / KiA (giữ cả khi chưa đạt)" },
+        { path: "src/lib/campaign-lifecycle.ts", note: "đóng hạn, chốt chiến dịch" },
+        { path: "src/lib/order-fulfillment.ts", note: "đang xử lý → gửi / nhận" },
+        { path: "src/lib/ship-sla.ts", note: "SLA (cam kết thời hạn gửi hàng) = ngày hẹn + 2 ngày" },
+        { path: "src/lib/money-buckets.ts", note: "ngăn giữ / chi hộ / hoàn" },
+        { path: "src/lib/digital-warehouse.ts", note: "Kho đồ backer" },
+        { path: "src/lib/prisma.ts · mongodb.ts · redis.ts", note: "Neon Postgres, chat Mongo, cache Redis" },
       ],
     },
   ],
