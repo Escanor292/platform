@@ -38,17 +38,11 @@ export default async function Home() {
   });
 
   return (
-    <main className="min-h-screen bg-white">
-      {/* Hero Section */}
+    <main className="min-h-screen bg-background">
       <HeroSection />
-
-      {/* Stats Section */}
       <StatsSection />
-
-      {/* Why Us Section */}
       <WhyUsSection />
 
-      {/* Featured Campaigns */}
       <section className="py-20 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8 flex flex-wrap items-end justify-between gap-4 md:mb-12">
@@ -144,13 +138,8 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 3 Steps Section */}
       <ThreeStepsSection />
-
-      {/* Testimonials Section */}
       <TestimonialsSection />
-
-      {/* CTA Section */}
       <CTASection />
 
       {currentUser && (
