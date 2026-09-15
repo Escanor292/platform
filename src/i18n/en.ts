@@ -66,6 +66,7 @@ export const en: Record<MessageKey, string> = {
   "home.seedSub": "Connected by care",
   "home.helping": "Helping {n} people change the world",
   "home.recentSupport": "Latest gift",
+  "home.recentAmount": "+2.5 million",
   "home.featured": "Featured campaigns",
   "home.featuredSub": "Stories waiting for you to walk with them",
   "home.seeAll": "See all",

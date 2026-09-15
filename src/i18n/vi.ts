@@ -64,6 +64,7 @@ export const vi = {
   "home.seedSub": "Kết nối yêu thương",
   "home.helping": "Đang giúp {n} người thay đổi thế giới",
   "home.recentSupport": "Ủng hộ vừa rồi",
+  "home.recentAmount": "+2.5 triệu",
   "home.featured": "Chiến dịch nổi bật",
   "home.featuredSub": "Những câu chuyện đang chờ sự đồng hành của bạn",
   "home.seeAll": "Xem tất cả",

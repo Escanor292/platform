@@ -59,6 +59,11 @@ describe("theme + locale chrome", () => {
     expect(screen.getByTestId("home-label")).toHaveTextContent("Trang chủ");
     expect(translate("vi", "nav.home")).toBe("Trang chủ");
     expect(translate("en", "nav.home")).toBe("Home");
+    expect(translate("vi", "brand.name")).toBe("TửTế Fund");
+    expect(translate("en", "brand.name")).toBe("Kindness Fund");
+    expect(translate("en", "home.headline1")).toBe("Kindness first");
+    expect(translate("vi", "home.backers", { n: 12 })).toBe("12 người ủng hộ");
+    expect(translate("en", "home.backers", { n: 12 })).toBe("12 supporters");
 
     await user.click(screen.getByRole("button", { name: /switch to english/i }));
     await waitFor(() => {

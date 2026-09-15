@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Rocket, Compass, Heart } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
+import { useI18n } from '@/i18n';
 
 const LeafIcon = dynamic(() => import('./LeafIcon'), {
   ssr: false,
@@ -17,6 +18,8 @@ interface PlatformStats {
 }
 
 export default function HeroSection() {
+  const { t, locale } = useI18n();
+  const nf = locale === 'en' ? 'en-US' : 'vi-VN';
   const [stats, setStats] = useState<PlatformStats | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const hasFetchedRef = useRef(false);
@@ -77,6 +80,10 @@ export default function HeroSection() {
       }
     };
   }, []);
+
+  const backers = stats ? stats.totalBackers.toLocaleString(nf) : '...';
+  const success = stats ? stats.successfulCampaigns.toLocaleString(nf) : '...';
+
   return (
     <section className="hero-canvas pt-28 pb-24 px-6 relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
@@ -96,22 +103,22 @@ export default function HeroSection() {
         <div className="flex-1 slide-up">
           <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full backdrop-blur-md bg-white/55 border border-white/70 text-pgreen text-xs font-bold mb-8 shadow-lg hover:shadow-xl transition-all">
             <div className="w-4 h-4 rounded-full bg-pgreen animate-pulse" />
-            <span>🏆 Nền tảng gây quỹ cộng đồng #2 Việt Nam</span>
+            <span>🏆 {t('home.badge')}</span>
           </div>
-          <p className="mt-2 ml-2 text-[11px] italic text-gray-500">Vì chưa có tài liệu chứng minh</p>
+          <p className="mt-2 ml-2 text-[11px] italic text-gray-500">{t('home.badgeNote')}</p>
 
           <h1 className="font-display font-black text-6xl lg:text-7xl xl:text-8xl text-dblue mb-8 drop-shadow-lg" style={{ letterSpacing: '0.02em', lineHeight: '1.3' }}>
-            Lấy sự tử tế<br />
+            {t('home.headline1')}<br />
             <span
               className="text-transparent bg-clip-text bg-gradient-to-r from-pgreen via-fgreen to-tblue animate-gradient"
               style={{ backgroundSize: '200% 200%' }}
             >
-              trồng tương lai
+              {t('home.headline2')}
             </span>
           </h1>
 
           <p className="text-lg text-gray-700 max-w-2xl mb-12 leading-relaxed font-light">
-            Mỗi đóng góp hôm nay giúp nuôi lớn một tương lai tốt đẹp hơn. Chúng tôi là nơi sự tử tế được gieo mầm, niềm tin được nuôi dưỡng, và cộng đồng cùng nhau thay đổi thế giới.
+            {t('home.sub')}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-5 items-start mb-10">
@@ -120,14 +127,14 @@ export default function HeroSection() {
               className="group px-8 py-4 rounded-2xl gradient-green text-white font-bold text-base hover:shadow-2xl hover:shadow-green-400/50 hover:-translate-y-1 transition-all duration-300 flex items-center gap-2.5 transform"
             >
               <Rocket className="w-5 h-5 group-hover:scale-110 transition" />
-              <span>Bắt đầu gây quỹ</span>
+              <span>{t('home.ctaStart')}</span>
             </Link>
             <Link
               href="/campaigns"
               className="px-8 py-4 rounded-2xl glass border border-white/70 text-dblue font-bold text-base hover:bg-white/80 hover:border-white hover:shadow-lg transition-all duration-300 flex items-center gap-2.5"
             >
               <Compass className="w-5 h-5" />
-              <span>Khám phá chiến dịch</span>
+              <span>{t('home.ctaExplore')}</span>
             </Link>
           </div>
 
@@ -139,14 +146,13 @@ export default function HeroSection() {
                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-ebrown to-amber-600 border-2 border-white flex items-center justify-center text-white text-xs font-bold">L</div>
               </div>
               <span className="text-gray-600 font-semibold">
-                {stats ? stats.totalBackers.toLocaleString('vi-VN') : '...'} người ủng hộ
+                {t('home.backers', { n: backers })}
               </span>
             </div>
             <span className="text-gray-400">•</span>
             <span className="text-gray-600">
-              <span className="font-bold text-pgreen">
-                {stats ? stats.successfulCampaigns.toLocaleString('vi-VN') : '...'}
-              </span> chiến dịch thành công
+              <span className="font-bold text-pgreen">{success}</span>{' '}
+              {t('home.successSuffix')}
             </span>
           </div>
         </div>
@@ -166,14 +172,14 @@ export default function HeroSection() {
                 </div>
 
                 <h3 className="text-center text-pgreen font-display font-bold text-2xl">
-                  Gieo mầm hy vọng
+                  {t('home.seedTitle')}
                 </h3>
                 <p className="text-center text-gray-500 text-sm mt-1 font-light">
-                  Kết nối yêu thương
+                  {t('home.seedSub')}
                 </p>
 
                 <div className="mt-8 px-6 py-3 rounded-full backdrop-blur-sm bg-pgreen/5 border border-pgreen/20 text-xs font-semibold text-pgreen">
-                  ✨ Đang giúp {stats ? stats.totalBackers.toLocaleString('vi-VN') : '...'} người thay đổi thế giới
+                  ✨ {t('home.helping', { n: backers })}
                 </div>
               </div>
             </div>
@@ -187,8 +193,8 @@ export default function HeroSection() {
                   <Heart className="w-5.5 h-5.5 text-white" />
                 </div>
                 <div>
-                  <div className="text-xs font-semibold text-gray-500">Ủng hộ vừa rồi</div>
-                  <div className="text-base font-display font-bold text-pgreen">+2.5 triệu</div>
+                  <div className="text-xs font-semibold text-gray-500">{t('home.recentSupport')}</div>
+                  <div className="text-base font-display font-bold text-pgreen">{t('home.recentAmount')}</div>
                 </div>
               </div>
             </div>

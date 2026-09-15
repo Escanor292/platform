@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
+import { useI18n } from '@/i18n';
 
 interface PlatformStats {
   totalFunds: string;
@@ -11,20 +12,16 @@ interface PlatformStats {
 }
 
 export default function StatsSection() {
-  const [stats, setStats] = useState([
-    { value: '...', label: 'Tổng tiền gây quỹ', trend: 'Đang tải...', colorClass: 'text-pgreen', bgClass: 'from-pgreen/5' },
-    { value: '...', label: 'Chiến dịch thành công', trend: 'Đang tải...', colorClass: 'text-tblue', bgClass: 'from-tblue/5' },
-    { value: '...', label: 'Người ủng hộ', trend: 'Đang tải...', colorClass: 'text-dblue', bgClass: 'from-dblue/5' },
-  ]);
+  const { t, locale } = useI18n();
+  const nf = locale === 'en' ? 'en-US' : 'vi-VN';
+  const [data, setData] = useState<PlatformStats | null>(null);
 
-  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     let isMounted = true;
     const abortController = new AbortController();
 
     async function fetchStats() {
       try {
-        setIsLoading(true);
         const response = await fetch('/api/stats', {
           signal: abortController.signal,
           cache: 'no-store'
@@ -32,38 +29,11 @@ export default function StatsSection() {
 
         if (!response.ok) throw new Error('Failed to fetch stats');
 
-        const data: PlatformStats = await response.json();
-
-        if (isMounted) {
-          setStats([
-            {
-              value: data.totalFunds,
-              label: 'Tổng tiền gây quỹ',
-              trend: `${data.activeCampaigns} chiến dịch đang hoạt động`,
-              colorClass: 'text-pgreen',
-              bgClass: 'from-pgreen/5'
-            },
-            {
-              value: data.successfulCampaigns.toLocaleString('vi-VN'),
-              label: 'Chiến dịch thành công',
-              trend: 'Đã hoàn thành mục tiêu',
-              colorClass: 'text-tblue',
-              bgClass: 'from-tblue/5'
-            },
-            {
-              value: data.totalBackers.toLocaleString('vi-VN'),
-              label: 'Người ủng hộ',
-              trend: 'Cộng đồng đang phát triển',
-              colorClass: 'text-dblue',
-              bgClass: 'from-dblue/5'
-            },
-          ]);
-          setIsLoading(false);
-        }
+        const json: PlatformStats = await response.json();
+        if (isMounted) setData(json);
       } catch (error: any) {
         if (error.name === 'AbortError') return;
         console.error('Error fetching stats:', error);
-        if (isMounted) setIsLoading(false);
       }
     }
 
@@ -75,20 +45,44 @@ export default function StatsSection() {
     };
   }, []);
 
+  const cards = [
+    {
+      value: data?.totalFunds ?? '...',
+      label: t('stats.funds'),
+      trend: data ? t('stats.activeTrend', { n: data.activeCampaigns }) : t('stats.loading'),
+      colorClass: 'text-pgreen',
+      bgClass: 'from-pgreen/5',
+    },
+    {
+      value: data ? data.successfulCampaigns.toLocaleString(nf) : '...',
+      label: t('stats.success'),
+      trend: data ? t('stats.doneTrend') : t('stats.loading'),
+      colorClass: 'text-tblue',
+      bgClass: 'from-tblue/5',
+    },
+    {
+      value: data ? data.totalBackers.toLocaleString(nf) : '...',
+      label: t('stats.backers'),
+      trend: data ? t('stats.growTrend') : t('stats.loading'),
+      colorClass: 'text-dblue',
+      bgClass: 'from-dblue/5',
+    },
+  ];
+
   return (
     <section className="py-20 px-6 bg-cream relative">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-14">
           <h2 className="font-display font-bold text-3xl lg:text-4xl text-dblue mb-3">
-            Sức mạnh cộng đồng trong con số
+            {t('stats.title')}
           </h2>
           <p className="text-gray-500 max-w-xl mx-auto">
-            Những thống kê thực tế từ hành trình của chúng tôi
+            {t('stats.sub')}
           </p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {stats.map((stat, index) => (
+          {cards.map((stat, index) => (
             <div
               key={`${stat.label}-${index}`}
               className="stat-card glass rounded-3xl p-8 text-center card-hover overflow-hidden relative group"

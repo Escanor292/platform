@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import OwnerEditPanel from "@/components/OwnerEditPanel";
-import { formatVND, extractTextFromDescription } from "@/lib/utils";
+import { extractTextFromDescription } from "@/lib/utils";
 import Link from "next/link";
 import { Rocket, ArrowRight } from "lucide-react";
 import HeroSection from "@/components/shared/HeroSection";
@@ -12,6 +12,7 @@ import TestimonialsSection from "@/components/shared/TestimonialsSection";
 import CTASection from "@/components/shared/CTASection";
 import CreatorLink from "@/components/campaign/CreatorLink";
 import CampaignGrowthProgress from "@/components/campaign/CampaignGrowthProgress";
+import T from "@/i18n/T";
 
 import { buildSocialMetadata } from "@/lib/seo";
 
@@ -48,15 +49,15 @@ export default async function Home() {
           <div className="mb-8 flex flex-wrap items-end justify-between gap-4 md:mb-12">
             <div>
               <h2 className="font-display font-bold text-3xl lg:text-4xl text-dblue mb-2">
-                Chiến dịch nổi bật
+                <T k="home.featured" />
               </h2>
-              <p className="text-gray-500">Những câu chuyện đang chờ sự đồng hành của bạn</p>
+              <p className="text-gray-500"><T k="home.featuredSub" /></p>
             </div>
             <Link
               href="/campaigns"
               className="flex shrink-0 items-center gap-2 text-sm font-bold text-pgreen hover:underline group"
             >
-              Xem tất cả
+              <T k="home.seeAll" />
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition" />
             </Link>
           </div>
@@ -83,7 +84,7 @@ export default async function Home() {
                         />
                         <div className="absolute top-4 left-4">
                           <span className="px-3 py-1.5 bg-white/90 backdrop-blur text-xs font-bold text-gray-900 uppercase tracking-wider rounded-lg border border-white/20">
-                            {campaign.category || "Cộng đồng"}
+                            {campaign.category || <T k="home.community" />}
                           </span>
                         </div>
                       </div>
@@ -114,7 +115,7 @@ export default async function Home() {
                           />
                           {daysLeft !== null && (
                             <span className="text-xs text-gray-400">
-                              {daysLeft > 0 ? `${daysLeft} ngày` : "Kết thúc"}
+                              {daysLeft > 0 ? <T k="home.daysLeft" vars={{ n: daysLeft }} /> : <T k="home.ended" />}
                             </span>
                           )}
                         </div>
@@ -128,9 +129,9 @@ export default async function Home() {
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Rocket className="text-gray-300" size={32} />
                 </div>
-                <h3 className="text-xl font-black text-gray-900 mb-2">Đang chờ dự án mới...</h3>
+                <h3 className="text-xl font-black text-gray-900 mb-2"><T k="home.emptyTitle" /></h3>
                 <p className="text-gray-400 text-sm font-medium">
-                  Hiện tại không có dự án nào đang hoạt động. Hãy là người đầu tiên!
+                  <T k="home.emptySub" />
                 </p>
               </div>
             )}
