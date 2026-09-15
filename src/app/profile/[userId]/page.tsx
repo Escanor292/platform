@@ -236,10 +236,10 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
   const canCustomizeProfile = isOwnProfile && (await userHasPermission(session?.user as any, "profile.customize"));
 
   return (
-    <div className="min-h-screen py-24 px-6" style={{ ...getProfileThemeStyle(profileConfig), backgroundColor: "var(--profile-background)", fontFamily: "var(--profile-font)" }}>
-      <div className="mx-auto max-w-6xl space-y-8">
+    <div className="min-h-screen px-4 py-6 md:px-6 md:py-24" style={{ ...getProfileThemeStyle(profileConfig), backgroundColor: "var(--profile-background)", fontFamily: "var(--profile-font)" }}>
+      <div className="mx-auto max-w-6xl space-y-6 md:space-y-8">
         <div className="overflow-hidden border border-[color:var(--profile-primary)]/10 bg-[var(--profile-surface)] shadow-sm" style={{ borderRadius: "var(--profile-shell-radius)" }}>
-          <div className="relative h-64" style={{ background: "var(--profile-gradient)" }}>
+          <div className="relative h-36 md:h-64" style={{ background: "var(--profile-gradient)" }}>
             {user.coverImage ? (
               <img src={user.coverImage} alt="Cover" className="w-full h-full object-cover" />
             ) : (
@@ -247,8 +247,8 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
             )}
           </div>
 
-          <div className="relative px-8 pb-8 pt-20">
-            <div className="absolute -top-16 left-8">
+          <div className="relative px-4 pb-6 pt-4 md:px-8 md:pb-8 md:pt-20">
+            <div className="absolute -top-10 left-4 md:-top-16 md:left-8">
               <div className="relative">
                 <ProfileNoteBubble
                   userId={userId}
@@ -256,7 +256,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
                   initialNote={profileNote}
                   canEdit={isOwnProfile && !showAsPublic}
                 />
-                <div className="w-32 h-32 rounded-[2rem] bg-white border-4 border-white shadow-xl flex items-center justify-center text-4xl font-black text-white bg-gradient-to-br from-blue-600 to-purple-600 overflow-hidden">
+                <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border-4 border-white bg-gradient-to-br from-blue-600 to-purple-600 text-3xl font-black text-white shadow-xl md:h-32 md:w-32 md:rounded-[2rem] md:text-4xl">
                   {user.image ? (
                     <img src={user.image} alt={user.name || "User"} className="w-full h-full object-cover" />
                   ) : (
@@ -267,30 +267,30 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
             </div>
 
             {isOwnProfile && !showAsPublic && (
-              <div className="absolute top-6 right-8 flex gap-2">
-                <Link href={`/profile/${userId}?preview=public`} className="px-4 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl text-sm font-bold transition flex items-center gap-2" title="Xem giao diện công khai">
+              <div className="mb-4 mt-12 flex flex-wrap gap-2 md:absolute md:right-8 md:top-6 md:mb-0 md:mt-0">
+                <Link href={`/profile/${userId}?preview=public`} className="inline-flex items-center gap-1.5 rounded-xl bg-gray-100 px-3 py-2 text-xs font-bold text-gray-600 transition hover:bg-gray-200 sm:px-4 sm:text-sm" title="Xem giao diện công khai">
                   <Eye size={16} /> Chế độ xem
                 </Link>
                 {canCustomizeProfile && (
                 <ShareProfileThemeButton defaultTitle={user.name ? `Giao diện ${user.name}` : "Giao diện của tôi"} />
                 )}
                 {canCustomizeProfile && (
-                <Link href={`/profile/${userId}/customize`} className="px-4 py-2 bg-gray-100 text-gray-900 rounded-xl text-sm font-bold hover:bg-gray-200 transition flex items-center gap-2">
+                <Link href={`/profile/${userId}/customize`} className="inline-flex items-center gap-1.5 rounded-xl bg-gray-100 px-3 py-2 text-xs font-bold text-gray-900 transition hover:bg-gray-200 sm:px-4 sm:text-sm">
                   <Palette size={16} /> Giao diện
                 </Link>
                 )}
                 {canEditProfile && (
-                <Link href={`/profile/${userId}/edit`} className="px-4 py-2 bg-gray-100 text-gray-900 rounded-xl text-sm font-bold hover:bg-gray-200 transition flex items-center gap-2">
+                <Link href={`/profile/${userId}/edit`} className="inline-flex items-center gap-1.5 rounded-xl bg-gray-100 px-3 py-2 text-xs font-bold text-gray-900 transition hover:bg-gray-200 sm:px-4 sm:text-sm">
                   <Settings size={16} /> Chỉnh sửa
                 </Link>
                 )}
                 {user.role === "ADMIN" && (
-                  <Link href="/dashboard/admin" className="px-4 py-2 bg-red-600 text-white rounded-xl text-sm font-bold hover:bg-red-700 transition flex items-center gap-2">
+                  <Link href="/dashboard/admin" className="inline-flex items-center gap-1.5 rounded-xl bg-red-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-red-700 sm:px-4 sm:text-sm">
                     <ShieldCheck size={16} /> Quản trị
                   </Link>
                 )}
                 {user.role === "CREATOR" && (
-                  <Link href="/dashboard/creator" className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition flex items-center gap-2">
+                  <Link href="/dashboard/creator" className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-blue-700 sm:px-4 sm:text-sm">
                     <Rocket size={16} /> Quản lý dự án
                   </Link>
                 )}
@@ -298,15 +298,15 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
             )}
 
             {isOwnProfile && showAsPublic && (
-              <div className="absolute top-20 right-8">
-                <Link href={`/profile/${userId}`} className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-lg" title="Quay về chế độ chủ sở hữu">
+              <div className="mb-4 mt-12 md:absolute md:right-8 md:top-20 md:mb-0 md:mt-0">
+                <Link href={`/profile/${userId}`} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-lg transition hover:bg-blue-700" title="Quay về chế độ chủ sở hữu">
                   <EyeOff size={16} /> Chế độ khách
                 </Link>
               </div>
             )}
 
             {(!isOwnProfile || showAsPublic) && (
-              <div className="absolute top-6 right-8 flex items-center gap-2">
+              <div className="mb-4 mt-12 flex flex-wrap items-center gap-2 md:absolute md:right-8 md:top-6 md:mb-0 md:mt-0">
                 {!isOwnProfile && (
                   <UserFollowButton
                     userId={userId}
@@ -327,8 +327,8 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
             )}
 
             <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-black text-gray-900">{user.name || "Người dùng ẩn danh"}</h1>
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="break-words text-xl font-black text-gray-900 md:text-3xl">{user.name || "Người dùng ẩn danh"}</h1>
                 {user.status === "PRO" && (
                   <div className="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-xs font-black uppercase flex items-center gap-1">
                     <Award size={12} /> Pro

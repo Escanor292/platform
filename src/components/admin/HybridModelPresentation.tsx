@@ -275,7 +275,7 @@ function SlideView({ slide }: { slide: PresentationSlide }) {
 
       {slide.table ? (
         <div className="overflow-x-auto rounded-[1.5rem] border border-gray-200 bg-white text-left">
-          <table className="w-full min-w-[720px] text-left text-sm">
+          <table className="w-full min-w-[560px] text-left text-sm md:min-w-[720px]">
             <thead className="bg-slate-900 text-white">
               <tr>
                 {slide.table.headers.map((h) => (

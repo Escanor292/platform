@@ -17,12 +17,12 @@ export default function UserIdDisplay({ userId }: UserIdDisplayProps) {
   };
 
   return (
-    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200">
-      <span className="text-xs text-gray-400 font-bold">ID:</span>
-      <code className="text-xs font-mono text-gray-600">{userId}</code>
+    <div className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 pr-16 md:pr-3">
+      <span className="text-xs font-bold text-gray-400">ID:</span>
+      <code className="max-w-full break-all text-xs font-mono text-gray-600">{userId}</code>
       <button
         onClick={handleCopy}
-        className="text-blue-600 hover:text-blue-700 transition flex items-center gap-1"
+        className="inline-flex shrink-0 items-center gap-1 text-blue-600 transition hover:text-blue-700"
         title="Sao chép ID"
       >
         {copied ? (

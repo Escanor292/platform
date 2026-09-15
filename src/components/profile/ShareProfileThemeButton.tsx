@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Link2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-export function ShareProfileThemeButton({ defaultTitle }: { defaultTitle: string }) {
+export function ShareProfileThemeButton({ defaultTitle, className }: { defaultTitle: string; className?: string }) {
   const [busy, setBusy] = useState(false);
 
   const share = async () => {
@@ -36,7 +36,7 @@ export function ShareProfileThemeButton({ defaultTitle }: { defaultTitle: string
       type="button"
       onClick={share}
       disabled={busy}
-      className="px-4 py-2 bg-gray-100 text-gray-900 rounded-xl text-sm font-bold hover:bg-gray-200 transition flex items-center gap-2 disabled:opacity-60"
+      className={`px-3 py-2 bg-gray-100 text-gray-900 rounded-xl text-xs sm:text-sm font-bold hover:bg-gray-200 transition flex items-center gap-2 disabled:opacity-60 sm:px-4 ${className || ""}`}
     >
       {busy ? <Loader2 size={16} className="animate-spin" /> : <Link2 size={16} />}
       Chia sẻ giao diện

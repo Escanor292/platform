@@ -29,8 +29,8 @@ export default function AdminUserMenu({ user }: AdminUserMenuProps) {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
-        <button className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-xl transition focus-ring">
-          <div className="text-right">
+        <button className="flex items-center gap-2 hover:bg-gray-50 p-1.5 rounded-xl transition focus-ring md:gap-3 md:p-2">
+          <div className="hidden text-right sm:block">
             <div className="text-sm font-bold text-gray-900">{user.name}</div>
             <div className="text-xs text-red-600 font-bold">Administrator</div>
           </div>

@@ -92,7 +92,7 @@ export function PermissionsMatrix({
           <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-gray-900 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white">
             <KeyRound size={12} /> Bitfield
           </div>
-          <h1 className="text-4xl font-black tracking-tight text-gray-900">Phân quyền tài khoản</h1>
+          <h1 className="text-2xl font-black tracking-tight text-gray-900 md:text-4xl">Phân quyền tài khoản</h1>
           <p className="mt-2 max-w-2xl text-sm text-gray-500">
             Bật/tắt trên lưới chỉ là bản nháp. Quyền chỉ áp dụng sau khi bấm lưu và xác nhận.
           </p>
@@ -104,7 +104,7 @@ export function PermissionsMatrix({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Tìm quyền..."
-              className="h-11 w-64 rounded-2xl border border-gray-200 bg-white pl-10 pr-4 text-sm outline-none focus:border-gray-900"
+              className="h-11 w-full rounded-2xl border border-gray-200 bg-white pl-10 pr-4 text-sm outline-none focus:border-gray-900 sm:w-64"
             />
           </div>
           <button
@@ -216,8 +216,8 @@ export function PermissionsMatrix({
       </div>
 
       {dirty && (
-        <div className="fixed inset-x-0 bottom-4 z-40 px-4">
-          <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 rounded-2xl border border-gray-900 bg-gray-900 px-4 py-3 text-white shadow-2xl">
+        <div className="fixed inset-x-0 bottom-20 z-[60] px-4 md:bottom-4">
+          <div className="mx-auto flex max-w-3xl flex-col items-stretch gap-3 rounded-2xl border border-gray-900 bg-gray-900 px-4 py-3 text-white shadow-2xl sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm font-semibold">Có thay đổi chưa lưu. Quyền chưa áp dụng cho người dùng.</p>
             <div className="flex shrink-0 gap-2">
               <button

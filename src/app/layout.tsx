@@ -41,8 +41,6 @@ export const viewport: Viewport = {
   themeColor: "#10b981",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   viewportFit: "cover",
 };
 
@@ -96,7 +94,7 @@ export default async function RootLayout({
           <CartProvider>
           <Toaster position="top-center" richColors theme="light" />
           <ProfileThemeShell>
-            <div className="flex min-h-screen flex-col pb-16 md:pb-0">
+            <div className="flex min-h-screen flex-col pb-20 md:pb-0">
               <NavbarNew />
               <main className="flex-grow">
                 {children}

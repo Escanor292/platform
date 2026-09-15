@@ -10,6 +10,8 @@ export default function MobileBottomNav() {
   const pathname = usePathname();
   const { data: session } = useSession();
 
+  const userId = (session?.user as { id?: string } | undefined)?.id;
+
   const navItems = [
     {
       label: "Trang chủ",
@@ -34,7 +36,7 @@ export default function MobileBottomNav() {
     },
     {
       label: "Cá nhân",
-      href: session ? "/dashboard" : "/auth/login",
+      href: userId ? `/profile/${userId}` : session ? "/dashboard" : "/auth/login",
       icon: User,
     },
   ];

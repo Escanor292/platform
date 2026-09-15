@@ -51,7 +51,7 @@ export default async function Home() {
       {/* Featured Campaigns */}
       <section className="py-20 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-12">
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-4 md:mb-12">
             <div>
               <h2 className="font-display font-bold text-3xl lg:text-4xl text-dblue mb-2">
                 Chiến dịch nổi bật
@@ -60,7 +60,7 @@ export default async function Home() {
             </div>
             <Link
               href="/campaigns"
-              className="hidden md:flex text-pgreen font-bold text-sm hover:underline items-center gap-2 group"
+              className="flex shrink-0 items-center gap-2 text-sm font-bold text-pgreen hover:underline group"
             >
               Xem tất cả
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition" />

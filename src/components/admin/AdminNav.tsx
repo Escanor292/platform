@@ -37,7 +37,7 @@ export default function AdminNav({ showPresentation = false }: { showPresentatio
     : BASE_NAV;
 
   return (
-    <div className="hidden items-center gap-1 overflow-x-auto md:flex">
+    <div className="-mx-3 flex items-center gap-1 overflow-x-auto px-3 pb-1 md:mx-0 md:px-0 md:pb-0">
       {items.map((item) => {
         const active = item.exact
           ? pathname === item.href

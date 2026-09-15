@@ -21,26 +21,31 @@ export default async function AdminLayout({
 
   return (
     <div className="min-h-screen bg-slate-50/50">
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-lg">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="flex h-20 items-center justify-between gap-4">
-            <div className="flex min-w-0 items-center gap-6">
+      <nav className="sticky top-0 z-40 border-b border-gray-200 bg-white/90 backdrop-blur-lg md:top-0">
+        <div className="mx-auto max-w-7xl px-3 md:px-6">
+          <div className="flex min-h-14 flex-col gap-2 py-2 md:min-h-16 md:flex-row md:items-center md:justify-between md:gap-4 md:py-0">
+            <div className="flex min-w-0 items-center justify-between gap-3">
               <Link href="/dashboard/admin" className="flex shrink-0 items-center gap-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-red-600 to-red-700">
-                  <ShieldCheck size={20} className="text-white" />
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-red-600 to-red-700 md:h-10 md:w-10">
+                  <ShieldCheck size={18} className="text-white" />
                 </div>
                 <div>
                   <div className="text-sm font-black text-gray-900">Admin Panel</div>
                   <div className="text-[9px] font-bold uppercase tracking-wider text-gray-400">Tử Tế Fund</div>
                 </div>
               </Link>
-              <AdminNav showPresentation={showPresentation} />
+              <div className="md:hidden">
+                <AdminUserMenu user={session.user} />
+              </div>
             </div>
-            <AdminUserMenu user={session.user} />
+            <AdminNav showPresentation={showPresentation} />
+            <div className="hidden md:block">
+              <AdminUserMenu user={session.user} />
+            </div>
           </div>
         </div>
       </nav>
-      <main className="pt-20">{children}</main>
+      <main className="pb-8">{children}</main>
     </div>
   );
 }

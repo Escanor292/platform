@@ -281,12 +281,12 @@ export function ProfileTabs({
         <div className="space-y-6" style={{ color: 'var(--profile-text)' }}>
             {/* Tabs Navigation */}
             <div className="bg-[var(--profile-surface)] border border-[color:var(--profile-primary)]/10 p-2 shadow-sm" style={{ borderRadius: 'var(--profile-card-radius)' }}>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex gap-2 overflow-x-auto hide-scrollbar md:flex-wrap">
                     {visibleTabs.map((tab) => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`px-6 py-3 font-bold text-sm transition-all ${activeTab === tab.id
+                            className={`whitespace-nowrap px-3 py-2 font-bold text-xs transition-all sm:px-6 sm:py-3 sm:text-sm ${activeTab === tab.id
                                 ? 'shadow-lg'
                                 : 'bg-white text-gray-700 border border-gray-200 hover:border-[color:var(--profile-primary)] hover:text-[color:var(--profile-primary)]'
                                 }`}
@@ -307,14 +307,14 @@ export function ProfileTabs({
             </div>
 
             {/* Tab Content */}
-            <div className="bg-[var(--profile-surface)] border border-[color:var(--profile-primary)]/10 p-8 shadow-sm" style={{ borderRadius: 'var(--profile-card-radius)' }}>
+            <div className="bg-[var(--profile-surface)] border border-[color:var(--profile-primary)]/10 p-4 shadow-sm md:p-8" style={{ borderRadius: 'var(--profile-card-radius)' }}>
                 {/* Projects Tab */}
                 {activeTab === 'projects' && (
                     <div>
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+                        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <h2 className="flex items-center gap-2 text-lg font-black text-gray-900 md:text-2xl">
                                 <FolderKanban size={24} className="text-blue-600" />
-                                Dự án (                        {orderedProjects.length})
+                                Dự án ({orderedProjects.length})
                             </h2>
                             {isOwnerMode && (
                                 <Link
@@ -421,8 +421,8 @@ export function ProfileTabs({
                 {/* Campaigns Tab */}
                 {activeTab === 'campaigns' && (
                     <div>
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+                        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <h2 className="flex items-center gap-2 text-lg font-black text-gray-900 md:text-2xl">
                                 <Rocket size={24} className="text-blue-600" />
                                 Chiến dịch đã tạo (                        {orderedCampaigns.length})
                             </h2>
@@ -525,8 +525,8 @@ export function ProfileTabs({
                 {/* Products Tab */}
                 {activeTab === 'products' && (
                     <div>
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+                        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <h2 className="flex items-center gap-2 text-lg font-black text-gray-900 md:text-2xl">
                                 <Package size={24} className="text-emerald-600" />
                                 Sản phẩm ({totalProducts})
                             </h2>
@@ -650,8 +650,8 @@ export function ProfileTabs({
                 {/* Blog Tab */}
                 {activeTab === 'blog' && (
                     <div>
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+                        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <h2 className="flex items-center gap-2 text-lg font-black text-gray-900 md:text-2xl">
                                 <MessageCircle size={24} className="text-pgreen" />
                                 {isOwnProfile && !showAsPublic ? 'Blog của tôi' : 'Bài viết'} (                        {orderedBlogPosts.length})
                             </h2>
@@ -699,7 +699,7 @@ export function ProfileTabs({
                 {/* Pledges Tab */}
                 {activeTab === 'pledges' && (
                     <div>
-                        <h2 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2">
+                        <h2 className="mb-6 flex items-center gap-2 text-lg font-black text-gray-900 md:text-2xl">
                             <Heart size={24} className="text-pink-600" />
                             Đã ủng hộ (                        {limitedPledges.length})
                         </h2>
@@ -745,7 +745,7 @@ export function ProfileTabs({
                 {/* Badges Tab */}
                 {activeTab === 'badges' && (
                     <div>
-                        <h2 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2">
+                        <h2 className="mb-6 flex items-center gap-2 text-lg font-black text-gray-900 md:text-2xl">
                             <Award size={24} className="text-purple-600" />
                             Huy hiệu
                         </h2>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import {
-  Rocket, User, LogOut, UserCircle, PlusCircle, Menu, X, ChevronDown, Settings, ShieldCheck, FolderKanban, HeartHandshake, MessageCircle, PackageOpen
+  Rocket, User, LogOut, UserCircle, PlusCircle, Menu, X, ChevronDown, Settings, ShieldCheck, FolderKanban, HeartHandshake, MessageCircle, PackageOpen, Bell
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
@@ -105,7 +105,7 @@ export default function NavbarNew() {
 
   return (
     <nav className="sticky top-0 z-50 glass border-b border-white/30 transition-colors duration-300" style={{ backgroundColor: "color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 7%, var(--profile-shell-surface, #ffffff) 93%)", borderColor: "color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 18%, transparent)", boxShadow: "0 6px 24px color-mix(in srgb, var(--profile-shell-primary, #2E8B57) 9%, transparent)" }}>
-      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 cursor-pointer group">
           <div className="w-10 h-10 rounded-xl gradient-green flex items-center justify-center">
@@ -353,9 +353,15 @@ export default function NavbarNew() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden px-6 pb-4 flex flex-col gap-2 bg-white border-t border-gray-100">
+        <div className="md:hidden max-h-[70vh] overflow-y-auto px-6 pb-4 flex flex-col gap-1 bg-white border-t border-gray-100">
+          <Link href="/" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
+            Trang chủ
+          </Link>
           <Link href="/gioi-thieu" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
             Giới thiệu
+          </Link>
+          <Link href="/projects" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
+            Khám phá
           </Link>
           <Link href="/blog" className="py-2 text-sm font-medium text-gray-600" onClick={() => setIsMenuOpen(false)}>
             Blog
@@ -366,8 +372,38 @@ export default function NavbarNew() {
 
           {session ? (
             <>
-
-              {/* Chỉ hiển thị nút "Gây quỹ ngay" cho CREATOR và ADMIN */}
+              <Link href="/dashboard" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700" onClick={() => setIsMenuOpen(false)}>
+                <UserCircle size={16} /> Trang cá nhân
+              </Link>
+              <Link href="/notifications" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700" onClick={() => setIsMenuOpen(false)}>
+                <Bell size={16} /> Thông báo
+              </Link>
+              <Link href="/chat" className="relative flex items-center gap-2 py-2 text-sm font-medium text-gray-700" onClick={() => setIsMenuOpen(false)}>
+                <MessageCircle size={16} /> Tin nhắn
+                <ChatNotificationBadge />
+              </Link>
+              <Link href="/cart" className="py-2 text-sm font-medium text-gray-700" onClick={() => setIsMenuOpen(false)}>
+                Giỏ hàng
+              </Link>
+              <Link href="/purchases" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700" onClick={() => setIsMenuOpen(false)}>
+                <PackageOpen size={16} /> Kho đã mua
+              </Link>
+              <Link href="/dashboard/favorites" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700" onClick={() => setIsMenuOpen(false)}>
+                <HeartHandshake size={16} /> Chiến dịch quan tâm
+              </Link>
+              {(can("campaign.manage") || isAdmin) && (
+                <Link href="/dashboard/creator" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700" onClick={() => setIsMenuOpen(false)}>
+                  <FolderKanban size={16} /> Quản lý chiến dịch
+                </Link>
+              )}
+              <Link href="/profile/edit" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700" onClick={() => setIsMenuOpen(false)}>
+                <Settings size={16} /> Cài đặt
+              </Link>
+              {isAdmin && (
+                <Link href="/dashboard/admin" className="flex items-center gap-2 py-2 text-sm font-medium text-red-600" onClick={() => setIsMenuOpen(false)}>
+                  <ShieldCheck size={16} /> Quản trị
+                </Link>
+              )}
               {(can("campaign.create") || isAdmin) && (
                 <Link
                   href="/campaigns/create"

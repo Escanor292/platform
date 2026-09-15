@@ -27,7 +27,7 @@ export default function CampaignHeader({ title, description, campaignCode, proje
     return (
         <div className="mb-6">
             <div className="flex items-center gap-3 mb-3 flex-wrap">
-                <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+                <h1 className="text-2xl font-bold leading-tight text-gray-900 md:text-4xl">
                     {title}
                 </h1>
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 text-gray-600 rounded-lg text-xs font-mono border border-gray-200">
