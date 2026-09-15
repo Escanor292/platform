@@ -3,11 +3,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Home, Users, ShieldCheck, Award, DollarSign, FileText, Flag, ShieldAlert, Settings, UserCheck, FolderKanban, Package, KeyRound, LayoutTemplate,
+  Home, Users, ShieldCheck, Award, DollarSign, FileText, Flag, ShieldAlert, Settings, UserCheck, FolderKanban, Package, KeyRound, LayoutTemplate, Presentation,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
   { href: '/dashboard/admin', label: 'Tổng quan', icon: Home, exact: true },
+  { href: '/dashboard/admin/thuyet-trinh', label: 'Thuyết trình', icon: Presentation, exact: true },
   { href: '/dashboard/admin/users', label: 'Người dùng', icon: Users },
   { href: '/dashboard/admin/campaigns', label: 'Chiến dịch', icon: ShieldCheck },
   { href: '/dashboard/admin/blog', label: 'Blog', icon: FileText },

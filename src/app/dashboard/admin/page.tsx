@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import {
   Users, BarChart3, ShieldCheck,
   TrendingUp, AlertTriangle, DollarSign,
-  Activity, Clock, FileText, Flag, UserCheck, FolderKanban, Package,
+  Activity, Clock, FileText, Flag, UserCheck, FolderKanban, Package, Presentation,
 } from "lucide-react";
 
 function monthGrowth(current: number, last: number) {
@@ -183,10 +183,17 @@ export default async function AdminDashboard() {
             Quản lý người dùng, chiến dịch, blog, KYC, dự án, sản phẩm và báo cáo trên Tử Tế Fund
           </p>
           <div className="flex flex-wrap gap-4">
-            <Link href="/dashboard/admin/moderation" className="inline-block text-sm font-bold text-red-600 hover:text-red-700">
+            <Link
+              href="/dashboard/admin/thuyet-trinh"
+              className="inline-flex items-center gap-2 rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-black text-white shadow-sm hover:bg-emerald-800"
+            >
+              <Presentation size={18} />
+              Mở thuyết trình mô hình lai
+            </Link>
+            <Link href="/dashboard/admin/moderation" className="inline-block self-center text-sm font-bold text-red-600 hover:text-red-700">
               Kiểm duyệt / tìm & khóa nội dung →
             </Link>
-            <Link href="/dashboard/admin/analytics" className="inline-block text-sm font-bold text-gray-500 hover:text-gray-900">
+            <Link href="/dashboard/admin/analytics" className="inline-block self-center text-sm font-bold text-gray-500 hover:text-gray-900">
               Xem phân tích xu hướng →
             </Link>
           </div>
