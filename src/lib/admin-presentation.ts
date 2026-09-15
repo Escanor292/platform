@@ -44,7 +44,8 @@ async function seedMediaFromPublic() {
       await prisma.$executeRawUnsafe(
         `INSERT INTO presentation_media (key, mime, bytes, updated_at)
          VALUES ($1, $2, decode($3, 'hex'), NOW())
-         ON CONFLICT (key) DO NOTHING`,
+         ON CONFLICT (key) DO UPDATE
+           SET mime = EXCLUDED.mime, bytes = EXCLUDED.bytes, updated_at = NOW()`,
         file,
         "image/jpeg",
         hex,
@@ -59,7 +60,9 @@ async function seedFreshIfMissing() {
   await prisma.$executeRawUnsafe(
     `INSERT INTO presentation_deck (id, status, payload, updated_at)
      VALUES ($1, 'active', $2::jsonb, NOW())
-     ON CONFLICT (id) DO NOTHING`,
+     ON CONFLICT (id) DO UPDATE
+       SET payload = EXCLUDED.payload, updated_at = NOW()
+       WHERE presentation_deck.status = 'active'`,
     PRESENTATION_DECK_ID,
     JSON.stringify(DEFAULT_PRESENTATION_DECK),
   );

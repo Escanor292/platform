@@ -25,7 +25,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         {
           key: "donation-reward.jpg",
           alt: "Hai nhánh: ủng hộ nhận giấy chứng nhận, đặt hàng nhận sản phẩm",
-          caption: "Hai đầu ra của cùng một nền tảng: giấy chứng nhận khi cho đi, hàng hóa khi nhận lại.",
+          caption: "Giao diện thật: giấy /chung-tu (TT-UH) và biên lai INV- trên cùng một nền tảng.",
         },
       ],
     },
@@ -70,12 +70,12 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         {
           key: "chung-nhan-tt-uh.jpg",
           alt: "Mẫu giấy chứng nhận ủng hộ TT-UH",
-          caption: "Donation: giấy chứng nhận ủng hộ (mẫu minh họa TT-UH).",
+          caption: "Donation: trang /chung-tu — GIẤY CHỨNG NHẬN · TẤM LÒNG VÀNG, mã TT-UH, mộc và QR đối soát.",
         },
         {
           key: "bien-lai-thanh-toan.jpg",
           alt: "Mẫu biên lai thanh toán Reward",
-          caption: "Reward: biên lai thanh toán nội bộ — cùng logic chứng từ bán hàng, không pretends hóa đơn GTGT.",
+          caption: "Reward: biên lai INV-YYYYMMDD do hệ thống xuất — chứng từ nội bộ, không phải hóa đơn GTGT.",
         },
       ],
     },
@@ -112,7 +112,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         {
           key: "bien-lai-thanh-toan.jpg",
           alt: "Biên lai sau khi thanh toán Reward thành công",
-          caption: "Sau khi thanh toán thành công, backer có biên lai để đối chiếu — giống trải nghiệm mua trên sàn.",
+          caption: "Biên lai thật trong hệ thống (số INV-, PayOS, dòng sản phẩm pre-order).",
         },
       ],
     },
@@ -137,12 +137,12 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         {
           key: "chung-nhan-tt-uh.jpg",
           alt: "Giấy chứng nhận ủng hộ TT-UH",
-          caption: "Mẫu chứng nhận điện tử: mã TT-UH, số tiền, chiến dịch, mộc và QR xác thực.",
+          caption: "Trang /chung-tu: mã TT-UH, số tiền bằng chữ, KYC creator, BANK_ESCROW, QR xác thực.",
         },
         {
           key: "kho-do.jpg",
           alt: "Giao diện Kho đồ của backer",
-          caption: "Kho đồ gom chứng nhận, vé/quà số và trạng thái đơn — sổ giao dịch của người dùng.",
+          caption: "Trang /purchases (Kho đồ): chứng nhận TT-UH, vé reward, biên lai INV-.",
         },
       ],
     },
@@ -167,12 +167,12 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         {
           key: "chung-nhan-tt-uh.jpg",
           alt: "Chứng nhận donation",
-          caption: "Pháp lý Donation: giấy chứng nhận ủng hộ.",
+          caption: "Pháp lý Donation: chứng từ /chung-tu, không phải hóa đơn GTGT.",
         },
         {
           key: "bien-lai-thanh-toan.jpg",
           alt: "Biên lai Reward",
-          caption: "Pháp lý Reward: biên lai / chứng từ bán hàng trung gian.",
+          caption: "Pháp lý Reward: biên lai INV- nội bộ; hóa đơn GTGT do creator xuất.",
         },
       ],
     },
@@ -220,7 +220,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
             {
               key: "ga-ran-truyen-thong.jpg",
               alt: "Khai trương quán gà rán chỉ tiếp cận khách quanh khu",
-              caption: "Khách đứng ngay cửa tiệm. Xe máy, ô tô đi ngang bỏ lỡ. Người bận hôm đó coi như mất.",
+              caption: "Cùng layout chiến dịch trên Tử Tế Fund nhưng không mở pre-order: chỉ khách tới quán hôm đó.",
             },
           ],
           bullets: [
@@ -236,12 +236,12 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
             {
               key: "ga-ran-nen-tang.jpg",
               alt: "Khách đặt trước trên nền tảng trải khắp thành phố",
-              caption: "Bản đồ khách pre-order trải nhiều quận. Vé trên điện thoại vẫn có giá trị những ngày sau khai trương.",
+              caption: "Trang chiến dịch thật: mã CAMP, progress, nút Đặt combo / Ủng hộ không nhận quà, 139 vé pre-order.",
             },
             {
               key: "ve-uu-dai.jpg",
               alt: "Vé ưu đãi khai trương trên điện thoại",
-              caption: "Người bận ngày khai trương vẫn giữ vé đã mua — họ sẽ ghé ngày khác để nhận ưu đãi.",
+              caption: "Vé trong Kho đồ (/purchases): QR, mã vé, biên lai INV- — dùng ngày khác sau khai trương.",
             },
           ],
         },
@@ -252,7 +252,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
             {
               key: "ban-do-quy-mo.jpg",
               alt: "So sánh bán kính truyền thống với phủ điểm đặt trước trên toàn thành phố",
-              caption: "Trái: vòng 1 km quanh quán. Phải: điểm khách đã trả tiền trước — tiếp cận xa hơn, lượng hàng tính được.",
+              caption: "So sánh: truyền thống ~1 km quanh cửa vs 139 combo đã thanh toán trên nền tảng.",
             },
           ],
           cards: [
@@ -290,7 +290,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         {
           key: "donation-reward.jpg",
           alt: "Tóm tắt hai nhánh Donation và Reward",
-          caption: "Hai nhánh, một hồ sơ dự án.",
+          caption: "Hai đầu ra thật của hệ thống: /chung-tu và biên lai INV-.",
         },
       ],
     },
