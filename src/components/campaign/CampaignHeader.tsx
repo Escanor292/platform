@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { FolderOpen } from "lucide-react";
-import { getCampaignTypeLabel } from "@/lib/campaign-helpers";
-import { CampaignType } from "@/types/campaign";
+import UgcText from "@/i18n/UgcText";
+import { useI18n } from "@/i18n";
 
 interface CampaignHeaderProps {
     title: string;
@@ -17,6 +17,7 @@ interface CampaignHeaderProps {
 
 export default function CampaignHeader({ title, description, campaignCode, project }: CampaignHeaderProps) {
     const [copied, setCopied] = useState(false);
+    const { locale } = useI18n();
 
     const handleCopy = () => {
         navigator.clipboard.writeText(campaignCode);
@@ -27,16 +28,18 @@ export default function CampaignHeader({ title, description, campaignCode, proje
     return (
         <div className="mb-6">
             <div className="flex items-center gap-3 mb-3 flex-wrap">
-                <h1 className="text-2xl font-bold leading-tight text-gray-900 md:text-4xl">
-                    {title}
-                </h1>
+                <UgcText
+                    as="h1"
+                    text={title}
+                    className="text-2xl font-bold leading-tight text-gray-900 md:text-4xl"
+                />
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 text-gray-600 rounded-lg text-xs font-mono border border-gray-200">
-                    <span className="font-semibold text-gray-400">Mã:</span>
+                    <span className="font-semibold text-gray-400">{locale === "en" ? "Code:" : "Mã:"}</span>
                     <span className="font-bold">{campaignCode}</span>
                     <button
                         onClick={handleCopy}
                         className="ml-1 p-1 hover:bg-gray-200 rounded transition-colors relative"
-                        title={copied ? "Đã copy!" : "Copy mã dự án"}
+                        title={copied ? (locale === "en" ? "Copied!" : "Đã copy!") : (locale === "en" ? "Copy code" : "Copy mã dự án")}
                     >
                         {copied ? (
                             <svg className="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,7 +58,8 @@ export default function CampaignHeader({ title, description, campaignCode, proje
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-100 rounded-lg text-xs font-semibold hover:bg-blue-100 hover:border-blue-200 transition-colors"
                     >
                         <FolderOpen size={13} />
-                        Dự án: {project.title}
+                        {locale === "en" ? "Project:" : "Dự án:"}{" "}
+                        <UgcText text={project.title} />
                     </a>
                 )}
             </div>
@@ -64,43 +68,36 @@ export default function CampaignHeader({ title, description, campaignCode, proje
     );
 }
 
-/**
- * Renders a short subtitle from the description.
- * - If it's TipTap JSON → extract the first plain-text paragraph as subtitle
- * - If it's plain text / HTML → render directly
- */
 function CampaignSubtitle({ description }: { description: string }) {
     if (!description) return null;
-
-    // Detect TipTap JSON
     try {
         const parsed = JSON.parse(description);
         if (parsed?.type === "doc" && Array.isArray(parsed.content)) {
-            // Extract first paragraph text as subtitle
             const firstPara = parsed.content.find(
                 (node: any) => node.type === "paragraph" && node.content?.length > 0
             );
             if (firstPara) {
-                const text = firstPara.content
-                    .map((n: any) => n.text || "")
-                    .join("");
+                const text = firstPara.content.map((n: any) => n.text || "").join("");
                 if (text) {
                     return (
-                        <p className="text-lg text-gray-600 leading-relaxed line-clamp-3">
-                            {text}
-                        </p>
+                        <UgcText
+                            as="p"
+                            text={text}
+                            className="text-lg text-gray-600 leading-relaxed line-clamp-3"
+                        />
                     );
                 }
             }
             return null;
         }
     } catch {
-        // Not JSON, fall through to plain text
+        // Not JSON
     }
-
     return (
-        <p className="text-lg text-gray-600 leading-relaxed line-clamp-3">
-            {description}
-        </p>
+        <UgcText
+            as="p"
+            text={description}
+            className="text-lg text-gray-600 leading-relaxed line-clamp-3"
+        />
     );
 }
