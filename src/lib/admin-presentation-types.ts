@@ -38,5 +38,6 @@ export type PresentationSlide = {
 export type PresentationDeck = {
   brand: string;
   title: string;
+  version?: number;
   slides: PresentationSlide[];
 };

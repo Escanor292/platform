@@ -33,6 +33,7 @@ import { InvoiceDocument } from "@/components/invoice/InvoiceDocument";
 
 const KICKER_ICON = {
   "Tầm nhìn": Target,
+  "Khoảng trống": Target,
   "Mô hình lai": Handshake,
   "Giữ tiền và hoàn tiền": Package,
   "Luồng hàng Reward": Store,
@@ -264,7 +265,11 @@ function SlideView({ slide }: { slide: PresentationSlide }) {
       {slide.cards?.length ? <CardGrid cards={slide.cards} /> : null}
 
       {slide.steps?.length ? (
-        <ol className="grid gap-4 md:grid-cols-4">
+        <ol
+          className={`grid gap-4 ${
+            slide.steps.length >= 5 ? "sm:grid-cols-2 lg:grid-cols-5" : "md:grid-cols-4"
+          }`}
+        >
           {slide.steps.map((step) => (
             <li key={step.n} className="rounded-3xl border border-gray-100 bg-white p-6 text-left shadow-sm">
               <div className="text-2xl font-black text-emerald-600">{step.n}</div>
@@ -410,34 +415,34 @@ function isLiveDocument(key: string) {
 }
 
 const DEMO_CERTIFICATE = {
-  code: "TT-UH-202609-403A",
-  displayName: "Admin",
-  email: "admin@gmail.com",
+  code: "TT-UH-MAU-0001",
+  displayName: "Nguyễn Văn An",
+  email: "an.nguyen@email.vn",
   phone: null as string | null,
-  campaignTitle: "[FIXTURE-2026] Workshop phòng thu miễn phí",
+  campaignTitle: "Gây quỹ tủ sách thôn Tân Lập",
   campaignHref: null as string | null,
-  creatorName: "Test Creator",
-  kycVerified: false,
-  kycLabel: "Chưa xác minh",
+  creatorName: "Nguyễn Thị Hoa",
+  kycVerified: true,
+  kycLabel: "Đã xác minh KYC",
   flowLabel: "Ủng hộ không nhận quà",
   flowCode: "NO_GIFT",
-  transactionId: "MANUAL-UH-1789363024229-849cc3",
-  amount: 500000,
-  amountWords: "Năm trăm nghìn đồng",
+  transactionId: "MAU-UH-0001",
+  amount: 200000,
+  amountWords: "Hai trăm nghìn đồng",
   tipAmount: 0,
   paymentLabel: "Chuyển khoản tài khoản ngân hàng trung gian",
   paymentCode: "BANK_ESCROW",
-  issuedFormatted: "lúc 12:17 14 tháng 9, 2026",
-  verifyUrl: "https://2s-projects.vercel.app/chung-tu/TT-UH-202609-403A",
+  issuedFormatted: "lúc 09:00 15 tháng 9, 2026",
+  verifyUrl: "https://2s-projects.vercel.app/chung-tu/TT-UH-MAU-0001",
 };
 
 const DEMO_INVOICE = {
-  invoiceNumber: "INV-20260914-8K2P1",
-  issuedAt: "14/09/2026 12:17",
-  transactionId: "PAYOS-1789363999123",
+  invoiceNumber: "INV-MAU-0001",
+  issuedAt: "15/09/2026 09:00",
+  transactionId: "PAYOS-MAU-0001",
   paymentMethod: "PayOS",
-  backerName: "Admin",
-  backerEmail: "admin@gmail.com",
+  backerName: "Trần Minh Đức",
+  backerEmail: "duc.tran@email.vn",
   backerPhone: null as string | null,
   campaignTitle: "Combo khai trương quán gà rán",
   amount: 199000,
@@ -449,14 +454,17 @@ const DEMO_INVOICE = {
 
 function DemoCertificate() {
   const [verifyUrl, setVerifyUrl] = useState(
-    "https://2s-projects.vercel.app/chung-tu/TT-UH-202609-403A",
+    "https://2s-projects.vercel.app/chung-tu/TT-UH-MAU-0001",
   );
   useEffect(() => {
-    setVerifyUrl(`${window.location.origin}/chung-tu/TT-UH-202609-403A`);
+    setVerifyUrl(`${window.location.origin}/chung-tu/TT-UH-MAU-0001`);
   }, []);
 
   return (
     <div className="rounded-[1.75rem] bg-[#f3efe6] p-3 sm:p-6">
+      <p className="mb-3 text-center text-[11px] font-black uppercase tracking-widest text-emerald-800">
+        Mẫu giao diện hệ thống — không phải chứng từ đã cấp
+      </p>
       <CertificateDocument data={{ ...DEMO_CERTIFICATE, verifyUrl }}>
         <span className="rounded-full bg-pgreen px-5 py-2.5 text-sm font-bold text-white">In chứng từ</span>
         <Link
@@ -466,7 +474,7 @@ function DemoCertificate() {
           Đã lưu trong Kho đồ
         </Link>
         <Link
-          href="/lookup?code=TT-UH-202609-403A"
+          href="/lookup?code=TT-UH-MAU-0001"
           className="rounded-full border px-5 py-2.5 text-sm font-bold text-gray-500"
         >
           Tra cứu giao dịch
@@ -479,6 +487,9 @@ function DemoCertificate() {
 function DemoInvoice() {
   return (
     <div className="overflow-hidden rounded-[1.75rem] border border-gray-100 bg-gray-100 p-3 sm:p-6">
+      <p className="mb-3 text-center text-[11px] font-black uppercase tracking-widest text-slate-600">
+        Mẫu biên lai hệ thống — không phải hóa đơn GTGT
+      </p>
       <InvoiceDocument data={DEMO_INVOICE} />
     </div>
   );

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import {
   DEFAULT_PRESENTATION_DECK,
   PRESENTATION_MEDIA_FILES,
+  PRESENTATION_SEED_VERSION,
 } from "@/lib/admin-presentation-seed";
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
@@ -90,6 +91,18 @@ export async function getActivePresentationDeck(): Promise<PresentationDeck | nu
     if (!row) {
       await seedFreshIfMissing();
       row = await readRow();
+    } else if (row.status === "active") {
+      const storedVersion = row.payload?.version;
+      if (storedVersion !== PRESENTATION_SEED_VERSION) {
+        await prisma.$executeRawUnsafe(
+          `UPDATE presentation_deck
+           SET payload = $2::jsonb, updated_at = NOW()
+           WHERE id = $1 AND status = 'active'`,
+          PRESENTATION_DECK_ID,
+          JSON.stringify(DEFAULT_PRESENTATION_DECK),
+        );
+        row = await readRow();
+      }
     }
     if (!row || row.status !== "active" || !row.payload) return null;
     if (!Array.isArray(row.payload.slides) || row.payload.slides.length === 0) return null;
