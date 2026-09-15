@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 15;
+export const PRESENTATION_SEED_VERSION = 16;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -33,7 +33,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         },
         {
           title: "Nhận lại (Reward)",
-          body: "Hàng mẫu, combo, pre-order. Có biên lai. Hoàn nếu trễ SLA gửi hàng hoặc khách không nhận đủ. Chỉ giải ngân từng đơn khi chiến dịch đã chốt và đơn đó đã nhận đủ hàng.",
+          body: "Hàng mẫu, combo, pre-order (đặt trước). Có biên lai. Hoàn nếu trễ SLA (cam kết thời hạn gửi hàng) hoặc khách không nhận đủ. Chỉ giải ngân từng đơn khi chiến dịch đã chốt và đơn đó đã nhận đủ hàng.",
           tone: "emerald",
         },
       ],
@@ -41,7 +41,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
     {
       kicker: "Thị trường",
       title: "Crowdfunding tại Việt Nam — khoảng trống lai",
-      body: "Không so Shopee: đó là bán SKU có sẵn. Ngách này là huy động vốn / đặt trước. Comicola mạnh văn hóa nhưng thiếu khóa hoàn. App thiện nguyện minh bạch nhưng 100% cho đi. Kickstarter lớn nhưng lệch thanh toán và pháp lý VN. MXH lan tỏa nhưng không có bên giữ tiền.",
+      body: "Không so Shopee: đó là bán SKU (mã hàng có sẵn). Ngách này là huy động vốn / đặt trước. Comicola mạnh văn hóa nhưng thiếu khóa hoàn. App thiện nguyện minh bạch nhưng 100% cho đi. Kickstarter lớn nhưng lệch thanh toán và pháp lý VN. MXH (mạng xã hội) lan tỏa nhưng không có bên giữ tiền.",
       table: {
         headers: ["Nền tảng", "Đại diện / mốc", "Điểm mạnh", "Gót chân Achilles", "Khoảng trống Tử Tế Fund"],
         rows: [
@@ -49,8 +49,8 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
             "Văn hóa & sáng tạo",
             "Comicola — truyện tranh, boardgame, fandom (vd. Thỏ Bảy Màu).",
             "Tệp fan dày. Bán trước sản phẩm văn hóa Việt.",
-            "Chủ yếu nghệ thuật/giải trí. Thiếu giữ tiền theo SLA giao. Phụ thuộc uy tín tác giả.",
-            "Hybrid không giới hạn một ngành. Reward khóa hoàn theo SLA gửi hàng; Donation cùng hồ sơ.",
+            "Chủ yếu nghệ thuật/giải trí. Thiếu giữ tiền theo SLA (cam kết thời hạn gửi hàng). Phụ thuộc uy tín tác giả.",
+            "Hybrid không giới hạn một ngành. Reward khóa hoàn theo SLA (cam kết thời hạn gửi hàng); Donation cùng hồ sơ.",
           ],
           [
             "Từ thiện / xã hội",
@@ -64,18 +64,18 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
             "Kickstarter / Indiegogo (2008–2009). Backer toàn cầu.",
             "Quy trình Reward chuẩn. Indiegogo có Keep-It-All. Chiến dịch lớn.",
             "Visa/Stripe, ngôn ngữ, ship/tax. Khó đòi khi ngâm vốn. Không chứng từ nội địa VN.",
-            "Nội địa hóa: VietQR / PayOS / VNPay. eKYC. Escrow theo đơn. Giấy TT-UH / INV-.",
+            "Nội địa hóa: VietQR / PayOS / VNPay. eKYC (định danh điện tử). Escrow (giữ hộ tiền) theo đơn. Giấy TT-UH / INV-.",
           ],
           [
-            "Gây quỹ MXH",
+            "Gây quỹ MXH (mạng xã hội)",
             "Facebook / TikTok / Zalo.",
             "Viral, chi phí vào ban đầu thấp, nói chuyện trực tiếp.",
-            "Không bên thứ ba giữ tiền. Trôi bài. Thiếu SLA và hồ sơ pháp lý khi chậm giao.",
-            "Mượn MXH dẫn về hồ sơ. Tiền giữ trên STK trung gian đến khi chốt + nhận đủ — không tự xưng trung gian NHNN.",
+            "Không bên thứ ba giữ tiền. Trôi bài. Thiếu SLA (cam kết thời hạn gửi hàng) và hồ sơ pháp lý khi chậm giao.",
+            "Mượn MXH (mạng xã hội) dẫn về hồ sơ. Tiền giữ trên STK (số tài khoản) trung gian đến khi chốt + nhận đủ — không tự xưng trung gian NHNN (Ngân hàng Nhà nước).",
           ],
         ],
       },
-      note: "Lấp chỗ: minh bạch kiểu kênh thiện nguyện + khóa tiền/hàng kiểu TMĐT, trên một nền tảng crowdfunding nội địa. Không đối đầu bảng tin MXH. Không giải ngân theo mốc sản xuất — Reward giải ngân từng đơn khi chiến dịch đã chốt và khách đã nhận đủ.",
+      note: "Lấp chỗ: minh bạch kiểu kênh thiện nguyện + khóa tiền/hàng kiểu TMĐT (thương mại điện tử), trên một nền tảng crowdfunding nội địa. Không đối đầu bảng tin MXH (mạng xã hội). Không giải ngân theo mốc sản xuất — Reward giải ngân từng đơn khi chiến dịch đã chốt và khách đã nhận đủ.",
     },
     {
       kicker: "Khách hàng nhắm đến",
@@ -93,7 +93,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         },
         {
           title: "Backer — Nhận lại",
-          body: "Muốn trải nghiệm sớm, combo, vé, pre-order. Sợ bùng hàng. Cần giữ tiền, SLA gửi hàng, hoàn nếu trễ hoặc không nhận đủ.",
+          body: "Muốn trải nghiệm sớm, combo, vé, pre-order (đặt trước). Sợ bùng hàng. Cần giữ tiền, SLA (cam kết thời hạn gửi hàng), hoàn nếu trễ hoặc không nhận đủ.",
           tone: "emerald",
         },
       ],
@@ -137,16 +137,16 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           [
             "All-or-Nothing",
             "Hết hạn không đạt mục tiêu → hoàn toàn bộ. Đạt mục tiêu → giải ngân sau khi chốt chiến dịch.",
-            "Creator vẫn xác nhận gửi hoặc sẵn sàng nhận tại chỗ kể cả chưa đạt mục tiêu. Trễ SLA gửi hàng → hoàn đơn đó. Đơn đã nhận đủ + chiến dịch đã chốt → giải ngân đúng đơn đó.",
+            "Creator vẫn xác nhận gửi hoặc sẵn sàng nhận tại chỗ kể cả chưa đạt mục tiêu. Trễ SLA (cam kết thời hạn gửi hàng) → hoàn đơn đó. Đơn đã nhận đủ + chiến dịch đã chốt → giải ngân đúng đơn đó.",
           ],
           [
             "Keep-It-All",
             "Không đạt mục tiêu vẫn giữ tiền ủng hộ, giải ngân sau khi chốt. Không phải quỹ được cấp phép; người ủng hộ không nhận lợi nhuận.",
-            "Cùng khóa từng đơn: chốt chiến dịch và khách đã nhận đủ. Trễ SLA gửi hàng hoặc không nhận đủ → hoàn đơn đó, không phụ thuộc mục tiêu.",
+            "Cùng khóa từng đơn: chốt chiến dịch và khách đã nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng) hoặc không nhận đủ → hoàn đơn đó, không phụ thuộc mục tiêu.",
           ],
         ],
       },
-      note: "SLA gửi hàng (cam kết thời hạn gửi hàng) = ngày hẹn giao ghi trên chiến dịch + 2 ngày — áp cho hàng ship / nhận tại chỗ, không áp cho vé đã cấp. Vé/phiếu vào Kho đồ = đã giao quà; giải ngân khi chốt chiến dịch. Hàng vật lý: nhận đủ = xác nhận trên Kho đồ, hoặc vận chuyển báo phát thành công mà 7 ngày không khiếu nại. Vốn sản xuất không lấy từ tiền đang giữ — sàn không ứng vốn.",
+      note: "SLA (cam kết thời hạn gửi hàng) = ngày hẹn giao ghi trên chiến dịch + 2 ngày — áp cho hàng ship / nhận tại chỗ, không áp cho vé đã cấp. Vé/phiếu vào Kho đồ = đã giao quà; giải ngân khi chốt chiến dịch. Hàng vật lý: nhận đủ = xác nhận trên Kho đồ, hoặc vận chuyển báo phát thành công mà 7 ngày không khiếu nại. Vốn sản xuất không lấy từ tiền đang giữ — sàn không ứng vốn.",
     },
     {
       kicker: "Luồng hàng Reward",
@@ -154,7 +154,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       steps: [
         { n: "01", t: "Thanh toán", d: "PayOS / VietQR. Tiền vào luồng cổng — chưa về creator." },
         { n: "02", t: "Đối soát & giữ", d: "Xác nhận đã nhận. Cấp biên lai. Giữ theo từng đơn, không giải ngân sớm." },
-        { n: "03", t: "Gửi hoặc sẵn sàng nhận", d: "Đúng SLA gửi hàng. Giao vận chuyển, hoặc mở nhận tại quán. Trễ SLA → hoàn đơn đó." },
+        { n: "03", t: "Gửi hoặc sẵn sàng nhận", d: "Đúng SLA (cam kết thời hạn gửi hàng). Giao vận chuyển, hoặc mở nhận tại quán. Trễ hạn → hoàn đơn đó." },
         { n: "04", t: "Nhận đủ", d: "Hàng ship: xác nhận trên Kho đồ, hoặc 7 ngày không khiếu nại sau khi phát thành công. Vé/phiếu: đã nằm trong Kho đồ = đã giao quà — quét tại quán chỉ để đổi ưu đãi, không phải mốc giải ngân." },
         { n: "05", t: "Chốt + giải ngân đơn", d: "Chiến dịch đã kết thúc và đơn đó đã nhận đủ → giải ngân đơn đó. Đơn khác chưa nhận thì vẫn giữ." },
       ],
@@ -162,13 +162,13 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
     {
       kicker: "Kiến trúc",
       title: "Dòng tiền: giữ hộ, đối soát, rồi mới chi",
-      body: "Backer không chuyển thẳng cho creator. Cổng thanh toán báo về webhook; sổ đơn nằm trên Postgres; tiền nằm trên tài khoản ngân hàng trung gian đến khi đủ điều kiện chi hộ hoặc hoàn. Phí sàn 8% trừ vào số giải ngân của creator (deducted from payout), không cộng thêm vào giá backer (không mark-up).",
+      body: "Backer không chuyển thẳng cho creator. Cổng thanh toán báo về webhook (cổng báo đã nhận tiền); sổ đơn nằm trên Postgres; tiền nằm trên tài khoản ngân hàng trung gian đến khi đủ điều kiện chi hộ hoặc hoàn. Phí sàn 8% trừ vào số giải ngân của creator (deducted from payout — trừ payout), không cộng thêm vào giá backer (không mark-up).",
       steps: [
         { n: "01", t: "Checkout", d: "Tạo pledge PENDING. PayOS / VietQR (Sepay) / VNPay. Nội dung chuyển khoản gắn mã đơn." },
         { n: "02", t: "Webhook đối soát", d: "Cổng báo đã nhận. settlePledgeAsPaid → SUCCESS. Cấp giấy TT-UH hoặc biên lai INV- vào Kho đồ." },
-        { n: "03", t: "Giữ hộ (escrow)", d: "Tiền trên STK trung gian. Không về creator. Phí 8% trừ payout creator — backer trả đúng giá niêm yết." },
-        { n: "04", t: "Giao / nhận", d: "Reward: PROCESSING → gửi ĐVVC hoặc nhận tại quán. Cron hoàn nếu trễ SLA gửi hàng." },
-        { n: "05", t: "Chi hộ hoặc hoàn", d: "Donation: chốt chiến dịch theo AoN/KiA. Reward: từng đơn khi đã chốt và đã nhận đủ." },
+        { n: "03", t: "Giữ hộ (escrow)", d: "Tiền trên STK (số tài khoản) trung gian. Không về creator. Phí 8% trừ payout creator — backer trả đúng giá niêm yết." },
+        { n: "04", t: "Giao / nhận", d: "Reward: PROCESSING → gửi ĐVVC (đơn vị vận chuyển) hoặc nhận tại quán. Cron hoàn nếu trễ SLA (cam kết thời hạn gửi hàng)." },
+        { n: "05", t: "Chi hộ hoặc hoàn", d: "Donation: chốt chiến dịch theo AoN (đạt mục tiêu mới giữ) / KiA (giữ kể cả chưa đạt). Reward: từng đơn khi đã chốt và đã nhận đủ." },
       ],
       table: {
         headers: ["Trạng thái", "Sổ đơn", "Tiền"],
@@ -176,26 +176,26 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           [
             "PENDING",
             "Đã tạo, chờ cổng xác nhận.",
-            "Chưa vào STK trung gian.",
+            "Chưa vào STK (số tài khoản) trung gian.",
           ],
           [
             "SUCCESS — đang giữ",
             "Đối soát xong. Donation: giấy chứng nhận. Reward: biên lai, fulfillment PROCESSING.",
-            "Nằm trên STK trung gian. Chưa chi hộ creator.",
+            "Nằm trên STK (số tài khoản) trung gian. Chưa chi hộ creator.",
           ],
           [
             "RELEASED",
             "Đơn đủ điều kiện: chiến dịch đã chốt và (Reward) đã nhận đủ.",
-            "Chi hộ về STK creator, trừ phí sàn.",
+            "Chi hộ về STK (số tài khoản) creator, trừ phí sàn.",
           ],
           [
             "REFUNDED",
-            "AoN không quà miss goal; hoặc trễ SLA gửi hàng; hoặc khiếu nại nhận hàng.",
+            "AoN (All-or-Nothing — không quà, miss goal); hoặc trễ SLA (cam kết thời hạn gửi hàng); hoặc khiếu nại nhận hàng.",
             "Hoàn về backer. Không giải ngân creator.",
           ],
         ],
       },
-      note: "Chi hộ từ tài khoản ngân hàng trung gian + cổng thanh toán. Không tự nhận là trung gian thanh toán theo giấy phép NHNN. Webhook (cổng báo đã nhận tiền) và cron (đóng chiến dịch hết hạn, hoàn trễ SLA — cam kết thời hạn gửi hàng) chạy trên hệ thống thật.",
+      note: "Chi hộ từ tài khoản ngân hàng trung gian + cổng thanh toán. Không tự nhận là trung gian thanh toán theo giấy phép NHNN (Ngân hàng Nhà nước). Webhook (cổng báo đã nhận tiền) và cron (đóng chiến dịch hết hạn, hoàn trễ SLA — cam kết thời hạn gửi hàng) chạy trên hệ thống thật.",
     },
     {
       kicker: "Chứng từ & giao dịch",
@@ -296,8 +296,8 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           text: "Donation là tặng cho, không nhận lợi ích tài chính. Reward pre-order là mua bán hàng hóa hình thành trong tương lai trên sàn thương mại điện tử — không thiết kế thành khoản vay, chứng khoán hay chia lợi nhuận.",
         },
         {
-          lead: "Trần P2P (NĐ 94/2025)",
-          text: "Lập luận của đồ án: nếu giữ đúng hai nhánh này thì không cùng bản chất P2P Lending nên không lấy trần hạn mức nợ P2P làm “giấy thông hành”. Đây chưa phải kết luận của cơ quan quản lý. Giữ tiền hộ nhiều người vẫn phải thiết kế thận trọng.",
+          lead: "Trần P2P (cho vay ngang hàng — NĐ 94/2025)",
+          text: "Lập luận của đồ án: nếu giữ đúng hai nhánh này thì không cùng bản chất P2P Lending (cho vay ngang hàng) nên không lấy trần hạn mức nợ P2P (cho vay ngang hàng) làm “giấy thông hành”. Đây chưa phải kết luận của cơ quan quản lý. Giữ tiền hộ nhiều người vẫn phải thiết kế thận trọng.",
         },
         {
           lead: "Reward",
@@ -309,24 +309,24 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         },
         {
           lead: "Dòng tiền hiện tại",
-          text: "PayOS / VietQR + tài khoản ngân hàng trung gian, đối soát bằng webhook. Chi tiết máy trạng thái ở slide Kiến trúc. Chưa phải dịch vụ trung gian thanh toán theo giấy phép Ngân hàng Nhà nước — không đăng ký và không quảng cáo như vậy.",
+          text: "PayOS / VietQR + tài khoản ngân hàng trung gian, đối soát bằng webhook (cổng báo đã nhận tiền). Chi tiết máy trạng thái ở slide Kiến trúc. Chưa phải dịch vụ trung gian thanh toán theo giấy phép Ngân hàng Nhà nước — không đăng ký và không quảng cáo như vậy.",
         },
       ],
       note: "Chứng nhận và biên lai là chứng từ đối chiếu nội bộ, không phải hóa đơn GTGT theo NĐ 123/2020/NĐ-CP. Slide mô tả mô hình sản phẩm, không phải tư vấn luật.",
     },
     {
       kicker: "An toàn thông tin",
-      title: "Bảo mật dữ liệu KYC / KYB",
-      body: "CCCD, chân dung, giấy phép, STK là dữ liệu nhạy cảm. Chỉ thu tối thiểu để định danh. Không bán, không chia cho bên thứ ba ngoài cổng eKYC và cơ quan khi pháp luật yêu cầu.",
+      title: "Bảo mật dữ liệu KYC (xác minh cá nhân) / KYB (xác minh doanh nghiệp)",
+      body: "CCCD, chân dung, giấy phép, STK (số tài khoản) là dữ liệu nhạy cảm. Chỉ thu tối thiểu để định danh. Không bán, không chia cho bên thứ ba ngoài cổng eKYC (định danh điện tử) và cơ quan khi pháp luật yêu cầu.",
       cards: [
         {
           title: "Đã chạy trên hệ thống",
-          body: "eKYC: CCCD trước/sau, selfie, liveness, khớp mặt (VNPT / FPT / sandbox). QR CCCD tự điền, không gọi CSDL Bộ Công an. eKYB tra MST qua VietQR. Đồng ý NĐ 13/2023 trước khi chụp. Ảnh trên Cloudinary; PII trên Neon Postgres. HTTPS/TLS trên Vercel. Admin duyệt hồ sơ.",
+          body: "eKYC (định danh điện tử): CCCD trước/sau, selfie, liveness (chống ảnh tĩnh), khớp mặt (VNPT / FPT / sandbox). QR CCCD tự điền, không gọi CSDL Bộ Công an. eKYB (xác minh doanh nghiệp) tra MST (mã số thuế) qua VietQR. Đồng ý NĐ 13/2023 trước khi chụp. Ảnh trên Cloudinary; PII (dữ liệu định danh) trên Neon Postgres. HTTPS/TLS trên Vercel. Admin duyệt hồ sơ.",
           tone: "emerald",
         },
         {
           title: "Lộ trình — chưa nhận đã xong",
-          body: "Bucket riêng + URL ký hạn ngắn cho ảnh CCCD (hiện upload thư mục dùng chung). Mã hóa field-level AES-256 cho số CCCD / STK (hiện plaintext trong kyc_info). Khớp tên chủ TK chi hộ 100% với KYC trước khi giải ngân. Nhật ký truy cập hồ sơ nhạy cảm.",
+          body: "Bucket riêng + URL ký hạn ngắn cho ảnh CCCD (hiện upload thư mục dùng chung). Mã hóa field-level AES-256 cho số CCCD / STK (số tài khoản) (hiện plaintext trong kyc_info). Khớp tên chủ TK chi hộ 100% với KYC (xác minh cá nhân) trước khi giải ngân. Nhật ký truy cập hồ sơ nhạy cảm.",
           tone: "rose",
         },
       ],
@@ -337,29 +337,29 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         },
         {
           lead: "Khớp danh tính",
-          text: "Liveness chống ảnh tĩnh / deepfake. Face-match selfie với CCCD. Chi hộ: tên STK creator phải khớp hồ sơ đã xác minh — đây là thiết kế bắt buộc, không phải tùy chọn UX.",
+          text: "Liveness (chống ảnh tĩnh / deepfake). Face-match selfie với CCCD. Chi hộ: tên STK (số tài khoản) creator phải khớp hồ sơ đã xác minh — đây là thiết kế bắt buộc, không phải tùy chọn UX.",
         },
         {
           lead: "Tuân thủ",
-          text: "Thiết kế theo Nghị định 13/2023/NĐ-CP (bảo vệ dữ liệu cá nhân). Wizard eKYC ghi rõ ảnh chỉ dùng định danh. Không tự xưng đã đăng ký với Bộ Công an.",
+          text: "Thiết kế theo Nghị định 13/2023/NĐ-CP (bảo vệ dữ liệu cá nhân). Wizard eKYC (định danh điện tử) ghi rõ ảnh chỉ dùng định danh. Không tự xưng đã đăng ký với Bộ Công an.",
         },
       ],
       note: "Hội đồng An toàn thông tin nên hỏi phần đã chạy vs lộ trình. Đừng gộp hai cột thành một câu “đã mã hóa AES-256”.",
     },
     {
       kicker: "Rủi ro",
-      title: "Né P2P chưa phải hết việc — dân sự, thuế, KYC, KYB",
+      title: "Né P2P (cho vay ngang hàng) chưa phải hết việc — dân sự, thuế, KYC (xác minh cá nhân), KYB (xác minh doanh nghiệp)",
       body: "Phải đăng ký sàn thương mại điện tử với Bộ Công Thương. Tranh chấp không giao hàng là rủi ro dân sự cao. Nhầm quyên góp với doanh thu là rủi ro thuế.",
       table: {
         headers: ["Tiêu chí", "Mức", "Bản chất"],
         rows: [
           [
-            "Hạn mức tài chính (P2P)",
+            "Hạn mức tài chính (P2P — cho vay ngang hàng)",
             "Thấp*",
             "Nếu giữ đúng Donation + Reward pre-order thì không bản chất hóa thành vay / chứng khoán. *Lập luận mô hình, chưa được xác nhận.",
           ],
           [
-            "Vận hành TMĐT",
+            "Vận hành TMĐT (thương mại điện tử)",
             "Trung bình",
             "Đăng ký sàn với Bộ Công Thương. Công bố điều khoản, hoàn/giữ, cảnh báo pre-order.",
           ],
@@ -377,11 +377,11 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       },
       cards: [
         {
-          title: "KYB — năng lực dự án",
+          title: "KYB (xác minh doanh nghiệp) — năng lực dự án",
           body: "Giấy tờ pháp nhân thật vẫn vỡ: tính sai chi phí, lỗi hàng, đứt cung ứng. Đánh bóng hồ sơ (ảnh AI, profile mượn) mà sàn duyệt lỏng → rủi ro bị cáo buộc quảng cáo sai sự thật.",
         },
         {
-          title: "KYC — dòng tiền và mạo danh",
+          title: "KYC (xác minh cá nhân) — dòng tiền và mạo danh",
           body: "Ủng hộ / pre-order lớn không khớp chủ ngân hàng: rủi ro rửa tiền. Deepfake mở tài khoản: người bị mạo danh kiện sàn. Giải pháp: đối soát sinh trắc học và khớp tên chủ tài khoản (matching name) với giấy tờ — chống tài khoản rác.",
         },
       ],
@@ -393,19 +393,19 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       cards: [
         {
           title: "Hướng gần",
-          body: "Công ty TNHH nền tảng thương mại điện tử / kết nối. Đăng ký sàn Bộ Công Thương. Công bố hai nhánh, cảnh báo pre-order, điều khoản hoàn/giữ. KYC khớp tài khoản; KYB creator.",
+          body: "Công ty TNHH nền tảng thương mại điện tử / kết nối. Đăng ký sàn Bộ Công Thương. Công bố hai nhánh, cảnh báo pre-order (đặt trước), điều khoản hoàn/giữ. KYC (xác minh cá nhân) khớp tài khoản; KYB (xác minh doanh nghiệp) creator.",
         },
         {
           title: "Doanh thu",
-          body: "Phí nền tảng 8% trên đơn Reward / chiến dịch thành công — trừ vào số giải ngân creator, không mark-up giá backer. Có thể thu phí xác minh KYB nâng cao cho creator. Donation không lấy phí ẩn trên khoản ủng hộ.",
+          body: "Phí nền tảng 8% trên đơn Reward / chiến dịch thành công — trừ vào số giải ngân creator, không mark-up giá backer. Có thể thu phí xác minh KYB (xác minh doanh nghiệp) nâng cao cho creator. Donation không lấy phí ẩn trên khoản ủng hộ.",
         },
         {
           title: "Giữ tiền",
-          body: "Reward giải ngân từng đơn khi chiến dịch đã chốt và đơn đã nhận đủ. Trễ SLA gửi hàng thì hoàn. Giao dịch bất thường (ví dụ trên 20 triệu/lần) tạm khóa, soi nguồn tiền. Không ứng vốn sản xuất.",
+          body: "Reward giải ngân từng đơn khi chiến dịch đã chốt và đơn đã nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng) thì hoàn. Giao dịch bất thường (ví dụ trên 20 triệu/lần) tạm khóa, soi nguồn tiền. Không ứng vốn sản xuất.",
         },
         {
           title: "Không giả danh",
-          body: "Không quỹ từ thiện khi chưa cấp phép. Không P2P, không sàn vốn, không token. Không phần thưởng chia lãi. Donation không tự miễn thuế. Trung gian thanh toán NHNN là lộ trình xa — trước đó chỉ cổng + đối soát.",
+          body: "Không quỹ từ thiện khi chưa cấp phép. Không P2P (cho vay ngang hàng), không sàn vốn, không token. Không phần thưởng chia lãi. Donation không tự miễn thuế. Trung gian thanh toán NHNN (Ngân hàng Nhà nước) là lộ trình xa — trước đó chỉ cổng + đối soát.",
         },
       ],
     },
@@ -455,7 +455,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
             "Thanh toán — tiền giữ theo đơn (escrow — giữ hộ)",
             "Biên lai INV- + vé/quà trong Kho đồ",
             "Vé/phiếu: đã có trong Kho đồ = đã nhận quà. Hàng ship: xác nhận hoặc 7 ngày không khiếu nại",
-            "Vé/phiếu: giải ngân khi chốt chiến dịch. Hàng ship: chốt + đã nhận đủ. Trễ SLA gửi hàng (hàng vật lý) → hoàn đơn",
+            "Vé/phiếu: giải ngân khi chốt chiến dịch. Hàng ship: chốt + đã nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng, hàng vật lý) → hoàn đơn",
           ],
         },
         {
@@ -509,7 +509,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           ],
         },
       ],
-      note: "PII (dữ liệu định danh) KYC hiện plaintext trên Neon; ảnh CCCD trên Cloudinary. Chat: MongoDB. Cache: Redis. Không vẽ hết blog_*, conversations.",
+      note: "PII (dữ liệu định danh) KYC (xác minh cá nhân) hiện plaintext trên Neon; ảnh CCCD trên Cloudinary. Chat: MongoDB. Cache: Redis. Không vẽ hết blog_*, conversations.",
     },
     {
       kicker: "Phụ lục",
@@ -518,7 +518,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       tree: [
         { path: "src/lib/payment/", note: "tạo đơn, escrow (giữ hộ), PayOS, VietQR/Sepay, VNPay, đối soát, hoàn" },
         { path: "src/lib/tax/", note: "giấy TT-UH (chứng nhận ủng hộ), sổ, khi pledges SUCCESS" },
-        { path: "src/lib/ekyc/", note: "định danh điện tử VNPT/FPT, QR CCCD, KYB MST (mã số thuế)" },
+        { path: "src/lib/ekyc/", note: "định danh điện tử VNPT/FPT, QR CCCD, KYB (xác minh doanh nghiệp) MST (mã số thuế)" },
         { path: "src/lib/campaign/", note: "tạo/sửa chiến dịch, đổi mô hình gây quỹ" },
         { path: "src/lib/funding-model.ts", note: "AoN (đạt mới giữ) / KiA (giữ cả khi chưa đạt)" },
         { path: "src/lib/campaign-lifecycle.ts", note: "đóng hạn, chốt chiến dịch" },
