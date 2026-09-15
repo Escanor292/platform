@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 8;
+export const PRESENTATION_SEED_VERSION = 9;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -24,7 +24,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       kicker: "Bảo vệ đồ án · Tử Tế Fund",
       title: "Nền tảng gây quỹ lai",
       titleAccent: "Cho đi và Nhận lại",
-      body: "Chỗ để bắt đầu một dự án tử tế: gây quỹ nhân đạo, đặt trước sản phẩm, và lưu hồ sơ hành trình — không phải mạng xã hội, không phải sàn bán hàng.",
+      body: "Nơi để bắt đầu hành trình: gây quỹ nhân đạo, đặt trước sản phẩm, và lưu hồ sơ dự án.",
       cards: [
         {
           title: "Cho đi (Donation)",
