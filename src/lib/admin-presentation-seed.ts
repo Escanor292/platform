@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 5;
+export const PRESENTATION_SEED_VERSION = 6;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -28,12 +28,12 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       cards: [
         {
           title: "Cho đi (Donation)",
-          body: "Ủng hộ vì mục đích nhân đạo. Không nhận lại lợi ích tài chính hay vật chất lớn. Đầu ra: giấy chứng nhận ủng hộ.",
+          body: "Ủng hộ vì mục đích nhân đạo. Không nhận lại lợi ích tài chính hay vật chất lớn. Đầu ra: giấy chứng nhận ủng hộ. Giải ngân sau khi chốt chiến dịch, theo All-or-Nothing hoặc Keep-It-All.",
           tone: "rose",
         },
         {
           title: "Nhận lại (Reward)",
-          body: "Hàng mẫu, hiện vật, combo có sẵn hoặc pre-order. Có giao, có biên lai, có hoàn khi không gửi vận chuyển đúng hẹn.",
+          body: "Hàng mẫu, combo, pre-order. Có biên lai. Hoàn nếu không gửi đúng hạn hoặc khách không nhận đủ. Chỉ giải ngân từng đơn khi chiến dịch đã chốt và đơn đó đã nhận đủ hàng.",
           tone: "emerald",
         },
       ],
@@ -53,7 +53,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         },
         {
           title: "Hợp tác, không đối đầu",
-          body: "Kể chuyện trên MXH, giao hàng nhờ ĐVVC/sàn. Nền tảng không cạnh tranh logistic hay newsfeed — mượn sức họ rồi đưa người về hồ sơ chiến dịch.",
+          body: "Kể chuyện trên MXH, giao hàng nhờ đơn vị vận chuyển. Nền tảng không cạnh tranh logistic hay bảng tin — mượn sức họ rồi đưa người về hồ sơ chiến dịch.",
         },
         {
           title: "Ai dùng",
@@ -68,12 +68,12 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       cards: [
         {
           title: "Từ thiện / Quyên góp",
-          body: "Cho đi. Không cổ phần, không lợi nhuận. Sau đối soát: giấy chứng nhận TT-UH tại /chung-tu. Không phải hóa đơn GTGT.",
+          body: "Cho đi. Không cổ phần, không lợi nhuận. Sau đối soát: giấy chứng nhận TT-UH. Không phải hóa đơn GTGT.",
           tone: "rose",
         },
         {
           title: "Nhận quà tri ân (Reward)",
-          body: "Giao dịch có hàng: sẵn kho hoặc pre-order. Biên lai INV- nội bộ. Hóa đơn GTGT (nếu cần) do creator xuất với tư cách người bán.",
+          body: "Giao dịch có hàng: sẵn kho, nhận tại chỗ, hoặc pre-order. Biên lai INV- nội bộ. Hóa đơn GTGT (nếu cần) do creator xuất với tư cách người bán.",
           tone: "emerald",
         },
       ],
@@ -81,7 +81,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         {
           key: "chung-nhan-tt-uh.jpg",
           alt: "Mẫu giấy chứng nhận ủng hộ TT-UH",
-          caption: "Mẫu giao diện /chung-tu — giấy chứng nhận Donation. Không phải chứng từ đã cấp cho một giao dịch thật.",
+          caption: "Mẫu giao diện giấy chứng nhận Donation. Không phải chứng từ đã cấp cho một giao dịch thật.",
         },
         {
           key: "bien-lai-thanh-toan.jpg",
@@ -93,33 +93,33 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
     {
       kicker: "Giữ tiền và hoàn tiền",
       title: "All-or-Nothing và Keep-It-All",
-      body: "Tiền không về creator khi vừa thanh toán. Sàn giữ đến khi đủ điều kiện giải ngân. Reward: chỉ giải ngân khi chiến dịch đã kết thúc và khách đã nhận đủ hàng — gửi ĐVVC chưa phải lúc rút tiền.",
+      body: "Tiền không về creator lúc thanh toán. Reward giải ngân theo từng đơn — không treo cả chiến dịch vì một người chưa nhận. Mỗi đơn chỉ giải ngân khi chiến dịch đã chốt và đơn đó đã nhận đủ hàng.",
       table: {
-        headers: ["Mô hình", "Donation (không quà)", "Reward (có giao hàng)"],
+        headers: ["Mô hình", "Donation (không quà)", "Reward (có giao / nhận tại chỗ)"],
         rows: [
           [
             "All-or-Nothing",
-            "Hết hạn không đạt goal → hoàn toàn bộ. Đạt goal → giải ngân sau khi chốt chiến dịch (không có hàng để nhận).",
-            "Creator vẫn bấm xác nhận gửi ĐVVC kể cả chưa đạt goal. Không gửi trong hạn (ngày hẹn + 2 ngày) → hủy và hoàn. Đã gửi và khách nhận đủ + chiến dịch đã chốt → mới giải ngân. Chưa nhận đủ hàng thì chưa giải ngân.",
+            "Hết hạn không đạt mục tiêu → hoàn toàn bộ. Đạt mục tiêu → giải ngân sau khi chốt chiến dịch.",
+            "Creator vẫn xác nhận gửi hoặc sẵn sàng nhận tại chỗ kể cả chưa đạt mục tiêu. Trễ hạn gửi (ngày hẹn + 2 ngày) → hoàn đơn đó. Đơn đã nhận đủ + chiến dịch đã chốt → giải ngân đúng đơn đó.",
           ],
           [
             "Keep-It-All",
-            "Không đạt goal vẫn giữ tiền ủng hộ, giải ngân sau khi chốt chiến dịch. Không phải quỹ được cấp phép; người ủng hộ không nhận lợi nhuận.",
-            "Cùng một khóa: chốt chiến dịch và khách đã nhận đủ hàng mới giải ngân. Quá hạn gửi ĐVVC (ngày hẹn + 2 ngày) hoặc khách không nhận đủ → hoàn, kể cả đã đủ hay chưa đủ goal.",
+            "Không đạt mục tiêu vẫn giữ tiền ủng hộ, giải ngân sau khi chốt. Không phải quỹ được cấp phép; người ủng hộ không nhận lợi nhuận.",
+            "Cùng khóa từng đơn: chốt chiến dịch và khách đã nhận đủ. Trễ gửi hoặc không nhận đủ → hoàn đơn đó, không phụ thuộc mục tiêu.",
           ],
         ],
       },
-      note: "Hàng có sẵn: ngày hẹn giao có thể sát thanh toán. Pre-order: ngày hẹn do creator ghi trên chiến dịch. Trễ quá 2 ngày sau mốc đó mà chưa đưa ĐVVC → hủy hoàn. Đưa ĐVVC rồi vẫn giữ tiền đến khi khách xác nhận đã nhận đủ.",
+      note: "Nhận đủ = khách xác nhận trên Kho đồ, hoặc quét vé / nhận tại quán, hoặc sau khi vận chuyển báo phát thành công mà 7 ngày không khiếu nại. Vốn sản xuất không lấy từ tiền đang giữ — sàn không ứng vốn cho creator.",
     },
     {
       kicker: "Luồng hàng Reward",
-      title: "Giữ tiền đến khi chốt chiến dịch và khách nhận đủ",
+      title: "Giữ theo đơn đến khi chốt và nhận đủ",
       steps: [
         { n: "01", t: "Thanh toán", d: "PayOS / VietQR. Tiền vào luồng cổng — chưa về creator." },
-        { n: "02", t: "Đối soát & giữ", d: "Xác nhận đã nhận tiền. Cấp biên lai. Toàn bộ nằm trong giữ, không giải ngân sớm." },
-        { n: "03", t: "Gửi ĐVVC", d: "Hạn = ngày hẹn trên chiến dịch + 2 ngày. Nút xác nhận giao vẫn bấm được khi chưa đạt goal. Trễ → hoàn." },
-        { n: "04", t: "Khách nhận đủ", d: "Backer xác nhận đã nhận đủ hàng trong Kho đồ. Thiếu / hỏng / không tới → khiếu nại, chưa giải ngân." },
-        { n: "05", t: "Chốt + giải ngân", d: "Chỉ khi chiến dịch đã kết thúc và khách đã nhận đủ. Thiếu một trong hai điều kiện thì tiền vẫn giữ hoặc hoàn." },
+        { n: "02", t: "Đối soát & giữ", d: "Xác nhận đã nhận. Cấp biên lai. Giữ theo từng đơn, không giải ngân sớm." },
+        { n: "03", t: "Gửi hoặc sẵn sàng nhận", d: "Hạn = ngày hẹn + 2 ngày. Giao vận chuyển, hoặc mở nhận tại quán. Trễ → hoàn đơn đó." },
+        { n: "04", t: "Nhận đủ", d: "Xác nhận trên Kho đồ, quét vé tại quán, hoặc 7 ngày không khiếu nại sau khi phát thành công. Thiếu / hỏng → khiếu nại, đơn chưa giải ngân." },
+        { n: "05", t: "Chốt + giải ngân đơn", d: "Chiến dịch đã kết thúc và đơn đó đã nhận đủ → giải ngân đơn đó. Đơn khác chưa nhận thì vẫn giữ." },
       ],
     },
     {
@@ -127,30 +127,30 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       title: "Một chỗ xem đã ủng hộ / đã đặt gì",
       cards: [
         {
-          title: "Giấy TT-UH",
-          body: "Donation: cấp sau đối soát. Mã công khai, QR, số tiền bằng chữ. Xem /chung-tu/[mã].",
+          title: "Giấy chứng nhận",
+          body: "Donation: cấp sau đối soát. Mã công khai, QR, số tiền bằng chữ.",
         },
         {
-          title: "Kho đồ /purchases",
-          body: "Giấy chứng nhận, vé/quà, đơn chờ giao, biên lai INV-. Backer không phải lùng trong tin nhắn.",
+          title: "Kho đồ",
+          body: "Giấy chứng nhận, vé/quà, đơn chờ nhận, biên lai. Backer xác nhận đã nhận tại đây.",
         },
         {
-          title: "Tra cứu /lookup",
-          body: "Trạng thái thanh toán, hoàn, giải ngân — theo mã giao dịch, không cần đăng nhập nếu có mã.",
+          title: "Tra cứu giao dịch",
+          body: "Trạng thái thanh toán, hoàn, giải ngân theo mã — không cần đăng nhập nếu có mã.",
         },
       ],
       figures: [
         {
           key: "kho-do.jpg",
           alt: "Giao diện Kho đồ của backer",
-          caption: "Trang /purchases: giấy TT-UH, vé reward, biên lai — một kho cho cả hai nhánh.",
+          caption: "Kho đồ: giấy TT-UH, vé reward, biên lai — một kho cho cả hai nhánh.",
         },
       ],
     },
     {
       kicker: "Case",
       title: "Khai trương quán gà rán nhượng quyền",
-      body: "Cùng một chiến dịch mở hai cửa: đặt combo (Reward) và ủng hộ khai trương không lấy hàng (Donation). Minh họa bên dưới dùng số ví dụ trên giao diện, không phải số liệu vận hành thật.",
+      body: "Cùng một chiến dịch: đặt combo (Reward) và ủng hộ không lấy hàng (Donation). Số trên ảnh là minh họa giao diện, không phải số liệu vận hành thật.",
       blocks: [
         {
           heading: "1. Chỉ chạy truyền thống",
@@ -169,7 +169,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           ],
         },
         {
-          heading: "2. Reward — đặt combo trước, ghé sau",
+          heading: "2. Reward — đặt combo, giữ tiền, nhận rồi mới giải ngân",
           headingTone: "emerald",
           figures: [
             {
@@ -180,12 +180,13 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
             {
               key: "ve-uu-dai.jpg",
               alt: "Vé ưu đãi khai trương trong Kho đồ",
-              caption: "Vé trong /purchases: dùng ngày khác nếu bận khai trương.",
+              caption: "Vé trong Kho đồ: dùng ngày khác nếu bận khai trương. Quét vé tại quán = đã nhận.",
             },
           ],
           bullets: [
-            "Biết số combo đã thanh toán → nhập đúng nguyên liệu.",
-            "Vé đã mua là lý do quay lại, không chỉ một buổi rồi quên.",
+            "Đặt combo → tiền giữ, chưa về quán.",
+            "Quét vé / nhận combo tại quán = đơn đã nhận đủ.",
+            "Chiến dịch chốt + đơn đã nhận → mới giải ngân đúng đơn đó. Đơn chưa nhận thì chưa về creator.",
           ],
         },
         {
@@ -201,11 +202,11 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           cards: [
             {
               title: "Cùng chiến dịch, cửa còn lại",
-              body: "Người xa, người không ăn được, người chỉ muốn nâng đỡ quán: ủng hộ không nhận quà → giấy TT-UH. Không biến khoản đó thành đơn hàng giả.",
+              body: "Người xa, người không ăn được, người chỉ muốn nâng đỡ quán: ủng hộ không nhận quà → giấy chứng nhận. Không biến khoản đó thành đơn hàng giả.",
             },
             {
               title: "Hai đầu ra, không trộn",
-              body: "Combo = biên lai + vé. Ủng hộ = chứng nhận. Cùng hồ sơ quán, pháp lý tách.",
+              body: "Combo = biên lai + vé + khóa nhận hàng. Ủng hộ = chứng nhận, giải ngân khi chốt chiến dịch. Cùng hồ sơ quán, pháp lý tách.",
             },
           ],
         },
@@ -213,136 +214,98 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
     },
     {
       kicker: "Pháp lý",
-      title: "Thuần Donation + Reward pre-order, không phải dịch vụ tài chính",
+      title: "Thuần Donation + Reward pre-order — lập luận, chưa phải giấy phép",
       paragraphs: [
         {
           lead: "Bản chất giao dịch",
-          text: "Donation là tặng cho / ủng hộ không nhận lợi ích tài chính. Reward pre-order là mua bán hàng hóa hình thành trong tương lai trên sàn TMĐT — không phải khoản vay, không phải chứng khoán, không phải dịch vụ tài chính.",
+          text: "Donation là tặng cho, không nhận lợi ích tài chính. Reward pre-order là mua bán hàng hóa hình thành trong tương lai trên sàn thương mại điện tử — không thiết kế thành khoản vay, chứng khoán hay chia lợi nhuận.",
         },
         {
-          lead: "Hạn mức gọi vốn tài chính",
-          text: "Nếu sàn giữ đúng hai nhánh này, lập luận là không bị áp trần hạn mức đầu tư/gọi vốn kiểu P2P Lending (ví dụ hạn mức nợ theo Nghị định 94/2025/NĐ-CP). Né rủi ro ngân hàng không có nghĩa là hết rủi ro dân sự, thuế và TMĐT.",
+          lead: "Trần P2P (NĐ 94/2025)",
+          text: "Lập luận của đồ án: nếu giữ đúng hai nhánh này thì không cùng bản chất P2P Lending nên không lấy trần hạn mức nợ P2P làm “giấy thông hành”. Đây chưa phải kết luận của cơ quan quản lý. Giữ tiền hộ nhiều người vẫn phải thiết kế thận trọng.",
         },
         {
           lead: "Reward",
-          text: "Creator là bên bán, kê khai thuế / hóa đơn GTGT theo tư cách của họ. Sàn là trung gian kết nối, không phải bên bán.",
+          text: "Creator là bên bán, kê khai thuế / hóa đơn GTGT theo tư cách của họ. Sàn kết nối, không phải bên bán.",
         },
         {
           lead: "Donation",
-          text: "Không góp vốn, không cổ phần, không chia lợi nhuận. NĐ 93 chỉ khi đã được cấp phép từ thiện — nền tảng không tự xưng quỹ.",
+          text: "Không góp vốn, không cổ phần, không chia lợi nhuận. Nghị định 93 chỉ khi đã được cấp phép từ thiện — nền tảng không tự xưng quỹ.",
         },
         {
           lead: "Dòng tiền hiện tại",
-          text: "PayOS / VietQR + đối soát tài khoản ngân hàng. Chưa phải dịch vụ trung gian thanh toán theo giấy phép NHNN — không đăng ký và không quảng cáo như vậy.",
+          text: "PayOS / VietQR + đối soát tài khoản ngân hàng. Chưa phải dịch vụ trung gian thanh toán theo giấy phép Ngân hàng Nhà nước — không đăng ký và không quảng cáo như vậy.",
         },
       ],
-      note: "Chứng nhận TT-UH và biên lai INV- là chứng từ đối chiếu nội bộ, không phải hóa đơn GTGT theo NĐ 123/2020/NĐ-CP. Slide mô tả mô hình sản phẩm, không phải tư vấn luật.",
+      note: "Chứng nhận và biên lai là chứng từ đối chiếu nội bộ, không phải hóa đơn GTGT theo NĐ 123/2020/NĐ-CP. Slide mô tả mô hình sản phẩm, không phải tư vấn luật.",
     },
     {
       kicker: "Rủi ro",
-      title: "Né P2P chưa phải hết việc",
-      body: "Phải đăng ký sàn TMĐT với Bộ Công Thương. Tranh chấp không giao hàng là rủi ro dân sự cao. Nhầm quyên góp với doanh thu là rủi ro thuế.",
+      title: "Né P2P chưa phải hết việc — dân sự, thuế, KYC, KYB",
+      body: "Phải đăng ký sàn thương mại điện tử với Bộ Công Thương. Tranh chấp không giao hàng là rủi ro dân sự cao. Nhầm quyên góp với doanh thu là rủi ro thuế.",
       table: {
         headers: ["Tiêu chí", "Mức", "Bản chất"],
         rows: [
           [
-            "Hạn mức tài chính (P2P / NĐ 94)",
-            "Thấp",
-            "Không bản chất hóa dòng tiền thành vay, chứng khoán hay dịch vụ tài chính — nếu giữ đúng Donation + Reward pre-order.",
+            "Hạn mức tài chính (P2P)",
+            "Thấp*",
+            "Nếu giữ đúng Donation + Reward pre-order thì không bản chất hóa thành vay / chứng khoán. *Lập luận mô hình, chưa được xác nhận.",
           ],
           [
-            "Pháp lý vận hành",
+            "Vận hành TMĐT",
             "Trung bình",
-            "Đăng ký Sàn Thương mại Điện tử với Bộ Công Thương. Công bố điều khoản, hoàn/giữ, cảnh báo pre-order.",
+            "Đăng ký sàn với Bộ Công Thương. Công bố điều khoản, hoàn/giữ, cảnh báo pre-order.",
           ],
           [
-            "Trách nhiệm dân sự",
+            "Dân sự / người tiêu dùng",
             "Cao",
-            "Creator không giao quà/hàng. Luật bảo vệ người tiêu dùng: sàn thiếu cảnh báo / kiểm soát có thể bị kéo vào tranh chấp liên đới.",
+            "Creator không giao. Sàn thiếu cảnh báo hoặc kiểm soát có thể bị kéo vào tranh chấp liên đới.",
           ],
           [
-            "Thuế và kế toán",
+            "Thuế",
             "Trung bình",
-            "Nhầm tiền quyên góp phi lợi nhuận với doanh thu bán hàng. Cá nhân/DN thường nhận Donation có thể bị tính thuế TNCN/TNDN.",
+            "Nhầm quyên góp với doanh thu. Cá nhân/doanh nghiệp thường nhận Donation có thể bị tính thuế.",
           ],
         ],
       },
-      note: "Cấm thiết kế Reward kiểu “đóng 10 triệu, được chia 5% doanh thu / lãi”. Chỉ cần yếu tố chia lợi nhuận hoặc cam kết trả lãi là bị kéo sang huy động vốn / chứng khoán chui.",
-    },
-    {
-      kicker: "KYC & KYB",
-      title: "Rủi ro nằm ở năng lực dự án và dòng tiền bẩn",
       cards: [
         {
-          title: "KYB — xác thực dự án",
-          body: "Giấy tờ pháp nhân thật vẫn vỡ trận: tính sai chi phí, lỗi sản phẩm, đứt chuỗi cung ứng (kiểu Superstrata). Hồ sơ pháp nhân thật nhưng đánh bóng năng lực (ảnh AI, profile mượn) → sàn duyệt lỏng dễ bị cáo buộc quảng cáo sai sự thật.",
+          title: "KYB — năng lực dự án",
+          body: "Giấy tờ pháp nhân thật vẫn vỡ: tính sai chi phí, lỗi hàng, đứt cung ứng. Đánh bóng hồ sơ (ảnh AI, profile mượn) mà sàn duyệt lỏng → rủi ro bị cáo buộc quảng cáo sai sự thật.",
         },
         {
-          title: "Sàn bị kéo vào kiện",
-          body: "Dù là trung gian, Luật BVNTD yêu cầu thông tin cảnh báo rủi ro hàng pre-order. Không có cơ chế kiểm soát / cảnh báo rõ → người mua kiện liên đới.",
-        },
-        {
-          title: "KYC — rửa tiền qua ủng hộ",
-          body: "Tài khoản ăn cắp hoặc tiền bẩn donated / mua gói Reward lớn, creator đồng phạm rút tiền mặt. KYC không khớp chủ TK ngân hàng nạp tiền → rủi ro phòng chống rửa tiền (AML).",
-        },
-        {
-          title: "KYC — deepfake / mạo danh",
-          body: "Mở tài khoản bằng khuôn mặt giả. Người bị mạo danh thấy dòng tiền qua tên mình rồi kiện sàn vì xác thực sai. Cần khớp người — giấy tờ — chủ tài khoản thanh toán.",
+          title: "KYC — dòng tiền và mạo danh",
+          body: "Ủng hộ / pre-order lớn từ tài khoản không khớp chủ ngân hàng: rủi ro rửa tiền. Deepfake mở tài khoản: người bị mạo danh kiện sàn. Phải khớp người — giấy tờ — chủ tài khoản thanh toán.",
         },
       ],
-    },
-    {
-      kicker: "Khuyến nghị",
-      title: "Thiết kế sàn để giới hạn rủi ro, không để “né luật”",
-      steps: [
-        {
-          n: "01",
-          t: "Điều khoản rõ",
-          d: "Sàn cung cấp nền tảng kết nối. Donation không phải mua hàng. Reward pre-order có rủi ro tiến độ. Creator chịu trách nhiệm giao. Backer được cảnh báo trước khi trả tiền.",
-        },
-        {
-          n: "02",
-          t: "Giữ đến khi nhận đủ",
-          d: "Reward: không đổ tiền một lần khi gửi ĐVVC. Chỉ giải ngân khi chiến dịch đã kết thúc và khách đã nhận đủ hàng. Trễ hạn gửi ĐVVC (ngày hẹn + 2 ngày) hoặc không nhận đủ → hoàn.",
-        },
-        {
-          n: "03",
-          t: "Giám sát giao dịch",
-          d: "Cảnh báo khi một tài khoản ủng hộ / pre-order bất thường (ví dụ trên 20 triệu/lần): khoá giải ngân, yêu cầu nguồn tiền, khớp KYC với chủ TK ngân hàng.",
-        },
-        {
-          n: "04",
-          t: "Cấm biến tướng",
-          d: "Không phần thưởng chia doanh thu, chia lợi nhuận, trả lãi, cam kết sinh lời. Vi phạm → gỡ chiến dịch.",
-        },
-      ],
+      note: "Cấm Reward kiểu “đóng 10 triệu, chia 5% doanh thu / lãi”. Chỉ cần chia lợi nhuận hoặc cam kết trả lãi là bị kéo sang huy động vốn.",
     },
     {
       kicker: "Công ty tương lai",
-      title: "Đăng ký gì, không đăng ký gì",
+      title: "Đăng ký gì, thiết kế gì, không nhận gì",
       cards: [
         {
           title: "Hướng gần",
-          body: "Công ty TNHH nền tảng TMĐT / kết nối creator — backer. Đăng ký sàn với Bộ Công Thương. Công bố hai nhánh, điều khoản hoàn/giữ, cảnh báo pre-order. KYC backer khớp TK; KYB creator.",
+          body: "Công ty TNHH nền tảng thương mại điện tử / kết nối. Đăng ký sàn Bộ Công Thương. Công bố hai nhánh, cảnh báo pre-order, điều khoản hoàn/giữ. KYC khớp tài khoản; KYB creator.",
+        },
+        {
+          title: "Thiết kế giữ tiền",
+          body: "Reward giải ngân từng đơn khi chiến dịch đã chốt và đơn đã nhận đủ. Giao dịch bất thường (ví dụ trên 20 triệu/lần) tạm khóa, soi nguồn tiền. Không ứng vốn sản xuất từ tiền đang giữ.",
         },
         {
           title: "Không giả danh",
-          body: "Không quỹ từ thiện khi chưa cấp phép. Không P2P, không sàn vốn, không token, không huy động vốn đại chúng. Reward = bán hàng. Donation = ủng hộ có chứng nhận, không miễn thuế tự động.",
-        },
-        {
-          title: "Lộ trình xa",
-          body: "Giữ tiền số lớn trên sổ sàn: xem giấy phép trung gian thanh toán NHNN. Trước đó: cổng thanh toán + đối soát. AML / giám sát giao dịch lớn vận hành từ đầu, không đợi giấy phép.",
+          body: "Không quỹ từ thiện khi chưa cấp phép. Không P2P, không sàn vốn, không token. Không phần thưởng chia lãi. Donation không tự miễn thuế. Trung gian thanh toán NHNN là lộ trình xa — trước đó chỉ cổng + đối soát.",
         },
       ],
     },
     {
       variant: "close",
       title: "Một nền tảng để bắt đầu tử tế",
-      body: "Cho đi thì có giấy. Nhận lại thì có hàng. Không đủ goal thì rõ hoàn hay giữ. Không đối đầu sàn lớn — mượn họ kể chuyện, đưa người về hồ sơ dự án.",
+      body: "Cho đi thì có giấy. Nhận lại thì có hàng. Không đủ mục tiêu thì rõ hoàn hay giữ. Không đối đầu sàn lớn — mượn họ kể chuyện, đưa người về hồ sơ dự án.",
       bullets: [
         "Hai nhánh, hai chứng từ — không trộn ủng hộ với mua, không biến Reward thành chia lãi.",
-        "Hạn giao = ngày hẹn + 2 ngày. Reward chỉ giải ngân khi chiến dịch đã chốt và khách đã nhận đủ hàng.",
-        "Không phải P2P nên không lấy trần NĐ 94 làm “giấy thông hành”. Vẫn phải TMĐT, thuế, KYC/KYB, AML.",
+        "Reward: giữ theo đơn đến khi chiến dịch chốt và khách nhận đủ (xác nhận, quét vé, hoặc 7 ngày không khiếu nại).",
+        "Không lấy trần P2P làm giấy thông hành. Vẫn phải thương mại điện tử, thuế, KYC/KYB, phòng chống rửa tiền.",
       ],
     },
   ],
