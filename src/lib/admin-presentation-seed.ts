@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 6;
+export const PRESENTATION_SEED_VERSION = 7;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -123,6 +123,44 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       ],
     },
     {
+      kicker: "Kiến trúc",
+      title: "Dòng tiền: giữ hộ, đối soát, rồi mới chi",
+      body: "Backer không chuyển thẳng cho creator. Cổng thanh toán báo về webhook; sổ đơn nằm trên Postgres; tiền nằm trên tài khoản ngân hàng trung gian đến khi đủ điều kiện chi hộ hoặc hoàn.",
+      steps: [
+        { n: "01", t: "Checkout", d: "Tạo pledge PENDING. PayOS / VietQR (Sepay) / VNPay. Nội dung chuyển khoản gắn mã đơn." },
+        { n: "02", t: "Webhook đối soát", d: "Cổng báo đã nhận. settlePledgeAsPaid → SUCCESS. Cấp giấy TT-UH hoặc biên lai INV- vào Kho đồ." },
+        { n: "03", t: "Giữ hộ (escrow)", d: "Tiền trên STK trung gian. Không về creator. Phí sàn ~8% trừ phía creator, không cộng vào giá người mua." },
+        { n: "04", t: "Giao / nhận", d: "Reward: PROCESSING → gửi ĐVVC hoặc nhận tại quán. Cron hoàn nếu trễ hạn gửi + 2 ngày." },
+        { n: "05", t: "Chi hộ hoặc hoàn", d: "Donation: chốt chiến dịch theo AoN/KiA. Reward: từng đơn khi đã chốt và đã nhận đủ." },
+      ],
+      table: {
+        headers: ["Trạng thái", "Sổ đơn", "Tiền"],
+        rows: [
+          [
+            "PENDING",
+            "Đã tạo, chờ cổng xác nhận.",
+            "Chưa vào STK trung gian.",
+          ],
+          [
+            "SUCCESS — đang giữ",
+            "Đối soát xong. Donation: giấy chứng nhận. Reward: biên lai, fulfillment PROCESSING.",
+            "Nằm trên STK trung gian. Chưa chi hộ creator.",
+          ],
+          [
+            "RELEASED",
+            "Đơn đủ điều kiện: chiến dịch đã chốt và (Reward) đã nhận đủ.",
+            "Chi hộ về STK creator, trừ phí sàn.",
+          ],
+          [
+            "REFUNDED",
+            "AoN không quà miss goal; hoặc trễ gửi ĐVVC + 2 ngày; hoặc khiếu nại nhận hàng.",
+            "Hoàn về backer. Không giải ngân creator.",
+          ],
+        ],
+      },
+      note: "Chi hộ từ tài khoản ngân hàng trung gian + cổng thanh toán. Không tự nhận là trung gian thanh toán theo giấy phép NHNN. Webhook và cron (đóng chiến dịch hết hạn, hoàn trễ SLA) chạy trên hệ thống thật.",
+    },
+    {
       kicker: "Chứng từ & giao dịch",
       title: "Một chỗ xem đã ủng hộ / đã đặt gì",
       cards: [
@@ -234,7 +272,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         },
         {
           lead: "Dòng tiền hiện tại",
-          text: "PayOS / VietQR + đối soát tài khoản ngân hàng. Chưa phải dịch vụ trung gian thanh toán theo giấy phép Ngân hàng Nhà nước — không đăng ký và không quảng cáo như vậy.",
+          text: "PayOS / VietQR + tài khoản ngân hàng trung gian, đối soát bằng webhook. Chi tiết máy trạng thái ở slide Kiến trúc. Chưa phải dịch vụ trung gian thanh toán theo giấy phép Ngân hàng Nhà nước — không đăng ký và không quảng cáo như vậy.",
         },
       ],
       note: "Chứng nhận và biên lai là chứng từ đối chiếu nội bộ, không phải hóa đơn GTGT theo NĐ 123/2020/NĐ-CP. Slide mô tả mô hình sản phẩm, không phải tư vấn luật.",
@@ -290,7 +328,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         },
         {
           title: "Thiết kế giữ tiền",
-          body: "Reward giải ngân từng đơn khi chiến dịch đã chốt và đơn đã nhận đủ. Giao dịch bất thường (ví dụ trên 20 triệu/lần) tạm khóa, soi nguồn tiền. Không ứng vốn sản xuất từ tiền đang giữ.",
+          body: "Reward giải ngân từng đơn khi chiến dịch đã chốt và đơn đã nhận đủ. Phí nền tảng ước tính 8% trừ phía creator, không cộng checkout. Giao dịch bất thường (ví dụ trên 20 triệu/lần) tạm khóa, soi nguồn tiền. Không ứng vốn sản xuất từ tiền đang giữ.",
         },
         {
           title: "Không giả danh",
