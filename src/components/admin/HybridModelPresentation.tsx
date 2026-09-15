@@ -9,7 +9,9 @@ import {
   Building2,
   CheckCircle2,
   ChevronLeft,
+  Database,
   FileBadge,
+  FolderTree,
   GitBranch,
   Handshake,
   HeartHandshake,
@@ -24,13 +26,17 @@ import {
   Trash2,
   UserCheck,
   Users,
+  Workflow,
   X,
 } from "lucide-react";
 import type {
   PresentationCard,
   PresentationDeck,
   PresentationFigure,
+  PresentationLane,
+  PresentationSchemaGroup,
   PresentationSlide,
+  PresentationTreeNode,
 } from "@/lib/admin-presentation-types";
 import { CertificateDocument } from "@/components/tax/CertificateDocument";
 import { InvoiceDocument } from "@/components/invoice/InvoiceDocument";
@@ -42,6 +48,9 @@ const KICKER_ICON = {
   "Giữ tiền và hoàn tiền": Package,
   "Luồng hàng Reward": Store,
   "Kiến trúc": GitBranch,
+  "Luồng người dùng": Workflow,
+  "CSDL": Database,
+  "Mã nguồn": FolderTree,
   "Chứng từ & giao dịch": FileBadge,
   "Pháp lý": Scale,
   "An toàn thông tin": Lock,
@@ -289,6 +298,12 @@ function SlideView({ slide }: { slide: PresentationSlide }) {
         </ol>
       ) : null}
 
+      {slide.lanes?.length ? <FlowLanes lanes={slide.lanes} /> : null}
+
+      {slide.schema?.length ? <SchemaMap groups={slide.schema} /> : null}
+
+      {slide.tree?.length ? <SourceTree nodes={slide.tree} /> : null}
+
       {slide.table ? (
         <div className="overflow-x-auto rounded-[1.5rem] border border-gray-200 bg-white text-left">
           <table className={`w-full text-left text-sm ${slide.table.headers.length >= 5 ? "min-w-[920px]" : "min-w-[560px] md:min-w-[720px]"}`}>
@@ -383,6 +398,73 @@ function SlideView({ slide }: { slide: PresentationSlide }) {
         </div>
       ) : null}
     </section>
+  );
+}
+
+function FlowLanes({ lanes }: { lanes: PresentationLane[] }) {
+  return (
+    <div className="space-y-4 text-left">
+      {lanes.map((lane) => {
+        const tone =
+          lane.tone === "rose"
+            ? "border-rose-100 bg-rose-50"
+            : lane.tone === "emerald"
+              ? "border-emerald-100 bg-emerald-50"
+              : lane.tone === "navy"
+                ? "border-slate-200 bg-slate-50"
+                : "border-gray-100 bg-white";
+        return (
+          <div key={lane.title} className={`rounded-[1.75rem] border p-4 shadow-sm md:p-5 ${tone}`}>
+            <div className="mb-3 text-sm font-black text-slate-900">{lane.title}</div>
+            <ol className="flex flex-col gap-2">
+              {lane.steps.map((step, i) => (
+                <li key={step} className="flex items-start gap-2">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-[11px] font-black text-emerald-700 shadow-sm">
+                    {i + 1}
+                  </span>
+                  <span className="rounded-xl bg-white px-3 py-2 text-sm text-gray-700 shadow-sm">{step}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function SchemaMap({ groups }: { groups: PresentationSchemaGroup[] }) {
+  return (
+    <div className="grid gap-4 text-left md:grid-cols-2">
+      {groups.map((group) => (
+        <div key={group.title} className="rounded-[1.75rem] border border-gray-100 bg-white p-5 shadow-sm">
+          <div className="mb-3 flex items-center gap-2 text-sm font-black text-[#1B365D]">
+            <Database size={16} className="text-emerald-700" />
+            {group.title}
+          </div>
+          <ul className="space-y-2">
+            {group.items.map((item) => (
+              <li key={item} className="rounded-xl bg-slate-50 px-3 py-2 font-mono text-xs text-slate-700 md:text-sm">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SourceTree({ nodes }: { nodes: PresentationTreeNode[] }) {
+  return (
+    <div className="space-y-2 rounded-[1.75rem] border border-gray-100 bg-[#0f172a] p-5 text-left font-mono text-xs text-emerald-100 shadow-sm md:text-sm">
+      {nodes.map((node) => (
+        <div key={node.path} className="flex flex-col gap-0.5 border-l border-emerald-700/40 pl-3 md:flex-row md:items-baseline md:gap-3">
+          <span className="font-bold text-emerald-300">{node.path}</span>
+          <span className="text-slate-300">{node.note}</span>
+        </div>
+      ))}
+    </div>
   );
 }
 

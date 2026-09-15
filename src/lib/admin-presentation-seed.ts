@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 12;
+export const PRESENTATION_SEED_VERSION = 13;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -196,6 +196,116 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         ],
       },
       note: "Chi hộ từ tài khoản ngân hàng trung gian + cổng thanh toán. Không tự nhận là trung gian thanh toán theo giấy phép NHNN. Webhook và cron (đóng chiến dịch hết hạn, hoàn trễ SLA) chạy trên hệ thống thật.",
+    },
+    {
+      kicker: "Luồng người dùng",
+      title: "Bốn vai — xếp dọc theo người",
+      body: "Creator cá nhân hoặc doanh nghiệp. Backer tách Cho đi / Nhận lại. Admin duyệt. Mỗi hàng một người, bước đi từ trên xuống.",
+      lanes: [
+        {
+          title: "Creator — cá nhân hoặc doanh nghiệp",
+          tone: "navy",
+          steps: [
+            "Đăng ký / đăng nhập",
+            "eKYC hoặc KYB (MST VietQR)",
+            "Tạo chiến dịch: Donation, Reward, hoặc cả hai; chọn AoN / KiA",
+            "Nhận ủng hộ / đơn — tiền đang giữ, chưa về STK",
+            "Reward: gửi ĐVVC hoặc mở nhận tại chỗ đúng SLA",
+            "Chi hộ từng đơn khi chiến dịch đã chốt và khách đã nhận đủ",
+          ],
+        },
+        {
+          title: "Backer — Cho đi (Donation)",
+          tone: "rose",
+          steps: [
+            "Vào hồ sơ chiến dịch (có thể từ MXH)",
+            "Ủng hộ, không chọn quà",
+            "PayOS / VietQR → webhook SUCCESS",
+            "Giấy TT-UH vào Kho đồ",
+            "Giải ngân khi chốt chiến dịch (AoN đạt mục tiêu, hoặc KiA)",
+          ],
+        },
+        {
+          title: "Backer — Nhận lại (Reward)",
+          tone: "emerald",
+          steps: [
+            "Chọn combo / vé / pre-order",
+            "Thanh toán — tiền giữ theo đơn",
+            "Biên lai INV- + vé/quà trong Kho đồ",
+            "Nhận: quét vé, xác nhận, hoặc 7 ngày không khiếu nại",
+            "Trễ SLA gửi hàng → hoàn đơn. Đã nhận + đã chốt → giải ngân đúng đơn",
+          ],
+        },
+        {
+          title: "Admin",
+          steps: [
+            "Duyệt KYC / chiến dịch / kiểm duyệt",
+            "Theo dõi SLA, hoàn trễ, khóa nội dung",
+            "Mở thuyết trình nội bộ (nút xanh dashboard)",
+          ],
+        },
+      ],
+    },
+    {
+      kicker: "CSDL",
+      title: "Schema lõi — Neon Postgres",
+      body: "Không vẽ hết 50+ bảng. Chỉ vòng gây quỹ lai: người → chiến dịch → đơn → chứng từ. Chat/blog nằm Mongo hoặc bảng phụ, không đi vào escrow.",
+      schema: [
+        {
+          title: "Định danh",
+          items: [
+            "users (role, STK nhận chi hộ)",
+            "kyc_info (CCCD, selfie, ekycMeta, consentAt)",
+            "transaction_limits",
+          ],
+        },
+        {
+          title: "Hồ sơ dự án",
+          items: [
+            "projects → campaigns",
+            "campaigns.type Donation|Reward",
+            "campaigns.fundingModel AoN|KiA",
+            "rewards (fulfillment, SLA giao)",
+          ],
+        },
+        {
+          title: "Dòng tiền / đơn",
+          items: [
+            "pledges.status PENDING → SUCCESS → RELEASED|REFUNDED",
+            "pledges.fulfillmentStatus, handedToCarrierAt, receivedAt",
+            "pledges.platformFee (~8%)",
+            "checkout_sessions, payment_methods",
+          ],
+        },
+        {
+          title: "Chứng từ",
+          items: [
+            "donation_certificates (mã TT-UH)",
+            "backer_invoices (mã INV-)",
+            "reward_digital_assets / Kho đồ",
+            "platform_invoices (phí sàn)",
+          ],
+        },
+      ],
+      note: "PII KYC hiện plaintext trên Neon; ảnh CCCD trên Cloudinary. Chat: MongoDB. Cache: Redis. Không vẽ hết blog_*, conversations.",
+    },
+    {
+      kicker: "Mã nguồn",
+      title: "src/lib — nghiệp vụ, không phải UI",
+      body: "App Router nằm src/app. Dưới đây là thư viện lõi của mô hình lai. Tên file đúng repo.",
+      tree: [
+        { path: "src/lib/payment/", note: "create-pledge, escrow, PayOS, VietQR/Sepay, VNPay, settle-pledge, refund" },
+        { path: "src/lib/tax/", note: "certificate TT-UH, ledger, on-pledge-success, money-flow" },
+        { path: "src/lib/ekyc/", note: "VNPT / FPT / sandbox, QR CCCD, ekyb MST VietQR" },
+        { path: "src/lib/campaign/", note: "create-campaign, update, apply-funding-model-update" },
+        { path: "src/lib/funding-model.ts", note: "AoN / KiA" },
+        { path: "src/lib/campaign-lifecycle.ts", note: "đóng hạn, chốt chiến dịch" },
+        { path: "src/lib/order-fulfillment.ts", note: "PROCESSING → gửi / nhận" },
+        { path: "src/lib/ship-sla.ts", note: "SLA gửi hàng = ngày hẹn + 2 ngày" },
+        { path: "src/lib/money-buckets.ts", note: "bucket giữ / chi / hoàn" },
+        { path: "src/lib/digital-warehouse.ts", note: "Kho đồ backer" },
+        { path: "src/lib/prisma.ts · mongodb.ts · redis.ts", note: "Neon Postgres, chat Mongo, cache Redis" },
+      ],
     },
     {
       kicker: "Chứng từ & giao dịch",

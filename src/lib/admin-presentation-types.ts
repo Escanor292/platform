@@ -19,6 +19,22 @@ export type PresentationBlock = {
   cards?: PresentationCard[];
 };
 
+export type PresentationLane = {
+  title: string;
+  tone?: "rose" | "emerald" | "navy" | "default";
+  steps: string[];
+};
+
+export type PresentationSchemaGroup = {
+  title: string;
+  items: string[];
+};
+
+export type PresentationTreeNode = {
+  path: string;
+  note: string;
+};
+
 export type PresentationSlide = {
   variant?: "hero" | "default" | "close";
   kicker?: string;
@@ -33,6 +49,9 @@ export type PresentationSlide = {
   bullets?: string[];
   blocks?: PresentationBlock[];
   figures?: PresentationFigure[];
+  lanes?: PresentationLane[];
+  schema?: PresentationSchemaGroup[];
+  tree?: PresentationTreeNode[];
 };
 
 export type PresentationDeck = {
