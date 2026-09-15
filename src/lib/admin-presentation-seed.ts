@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 9;
+export const PRESENTATION_SEED_VERSION = 10;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -39,25 +39,62 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       ],
     },
     {
-      kicker: "Khoảng trống",
-      title: "Không thay Facebook, không đánh Shopee",
-      body: "Shopee bán SKU có sẵn. Facebook/Zalo kể chuyện và kêu gọi. Tử Tế Fund giữ chiến dịch, dòng tiền đối soát, chứng từ và kho quà trên một hồ sơ dự án.",
+      kicker: "Thị trường",
+      title: "Khoảng trống thị trường crowdfunding",
+      body: "Không thay Facebook, không đánh Shopee. Tử Tế Fund giữ hồ sơ chiến dịch, dòng tiền đối soát và chứng từ nội địa — mượn MXH kể chuyện rồi đưa người về đây.",
+      table: {
+        headers: ["Nền tảng", "Mốc / quy mô", "Điểm mạnh", "Điểm yếu", "Tử Tế Fund"],
+        rows: [
+          [
+            "Kickstarter / Indiegogo",
+            "2008–2009. Reward toàn cầu.",
+            "Cộng đồng lớn. Pre-order / Reward chuẩn. Indiegogo có Keep-It-All.",
+            "Thanh toán quốc tế. Không chứng từ / pháp lý nội địa VN.",
+            "VietQR / PayOS. Giấy TT-UH và biên lai INV-. AoN và KiA trên cùng nền tảng.",
+          ],
+          [
+            "GoFundMe",
+            "2010. Chuyên donation.",
+            "Kêu gọi hoàn cảnh, cá nhân, dễ ủng hộ.",
+            "Yếu Reward. Minh bạch giải ngân hạn chế. Không hồ sơ giao hàng.",
+            "Hai nhánh trên một chiến dịch. Donation giải ngân khi chốt; Reward khóa theo đơn.",
+          ],
+          [
+            "Facebook / Zalo / ví",
+            "Kênh phổ biến tại VN.",
+            "Lan tỏa nhanh. Thanh toán 1 chạm.",
+            "Trôi bài. Không SLA giao. Không chứng từ, không nhật ký dự án.",
+            "Mượn MXH dẫn về hồ sơ chiến dịch tập trung. Giữ tiền, hoàn, kho đồ.",
+          ],
+          [
+            "Shopee / Lazada",
+            "Sàn TMĐT SKU có sẵn.",
+            "Logistic, đánh giá, traffic mua sắm.",
+            "Không gây quỹ lai. Pre-order dễ trộn với hàng có sẵn. Không giấy ủng hộ.",
+            "Không đối đầu logistic. Reward = đặt trước có SLA; Donation tách pháp lý.",
+          ],
+        ],
+      },
+      note: "Năm ra mắt là mốc công khai của từng nền tảng, không phải số liệu nội bộ. Tử Tế Fund không thay bảng tin MXH và không thay sàn bán SKU.",
+    },
+    {
+      kicker: "Khách hàng nhắm đến",
+      title: "Chân dung người dùng — Creator và Backer",
+      body: "Hai phía, hai nhu cầu. Creator cần cộng đồng và đặt trước để kiểm chứng thị trường. Backer cần minh bạch khi cho đi, và khóa hoàn khi nhận lại.",
       cards: [
         {
-          title: "Quốc tế — tách nhánh",
-          body: "Kickstarter: All-or-Nothing + reward. Indiegogo: AoN hoặc Keep-It-All. GoFundMe: donation, giữ tiền. BackerKit: giao hàng sau chiến dịch.",
+          title: "Creator",
+          body: "Người mở nghề nhỏ, nhượng quyền F&B, thủ công, khóa học, sản phẩm sáng tạo. Cần pre-order để biết nhập bao nhiêu, cộng đồng đồng hành — không chỉ một đơn rời trên Shopee.",
         },
         {
-          title: "Việt Nam — đang rời",
-          body: "Gây quỹ trên Facebook/Zalo, Heo Vàng / kênh ví, pre-order Shopee·Lazada, website tự host. Thiếu một chỗ gói chứng từ donation + hạn giao reward + nhật ký dự án + thanh toán nội địa.",
+          title: "Backer — Cho đi",
+          body: "Ủng hộ nhân đạo hoặc nâng đỡ quán / dự án, không lấy hàng. Cần minh bạch và giấy chứng nhận TT-UH để lưu, không biến khoản ủng hộ thành đơn hàng giả.",
+          tone: "rose",
         },
         {
-          title: "Hợp tác, không đối đầu",
-          body: "Kể chuyện trên MXH, giao hàng nhờ đơn vị vận chuyển. Nền tảng không cạnh tranh logistic hay bảng tin — mượn sức họ rồi đưa người về hồ sơ chiến dịch.",
-        },
-        {
-          title: "Ai dùng",
-          body: "Người mở nghề nhỏ, nhượng quyền, khóa học, sản phẩm. Người cần cộng đồng chứ không chỉ một đơn rời. Backer muốn ủng hộ hoặc đặt trước có kiểm soát hoàn.",
+          title: "Backer — Nhận lại",
+          body: "Muốn trải nghiệm sớm, combo, vé, pre-order. Sợ bùng hàng. Cần giữ tiền, SLA gửi hàng, hoàn nếu trễ hoặc không nhận đủ.",
+          tone: "emerald",
         },
       ],
     },
@@ -276,6 +313,38 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         },
       ],
       note: "Chứng nhận và biên lai là chứng từ đối chiếu nội bộ, không phải hóa đơn GTGT theo NĐ 123/2020/NĐ-CP. Slide mô tả mô hình sản phẩm, không phải tư vấn luật.",
+    },
+    {
+      kicker: "An toàn thông tin",
+      title: "Bảo mật dữ liệu KYC / KYB",
+      body: "CCCD, chân dung, giấy phép, STK là dữ liệu nhạy cảm. Chỉ thu tối thiểu để định danh. Không bán, không chia cho bên thứ ba ngoài cổng eKYC và cơ quan khi pháp luật yêu cầu.",
+      cards: [
+        {
+          title: "Đã chạy trên hệ thống",
+          body: "eKYC: CCCD trước/sau, selfie, liveness, khớp mặt (VNPT / FPT / sandbox). QR CCCD tự điền, không gọi CSDL Bộ Công an. eKYB tra MST qua VietQR. Đồng ý NĐ 13/2023 trước khi chụp. Ảnh trên Cloudinary; PII trên Neon Postgres. HTTPS/TLS trên Vercel. Admin duyệt hồ sơ.",
+          tone: "emerald",
+        },
+        {
+          title: "Lộ trình — chưa nhận đã xong",
+          body: "Bucket riêng + URL ký hạn ngắn cho ảnh CCCD (hiện upload thư mục dùng chung). Mã hóa field-level AES-256 cho số CCCD / STK (hiện plaintext trong kyc_info). Khớp tên chủ TK chi hộ 100% với KYC trước khi giải ngân. Nhật ký truy cập hồ sơ nhạy cảm.",
+          tone: "rose",
+        },
+      ],
+      paragraphs: [
+        {
+          lead: "Nguyên tắc",
+          text: "Data minimization. Consent trước khi thu. Neon mã hóa đĩa phía nhà cung cấp; đường truyền TLS. Không quảng cáo đã AES-256 từng trường nếu chưa triển khai trong code.",
+        },
+        {
+          lead: "Khớp danh tính",
+          text: "Liveness chống ảnh tĩnh / deepfake. Face-match selfie với CCCD. Chi hộ: tên STK creator phải khớp hồ sơ đã xác minh — đây là thiết kế bắt buộc, không phải tùy chọn UX.",
+        },
+        {
+          lead: "Tuân thủ",
+          text: "Thiết kế theo Nghị định 13/2023/NĐ-CP (bảo vệ dữ liệu cá nhân). Wizard eKYC ghi rõ ảnh chỉ dùng định danh. Không tự xưng đã đăng ký với Bộ Công an.",
+        },
+      ],
+      note: "Hội đồng An toàn thông tin nên hỏi phần đã chạy vs lộ trình. Đừng gộp hai cột thành một câu “đã mã hóa AES-256”.",
     },
     {
       kicker: "Rủi ro",
