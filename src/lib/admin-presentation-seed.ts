@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 7;
+export const PRESENTATION_SEED_VERSION = 8;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -33,7 +33,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         },
         {
           title: "Nhận lại (Reward)",
-          body: "Hàng mẫu, combo, pre-order. Có biên lai. Hoàn nếu không gửi đúng hạn hoặc khách không nhận đủ. Chỉ giải ngân từng đơn khi chiến dịch đã chốt và đơn đó đã nhận đủ hàng.",
+          body: "Hàng mẫu, combo, pre-order. Có biên lai. Hoàn nếu trễ SLA gửi hàng hoặc khách không nhận đủ. Chỉ giải ngân từng đơn khi chiến dịch đã chốt và đơn đó đã nhận đủ hàng.",
           tone: "emerald",
         },
       ],
@@ -100,16 +100,16 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           [
             "All-or-Nothing",
             "Hết hạn không đạt mục tiêu → hoàn toàn bộ. Đạt mục tiêu → giải ngân sau khi chốt chiến dịch.",
-            "Creator vẫn xác nhận gửi hoặc sẵn sàng nhận tại chỗ kể cả chưa đạt mục tiêu. Trễ hạn gửi (ngày hẹn + 2 ngày) → hoàn đơn đó. Đơn đã nhận đủ + chiến dịch đã chốt → giải ngân đúng đơn đó.",
+            "Creator vẫn xác nhận gửi hoặc sẵn sàng nhận tại chỗ kể cả chưa đạt mục tiêu. Trễ SLA gửi hàng → hoàn đơn đó. Đơn đã nhận đủ + chiến dịch đã chốt → giải ngân đúng đơn đó.",
           ],
           [
             "Keep-It-All",
             "Không đạt mục tiêu vẫn giữ tiền ủng hộ, giải ngân sau khi chốt. Không phải quỹ được cấp phép; người ủng hộ không nhận lợi nhuận.",
-            "Cùng khóa từng đơn: chốt chiến dịch và khách đã nhận đủ. Trễ gửi hoặc không nhận đủ → hoàn đơn đó, không phụ thuộc mục tiêu.",
+            "Cùng khóa từng đơn: chốt chiến dịch và khách đã nhận đủ. Trễ SLA gửi hàng hoặc không nhận đủ → hoàn đơn đó, không phụ thuộc mục tiêu.",
           ],
         ],
       },
-      note: "Nhận đủ = khách xác nhận trên Kho đồ, hoặc quét vé / nhận tại quán, hoặc sau khi vận chuyển báo phát thành công mà 7 ngày không khiếu nại. Vốn sản xuất không lấy từ tiền đang giữ — sàn không ứng vốn cho creator.",
+      note: "SLA gửi hàng (Delivery SLA) = ngày hẹn giao ghi trên chiến dịch + 2 ngày. Nhận đủ = xác nhận trên Kho đồ, quét vé / nhận tại quán, hoặc vận chuyển báo phát thành công mà 7 ngày không khiếu nại. Vốn sản xuất không lấy từ tiền đang giữ — sàn không ứng vốn.",
     },
     {
       kicker: "Luồng hàng Reward",
@@ -117,7 +117,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       steps: [
         { n: "01", t: "Thanh toán", d: "PayOS / VietQR. Tiền vào luồng cổng — chưa về creator." },
         { n: "02", t: "Đối soát & giữ", d: "Xác nhận đã nhận. Cấp biên lai. Giữ theo từng đơn, không giải ngân sớm." },
-        { n: "03", t: "Gửi hoặc sẵn sàng nhận", d: "Hạn = ngày hẹn + 2 ngày. Giao vận chuyển, hoặc mở nhận tại quán. Trễ → hoàn đơn đó." },
+        { n: "03", t: "Gửi hoặc sẵn sàng nhận", d: "Đúng SLA gửi hàng. Giao vận chuyển, hoặc mở nhận tại quán. Trễ SLA → hoàn đơn đó." },
         { n: "04", t: "Nhận đủ", d: "Xác nhận trên Kho đồ, quét vé tại quán, hoặc 7 ngày không khiếu nại sau khi phát thành công. Thiếu / hỏng → khiếu nại, đơn chưa giải ngân." },
         { n: "05", t: "Chốt + giải ngân đơn", d: "Chiến dịch đã kết thúc và đơn đó đã nhận đủ → giải ngân đơn đó. Đơn khác chưa nhận thì vẫn giữ." },
       ],
@@ -125,12 +125,12 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
     {
       kicker: "Kiến trúc",
       title: "Dòng tiền: giữ hộ, đối soát, rồi mới chi",
-      body: "Backer không chuyển thẳng cho creator. Cổng thanh toán báo về webhook; sổ đơn nằm trên Postgres; tiền nằm trên tài khoản ngân hàng trung gian đến khi đủ điều kiện chi hộ hoặc hoàn.",
+      body: "Backer không chuyển thẳng cho creator. Cổng thanh toán báo về webhook; sổ đơn nằm trên Postgres; tiền nằm trên tài khoản ngân hàng trung gian đến khi đủ điều kiện chi hộ hoặc hoàn. Phí sàn 8% trừ vào số giải ngân của creator (deducted from payout), không cộng thêm vào giá backer (không mark-up).",
       steps: [
         { n: "01", t: "Checkout", d: "Tạo pledge PENDING. PayOS / VietQR (Sepay) / VNPay. Nội dung chuyển khoản gắn mã đơn." },
         { n: "02", t: "Webhook đối soát", d: "Cổng báo đã nhận. settlePledgeAsPaid → SUCCESS. Cấp giấy TT-UH hoặc biên lai INV- vào Kho đồ." },
-        { n: "03", t: "Giữ hộ (escrow)", d: "Tiền trên STK trung gian. Không về creator. Phí sàn ~8% trừ phía creator, không cộng vào giá người mua." },
-        { n: "04", t: "Giao / nhận", d: "Reward: PROCESSING → gửi ĐVVC hoặc nhận tại quán. Cron hoàn nếu trễ hạn gửi + 2 ngày." },
+        { n: "03", t: "Giữ hộ (escrow)", d: "Tiền trên STK trung gian. Không về creator. Phí 8% trừ payout creator — backer trả đúng giá niêm yết." },
+        { n: "04", t: "Giao / nhận", d: "Reward: PROCESSING → gửi ĐVVC hoặc nhận tại quán. Cron hoàn nếu trễ SLA gửi hàng." },
         { n: "05", t: "Chi hộ hoặc hoàn", d: "Donation: chốt chiến dịch theo AoN/KiA. Reward: từng đơn khi đã chốt và đã nhận đủ." },
       ],
       table: {
@@ -153,7 +153,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           ],
           [
             "REFUNDED",
-            "AoN không quà miss goal; hoặc trễ gửi ĐVVC + 2 ngày; hoặc khiếu nại nhận hàng.",
+            "AoN không quà miss goal; hoặc trễ SLA gửi hàng; hoặc khiếu nại nhận hàng.",
             "Hoàn về backer. Không giải ngân creator.",
           ],
         ],
@@ -268,7 +268,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         },
         {
           lead: "Donation",
-          text: "Không góp vốn, không cổ phần, không chia lợi nhuận. Nghị định 93 chỉ khi đã được cấp phép từ thiện — nền tảng không tự xưng quỹ.",
+          text: "Tặng cho tài sản theo Bộ luật Dân sự: All-or-Nothing là tặng cho có điều kiện (đạt mục tiêu mới giữ); Keep-It-All là tặng cho không điều kiện sau khi chốt. Không góp vốn, không cổ phần, không chia lợi nhuận. Nghị định 93 chỉ khi đã được cấp phép từ thiện — nền tảng không tự xưng quỹ.",
         },
         {
           lead: "Dòng tiền hiện tại",
@@ -313,7 +313,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         },
         {
           title: "KYC — dòng tiền và mạo danh",
-          body: "Ủng hộ / pre-order lớn từ tài khoản không khớp chủ ngân hàng: rủi ro rửa tiền. Deepfake mở tài khoản: người bị mạo danh kiện sàn. Phải khớp người — giấy tờ — chủ tài khoản thanh toán.",
+          body: "Ủng hộ / pre-order lớn không khớp chủ ngân hàng: rủi ro rửa tiền. Deepfake mở tài khoản: người bị mạo danh kiện sàn. Giải pháp: đối soát sinh trắc học và khớp tên chủ tài khoản (matching name) với giấy tờ — chống tài khoản rác.",
         },
       ],
       note: "Cấm Reward kiểu “đóng 10 triệu, chia 5% doanh thu / lãi”. Chỉ cần chia lợi nhuận hoặc cam kết trả lãi là bị kéo sang huy động vốn.",
@@ -327,8 +327,12 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           body: "Công ty TNHH nền tảng thương mại điện tử / kết nối. Đăng ký sàn Bộ Công Thương. Công bố hai nhánh, cảnh báo pre-order, điều khoản hoàn/giữ. KYC khớp tài khoản; KYB creator.",
         },
         {
-          title: "Thiết kế giữ tiền",
-          body: "Reward giải ngân từng đơn khi chiến dịch đã chốt và đơn đã nhận đủ. Phí nền tảng ước tính 8% trừ phía creator, không cộng checkout. Giao dịch bất thường (ví dụ trên 20 triệu/lần) tạm khóa, soi nguồn tiền. Không ứng vốn sản xuất từ tiền đang giữ.",
+          title: "Doanh thu",
+          body: "Phí nền tảng 8% trên đơn Reward / chiến dịch thành công — trừ vào số giải ngân creator, không mark-up giá backer. Có thể thu phí xác minh KYB nâng cao cho creator. Donation không lấy phí ẩn trên khoản ủng hộ.",
+        },
+        {
+          title: "Giữ tiền",
+          body: "Reward giải ngân từng đơn khi chiến dịch đã chốt và đơn đã nhận đủ. Trễ SLA gửi hàng thì hoàn. Giao dịch bất thường (ví dụ trên 20 triệu/lần) tạm khóa, soi nguồn tiền. Không ứng vốn sản xuất.",
         },
         {
           title: "Không giả danh",
@@ -342,7 +346,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       body: "Cho đi thì có giấy. Nhận lại thì có hàng. Không đủ mục tiêu thì rõ hoàn hay giữ. Không đối đầu sàn lớn — mượn họ kể chuyện, đưa người về hồ sơ dự án.",
       bullets: [
         "Hai nhánh, hai chứng từ — không trộn ủng hộ với mua, không biến Reward thành chia lãi.",
-        "Reward: giữ theo đơn đến khi chiến dịch chốt và khách nhận đủ (xác nhận, quét vé, hoặc 7 ngày không khiếu nại).",
+        "Reward: giữ theo đơn đến khi chiến dịch chốt và khách nhận đủ. Trễ SLA gửi hàng thì hoàn.",
         "Không lấy trần P2P làm giấy thông hành. Vẫn phải thương mại điện tử, thuế, KYC/KYB, phòng chống rửa tiền.",
       ],
     },
