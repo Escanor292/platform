@@ -1,6 +1,7 @@
 "use client";
 
 import { Search, Filter } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 interface CampaignEmptyStateProps {
   hasFilters: boolean;
@@ -8,6 +9,7 @@ interface CampaignEmptyStateProps {
 }
 
 export function CampaignEmptyState({ hasFilters, onClearFilters }: CampaignEmptyStateProps) {
+  const { t } = useI18n();
   return (
     <div className="glass rounded-3xl py-16 px-6 text-center">
       <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -19,13 +21,11 @@ export function CampaignEmptyState({ hasFilters, onClearFilters }: CampaignEmpty
       </div>
 
       <h3 className="font-display text-xl font-bold text-dblue mb-2">
-        Chưa tìm thấy chiến dịch phù hợp
+        {t("catalog.emptyTitle")}
       </h3>
 
       <p className="text-gray-500 max-w-md mx-auto mb-6">
-        {hasFilters
-          ? "Hãy thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để khám phá thêm các chiến dịch tử tế."
-          : "Hãy thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để khám phá thêm các chiến dịch tử tế."}
+        {t("catalog.emptySub")}
       </p>
 
       {hasFilters && onClearFilters && (
@@ -33,7 +33,7 @@ export function CampaignEmptyState({ hasFilters, onClearFilters }: CampaignEmpty
           onClick={onClearFilters}
           className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl gradient-green text-white font-bold hover:shadow-lg transition-all"
         >
-          Xóa bộ lọc
+          {t("catalog.clearFilters")}
         </button>
       )}
     </div>

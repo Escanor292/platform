@@ -15,8 +15,10 @@ import { CampaignResultsHeader } from "@/components/campaigns/CampaignResultsHea
 import { CampaignPagination } from "@/components/campaigns/CampaignPagination";
 import { CampaignGridSkeleton } from "@/components/campaigns/CampaignCardSkeleton";
 import { SlidersHorizontal } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 export default function ProjectsPage() {
+  const { t } = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -137,13 +139,13 @@ export default function ProjectsPage() {
         <div className="relative z-10 mx-auto max-w-7xl overflow-visible">
           <div className="mb-10 text-center">
             <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/70 bg-white/55 px-5 py-2.5 text-xs font-bold text-pgreen shadow-lg backdrop-blur-md">
-              Khám phá cộng đồng
+              {t("catalog.exploreBadge")}
             </div>
             <h1 className="font-display mb-5 font-black text-4xl text-dblue md:text-5xl lg:text-6xl">
-              Khám phá <span className="bg-gradient-to-r from-pgreen via-fgreen to-tblue bg-clip-text text-transparent">chiến dịch</span>
+              {t("catalog.exploreTitle1")} <span className="bg-gradient-to-r from-pgreen via-fgreen to-tblue bg-clip-text text-transparent">{t("catalog.exploreTitle2")}</span>
             </h1>
             <p className="mx-auto max-w-3xl text-lg leading-relaxed text-gray-600">
-              Tìm kiếm và đồng hành cùng những chiến dịch tử tế đang tạo tác động tích cực.
+              {t("catalog.exploreSub")}
             </p>
           </div>
 
@@ -167,7 +169,7 @@ export default function ProjectsPage() {
                     className="flex h-12 items-center gap-2 whitespace-nowrap rounded-xl border-2 border-pgreen/20 px-6 font-bold text-dblue transition-colors hover:border-pgreen/40 hover:text-pgreen"
                   >
                     <SlidersHorizontal size={18} />
-                    <span className="hidden sm:inline">Bộ lọc</span>
+                    <span className="hidden sm:inline">{t("catalog.filters")}</span>
                   </button>
                 </div>
               </div>

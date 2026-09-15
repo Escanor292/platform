@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/i18n";
+
 interface CampaignResultsHeaderProps {
   total: number;
   page: number;
@@ -8,6 +10,7 @@ interface CampaignResultsHeaderProps {
 }
 
 export function CampaignResultsHeader({ total, page, limit, isLoading }: CampaignResultsHeaderProps) {
+  const { t } = useI18n();
   const start = (page - 1) * limit + 1;
   const end = Math.min(page * limit, total);
 
@@ -18,8 +21,7 @@ export function CampaignResultsHeader({ total, page, limit, isLoading }: Campaig
           <div className="h-6 w-48 bg-gray-200 rounded animate-pulse" />
         ) : (
           <p className="text-sm text-gray-600">
-            Hiển thị <span className="font-semibold text-dblue">{start}-{end}</span> trong tổng số{" "}
-            <span className="font-semibold text-dblue">{total}</span> chiến dịch
+            {t("catalog.showing", { start, end, total })}
           </p>
         )}
       </div>

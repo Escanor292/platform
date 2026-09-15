@@ -2,6 +2,7 @@
 
 import { Search, X } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useI18n } from "@/i18n";
 
 interface CampaignSearchBarProps {
   value: string;
@@ -10,6 +11,7 @@ interface CampaignSearchBarProps {
 }
 
 export function CampaignSearchBar({ value, onChange, onClear }: CampaignSearchBarProps) {
+  const { t } = useI18n();
   const [localValue, setLocalValue] = useState(value);
 
   useEffect(() => {
@@ -34,7 +36,7 @@ export function CampaignSearchBar({ value, onChange, onClear }: CampaignSearchBa
           type="text"
           value={localValue}
           onChange={(e) => setLocalValue(e.target.value)}
-          placeholder="Tìm theo mã chiến dịch (CF-...) hoặc tên chiến dịch"
+          placeholder={t("catalog.searchCode")}
           className="w-full h-16 pl-16 pr-16 text-lg rounded-2xl border-2 border-pgreen/20 focus:border-pgreen focus:ring-2 focus:ring-pgreen/20 focus:outline-none transition-all font-medium text-gray-900 placeholder:text-gray-400"
         />
         {localValue && (
