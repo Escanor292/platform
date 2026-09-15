@@ -30,20 +30,20 @@ export default function MobileBottomNav() {
     {
       id: "messages",
       label: t("mobile.messages"),
-      href: session ? "/chat" : "/auth/login",
+      href: "/chat",
       icon: MessageCircle,
       hasBadge: true,
     },
     {
       id: "notifications",
       label: t("mobile.notifications"),
-      href: session ? "/notifications" : "/auth/login",
+      href: "/notifications",
       icon: Bell,
     },
     {
       id: "profile",
       label: t("mobile.profile"),
-      href: userId ? `/profile/${userId}` : session ? "/dashboard" : "/auth/login",
+      href: userId ? `/profile/${userId}` : "/dashboard",
       icon: User,
     },
   ] as const;

@@ -55,12 +55,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
-      style={{
-        background: 'linear-gradient(180deg, #F8F7F2 0%, #f0f8f4 50%, #F8F7F2 100%)'
-      }}
-    >
+    <div className="page-canvas min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
       {/* Decorative background */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div

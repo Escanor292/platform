@@ -184,6 +184,11 @@
     background: linear-gradient(135deg, #091428 0%, #0f1f38 50%, #13284a 100%);
   }
 
+  .dark .gradient-green,
+  .dark .btn-green {
+    background: linear-gradient(135deg, #1B5E3B 0%, #2E8B57 100%);
+  }
+
   /* Buttons */
   .btn-primary {
     @apply px-6 py-3 bg-gradient-to-br from-blue-500 to-blue-700 text-white font-bold rounded-xl border border-blue-400/50 hover:brightness-110 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;

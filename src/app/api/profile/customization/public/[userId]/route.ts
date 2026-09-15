@@ -21,7 +21,7 @@ export async function GET(_request: Request, { params }: PublicCustomizationPara
     const publicConfig = getPublicProfileCustomization(config, userId);
 
     return NextResponse.json(
-      { config: { preset: publicConfig.preset, theme: publicConfig.theme } },
+      { config: { preset: publicConfig.preset, theme: publicConfig.theme, themeDark: publicConfig.themeDark } },
       { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' } },
     );
   } catch (error) {

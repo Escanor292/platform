@@ -12,12 +12,7 @@ export default function GioiThieuPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section
-        className="relative overflow-hidden px-6 py-20 md:py-28"
-        style={{
-          background: 'linear-gradient(180deg, #F8F7F2 0%, #f0f8f4 50%, #F8F7F2 100%)'
-        }}
-      >
+      <section className="page-canvas relative overflow-hidden px-6 py-20 md:py-28">
         {/* Background decorative elements */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute left-[5%] top-10 h-80 w-80 rounded-full bg-gradient-to-br from-pgreen/20 via-pgreen/8 to-transparent blur-3xl opacity-70" />

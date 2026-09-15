@@ -7,6 +7,7 @@ import {
   getProfileThemeStyle,
   isLayoutSectionVisible,
   PROFILE_TAB_LABELS,
+  resolveProfileTheme,
   type ProfileAudience,
   type ProfileCustomizationConfig,
   type ProfileTabSectionId,
@@ -85,10 +86,12 @@ export default function ProfileStudioPreview({
   config,
   mode,
   audience = 'guest',
+  appearance = 'light',
 }: {
   config: ProfileCustomizationConfig;
   mode: PreviewMode;
   audience?: ProfileAudience;
+  appearance?: 'light' | 'dark';
 }) {
   const tabs = useMemo(
     () =>
@@ -106,14 +109,15 @@ export default function ProfileStudioPreview({
   const title = currentTab ? PROFILE_TAB_LABELS[currentTab] : 'Nội dung';
   const samples = currentTab ? CARD_SAMPLES[currentTab] : CARD_SAMPLES.blog;
   const heroHeight = config.theme.heroStyle === 'minimal' ? '2.5rem' : config.theme.heroStyle === 'gradient' ? '5rem' : '7rem';
+  const activeTheme = resolveProfileTheme(config, appearance);
   const themeStyle = {
-    ...getProfileThemeStyle(config),
-    '--profile-shell-primary': config.theme.primary,
-    '--profile-shell-secondary': config.theme.secondary,
-    '--profile-shell-background': config.theme.background,
-    '--profile-shell-surface': config.theme.surface,
-    '--profile-shell-text': config.theme.text,
-    '--profile-shell-muted': config.theme.muted,
+    ...getProfileThemeStyle(config, appearance),
+    '--profile-shell-primary': activeTheme.primary,
+    '--profile-shell-secondary': activeTheme.secondary,
+    '--profile-shell-background': activeTheme.background,
+    '--profile-shell-surface': activeTheme.surface,
+    '--profile-shell-text': activeTheme.text,
+    '--profile-shell-muted': activeTheme.muted,
     transition: config.theme.reducedMotion ? 'none' : undefined,
   } as React.CSSProperties;
 

@@ -26,12 +26,7 @@ export default async function CampaignsPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Search Header */}
-      <section
-        className="pt-32 pb-16 px-6 relative overflow-hidden"
-        style={{
-          background: 'linear-gradient(180deg, #F8F7F2 0%, #f0f8f4 50%, #F8F7F2 100%)'
-        }}
-      >
+      <section className="page-canvas pt-32 pb-16 px-6 relative overflow-hidden">
         {/* Background elements */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
           <div

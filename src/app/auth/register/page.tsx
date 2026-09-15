@@ -91,7 +91,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream via-white to-fgreen/5 flex items-center justify-center px-4 py-24 relative overflow-hidden">
+    <div className="page-canvas min-h-screen flex items-center justify-center px-4 py-24 relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div
           className="absolute -top-20 -left-20 w-[40rem] h-[40rem] bg-pgreen/10 rounded-full blur-[120px] opacity-60"

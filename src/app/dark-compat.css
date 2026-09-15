@@ -88,8 +88,9 @@ html.dark .text-gray-300 {
   color: #c5d0de !important;
 }
 
-html.dark .text-pgreen {
-  color: #6BCB77 !important;
+html.dark .text-pgreen,
+html.dark .text-fgreen {
+  color: #2F8F55 !important;
 }
 
 html.dark .border-white,
@@ -146,8 +147,9 @@ html.dark .focus\:bg-slate-50:focus {
   background-color: rgba(255, 255, 255, 0.06) !important;
 }
 
-html.dark .hover\:text-dblue:hover {
-  color: #6BCB77 !important;
+html.dark .hover\:text-dblue:hover,
+html.dark .hover\:text-pgreen:hover {
+  color: #2F8F55 !important;
 }
 
 html.dark .gradient-green .bg-white,
@@ -167,6 +169,35 @@ html.dark .gradient-green .text-pgreen {
 }
 html.dark .hero-canvas {
   background: linear-gradient(180deg, #070f1c 0%, #0b1628 40%, #10203a 72%, #070f1c 100%);
+}
+
+.page-canvas {
+  background: linear-gradient(180deg, #F8F7F2 0%, #f0f8f4 50%, #F8F7F2 100%);
+}
+html.dark .page-canvas {
+  background: linear-gradient(180deg, #070f1c 0%, #0b1628 50%, #070f1c 100%) !important;
+}
+
+html.dark [style*="#F8F7F2"],
+html.dark [style*="#f0f8f4"],
+html.dark [style*="#fef9f0"] {
+  background: linear-gradient(180deg, #070f1c 0%, #0b1628 48%, #070f1c 100%) !important;
+}
+
+html.dark .gradient-green,
+html.dark .btn-green {
+  background: linear-gradient(135deg, #1B5E3B 0%, #2E8B57 100%) !important;
+}
+
+html.dark .from-cream {
+  --tw-gradient-from: #070f1c var(--tw-gradient-from-position) !important;
+}
+html.dark .via-white {
+  --tw-gradient-stops: var(--tw-gradient-from), #101b2e var(--tw-gradient-via-position), var(--tw-gradient-to) !important;
+}
+
+html.dark nav[aria-label="Mobile"] > div > :nth-child(n + 6) {
+  display: none !important;
 }
 
 .hero-glass {

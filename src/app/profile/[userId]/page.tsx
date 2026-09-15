@@ -17,7 +17,7 @@ import { getUserFollowStats } from "@/lib/user-follows";
 import { getActiveSelfNote } from "@/services/mongodb/chat.service";
 import { userHasPermission } from "@/lib/permissions";
 import { canExposePrivacyField } from "@/lib/profile-settings";
-import { getProfileThemeStyle, getPublicProfileCustomization, isLayoutSectionVisible, normalizeProfileCustomization, profileAudience, resolveProfileLayout } from "@/lib/profile-customization";
+import { getPublicProfileCustomization, isLayoutSectionVisible, normalizeProfileCustomization, profileAudience, resolveProfileLayout } from "@/lib/profile-customization";
 
 interface ProfilePageProps {
   params: Promise<{ userId: string }>;
@@ -236,7 +236,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
   const canCustomizeProfile = isOwnProfile && (await userHasPermission(session?.user as any, "profile.customize"));
 
   return (
-    <div className="min-h-screen px-4 py-6 md:px-6 md:py-24" style={{ ...getProfileThemeStyle(profileConfig), backgroundColor: "var(--profile-background)", fontFamily: "var(--profile-font)" }}>
+    <div className="min-h-screen px-4 py-6 md:px-6 md:py-24" style={{ backgroundColor: "var(--profile-background)", fontFamily: "var(--profile-font)" }}>
       <div className="mx-auto max-w-6xl space-y-6 md:space-y-8">
         <div className="overflow-hidden border border-[color:var(--profile-primary)]/10 bg-[var(--profile-surface)] shadow-sm" style={{ borderRadius: "var(--profile-shell-radius)" }}>
           <div className="relative h-36 md:h-64" style={{ background: "var(--profile-gradient)" }}>

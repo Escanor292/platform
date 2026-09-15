@@ -18,6 +18,8 @@ import {
   applyPresetLayout,
   DEFAULT_PROFILE_CUSTOMIZATION,
   PROFILE_PRESETS,
+  suggestDarkProfileTheme,
+  themeFitsDarkMode,
   type ProfileAudience,
   type ProfileCustomizationConfig,
   type ProfilePreset,
@@ -87,6 +89,8 @@ export default function ProfileCustomizationEditor() {
   const [versions, setVersions] = useState<Array<{ id: string; version: number; action: string; createdAt: string }>>([]);
   const [previewMode, setPreviewMode] = useState<PreviewMode>('desktop');
   const [audience, setAudience] = useState<ProfileAudience>('guest');
+  const [themePane, setThemePane] = useState<'light' | 'dark'>('light');
+  const [previewAppearance, setPreviewAppearance] = useState<'light' | 'dark'>('light');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -106,11 +110,24 @@ export default function ProfileCustomizationEditor() {
   }, []);
 
   const patch = (next: Partial<ProfileCustomizationConfig>) => setConfig((current) => ({ ...current, ...next }));
-  const patchTheme = (next: Partial<ProfileCustomizationConfig['theme']>) => setConfig((current) => ({ ...current, theme: { ...current.theme, ...next } }));
+  const patchTheme = (next: Partial<ProfileCustomizationConfig['theme']>) => setConfig((current) => {
+    const layoutKeys = ['radius', 'cardStyle', 'fontPreset', 'density', 'heroStyle', 'reducedMotion', 'gradientAngle'] as const;
+    const touchesLayout = layoutKeys.some((key) => key in next);
+    return {
+      ...current,
+      theme: { ...current.theme, ...next },
+      themeDark: current.themeDark && touchesLayout ? { ...current.themeDark, ...next } : current.themeDark,
+    };
+  });
+  const patchDarkTheme = (next: Partial<ProfileCustomizationConfig['theme']>) => setConfig((current) => ({
+    ...current,
+    themeDark: { ...(current.themeDark ?? suggestDarkProfileTheme(current.theme)), ...next },
+  }));
 
   const applyPreset = (preset: ProfilePreset) => {
     const next = applyPresetLayout(cloneConfig(config), preset);
     next.theme = { ...PRESET_THEME[preset] };
+    next.themeDark = undefined;
     setConfig(next);
     setMessage(`Đã áp dụng mẫu ${preset}`);
   };
@@ -185,17 +202,74 @@ export default function ProfileCustomizationEditor() {
           <ProfileTemplateLibrary config={config} onApply={(next) => { setConfig(next); setMessage('Đã áp dụng mẫu vào bản nháp.'); }} />
 
           <section className="rounded-[2.5rem] border border-pgreen/10 bg-white/90 p-6 shadow-soft backdrop-blur sm:p-8">
-            <div className="mb-4 flex items-center gap-2"><Palette className="text-pgreen" size={20} /><h2 className="font-display text-xl font-black text-dblue">Màu sắc và phong cách</h2></div>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2"><Palette className="text-pgreen" size={20} /><h2 className="font-display text-xl font-black text-dblue">Màu sắc và phong cách</h2></div>
+              <div className="flex gap-1 rounded-full bg-cream p-1" role="tablist" aria-label="Giao diện sáng hoặc tối">
+                {([['light', 'Sáng'], ['dark', 'Tối']] as const).map(([id, label]) => (
+                  <button
+                    key={id}
+                    type="button"
+                    role="tab"
+                    aria-selected={themePane === id}
+                    onClick={() => { setThemePane(id); setPreviewAppearance(id); }}
+                    className={`rounded-full px-3 py-1.5 text-xs font-black ${themePane === id ? 'bg-pgreen text-white shadow-sm' : 'text-gray-500 hover:text-dblue'}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {themePane === 'light' && !themeFitsDarkMode(config.theme) && (
+              <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                Giao diện sáng này sẽ bị chìm khi nền tảng bật tối. Hệ thống tự đề xuất bản tối đậm hơn — mở tab <strong>Tối</strong> để xem và chỉnh.
+                <button
+                  type="button"
+                  className="ml-2 font-bold text-pgreen underline"
+                  onClick={() => { setThemePane('dark'); setPreviewAppearance('dark'); }}
+                >
+                  Xem bản tối
+                </button>
+              </div>
+            )}
+            {themePane === 'dark' && (
+              <div className="mb-4 rounded-2xl border border-pgreen/20 bg-fgreen/10 px-4 py-3 text-sm text-dblue">
+                {config.themeDark
+                  ? 'Đang dùng giao diện tối do bạn chỉnh. Khi nền tảng bật tối, trang cá nhân dùng bộ màu này.'
+                  : 'Chưa lưu bản tối — nền tảng sẽ tự dùng bản đậm/tối hơn từ màu sáng. Chỉnh màu bên dưới để khóa bản tối riêng.'}
+                {config.themeDark && (
+                  <button
+                    type="button"
+                    className="ml-2 font-bold text-pgreen underline"
+                    onClick={() => setConfig((current) => ({ ...current, themeDark: undefined }))}
+                  >
+                    Xóa, dùng gợi ý tự động
+                  </button>
+                )}
+                {!config.themeDark && (
+                  <button
+                    type="button"
+                    className="ml-2 font-bold text-pgreen underline"
+                    onClick={() => setConfig((current) => ({ ...current, themeDark: suggestDarkProfileTheme(current.theme) }))}
+                  >
+                    Dùng gợi ý
+                  </button>
+                )}
+              </div>
+            )}
             <div className="grid gap-4 sm:grid-cols-2">
-              {([['primary', 'Màu chủ đạo'], ['secondary', 'Màu phụ'], ['background', 'Màu nền'], ['surface', 'Màu thẻ'], ['text', 'Màu chữ'], ['muted', 'Màu chữ phụ']] as const).map(([key, label]) => (
-                <label key={key} className="rounded-2xl border border-gray-200 p-3 text-sm font-semibold text-gray-700">
+              {([['primary', 'Màu chủ đạo'], ['secondary', 'Màu phụ'], ['background', 'Màu nền'], ['surface', 'Màu thẻ'], ['text', 'Màu chữ'], ['muted', 'Màu chữ phụ']] as const).map(([key, label]) => {
+                const palette = themePane === 'dark' ? (config.themeDark ?? suggestDarkProfileTheme(config.theme)) : config.theme;
+                const onPatch = themePane === 'dark' ? patchDarkTheme : patchTheme;
+                return (
+                <label key={`${themePane}-${key}`} className="rounded-2xl border border-gray-200 p-3 text-sm font-semibold text-gray-700">
                   <span>{label}</span>
                   <span className="mt-2 flex items-center gap-2">
-                    <input type="color" aria-label={`${label} picker`} value={config.theme[key]} onChange={(event) => patchTheme({ [key]: event.target.value } as Partial<ProfileCustomizationConfig['theme']>)} className="h-9 w-12 cursor-pointer rounded-lg border-0 bg-transparent" />
-                    <input type="text" aria-label={`${label} mã HEX`} value={config.theme[key]} onChange={(event) => patchTheme({ [key]: event.target.value } as Partial<ProfileCustomizationConfig['theme']>)} className="min-w-0 flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2 font-mono text-xs uppercase text-dblue outline-none transition focus:border-pgreen focus:ring-2 focus:ring-pgreen/10" maxLength={7} />
+                    <input type="color" aria-label={`${label} picker`} value={palette[key]} onChange={(event) => onPatch({ [key]: event.target.value } as Partial<ProfileCustomizationConfig['theme']>)} className="h-9 w-12 cursor-pointer rounded-lg border-0 bg-transparent" />
+                    <input type="text" aria-label={`${label} mã HEX`} value={palette[key]} onChange={(event) => onPatch({ [key]: event.target.value } as Partial<ProfileCustomizationConfig['theme']>)} className="min-w-0 flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2 font-mono text-xs uppercase text-dblue outline-none transition focus:border-pgreen focus:ring-2 focus:ring-pgreen/10" maxLength={7} />
                   </span>
                 </label>
-              ))}
+                );
+              })}
             </div>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <label className="text-sm font-bold text-gray-700">Kiểu card<select value={config.theme.cardStyle} onChange={(event) => patchTheme({ cardStyle: event.target.value as ProfileCustomizationConfig['theme']['cardStyle'] })} className="mt-2 w-full rounded-xl border border-gray-200 px-3 py-2 font-normal"><option value="elevated">Nổi</option><option value="bordered">Có viền</option><option value="flat">Phẳng</option></select></label>
@@ -205,7 +279,7 @@ export default function ProfileCustomizationEditor() {
               <label className="text-sm font-bold text-gray-700">Kiểu hero<select value={config.theme.heroStyle} onChange={(event) => patchTheme({ heroStyle: event.target.value as ProfileCustomizationConfig['theme']['heroStyle'] })} className="mt-2 w-full rounded-xl border border-gray-200 px-3 py-2 font-normal"><option value="cover">Cover</option><option value="gradient">Gradient</option><option value="minimal">Tối giản</option></select></label>
             </div>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              {config.theme.gradientColors.map((color, index) => <label key={`${color}-${index}`} className="rounded-2xl border border-gray-200 p-3 text-sm font-semibold text-gray-700"><span>Màu gradient {index + 1}</span><span className="mt-2 flex items-center gap-2"><input type="color" aria-label={`Gradient ${index + 1} picker`} value={color} onChange={(event) => { const colors = [...config.theme.gradientColors]; colors[index] = event.target.value; patchTheme({ gradientColors: colors }); }} className="h-9 w-12 cursor-pointer rounded-lg border-0 bg-transparent" /><input type="text" aria-label={`Gradient ${index + 1} mã HEX`} value={color} onChange={(event) => { const colors = [...config.theme.gradientColors]; colors[index] = event.target.value; patchTheme({ gradientColors: colors }); }} className="min-w-0 flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2 font-mono text-xs uppercase text-dblue outline-none transition focus:border-pgreen focus:ring-2 focus:ring-pgreen/10" maxLength={7} /></span></label>)}
+              {(themePane === 'dark' ? (config.themeDark ?? suggestDarkProfileTheme(config.theme)) : config.theme).gradientColors.map((color, index) => <label key={`${themePane}-${color}-${index}`} className="rounded-2xl border border-gray-200 p-3 text-sm font-semibold text-gray-700"><span>Màu gradient {index + 1}</span><span className="mt-2 flex items-center gap-2"><input type="color" aria-label={`Gradient ${index + 1} picker`} value={color} onChange={(event) => { const palette = themePane === 'dark' ? (config.themeDark ?? suggestDarkProfileTheme(config.theme)) : config.theme; const colors = [...palette.gradientColors]; colors[index] = event.target.value; (themePane === 'dark' ? patchDarkTheme : patchTheme)({ gradientColors: colors }); }} className="h-9 w-12 cursor-pointer rounded-lg border-0 bg-transparent" /><input type="text" aria-label={`Gradient ${index + 1} mã HEX`} value={color} onChange={(event) => { const palette = themePane === 'dark' ? (config.themeDark ?? suggestDarkProfileTheme(config.theme)) : config.theme; const colors = [...palette.gradientColors]; colors[index] = event.target.value; (themePane === 'dark' ? patchDarkTheme : patchTheme)({ gradientColors: colors }); }} className="min-w-0 flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2 font-mono text-xs uppercase text-dblue outline-none transition focus:border-pgreen focus:ring-2 focus:ring-pgreen/10" maxLength={7} /></span></label>)}
             </div>
             <label className="mt-4 block text-sm font-bold text-gray-700">Góc gradient: {config.theme.gradientAngle}°<input type="range" min="0" max="360" value={config.theme.gradientAngle} onChange={(event) => patchTheme({ gradientAngle: Number(event.target.value) })} className="mt-2 w-full accent-pgreen" /></label>
             <label className="mt-4 flex items-center justify-between rounded-2xl border border-gray-200 p-3 text-sm font-semibold text-gray-700">Giảm chuyển động cho accessibility<input type="checkbox" checked={config.theme.reducedMotion} onChange={(event) => patchTheme({ reducedMotion: event.target.checked })} className="h-4 w-4 accent-pgreen" /></label>
@@ -262,12 +336,16 @@ export default function ProfileCustomizationEditor() {
               <div className="flex flex-wrap items-center gap-2">
                 <AudienceSwitch value={audience} onChange={setAudience} />
                 <div className="flex gap-1 rounded-xl border border-gray-200 bg-cream/70 p-1">
+                  <button type="button" onClick={() => setPreviewAppearance('light')} className={`rounded-lg px-2 py-1 text-xs font-bold ${previewAppearance === 'light' ? 'bg-white text-dblue' : 'text-gray-500'}`}>Sáng</button>
+                  <button type="button" onClick={() => setPreviewAppearance('dark')} className={`rounded-lg px-2 py-1 text-xs font-bold ${previewAppearance === 'dark' ? 'bg-white text-dblue' : 'text-gray-500'}`}>Tối</button>
+                </div>
+                <div className="flex gap-1 rounded-xl border border-gray-200 bg-cream/70 p-1">
                   <button type="button" onClick={() => setPreviewMode('desktop')} className={`rounded-lg px-2 py-1 text-xs font-bold ${previewMode === 'desktop' ? 'bg-white text-dblue' : 'text-gray-500'}`}>Desktop</button>
                   <button type="button" onClick={() => setPreviewMode('mobile')} className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-bold ${previewMode === 'mobile' ? 'bg-white text-dblue' : 'text-gray-500'}`}><Smartphone size={12} /> Mobile</button>
                 </div>
               </div>
             </div>
-            <ProfileStudioPreview config={config} mode={previewMode} audience={audience} />
+            <ProfileStudioPreview config={config} mode={previewMode} audience={audience} appearance={previewAppearance} />
           </div>
           <div className="rounded-[2rem] border border-pgreen/10 bg-white/90 p-5 shadow-soft"><div className="mb-3 flex items-center justify-between"><h3 className="font-black text-dblue">Lịch sử phiên bản</h3><span className="text-xs text-gray-400">12 bản gần nhất</span></div>{versions.length === 0 ? <p className="text-sm text-gray-500">Chưa có snapshot. Hãy lưu bản nháp hoặc xuất bản.</p> : <div className="space-y-2">{versions.map((version) => <div key={version.id} className="flex items-center justify-between gap-3 rounded-xl bg-cream/70 px-3 py-2"><div><div className="text-sm font-bold text-gray-700">Bản {version.version} · {version.action}</div><div className="text-xs text-gray-400">{new Date(version.createdAt).toLocaleString('vi-VN')}</div></div><button onClick={() => save('restore_version', version.id)} disabled={saving} className="shrink-0 rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs font-bold text-gray-600 hover:border-pgreen/40 hover:text-pgreen">Khôi phục</button></div>)}</div>}</div>
         </aside>

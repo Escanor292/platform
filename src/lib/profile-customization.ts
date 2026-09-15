@@ -84,6 +84,7 @@ export const ProfileCtaSchema = z.object({
 export const ProfileCustomizationObjectSchema = z.object({
   preset: z.enum(PROFILE_PRESETS),
   theme: ProfileThemeSchema,
+  themeDark: ProfileThemeSchema.optional(),
   sections: z.array(ProfileSectionSchema).length(PROFILE_SECTION_IDS.length),
   ownerSections: z.array(ProfileSectionSchema).length(PROFILE_SECTION_IDS.length),
   featured: ProfileFeaturedSchema,
@@ -101,6 +102,9 @@ export const ProfileCustomizationSchema = z.preprocess((value) => {
       if (!item || typeof item !== "object") return item;
       return { ...(item as Record<string, unknown>), visible: true };
     });
+  }
+  if (raw.themeDark && !ProfileThemeSchema.safeParse(raw.themeDark).success) {
+    delete raw.themeDark;
   }
   return raw;
 }, ProfileCustomizationObjectSchema);
@@ -310,11 +314,90 @@ export function getPublicProfileCustomization(config: ProfileCustomizationConfig
     shop: { primary: "#ea580c", secondary: "#db2777", background: "#fff7ed", surface: "#ffffff", text: "#431407", muted: "#9a3412", gradientColors: ["#ea580c", "#db2777"] },
     community: { primary: "#7c3aed", secondary: "#2563eb", background: "#f5f3ff", surface: "#ffffff", text: "#2e1065", muted: "#6d28d9", gradientColors: ["#7c3aed", "#2563eb", "#0f766e"] },
   };
-  return applyPresetLayout({ ...config, theme: { ...config.theme, ...themeOverrides[variant] } }, variant);
+  const nextTheme = { ...config.theme, ...themeOverrides[variant] };
+  return applyPresetLayout({ ...config, theme: nextTheme, themeDark: undefined }, variant);
 }
 
-export function getProfileThemeStyle(config: ProfileCustomizationConfig) {
-  const { theme } = config;
+function hexToRgb(hex: string): [number, number, number] {
+  const raw = hex.replace("#", "");
+  return [parseInt(raw.slice(0, 2), 16) || 0, parseInt(raw.slice(2, 4), 16) || 0, parseInt(raw.slice(4, 6), 16) || 0];
+}
+
+function rgbToHex(r: number, g: number, b: number): string {
+  return `#${[r, g, b].map((n) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, "0")).join("")}`;
+}
+
+function mixHex(a: string, b: string, t: number): string {
+  const A = hexToRgb(a);
+  const B = hexToRgb(b);
+  return rgbToHex(A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t, A[2] + (B[2] - A[2]) * t);
+}
+
+function relativeLuminance(hex: string): number {
+  const [r, g, b] = hexToRgb(hex).map((value) => {
+    const s = value / 255;
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+export function contrastRatio(a: string, b: string): number {
+  const l1 = relativeLuminance(a);
+  const l2 = relativeLuminance(b);
+  const [hi, lo] = l1 > l2 ? [l1, l2] : [l2, l1];
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+export function themeFitsDarkMode(theme: ProfileTheme): boolean {
+  return (
+    relativeLuminance(theme.background) < 0.28 &&
+    contrastRatio(theme.text, theme.background) >= 4.5 &&
+    contrastRatio(theme.muted, theme.background) >= 3
+  );
+}
+
+function darkenToward(hex: string, targetLuma: number): string {
+  let color = hex;
+  for (let i = 0; i < 10 && relativeLuminance(color) > targetLuma; i += 1) {
+    color = mixHex(color, "#050b14", 0.28);
+  }
+  return color;
+}
+
+function ensureReadableOnDark(hex: string, bg: string, min = 4.5): string {
+  let color = relativeLuminance(hex) < 0.4 ? mixHex(hex, "#e8eef6", 0.72) : hex;
+  for (let i = 0; i < 8 && contrastRatio(color, bg) < min; i += 1) {
+    color = mixHex(color, "#f8fafc", 0.22);
+  }
+  return color;
+}
+
+export function suggestDarkProfileTheme(light: ProfileTheme): ProfileTheme {
+  const background = darkenToward(mixHex(light.background, "#0b1628", 0.82), 0.08);
+  const surface = mixHex(background, "#1a2b44", 0.42);
+  const primary = relativeLuminance(light.primary) > 0.55 ? mixHex(light.primary, "#1B5E3B", 0.5) : light.primary;
+  const secondary = relativeLuminance(light.secondary) > 0.55 ? mixHex(light.secondary, "#1e3a5f", 0.42) : light.secondary;
+  return {
+    ...light,
+    background,
+    surface,
+    primary,
+    secondary,
+    text: ensureReadableOnDark(light.text, background),
+    muted: ensureReadableOnDark(light.muted, background, 3),
+    gradientColors: light.gradientColors.map((color) => mixHex(color, "#0b1628", 0.38)),
+  };
+}
+
+export function resolveProfileTheme(config: ProfileCustomizationConfig, mode: "light" | "dark" = "light"): ProfileTheme {
+  if (mode !== "dark") return config.theme;
+  if (config.themeDark) return config.themeDark;
+  if (themeFitsDarkMode(config.theme)) return config.theme;
+  return suggestDarkProfileTheme(config.theme);
+}
+
+export function getProfileThemeStyle(config: ProfileCustomizationConfig, mode: "light" | "dark" = "light") {
+  const theme = resolveProfileTheme(config, mode);
   const rgb = theme.primary.slice(1).match(/.{2}/g)?.map((value) => parseInt(value, 16)) ?? [15, 118, 110];
   const luminance = (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / 255;
   const contrastText = luminance > 0.62 ? "#091428" : "#ffffff";

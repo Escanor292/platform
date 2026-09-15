@@ -11,6 +11,9 @@ import {
   normalizeProfileCustomization,
   parseProfileCustomization,
   PROFILE_SECTION_IDS,
+  suggestDarkProfileTheme,
+  themeFitsDarkMode,
+  resolveProfileTheme,
   toShareableTemplate,
 } from '@/lib/profile-customization';
 
@@ -184,5 +187,35 @@ describe('profile customization contract', () => {
     const next = applyShareableTemplate(current, template);
     expect(next.theme.primary).toBe('#123456');
     expect(next.ownerSections).toEqual(current.ownerSections);
+  });
+
+  it('flags a light cream profile as unfit for platform dark mode', () => {
+    expect(themeFitsDarkMode(DEFAULT_PROFILE_CUSTOMIZATION.theme)).toBe(false);
+  });
+
+  it('suggests a darker sibling that keeps hue and readable type', () => {
+    const dark = suggestDarkProfileTheme(DEFAULT_PROFILE_CUSTOMIZATION.theme);
+    expect(themeFitsDarkMode(dark)).toBe(true);
+    expect(dark.primary.startsWith('#')).toBe(true);
+    expect(dark.background.toLowerCase()).not.toBe(DEFAULT_PROFILE_CUSTOMIZATION.theme.background.toLowerCase());
+  });
+
+  it('uses saved themeDark when the platform is dark, otherwise auto-suggests', () => {
+    const customDark = suggestDarkProfileTheme({
+      ...DEFAULT_PROFILE_CUSTOMIZATION.theme,
+      primary: '#7c3aed',
+    });
+    const withSaved = { ...DEFAULT_PROFILE_CUSTOMIZATION, themeDark: customDark };
+    expect(resolveProfileTheme(withSaved, 'light').primary).toBe(DEFAULT_PROFILE_CUSTOMIZATION.theme.primary);
+    expect(resolveProfileTheme(withSaved, 'dark').primary).toBe(customDark.primary);
+    expect(resolveProfileTheme(DEFAULT_PROFILE_CUSTOMIZATION, 'dark').background).not.toBe(
+      DEFAULT_PROFILE_CUSTOMIZATION.theme.background,
+    );
+  });
+
+  it('keeps a valid dark theme as-is when already compatible', () => {
+    const dark = suggestDarkProfileTheme(DEFAULT_PROFILE_CUSTOMIZATION.theme);
+    const config = { ...DEFAULT_PROFILE_CUSTOMIZATION, theme: dark };
+    expect(resolveProfileTheme(config, 'dark')).toEqual(dark);
   });
 });
