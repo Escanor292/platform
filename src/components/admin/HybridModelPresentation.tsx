@@ -32,7 +32,7 @@ export default function HybridModelPresentation() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+      if (event.key === "ArrowRight" || event.key === "PageDown") {
         event.preventDefault();
         go(index + 1);
       }
@@ -46,6 +46,11 @@ export default function HybridModelPresentation() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [go, index]);
+
+  useEffect(() => {
+    const scroller = document.getElementById("thuyet-trinh-scroll");
+    scroller?.scrollTo({ top: 0 });
+  }, [index]);
 
   return (
     <div className="fixed inset-0 z-[80] flex flex-col bg-[#F8F7F2] text-slate-900">
@@ -67,8 +72,8 @@ export default function HybridModelPresentation() {
         </div>
       </header>
 
-      <main className="relative flex-1 overflow-y-auto">
-        <div className="mx-auto flex min-h-full max-w-6xl items-center px-4 py-8 md:px-8">
+      <main id="thuyet-trinh-scroll" className="relative flex-1 overflow-y-auto">
+        <div className="mx-auto max-w-6xl px-4 py-8 pb-16 md:px-8">
           <Slide index={index} />
         </div>
       </main>
@@ -112,25 +117,32 @@ function Slide({ index }: { index: number }) {
   switch (index) {
     case 0:
       return (
-        <section className="w-full text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-1.5 text-[11px] font-black uppercase tracking-widest text-emerald-700">
-            <Sparkles size={14} /> Bảo vệ đồ án · Tử Tế Fund
+        <section className="space-y-8">
+          <div className="text-center">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-1.5 text-[11px] font-black uppercase tracking-widest text-emerald-700">
+              <Sparkles size={14} /> Bảo vệ đồ án · Tử Tế Fund
+            </div>
+            <h1 className="font-display text-4xl font-black leading-tight text-[#1B365D] md:text-6xl">
+              Nền tảng gây quỹ lai
+              <span className="mt-2 block bg-gradient-to-r from-emerald-600 via-emerald-500 to-sky-500 bg-clip-text text-transparent">
+                Cho đi và Nhận lại
+              </span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-3xl text-lg text-gray-600">
+              Nơi người trẻ và người trưởng thành bắt đầu sự nghiệp, xây cộng đồng, thương hiệu cá nhân,
+              và lưu trữ hành trình làm dự án một cách chuyên nghiệp.
+            </p>
           </div>
-          <h1 className="font-display text-4xl font-black leading-tight text-[#1B365D] md:text-6xl">
-            Nền tảng gây quỹ lai
-            <span className="mt-2 block bg-gradient-to-r from-emerald-600 via-emerald-500 to-sky-500 bg-clip-text text-transparent">
-              Cho đi và Nhận lại
-            </span>
-          </h1>
-          <p className="mx-auto mt-6 max-w-3xl text-lg text-gray-600">
-            Nơi người trẻ và người trưởng thành bắt đầu sự nghiệp, xây cộng đồng, thương hiệu cá nhân,
-            và lưu trữ hành trình làm dự án một cách chuyên nghiệp.
-          </p>
+          <Figure
+            src="/presentations/donation-reward.jpg"
+            alt="Hai nhánh: ủng hộ nhận giấy chứng nhận, đặt hàng nhận sản phẩm"
+            caption="Hai đầu ra của cùng một nền tảng: giấy chứng nhận khi cho đi, hàng hóa khi nhận lại."
+          />
         </section>
       );
     case 1:
       return (
-        <section className="w-full">
+        <section>
           <Eyebrow icon={Target} text="Tầm nhìn" />
           <h2 className="font-display mb-6 text-3xl font-black text-[#1B365D] md:text-5xl">
             Không thay Facebook, không đánh Shopee
@@ -156,9 +168,9 @@ function Slide({ index }: { index: number }) {
       );
     case 2:
       return (
-        <section className="w-full">
+        <section className="space-y-8">
           <Eyebrow icon={Handshake} text="Mô hình lai" />
-          <h2 className="font-display mb-6 text-3xl font-black text-[#1B365D] md:text-5xl">Hai nhánh trên một nền tảng</h2>
+          <h2 className="font-display text-3xl font-black text-[#1B365D] md:text-5xl">Hai nhánh trên một nền tảng</h2>
           <div className="grid gap-6 md:grid-cols-2">
             <div className="rounded-[2rem] border border-rose-100 bg-rose-50 p-8">
               <HeartHandshake className="mb-4 text-rose-600" />
@@ -173,15 +185,27 @@ function Slide({ index }: { index: number }) {
               <h3 className="text-2xl font-black">Nhận quà tri ân (Reward)</h3>
               <p className="mt-3 text-gray-600">
                 Sản phẩm mẫu, hiện vật lưu niệm, hàng có sẵn hoặc pre-order. Về bản chất giao dịch,
-                giống bán hàng trên Shopee / Lazada: có hàng, có giao, có hoàn khi không giao.
+                giống bán hàng trên Shopee / Lazada: có hàng, có giao, có biên lai, có hoàn khi không giao.
               </p>
             </div>
+          </div>
+          <div className="grid items-start gap-6 md:grid-cols-2">
+            <Figure
+              src="/presentations/chung-nhan-tt-uh.jpg"
+              alt="Mẫu giấy chứng nhận ủng hộ TT-UH"
+              caption="Donation: giấy chứng nhận ủng hộ (mẫu minh họa TT-UH)."
+            />
+            <Figure
+              src="/presentations/bien-lai-thanh-toan.jpg"
+              alt="Mẫu biên lai thanh toán Reward"
+              caption="Reward: biên lai thanh toán nội bộ — cùng logic chứng từ bán hàng, không pretends hóa đơn GTGT."
+            />
           </div>
         </section>
       );
     case 3:
       return (
-        <section className="w-full">
+        <section>
           <Eyebrow icon={Package} text="Giữ tiền và hoàn tiền" />
           <h2 className="font-display mb-4 text-3xl font-black text-[#1B365D] md:text-4xl">
             All-or-Nothing và Keep-It-All
@@ -226,9 +250,9 @@ function Slide({ index }: { index: number }) {
       );
     case 4:
       return (
-        <section className="w-full">
+        <section className="space-y-8">
           <Eyebrow icon={Store} text="Luồng hàng Reward" />
-          <h2 className="font-display mb-6 text-3xl font-black text-[#1B365D] md:text-4xl">
+          <h2 className="font-display text-3xl font-black text-[#1B365D] md:text-4xl">
             Giữ tiền trung gian, giao đúng hẹn
           </h2>
           <ol className="grid gap-4 md:grid-cols-4">
@@ -245,13 +269,18 @@ function Slide({ index }: { index: number }) {
               </li>
             ))}
           </ol>
+          <Figure
+            src="/presentations/bien-lai-thanh-toan.jpg"
+            alt="Biên lai sau khi thanh toán Reward thành công"
+            caption="Sau khi thanh toán thành công, backer có biên lai để đối chiếu — giống trải nghiệm mua trên sàn."
+          />
         </section>
       );
     case 5:
       return (
-        <section className="w-full">
+        <section className="space-y-8">
           <Eyebrow icon={FileBadge} text="Chứng từ & giao dịch" />
-          <h2 className="font-display mb-6 text-3xl font-black text-[#1B365D] md:text-4xl">
+          <h2 className="font-display text-3xl font-black text-[#1B365D] md:text-4xl">
             Donation có giấy, Reward có kho
           </h2>
           <div className="grid gap-4 md:grid-cols-3">
@@ -266,13 +295,25 @@ function Slide({ index }: { index: number }) {
               Người dùng xem các giao dịch: trạng thái thanh toán, hoàn tiền, giải ngân.
             </Card>
           </div>
+          <div className="grid items-start gap-6 md:grid-cols-2">
+            <Figure
+              src="/presentations/chung-nhan-tt-uh.jpg"
+              alt="Giấy chứng nhận ủng hộ TT-UH"
+              caption="Mẫu chứng nhận điện tử: mã TT-UH, số tiền, chiến dịch, mộc và QR xác thực."
+            />
+            <Figure
+              src="/presentations/kho-do.jpg"
+              alt="Giao diện Kho đồ của backer"
+              caption="Kho đồ gom chứng nhận, vé/quà số và trạng thái đơn — sổ giao dịch của người dùng."
+            />
+          </div>
         </section>
       );
     case 6:
       return (
-        <section className="w-full">
+        <section className="space-y-6">
           <Eyebrow icon={Scale} text="Pháp lý" />
-          <h2 className="font-display mb-6 text-3xl font-black text-[#1B365D] md:text-4xl">
+          <h2 className="font-display text-3xl font-black text-[#1B365D] md:text-4xl">
             Nêu mô hình trước khi đăng ký công ty
           </h2>
           <div className="space-y-4 text-gray-700">
@@ -290,15 +331,28 @@ function Slide({ index }: { index: number }) {
               tiền — không sàn chứng khoán, không huy động vốn đại chúng, không sàn token.
             </p>
             <p className="rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">
-              NĐ 93 chỉ áp khi làm từ thiện đúng phạm vi được cấp phép. Trang này mô tả mô hình sản
-              phẩm, không phải tư vấn luật.
+              NĐ 93 chỉ áp khi làm từ thiện đúng phạm vi được cấp phép. Chứng nhận / biên lai sàn là
+              chứng từ đối chiếu, không phải hóa đơn GTGT. Trang này mô tả mô hình sản phẩm, không phải
+              tư vấn luật.
             </p>
+          </div>
+          <div className="grid items-start gap-6 md:grid-cols-2">
+            <Figure
+              src="/presentations/chung-nhan-tt-uh.jpg"
+              alt="Chứng nhận donation"
+              caption="Pháp lý Donation: giấy chứng nhận ủng hộ."
+            />
+            <Figure
+              src="/presentations/bien-lai-thanh-toan.jpg"
+              alt="Biên lai Reward"
+              caption="Pháp lý Reward: biên lai / chứng từ bán hàng trung gian."
+            />
           </div>
         </section>
       );
     case 7:
       return (
-        <section className="w-full">
+        <section>
           <Eyebrow icon={Building2} text="Thị trường" />
           <h2 className="font-display mb-6 text-3xl font-black text-[#1B365D] md:text-4xl">
             Quốc tế đã có, Việt Nam còn khoảng trống
@@ -324,7 +378,7 @@ function Slide({ index }: { index: number }) {
       );
     case 8:
       return (
-        <section className="w-full">
+        <section>
           <Eyebrow icon={Users} text="Khách hàng nhắm đến" />
           <h2 className="font-display mb-6 text-3xl font-black text-[#1B365D] md:text-4xl">Ai dùng, vì sao dùng</h2>
           <ul className="space-y-4 text-lg text-gray-700">
@@ -349,36 +403,68 @@ function Slide({ index }: { index: number }) {
       );
     case 9:
       return (
-        <section className="w-full">
-          <Eyebrow icon={Store} text="Case" />
-          <h2 className="font-display mb-6 text-3xl font-black text-[#1B365D] md:text-4xl">
-            Khai trương quán gà rán nhượng quyền
-          </h2>
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-[2rem] bg-white p-8 shadow-sm">
-              <h3 className="font-black text-rose-700">Chạy truyền thống</h3>
-              <ul className="mt-4 space-y-2 text-sm text-gray-600">
-                <li>Chỉ khách quanh khu vực, người đi ngang bỏ lỡ.</li>
-                <li>Người bận ngày đó không quay lại vì không có “vé” đã mua.</li>
-                <li>Phải chạy nhiều ngày → hao nguồn lực.</li>
-                <li>Không biết đủ / dư / thiếu hàng ngày đầu.</li>
-              </ul>
-            </div>
-            <div className="rounded-[2rem] bg-emerald-50 p-8">
-              <h3 className="font-black text-emerald-800">Chạy trên Tử Tế Fund</h3>
-              <ul className="mt-4 space-y-2 text-sm text-gray-700">
-                <li>Biết số người đặt trước → chuẩn bị đúng lượng.</li>
-                <li>Người bận khai trương vẫn còn ưu đãi đã mua → ghé ngày khác.</li>
-                <li>Tiếp cận khách xa hơn bán kính truyền miệng.</li>
-                <li>Tối ưu chi phí, thời gian, công sức; giữ khách lâu dài.</li>
-              </ul>
+        <section className="space-y-10">
+          <div>
+            <Eyebrow icon={Store} text="Case" />
+            <h2 className="font-display text-3xl font-black text-[#1B365D] md:text-4xl">
+              Khai trương quán gà rán nhượng quyền
+            </h2>
+            <p className="mt-4 max-w-3xl text-gray-600">
+              Nếu chỉ chạy khai trương kiểu truyền thống, bạn chỉ gặp khách quanh khu, người đi ngang
+              bỏ lỡ, người bận ngày đó không quay lại. Chạy nhiều ngày thì dư hoặc thiếu hàng.
+              Trên nền tảng: biết số đặt trước, người đã mua vé vẫn ghé ngày khác.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="mb-3 text-xl font-black text-rose-700">1. Chạy truyền thống — bán kính nhỏ</h3>
+            <Figure
+              src="/presentations/ga-ran-truyen-thong.jpg"
+              alt="Khai trương quán gà rán chỉ tiếp cận khách quanh khu"
+              caption="Khách đứng ngay cửa tiệm. Xe máy, ô tô đi ngang bỏ lỡ. Người bận hôm đó coi như mất."
+            />
+            <ul className="mt-4 space-y-2 text-sm text-gray-600">
+              <li>Chỉ khách quanh khu vực.</li>
+              <li>Không biết đủ / dư / thiếu hàng ngày đầu.</li>
+              <li>Phải chạy nhiều ngày → hao nguồn lực chuẩn bị.</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="mb-3 text-xl font-black text-emerald-800">2. Chạy trên Tử Tế Fund — đặt trước, ghé sau</h3>
+            <Figure
+              src="/presentations/ga-ran-nen-tang.jpg"
+              alt="Khách đặt trước trên nền tảng trải khắp thành phố"
+              caption="Bản đồ khách pre-order trải nhiều quận. Vé trên điện thoại vẫn có giá trị những ngày sau khai trương."
+            />
+            <Figure
+              src="/presentations/ve-uu-dai.jpg"
+              alt="Vé ưu đãi khai trương trên điện thoại"
+              caption="Người bận ngày khai trương vẫn giữ vé đã mua — họ sẽ ghé ngày khác để nhận ưu đãi."
+            />
+          </div>
+
+          <div>
+            <h3 className="mb-3 text-xl font-black text-[#1B365D]">3. Quy mô tiếp cận</h3>
+            <Figure
+              src="/presentations/ban-do-quy-mo.jpg"
+              alt="So sánh bán kính truyền thống với phủ điểm đặt trước trên toàn thành phố"
+              caption="Trái: vòng 1 km quanh quán. Phải: điểm khách đã trả tiền trước — tiếp cận xa hơn, lượng hàng tính được."
+            />
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <Card title="Tối ưu chi phí">
+                Biết số combo đặt trước → nhập đúng nguyên liệu ngày đầu, không dư khay, không cháy hàng.
+              </Card>
+              <Card title="Khách lâu dài">
+                Vé đã mua là lý do quay lại. Không phải chỉ một buổi khai trương rồi quên.
+              </Card>
             </div>
           </div>
         </section>
       );
     case 10:
       return (
-        <section className="w-full">
+        <section>
           <Eyebrow icon={Building2} text="Công ty tương lai" />
           <h2 className="font-display mb-6 text-3xl font-black text-[#1B365D] md:text-4xl">
             Đăng ký gì, không đăng ký gì
@@ -397,15 +483,20 @@ function Slide({ index }: { index: number }) {
       );
     default:
       return (
-        <section className="w-full text-center">
+        <section className="space-y-8 text-center">
           <h2 className="font-display text-4xl font-black text-[#1B365D] md:text-5xl">
             Một nền tảng để bắt đầu tử tế
           </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
+          <p className="mx-auto max-w-2xl text-lg text-gray-600">
             Cho đi thì có giấy. Nhận lại thì có hàng. Không đủ goal thì rõ hoàn hay giữ. Không đối đầu
             sàn lớn — mượn họ để kể chuyện, rồi đưa người về hồ sơ dự án của mình.
           </p>
-          <div className="mt-10 flex flex-wrap justify-center gap-3">
+          <Figure
+            src="/presentations/donation-reward.jpg"
+            alt="Tóm tắt hai nhánh Donation và Reward"
+            caption="Hai nhánh, một hồ sơ dự án."
+          />
+          <div className="flex flex-wrap justify-center gap-3">
             <Link
               href="/dashboard/admin"
               className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-5 py-3 font-bold"
@@ -422,6 +513,16 @@ function Slide({ index }: { index: number }) {
         </section>
       );
   }
+}
+
+function Figure({ src, alt, caption }: { src: string; alt: string; caption: string }) {
+  return (
+    <figure className="overflow-hidden rounded-[1.75rem] border border-gray-100 bg-white shadow-sm">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt={alt} className="h-auto w-full object-cover" />
+      <figcaption className="px-5 py-3 text-sm text-gray-500">{caption}</figcaption>
+    </figure>
+  );
 }
 
 function Eyebrow({ icon: Icon, text }: { icon: typeof Target; text: string }) {
