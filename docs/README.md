@@ -2,6 +2,9 @@
 
 ## Bắt đầu từ đây
 
+Agent / AI đọc [`../AGENTS.md`](../AGENTS.md) trước: cách clone, `npm ci` (không commit `node_modules`), env, và quy tắc sửa code.
+
+
 Tài liệu yêu cầu chi tiết nằm tại [`SRS-TU-TE-FUND.md`](./SRS-TU-TE-FUND.md). Đây là baseline SRS được đối chiếu với source hiện tại, gồm actor, yêu cầu chức năng/phi chức năng, use case, API surface, dữ liệu, state machine, acceptance checklist và backlog khoảng trống.
 
 Để tránh nhiều Markdown trùng nhau, tài liệu hệ thống hiện hành được tổ chức thành một bộ nhỏ dưới [`system-map/`](./system-map/):
