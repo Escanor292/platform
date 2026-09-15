@@ -61,9 +61,14 @@ describe("theme + locale chrome", () => {
     expect(translate("en", "nav.home")).toBe("Home");
     expect(translate("vi", "brand.name")).toBe("TửTế Fund");
     expect(translate("en", "brand.name")).toBe("TuTe Fund");
-    expect(translate("en", "home.headline1")).toBe("Kindness first");
-    expect(translate("vi", "home.backers", { n: 12 })).toBe("12 người ủng hộ");
-    expect(translate("en", "home.backers", { n: 12 })).toBe("12 supporters");
+    expect(translate("en", "catalog.exploreTitle2")).toBe("campaigns");
+    expect(translate("en", "cat.tech")).toBe("Technology");
+    expect(translate("vi", "catalog.showing", { start: 1, end: 10, total: 10 })).toBe(
+      "Hiển thị 1-10 trong tổng số 10 chiến dịch",
+    );
+    expect(translate("en", "catalog.showing", { start: 1, end: 10, total: 10 })).toBe(
+      "Showing 1-10 of 10 campaigns",
+    );
 
     await user.click(screen.getByRole("button", { name: /switch to english/i }));
     await waitFor(() => {

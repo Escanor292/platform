@@ -3,19 +3,20 @@
 import { ArrowUpDown, ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useRef, useState } from "react";
+import { useI18n, type MessageKey } from "@/i18n";
 
-const SORTS = [
-  { value: "latest", label: "Mới nhất" },
-  { value: "popular", label: "Phổ biến" },
-  { value: "most_viewed", label: "Nhiều lượt xem" },
-] as const;
+const SORTS: { value: string; key: MessageKey }[] = [
+  { value: "latest", key: "sort.newest" },
+  { value: "popular", key: "sort.rated" },
+  { value: "most_viewed", key: "sort.viewed" },
+];
 
-const TYPES = [
-  { value: "", label: "Tất cả" },
-  { value: "PLATFORM", label: "Tin tức" },
-  { value: "CAMPAIGN_UPDATE", label: "Cập nhật chiến dịch" },
-  { value: "STORY", label: "Câu chuyện" },
-] as const;
+const TYPES: { value: string; key: MessageKey }[] = [
+  { value: "", key: "catalog.all" },
+  { value: "PLATFORM", key: "blog.typeNews" },
+  { value: "CAMPAIGN_UPDATE", key: "blog.typeUpdate" },
+  { value: "STORY", key: "blog.typeStory" },
+];
 
 function blogHref(search: string, type?: string, sort?: string) {
   const query = new URLSearchParams();
@@ -68,6 +69,7 @@ export function BlogSearchForm({
   type?: string;
   sort?: string;
 }) {
+  const { t } = useI18n();
   const router = useRouter();
   const [value, setValue] = useState(defaultSearch);
   const [openSort, setOpenSort] = useState(false);
@@ -96,8 +98,9 @@ export function BlogSearchForm({
     go({ search: value });
   };
 
-  const sortLabel = SORTS.find((item) => item.value === sort)?.label || "Mới nhất";
-  const typeLabel = TYPES.find((item) => item.value === (type || ""))?.label || "Bộ lọc";
+  const sortLabel = t(SORTS.find((item) => item.value === sort)?.key || "sort.newest");
+  const typeItem = TYPES.find((item) => item.value === (type || ""));
+  const typeLabel = typeItem ? t(typeItem.key) : t("catalog.filters");
   const hasFilters = Boolean(value.trim() || type || (sort && sort !== "latest"));
 
   return (
@@ -109,7 +112,7 @@ export function BlogSearchForm({
             <input
               value={value}
               onChange={(event) => setValue(event.target.value)}
-              placeholder="Tìm bài viết theo tiêu đề hoặc mô tả..."
+              placeholder={t("blog.searchPlaceholder")}
               className="h-16 w-full rounded-2xl border-2 border-pgreen/20 pl-16 pr-14 text-lg font-medium text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:border-pgreen focus:ring-2 focus:ring-pgreen/20"
             />
             {value && (
@@ -120,7 +123,7 @@ export function BlogSearchForm({
                   go({ search: "" });
                 }}
                 className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-pgreen"
-                aria-label="Xóa tìm kiếm"
+                aria-label={t("catalog.clearFilters")}
               >
                 <X size={22} />
               </button>
@@ -148,12 +151,12 @@ export function BlogSearchForm({
                     item.value === (sort || "latest") ? "bg-pgreen text-white" : "text-dblue hover:bg-pgreen/10 hover:text-pgreen"
                   }`}
                 >
-                  {item.label}
+                  {t(item.key)}
                 </button>
               ))}
             </Dropdown>
             <Dropdown
-              label={type ? typeLabel : "Bộ lọc"}
+              label={type ? typeLabel : t("catalog.filters")}
               icon={<SlidersHorizontal size={18} />}
               open={openType}
               onToggle={() => {
@@ -173,7 +176,7 @@ export function BlogSearchForm({
                     (type || "") === item.value ? "bg-pgreen text-white" : "text-dblue hover:bg-pgreen/10 hover:text-pgreen"
                   }`}
                 >
-                  {item.label}
+                  {t(item.key)}
                 </button>
               ))}
             </Dropdown>
@@ -185,7 +188,7 @@ export function BlogSearchForm({
             {value.trim() && (
               <span className="inline-flex items-center gap-1 rounded-full bg-pgreen/10 px-3 py-1 text-xs font-bold text-pgreen">
                 “{value.trim()}”
-                <button type="button" onClick={() => { setValue(""); go({ search: "" }); }} aria-label="Xóa từ khóa">
+                <button type="button" onClick={() => { setValue(""); go({ search: "" }); }} aria-label={t("catalog.clearFilters")}>
                   <X size={12} />
                 </button>
               </span>
@@ -193,7 +196,7 @@ export function BlogSearchForm({
             {type && (
               <span className="inline-flex items-center gap-1 rounded-full bg-pgreen/10 px-3 py-1 text-xs font-bold text-pgreen">
                 {typeLabel}
-                <button type="button" onClick={() => go({ type: "" })} aria-label="Xóa loại">
+                <button type="button" onClick={() => go({ type: "" })} aria-label={t("catalog.clearFilters")}>
                   <X size={12} />
                 </button>
               </span>
@@ -201,13 +204,13 @@ export function BlogSearchForm({
             {sort && sort !== "latest" && (
               <span className="inline-flex items-center gap-1 rounded-full bg-pgreen/10 px-3 py-1 text-xs font-bold text-pgreen">
                 {sortLabel}
-                <button type="button" onClick={() => go({ sort: "latest" })} aria-label="Xóa sắp xếp">
+                <button type="button" onClick={() => go({ sort: "latest" })} aria-label={t("catalog.clearFilters")}>
                   <X size={12} />
                 </button>
               </span>
             )}
             <button type="button" onClick={() => { setValue(""); router.push("/blog"); }} className="text-xs font-bold text-gray-500 hover:text-pgreen">
-              Xóa tất cả
+              {t("blog.clearAll")}
             </button>
           </div>
         )}

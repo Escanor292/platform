@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { buildSocialMetadata } from '@/lib/seo';
 import { BlogSearchForm } from '@/components/blog/BlogSearchForm';
+import T from '@/i18n/T';
 
 export const metadata = buildSocialMetadata({
   title: 'Blog',
@@ -73,13 +74,13 @@ export default async function BlogPage({
         <div className="relative z-10 mx-auto max-w-7xl overflow-visible">
           <div className="mb-10 text-center">
             <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/70 bg-white/55 px-5 py-2.5 text-xs font-bold text-pgreen shadow-lg backdrop-blur-md">
-              Câu chuyện cộng đồng
+              <T k="blog.badge" />
             </div>
             <h1 className="font-display mb-5 font-black text-4xl text-dblue md:text-5xl lg:text-6xl">
-              Câu chuyện <span className="bg-gradient-to-r from-pgreen via-fgreen to-tblue bg-clip-text text-transparent">tử tế</span> được kể lại
+              <T k="blog.title1" /> <span className="bg-gradient-to-r from-pgreen via-fgreen to-tblue bg-clip-text text-transparent"><T k="blog.title2" /></span> <T k="blog.title3" />
             </h1>
             <p className="mx-auto max-w-3xl text-lg leading-relaxed text-gray-600">
-              Nơi chia sẻ hành trình gây quỹ, cập nhật minh bạch và những câu chuyện đồng hành từ cộng đồng TửTế Fund.
+              <T k="blog.sub" />
             </p>
           </div>
           <BlogSearchForm defaultSearch={search} type={type} sort={sort} />
@@ -89,9 +90,11 @@ export default async function BlogPage({
       <div className="mx-auto max-w-7xl px-6 py-10">
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <h2 className="font-display mb-2 font-bold text-2xl text-dblue md:text-3xl">Khám phá bài viết</h2>
+            <h2 className="font-display mb-2 font-bold text-2xl text-dblue md:text-3xl"><T k="blog.explore" /></h2>
             <p className="text-gray-600">
-              {search ? `Kết quả cho “${search}” · ${data.total} bài` : 'Đọc những câu chuyện từ creator và cộng đồng'}
+              {search
+                ? <T k="blog.exploreSearch" vars={{ q: search, n: data.total }} />
+                : <T k="blog.exploreSub" />}
             </p>
           </div>
 
@@ -101,7 +104,7 @@ export default async function BlogPage({
               className="inline-flex items-center gap-2 rounded-2xl gradient-green px-6 py-3 font-bold text-white transition-all hover:shadow-lg hover:shadow-green-200"
             >
               <Plus className="h-5 w-5" />
-              Viết bài mới
+              <T k="blog.write" />
             </Link>
           )}
         </div>
@@ -110,7 +113,7 @@ export default async function BlogPage({
           <div className="mb-12">
             <h3 className="mb-4 flex items-center gap-2 font-display font-bold text-xl text-dblue">
               <span className="h-2 w-2 rounded-full bg-pgreen"></span>
-              Bài viết nổi bật
+              <T k="blog.featured" />
             </h3>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               {data.featuredPosts.map((post: BlogPostResponse) => (
@@ -130,18 +133,18 @@ export default async function BlogPage({
           ) : (
             <div className="py-16 text-center">
               <h3 className="mb-2 font-display text-2xl font-semibold text-dblue">
-                {search ? 'Không tìm thấy bài viết' : 'Chưa có bài viết nào'}
+                {search ? <T k="blog.emptySearch" /> : <T k="blog.empty" />}
               </h3>
               <p className="mx-auto mb-6 max-w-md text-gray-600">
                 {search
-                  ? `Không có bài nào khớp với “${search}”. Thử từ khóa khác hoặc xóa bộ lọc.`
-                  : 'Hãy quay lại sau để đọc những câu chuyện từ cộng đồng gây quỹ'}
+                  ? <T k="blog.emptySearchHint" vars={{ q: search }} />
+                  : <T k="blog.emptyHint" />}
               </p>
               <Link
                 href="/projects"
                 className="inline-flex items-center gap-2 rounded-2xl gradient-green px-6 py-3 font-bold text-white transition-all hover:shadow-lg hover:shadow-green-200"
               >
-                Khám phá chiến dịch
+                <T k="home.ctaExplore" />
               </Link>
             </div>
           )}
