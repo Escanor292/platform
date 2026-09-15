@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 17;
+export const PRESENTATION_SEED_VERSION = 18;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -389,34 +389,36 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
     },
     {
       kicker: "Công ty tương lai",
-      title: "Đăng ký gì, thiết kế gì, không nhận gì",
+      title: "Đăng ký gì, thiết kế gì — bệ phóng khởi nghiệp",
+      body: "Không chỉ cổng thu tiền. Hướng gần: Công ty TNHH, đăng ký sàn Bộ Công Thương. Định vị Tử Tế Fund là lựa chọn đầu tiên (top-of-mind) khi ai đó bắt đầu lập nghiệp: đóng gói ý tưởng, tìm khách đầu, kiểm chứng lực cầu trước khi bỏ vốn lớn. Bộ công cụ tư vấn pháp lý / tài chính là lộ trình — chưa nhận đã chạy hết.",
       cards: [
         {
-          title: "Hướng gần",
-          body: "Công ty TNHH nền tảng thương mại điện tử / kết nối. Đăng ký sàn Bộ Công Thương. Công bố hai nhánh, cảnh báo pre-order (đặt trước), điều khoản hoàn/giữ. KYC (xác minh cá nhân) khớp tài khoản; KYB (xác minh doanh nghiệp) creator.",
+          title: "Top-of-mind cho lập nghiệp",
+          body: "Cá nhân hoặc doanh nghiệp: quán, xưởng thủ công, sản phẩm công nghệ. Tìm 100 khách đầu (early adopters), biết nhập bao nhiêu, đóng gói hồ sơ — không chỉ một đơn rời trên sàn bán SKU.",
         },
         {
-          title: "Doanh thu",
-          body: "Phí nền tảng 8% trên đơn Reward / chiến dịch thành công — trừ vào số giải ngân creator, không mark-up giá backer. Có thể thu phí xác minh KYB (xác minh doanh nghiệp) nâng cao cho creator. Donation không lấy phí ẩn trên khoản ủng hộ.",
+          title: "Bộ công cụ — lộ trình",
+          body: "Tư vấn pháp lý & thuế: chọn mô hình Cá nhân / Hộ KD / TNHH, kê khai đơn Reward, xuất hóa đơn đúng vai người bán. Tối ưu tài chính: điểm hòa vốn, định giá combo, goal sát chi phí thật. Wizard KYC/KYB (xác minh cá nhân / doanh nghiệp) đã có trên hệ thống; công cụ tính hòa vốn và tư vấn thuế tự động là bước tiếp.",
         },
         {
-          title: "Giữ tiền",
-          body: "Reward giải ngân từng đơn khi chiến dịch đã chốt và đơn đã nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng) thì hoàn. Giao dịch bất thường (ví dụ trên 20 triệu/lần) tạm khóa, soi nguồn tiền. Không ứng vốn sản xuất.",
+          title: "Doanh thu và giữ tiền",
+          body: "Phí 8% trừ payout creator, không mark-up giá backer — phí sàn + đóng gói/kiểm duyệt, không chỉ máy chủ. Có thể thu phí KYB (xác minh doanh nghiệp) nâng cao. Reward: vé/phiếu giải ngân khi chốt; hàng ship khi chốt và đã nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng) thì hoàn. Donation không phí ẩn trên khoản ủng hộ.",
         },
         {
           title: "Không giả danh",
-          body: "Không quỹ từ thiện khi chưa cấp phép. Không P2P (cho vay ngang hàng), không sàn vốn, không token. Không phần thưởng chia lãi. Donation không tự miễn thuế. Trung gian thanh toán NHNN (Ngân hàng Nhà nước) là lộ trình xa — trước đó chỉ cổng + đối soát.",
+          body: "Sàn kết nối + hỗ trợ đóng gói dự án. Không quỹ từ thiện khi chưa cấp phép. Không P2P (cho vay ngang hàng), không sàn vốn, không token, không chia lãi. Không tự xưng ngân hàng hay trung gian thanh toán NHNN (Ngân hàng Nhà nước).",
         },
       ],
     },
     {
       variant: "close",
       title: "Một nền tảng để bắt đầu tử tế",
-      body: "Cho đi thì có giấy. Nhận lại thì có hàng. Không đủ mục tiêu thì rõ hoàn hay giữ. Không đối đầu sàn lớn — mượn họ kể chuyện, đưa người về hồ sơ dự án.",
+      body: "Nơi biến ý tưởng trên giấy thành dự án thật. Cho đi thì có giấy. Nhận lại thì có hàng. Creator có điểm tựa pháp lý và tài chính; backer có tiền được giữ đến đúng điều kiện.",
       bullets: [
-        "Hai nhánh, hai chứng từ — không trộn ủng hộ với mua, không biến Reward thành chia lãi.",
-        "Reward: giữ theo đơn đến khi chiến dịch chốt và khách nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng) thì hoàn.",
-        "Không lấy trần P2P (cho vay ngang hàng) làm giấy thông hành. Vẫn phải thương mại điện tử, thuế, KYC (xác minh cá nhân) / KYB (xác minh doanh nghiệp), phòng chống rửa tiền.",
+        "Bệ phóng: điểm đến đầu của người lập nghiệp — tư vấn quy trình, pháp lý, tài chính để Creator yên tâm kinh doanh. Không đối đầu sàn lớn — mượn họ kể chuyện, đưa người về hồ sơ.",
+        "Hai nhánh, hai chứng từ: Cho đi (Donation) và Nhận lại (Reward) tách minh bạch — không trộn ủng hộ với mua, không biến Reward thành chia lãi.",
+        "Bảo vệ bằng vận hành: vé/phiếu giải ngân khi chốt; hàng ship giữ đến khi chốt và nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng) thì hoàn.",
+        "Tuân thủ: không lấy trần P2P (cho vay ngang hàng) làm giấy thông hành. Vẫn TMĐT (thương mại điện tử), thuế, KYC/KYB (xác minh cá nhân / doanh nghiệp), an toàn dữ liệu.",
       ],
     },
     {
