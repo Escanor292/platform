@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { LucideIcon } from 'lucide-react';
 import {
-  Home, Users, ShieldCheck, Award, DollarSign, FileText, Flag, ShieldAlert, Settings, UserCheck, FolderKanban, Package, KeyRound, LayoutTemplate, Presentation,
+  Home, Users, ShieldCheck, Award, DollarSign, FileText, Flag, ShieldAlert, Settings, UserCheck, FolderKanban, Package, KeyRound, LayoutTemplate,
 } from 'lucide-react';
 
 type NavItem = { href: string; label: string; icon: LucideIcon; exact?: boolean };
@@ -26,15 +26,9 @@ const BASE_NAV: NavItem[] = [
   { href: '/dashboard/admin/system', label: 'Hệ thống', icon: Settings },
 ];
 
-export default function AdminNav({ showPresentation = false }: { showPresentation?: boolean }) {
+export default function AdminNav() {
   const pathname = usePathname();
-  const items: NavItem[] = showPresentation
-    ? [
-        BASE_NAV[0],
-        { href: '/dashboard/admin/thuyet-trinh', label: 'Thuyết trình', icon: Presentation, exact: true },
-        ...BASE_NAV.slice(1),
-      ]
-    : BASE_NAV;
+  const items = BASE_NAV;
 
   return (
     <div className="-mx-3 flex items-center gap-1 overflow-x-auto px-3 pb-1 md:mx-0 md:px-0 md:pb-0">
