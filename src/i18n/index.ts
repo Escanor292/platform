@@ -15,20 +15,32 @@ export type { Locale, MessageKey };
 
 export const messages = { vi, en } as const;
 
-export function translate(locale: Locale, key: MessageKey): string {
-  return messages[locale][key] ?? messages.vi[key] ?? key;
+export type TranslateVars = Record<string, string | number>;
+
+export function interpolate(template: string, vars?: TranslateVars): string {
+  if (!vars) return template;
+  let out = template;
+  for (const [key, value] of Object.entries(vars)) {
+    out = out.replaceAll(`{${key}}`, String(value));
+  }
+  return out;
+}
+
+export function translate(locale: Locale, key: MessageKey, vars?: TranslateVars): string {
+  const raw = messages[locale][key] ?? messages.vi[key] ?? key;
+  return interpolate(raw, vars);
 }
 
 type LocaleContextValue = {
   locale: Locale;
   setLocale: (next: Locale) => void;
-  t: (key: MessageKey) => string;
+  t: (key: MessageKey, vars?: TranslateVars) => string;
 };
 
 const LocaleContext = createContext<LocaleContextValue>({
   locale: "vi",
   setLocale: () => {},
-  t: (key) => translate("vi", key),
+  t: (key, vars) => translate("vi", key, vars),
 });
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
@@ -52,7 +64,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = safe;
   }, []);
 
-  const t = useCallback((key: MessageKey) => translate(locale, key), [locale]);
+  const t = useCallback((key: MessageKey, vars?: TranslateVars) => translate(locale, key, vars), [locale]);
 
   const value = useMemo(() => ({ locale, setLocale, t }), [locale, setLocale, t]);
 
@@ -62,6 +74,3 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 export function useI18n() {
   return useContext(LocaleContext);
 }
-
-// TODO(i18n): chrome only. Do not translate UGC, invoices, KYC legal copy,
-// /gioi-thieu, /huong-dan, or /policy bodies in this pass. Keep routes unprefixed.
