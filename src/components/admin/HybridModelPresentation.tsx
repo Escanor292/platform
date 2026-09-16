@@ -108,6 +108,19 @@ export default function HybridModelPresentation({ deck }: { deck: PresentationDe
     document.getElementById("thuyet-trinh-scroll")?.scrollTo({ top: 0 });
   }, [index]);
 
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+    };
+  }, []);
+
   async function removeDeck() {
     setDeleting(true);
     setError("");
@@ -125,7 +138,7 @@ export default function HybridModelPresentation({ deck }: { deck: PresentationDe
   const current = slides[index];
 
   return (
-    <div className="fixed inset-0 z-[80] flex flex-col bg-[#F8F7F2] text-slate-900">
+    <div className="fixed inset-0 z-[80] flex flex-col overflow-hidden bg-[#F8F7F2] text-slate-900">
       <header className="flex items-center justify-between gap-4 border-b border-black/5 bg-white/80 px-4 py-3 backdrop-blur md:px-6">
         <Link
           href="/dashboard/admin"
@@ -182,7 +195,7 @@ export default function HybridModelPresentation({ deck }: { deck: PresentationDe
         </div>
       ) : null}
 
-      <main id="thuyet-trinh-scroll" className="relative flex-1 overflow-y-auto">
+      <main id="thuyet-trinh-scroll" className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain">
         <div className="mx-auto max-w-6xl px-4 py-8 pb-16 md:px-8">
           {current ? <SlideView slide={current} /> : null}
         </div>
