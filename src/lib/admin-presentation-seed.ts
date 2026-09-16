@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 22;
+export const PRESENTATION_SEED_VERSION = 23;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -403,36 +403,64 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       note: "Cấm Reward kiểu “đóng 10 triệu, chia 5% doanh thu / lãi”. Chỉ cần chia lợi nhuận hoặc cam kết trả lãi là bị kéo sang huy động vốn.",
     },
     {
-      kicker: "Công ty tương lai",
-      title: "Đăng ký gì, thiết kế gì — bệ phóng khởi nghiệp",
-      body: "Không chỉ cổng thu tiền. Hướng gần: Công ty TNHH, đăng ký sàn Bộ Công Thương. Định vị Tử Tế Fund là lựa chọn đầu tiên (top-of-mind) khi ai đó bắt đầu lập nghiệp: đóng gói ý tưởng, tìm khách đầu, kiểm chứng lực cầu trước khi bỏ vốn lớn. Bộ công cụ tư vấn pháp lý / tài chính là lộ trình — chưa nhận đã chạy hết.",
+      kicker: "Mô hình kinh doanh",
+      title: "Đa dạng hóa dòng thu nhập",
+      body: "Không phụ thuộc một nguồn thu. Reward lấy phí dịch vụ sàn. Donation không chiết khấu khoản ủng hộ — thu từ tip (tiền boa) tự chọn lúc thanh toán. Gói pháp lý / thuế là lộ trình, hợp tác bên thứ ba.",
+      table: {
+        headers: ["Luồng thu nhập", "Đối tượng", "Cơ chế", "Bản chất"],
+        rows: [
+          [
+            "Phí thương mại (Reward)",
+            "Creator",
+            "Phí 8% trừ vào số giải ngân khi chiến dịch thành công và đơn đã hoàn tất. Backer trả đúng giá niêm yết.",
+            "Phí dịch vụ sàn TMĐT (thương mại điện tử) và escrow (giữ hộ). Không mark-up giá backer.",
+          ],
+          [
+            "Tip tự chọn (Donation)",
+            "Backer — Cho đi",
+            "Khoản ủng hộ gốc 100% về dự án. Lúc checkout backer chọn 0% hoặc tip (tiền boa, thường 0–15%+). Tip không cộng vào mục tiêu chiến dịch.",
+            "Tip thuộc nền tảng. Không phải chiết khấu tiền từ thiện. Đã có trên form ủng hộ.",
+          ],
+          [
+            "Gói hỗ trợ — lộ trình",
+            "Creator / doanh nghiệp",
+            "VAS (dịch vụ giá trị gia tăng): tư vấn pháp lý, kê khai thuế, đăng ký HKD/DN, đóng gói hồ sơ gọi vốn. Chưa nhận đã chạy hết.",
+            "B2B2C (sàn – đối tác – người dùng): liên kết luật sư / kế toán, chia doanh thu. Không tự xưng đã có giấy phép tư vấn.",
+          ],
+        ],
+      },
+      note: "Hướng gần: Công ty TNHH, đăng ký sàn Bộ Công Thương. Tip giúp giữ cam kết 0% chiết khấu khoản ủng hộ nhân đạo. Không P2P (cho vay ngang hàng), không quỹ khi chưa cấp phép, không tự xưng trung gian thanh toán NHNN (Ngân hàng Nhà nước).",
+    },
+    {
+      kicker: "Giữ chân",
+      title: "Hệ sinh thái hai chiều — không dùng một lần",
+      body: "Không để người dùng rời sau một chiến dịch. Creator giữ tệp khách và công cụ vận hành. Backer có chỗ xác minh, pre-order (đặt trước) giá tốt, và tiền được giữ hộ.",
       cards: [
         {
-          title: "Top-of-mind cho lập nghiệp",
-          body: "Cá nhân hoặc doanh nghiệp: quán, xưởng thủ công, sản phẩm công nghệ. Tìm 100 khách đầu (early adopters), biết nhập bao nhiêu, đóng gói hồ sơ — không chỉ một đơn rời trên sàn bán SKU.",
+          title: "Creator — bệ phóng lập nghiệp",
+          body: "CRM (quản lý quan hệ khách hàng): lịch sử backer, tin nhắn, không trôi bài như MXH (mạng xã hội). Bảng tin và bán hàng sau gây quỹ: pre-order xong vẫn cập nhật, chuyển kênh bán. Theo dõi thu-chi dự án. Kết nối tư vấn pháp lý / thuế bên thứ ba là lộ trình.",
+          tone: "emerald",
         },
         {
-          title: "Bộ công cụ — lộ trình",
-          body: "Tư vấn pháp lý & thuế: chọn mô hình Cá nhân / Hộ KD / TNHH, kê khai đơn Reward, xuất hóa đơn đúng vai người bán. Tối ưu tài chính: điểm hòa vốn, định giá combo, goal sát chi phí thật. Wizard KYC/KYB (xác minh cá nhân / doanh nghiệp) đã có trên hệ thống; công cụ tính hòa vốn và tư vấn thuế tự động là bước tiếp.",
+          title: "Backer — trạm dừng an toàn",
+          body: "Xác minh eKYC (định danh điện tử) / eKYB (xác minh doanh nghiệp) và thẩm định chiến dịch. Thảo luận công khai, tường người ủng hộ, thông báo tiến độ. Pre-order giá ưu đãi. Escrow (giữ hộ) và hoàn khi trễ SLA (cam kết thời hạn gửi hàng) hoặc miss goal All-or-Nothing.",
+          tone: "rose",
         },
-        {
-          title: "Doanh thu và giữ tiền",
-          body: "Phí 8% trừ payout creator, không mark-up giá backer — phí sàn + đóng gói/kiểm duyệt, không chỉ máy chủ. Có thể thu phí KYB (xác minh doanh nghiệp) nâng cao. Reward: phiếu/sản phẩm giải ngân khi chốt; hàng ship khi chốt và đã nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng) thì hoàn. Donation không phí ẩn trên khoản ủng hộ.",
-        },
-        {
-          title: "Pháp lý",
-          body: "Sàn kết nối + hỗ trợ đóng gói dự án. Không quỹ từ thiện khi chưa cấp phép. Không P2P (cho vay ngang hàng), không sàn vốn, không token, không chia lãi. Không tự xưng ngân hàng hay trung gian thanh toán NHNN (Ngân hàng Nhà nước).",
-        },
+      ],
+      bullets: [
+        "Moat (hào bảo vệ): dữ liệu backer và công cụ thu-chi không có trên Facebook hay Shopee — Creator không bỏ nền tảng sau lần gọi vốn đầu.",
+        "Hai phía cùng ở lại: Creator quản lý cộng đồng; backer quay lại vì hồ sơ minh bạch và giá đặt trước.",
+        "Không đối đầu sàn lớn — mượn MXH (mạng xã hội) kể chuyện, đưa người về hồ sơ trên Tử Tế Fund.",
       ],
     },
     {
       variant: "close",
       title: "Một nền tảng để bắt đầu tử tế",
-      body: "Nơi biến ý tưởng trên giấy thành dự án thật. Cho đi thì có giấy. Nhận lại thì có hàng. Creator có điểm tựa pháp lý và tài chính; backer có tiền được giữ đến đúng điều kiện.",
+      body: "Nơi biến ý tưởng trên giấy thành dự án thật. Cho đi thì có giấy, không bị chiết khấu ẩn. Nhận lại thì có hàng, tiền giữ đến đúng điều kiện. Sàn sống bằng phí Reward, tip tự chọn, và dịch vụ đóng gói — không ăn chặn tiền từ thiện.",
       bullets: [
-        "Bệ phóng: điểm đến đầu của người lập nghiệp — tư vấn quy trình, pháp lý, tài chính để Creator yên tâm kinh doanh. Không đối đầu sàn lớn — mượn họ kể chuyện, đưa người về hồ sơ.",
+        "Bệ phóng: điểm đến đầu của người lập nghiệp. Giữ chân bằng CRM (quản lý khách hàng) và hồ sơ, không phải cổng thu tiền một lần.",
         "Hai nhánh, hai chứng từ: Cho đi (Donation) và Nhận lại (Reward) tách minh bạch — không trộn ủng hộ với mua, không biến Reward thành chia lãi.",
-        "Bảo vệ bằng vận hành: phiếu/sản phẩm giải ngân khi chốt; hàng ship giữ đến khi chốt và nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng) thì hoàn.",
+        "0% chiết khấu khoản ủng hộ; tip (tiền boa) do backer chọn. Reward: phí 8% trừ payout. Vé/phiếu giải ngân khi chốt; hàng ship khi chốt và nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng) thì hoàn.",
         "Tuân thủ: không lấy trần P2P (cho vay ngang hàng) làm giấy thông hành. Vẫn TMĐT (thương mại điện tử), thuế, KYC/KYB (xác minh cá nhân / doanh nghiệp), an toàn dữ liệu.",
       ],
     },

@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   ChevronLeft,
   Database,
+  DollarSign,
   FileBadge,
   FolderTree,
   GitBranch,
@@ -64,6 +65,8 @@ const KICKER_ICON = {
   "Khách hàng nhắm đến": Users,
   Case: Store,
   "Công ty tương lai": Building2,
+  "Mô hình kinh doanh": DollarSign,
+  "Giữ chân": HeartHandshake,
   "Phụ lục": FolderTree,
 } as const;
 
