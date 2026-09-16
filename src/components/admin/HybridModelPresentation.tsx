@@ -336,7 +336,7 @@ function SlideView({ slide }: { slide: PresentationSlide }) {
               {slide.table.rows.map((row, ri) => (
                 <tr key={ri} className={`border-t ${ri % 2 ? "bg-gray-50" : ""}`}>
                   {row.map((cell, ci) => (
-                    <td key={ci} className={`px-4 py-4 ${ci === 0 ? "font-black" : "text-gray-600"}`}>
+                    <td key={ci} className={`px-4 py-4 align-top ${ci === 0 ? "font-black whitespace-nowrap" : "max-w-[22rem] text-gray-600"}`}>
                       {cell}
                     </td>
                   ))}
