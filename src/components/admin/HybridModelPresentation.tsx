@@ -401,10 +401,6 @@ function SlideView({ slide }: { slide: PresentationSlide }) {
         </div>
       ) : null}
 
-      {slide.note ? (
-        <p className="rounded-2xl bg-amber-50 p-4 text-left text-sm text-amber-900">{slide.note}</p>
-      ) : null}
-
       {isClose ? (
         <div className="flex flex-wrap justify-center gap-3">
           <Link

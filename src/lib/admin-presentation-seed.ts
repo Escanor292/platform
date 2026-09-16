@@ -1,7 +1,7 @@
 ﻿import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 27;
+export const PRESENTATION_SEED_VERSION = 28;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -72,7 +72,6 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         "Mở ngách thương mại (Reward / pre-order) mà app thiện nguyện không làm.",
         "Escrow (giữ hộ) theo đơn và SLA (cam kết thời hạn gửi hàng) mà sàn nội như Comicola chưa triển khai.",
       ],
-      note: "Crowdfunding đã có doanh thu hàng tỷ USD toàn cầu. Tử Tế Fund không phát minh lại bánh xe — nội địa hóa bánh xe đó. Số liệu quy mô là ước tính thị trường, không phải báo cáo kiểm toán.",
     },
     {
       kicker: "Thị trường",
@@ -159,7 +158,6 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         "Ba kiểu thu đã có thật: (1) phí thương mại Reward 5–15% — Kickstarter, Indiegogo, Wadiz, Comicola; (2) 0% phí + tip (tiền boa) tự chọn — GoFundMe >100 triệu USD/năm; (3) 0% phí để lấy CASA (tiền gửi không kỳ hạn) và user — Thiện Nguyện MB.",
         "Tử Tế Fund kết hợp: phí 8% mảng Reward (như Comicola/Kickstarter) + 0% chiết khấu khoản ủng hộ và tip tự chọn mảng Donation (như GoFundMe) + escrow (giữ hộ) theo SLA (cam kết thời hạn gửi hàng) và VietQR nội địa — chỗ sàn ngoại không làm được tại Việt Nam.",
       ],
-      note: "Không đối đầu bảng tin MXH (mạng xã hội) — mượn họ dẫn về hồ sơ. Không làm Equity (cổ phần) như Wadiz Partner. Số liệu quy mô là ước tính, không phải báo cáo kiểm toán.",
     },
     {
       kicker: "Khách hàng nhắm đến",
@@ -230,7 +228,6 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           ],
         ],
       },
-      note: "SLA (cam kết thời hạn gửi hàng) = ngày hẹn giao ghi trên chiến dịch + 2 ngày — áp cho hàng ship / nhận tại chỗ, không áp cho phiếu/sản phẩm đã cấp. Phiếu/sản phẩm vào Kho đồ = đã giao quà; giải ngân khi chốt chiến dịch. Hàng vật lý: nhận đủ = xác nhận trên Kho đồ, hoặc vận chuyển báo phát thành công mà 7 ngày không khiếu nại. Vốn sản xuất không lấy từ tiền đang giữ — sàn không ứng vốn.",
     },
     {
       kicker: "Luồng hàng Reward",
@@ -279,7 +276,6 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           ],
         ],
       },
-      note: "Chi hộ từ tài khoản ngân hàng trung gian + cổng thanh toán. Không tự nhận là trung gian thanh toán theo giấy phép NHNN (Ngân hàng Nhà nước). Webhook (cổng báo đã nhận tiền) và cron (đóng chiến dịch hết hạn, hoàn trễ SLA — cam kết thời hạn gửi hàng) chạy trên hệ thống thật.",
     },
     {
       kicker: "Chứng từ & giao dịch",
@@ -411,7 +407,6 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           text: "VietQR + tài khoản ngân hàng trung gian, đối soát bằng webhook (cổng báo đã nhận tiền). Chi tiết máy trạng thái ở slide Kiến trúc. Chưa phải dịch vụ trung gian thanh toán theo giấy phép Ngân hàng Nhà nước — không đăng ký và không quảng cáo như vậy.",
         },
       ],
-      note: "Chứng nhận và biên lai là chứng từ đối chiếu nội bộ, không phải hóa đơn GTGT theo NĐ 123/2020/NĐ-CP. Slide mô tả mô hình sản phẩm, không phải tư vấn luật.",
     },
     {
       kicker: "An toàn thông tin",
@@ -443,7 +438,6 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           text: "Thiết kế theo Nghị định 13/2023/NĐ-CP (bảo vệ dữ liệu cá nhân). Wizard eKYC (định danh điện tử) ghi rõ ảnh chỉ dùng định danh. Không tự xưng đã đăng ký với Bộ Công an.",
         },
       ],
-      note: "Hội đồng An toàn thông tin nên hỏi phần đã chạy vs lộ trình. Đừng gộp hai cột thành một câu “đã mã hóa AES-256”.",
     },
     {
       kicker: "Rủi ro",
@@ -512,7 +506,6 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           ],
         ],
       },
-      note: "Hướng gần: Công ty TNHH, đăng ký sàn Bộ Công Thương. Tip giúp giữ cam kết 0% chiết khấu khoản ủng hộ nhân đạo. Không P2P (cho vay ngang hàng), không quỹ khi chưa cấp phép, không tự xưng trung gian thanh toán NHNN (Ngân hàng Nhà nước).",
     },
     {
       kicker: "Giữ chân",
@@ -637,7 +630,6 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           ],
         },
       ],
-      note: "PII (dữ liệu định danh) KYC (xác minh cá nhân) hiện plaintext trên Neon; ảnh CCCD trên Cloudinary. Chat: MongoDB. Cache: Redis. Không vẽ hết blog_*, conversations.",
     },
     {
       kicker: "Phụ lục",
