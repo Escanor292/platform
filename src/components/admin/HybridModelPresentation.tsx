@@ -25,6 +25,7 @@ import {
   Store,
   Target,
   Trash2,
+  TrendingUp,
   UserCheck,
   Users,
   Workflow,
@@ -62,6 +63,7 @@ const KICKER_ICON = {
   "KYC & KYB": UserCheck,
   "Khuyến nghị": CheckCircle2,
   "Thị trường": Building2,
+  "Cơ hội": TrendingUp,
   "Khách hàng nhắm đến": Users,
   Case: Store,
   "Công ty tương lai": Building2,
@@ -295,10 +297,6 @@ function SlideView({ slide }: { slide: PresentationSlide }) {
         </div>
       ) : null}
 
-      {slide.note ? (
-        <p className="rounded-2xl bg-amber-50 p-4 text-left text-sm text-amber-900">{slide.note}</p>
-      ) : null}
-
       {slide.cards?.length ? <CardGrid cards={slide.cards} /> : null}
 
       {slide.steps?.length ? (
@@ -324,7 +322,7 @@ function SlideView({ slide }: { slide: PresentationSlide }) {
 
       {slide.table ? (
         <div className="overflow-x-auto rounded-[1.5rem] border border-gray-200 bg-white text-left">
-          <table className={`w-full text-left text-sm ${slide.table.headers.length >= 5 ? "min-w-[920px]" : "min-w-[560px] md:min-w-[720px]"}`}>
+          <table className={`w-full text-left text-sm ${slide.table.headers.length >= 6 ? "min-w-[1180px]" : slide.table.headers.length >= 5 ? "min-w-[920px]" : "min-w-[560px] md:min-w-[720px]"}`}>
             <thead className="bg-slate-900 text-white">
               <tr>
                 {slide.table.headers.map((h) => (
@@ -401,6 +399,10 @@ function SlideView({ slide }: { slide: PresentationSlide }) {
             <Figure key={fig.key + fig.caption} fig={fig} />
           ))}
         </div>
+      ) : null}
+
+      {slide.note ? (
+        <p className="rounded-2xl bg-amber-50 p-4 text-left text-sm text-amber-900">{slide.note}</p>
       ) : null}
 
       {isClose ? (

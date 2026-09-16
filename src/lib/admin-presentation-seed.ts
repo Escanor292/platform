@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 23;
+export const PRESENTATION_SEED_VERSION = 24;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -39,43 +39,123 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       ],
     },
     {
+      kicker: "Cơ hội",
+      title: "Tại sao chọn Crowdfunding — thị trường đã chứng minh",
+      body: "Không giáo dục thị trường từ zero. Crowdfunding đã khẳng định nhu cầu toàn cầu. Việt Nam vẫn là mỏ vàng chưa khai hết: sàn ngoại vướng thanh toán / KYC (xác minh cá nhân), kênh nội địa thì hẹp ngách hoặc thuần cho đi.",
+      cards: [
+        {
+          title: "Toàn cầu",
+          body: "Ước tính Reward + Donation khoảng 1,5–2,0 tỷ USD/năm. Nếu gộp P2P Lending (cho vay ngang hàng) và Equity Crowdfunding (gọi vốn cổ phần) thì quy mô vượt ~15 tỷ USD. Tử Tế Fund không chơi hai mảng sau.",
+        },
+        {
+          title: "Mỹ",
+          body: "Thị trường lớn nhất, khoảng 40–45% toàn cầu. Riêng Reward + Donation hơn ~800 triệu USD/năm. GoFundMe sống bằng tip (tiền boa); Kickstarter/Indiegogo bằng phí chiến dịch thành công.",
+        },
+        {
+          title: "Việt Nam",
+          body: "Ước tính mới khoảng 5–10 triệu USD/năm, chủ yếu dự án tự phát hoặc sách/truyện. Thanh toán không tiền mặt (VietQR / ví) đang bùng — đúng lúc nội địa hóa crowdfunding.",
+        },
+      ],
+      blocks: [
+        {
+          heading: "Tại sao sàn nước ngoài không phù hợp người Việt",
+          bullets: [
+            "Thanh toán: bắt Visa/Mastercard, Stripe, PayPal. Phí FX (chuyển đổi ngoại tệ) 3–5% và phí rút về ngân hàng VN.",
+            "Định danh: hộ chiếu, SSN (số an sinh xã hội Mỹ/Âu), địa chỉ hoặc STK (số tài khoản) nước sở tại — Creator Việt khó vượt KYC/KYB (xác minh cá nhân / doanh nghiệp).",
+            "Thuế & AML (chống rửa tiền): rủi ro đóng băng tiền. Không có chứng từ hợp lệ theo kế toán VN để giải trình thuế.",
+            "Giải ngân trễ 30–60 ngày sau khi chốt. Creator bùng hàng thì backer Việt gần như không có cơ chế khiếu nại nội địa.",
+          ],
+        },
+      ],
+      bullets: [
+        "Gỡ rào thanh toán / KYC (xác minh cá nhân) / thuế của Kickstarter, Indiegogo.",
+        "Mở ngách thương mại (Reward / pre-order) mà app thiện nguyện không làm.",
+        "Escrow (giữ hộ) theo đơn và SLA (cam kết thời hạn gửi hàng) mà sàn nội như Comicola chưa triển khai.",
+      ],
+      note: "Crowdfunding đã có doanh thu hàng tỷ USD toàn cầu. Tử Tế Fund không phát minh lại bánh xe — nội địa hóa bánh xe đó. Số liệu quy mô là ước tính thị trường, không phải báo cáo kiểm toán.",
+    },
+    {
       kicker: "Thị trường",
-      title: "Crowdfunding tại Việt Nam — khoảng trống lai",
-      body: "Không so Shopee: đó là bán SKU (mã hàng có sẵn). Ngách này là huy động vốn / đặt trước. Comicola mạnh văn hóa nhưng thiếu khóa hoàn. App thiện nguyện minh bạch nhưng 100% cho đi. Kickstarter lớn nhưng lệch thanh toán và pháp lý VN. MXH (mạng xã hội) lan tỏa nhưng không có bên giữ tiền.",
+      title: "Đối chiếu nền tảng — thế giới và Việt Nam",
+      body: "Cùng ngách crowdfunding, khác mô hình thu. Tử Tế Fund lấy chỗ: phí Reward 8% + tip Donation (tiền boa tự chọn) + escrow (giữ hộ) nội địa — không Visa, không thuần cho đi, không chỉ văn hóa.",
       table: {
-        headers: ["Nền tảng", "Đại diện / mốc", "Điểm mạnh", "Gót chân Achilles", "Khoảng trống Tử Tế Fund"],
+        headers: ["Nền tảng", "Mô hình / phí", "Ngách", "Quy mô (ước tính)", "Ưu điểm", "Nhược điểm"],
         rows: [
           [
-            "Văn hóa & sáng tạo",
-            "Comicola — truyện tranh, boardgame, fandom (vd. Thỏ Bảy Màu).",
-            "Tệp fan dày. Bán trước sản phẩm văn hóa Việt.",
-            "Chủ yếu nghệ thuật/giải trí. Thiếu giữ tiền theo SLA (cam kết thời hạn gửi hàng). Phụ thuộc uy tín tác giả.",
-            "Hybrid không giới hạn một ngành. Reward khóa hoàn theo SLA (cam kết thời hạn gửi hàng); Donation cùng hồ sơ.",
+            "Kickstarter (Mỹ)",
+            "Phí 5% trên vốn gọi thành công + Stripe 3–5%. All-or-Nothing.",
+            "Công nghệ, game, thiết kế, phim, boardgame.",
+            "Doanh thu ~40–50 triệu USD/năm. Tổng vốn gọi >8 tỷ USD.",
+            "Backer toàn cầu. Thương hiệu số 1. Reward chuẩn.",
+            "KYC (xác minh cá nhân) + Stripe đắt. Không giữ tiền theo SLA (cam kết thời hạn gửi hàng). Tỷ lệ thất bại ~60%.",
           ],
           [
-            "Từ thiện / xã hội",
-            "Thiện Nguyện MB, Kindmate.",
-            "Sao kê, tài khoản minh bạch, niềm tin cộng đồng.",
-            "Thuần Donation. Không Reward, không giao hàng, không dành khởi nghiệp thương mại.",
-            "Cùng chiến dịch: cho đi có giấy TT-UH, nhận lại có biên lai + giữ tiền đến khi nhận đủ.",
+            "Indiegogo (Mỹ)",
+            "Phí 5%. All-or-Nothing và Keep-It-All.",
+            "Công nghệ mới, đổi mới, dự án cá nhân.",
+            "Doanh thu ~15–20 triệu USD/năm. Tổng vốn gọi >2 tỷ USD.",
+            "Dễ tính hơn Kickstarter. Có Keep-It-All.",
+            "Kiểm duyệt lỏng hơn → rủi ro bùng hàng. Vẫn vướng cổng thanh toán ngoại.",
           ],
           [
-            "Sàn quốc tế",
-            "Kickstarter / Indiegogo (2008–2009). Backer toàn cầu.",
-            "Quy trình Reward chuẩn. Indiegogo có Keep-It-All. Chiến dịch lớn.",
-            "Visa/Stripe, ngôn ngữ, ship/tax. Khó đòi khi ngâm vốn. Không chứng từ nội địa VN.",
-            "Nội địa hóa: VietQR / chuyển khoản STK (số tài khoản) trung gian. eKYC (định danh điện tử). Escrow (giữ hộ tiền) theo đơn. Giấy TT-UH / INV-.",
+            "GoFundMe (Mỹ)",
+            "0% bắt buộc với creator. Tip (tiền boa) 0–15% từ backer + phí cổng ~2,9%.",
+            "Từ thiện, y tế, cứu trợ, trang trải cá nhân.",
+            "Doanh thu >100 triệu USD/năm từ tip. Tổng vốn gọi >15 tỷ USD.",
+            "0% phí từ thiện. Lan tỏa MXH (mạng xã hội). Niềm tin Âu–Mỹ.",
+            "Thuần Donation — không Reward / pre-order (đặt trước). Chỉ một số quốc gia.",
           ],
           [
-            "Gây quỹ MXH (mạng xã hội)",
-            "Facebook / TikTok / Zalo.",
-            "Viral, chi phí vào ban đầu thấp, nói chuyện trực tiếp.",
-            "Không bên thứ ba giữ tiền. Trôi bài. Thiếu SLA (cam kết thời hạn gửi hàng) và hồ sơ pháp lý khi chậm giao.",
-            "Mượn MXH (mạng xã hội) dẫn về hồ sơ. Tiền giữ trên STK (số tài khoản) trung gian đến khi chốt + nhận đủ — không tự xưng trung gian NHNN (Ngân hàng Nhà nước).",
+            "Patreon (Mỹ)",
+            "Hoa hồng gói 5% / 8% / 12% trên đăng ký tháng (subscription).",
+            "Creator nội dung, artist, YouTuber, podcast.",
+            "Doanh thu ~100 triệu+ USD/năm. Định giá công ty >4 tỷ USD.",
+            "Thu nhập lặp lại hàng tháng. Fan độc quyền.",
+            "Không gom vốn một lần (one-off) cho sản xuất / thương mại.",
+          ],
+          [
+            "Campfire (Nhật)",
+            "Phí 12–17% trên vốn gọi thành công.",
+            "Văn hóa Nhật, anime, sản phẩm địa phương, F&B.",
+            "Doanh thu ~25 triệu USD/năm. Tổng vốn gọi >700 triệu USD.",
+            "Nội địa hóa 100%. Thanh toán cửa hàng tiện lợi (konbini).",
+            "Khép kín thị trường Nhật.",
+          ],
+          [
+            "Wadiz (Hàn)",
+            "Phí 7–15% tùy gói marketing. Reward + Equity (cổ phần).",
+            "Thời trang, mỹ phẩm, gia dụng, pre-order tech.",
+            "Doanh thu ~30 triệu USD/năm. Thị phần số 1 Hàn.",
+            "Sàn TMĐT (thương mại điện tử) pre-order mạnh. Có kiểm định hàng.",
+            "Phí cao với creator nhỏ. Khó vào nếu không có pháp nhân Hàn. Tử Tế Fund không làm Equity.",
+          ],
+          [
+            "Comicola (Việt Nam)",
+            "Phí 8–10% chiến dịch thành công hoặc chiết khấu phát hành.",
+            "Truyện tranh, boardgame, hoạt hình, văn hóa.",
+            "Vài tỷ VNĐ/năm. Nhiều dự án lớn (Thỏ Bảy Màu, Đạn).",
+            "Hiểu fandom Việt. Hỗ trợ xuất bản / phân phối vật lý.",
+            "Hẹp ngách nghệ thuật. Thiếu escrow (giữ hộ) theo SLA (cam kết thời hạn gửi hàng). Công nghệ còn đơn sơ.",
+          ],
+          [
+            "Thiện Nguyện MB (Việt Nam)",
+            "Phí 0%. MB tài trợ hạ tầng.",
+            "Từ thiện xã hội, cứu trợ, trường, y tế.",
+            "Doanh thu sàn 0 (phi lợi nhuận). Quyên góp >2.000 tỷ VNĐ.",
+            "Sao kê realtime, tài khoản minh bạch, niềm tin cộng đồng.",
+            "100% Cho đi. Không Reward, không khởi nghiệp thương mại.",
+          ],
+          [
+            "Kindmate / GiveNow (Việt Nam)",
+            "Phí vận hành ~3–5% hoặc tài trợ NGO (tổ chức phi chính phủ).",
+            "NGO, quỹ cộng đồng, môi trường.",
+            "Vài tỷ VNĐ/năm.",
+            "Kết nối NGO. Chứng từ quyên góp rõ.",
+            "Truyền thông yếu. Không pre-order / bán hàng.",
           ],
         ],
       },
-      note: "Lấp chỗ: minh bạch kiểu kênh thiện nguyện + khóa tiền/hàng kiểu TMĐT (thương mại điện tử), trên một nền tảng crowdfunding nội địa. Không đối đầu bảng tin MXH (mạng xã hội). Không giải ngân theo mốc sản xuất — Reward giải ngân từng đơn khi chiến dịch đã chốt và khách đã nhận đủ.",
+      note: "Tử Tế Fund lấp chỗ: VietQR / chuyển khoản STK (số tài khoản) trung gian + eKYC (định danh điện tử) nội địa (gỡ Kickstarter) + Reward/pre-order (gỡ app thiện nguyện) + escrow theo đơn và SLA (gỡ Comicola). Không đối đầu bảng tin MXH (mạng xã hội) — mượn họ dẫn về hồ sơ.",
     },
     {
       kicker: "Khách hàng nhắm đến",
