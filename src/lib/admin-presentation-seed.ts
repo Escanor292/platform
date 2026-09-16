@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 21;
+export const PRESENTATION_SEED_VERSION = 22;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -420,7 +420,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           body: "Phí 8% trừ payout creator, không mark-up giá backer — phí sàn + đóng gói/kiểm duyệt, không chỉ máy chủ. Có thể thu phí KYB (xác minh doanh nghiệp) nâng cao. Reward: phiếu/sản phẩm giải ngân khi chốt; hàng ship khi chốt và đã nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng) thì hoàn. Donation không phí ẩn trên khoản ủng hộ.",
         },
         {
-          title: "Không giả danh",
+          title: "Pháp lý",
           body: "Sàn kết nối + hỗ trợ đóng gói dự án. Không quỹ từ thiện khi chưa cấp phép. Không P2P (cho vay ngang hàng), không sàn vốn, không token, không chia lãi. Không tự xưng ngân hàng hay trung gian thanh toán NHNN (Ngân hàng Nhà nước).",
         },
       ],
