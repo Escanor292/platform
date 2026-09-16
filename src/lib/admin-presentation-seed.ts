@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 19;
+export const PRESENTATION_SEED_VERSION = 20;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -64,7 +64,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
             "Kickstarter / Indiegogo (2008–2009). Backer toàn cầu.",
             "Quy trình Reward chuẩn. Indiegogo có Keep-It-All. Chiến dịch lớn.",
             "Visa/Stripe, ngôn ngữ, ship/tax. Khó đòi khi ngâm vốn. Không chứng từ nội địa VN.",
-            "Nội địa hóa: VietQR / PayOS / VNPay. eKYC (định danh điện tử). Escrow (giữ hộ tiền) theo đơn. Giấy TT-UH / INV-.",
+            "Nội địa hóa: VietQR / chuyển khoản STK (số tài khoản) trung gian. eKYC (định danh điện tử). Escrow (giữ hộ tiền) theo đơn. Giấy TT-UH / INV-.",
           ],
           [
             "Gây quỹ MXH (mạng xã hội)",
@@ -152,7 +152,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       kicker: "Luồng hàng Reward",
       title: "Giữ theo đơn đến khi chốt và nhận đủ",
       steps: [
-        { n: "01", t: "Thanh toán", d: "PayOS / VietQR. Tiền vào luồng cổng — chưa về creator." },
+        { n: "01", t: "Thanh toán", d: "VietQR / chuyển khoản STK (số tài khoản) trung gian. Tiền chưa về creator." },
         { n: "02", t: "Đối soát & giữ", d: "Xác nhận đã nhận. Cấp biên lai. Giữ theo từng đơn, không giải ngân sớm." },
         { n: "03", t: "Gửi hoặc sẵn sàng nhận", d: "Đúng SLA (cam kết thời hạn gửi hàng). Giao vận chuyển, hoặc mở nhận tại quán. Trễ hạn → hoàn đơn đó." },
         { n: "04", t: "Nhận đủ", d: "Hàng ship: xác nhận trên Kho đồ, hoặc 7 ngày không khiếu nại sau khi phát thành công. Vé/phiếu: đã nằm trong Kho đồ = đã giao quà — quét tại quán chỉ để đổi ưu đãi, không phải mốc giải ngân." },
@@ -164,7 +164,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       title: "Dòng tiền: giữ hộ, đối soát, rồi mới chi",
       body: "Backer không chuyển thẳng cho creator. Cổng thanh toán báo về webhook (cổng báo đã nhận tiền); sổ đơn nằm trên Postgres; tiền nằm trên tài khoản ngân hàng trung gian đến khi đủ điều kiện chi hộ hoặc hoàn. Phí sàn 8% trừ vào số giải ngân của creator (deducted from payout — trừ payout), không cộng thêm vào giá backer (không mark-up).",
       steps: [
-        { n: "01", t: "Checkout", d: "Tạo pledge PENDING. PayOS / VietQR (Sepay) / VNPay. Nội dung chuyển khoản gắn mã đơn." },
+        { n: "01", t: "Checkout", d: "Tạo pledge PENDING. VietQR / chuyển khoản STK (số tài khoản) trung gian. Nội dung chuyển khoản gắn mã đơn." },
         { n: "02", t: "Webhook đối soát", d: "Cổng báo đã nhận. settlePledgeAsPaid → SUCCESS. Cấp giấy TT-UH hoặc biên lai INV- vào Kho đồ." },
         { n: "03", t: "Giữ hộ (escrow)", d: "Tiền trên STK (số tài khoản) trung gian. Không về creator. Phí 8% trừ payout creator — backer trả đúng giá niêm yết." },
         { n: "04", t: "Giao / nhận", d: "Reward: PROCESSING → gửi ĐVVC (đơn vị vận chuyển) hoặc nhận tại quán. Cron hoàn nếu trễ SLA (cam kết thời hạn gửi hàng)." },
@@ -324,7 +324,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         },
         {
           lead: "Dòng tiền hiện tại",
-          text: "PayOS / VietQR + tài khoản ngân hàng trung gian, đối soát bằng webhook (cổng báo đã nhận tiền). Chi tiết máy trạng thái ở slide Kiến trúc. Chưa phải dịch vụ trung gian thanh toán theo giấy phép Ngân hàng Nhà nước — không đăng ký và không quảng cáo như vậy.",
+          text: "VietQR + tài khoản ngân hàng trung gian, đối soát bằng webhook (cổng báo đã nhận tiền). Chi tiết máy trạng thái ở slide Kiến trúc. Chưa phải dịch vụ trung gian thanh toán theo giấy phép Ngân hàng Nhà nước — không đăng ký và không quảng cáo như vậy.",
         },
       ],
       note: "Chứng nhận và biên lai là chứng từ đối chiếu nội bộ, không phải hóa đơn GTGT theo NĐ 123/2020/NĐ-CP. Slide mô tả mô hình sản phẩm, không phải tư vấn luật.",
@@ -459,7 +459,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           steps: [
             "Vào hồ sơ chiến dịch (có thể từ MXH — mạng xã hội)",
             "Ủng hộ, không chọn quà",
-            "PayOS / VietQR → webhook (cổng báo đã nhận tiền) SUCCESS",
+            "VietQR / chuyển khoản → webhook (cổng báo đã nhận tiền) SUCCESS",
             "Giấy TT-UH (chứng nhận ủng hộ) vào Kho đồ",
             "Giải ngân khi chốt chiến dịch (AoN đạt mục tiêu, hoặc KiA)",
           ],
@@ -533,7 +533,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       title: "src/lib — nghiệp vụ, không phải UI",
       body: "Phụ lục kỹ thuật. App Router nằm src/app. Dưới đây là thư viện lõi của mô hình lai. Tên file đúng repo.",
       tree: [
-        { path: "src/lib/payment/", note: "tạo đơn, escrow (giữ hộ), PayOS, VietQR/Sepay, VNPay, đối soát, hoàn" },
+        { path: "src/lib/payment/", note: "tạo đơn, escrow (giữ hộ), VietQR, chuyển khoản STK trung gian, đối soát, hoàn" },
         { path: "src/lib/tax/", note: "giấy TT-UH (chứng nhận ủng hộ), sổ, khi pledges SUCCESS" },
         { path: "src/lib/ekyc/", note: "định danh điện tử VNPT/FPT, QR CCCD, KYB (xác minh doanh nghiệp) MST (mã số thuế)" },
         { path: "src/lib/campaign/", note: "tạo/sửa chiến dịch, đổi mô hình gây quỹ" },
