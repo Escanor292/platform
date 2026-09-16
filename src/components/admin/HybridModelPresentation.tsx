@@ -40,6 +40,9 @@ import type {
 } from "@/lib/admin-presentation-types";
 import { CertificateDocument } from "@/components/tax/CertificateDocument";
 import { InvoiceDocument } from "@/components/invoice/InvoiceDocument";
+import TransactionStatement from "@/components/campaign/TransactionStatement";
+import BackerLink from "@/components/campaign/BackerLink";
+import { formatVND, formatDate } from "@/lib/utils";
 
 const KICKER_ICON = {
   "Tầm nhìn": Target,
@@ -502,7 +505,9 @@ function isLiveDocument(key: string) {
   return (
     key === "chung-nhan-tt-uh.jpg" ||
     key === "bien-lai-thanh-toan.jpg" ||
-    key === "donation-reward.jpg"
+    key === "donation-reward.jpg" ||
+    key === "sao-ke-he-thong" ||
+    key === "nguoi-ung-ho"
   );
 }
 
@@ -587,6 +592,204 @@ function DemoInvoice() {
   );
 }
 
+const DEMO_BACKERS = [
+  {
+    id: "p1",
+    userId: null as string | null,
+    userName: "Nguyễn Văn An",
+    displayName: "Nguyễn Văn An",
+    isAnonymous: false,
+    userAvatar: null as string | null,
+    amount: 200000,
+    createdAt: new Date("2026-08-20T09:12:00"),
+  },
+  {
+    id: "p2",
+    userId: null as string | null,
+    userName: "Trần Minh Đức",
+    displayName: "Trần Minh Đức",
+    isAnonymous: false,
+    userAvatar: null as string | null,
+    amount: 199000,
+    createdAt: new Date("2026-08-21T14:40:00"),
+  },
+  {
+    id: "p3",
+    userId: null as string | null,
+    userName: null as string | null,
+    displayName: null as string | null,
+    isAnonymous: true,
+    userAvatar: null as string | null,
+    amount: 50000,
+    createdAt: new Date("2026-08-22T08:05:00"),
+  },
+  {
+    id: "p4",
+    userId: null as string | null,
+    userName: "Lê Thị Hoa",
+    displayName: "Lê Thị Hoa",
+    isAnonymous: false,
+    userAvatar: null as string | null,
+    amount: 199000,
+    createdAt: new Date("2026-08-23T18:30:00"),
+  },
+];
+
+function DemoBackers() {
+  return (
+    <div className="overflow-hidden rounded-[1.75rem] border border-gray-100 bg-white p-5 shadow-sm sm:p-8">
+      <p className="mb-5 text-center text-[11px] font-black uppercase tracking-widest text-emerald-800">
+        Tab Người ủng hộ trên trang chiến dịch — mẫu giao diện hệ thống
+      </p>
+      <h2 className="text-2xl font-bold text-gray-900">Người ủng hộ ({DEMO_BACKERS.length})</h2>
+      <div className="mt-4 space-y-4">
+        {DEMO_BACKERS.map((pledge) => (
+          <div key={pledge.id} className="rounded-lg border border-gray-200 bg-white p-4">
+            <BackerLink
+              userId={pledge.userId}
+              userName={pledge.userName}
+              displayName={pledge.displayName}
+              isAnonymous={pledge.isAnonymous}
+              userAvatar={pledge.userAvatar}
+            />
+            <div className="mt-2 text-sm text-gray-500">
+              Ủng hộ {formatVND(pledge.amount)} • {formatDate(pledge.createdAt)}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const DEMO_STATEMENT_CAMPAIGN = {
+  id: "demo-campaign",
+  title: "Combo khai trương quán gà rán",
+  campaignCode: "CD-MAU-0001",
+  currentAmount: 449000,
+  goalAmount: 20000000,
+  closedAmount: 449000,
+  closedAt: new Date("2026-09-15"),
+};
+
+const DEMO_STATEMENT_PLEDGES = [
+  {
+    id: "sp1",
+    amount: 200000,
+    totalAmount: 200000,
+    depositAmount: 0,
+    chargeAmount: 200000,
+    orderTotalAmount: 200000,
+    paidAmount: 200000,
+    remainingAmount: 0,
+    accountingAmount: 200000,
+    refundAmount: 0,
+    cancellationFeeAmount: 0,
+    isCashOnDelivery: false,
+    displayName: "Nguyễn Văn An",
+    isAnonymous: false,
+    createdAt: new Date("2026-08-20T09:12:00"),
+    transactionId: "PAYOS-MAU-2001",
+    paymentProvider: "PAYOS",
+    status: "SUCCESS",
+    refundStatus: "NONE",
+    fulfillmentStatus: "NOT_APPLICABLE",
+    accountingReversedAt: null as Date | null,
+    reversalReason: null as string | null,
+    rewardTitle: null as string | null,
+    user: { name: "Nguyễn Văn An" },
+  },
+  {
+    id: "sp2",
+    amount: 199000,
+    totalAmount: 199000,
+    depositAmount: 0,
+    chargeAmount: 199000,
+    orderTotalAmount: 199000,
+    paidAmount: 199000,
+    remainingAmount: 0,
+    accountingAmount: 199000,
+    refundAmount: 0,
+    cancellationFeeAmount: 0,
+    isCashOnDelivery: false,
+    displayName: "Trần Minh Đức",
+    isAnonymous: false,
+    createdAt: new Date("2026-08-21T14:40:00"),
+    transactionId: "PAYOS-MAU-2002",
+    paymentProvider: "PAYOS",
+    status: "SUCCESS",
+    refundStatus: "NONE",
+    fulfillmentStatus: "DELIVERED",
+    accountingReversedAt: null as Date | null,
+    reversalReason: null as string | null,
+    rewardTitle: "Vé ưu đãi khai trương — combo gà rán",
+    user: { name: "Trần Minh Đức" },
+  },
+  {
+    id: "sp3",
+    amount: 50000,
+    totalAmount: 50000,
+    depositAmount: 0,
+    chargeAmount: 50000,
+    orderTotalAmount: 50000,
+    paidAmount: 50000,
+    remainingAmount: 0,
+    accountingAmount: 50000,
+    refundAmount: 0,
+    cancellationFeeAmount: 0,
+    isCashOnDelivery: false,
+    displayName: null as string | null,
+    isAnonymous: true,
+    createdAt: new Date("2026-08-22T08:05:00"),
+    transactionId: "VIETQR-MAU-2003",
+    paymentProvider: "VIETQR",
+    status: "SUCCESS",
+    refundStatus: "NONE",
+    fulfillmentStatus: "NOT_APPLICABLE",
+    accountingReversedAt: null as Date | null,
+    reversalReason: null as string | null,
+    rewardTitle: null as string | null,
+    user: { name: null as string | null },
+  },
+  {
+    id: "sp4",
+    amount: 199000,
+    totalAmount: 199000,
+    depositAmount: 0,
+    chargeAmount: 199000,
+    orderTotalAmount: 199000,
+    paidAmount: 199000,
+    remainingAmount: 0,
+    accountingAmount: 0,
+    refundAmount: 199000,
+    cancellationFeeAmount: 0,
+    isCashOnDelivery: false,
+    displayName: "Lê Thị Hoa",
+    isAnonymous: false,
+    createdAt: new Date("2026-08-23T18:30:00"),
+    transactionId: "PAYOS-MAU-2004",
+    paymentProvider: "PAYOS",
+    status: "REFUNDED",
+    refundStatus: "REFUNDED",
+    fulfillmentStatus: "CANCELED",
+    accountingReversedAt: new Date("2026-08-26T10:00:00"),
+    reversalReason: "Trễ SLA (cam kết thời hạn gửi hàng)",
+    rewardTitle: "Vé ưu đãi khai trương — combo gà rán",
+    user: { name: "Lê Thị Hoa" },
+  },
+];
+
+function DemoStatement() {
+  return (
+    <div className="overflow-hidden rounded-[1.75rem] border border-gray-100 bg-gray-50 p-3 shadow-sm sm:p-6">
+      <p className="mb-3 text-center text-[11px] font-black uppercase tracking-widest text-emerald-800">
+        Báo cáo đối soát chiến dịch — đúng màn hình sao kê của creator
+      </p>
+      <TransactionStatement campaign={DEMO_STATEMENT_CAMPAIGN} pledges={DEMO_STATEMENT_PLEDGES} />
+    </div>
+  );
+}
+
 function Figure({ fig }: { fig: PresentationFigure }) {
   if (fig.key === "chung-nhan-tt-uh.jpg") {
     return (
@@ -610,6 +813,22 @@ function Figure({ fig }: { fig: PresentationFigure }) {
         <DemoCertificate />
         <DemoInvoice />
         <figcaption className="px-1 text-left text-sm text-gray-500">{fig.caption}</figcaption>
+      </figure>
+    );
+  }
+  if (fig.key === "nguoi-ung-ho") {
+    return (
+      <figure>
+        <DemoBackers />
+        <figcaption className="px-1 py-3 text-left text-sm text-gray-500">{fig.caption}</figcaption>
+      </figure>
+    );
+  }
+  if (fig.key === "sao-ke-he-thong") {
+    return (
+      <figure>
+        <DemoStatement />
+        <figcaption className="px-1 py-3 text-left text-sm text-gray-500">{fig.caption}</figcaption>
       </figure>
     );
   }

@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 18;
+export const PRESENTATION_SEED_VERSION = 19;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -200,10 +200,15 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
     {
       kicker: "Chứng từ & giao dịch",
       title: "Một chỗ xem đã ủng hộ / đã đặt gì",
+      body: "Tab Người ủng hộ công khai trên trang chiến dịch. Sao kê là đúng Báo cáo đối soát của creator — ledger pledge, không xóa lịch sử, dòng đỏ là đảo/hoàn. Kho đồ là chỗ backer giữ chứng từ. Số trên mẫu là minh họa giao diện, không phải số liệu vận hành thật.",
       cards: [
         {
-          title: "Giấy chứng nhận",
-          body: "Donation: cấp sau đối soát. Mã công khai, QR, số tiền bằng chữ.",
+          title: "Người ủng hộ",
+          body: "Tab công khai trên hồ sơ chiến dịch. Tên, số tiền, thời điểm. Được ẩn danh. Đây là mặt cộng đồng — không thay sao kê tiền.",
+        },
+        {
+          title: "Sao kê — Báo cáo đối soát",
+          body: "Đúng màn hình creator: tổng khi kết thúc, tổng thực tế, đã đảo, từng dòng SUCCESS / REFUNDED. Xuất CSV. Tính từ ledger pledge, không xóa giao dịch lịch sử.",
         },
         {
           title: "Kho đồ",
@@ -215,6 +220,16 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         },
       ],
       figures: [
+        {
+          key: "nguoi-ung-ho",
+          alt: "Tab Người ủng hộ trên trang chiến dịch",
+          caption: "Giao diện tab Người ủng hộ trên trang chiến dịch — cùng component BackerLink của hệ thống.",
+        },
+        {
+          key: "sao-ke-he-thong",
+          alt: "Báo cáo đối soát chiến dịch",
+          caption: "Đúng màn hình Báo cáo đối soát của creator: ledger pledge, xuất CSV, dòng đỏ là đảo/hoàn. Không phải bảng vẽ tay.",
+        },
         {
           key: "kho-do.jpg",
           alt: "Giao diện Kho đồ của backer",
