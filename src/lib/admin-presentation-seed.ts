@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 24;
+export const PRESENTATION_SEED_VERSION = 25;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -21,7 +21,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
   slides: [
     {
       variant: "hero",
-      kicker: "Bảo vệ đồ án · Tử Tế Fund",
+      kicker: "Tử Tế Fund",
       title: "Nền tảng gây quỹ lai",
       titleAccent: "Cho đi và Nhận lại",
       body: "Nơi để bắt đầu hành trình: gây quỹ nhân đạo, đặt trước sản phẩm, và lưu hồ sơ dự án.",
