@@ -217,9 +217,8 @@ export default function HybridModelPresentation({ deck }: { deck: PresentationDe
               type="button"
               aria-label={`Slide ${i + 1}`}
               onClick={() => go(i)}
-              className={`h-2.5 rounded-full transition ${
-                i === index ? "w-8 bg-emerald-600" : "w-2.5 bg-gray-300 hover:bg-gray-400"
-              }`}
+              className={`h-2.5 rounded-full transition ${i === index ? "w-8 bg-emerald-600" : "w-2.5 bg-gray-300 hover:bg-gray-400"
+                }`}
             />
           ))}
         </div>
@@ -301,9 +300,8 @@ function SlideView({ slide }: { slide: PresentationSlide }) {
 
       {slide.steps?.length ? (
         <ol
-          className={`grid gap-4 ${
-            slide.steps.length >= 5 ? "sm:grid-cols-2 lg:grid-cols-5" : "md:grid-cols-4"
-          }`}
+          className={`grid gap-4 ${slide.steps.length >= 5 ? "sm:grid-cols-2 lg:grid-cols-5" : "md:grid-cols-4"
+            }`}
         >
           {slide.steps.map((step) => (
             <li key={step.n} className="rounded-3xl border border-gray-100 bg-white p-6 text-left shadow-sm">
@@ -363,13 +361,12 @@ function SlideView({ slide }: { slide: PresentationSlide }) {
         <div key={block.heading || block.body} className="space-y-4 text-left">
           {block.heading ? (
             <h3
-              className={`text-xl font-black ${
-                block.headingTone === "rose"
-                  ? "text-rose-700"
-                  : block.headingTone === "emerald"
-                    ? "text-emerald-800"
-                    : "text-[#1B365D]"
-              }`}
+              className={`text-xl font-black ${block.headingTone === "rose"
+                ? "text-rose-700"
+                : block.headingTone === "emerald"
+                  ? "text-emerald-800"
+                  : "text-[#1B365D]"
+                }`}
             >
               {block.heading}
             </h3>
@@ -390,13 +387,12 @@ function SlideView({ slide }: { slide: PresentationSlide }) {
 
       {slide.figures?.length ? (
         <div
-          className={`grid items-start gap-8 ${
-            slide.figures.some((f) => isLiveDocument(f.key))
-              ? ""
-              : slide.figures.length > 1
-                ? "md:grid-cols-2"
-                : ""
-          }`}
+          className={`grid items-start gap-8 ${slide.figures.some((f) => isLiveDocument(f.key))
+            ? ""
+            : slide.figures.length > 1
+              ? "md:grid-cols-2"
+              : ""
+            }`}
         >
           {slide.figures.map((fig) => (
             <Figure key={fig.key + fig.caption} fig={fig} />
@@ -495,13 +491,12 @@ function CardGrid({ cards }: { cards: PresentationCard[] }) {
         return (
           <div
             key={card.title}
-            className={`rounded-[2rem] border p-6 text-left shadow-sm ${
-              rose
-                ? "border-rose-100 bg-rose-50"
-                : emerald
-                  ? "border-emerald-100 bg-emerald-50"
-                  : "border-gray-100 bg-white"
-            } ${split ? "p-8" : ""}`}
+            className={`rounded-[2rem] border p-6 text-left shadow-sm ${rose
+              ? "border-rose-100 bg-rose-50"
+              : emerald
+                ? "border-emerald-100 bg-emerald-50"
+                : "border-gray-100 bg-white"
+              } ${split ? "p-8" : ""}`}
           >
             {rose ? <HeartHandshake className="mb-4 text-rose-600" /> : null}
             {emerald ? <ShoppingBag className="mb-4 text-emerald-700" /> : null}
@@ -735,7 +730,7 @@ const DEMO_STATEMENT_PLEDGES = [
     fulfillmentStatus: "DELIVERED",
     accountingReversedAt: null as Date | null,
     reversalReason: null as string | null,
-    rewardTitle: "Vé ưu đãi khai trương — combo gà rán",
+    rewardTitle: "Phiếu ưu đãi khai trương — combo gà rán",
     user: { name: "Trần Minh Đức" },
   },
   {
@@ -787,7 +782,7 @@ const DEMO_STATEMENT_PLEDGES = [
     fulfillmentStatus: "CANCELED",
     accountingReversedAt: new Date("2026-08-26T10:00:00"),
     reversalReason: "Trễ SLA (cam kết thời hạn gửi hàng)",
-    rewardTitle: "Vé ưu đãi khai trương — combo gà rán",
+    rewardTitle: "Phiếu ưu đãi khai trương — combo gà rán",
     user: { name: "Lê Thị Hoa" },
   },
 ];

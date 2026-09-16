@@ -1,7 +1,7 @@
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 20;
+export const PRESENTATION_SEED_VERSION = 21;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -146,7 +146,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           ],
         ],
       },
-      note: "SLA (cam kết thời hạn gửi hàng) = ngày hẹn giao ghi trên chiến dịch + 2 ngày — áp cho hàng ship / nhận tại chỗ, không áp cho vé đã cấp. Vé/phiếu vào Kho đồ = đã giao quà; giải ngân khi chốt chiến dịch. Hàng vật lý: nhận đủ = xác nhận trên Kho đồ, hoặc vận chuyển báo phát thành công mà 7 ngày không khiếu nại. Vốn sản xuất không lấy từ tiền đang giữ — sàn không ứng vốn.",
+      note: "SLA (cam kết thời hạn gửi hàng) = ngày hẹn giao ghi trên chiến dịch + 2 ngày — áp cho hàng ship / nhận tại chỗ, không áp cho phiếu/sản phẩm đã cấp. Phiếu/sản phẩm vào Kho đồ = đã giao quà; giải ngân khi chốt chiến dịch. Hàng vật lý: nhận đủ = xác nhận trên Kho đồ, hoặc vận chuyển báo phát thành công mà 7 ngày không khiếu nại. Vốn sản xuất không lấy từ tiền đang giữ — sàn không ứng vốn.",
     },
     {
       kicker: "Luồng hàng Reward",
@@ -155,7 +155,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         { n: "01", t: "Thanh toán", d: "VietQR / chuyển khoản STK (số tài khoản) trung gian. Tiền chưa về creator." },
         { n: "02", t: "Đối soát & giữ", d: "Xác nhận đã nhận. Cấp biên lai. Giữ theo từng đơn, không giải ngân sớm." },
         { n: "03", t: "Gửi hoặc sẵn sàng nhận", d: "Đúng SLA (cam kết thời hạn gửi hàng). Giao vận chuyển, hoặc mở nhận tại quán. Trễ hạn → hoàn đơn đó." },
-        { n: "04", t: "Nhận đủ", d: "Hàng ship: xác nhận trên Kho đồ, hoặc 7 ngày không khiếu nại sau khi phát thành công. Vé/phiếu: đã nằm trong Kho đồ = đã giao quà — quét tại quán chỉ để đổi ưu đãi, không phải mốc giải ngân." },
+        { n: "04", t: "Nhận đủ", d: "Hàng ship: xác nhận trên Kho đồ, hoặc 7 ngày không khiếu nại sau khi phát thành công. Phiếu/sản phẩm: đã nằm trong Kho đồ = đã giao quà — quét tại quán chỉ để đổi ưu đãi, không phải mốc giải ngân." },
         { n: "05", t: "Chốt + giải ngân đơn", d: "Chiến dịch đã kết thúc và đơn đó đã nhận đủ → giải ngân đơn đó. Đơn khác chưa nhận thì vẫn giữ." },
       ],
     },
@@ -259,7 +259,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           ],
         },
         {
-          heading: "2. Reward — vé/phiếu vào Kho đồ, giải ngân khi chốt",
+          heading: "2. Reward — phiếu/sản phẩm vào Kho đồ, giải ngân khi chốt",
           headingTone: "emerald",
           figures: [
             {
@@ -296,7 +296,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
             },
             {
               title: "Hai đầu ra, không trộn",
-              body: "Vé/phiếu = biên lai + quà đã cấp điện tử, giải ngân khi chốt. Ủng hộ = chứng nhận, giải ngân khi chốt. Cùng hồ sơ quán, pháp lý tách.",
+              body: "Phiếu/sản phẩm = biên lai + quà đã cấp điện tử, giải ngân khi chốt. Ủng hộ = chứng nhận, giải ngân khi chốt. Cùng hồ sơ quán, pháp lý tách.",
             },
           ],
         },
@@ -417,7 +417,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         },
         {
           title: "Doanh thu và giữ tiền",
-          body: "Phí 8% trừ payout creator, không mark-up giá backer — phí sàn + đóng gói/kiểm duyệt, không chỉ máy chủ. Có thể thu phí KYB (xác minh doanh nghiệp) nâng cao. Reward: vé/phiếu giải ngân khi chốt; hàng ship khi chốt và đã nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng) thì hoàn. Donation không phí ẩn trên khoản ủng hộ.",
+          body: "Phí 8% trừ payout creator, không mark-up giá backer — phí sàn + đóng gói/kiểm duyệt, không chỉ máy chủ. Có thể thu phí KYB (xác minh doanh nghiệp) nâng cao. Reward: phiếu/sản phẩm giải ngân khi chốt; hàng ship khi chốt và đã nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng) thì hoàn. Donation không phí ẩn trên khoản ủng hộ.",
         },
         {
           title: "Không giả danh",
@@ -432,7 +432,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       bullets: [
         "Bệ phóng: điểm đến đầu của người lập nghiệp — tư vấn quy trình, pháp lý, tài chính để Creator yên tâm kinh doanh. Không đối đầu sàn lớn — mượn họ kể chuyện, đưa người về hồ sơ.",
         "Hai nhánh, hai chứng từ: Cho đi (Donation) và Nhận lại (Reward) tách minh bạch — không trộn ủng hộ với mua, không biến Reward thành chia lãi.",
-        "Bảo vệ bằng vận hành: vé/phiếu giải ngân khi chốt; hàng ship giữ đến khi chốt và nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng) thì hoàn.",
+        "Bảo vệ bằng vận hành: phiếu/sản phẩm giải ngân khi chốt; hàng ship giữ đến khi chốt và nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng) thì hoàn.",
         "Tuân thủ: không lấy trần P2P (cho vay ngang hàng) làm giấy thông hành. Vẫn TMĐT (thương mại điện tử), thuế, KYC/KYB (xác minh cá nhân / doanh nghiệp), an toàn dữ liệu.",
       ],
     },
@@ -470,9 +470,9 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           steps: [
             "Chọn combo / vé / pre-order (đặt trước)",
             "Thanh toán — tiền giữ theo đơn (escrow — giữ hộ)",
-            "Biên lai INV- + vé/quà trong Kho đồ",
-            "Vé/phiếu: đã có trong Kho đồ = đã nhận quà. Hàng ship: xác nhận hoặc 7 ngày không khiếu nại",
-            "Vé/phiếu: giải ngân khi chốt chiến dịch. Hàng ship: chốt + đã nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng, hàng vật lý) → hoàn đơn",
+            "Biên lai INV- + phiếu/sản phẩm trong Kho đồ",
+            "Phiếu/sản phẩm: đã có trong Kho đồ = đã nhận quà. Hàng ship: xác nhận hoặc 7 ngày không khiếu nại",
+            "Phiếu/sản phẩm: giải ngân khi chốt chiến dịch. Hàng ship: chốt + đã nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng, hàng vật lý) → hoàn đơn",
           ],
         },
         {
@@ -530,7 +530,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
     },
     {
       kicker: "Phụ lục",
-      title: "src/lib — nghiệp vụ, không phải UI",
+      title: "src/lib",
       body: "Phụ lục kỹ thuật. App Router nằm src/app. Dưới đây là thư viện lõi của mô hình lai. Tên file đúng repo.",
       tree: [
         { path: "src/lib/payment/", note: "tạo đơn, escrow (giữ hộ), VietQR, chuyển khoản STK trung gian, đối soát, hoàn" },
