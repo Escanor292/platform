@@ -1,7 +1,7 @@
-import type { PresentationDeck } from "@/lib/admin-presentation-types";
+﻿import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 25;
+export const PRESENTATION_SEED_VERSION = 26;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -420,7 +420,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           tone: "emerald",
         },
         {
-          title: "Lộ trình — chưa nhận đã xong",
+          title: "Lộ trình bảo mật",
           body: "Bucket riêng + URL ký hạn ngắn cho ảnh CCCD (hiện upload thư mục dùng chung). Mã hóa field-level AES-256 cho số CCCD / STK (số tài khoản) (hiện plaintext trong kyc_info). Khớp tên chủ TK chi hộ 100% với KYC (xác minh cá nhân) trước khi giải ngân. Nhật ký truy cập hồ sơ nhạy cảm.",
           tone: "rose",
         },
@@ -480,7 +480,6 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           body: "Ủng hộ / pre-order lớn không khớp chủ ngân hàng: rủi ro rửa tiền. Deepfake mở tài khoản: người bị mạo danh kiện sàn. Giải pháp: đối soát sinh trắc học và khớp tên chủ tài khoản (matching name) với giấy tờ — chống tài khoản rác.",
         },
       ],
-      note: "Cấm Reward kiểu “đóng 10 triệu, chia 5% doanh thu / lãi”. Chỉ cần chia lợi nhuận hoặc cam kết trả lãi là bị kéo sang huy động vốn.",
     },
     {
       kicker: "Mô hình kinh doanh",
@@ -504,7 +503,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           [
             "Gói hỗ trợ — lộ trình",
             "Creator / doanh nghiệp",
-            "VAS (dịch vụ giá trị gia tăng): tư vấn pháp lý, kê khai thuế, đăng ký HKD/DN, đóng gói hồ sơ gọi vốn. Chưa nhận đã chạy hết.",
+            "VAS (dịch vụ giá trị gia tăng): tư vấn pháp lý, kê khai thuế, đăng ký HKD/DN, đóng gói hồ sơ gọi vốn.",
             "B2B2C (sàn – đối tác – người dùng): liên kết luật sư / kế toán, chia doanh thu. Không tự xưng đã có giấy phép tư vấn.",
           ],
         ],
