@@ -97,7 +97,7 @@ export default function CreatorTaxGuidePage() {
         <h2 className="text-xl font-black text-gray-900 mb-4">Hóa đơn và chứng từ</h2>
         <ul className="text-sm text-gray-700 space-y-2 list-disc pl-5">
           <li>Ủng hộ không quà: chứng nhận <code>/chung-tu</code>, không xuất HĐ GTGT.</li>
-          <li>Có quà giao ngay: hóa đơn GTGT do <strong>Creator</strong> xuất cho người mua — xem <code>/hoa-don/<số></code>.</li>
+          <li>Có quà giao ngay: hóa đơn GTGT do <strong>Creator</strong> xuất cho người mua — xem <code>/hoa-don/[số]</code>.</li>
           <li>Phí dịch vụ sàn: hóa đơn GTGT <strong>Platform → Creator</strong> (ký hiệu 1C26TTF).</li>
           <li>Hộ / cá nhân doanh thu năm trên 1 tỷ: bắt buộc HĐĐT và kê khai.</li>
           <li>Phí dịch vụ 8% trừ phía Creator, không cộng vào giá backer. Mã CQT chỉ có khi đã gửi cơ quan thuế — hiện là chứng từ nội bộ đúng mẫu.</li>
