@@ -50,6 +50,7 @@ export default async function AdminUsersPage({
       case "ADMIN": return "bg-red-100 text-red-600";
       case "CREATOR": return "bg-blue-100 text-blue-600";
       case "CREATOR_PRO": return "bg-purple-100 text-purple-600";
+      case "CREATOR_PENDING": return "bg-amber-100 text-amber-700";
       default: return "bg-gray-100 text-gray-600";
     }
   };
@@ -99,6 +100,9 @@ export default async function AdminUsersPage({
             <div className="text-sm text-gray-400 font-bold mb-1">Backer</div>
             <div className="text-3xl font-black text-gray-600">
               {users.filter(u => u.role === "BACKER").length}
+            </div>
+            <div className="text-xs text-amber-700 mt-1">
+              {users.filter(u => u.role === "CREATOR_PENDING").length} chờ duyệt Creator
             </div>
           </div>
         </div>

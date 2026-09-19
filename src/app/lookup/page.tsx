@@ -14,6 +14,9 @@ type LookupResult = {
   status: string;
   refundStatus: string;
   createdAt: string;
+  invoiceNumber?: string | null;
+  invoiceHref?: string | null;
+  certificateCode?: string | null;
   campaign: {
     title: string;
     slug: string;
@@ -79,7 +82,7 @@ export default function LookupPage() {
           </h1>
           <p className="text-xl text-gray-600 font-medium max-w-2xl mx-auto leading-relaxed">
             Nhập mã giao dịch hoặc mã chứng từ <span className="font-mono text-base">TT-UH-YYYYMM-XXXX</span>
-            để kiểm tra trạng thái, chứng nhận ủng hộ và biên lai thanh toán.
+            để kiểm tra trạng thái, chứng nhận ủng hộ, biên lai và hóa đơn GTGT (INV-/PI-).
           </p>
         </div>
 
@@ -160,6 +163,18 @@ export default function LookupPage() {
                 </div>
               </div>
 
+              {result.invoiceHref ? (
+                <a href={result.invoiceHref} className="block p-6 bg-red-50 rounded-2xl border border-red-100 font-bold text-red-800">
+                  Hóa đơn GTGT {result.invoiceNumber}
+                </a>
+              ) : null}
+
+              {result.certificateCode ? (
+                <a href={`/chung-tu/${result.certificateCode}`} className="block p-6 bg-emerald-50 rounded-2xl border border-emerald-100 font-bold text-emerald-800">
+                  Chứng từ {result.certificateCode}
+                </a>
+              ) : null}
+
               {/* Supporter Name */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white rounded-2xl border border-gray-100">
                 <div className="flex-grow">
@@ -168,18 +183,23 @@ export default function LookupPage() {
                 </div>
               </div>
 
-              {/* Campaign */}
+              {result.campaign?.title ? (
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white rounded-2xl border border-gray-100">
                 <div className="flex-grow">
                   <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Dự án</div>
+                  {result.campaign.slug ? (
                   <a 
                     href={`/campaigns/${result.campaign.slug}`}
                     className="text-base font-bold text-pgreen hover:text-fgreen hover:underline transition"
                   >
                     {result.campaign.title}
                   </a>
+                  ) : (
+                    <div className="text-base font-bold text-gray-900">{result.campaign.title}</div>
+                  )}
                 </div>
               </div>
+              ) : null}
 
               {/* Amount Details */}
               <div className="space-y-4 p-6 bg-gradient-to-br from-pgreen/5 to-fgreen/5 rounded-2xl border border-pgreen/10">
@@ -218,10 +238,12 @@ export default function LookupPage() {
                   {getStatusBadge(result.status)}
                 </div>
                 
+                {result.refundStatus ? (
                 <div className="p-6 bg-white rounded-2xl border border-gray-100">
                   <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Trạng thái hoàn tiền</div>
                   {getStatusBadge(result.refundStatus)}
                 </div>
+                ) : null}
               </div>
 
               {/* Timestamp */}

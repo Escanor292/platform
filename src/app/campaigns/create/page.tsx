@@ -61,7 +61,7 @@ export default function CreateCampaignPage() {
     // Chỉ cho phép CREATOR và ADMIN tạo chiến dịch
     if (userRole !== "CREATOR" && !isAdmin) {
       toast.error("Bạn cần nâng cấp lên tài khoản Creator để tạo chiến dịch");
-      router.push("/");
+      router.push("/upgrade");
     }
   }, [session, status, router]);
 

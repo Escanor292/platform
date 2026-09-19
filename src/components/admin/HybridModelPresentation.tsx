@@ -594,7 +594,7 @@ function DemoInvoice() {
   return (
     <div className="overflow-hidden rounded-[1.75rem] border border-gray-100 bg-gray-100 p-3 sm:p-6">
       <p className="mb-3 text-center text-[11px] font-black uppercase tracking-widest text-slate-600">
-        Mẫu biên lai hệ thống — không phải hóa đơn GTGT
+        Mẫu hóa đơn GTGT Creator → người mua (GIFT_NOW) — ký hiệu 1C26TTF
       </p>
       <InvoiceDocument data={DEMO_INVOICE} />
     </div>

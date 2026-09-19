@@ -294,6 +294,11 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
                     <Rocket size={16} /> Quản lý dự án
                   </Link>
                 )}
+                {(user.role === "BACKER" || user.role === "CREATOR_PENDING") && (
+                  <Link href="/upgrade" className="inline-flex items-center gap-1.5 rounded-xl bg-pgreen px-3 py-2 text-xs font-bold text-white transition hover:bg-emerald-800 sm:px-4 sm:text-sm">
+                    <Rocket size={16} /> {user.role === "CREATOR_PENDING" ? "Hồ sơ Creator" : "Nâng cấp Creator"}
+                  </Link>
+                )}
               </div>
             )}
 

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { grantDigitalWarehouseItem } from "@/lib/digital-warehouse";
-import { createBackerInvoice } from "@/lib/invoice-generator";
+import { createBackerInvoice, createPlatformFeeInvoice } from "@/lib/invoice-generator";
 import { notificationService } from "@/services/mongodb/notification.service";
 import { estimatePlatformFee } from "@/lib/tax/money-flow";
 import { issueTaxDocumentForPledge, sendCertificateEmail } from "@/lib/tax/certificate";
@@ -55,6 +55,12 @@ export async function onPledgeSuccess(pledgeId: string) {
     } catch (error) {
       console.error("[TAX] backer receipt failed", error);
     }
+  }
+
+  try {
+    await createPlatformFeeInvoice(pledge.id);
+  } catch (error) {
+    console.error("[TAX] platform fee invoice failed", error);
   }
 
   if (tax.issued && pledge.userId) {

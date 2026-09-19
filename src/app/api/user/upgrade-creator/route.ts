@@ -11,7 +11,10 @@ export async function POST(req: NextRequest) {
     }
     const user = await prisma.users.findUnique({ where: { email: session.user.email } });
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
-    if (user.role !== "BACKER") {
+    if (user.role === "CREATOR" || user.role === "ADMIN") {
+      return NextResponse.json({ error: "Tai khoan nay da la Creator" }, { status: 403 });
+    }
+    if (user.role !== "BACKER" && user.role !== "CREATOR_PENDING") {
       return NextResponse.json({ error: "Chi tai khoan Backer moi co the nang cap" }, { status: 403 });
     }
     if (!(await userHasPermission(user, "kyc.submit"))) {
@@ -34,6 +37,8 @@ export async function POST(req: NextRequest) {
     if (isOrg && !formData.taxCode && !formData.businessLicense && !user.businessLicense) {
       return NextResponse.json({ error: "Doanh nghiep can MST hoac giay DKKD" }, { status: 400 });
     }
+    const keepVerified = existingKyc?.verificationStatus === "VERIFIED";
+    const nextRole = keepVerified ? "CREATOR" : "CREATOR_PENDING";
     await prisma.users.update({
       where: { id: user.id },
       data: {
@@ -45,10 +50,13 @@ export async function POST(req: NextRequest) {
         bankName: formData.bankName,
         isOrganization: isOrg,
         businessLicense: formData.businessLicense || formData.taxCode || user.businessLicense,
-        role: "CREATOR_PENDING",
+        role: nextRole,
+        approvedAt: keepVerified ? new Date() : user.approvedAt,
+        idCard: idCardNumber || user.idCard,
+        shippingAddress: formData.currentAddress || formData.companyAddress || user.shippingAddress,
+        updatedAt: new Date(),
       },
     });
-    const keepVerified = existingKyc?.verificationStatus === "VERIFIED";
     const kycData: any = {
       fullName,
       idCardNumber,
@@ -58,9 +66,11 @@ export async function POST(req: NextRequest) {
       idCardIssueDate: formData.idCardIssueDate ? new Date(formData.idCardIssueDate) : existingKyc?.idCardIssueDate || null,
       idCardIssuePlace: formData.idCardIssuePlace || existingKyc?.idCardIssuePlace || null,
       dateOfBirth: formData.dateOfBirth ? new Date(formData.dateOfBirth) : existingKyc?.dateOfBirth || null,
-      permanentAddress: formData.permanentAddress || existingKyc?.permanentAddress || null,
-      currentAddress: formData.currentAddress || existingKyc?.currentAddress || null,
-      occupation: isOrg ? `ORG:${formData.taxCode || ""}` : formData.occupation || existingKyc?.occupation || null,
+      permanentAddress: formData.permanentAddress || formData.companyAddress || existingKyc?.permanentAddress || null,
+      currentAddress: formData.currentAddress || formData.companyAddress || existingKyc?.currentAddress || null,
+      occupation: isOrg
+        ? `ORG:${formData.taxCode || formData.companyName || ""}`
+        : (formData.taxCode ? `MST:${formData.taxCode}` : formData.occupation || existingKyc?.occupation || null),
       verificationStatus: keepVerified ? "VERIFIED" : existingKyc?.verificationStatus || "PENDING",
       verifiedAt: keepVerified ? existingKyc?.verifiedAt : existingKyc?.verifiedAt || null,
       verifiedBy: keepVerified ? existingKyc?.verifiedBy : existingKyc?.verifiedBy || null,
@@ -78,10 +88,20 @@ export async function POST(req: NextRequest) {
         action: "CREATE",
         entityType: "USER",
         entityId: user.id,
-        changes: { action: "upgrade_creator_request", type: isOrg ? "organization" : "individual" },
+        changes: {
+          action: "upgrade_creator_request",
+          type: isOrg ? "organization" : "individual",
+          role: nextRole,
+        },
       },
     });
-    return NextResponse.json({ success: true, message: "Yeu cau nang cap da duoc gui" });
+    return NextResponse.json({
+      success: true,
+      role: nextRole,
+      message: keepVerified
+        ? "Ho so da duoc kich hoat Creator"
+        : "Yeu cau nang cap da duoc gui",
+    });
   } catch (error) {
     console.error("[POST /api/user/upgrade-creator]", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

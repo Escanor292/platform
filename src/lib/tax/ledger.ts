@@ -25,6 +25,7 @@ export async function creatorTaxReport(creatorId: string, year = new Date().getF
       campaigns: { select: { id: true, title: true, slug: true, feeRate: true } },
       rewards: { select: { title: true, isPreorder: true, fulfillmentType: true } },
       donation_certificate: { select: { code: true, documentKind: true } },
+      backer_invoices: { select: { invoiceNumber: true } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -46,6 +47,7 @@ export async function creatorTaxReport(creatorId: string, year = new Date().getF
       netEstimate: creatorNetEstimate(gross, fee),
       certificateCode: pledge.donation_certificate?.code || null,
       documentKind: pledge.donation_certificate?.documentKind || null,
+      invoiceNumber: pledge.backer_invoices?.invoiceNumber || null,
     };
   });
 

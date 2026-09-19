@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { isCertificateCode } from "@/lib/tax/money-flow";
+import { getVatInvoiceView } from "@/lib/invoice-generator";
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const transactionId = (searchParams.get("transactionId") || "").trim();
+    const transactionId = (searchParams.get("transactionId") || searchParams.get("code") || "").trim();
 
     if (!transactionId) {
       return NextResponse.json(
@@ -14,11 +15,32 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    if (/^(INV-|PI-|TTF-)/i.test(transactionId) || transactionId.startsWith("1C26")) {
+      const invoice = await getVatInvoiceView(transactionId);
+      if (invoice) {
+        return NextResponse.json({
+          kind: "INVOICE",
+          invoiceNumber: invoice.invoiceNumber,
+          invoiceHref: `/hoa-don/${encodeURIComponent(invoice.invoiceNumber)}`,
+          documentKind: invoice.kind === "PLATFORM_FEE" ? "PLATFORM_INVOICE" : "VAT_INVOICE",
+          displayName: invoice.backerName,
+          amount: invoice.amount,
+          vatAmount: invoice.vatAmount,
+          totalAmount: invoice.totalAmount,
+          paymentProvider: invoice.paymentMethod,
+          status: "ISSUED",
+          createdAt: invoice.issuedAt,
+          campaign: { title: invoice.campaignTitle, slug: "" },
+          transactionId: invoice.transactionId,
+        });
+      }
+    }
+
     if (isCertificateCode(transactionId)) {
       const certificate = await prisma.donation_certificates.findUnique({
         where: { code: transactionId.toUpperCase() },
         include: {
-          pledges: true,
+          pledges: { include: { backer_invoices: { select: { invoiceNumber: true } } } },
           campaigns: { select: { title: true, slug: true, campaignCode: true, imageUrl: true } },
         },
       });
@@ -32,6 +54,8 @@ export async function GET(request: NextRequest) {
         transactionId: pledge.transactionId,
         certificateCode: certificate.code,
         documentKind: certificate.documentKind,
+        invoiceNumber: pledge.backer_invoices?.invoiceNumber || null,
+        invoiceHref: pledge.backer_invoices ? `/hoa-don/${encodeURIComponent(pledge.backer_invoices.invoiceNumber)}` : null,
         displayName: certificate.displayName,
         amount: pledge.amount,
         tipAmount: pledge.tipAmount,
@@ -68,6 +92,7 @@ export async function GET(request: NextRequest) {
           },
         },
         donation_certificate: { select: { code: true, documentKind: true } },
+        backer_invoices: { select: { invoiceNumber: true } },
       },
     });
 
@@ -84,6 +109,8 @@ export async function GET(request: NextRequest) {
       transactionId: pledge.transactionId,
       certificateCode: pledge.donation_certificate?.code || null,
       documentKind: pledge.donation_certificate?.documentKind || null,
+      invoiceNumber: pledge.backer_invoices?.invoiceNumber || null,
+      invoiceHref: pledge.backer_invoices ? `/hoa-don/${encodeURIComponent(pledge.backer_invoices.invoiceNumber)}` : null,
       displayName: pledge.isAnonymous ? "Nguoi dung an danh" : (pledge.displayName || "Khach"),
       amount: pledge.amount,
       tipAmount: pledge.tipAmount,

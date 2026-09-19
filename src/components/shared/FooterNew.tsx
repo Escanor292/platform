@@ -49,6 +49,9 @@ export default function FooterNew() {
             <Link href="/huong-dan/creator" className="block cursor-pointer transition hover:opacity-100">
               {t("footer.creatorGuide")}
             </Link>
+            <Link href="/upgrade" className="block cursor-pointer transition hover:opacity-100">
+              {t("nav.upgrade")}
+            </Link>
             <Link href="/policy/terms" className="block cursor-pointer transition hover:opacity-100">
               {t("footer.terms")}
             </Link>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { creatorTaxReport } from "@/lib/tax/ledger";
 import { moneyFlowLabel, type MoneyFlow } from "@/lib/tax/money-flow";
 import { formatVND } from "@/lib/utils";
@@ -18,6 +19,12 @@ export default async function CreatorTaxPage({
   const year = Number(params.year || new Date().getFullYear());
   const report = await creatorTaxReport(userId, Number.isFinite(year) ? year : new Date().getFullYear());
   const flows: MoneyFlow[] = ["NO_GIFT", "GIFT_NOW", "PREORDER"];
+  const feeInvoices = await prisma.platform_invoices.findMany({
+    where: { creatorId: userId },
+    include: { campaigns: { select: { title: true } } },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+  });
 
   return (
     <main className="min-h-screen bg-slate-50/50 px-6 py-24">
@@ -29,8 +36,9 @@ export default async function CreatorTaxPage({
             </Link>
             <h1 className="mt-3 font-display text-4xl font-black text-gray-900">Sổ thuế / sao kê</h1>
             <p className="mt-2 max-w-2xl text-sm text-gray-500">
-              Sàn chưa khấu trừ hay nộp thuế hộ. Đây là sổ đối chiếu kiểu Shopee: người mua trả giá niêm yết,
-              phí dịch vụ ước tính trừ phía Creator, chứng từ không phải hóa đơn GTGT.
+              Sàn chưa khấu trừ hay nộp thuế hộ. Sổ đối chiếu: người mua trả giá niêm yết,
+              phí dịch vụ ước tính trừ phía Creator. Ủng hộ không quà = chứng nhận.
+              Bán quà giao ngay = hóa đơn GTGT Creator → Backer. Phí sàn = hóa đơn Platform → Creator.
             </p>
           </div>
           <a
@@ -110,13 +118,20 @@ export default async function CreatorTaxPage({
                   <td className="px-4 py-3 text-right font-semibold">{formatVND(row.gross)}</td>
                   <td className="px-4 py-3 text-right">{formatVND(row.platformFee)}</td>
                   <td className="px-4 py-3">
-                    {row.certificateCode ? (
-                      <Link href={`/chung-tu/${row.certificateCode}`} className="font-mono text-xs text-pgreen hover:underline">
-                        {row.certificateCode}
-                      </Link>
-                    ) : (
-                      <span className="text-xs text-gray-400">—</span>
-                    )}
+                    <div className="flex flex-col gap-1">
+                      {row.certificateCode ? (
+                        <Link href={`/chung-tu/${row.certificateCode}`} className="font-mono text-xs text-pgreen hover:underline">
+                          {row.certificateCode}
+                        </Link>
+                      ) : (
+                        <span className="text-xs text-gray-400">—</span>
+                      )}
+                      {row.invoiceNumber ? (
+                        <Link href={`/hoa-don/${encodeURIComponent(row.invoiceNumber)}`} className="font-mono text-xs text-red-700 hover:underline">
+                          HĐ {row.invoiceNumber}
+                        </Link>
+                      ) : null}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -133,6 +148,41 @@ export default async function CreatorTaxPage({
           Xem khung pháp luật:{" "}
           <Link href="/huong-dan/thue" className="font-bold text-pgreen hover:underline">hướng dẫn thuế</Link>.
         </p>
+
+        <section className="overflow-hidden rounded-[2rem] border border-gray-100 bg-white">
+          <div className="border-b border-gray-100 px-4 py-3 text-sm font-black">Hóa đơn phí sàn (Platform → Creator)</div>
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 text-left text-xs uppercase tracking-wider text-gray-400">
+              <tr>
+                <th className="px-4 py-3">Số HĐ</th>
+                <th className="px-4 py-3">Chiến dịch</th>
+                <th className="px-4 py-3 text-right">Phí</th>
+                <th className="px-4 py-3 text-right">GTGT</th>
+                <th className="px-4 py-3">Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody>
+              {feeInvoices.map((invoice) => (
+                <tr key={invoice.id} className="border-t border-gray-50">
+                  <td className="px-4 py-3">
+                    <Link href={`/hoa-don/${encodeURIComponent(invoice.invoiceNumber)}`} className="font-mono text-xs text-red-700 hover:underline">
+                      {invoice.invoiceNumber}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-3">{invoice.campaigns?.title}</td>
+                  <td className="px-4 py-3 text-right">{formatVND(Number(invoice.amount))}</td>
+                  <td className="px-4 py-3 text-right">{formatVND(Number(invoice.vatAmount))}</td>
+                  <td className="px-4 py-3 text-xs">{invoice.status}</td>
+                </tr>
+              ))}
+              {feeInvoices.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-4 py-8 text-center text-gray-400">Chưa có hóa đơn phí sàn.</td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
+        </section>
       </div>
     </main>
   );

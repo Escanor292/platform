@@ -20,7 +20,7 @@ const emptyLegal = {
 
 export default function UpgradeIndividualPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const [loading, setLoading] = useState(false);
   const [modeReady, setModeReady] = useState(false);
   const [ekycEnabled, setEkycEnabled] = useState(false);
@@ -37,12 +37,17 @@ export default function UpgradeIndividualPage() {
       return;
     }
     const user = session.user as any;
-    if (user?.role !== "BACKER") {
-      toast.error("Bạn đã là Creator hoặc không thể nâng cấp");
+    if (user?.role === "CREATOR" || user?.role === "ADMIN") {
+      toast.success("Bạn đã là Creator");
+      router.push("/dashboard/creator");
+      return;
+    }
+    if (user?.role && user.role !== "BACKER" && user.role !== "CREATOR_PENDING") {
+      toast.error("Tài khoản này không thể nâng cấp Creator");
       router.push("/dashboard");
       return;
     }
-    if (user?.isOrganization) {
+    if (user?.isOrganization && user?.role !== "CREATOR_PENDING") {
       router.push("/upgrade/organization");
       return;
     }
@@ -114,8 +119,15 @@ export default function UpgradeIndividualPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Lỗi khi nâng cấp");
-      toast.success("Đã gửi yêu cầu nâng cấp Creator. Chờ admin duyệt.");
-      router.push("/dashboard");
+      await update?.({ role: data.role });
+      if (data.role === "CREATOR") {
+        toast.success("Hồ sơ đã được kích hoạt Creator.");
+        router.push("/dashboard/creator");
+      } else {
+        toast.success("Đã gửi yêu cầu nâng cấp Creator. Chờ admin duyệt.");
+        router.push("/upgrade");
+      }
+      router.refresh();
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -151,6 +163,7 @@ export default function UpgradeIndividualPage() {
       bankName: formData.bankName,
       bio: formData.bio,
       website: formData.website,
+      taxCode: formData.taxCode,
     });
   };
 
@@ -159,6 +172,7 @@ export default function UpgradeIndividualPage() {
   }
 
   const showWizard = ekycEnabled && !ekycDone && kycStatus !== "VERIFIED" && kycStatus !== "PENDING";
+  const pending = (session?.user as any)?.role === "CREATOR_PENDING";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50/30 px-4 py-12">
@@ -166,13 +180,21 @@ export default function UpgradeIndividualPage() {
         <div className="text-center">
           <h1 className="text-4xl font-black">Nâng cấp Creator — cá nhân</h1>
           <p className="mt-2 text-gray-600">
-            {ekycEnabled
+            {pending
+              ? "Hồ sơ đang chờ duyệt. Có thể bổ sung thông tin nếu admin yêu cầu."
+              : ekycEnabled
               ? showWizard
                 ? "Hoàn tất định danh điện tử để gửi yêu cầu nâng cấp."
                 : "Đã định danh. Bổ sung thông tin Creator rồi gửi yêu cầu."
               : "Nộp ảnh CCCD hai mặt. Admin sẽ duyệt hồ sơ nâng cấp."}
           </p>
         </div>
+
+        {pending ? (
+          <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950">
+            Vai trò hiện tại: CREATOR_PENDING. Nút Nâng cấp Creator trên thanh điều hướng sẽ đổi thành Hồ sơ Creator cho đến khi admin duyệt.
+          </div>
+        ) : null}
 
         {showWizard ? (
           <EkycWizard
@@ -199,6 +221,7 @@ export default function UpgradeIndividualPage() {
                 <Input placeholder="STK nhận chi hộ khi chiến dịch kết thúc" value={formData.bankAccount} onChange={(e) => setFormData({ ...formData, bankAccount: e.target.value })} />
                 <Input placeholder="Ngân hàng nhận chi hộ" value={formData.bankName} onChange={(e) => setFormData({ ...formData, bankName: e.target.value })} />
               </div>
+              <Input placeholder="MST hộ / cá nhân (nếu đã đăng ký thuế)" value={formData.taxCode} onChange={(e) => setFormData({ ...formData, taxCode: e.target.value })} />
             </section>
             <Button type="submit" disabled={loading} className="h-14 w-full bg-emerald-700 text-lg font-bold hover:bg-emerald-800">
               {loading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
@@ -234,6 +257,7 @@ export default function UpgradeIndividualPage() {
                 <Input type="email" value={formData.email} disabled />
               </div>
               <Input placeholder="Tên hiển thị Creator" value={formData.displayName} onChange={(e) => setFormData({ ...formData, displayName: e.target.value })} />
+              <Input placeholder="MST hộ / cá nhân (nếu đã đăng ký thuế)" value={formData.taxCode} onChange={(e) => setFormData({ ...formData, taxCode: e.target.value })} />
               <Input placeholder="Số tài khoản" value={formData.bankAccount} onChange={(e) => setFormData({ ...formData, bankAccount: e.target.value })} />
               <Input placeholder="Ngân hàng" value={formData.bankName} onChange={(e) => setFormData({ ...formData, bankName: e.target.value })} />
             </section>

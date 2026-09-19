@@ -23,8 +23,11 @@ export const authConfig = {
         nextUrl.pathname === "/" ||
         nextUrl.pathname.startsWith("/campaigns") ||
         nextUrl.pathname.startsWith("/lookup") ||
+        nextUrl.pathname.startsWith("/hoa-don") ||
+        nextUrl.pathname.startsWith("/chung-tu") ||
         nextUrl.pathname.startsWith("/policy") ||
         nextUrl.pathname.startsWith("/gioi-thieu") ||
+        nextUrl.pathname.startsWith("/huong-dan") ||
         nextUrl.pathname.startsWith("/t/");
       const isAuthRoute =
         nextUrl.pathname.startsWith("/auth/login") ||

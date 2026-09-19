@@ -12,6 +12,9 @@ export async function middleware(request: NextRequest) {
       pathname.startsWith("/campaigns") ||
       pathname.startsWith("/products") ||
       pathname.startsWith("/lookup") ||
+      pathname.startsWith("/hoa-don") ||
+      pathname.startsWith("/chung-tu") ||
+      pathname.startsWith("/huong-dan") ||
       pathname.startsWith("/policy") ||
       pathname.startsWith("/gioi-thieu") ||
       pathname.startsWith("/blog") ||

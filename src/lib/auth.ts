@@ -54,15 +54,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         (session.user as any).role = token.role as string;
         (session.user as any).status = token.status as string;
         (session.user as any).isAdmin = !!token.isAdmin;
+        (session.user as any).isOrganization = !!token.isOrganization;
       }
       return session;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.role = (user as any).role;
         token.status = (user as any).status;
         token.isAdmin = (user as any).isAdmin;
+        token.isOrganization = (user as any).isOrganization;
+      }
+      // Client gọi update({ role }) sau nộp hồ sơ — không query DB ở Edge middleware.
+      if (trigger === "update" && session) {
+        const next = session as Record<string, unknown>;
+        if (typeof next.role === "string") token.role = next.role;
+        if (typeof next.status === "string") token.status = next.status;
+        if (typeof next.isOrganization === "boolean") token.isOrganization = next.isOrganization;
+        if (typeof next.isAdmin === "boolean") token.isAdmin = next.isAdmin;
       }
       return token;
     }

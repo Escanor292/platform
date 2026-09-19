@@ -96,11 +96,12 @@ export default function CreatorTaxGuidePage() {
       <section className="bg-white rounded-[2rem] border border-gray-100 p-8 mb-6">
         <h2 className="text-xl font-black text-gray-900 mb-4">Hóa đơn và chứng từ</h2>
         <ul className="text-sm text-gray-700 space-y-2 list-disc pl-5">
-          <li>Chứng nhận / biên lai sàn = đối chiếu thanh toán, <strong>không phải HĐ GTGT</strong>.</li>
-          <li>Hóa đơn đơn hàng do <strong>Creator</strong> xuất cho người mua — sàn không xuất hộ.</li>
-          <li>Hộ / cá nhân doanh thu năm trên 1 tỷ: bắt buộc HĐĐT.</li>
-          <li>Phí dịch vụ 8% là ước tính trừ phía Creator, không cộng vào giá backer. GTGT trên phí dịch vụ là nghĩa vụ pháp nhân sàn khi xuất hóa đơn phí — hiện chưa xuất.</li>
-          <li>Creator xem sổ tại <Link href="/dashboard/creator/thue" className="text-pgreen font-bold hover:underline">/dashboard/creator/thue</Link>.</li>
+          <li>Ủng hộ không quà: chứng nhận <code>/chung-tu</code>, không xuất HĐ GTGT.</li>
+          <li>Có quà giao ngay: hóa đơn GTGT do <strong>Creator</strong> xuất cho người mua — xem <code>/hoa-don/<số></code>.</li>
+          <li>Phí dịch vụ sàn: hóa đơn GTGT <strong>Platform → Creator</strong> (ký hiệu 1C26TTF).</li>
+          <li>Hộ / cá nhân doanh thu năm trên 1 tỷ: bắt buộc HĐĐT và kê khai.</li>
+          <li>Phí dịch vụ 8% trừ phía Creator, không cộng vào giá backer. Mã CQT chỉ có khi đã gửi cơ quan thuế — hiện là chứng từ nội bộ đúng mẫu.</li>
+          <li>Creator xem sổ tại <Link href="/dashboard/creator/thue" className="text-pgreen font-bold hover:underline">/dashboard/creator/thue</Link>. Tra cứu số HĐ tại <Link href="/lookup" className="text-pgreen font-bold hover:underline">/lookup</Link>.</li>
         </ul>
       </section>
 

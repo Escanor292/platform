@@ -14,6 +14,7 @@ export default async function BackerDashboard() {
     include: {
       campaigns: { select: { title: true, slug: true, status: true, imageUrl: true } },
       donation_certificate: { select: { code: true, documentKind: true } },
+      backer_invoices: { select: { invoiceNumber: true } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -48,12 +49,12 @@ export default async function BackerDashboard() {
                 <div key={pledge.id} className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-soft hover:shadow-premium transition-all group">
                   <div className="flex flex-col md:flex-row items-center gap-8">
                     <div className="w-full md:w-32 h-32 rounded-3xl overflow-hidden flex-shrink-0">
-                      <img src={pledge.campaign.imageUrl || "/placeholder.jpg"} className="w-full h-full object-cover" alt="Campaign" />
+                      <img src={pledge.campaigns?.imageUrl || "/placeholder.jpg"} className="w-full h-full object-cover" alt="Campaign" />
                     </div>
 
                     <div className="flex-grow space-y-2 text-center md:text-left">
-                      <Link href={`/campaigns/${pledge.campaign.slug}`} className="text-xl font-black text-gray-900 group-hover:text-blue-600 transition tracking-tight block">
-                        {pledge.campaign.title}
+                      <Link href={`/campaigns/${pledge.campaigns?.slug}`} className="text-xl font-black text-gray-900 group-hover:text-blue-600 transition tracking-tight block">
+                        {pledge.campaigns?.title}
                       </Link>
                       <div className="flex flex-wrap justify-center md:justify-start gap-4 items-center">
                         <span className="text-sm font-bold text-gray-900">{formatVND(Number(pledge.amount))}</span>
@@ -72,12 +73,20 @@ export default async function BackerDashboard() {
                           {pledge.donation_certificate.code}
                         </Link>
                       ) : null}
+                      {pledge.backer_invoices?.invoiceNumber ? (
+                        <Link
+                          href={`/hoa-don/${encodeURIComponent(pledge.backer_invoices.invoiceNumber)}`}
+                          className="px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest bg-red-50 text-red-700"
+                        >
+                          HĐ {pledge.backer_invoices.invoiceNumber}
+                        </Link>
+                      ) : null}
                       <span className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 ${pledge.status === "SUCCESS" ? "bg-emerald-50 text-emerald-600" : "bg-orange-50 text-orange-600"
                         }`}>
                         {pledge.status === "SUCCESS" ? <CheckCircle2 size={14} /> : <Clock size={14} />}
                         {pledge.status === "SUCCESS" ? "Thành công" : "Chờ xử lý"}
                       </span>
-                      <Link href={`/campaigns/${pledge.campaign.slug}`} className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 hover:bg-gray-900 hover:text-white transition active:scale-90">
+                      <Link href={`/campaigns/${pledge.campaigns?.slug}`} className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 hover:bg-gray-900 hover:text-white transition active:scale-90">
                         <ArrowRight size={20} />
                       </Link>
                     </div>

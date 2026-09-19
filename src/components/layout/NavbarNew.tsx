@@ -35,6 +35,7 @@ export default function NavbarNew() {
   const user = session?.user as any;
   const isAdmin = user?.role === "ADMIN" || user?.isAdmin === true;
   const { can } = useMyPermissions();
+  const canUpgrade = user?.role === "BACKER" || user?.role === "CREATOR_PENDING";
 
   useEffect(() => {
     return () => {
@@ -157,6 +158,21 @@ export default function NavbarNew() {
                 </Link>
               )}
 
+              {canUpgrade && (
+                <Link
+                  href="/upgrade"
+                  className="rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-green-200"
+                  style={{ background: user?.role === "CREATOR_PENDING"
+                    ? "linear-gradient(135deg, #d97706, #f59e0b)"
+                    : "var(--profile-gradient, linear-gradient(135deg, #2E8B57, #6BCB77))" }}
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    <Rocket size={16} />
+                    {user?.role === "CREATOR_PENDING" ? t("nav.upgradePending") : t("nav.upgrade")}
+                  </span>
+                </Link>
+              )}
+
               <div
                 className="relative"
                 onMouseEnter={() => {
@@ -215,14 +231,14 @@ export default function NavbarNew() {
                         {t("nav.profile")}
                       </Link>
 
-                      {can("kyc.submit") && user?.role === "BACKER" && (
+                      {canUpgrade && (
                         <Link
-                          href={user?.isOrganization ? "/upgrade/organization" : "/upgrade/individual"}
+                          href="/upgrade"
                           className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-gradient-to-r from-pgreen to-fgreen rounded-xl hover:shadow-lg transition cursor-pointer outline-none"
                           onClick={() => setIsDropdownOpen(false)}
                         >
                           <Rocket size={16} />
-                          {t("nav.upgrade")}
+                          {user?.role === "CREATOR_PENDING" ? t("nav.upgradePending") : t("nav.upgrade")}
                         </Link>
                       )}
 
@@ -334,6 +350,15 @@ export default function NavbarNew() {
               <Link href="/dashboard" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 dark:text-slate-200" onClick={() => setIsMenuOpen(false)}>
                 <UserCircle size={16} /> {t("nav.profile")}
               </Link>
+              {canUpgrade && (
+                <Link
+                  href="/upgrade"
+                  className="flex items-center gap-2 py-2 text-sm font-bold text-pgreen"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Rocket size={16} /> {user?.role === "CREATOR_PENDING" ? t("nav.upgradePending") : t("nav.upgrade")}
+                </Link>
+              )}
               <Link href="/notifications" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 dark:text-slate-200" onClick={() => setIsMenuOpen(false)}>
                 <Bell size={16} /> {t("nav.notifications")}
               </Link>

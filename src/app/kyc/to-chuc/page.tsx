@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { Building2, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import { EkycWizard } from "@/components/kyc/EkycWizard";
 
 export default function OrganizationUpgradePage() {
   const router = useRouter();
+  const { data: session, status, update } = useSession();
   const [busy, setBusy] = useState(false);
   const [looking, setLooking] = useState(false);
   const [modeReady, setModeReady] = useState(false);
@@ -28,6 +30,17 @@ export default function OrganizationUpgradePage() {
   });
 
   useEffect(() => {
+    if (status === "loading") return;
+    if (!session) {
+      toast.error("Vui lòng đăng nhập");
+      router.push("/auth/login?callbackUrl=/upgrade/organization");
+      return;
+    }
+    const user = session.user as any;
+    if (user?.role === "CREATOR" || user?.role === "ADMIN") {
+      router.push("/dashboard/creator");
+      return;
+    }
     fetch("/api/kyc/status")
       .then((r) => r.json())
       .then((data) => {
@@ -42,7 +55,7 @@ export default function OrganizationUpgradePage() {
       })
       .catch(() => null)
       .finally(() => setModeReady(true));
-  }, []);
+  }, [session, status, router]);
 
   const scanBack = async (file: File) => {
     try {
@@ -104,14 +117,22 @@ export default function OrganizationUpgradePage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Gửi thất bại");
-      toast.success("Hồ sơ doanh nghiệp đã gửi. Admin duyệt lại.");
-      router.push("/dashboard");
+      await update?.({ role: data.role, isOrganization: true });
+      if (data.role === "CREATOR") {
+        toast.success("Hồ sơ doanh nghiệp đã được kích hoạt Creator.");
+        router.push("/dashboard/creator");
+      } else {
+        toast.success("Hồ sơ doanh nghiệp đã gửi. Admin duyệt lại.");
+        router.push("/upgrade");
+      }
+      router.refresh();
     } catch (e: any) { toast.error(e.message); } finally { setBusy(false); }
   };
 
   const showWizard = ekycEnabled && !ekycDone && kycStatus !== "VERIFIED" && kycStatus !== "PENDING";
+  const pending = (session?.user as any)?.role === "CREATOR_PENDING";
 
-  if (!modeReady) {
+  if (status === "loading" || !modeReady) {
     return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-emerald-700" /></div>;
   }
 
@@ -122,11 +143,19 @@ export default function OrganizationUpgradePage() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-700 text-white"><Building2 /></div>
           <h1 className="text-3xl font-black">Nâng cấp Creator — doanh nghiệp</h1>
           <p className="mt-2 text-gray-600">
-            {showWizard
+            {pending
+              ? "Hồ sơ đang chờ duyệt. Có thể bổ sung MST hoặc ĐKKD nếu admin yêu cầu."
+              : showWizard
               ? "Định danh người đại diện trước, sau đó nộp MST và ĐKKD."
               : "Nộp mã số thuế và giấy ĐKKD. Admin phê duyệt cuối."}
           </p>
         </div>
+
+        {pending ? (
+          <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950">
+            Vai trò hiện tại: CREATOR_PENDING. Sau khi admin duyệt KYC, tài khoản sẽ lên Creator.
+          </div>
+        ) : null}
 
         {showWizard ? (
           <EkycWizard
@@ -150,6 +179,10 @@ export default function OrganizationUpgradePage() {
               <Input placeholder="Tên doanh nghiệp" value={form.companyName} onChange={(e) => setForm({ ...form, companyName: e.target.value })} />
               <Input placeholder="Địa chỉ đăng ký" value={form.companyAddress} onChange={(e) => setForm({ ...form, companyAddress: e.target.value })} />
               <Input placeholder="Người đại diện pháp luật" value={form.representative} onChange={(e) => setForm({ ...form, representative: e.target.value })} />
+              <div className="grid gap-4 md:grid-cols-2">
+                <Input placeholder="STK nhận chi hộ" value={form.bankAccount} onChange={(e) => setForm({ ...form, bankAccount: e.target.value })} />
+                <Input placeholder="Ngân hàng" value={form.bankName} onChange={(e) => setForm({ ...form, bankName: e.target.value })} />
+              </div>
               <ImageUpload label="Giấy ĐKKD / GPKD" value={form.businessLicense} onChange={(url) => setForm({ ...form, businessLicense: url })} />
               <ImageUpload label="Giấy ủy quyền (nếu cần)" value={form.authorizationUrl} onChange={(url) => setForm({ ...form, authorizationUrl: url })} />
             </section>

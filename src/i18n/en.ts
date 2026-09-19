@@ -11,6 +11,7 @@ export const en: Record<MessageKey, string> = {
   "nav.cart": "Cart",
   "nav.profile": "Profile",
   "nav.upgrade": "Upgrade to Creator",
+  "nav.upgradePending": "Creator application",
   "nav.manageCampaigns": "Manage campaigns",
   "nav.favorites": "Saved campaigns",
   "nav.purchases": "Library",

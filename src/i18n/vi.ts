@@ -9,6 +9,7 @@ export const vi = {
   "nav.cart": "Giỏ hàng",
   "nav.profile": "Trang cá nhân",
   "nav.upgrade": "Nâng cấp Creator",
+  "nav.upgradePending": "Hồ sơ Creator",
   "nav.manageCampaigns": "Quản lý chiến dịch",
   "nav.favorites": "Chiến dịch quan tâm",
   "nav.purchases": "Kho đã mua",

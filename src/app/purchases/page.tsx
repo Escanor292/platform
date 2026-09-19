@@ -28,7 +28,7 @@ export default async function PurchasesPage({
   const params = searchParams ? await searchParams : {};
   const highlightId = typeof params.item === "string" ? params.item : undefined;
 
-  const [pledges, certificates, noGiftPledges] = await Promise.all([
+  const [pledges, certificates, noGiftPledges, invoices] = await Promise.all([
     prisma.pledges.findMany({
       where: {
         userId,
@@ -63,6 +63,11 @@ export default async function PurchasesPage({
         donation_certificate: { select: { code: true } },
       },
       orderBy: { createdAt: "desc" },
+    }),
+    prisma.backer_invoices.findMany({
+      where: { pledges: { userId } },
+      select: { pledgeId: true, invoiceNumber: true, campaignTitle: true, issuedAt: true, totalAmount: true },
+      orderBy: { issuedAt: "desc" },
     }),
   ]);
 
@@ -118,7 +123,22 @@ export default async function PurchasesPage({
       href: null as string | null,
     }));
 
-  const items = [...certificateItems, ...pendingCertificateItems, ...digitalItems];
+  const invoiceItems = invoices.map((invoice) => ({
+    pledgeId: `invoice-${invoice.pledgeId}`,
+    purchasedAt: invoice.issuedAt.toISOString(),
+    quantity: 1,
+    amount: Number(invoice.totalAmount),
+    title: `Hoa don GTGT · ${invoice.campaignTitle}`,
+    rewardId: null,
+    fulfillmentType: "CERTIFICATE",
+    cover: null,
+    assetUrl: null,
+    licenseKey: invoice.invoiceNumber,
+    status: "DELIVERED",
+    href: `/hoa-don/${encodeURIComponent(invoice.invoiceNumber)}`,
+  }));
+
+  const items = [...invoiceItems, ...certificateItems, ...pendingCertificateItems, ...digitalItems];
 
   return (
     <main className="min-h-screen gradient-warm py-12">

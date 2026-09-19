@@ -58,9 +58,14 @@ export default function AdminKycPage() {
     SLA: items.filter((item) => item.status === "PENDING" && item.createdAt && isSlaOverdue(item.createdAt, 24, now)).length,
     VERIFIED: items.filter((item) => item.status === "VERIFIED").length,
     REJECTED: items.filter((item) => item.status === "REJECTED").length,
+    CREATOR: items.filter((item) => item.user?.role === "CREATOR_PENDING").length,
   }), [items, now]);
 
-  const visible = items.filter((item) => (filter === "all" ? true : item.status === filter));
+  const visible = items.filter((item) => {
+    if (filter === "all") return true;
+    if (filter === "CREATOR_PENDING") return item.user?.role === "CREATOR_PENDING";
+    return item.status === filter;
+  });
 
   const review = async (id: string, action: "APPROVE" | "REJECT", rejectReason = "") => {
     setBusyId(id);
@@ -116,6 +121,7 @@ export default function AdminKycPage() {
         <div className="flex flex-wrap gap-2">
           {[
             ["PENDING", `Chờ duyệt (${counts.PENDING})`],
+            ["CREATOR_PENDING", `Nâng cấp Creator (${counts.CREATOR})`],
             ["VERIFIED", "Đã xác minh"],
             ["REJECTED", "Từ chối"],
             ["all", "Tất cả"],
@@ -145,6 +151,7 @@ export default function AdminKycPage() {
                       <div className="text-lg font-black text-gray-900">{item.fullName}</div>
                       <div className="text-sm text-gray-500">
                         {item.user.email} · {item.idCardType} {item.idCardMasked} · Rủi ro {item.riskLevel}
+                        {item.user.role === "CREATOR_PENDING" ? " · Hồ sơ nâng cấp Creator" : ""}
                       </div>
                       <div className="mt-2 text-xs font-bold uppercase tracking-wide text-gray-400">
                         {STATUS_LABEL[item.status] || item.status}
