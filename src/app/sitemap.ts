@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 import prisma from '@/lib/prisma';
-import { PUBLIC_CAMPAIGN_STATUSES, NOT_TEST_FIXTURE } from '@/lib/moderation/policy';
+import { PUBLIC_CAMPAIGN_STATUSES } from '@/lib/moderation/policy';
 import { getSiteUrl } from '@/lib/seo';
 
 const MAX_URLS = 2000;
@@ -27,7 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const [campaigns, projects, posts, products] = await Promise.all([
       prisma.campaigns.findMany({
-        where: { status: { in: [...PUBLIC_CAMPAIGN_STATUSES] as any }, ...NOT_TEST_FIXTURE },
+        where: { status: { in: [...PUBLIC_CAMPAIGN_STATUSES] as any } },
         select: { slug: true, updatedAt: true },
         orderBy: { updatedAt: 'desc' },
         take: MAX_URLS,

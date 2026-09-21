@@ -4,24 +4,6 @@ export { hoursWaiting, isSlaOverdue, MAX_BULK_REVIEW, normalizeRejectReason, SLA
 
 export const PUBLIC_CAMPAIGN_STATUSES = ['ACTIVE', 'SUCCESS', 'FAILED'] as const;
 
-/** Seed/test campaigns must never count as public community stats or catalog. */
-export const TEST_FIXTURE_TITLE_PREFIX = '[FIXTURE';
-export const TEST_FIXTURE_TAG = 'fixture';
-
-export const NOT_TEST_FIXTURE = {
-  NOT: {
-    OR: [
-      { title: { startsWith: TEST_FIXTURE_TITLE_PREFIX } },
-      { tags: { has: TEST_FIXTURE_TAG } },
-    ],
-  },
-};
-
-export function isTestFixtureCampaign(campaign: { title?: string | null; tags?: string[] | null }): boolean {
-  if (campaign.title?.startsWith(TEST_FIXTURE_TITLE_PREFIX)) return true;
-  return Boolean(campaign.tags?.includes(TEST_FIXTURE_TAG));
-}
-
 export function isPublicCampaignStatus(status: string | null | undefined): boolean {
   return !!status && (PUBLIC_CAMPAIGN_STATUSES as readonly string[]).includes(status);
 }

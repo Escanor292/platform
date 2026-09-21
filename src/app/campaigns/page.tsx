@@ -5,7 +5,6 @@ import { buildSocialMetadata } from "@/lib/seo";
 import T from "@/i18n/T";
 import { CampaignGrid } from "@/components/campaigns/CampaignGrid";
 import { toCampaignListItem } from "@/lib/campaign-helpers";
-import { NOT_TEST_FIXTURE } from "@/lib/moderation/policy";
 
 export const metadata = buildSocialMetadata({
   title: "Khám phá chiến dịch",
@@ -15,7 +14,7 @@ export const metadata = buildSocialMetadata({
 
 export default async function CampaignsPage() {
   const campaigns = await prisma.campaigns.findMany({
-    where: { status: "ACTIVE", ...NOT_TEST_FIXTURE },
+    where: { status: "ACTIVE" },
     include: {
       users: { select: { name: true, displayName: true, avatar: true, status: true } },
       _count: {

@@ -12,7 +12,6 @@ import CTASection from "@/components/shared/CTASection";
 import { CampaignGrid } from "@/components/campaigns/CampaignGrid";
 import { toCampaignListItem } from "@/lib/campaign-helpers";
 import T from "@/i18n/T";
-import { NOT_TEST_FIXTURE } from "@/lib/moderation/policy";
 
 import { buildSocialMetadata } from "@/lib/seo";
 
@@ -30,7 +29,7 @@ export default async function Home() {
     : null;
 
   const campaigns = await prisma.campaigns.findMany({
-    where: { status: "ACTIVE", ...NOT_TEST_FIXTURE },
+    where: { status: "ACTIVE" },
     include: {
       users: { select: { id: true, name: true, displayName: true, avatar: true, status: true } },
       _count: {

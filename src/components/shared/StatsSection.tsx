@@ -56,9 +56,7 @@ export default function StatsSection() {
     {
       value: data ? data.successfulCampaigns.toLocaleString(nf) : '...',
       label: t('stats.success'),
-      trend: data
-        ? (data.successfulCampaigns > 0 ? t('stats.doneTrend') : t('stats.doneTrendEmpty'))
-        : t('stats.loading'),
+      trend: data ? t('stats.doneTrend') : t('stats.loading'),
       colorClass: 'text-tblue',
       bgClass: 'from-tblue/5',
     },

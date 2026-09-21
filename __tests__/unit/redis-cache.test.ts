@@ -2,12 +2,12 @@
 
 describe('Redis Cache Integration', () => {
     it('should build correct campaign cache key', () => {
-        expect(buildCampaignsCacheKey('page=1&limit=10')).toBe('cfvn:campaigns:v2:page=1&limit=10');
-        expect(buildCampaignsCacheKey('')).toBe('cfvn:campaigns:v2:default');
+        expect(buildCampaignsCacheKey('page=1&limit=10')).toBe('cfvn:campaigns:page=1&limit=10');
+        expect(buildCampaignsCacheKey('')).toBe('cfvn:campaigns:default');
     });
 
     it('should have correct stats cache key', () => {
-        expect(STATS_CACHE_KEY).toBe('cfvn:stats:v3');
+        expect(STATS_CACHE_KEY).toBe('cfvn:stats:v2');
     });
 
     it('should handle get, set and del without throwing errors', async () => {
