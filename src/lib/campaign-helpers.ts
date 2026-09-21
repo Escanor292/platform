@@ -2,7 +2,7 @@
  * Campaign Helper Functions
  */
 
-import { CampaignStatus, CompletionState, CampaignType, FundingModel } from "@/types/campaign";
+import { CampaignStatus, CompletionState, CampaignType, FundingModel, CampaignListItem } from "@/types/campaign";
 
 export function calculateCompletionState(
   status: CampaignStatus | string,
@@ -153,4 +153,73 @@ export function formatDateTimeVN(date: Date | string | null): string {
   const hours = dateObj.getHours().toString().padStart(2, '0');
   const minutes = dateObj.getMinutes().toString().padStart(2, '0');
   return `${day}/${month}/${year} ${hours}:${minutes}`;
+}
+
+export function toCampaignListItem(campaign: {
+  id: string;
+  campaignCode: string;
+  slug: string;
+  title: string;
+  description: string;
+  imageUrl: string | null;
+  creatorId: string;
+  category: string;
+  tags: string[];
+  type: string;
+  fundingModel: string;
+  goalAmount: unknown;
+  currentAmount: unknown;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  startDate: Date | string | null;
+  endDate: Date | string | null;
+  status: string;
+  isFeatured: boolean;
+  users?: {
+    name?: string | null;
+    displayName?: string | null;
+    avatar?: string | null;
+    status?: string | null;
+  } | null;
+  _count?: { pledges?: number; campaign_followers?: number } | null;
+}): CampaignListItem {
+  const goalAmount = Number(campaign.goalAmount);
+  const currentAmount = Number(campaign.currentAmount);
+  const progressPercent = goalAmount > 0 ? Math.round((currentAmount / goalAmount) * 100) : 0;
+  return {
+    id: campaign.id,
+    campaignCode: campaign.campaignCode,
+    slug: campaign.slug,
+    title: campaign.title,
+    description: campaign.description,
+    imageUrl: campaign.imageUrl,
+    creatorId: campaign.creatorId,
+    creatorName: campaign.users?.displayName || campaign.users?.name || "Creator",
+    creatorAvatar: campaign.users?.avatar || null,
+    creatorIsPro: campaign.users?.status === "PRO",
+    category: campaign.category,
+    tags: campaign.tags || [],
+    campaignType: campaign.type as CampaignType,
+    fundingModel: campaign.fundingModel as FundingModel,
+    goalAmount,
+    currentAmount,
+    progressPercent,
+    totalBackers: campaign._count?.pledges || 0,
+    totalFollowers: campaign._count?.campaign_followers || 0,
+    totalViews: 0,
+    ratingAverage: 0,
+    ratingCount: 0,
+    createdAt: campaign.createdAt,
+    updatedAt: campaign.updatedAt,
+    startDate: campaign.startDate,
+    endDate: campaign.endDate,
+    status: campaign.status as CampaignStatus,
+    completionState: calculateCompletionState(
+      campaign.status,
+      campaign.startDate,
+      campaign.endDate,
+      progressPercent,
+    ),
+    isFeatured: campaign.isFeatured,
+  };
 }

@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import OwnerEditPanel from "@/components/OwnerEditPanel";
-import { extractTextFromDescription } from "@/lib/utils";
 import Link from "next/link";
 import { Rocket, ArrowRight } from "lucide-react";
 import HeroSection from "@/components/shared/HeroSection";
@@ -10,8 +9,8 @@ import WhyUsSection from "@/components/shared/WhyUsSection";
 import ThreeStepsSection from "@/components/shared/ThreeStepsSection";
 import TestimonialsSection from "@/components/shared/TestimonialsSection";
 import CTASection from "@/components/shared/CTASection";
-import CreatorLink from "@/components/campaign/CreatorLink";
-import CampaignGrowthProgress from "@/components/campaign/CampaignGrowthProgress";
+import { CampaignGrid } from "@/components/campaigns/CampaignGrid";
+import { toCampaignListItem } from "@/lib/campaign-helpers";
 import T from "@/i18n/T";
 
 import { buildSocialMetadata } from "@/lib/seo";
@@ -32,11 +31,18 @@ export default async function Home() {
   const campaigns = await prisma.campaigns.findMany({
     where: { status: "ACTIVE" },
     include: {
-      users: { select: { id: true, name: true, avatar: true, status: true } },
+      users: { select: { id: true, name: true, displayName: true, avatar: true, status: true } },
+      _count: {
+        select: {
+          pledges: { where: { status: "SUCCESS" } },
+          campaign_followers: true,
+        },
+      },
     },
     take: 6,
     orderBy: { createdAt: "desc" },
   });
+  const featured = campaigns.map(toCampaignListItem);
 
   return (
     <main className="min-h-screen bg-background">
@@ -62,80 +68,19 @@ export default async function Home() {
             </Link>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {campaigns.length > 0 ? (
-              campaigns.map((campaign: any) => {
-                const daysLeft = campaign.endDate
-                  ? Math.max(0, Math.ceil((new Date(campaign.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
-                  : null;
-
-                return (
-                  <Link
-                    key={campaign.id}
-                    href={`/campaigns/${campaign.slug}`}
-                    className="rounded-3xl overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer bg-white group"
-                  >
-                    {campaign.imageUrl && (
-                      <div className="relative h-48 overflow-hidden">
-                        <img
-                          src={campaign.imageUrl}
-                          alt={campaign.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        />
-                        <div className="absolute top-4 left-4">
-                          <span className="px-3 py-1.5 bg-white/90 backdrop-blur text-xs font-bold text-gray-900 uppercase tracking-wider rounded-lg border border-white/20">
-                            {campaign.category || <T k="home.community" />}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="p-6">
-                      <h3 className="font-display font-bold text-dblue text-lg mb-2 line-clamp-2 group-hover:text-pgreen transition">
-                        {campaign.title}
-                      </h3>
-                      <p className="text-gray-500 text-sm mb-4 line-clamp-2">
-                        {extractTextFromDescription(campaign.description)}
-                      </p>
-
-                      <div className="space-y-3">
-                        <CampaignGrowthProgress
-                          currentAmount={Number(campaign.currentAmount)}
-                          goalAmount={Number(campaign.goalAmount)}
-                          variant="compact"
-                          size="sm"
-                          showTree={false}
-                        />
-
-                        <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                          <CreatorLink
-                            creatorId={campaign.creator?.id || ""}
-                            creatorName={campaign.creator?.name || "Anonymous"}
-                            creatorAvatar={campaign.creator?.avatar}
-                          />
-                          {daysLeft !== null && (
-                            <span className="text-xs text-gray-400">
-                              {daysLeft > 0 ? <T k="home.daysLeft" vars={{ n: daysLeft }} /> : <T k="home.ended" />}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })
-            ) : (
-              <div className="col-span-full py-24 text-center glass rounded-3xl">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Rocket className="text-gray-300" size={32} />
-                </div>
-                <h3 className="text-xl font-black text-gray-900 mb-2"><T k="home.emptyTitle" /></h3>
-                <p className="text-gray-400 text-sm font-medium">
-                  <T k="home.emptySub" />
-                </p>
+          {featured.length > 0 ? (
+            <CampaignGrid projects={featured} />
+          ) : (
+            <div className="py-24 text-center glass rounded-3xl">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Rocket className="text-gray-300" size={32} />
               </div>
-            )}
-          </div>
+              <h3 className="text-xl font-black text-gray-900 mb-2"><T k="home.emptyTitle" /></h3>
+              <p className="text-gray-400 text-sm font-medium">
+                <T k="home.emptySub" />
+              </p>
+            </div>
+          )}
         </div>
       </section>
 

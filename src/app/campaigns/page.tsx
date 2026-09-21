@@ -1,13 +1,10 @@
 import Link from "next/link";
 import prisma from "@/lib/prisma";
-import { extractTextFromDescription } from "@/lib/utils";
 import { Search, Rocket } from "lucide-react";
-import CampaignGrowthProgress from "@/components/campaign/CampaignGrowthProgress";
-import CreatorLink from "@/components/campaign/CreatorLink";
-import { Tag, Layers } from "lucide-react";
 import { buildSocialMetadata } from "@/lib/seo";
 import T from "@/i18n/T";
-import CatalogLabel from "@/i18n/CatalogLabel";
+import { CampaignGrid } from "@/components/campaigns/CampaignGrid";
+import { toCampaignListItem } from "@/lib/campaign-helpers";
 
 export const metadata = buildSocialMetadata({
   title: "Khám phá chiến dịch",
@@ -19,10 +16,17 @@ export default async function CampaignsPage() {
   const campaigns = await prisma.campaigns.findMany({
     where: { status: "ACTIVE" },
     include: {
-      users: { select: { name: true, avatar: true, status: true } },
+      users: { select: { name: true, displayName: true, avatar: true, status: true } },
+      _count: {
+        select: {
+          pledges: { where: { status: "SUCCESS" } },
+          campaign_followers: true,
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
   });
+  const items = campaigns.map(toCampaignListItem);
 
   return (
     <div className="min-h-screen bg-white">
@@ -69,83 +73,10 @@ export default async function CampaignsPage() {
       </section>
 
       <div className="max-w-7xl mx-auto py-16 px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {campaigns.length > 0 ? (
-            campaigns.map((campaign: any) => {
-              const daysLeft = campaign.endDate
-                ? Math.max(0, Math.ceil((new Date(campaign.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
-                : null;
-
-              return (
-                <Link
-                  key={campaign.id}
-                  href={`/campaigns/${campaign.slug}`}
-                  className="rounded-3xl overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer bg-white group"
-                >
-                  {campaign.imageUrl && (
-                    <div className="relative h-48 overflow-hidden">
-                      <img
-                        src={campaign.imageUrl}
-                        alt={campaign.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                      />
-                      <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                        <span className="px-2 py-1 bg-white/90 backdrop-blur text-[9px] font-black uppercase tracking-wider rounded-lg border border-white/20 text-blue-600 flex items-center gap-1">
-                          <Tag size={10} />
-                          <CatalogLabel kind="category" value={campaign.category} />
-                        </span>
-                        <span className={`px-2 py-1 bg-white/90 backdrop-blur text-[9px] font-black uppercase tracking-wider rounded-lg border border-white/20 flex items-center gap-1 ${campaign.type === 'REWARD' ? 'text-emerald-600' : 'text-orange-600'}`}>
-                          <Layers size={10} />
-                          <CatalogLabel kind="type" value={campaign.type} />
-                        </span>
-                        <span className="px-2 py-1 bg-white/90 backdrop-blur text-[9px] font-black uppercase tracking-wider rounded-lg border border-white/20 text-gray-600">
-                          <CatalogLabel kind="funding" value={campaign.fundingModel} />
-                        </span>
-                        {campaign.isFeatured && (
-                          <span className="px-2 py-1 bg-amber-100/95 backdrop-blur text-[9px] font-black uppercase tracking-wider rounded-lg border border-amber-200 text-amber-800">
-                            <T k="catalog.featured" />
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="p-6">
-                    <h3 className="font-display font-bold text-dblue text-lg mb-2 line-clamp-2 group-hover:text-pgreen transition">
-                      {campaign.title}
-                    </h3>
-                    <p className="text-gray-500 text-sm mb-4 line-clamp-2">
-                      {extractTextFromDescription(campaign.description)}
-                    </p>
-
-                    <div className="space-y-3">
-                      <CampaignGrowthProgress
-                        currentAmount={Number(campaign.currentAmount)}
-                        goalAmount={Number(campaign.goalAmount)}
-                        variant="compact"
-                        size="sm"
-                        showTree={false}
-                      />
-
-                      <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                        <CreatorLink
-                          creatorId={campaign.creator?.id || ""}
-                          creatorName={campaign.creator?.name || "Anonymous"}
-                          creatorAvatar={campaign.creator?.avatar}
-                        />
-                        {daysLeft !== null && (
-                          <span className="text-xs text-gray-400">
-                            {daysLeft > 0 ? <T k="home.daysLeft" vars={{ n: daysLeft }} /> : <T k="home.ended" />}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })
+          {items.length > 0 ? (
+            <CampaignGrid projects={items} />
           ) : (
-            <div className="col-span-full py-24 text-center glass rounded-3xl">
+            <div className="py-24 text-center glass rounded-3xl">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Rocket className="text-gray-300" size={32} />
               </div>
@@ -155,7 +86,6 @@ export default async function CampaignsPage() {
               </p>
             </div>
           )}
-        </div>
       </div>
     </div>
   );
