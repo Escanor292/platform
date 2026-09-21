@@ -45,11 +45,7 @@ export default function HeroSection() {
         });
 
         if (!response.ok) {
-          setStats({
-            totalFunds: "2.5 tỷ",
-            successfulCampaigns: 1250,
-            totalBackers: 15000,
-          });
+          setStats(null);
           return;
         }
 
@@ -64,11 +60,7 @@ export default function HeroSection() {
         }
         console.error('Error fetching stats:', error);
 
-        setStats({
-          totalFunds: "2.5 tỷ",
-          successfulCampaigns: 1250,
-          totalBackers: 15000,
-        });
+        setStats(null);
       }
     }
 

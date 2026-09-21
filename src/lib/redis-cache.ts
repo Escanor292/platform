@@ -6,7 +6,7 @@
  *
  * Key namespace:
  *   cfvn:campaigns:<queryString>  — danh sách campaigns theo filter
- *   cfvn:stats:v2                 — platform statistics
+ *   cfvn:stats:v3                 — platform statistics (exclude test fixtures)
  */
 
 import { redisGet, redisSet, redisDel, redisDelByPrefix } from "@/lib/redis";
@@ -69,10 +69,10 @@ export async function cacheInvalidatePrefix(prefix: string): Promise<void> {
 // ────────────────────────────────────────────────────────────
 
 /** Prefix cho tất cả cache campaigns */
-export const CAMPAIGNS_CACHE_PREFIX = "cfvn:campaigns:";
+export const CAMPAIGNS_CACHE_PREFIX = "cfvn:campaigns:v2:";
 
 /** Key cho cache stats */
-export const STATS_CACHE_KEY = "cfvn:stats:v2";
+export const STATS_CACHE_KEY = "cfvn:stats:v3";
 
 /**
  * Tạo cache key cho campaigns theo query string.

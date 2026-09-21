@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { catalogQueryFromQuestion, type CatalogHit } from "@/lib/public-catalog-search";
+import { NOT_TEST_FIXTURE } from "@/lib/moderation/policy";
 
 export async function GET(request: NextRequest) {
   const raw = request.nextUrl.searchParams.get("q")?.trim() || "";
@@ -20,6 +21,7 @@ export async function GET(request: NextRequest) {
       prisma.campaigns.findMany({
         where: {
           status: { in: ["ACTIVE", "SUCCESS"] },
+          ...NOT_TEST_FIXTURE,
           OR: [{ title: { contains: query, mode: "insensitive" } }, { description: { contains: query, mode: "insensitive" } }, { campaignCode: { contains: query, mode: "insensitive" } }],
         },
         select: { title: true, slug: true, description: true },

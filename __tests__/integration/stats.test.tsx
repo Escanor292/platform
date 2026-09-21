@@ -45,7 +45,7 @@ describe('Kiểm thử tích hợp Stats Section', () => {
 
         // Kiểm tra trend messages
         expect(screen.getByText('35 chiến dịch đang hoạt động')).toBeInTheDocument()
-        expect(screen.getByText('Đã hoàn thành mục tiêu')).toBeInTheDocument()
+        expect(screen.getByText('Đã đóng thành công')).toBeInTheDocument()
         expect(screen.getByText('Cộng đồng đang phát triển')).toBeInTheDocument()
 
         // Kiểm tra API được gọi đúng

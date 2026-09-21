@@ -8,7 +8,7 @@ import {
   cacheSet,
   buildCampaignsCacheKey,
 } from "@/lib/redis-cache";
-import { isPublicCampaignStatus, PUBLIC_CAMPAIGN_STATUSES } from "@/lib/moderation/policy";
+import { isPublicCampaignStatus, PUBLIC_CAMPAIGN_STATUSES, NOT_TEST_FIXTURE } from "@/lib/moderation/policy";
 
 export { POST } from "@/lib/campaign/create-campaign";
 
@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     }
 
     const filters = parseCampaignFilters(searchParams);
-    const where: any = {};
+    const where: any = { ...NOT_TEST_FIXTURE };
 
     if (filters.q) {
       const query = filters.q.trim().toLowerCase();
