@@ -47,7 +47,7 @@ export default function UpgradeIndividualPage() {
       router.push("/dashboard");
       return;
     }
-    if (user?.isOrganization && user?.role !== "CREATOR_PENDING") {
+    if (user?.isOrganization) {
       router.push("/upgrade/organization");
       return;
     }
@@ -179,6 +179,7 @@ export default function UpgradeIndividualPage() {
       <div className="mx-auto max-w-4xl space-y-6">
         <div className="text-center">
           <h1 className="text-4xl font-black">Nâng cấp Creator — cá nhân</h1>
+          <p className="mt-2 text-sm text-pgreen font-semibold">Tài khoản đăng ký là cá nhân / hộ — không cần chọn lại.</p>
           <p className="mt-2 text-gray-600">
             {pending
               ? "Hồ sơ đang chờ duyệt. Có thể bổ sung thông tin nếu admin yêu cầu."

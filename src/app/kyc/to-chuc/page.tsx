@@ -41,6 +41,10 @@ export default function OrganizationUpgradePage() {
       router.push("/dashboard/creator");
       return;
     }
+    if (user && user.isOrganization === false) {
+      router.push("/upgrade/individual");
+      return;
+    }
     fetch("/api/kyc/status")
       .then((r) => r.json())
       .then((data) => {
@@ -142,6 +146,7 @@ export default function OrganizationUpgradePage() {
         <div className="text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-700 text-white"><Building2 /></div>
           <h1 className="text-3xl font-black">Nâng cấp Creator — doanh nghiệp</h1>
+          <p className="mt-2 text-sm font-semibold text-emerald-800">Tài khoản đăng ký là tổ chức / công ty — không cần chọn lại.</p>
           <p className="mt-2 text-gray-600">
             {pending
               ? "Hồ sơ đang chờ duyệt. Có thể bổ sung MST hoặc ĐKKD nếu admin yêu cầu."
