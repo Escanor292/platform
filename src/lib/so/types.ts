@@ -237,6 +237,7 @@ export interface Employee {
   pin: string;
   wage: number;
   punches: { at: string; dir: "in" | "out" }[];
+  perms?: ViewId[];
 }
 
 export interface Audit {

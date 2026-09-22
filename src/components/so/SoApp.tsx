@@ -18,7 +18,8 @@ import {
   Wallet,
 } from "lucide-react";
 import type { Role, ViewId } from "@/lib/so/types";
-import { vnd } from "@/lib/so/money";
+import { vnd, vietqrImage, vietqrPayload } from "@/lib/so/money";
+import { can } from "@/lib/so/access";
 import * as eng from "@/lib/so/engine";
 import { SoProvider, useSo } from "./store";
 import { HomeView, OutInvoiceView, InInvoiceView, LedgerView, TaxView, ReportView, BankView, PeopleView, CrmView, SystemView, MapView } from "./views-books";
@@ -53,14 +54,6 @@ const NAV: { id: ViewId; label: string; icon: typeof Store; group: string }[] = 
   { id: "map", label: "Đủ nghiệp vụ", icon: LayoutDashboard, group: "Quản trị" },
 ];
 
-const ALLOW: Record<Role, ViewId[] | "all"> = {
-  owner: "all",
-  cashier: ["pos", "fnb", "omni", "crm", "hdra"],
-  stock: ["kho", "mua", "dm", "hdvao"],
-  accountant: ["hdra", "hdvao", "so", "thue", "bc", "nh", "home", "map"],
-  kitchen: ["fnb"],
-};
-
 const PRIMARY: Record<Role, ViewId[]> = {
   owner: ["pos", "home", "kho", "hdra", "so", "ns"],
   cashier: ["pos", "fnb", "omni", "crm"],
@@ -69,9 +62,8 @@ const PRIMARY: Record<Role, ViewId[]> = {
   kitchen: ["fnb"],
 };
 
-function allowed(role: Role, id: ViewId) {
-  const list = ALLOW[role];
-  return list === "all" || list.includes(id);
+function allowed(role: Role, id: ViewId, who?: { role: Role; perms?: ViewId[] } | null) {
+  return can(role, id, who);
 }
 
 const PAY_LABEL = { cash: "Tiền mặt", qr: "VietQR", card: "Thẻ", point: "Điểm", debt: "Ghi nợ" };
@@ -114,7 +106,7 @@ function NavButton({ id, on }: { id: ViewId; on: boolean }) {
 }
 
 function MorePanel({ onClose }: { onClose: () => void }) {
-  const { role, view, setView, reset } = useSo();
+  const { role, view, setView, reset, who } = useSo();
   const groups = ["Bán", "Kho", "Kế toán", "Quản trị"];
   return (
     <div className="fixed inset-0 z-30 bg-ink/40" onClick={onClose}>
@@ -127,7 +119,7 @@ function MorePanel({ onClose }: { onClose: () => void }) {
         </div>
         <div className="flex-1 space-y-4 overflow-y-auto">
           {groups.map((g) => {
-            const items = NAV.filter((n) => n.group === g && allowed(role, n.id));
+            const items = NAV.filter((n) => n.group === g && allowed(role, n.id, who));
             if (!items.length) return null;
             return (
               <div key={g}>
@@ -161,11 +153,13 @@ function Frame() {
   const { view, setView, role, who, setRole, logout, toast, state, receipt, dismissReceipt, askBox, closeAsk, run, online } = useSo();
   const [more, setMore] = useState(false);
   const open = state.shifts.find((s) => s.status === "open");
-  const primary = PRIMARY[role];
+  const primaryBase = PRIMARY[role].filter((id) => allowed(role, id, who));
+  const primary = primaryBase.length ? primaryBase : NAV.map((n) => n.id).filter((id) => allowed(role, id, who)).slice(0, 4);
+  const home = primary[0] || "pos";
 
   useEffect(() => {
-    if (!allowed(role, view)) setView(primary[0]);
-  }, [role, view, primary, setView]);
+    if (!allowed(role, view, who)) setView(home);
+  }, [role, view, home, who, setView]);
 
   return (
     <div className="min-h-screen bg-cream text-ink">
@@ -286,7 +280,26 @@ function Frame() {
                 <dt className="text-muted">Hóa đơn</dt>
                 <dd>{receipt.invoiceNo ? `${receipt.invoiceNo}${receipt.cqt ? ` · dấu ${receipt.cqt}` : receipt.queued ? " · chờ mạng" : " · từ chối"}` : "Chưa xuất"}</dd>
               </div>
-              {receipt.waitingPay ? <p className="text-sm text-navy">Tiền chưa về. Nội dung chuyển khoản phải đúng số đơn {receipt.no}.</p> : null}
+              {receipt.waitingPay ? (
+                <div className="mt-3 text-center">
+                  <img
+                    alt={`VietQR ${receipt.no}`}
+                    className="mx-auto h-44 w-44 rounded-2xl bg-cream"
+                    src={vietqrImage(state.settings.bankName, state.settings.bankAccount, receipt.total, receipt.no, state.settings.bankOwner)}
+                  />
+                  <p className="mt-2 text-sm text-navy">Khách quét mã. Nội dung phải là {receipt.no}. Tiền về khi sao kê chứa số này.</p>
+                  <button
+                    type="button"
+                    className="mt-2 min-h-11 text-sm font-semibold text-navy"
+                    onClick={() => {
+                      const payload = vietqrPayload(state.settings.bankName, state.settings.bankAccount, receipt.total, receipt.no);
+                      void navigator.clipboard?.writeText(payload);
+                    }}
+                  >
+                    Chép chuỗi VietQR
+                  </button>
+                </div>
+              ) : null}
             </dl>
             <div className="mt-4 grid grid-cols-2 gap-2">
               <button type="button" className="min-h-11 rounded-2xl bg-pgreen font-semibold text-surface" onClick={dismissReceipt}>
@@ -299,7 +312,7 @@ function Frame() {
               >
                 In bill
               </button>
-              {receipt.invoiceNo && allowed(role, "hdra") ? (
+              {receipt.invoiceNo && allowed(role, "hdra", who) ? (
                 <button
                   type="button"
                   className="col-span-2 min-h-11 rounded-2xl bg-navy font-semibold text-surface"
@@ -348,13 +361,14 @@ function Frame() {
   );
 }
 
-function printBill(state: { settings: { tradeName: string; mst: string; address: string } }, receipt: { no: string; total: number; tendered: number; change: number; invoiceNo?: string; cqt?: string; lines: { name: string; qty: number; amount: number }[] }) {
+function printBill(state: { settings: { tradeName: string; mst: string; address: string; bankName: string; bankAccount: string } }, receipt: { no: string; total: number; tendered: number; change: number; invoiceNo?: string; cqt?: string; waitingPay?: boolean; lines: { name: string; qty: number; amount: number }[] }) {
   const rows = receipt.lines.map((l) => `<tr><td>${l.name}</td><td>${l.qty}</td><td style="text-align:right">${l.amount.toLocaleString("vi-VN")}</td></tr>`).join("");
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>${receipt.no}</title>
 <style>@page{size:80mm auto;margin:4mm}body{font-family:ui-monospace,monospace;font-size:12px;width:72mm;margin:0}h1{font-size:14px;margin:0}table{width:100%;border-collapse:collapse}td{padding:2px 0}</style></head>
 <body><h1>${state.settings.tradeName}</h1><p>MST ${state.settings.mst}<br>${state.settings.address}</p><p>${receipt.no}</p><table>${rows}</table>
 <p>Tổng ${receipt.total.toLocaleString("vi-VN")} đ<br>Khách đưa ${receipt.tendered.toLocaleString("vi-VN")} đ<br>Thừa ${receipt.change.toLocaleString("vi-VN")} đ</p>
-<p>${receipt.invoiceNo ? `${receipt.invoiceNo} ${receipt.cqt || "chờ mã"}` : ""}</p>
+<p>${receipt.invoiceNo ? `${receipt.invoiceNo} · dấu nội bộ ${receipt.cqt || "chưa có"}` : ""}</p>
+<p>${receipt.waitingPay ? `Chuyển ${state.settings.bankName} ${state.settings.bankAccount}<br>Nội dung ${receipt.no}` : ""}</p>
 <script>window.print()<\/script></body></html>`;
   const w = window.open("", "bill", "width=360,height=640");
   if (!w) return;

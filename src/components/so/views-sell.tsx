@@ -90,7 +90,11 @@ export function PosView() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            const hit = found[0];
+            const needle = q.trim().toLowerCase();
+            const exact = state.products.find(
+              (p) => p.active && p.sell !== false && (p.barcode.toLowerCase() === needle || p.sku.toLowerCase() === needle),
+            );
+            const hit = exact || found[0];
             if (hit) add(hit.id);
           }}
         >
@@ -195,7 +199,7 @@ export function PosView() {
         <p className="mt-3 font-display text-3xl">{vnd(gross)}</p>
         {customer ? <p className="text-sm text-muted">MST {customer.mst || "không có"} · hạng {customer.tier}</p> : null}
 
-        <div className="mt-3 grid grid-cols-5 gap-1">
+        <div className="mt-3 grid grid-cols-3 gap-1 sm:grid-cols-5">
           {PAYS.map((p) => (
             <button
               key={p.id}
@@ -228,16 +232,16 @@ export function PosView() {
               ))}
             </div>
             <p className="mt-2 text-sm">Tiền thừa <span className="font-semibold">{vnd(change)}</span></p>
-            <label className="mt-3 block text-sm font-semibold">
-              Tách thêm VietQR (để trống nếu thu hết tiền mặt)
+            <details className="mt-2">
+              <summary className="cursor-pointer text-sm font-semibold">Tách một phần sang VietQR</summary>
               <input
                 inputMode="numeric"
                 value={split}
                 onChange={(e) => setSplit(e.target.value.replace(/[^\d]/g, ""))}
-                placeholder="0"
-                className="mt-1 min-h-11 w-full rounded-2xl border border-line bg-cream px-3"
+                placeholder="Số tiền khách quét"
+                className="mt-2 min-h-11 w-full rounded-2xl border border-line bg-cream px-3"
               />
-            </label>
+            </details>
           </div>
         ) : null}
 
@@ -257,8 +261,8 @@ export function PosView() {
         <div className="mt-2 flex flex-wrap gap-2">
           <Btn kind="ghost" onClick={() => run(eng.clearCart(state))}>Xóa phiếu</Btn>
         </div>
-        <div className="mt-3 rounded-2xl bg-cream p-3">
-          <p className="text-sm font-semibold">{open ? `Ca ${open.user} · bán ${vnd(open.sales)}` : "Chưa có ca mở"}</p>
+        <details className="mt-3 rounded-2xl bg-cream p-3">
+          <summary className="cursor-pointer text-sm font-semibold">{open ? `Ca ${open.user} · quỹ ${vnd(open.sales)}` : "Chưa có ca mở"}</summary>
           <div className="mt-2 flex gap-2">
             <input
               inputMode="numeric"
@@ -279,7 +283,7 @@ export function PosView() {
               Giao ca
             </Btn>
           </div>
-        </div>
+        </details>
       </section>
     </div>
   );
@@ -288,6 +292,7 @@ export function PosView() {
 export function FnbView() {
   const { state, run, seeCost } = useSo();
   const [picked, setPicked] = useState<Record<string, string[]>>({});
+  const [openId, setOpenId] = useState(state.tables[0]?.id || "");
   const menu = state.products.filter((p) => (p.category === "F&B" || p.category === "Nhà cửa") && p.sell !== false);
   const tickets = state.tables.filter((t) => t.status === "kitchen");
   const toggle = (tableId: string, key: string) => {
@@ -313,49 +318,69 @@ export function FnbView() {
           </ul>
         )}
       </Panel>
-      <Panel title="Sơ đồ bàn" hint="Gọi món, gửi bếp, tách bill rồi thu. Ly cà phê trừ shot trong kho.">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <Panel title="Sơ đồ bàn" hint="Chọn một bàn. Gọi món ở bàn đó, rồi gửi bếp hoặc thu.">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
           {state.tables.map((t) => {
             const total = t.lines.reduce((a, l) => a + l.qty * l.price, 0);
-            const tone = t.status === "empty" ? "mute" : t.status === "kitchen" ? "brown" : t.status === "bill" ? "navy" : "green";
+            const on = t.id === openId;
+            const tone = t.status === "empty" ? "border-line bg-cream" : t.status === "kitchen" ? "border-ebrown bg-ebrown/10" : t.status === "bill" ? "border-navy bg-navy/10" : "border-pgreen bg-pgreen/10";
             return (
-              <article key={t.id} className="rounded-3xl border border-line p-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-display text-lg">{t.name}</h3>
-                  <Pill tone={tone}>{t.status === "empty" ? "Trống" : t.status === "kitchen" ? "Bếp" : t.status === "bill" ? "Tính tiền" : "Có khách"}</Pill>
-                </div>
-                <p className="text-sm text-muted">{t.zone} · {t.covers || 0} khách · {vnd(total)}</p>
-                <ul className="mt-2 space-y-1 text-sm">
-                  {t.lines.map((l) => {
-                    const p = state.products.find((x) => x.id === l.productId);
-                    const on = (picked[t.id] || []).includes(l.key);
-                    return (
-                      <li key={l.key}>
-                        <label className="flex items-start gap-2">
-                          <input type="checkbox" className="mt-1" checked={on} onChange={() => toggle(t.id, l.key)} />
-                          <span>{l.qty} × {p?.name}{l.sent ? " · đã gửi" : ""}{seeCost ? ` · vốn ${vnd((p?.cost || 0) * l.qty)}` : ""}</span>
-                        </label>
-                      </li>
-                    );
-                  })}
-                </ul>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {t.status === "empty" ? (
-                    <Btn onClick={() => run(eng.seat(state, t.id, t.name.includes("Phòng") ? 4 : 2))}>Nhận bàn</Btn>
-                  ) : null}
-                  {menu.slice(0, 3).map((p) => (
-                    <Btn key={p.id} kind="ghost" onClick={() => run(eng.addTableItem(state, t.id, p.id))}>
-                      + {p.name.split(" ")[0]}
-                    </Btn>
-                  ))}
-                  <Btn kind="navy" onClick={() => run(eng.sendKitchen(state, t.id))}>Gửi bếp</Btn>
-                  <Btn kind="ghost" onClick={() => run(eng.payTableLines(state, t.id, picked[t.id] || []))}>Tách và thu</Btn>
-                  <Btn onClick={() => run(eng.payTable(state, t.id))}>Thu cả bàn</Btn>
-                </div>
-              </article>
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setOpenId(t.id)}
+                className={`min-h-20 rounded-2xl border px-3 py-2 text-left ${tone} ${on ? "ring-2 ring-pgreen" : ""}`}
+              >
+                <span className="block font-semibold">{t.name}</span>
+                <span className="block text-xs text-muted">{t.zone} · {t.status === "empty" ? "Trống" : t.status === "kitchen" ? "Bếp" : t.status === "bill" ? "Tính tiền" : "Có khách"}</span>
+                <span className="block text-sm">{total ? vnd(total) : "—"}</span>
+              </button>
             );
           })}
         </div>
+        {(() => {
+          const t = state.tables.find((x) => x.id === openId) || state.tables[0];
+          if (!t) return null;
+          const total = t.lines.reduce((a, l) => a + l.qty * l.price, 0);
+          return (
+            <div className="mt-4 rounded-3xl border border-line p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="font-display text-2xl">{t.name}</h3>
+                <p className="text-sm text-muted">{t.covers || 0} khách · {vnd(total)}</p>
+              </div>
+              <ul className="mt-3 space-y-1 text-sm">
+                {t.lines.length === 0 ? <li className="text-muted">Bàn chưa có món.</li> : null}
+                {t.lines.map((l) => {
+                  const p = state.products.find((x) => x.id === l.productId);
+                  const on = (picked[t.id] || []).includes(l.key);
+                  return (
+                    <li key={l.key}>
+                      <label className="flex min-h-11 items-center gap-2">
+                        <input type="checkbox" checked={on} onChange={() => toggle(t.id, l.key)} />
+                        <span>{l.qty} × {p?.name}{l.sent ? " · đã gửi bếp" : ""}{seeCost ? ` · vốn ${vnd((p?.cost || 0) * l.qty)}` : ""}</span>
+                      </label>
+                    </li>
+                  );
+                })}
+              </ul>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {menu.map((p) => (
+                  <Btn key={p.id} kind="ghost" onClick={() => run(eng.addTableItem(state, t.id, p.id))}>
+                    + {p.name}
+                  </Btn>
+                ))}
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {t.status === "empty" ? (
+                  <Btn onClick={() => run(eng.seat(state, t.id, t.name.includes("Phòng") ? 4 : 2))}>Nhận bàn</Btn>
+                ) : null}
+                <Btn kind="navy" onClick={() => run(eng.sendKitchen(state, t.id))}>Gửi bếp</Btn>
+                <Btn kind="ghost" onClick={() => run(eng.payTableLines(state, t.id, picked[t.id] || []))}>Tách món đã tick</Btn>
+                <Btn onClick={() => run(eng.payTable(state, t.id))}>Thu cả bàn</Btn>
+              </div>
+            </div>
+          );
+        })()}
       </Panel>
     </div>
   );
@@ -425,6 +450,21 @@ export function OmniView() {
       >
         Ghi đơn
       </Btn>
+      <label className="mt-3 block text-sm font-semibold">
+        Nhập file xuất từ sàn
+        <input
+          type="file"
+          accept=".csv,text/csv"
+          className="mt-1 block w-full text-sm"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            e.target.value = "";
+            if (!file) return;
+            file.text().then((text) => run(eng.importChannelCsv(state, text)));
+          }}
+        />
+      </label>
+      <p className="mt-1 text-xs text-muted">Cột: kênh, SKU hoặc mã vạch, số lượng, mã vận đơn, người mua, COD (1 hoặc 0). Kho online bị trừ ngay.</p>
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[680px] text-left text-sm">
           <thead className="text-muted">

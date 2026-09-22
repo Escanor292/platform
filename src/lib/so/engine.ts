@@ -1,4 +1,4 @@
-import type { CartLine, Channel, CheckoutReceipt, EInvoice, Journal, PayMethod, Payment, Sale, SoState } from "./types";
+import type { CartLine, Channel, CheckoutReceipt, EInvoice, Journal, PayMethod, Payment, Sale, SoState, ViewId } from "./types";
 import { nowIso, uid, vatOfInclusive } from "./money";
 
 export type Result = { state: SoState; message: string; receipt?: CheckoutReceipt };
@@ -936,7 +936,11 @@ export function addBankLine(s0: SoState, amount: number, desc: string): Result {
   s.seq += 1;
   const id = uid("bk", s.seq);
   s.bank.unshift({ id, at: nowIso(), desc: desc.trim(), amount });
-  const hit = s.sales.find((sale) => sale.status !== "paid" && sale.status !== "held" && desc.includes(sale.no));
+  const hit = s.sales.find((sale) => {
+    if (sale.status === "paid" || sale.status === "held") return false;
+    const blob = `${desc} ${sale.ship || ""}`.toLowerCase();
+    return blob.includes(sale.no.toLowerCase()) || Boolean(sale.ship && desc.toLowerCase().includes(sale.ship.toLowerCase()));
+  });
   if (hit && amount > 0) {
     const due = hit.payments.filter((p) => p.method !== "cash").reduce((a, p) => a + p.amount, 0) || hit.total;
     if (amount !== due && amount !== hit.total) {
@@ -953,6 +957,75 @@ export function addBankLine(s0: SoState, amount: number, desc: string): Result {
   }
   audit(s, "Sao kê", desc.trim());
   return { state: s, message: amount < 0 ? "Đã ghi chi ra ngân hàng." : "Đã ghi tiền vào. Nội dung chưa chứa số đơn." };
+}
+
+export function setBank(s0: SoState, bankName: string, bankAccount: string, bankOwner: string): Result {
+  const s = clone(s0);
+  if (!bankName.trim() || !bankAccount.trim()) return { state: s0, message: "Thiếu ngân hàng hoặc số tài khoản." };
+  s.settings.bankName = bankName.trim();
+  s.settings.bankAccount = bankAccount.replace(/\s/g, "");
+  s.settings.bankOwner = bankOwner.trim() || s.settings.bankOwner;
+  audit(s, "Tài khoản thu", `${s.settings.bankName} ${s.settings.bankAccount}`);
+  return { state: s, message: "Đã lưu tài khoản. VietQR trên bill dùng số này." };
+}
+
+export function setStaffPerms(s0: SoState, staffId: string, perms: ViewId[]): Result {
+  const s = clone(s0);
+  const e = s.staff.find((x) => x.id === staffId);
+  if (!e) return { state: s0, message: "Không thấy người." };
+  if (e.role === "owner") return { state: s0, message: "Chủ hộ giữ đủ quyền." };
+  e.perms = perms;
+  audit(s, "Phân quyền", `${e.name}: ${perms.length} việc`);
+  return { state: s, message: `${e.name} chỉ còn các việc đã tick.` };
+}
+
+export function importChannelCsv(s0: SoState, csv: string): Result {
+  const lines = csv.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  if (!lines.length) return { state: s0, message: "File trống." };
+  const header = /sku|mã|barcode|sl|số lượng/i.test(lines[0]);
+  let s = clone(s0);
+  let n = 0;
+  const errors: string[] = [];
+  for (const line of lines.slice(header ? 1 : 0)) {
+    const cols = line.split(/[,;\t]/).map((c) => c.trim().replace(/^"|"$/g, ""));
+    if (cols.length < 4) {
+      errors.push(line);
+      continue;
+    }
+    const [ch, code, qtyS, ship, buyer = "", codS = "1"] = cols;
+    const channel: Channel = /tik/i.test(ch) ? "tiktok" : /web/i.test(ch) ? "web" : "shopee";
+    const p = s.products.find(
+      (x) => x.sku.toLowerCase() === code.toLowerCase() || x.barcode === code || x.name.toLowerCase() === code.toLowerCase(),
+    );
+    if (!p || p.sell === false) {
+      errors.push(`Không thấy ${code}`);
+      continue;
+    }
+    const qty = Number(qtyS.replace(/\D/g, "")) || 0;
+    if (!ship || qty < 1) {
+      errors.push(`Thiếu vận đơn hoặc số lượng: ${code}`);
+      continue;
+    }
+    const base = clone(s);
+    base.cart = [{ key: "ch", productId: p.id, qty, price: p.price, discount: 0 }];
+    const cod = !/^(0|không|khong|no|false)$/i.test(codS);
+    const r = checkout(base, cod ? "debt" : "qr", channel, {
+      autoInvoice: false,
+      warehouseId: "w2",
+      status: cod ? "cod" : undefined,
+      ship,
+    });
+    if (!r.receipt) {
+      errors.push(r.message);
+      continue;
+    }
+    s = r.state;
+    const sale = s.sales[0];
+    if (sale && buyer) sale.note = `${buyer} · ${sale.note || ""}`.replace(/\s+·\s+$/, "").trim();
+    n += 1;
+  }
+  if (!n) return { state: s0, message: errors[0] || "Không ghi được đơn nào." };
+  return { state: s, message: `Đã ghi ${n} đơn sàn.${errors.length ? ` Bỏ ${errors.length} dòng.` : ""}` };
 }
 
 export function coverDays(s: SoState, productId: string): number | null {

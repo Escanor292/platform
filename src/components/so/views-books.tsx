@@ -1,10 +1,12 @@
 import { useMemo, useState } from "react";
+import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useSo } from "./store";
 import { Btn, Kpi, Panel, Pill } from "./ui";
 import * as eng from "@/lib/so/engine";
 import { COVERAGE } from "@/lib/so/coverage";
 import { downloadText, stamp, vnd } from "@/lib/so/money";
-import type { EInvoice } from "@/lib/so/types";
+import type { EInvoice, ViewId } from "@/lib/so/types";
+import { ROLE_VIEWS, VIEW_LABEL } from "@/lib/so/access";
 
 const statusTone = (s: EInvoice["status"]) =>
   s === "coded" ? "green" : s === "error" || s === "cancelled" ? "danger" : s === "replaced" ? "mute" : "brown";
@@ -291,22 +293,15 @@ export function ReportView() {
         <Kpi label="Giá vốn" value={vnd(cost)} />
         <Kpi label="Lãi gộp" value={vnd(revenue - cost)} />
       </div>
-      <div className="mt-4 space-y-3">
-        {data.length === 0 ? <p className="text-sm text-muted">Chưa có doanh thu để vẽ.</p> : null}
-        {data.map((d) => {
-          const max = Math.max(...data.map((x) => x.total), 1);
-          return (
-            <div key={d.name}>
-              <div className="mb-1 flex justify-between text-sm">
-                <span className="font-semibold">{d.name}</span>
-                <span className="text-muted">{vnd(d.total)}</span>
-              </div>
-              <div className="h-3 overflow-hidden rounded-full bg-cream">
-                <div className="h-full rounded-full bg-pgreen" style={{ width: `${Math.max(6, Math.round((d.total / max) * 100))}%` }} />
-              </div>
-            </div>
-          );
-        })}
+      <div className="mt-4 h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data}>
+            <XAxis dataKey="name" stroke="#5c6570" fontSize={12} />
+            <YAxis stroke="#5c6570" fontSize={12} />
+            <Tooltip formatter={(v) => vnd(Number(v))} />
+            <Bar dataKey="total" fill="#2e8b57" radius={8} />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </Panel>
   );
@@ -386,6 +381,17 @@ export function PeopleView() {
             ))}
           </ul>
         ) : <p className="mt-3 text-sm text-muted">Chưa có ca đã tan.</p>}
+        {rows.length ? (
+          <Btn
+            kind="ghost"
+            onClick={() => {
+              const body = ["ten,gio,luong,bhxh_nld_10.5,bhxh_ho_21.5", ...rows.map((r) => `${r.name},${r.hours},${r.pay},${r.nv},${r.employer}`)].join("\n");
+              downloadText("bang-luong-bhxh.csv", body, "text/csv");
+            }}
+          >
+            Tải bảng lương
+          </Btn>
+        ) : null}
       </Panel>
       <Panel title="Người làm" hint="Chủ hộ đổi vai để xem việc của từng người. Hoa hồng chỉ tính khi được xem giá.">
         <ul className="space-y-2">
@@ -407,6 +413,39 @@ export function PeopleView() {
           ))}
         </ul>
       </Panel>
+      {who?.role === "owner" ? (
+        <Panel title="Việc được làm" hint="Tick việc của từng người. Chủ hộ không bị thu hẹp.">
+          <ul className="space-y-4">
+            {state.staff.filter((e) => e.role !== "owner").map((e) => {
+              const preset = ROLE_VIEWS[e.role];
+              const base = e.perms?.length ? e.perms : preset === "all" ? VIEW_LABEL.map((v) => v.id) : preset;
+              return (
+                <li key={e.id}>
+                  <p className="font-semibold">{e.name}</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {VIEW_LABEL.map((v) => {
+                      const on = base.includes(v.id);
+                      return (
+                        <button
+                          key={v.id}
+                          type="button"
+                          onClick={() => {
+                            const next = on ? base.filter((id) => id !== v.id) : [...base, v.id];
+                            run(eng.setStaffPerms(state, e.id, next));
+                          }}
+                          className={`min-h-11 rounded-2xl px-3 text-sm font-semibold ${on ? "bg-pgreen text-surface" : "border border-line bg-surface"}`}
+                        >
+                          {v.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </Panel>
+      ) : null}
     </div>
   );
 }
@@ -439,6 +478,9 @@ export function CrmView() {
 
 export function SystemView() {
   const { state, run, ask } = useSo();
+  const [bankName, setBankName] = useState(state.settings.bankName);
+  const [bankAccount, setBankAccount] = useState(state.settings.bankAccount);
+  const [bankOwner, setBankOwner] = useState(state.settings.bankOwner);
   return (
     <div className="space-y-4">
       <Panel title="Hồ sơ hộ" hint="Mỗi chi nhánh một MST và một ký hiệu hóa đơn. Gói lưu trữ là file XML tải về máy.">
@@ -461,6 +503,28 @@ export function SystemView() {
             Tải gói lưu trữ
           </Btn>
         </div>
+        <form
+          className="mt-4 grid gap-2 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-end"
+          onSubmit={(e) => {
+            e.preventDefault();
+            run(eng.setBank(state, bankName, bankAccount, bankOwner));
+          }}
+        >
+          <label className="text-sm font-semibold">
+            Ngân hàng
+            <input value={bankName} onChange={(e) => setBankName(e.target.value)} className="mt-1 min-h-11 w-full rounded-2xl border border-line bg-cream px-3" />
+          </label>
+          <label className="text-sm font-semibold">
+            Số tài khoản
+            <input value={bankAccount} onChange={(e) => setBankAccount(e.target.value)} className="mt-1 min-h-11 w-full rounded-2xl border border-line bg-cream px-3" />
+          </label>
+          <label className="text-sm font-semibold">
+            Chủ tài khoản
+            <input value={bankOwner} onChange={(e) => setBankOwner(e.target.value)} className="mt-1 min-h-11 w-full rounded-2xl border border-line bg-cream px-3" />
+          </label>
+          <Btn kind="navy" type="submit">Lưu VietQR</Btn>
+        </form>
+        <p className="mt-2 text-xs text-muted">Mã quét trên bill dùng đúng số này. Số mẫu không nhận được tiền thật.</p>
       </Panel>
       <Panel title="Nhật ký thao tác">
         <ul className="space-y-2 text-sm">
