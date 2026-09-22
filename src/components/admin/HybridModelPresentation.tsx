@@ -315,7 +315,7 @@ function SlideView({
 
       {slide.cards?.length ? <CardGrid cards={slide.cards} /> : null}
 
-      {slide.variant === "pnl" ? <PresentationPnlChecklist stats={liveStats} /> : null}
+      {slide.variant === "pnl" ? <PresentationPnlChecklist /> : null}
 
       {slide.steps?.length ? (
         <ol

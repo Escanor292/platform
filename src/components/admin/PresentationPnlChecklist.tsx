@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Calculator } from "lucide-react";
-import type { LivePeriod, PresentationLiveStats } from "@/lib/admin-presentation-types";
 
 type Scenario = "early" | "optimistic";
 type Infra = "current" | "cheap";
@@ -21,12 +20,8 @@ type LineDef = {
 
 type LineLive = { on: boolean; value: number };
 
-const STORAGE_KEY = "ttf-pnl-checklist-v32";
+const STORAGE_KEY = "ttf-pnl-checklist-v36";
 const USD_DEFAULT = 26200;
-
-function vnd(n: number) {
-  return `${Math.round(n).toLocaleString("vi-VN")} đ`;
-}
 
 function trieu(n: number) {
   const abs = Math.abs(n);
@@ -35,70 +30,6 @@ function trieu(n: number) {
     return `${sign}${(abs / 1000).toLocaleString("vi-VN", { maximumFractionDigits: 2 })} tỷ`;
   }
   return `${sign}${abs.toLocaleString("vi-VN", { maximumFractionDigits: 1 })} triệu`;
-}
-
-function LiveTable({ stats }: { stats: PresentationLiveStats }) {
-  const cols: LivePeriod[] = [stats.quarter, stats.year, stats.all];
-  const rows: Array<[string, (p: LivePeriod) => string]> = [
-    ["Dự án tạo mới", (p) => String(p.projects)],
-    ["Chiến dịch tạo mới", (p) => String(p.campaigns)],
-    ["  · Reward", (p) => String(p.campaignsReward)],
-    ["  · Donation", (p) => String(p.campaignsDonation)],
-    ["Chiến dịch có giao dịch", (p) => String(p.campaignsWithTx)],
-    ["Người ủng hộ Donation", (p) => String(p.donationBackers)],
-    ["Lượt ủng hộ Donation", (p) => String(p.donationPledges)],
-    ["Tiền ủng hộ Donation", (p) => vnd(p.donationAmount)],
-    ["Tip tự nguyện Donation", (p) => vnd(p.donationTip)],
-    ["Người đặt Reward", (p) => String(p.rewardBackers)],
-    ["Đơn Reward thành công", (p) => String(p.rewardPledges)],
-    ["Tiền Reward (GMV)", (p) => vnd(p.rewardAmount)],
-    ["Phí sàn đã thu (gồm VAT)", (p) => vnd(p.platformFee)],
-    ["Giấy chứng nhận đã cấp", (p) => String(p.certificates)],
-    ["Người dùng mới", (p) => String(p.usersNew)],
-  ];
-  return (
-    <div className="overflow-x-auto rounded-[1.5rem] border border-slate-200 bg-white shadow-sm">
-      <div className="flex flex-wrap items-end justify-between gap-2 border-b border-slate-100 bg-slate-900 px-4 py-3 text-white">
-        <div>
-          <div className="text-[11px] font-bold uppercase tracking-wide text-slate-300">Số liệu thật trên Neon</div>
-          <div className="text-sm font-black">{stats.quarterLabel} · cập nhật lúc thuyết trình</div>
-        </div>
-        <div className="text-[11px] text-slate-300">
-          Đang chạy: {stats.snapshot.campaignsActive} chiến dịch ({stats.snapshot.campaignsRewardActive} Reward ·{" "}
-          {stats.snapshot.campaignsDonationActive} Donation) · {stats.snapshot.projects} dự án · {stats.snapshot.users}{" "}
-          người dùng
-        </div>
-      </div>
-      <table className="w-full min-w-[640px] text-left text-sm">
-        <thead>
-          <tr className="border-b border-slate-100 bg-slate-50 text-[11px] font-black uppercase tracking-wide text-slate-500">
-            <th className="px-4 py-2">Chỉ số</th>
-            {cols.map((c) => (
-              <th key={c.label} className="px-4 py-2">
-                {c.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map(([name, pick]) => (
-            <tr key={name} className="border-b border-slate-50">
-              <td className="px-4 py-2 font-semibold text-slate-700">{name}</td>
-              {cols.map((c) => (
-                <td key={c.label} className="px-4 py-2 font-black text-slate-900">
-                  {pick(c)}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <p className="px-4 py-2 text-[11px] text-slate-500">
-        Donation = chiến dịch type DONATION, Pledge SUCCESS. Reward = type REWARD. Người ủng hộ đếm unique theo tài
-        khoản / email. GMV không phải doanh thu sàn — phí sàn mới là doanh thu.
-      </p>
-    </div>
-  );
 }
 
 function lineUnitLabel(def: LineDef) {
@@ -287,7 +218,7 @@ const CURRENT_LINES: LineDef[] = [
     note: "Free 25 credit. Plus 99 USD / 225 credit khi ảnh KYC + media tăng.",
     unit: "usd",
     defaultOn: true,
-    value: (s) => (s === "optimistic" ? 99 : 0),
+    value: (s) => (s === "optimistic" ? 99 : 15),
   },
   {
     id: "current.redis",
@@ -295,7 +226,7 @@ const CURRENT_LINES: LineDef[] = [
     note: "Free 256MB. Fixed 10 USD gói 250MB.",
     unit: "usd",
     defaultOn: true,
-    value: (s) => (s === "optimistic" ? 10 : 0),
+    value: (s) => (s === "optimistic" ? 10 : 5),
   },
   {
     id: "current.mongo",
@@ -303,15 +234,15 @@ const CURRENT_LINES: LineDef[] = [
     note: "M0 free 512MB. Flex 8–30 USD.",
     unit: "usd",
     defaultOn: true,
-    value: (s) => (s === "optimistic" ? 20 : 0),
+    value: (s) => (s === "optimistic" ? 20 : 8),
   },
   {
     id: "current.sentry",
     name: "Sentry",
-    note: "Developer free. Team 26 USD.",
+    note: "Developer free năm đầu có thể 0. Team 26 USD khi có lỗi production.",
     unit: "usd",
     defaultOn: true,
-    value: (s) => (s === "optimistic" ? 26 : 0),
+    value: (s) => (s === "optimistic" ? 26 : 8),
   },
   {
     id: "current.domain",
@@ -455,7 +386,7 @@ const PARTNER_LINES: LineDef[] = [
     unit: "trieu",
     defaultOn: true,
     side: "revenue",
-    value: (s) => (s === "optimistic" ? 4 : 0),
+    value: (s) => (s === "optimistic" ? 4 : 1.5),
   },
   {
     id: "partner.rev.ketoan",
@@ -464,7 +395,7 @@ const PARTNER_LINES: LineDef[] = [
     unit: "trieu",
     defaultOn: true,
     side: "revenue",
-    value: (s) => (s === "optimistic" ? 3 : 0),
+    value: (s) => (s === "optimistic" ? 3 : 1),
   },
   {
     id: "partner.rev.tos",
@@ -473,16 +404,12 @@ const PARTNER_LINES: LineDef[] = [
     unit: "trieu",
     defaultOn: true,
     side: "revenue",
-    value: (s) => (s === "optimistic" ? 2 : 0),
+    value: (s) => (s === "optimistic" ? 2 : 0.8),
   },
   {
     id: "partner.rev.kyb",
     name: "Thu — gói KYB / đăng ký TMĐT cho Creator",
-    note: "Giấy phép KD, hồ sơ sàn TMĐT Bộ Công Thương phía người bán.",
-    unit: "trieu",
-    defaultOn: true,
-    side: "revenue",
-    value: (s) => (s === "optimistic" ? 2 : 0),
+    value: (s) => (s === "optimistic" ? 2 : 0.8),
   },
   {
     id: "partner.rev.workshop",
@@ -491,7 +418,7 @@ const PARTNER_LINES: LineDef[] = [
     unit: "trieu",
     defaultOn: false,
     side: "revenue",
-    value: (s) => (s === "optimistic" ? 1.5 : 0),
+    value: (s) => (s === "optimistic" ? 1.5 : 0.5),
   },
   {
     id: "partner.cost.chuyen",
@@ -499,7 +426,7 @@ const PARTNER_LINES: LineDef[] = [
     note: "Thường 60–70% giá gói. Sửa cho khớp hợp đồng chia.",
     unit: "trieu",
     defaultOn: true,
-    value: (s) => (s === "optimistic" ? 7.5 : 0),
+    value: (s) => (s === "optimistic" ? 7.5 : 2.5),
   },
   {
     id: "partner.cost.retainer",
@@ -647,10 +574,7 @@ const GROW_LINES: LineDef[] = [
   {
     id: "grow.pr",
     name: "PR / báo chí / KOL nhỏ",
-    note: "Bài báo, review. Tách khỏi ads performance.",
-    unit: "trieu",
-    defaultOn: false,
-    value: (s) => (s === "optimistic" ? 3 : 0),
+    value: (s) => (s === "optimistic" ? 3 : 1),
   },
 ];
 
@@ -746,7 +670,7 @@ function loadPersist(): Persist | null {
   }
 }
 
-export default function PresentationPnlChecklist({ stats }: { stats?: PresentationLiveStats | null }) {
+export default function PresentationPnlChecklist() {
   const [scenario, setScenario] = useState<Scenario>("early");
   const [revenueOn, setRevenueOn] = useState(false);
   const [infra, setInfra] = useState<Infra | null>(null);
@@ -899,23 +823,6 @@ export default function PresentationPnlChecklist({ stats }: { stats?: Presentati
     setUsdRate(USD_DEFAULT);
   }
 
-  function applyLiveQuarter() {
-    if (!stats) return;
-    const rewardTrieu = stats.quarter.rewardAmount / 1_000_000;
-    const donationTrieu = stats.quarter.donationAmount / 1_000_000;
-    const tipPctLive =
-      stats.quarter.donationAmount > 0
-        ? Math.round((stats.quarter.donationTip / stats.quarter.donationAmount) * 10000) / 100
-        : 0;
-    setRevenueOn(true);
-    setLines((prev) => ({
-      ...prev,
-      "rev.gmvRewardQ": { on: true, value: Number(rewardTrieu.toFixed(2)) },
-      "rev.gmvDonationQ": { on: true, value: Number(donationTrieu.toFixed(2)) },
-      "rev.tip": { on: true, value: tipPctLive },
-    }));
-  }
-
   const optHint = [
     opt.legal && "pháp lý công ty",
     opt.partner && "hồ sơ startup",
@@ -960,7 +867,10 @@ export default function PresentationPnlChecklist({ stats }: { stats?: Presentati
         <PnlCol
           label="Một quý"
           rows={[
-            ["GMV chảy qua sàn (không phải DT sàn)", trieu(gmvRewardQ + gmvDonationQ)],
+            ["GMV chiến dịch Reward", trieu(gmvRewardQ)],
+            ["Doanh thu phí chiến dịch Reward", trieu(rewardFeeGross)],
+            ["GMV Donation", trieu(gmvDonationQ)],
+            ["Doanh thu tip Donation", trieu(tipGross)],
             ["Doanh thu gồm VAT", trieu(grossQ)],
             ["Doanh thu thuần (đã tách VAT đầu ra)", trieu(netQ)],
             ["VAT đầu ra 10% trên phí sàn", trieu(outputVatQ)],
@@ -983,6 +893,10 @@ export default function PresentationPnlChecklist({ stats }: { stats?: Presentati
         <PnlCol
           label="Một năm (×4 quý cùng số)"
           rows={[
+            ["GMV chiến dịch Reward", trieu(gmvRewardQ * 4)],
+            ["Doanh thu phí chiến dịch Reward", trieu(rewardFeeGross * 4)],
+            ["GMV Donation", trieu(gmvDonationQ * 4)],
+            ["Doanh thu tip Donation", trieu(tipGross * 4)],
             ["Doanh thu gồm VAT", trieu(grossQ * 4)],
             ["Doanh thu thuần", trieu(netQ * 4)],
             ["VAT đầu ra", trieu(outputVatQ * 4)],
@@ -1015,34 +929,14 @@ export default function PresentationPnlChecklist({ stats }: { stats?: Presentati
 
   return (
     <div className="space-y-4 text-left">
-      {stats ? <LiveTable stats={stats} /> : (
-        <div className="rounded-[1.5rem] border border-dashed border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
-          Không lấy được số liệu từ Neon.
-        </div>
-      )}
-
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-xs font-medium text-gray-500">
-          Bảng trên là số đang chạy trên Neon. Bên dưới là kịch bản P&L giả lập — có thể đổ GMV quý này vào.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {stats ? (
-            <button
-              type="button"
-              onClick={applyLiveQuarter}
-              className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-black text-emerald-800"
-            >
-              Đổ GMV quý này vào P&L
-            </button>
-          ) : null}
-          <button
-            type="button"
-            onClick={resetDefaults}
-            className="shrink-0 rounded-full border border-gray-200 bg-white px-3 py-1 text-[11px] font-black text-gray-600"
-          >
-            Khôi phục số mặc định
-          </button>
-        </div>
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={resetDefaults}
+          className="shrink-0 rounded-full border border-gray-200 bg-white px-3 py-1 text-[11px] font-black text-gray-600"
+        >
+          Khôi phục số mặc định
+        </button>
       </div>
 
       <Group
@@ -1065,7 +959,33 @@ export default function PresentationPnlChecklist({ stats }: { stats?: Presentati
             ? "Trần giả định, không phải số đã đạt. Sửa GMV / % cho sát số bạn tính."
             : "Năm 1: GMV Reward khoảng 400 triệu/tháng. Sửa từng ô nếu bạn có số khác."}
         </p>
-        <LineList defs={REVENUE_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} gmvSuccessQ={gmvSuccessQ} />
+        <LineList
+          defs={REVENUE_LINES}
+          lines={lines}
+          scenario={scenario}
+          onPatch={patchLine}
+          usdRate={usdRate}
+          gmvSuccessQ={gmvSuccessQ}
+          gmvRewardQ={gmvRewardQ}
+          gmvDonationQ={gmvDonationQ}
+        />
+        <div className="mt-4 grid gap-2 sm:grid-cols-3">
+          <div className="rounded-xl bg-emerald-50 px-3 py-2">
+            <div className="text-[11px] font-bold text-emerald-800">Doanh thu chiến dịch Reward</div>
+            <div className="text-sm font-black text-slate-900">{trieu(rewardFeeGross)}/quý</div>
+            <div className="text-[11px] text-slate-600">{trieu(rewardFeeGross * 4)}/năm · phí {feePct}% sau hoàn</div>
+          </div>
+          <div className="rounded-xl bg-sky-50 px-3 py-2">
+            <div className="text-[11px] font-bold text-sky-800">Doanh thu Donation</div>
+            <div className="text-sm font-black text-slate-900">{trieu(tipGross)}/quý</div>
+            <div className="text-[11px] text-slate-600">{trieu(tipGross * 4)}/năm · tip {tipPct}% trên ủng hộ</div>
+          </div>
+          <div className="rounded-xl bg-slate-900 px-3 py-2 text-white">
+            <div className="text-[11px] font-bold text-slate-300">Tổng doanh thu sàn</div>
+            <div className="text-sm font-black">{trieu(coreGrossQ)}/quý</div>
+            <div className="text-[11px] text-slate-300">{trieu(coreGrossQ * 4)}/năm · gồm VAT, chưa trừ chi phí</div>
+          </div>
+        </div>
       </Group>
 
       <Group
@@ -1269,6 +1189,8 @@ function LineList({
   onPatch,
   usdRate,
   gmvSuccessQ,
+  gmvRewardQ = 0,
+  gmvDonationQ = 0,
 }: {
   defs: LineDef[];
   lines: Record<string, LineLive>;
@@ -1276,6 +1198,8 @@ function LineList({
   onPatch: (id: string, patch: Partial<LineLive>) => void;
   usdRate: number;
   gmvSuccessQ: number;
+  gmvRewardQ?: number;
+  gmvDonationQ?: number;
 }) {
   return (
     <ul className="space-y-2">
@@ -1283,7 +1207,16 @@ function LineList({
         const row = lines[def.id] ?? { on: def.defaultOn, value: def.value(scenario) };
         const isRev = def.side === "revenue" || def.id.startsWith("rev.");
         let shown = "";
-        if (row.on && def.unit === "pct_gmv") {
+        if (row.on && def.id === "rev.fee") {
+          const q = gmvSuccessQ * (row.value / 100);
+          shown = `${trieu(q)}/quý · ${trieu(q * 4)}/năm`;
+        } else if (row.on && def.id === "rev.tip") {
+          const q = gmvDonationQ * (row.value / 100);
+          shown = `${trieu(q)}/quý · ${trieu(q * 4)}/năm`;
+        } else if (row.on && def.id === "rev.refund") {
+          const q = gmvRewardQ * (row.value / 100);
+          shown = `${trieu(q)} hoàn/quý`;
+        } else if (row.on && def.unit === "pct_gmv") {
           shown = `${trieu(gmvSuccessQ * (row.value / 100))}/quý`;
         } else if (row.on && def.unit !== "pct") {
           const month = toTrieu(row.value, def.unit, usdRate);
