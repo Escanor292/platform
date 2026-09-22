@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Building2,
+  Calculator,
   CheckCircle2,
   ChevronLeft,
   Database,
@@ -44,6 +45,7 @@ import { CertificateDocument } from "@/components/tax/CertificateDocument";
 import { InvoiceDocument } from "@/components/invoice/InvoiceDocument";
 import TransactionStatement from "@/components/campaign/TransactionStatement";
 import BackerLink from "@/components/campaign/BackerLink";
+import PresentationPnlChecklist from "@/components/admin/PresentationPnlChecklist";
 import { formatVND, formatDate } from "@/lib/utils";
 
 const KICKER_ICON = {
@@ -70,6 +72,7 @@ const KICKER_ICON = {
   "Mô hình kinh doanh": DollarSign,
   "Giữ chân": HeartHandshake,
   "Phụ lục": FolderTree,
+  "P&L": Calculator,
 } as const;
 
 function mediaUrl(key: string) {
@@ -298,6 +301,8 @@ function SlideView({ slide }: { slide: PresentationSlide }) {
       ) : null}
 
       {slide.cards?.length ? <CardGrid cards={slide.cards} /> : null}
+
+      {slide.variant === "pnl" ? <PresentationPnlChecklist /> : null}
 
       {slide.steps?.length ? (
         <ol

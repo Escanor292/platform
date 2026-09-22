@@ -1,7 +1,7 @@
 ﻿import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 29;
+export const PRESENTATION_SEED_VERSION = 30;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -657,6 +657,12 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         { path: "src/lib/digital-warehouse.ts", note: "Kho đồ backer" },
         { path: "src/lib/prisma.ts · mongodb.ts · redis.ts", note: "Neon Postgres, chat Mongo, cache Redis" },
       ],
+    },
+    {
+      variant: "pnl",
+      kicker: "P&L",
+      title: "Doanh thu và chi phí — tích để xem",
+      body: "Chưa tích: chỉ tiêu đề. Đã tích: từng khoản phí. P&L quý/năm đổi theo kịch bản, hạ tầng đang xài hoặc VPS 30–150k năm 2–3, Bản A thủ công hoặc Bản B eKYC + bot.",
     },
   ],
 };

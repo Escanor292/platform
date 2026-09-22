@@ -36,7 +36,7 @@ export type PresentationTreeNode = {
 };
 
 export type PresentationSlide = {
-  variant?: "hero" | "default" | "close";
+  variant?: "hero" | "default" | "close" | "pnl";
   kicker?: string;
   title: string;
   titleAccent?: string;
