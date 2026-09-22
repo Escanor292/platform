@@ -482,7 +482,7 @@ export default function PresentationPnlChecklist() {
         includeLabel="Dùng cho P&L"
       >
         <p className="mb-3 text-sm text-gray-600">
-          Admin xem giấy tờ tay. Inbox hết. Phù hợp đồ án và <50 hồ sơ/tháng. Chi phí = giờ người, không phải API.
+          Admin xem giấy tờ tay. Inbox hết. Phù hợp đồ án và dưới 50 hồ sơ/tháng. Chi phí = giờ người, không phải API.
         </p>
         <CostLines lines={manualLines} />
         <p className="mt-2 text-xs font-bold text-slate-700">
