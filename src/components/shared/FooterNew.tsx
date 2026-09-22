@@ -12,11 +12,11 @@ export default function FooterNew() {
   return (
     <footer
       id="ho-tro"
-      className="bg-dblue px-6 py-12 pb-24 text-white transition-colors duration-300 md:pb-12 dark:bg-gray-900"
+      className="bg-dblue px-4 py-8 pb-24 text-white transition-colors duration-300 sm:px-6 md:py-12 md:pb-12 dark:bg-gray-900"
       style={{ backgroundColor: "var(--profile-shell-primary, #1F4E79)", color: "var(--profile-contrast, #ffffff)" }}
     >
-      <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-8">
-        <div>
+      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-4 md:gap-8">
+        <div className="col-span-2 md:col-span-1">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-lg gradient-green flex items-center justify-center ring-1 ring-white/20">
               <LeafIcon className="w-5 h-5" />
