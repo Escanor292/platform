@@ -1,7 +1,7 @@
 ﻿import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 31;
+export const PRESENTATION_SEED_VERSION = 32;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -662,7 +662,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       variant: "pnl",
       kicker: "P&L",
       title: "Doanh thu và chi phí — tích để xem",
-      body: "Chưa tích: chỉ tiêu đề. Đã tích: dòng con và ô số — sửa theo giá thị trường. Bảng quý/năm chỉ hiện khi đã chọn doanh thu, một hạ tầng, và một bản vận hành.",
+      body: "Chưa tích: chỉ tiêu đề. Đã tích: dòng con và ô số. Bảng quý/năm hiện khi đã chọn doanh thu, một hạ tầng, một bản vận hành. Hợp tác hồ sơ startup và các khoản khác là tuỳ chọn.",
     },
   ],
 };

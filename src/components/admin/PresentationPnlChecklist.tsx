@@ -6,7 +6,7 @@ import { Calculator } from "lucide-react";
 type Scenario = "early" | "optimistic";
 type Infra = "current" | "cheap";
 type Ops = "manual" | "hybrid";
-type Unit = "dong" | "trieu" | "usd" | "pct";
+type Unit = "dong" | "trieu" | "usd" | "pct" | "pct_gmv";
 
 type LineDef = {
   id: string;
@@ -15,11 +15,12 @@ type LineDef = {
   unit: Unit;
   defaultOn: boolean;
   value: (s: Scenario) => number;
+  side?: "opex" | "revenue";
 };
 
 type LineLive = { on: boolean; value: number };
 
-const STORAGE_KEY = "ttf-pnl-checklist-v31";
+const STORAGE_KEY = "ttf-pnl-checklist-v32";
 const USD_DEFAULT = 26200;
 
 function trieu(n: number) {
@@ -33,8 +34,10 @@ function trieu(n: number) {
 
 function lineUnitLabel(def: LineDef) {
   if (def.unit === "pct") return "%";
+  if (def.unit === "pct_gmv") return "% GMV Reward thành công";
   if (def.unit === "usd") return "USD/tháng";
   if (def.unit === "dong") return "đ/tháng";
+  if (def.side === "revenue") return "triệu/tháng";
   if (def.id.startsWith("rev.")) return "triệu/quý";
   return "triệu/tháng";
 }
@@ -92,14 +95,6 @@ const REVENUE_LINES: LineDef[] = [
     unit: "pct",
     defaultOn: true,
     value: (s) => (s === "optimistic" ? 8 : 3),
-  },
-  {
-    id: "rev.vasQ",
-    name: "VAS đóng gói hồ sơ / quý",
-    note: "Lộ trình. Năm 1 có thể 0.",
-    unit: "trieu",
-    defaultOn: true,
-    value: (s) => (s === "optimistic" ? 40 : 0),
   },
 ];
 
@@ -286,22 +281,210 @@ const LEGAL_LINES: LineDef[] = [
   },
 ];
 
-const VAS_LINES: LineDef[] = [
+const PARTNER_LINES: LineDef[] = [
   {
-    id: "vas.retainer",
-    name: "Retainer đối tác hồ sơ Creator",
-    note: "White-label kế toán/luật. Năm 1 có thể tắt nếu chỉ giới thiệu.",
+    id: "partner.rev.tnhh",
+    name: "Thu — gói thành lập TNHH / hộ KD + MST",
+    note: "Creator trả sàn. Sàn làm với luật/kế toán đối tác. Năm 1 có thể 0 gói.",
     unit: "trieu",
     defaultOn: true,
-    value: () => 4,
+    side: "revenue",
+    value: (s) => (s === "optimistic" ? 4 : 0),
   },
   {
-    id: "vas.referral",
-    name: "Hoa hồng giới thiệu (sàn trả)",
-    note: "Thường Creator trả. Để 0 nếu chỉ nối.",
+    id: "partner.rev.ketoan",
+    name: "Thu — gói kế toán thuế năm đầu",
+    note: "Khai thuế, hóa đơn, BHXH. Thu của Creator, chia đối tác.",
+    unit: "trieu",
+    defaultOn: true,
+    side: "revenue",
+    value: (s) => (s === "optimistic" ? 3 : 0),
+  },
+  {
+    id: "partner.rev.tos",
+    name: "Thu — gói ToS / HĐ chiến dịch / chính sách hoàn",
+    note: "Soạn điều khoản gây quỹ, SLA giao hàng, hoàn tiền.",
+    unit: "trieu",
+    defaultOn: true,
+    side: "revenue",
+    value: (s) => (s === "optimistic" ? 2 : 0),
+  },
+  {
+    id: "partner.rev.kyb",
+    name: "Thu — gói KYB / đăng ký TMĐT cho Creator",
+    note: "Giấy phép KD, hồ sơ sàn TMĐT Bộ Công Thương phía người bán.",
+    unit: "trieu",
+    defaultOn: true,
+    side: "revenue",
+    value: (s) => (s === "optimistic" ? 2 : 0),
+  },
+  {
+    id: "partner.rev.workshop",
+    name: "Thu — workshop pháp lý / tài chính founder",
+    note: "Lớp chung với đối tác. Sàn lấy vé hoặc tài trợ.",
     unit: "trieu",
     defaultOn: false,
-    value: () => 0,
+    side: "revenue",
+    value: (s) => (s === "optimistic" ? 1.5 : 0),
+  },
+  {
+    id: "partner.cost.chuyen",
+    name: "Chi — trả luật sư / kế toán đối tác",
+    note: "Thường 60–70% giá gói. Sửa cho khớp hợp đồng chia.",
+    unit: "trieu",
+    defaultOn: true,
+    value: (s) => (s === "optimistic" ? 7.5 : 0),
+  },
+  {
+    id: "partner.cost.retainer",
+    name: "Chi — retainer giữ chỗ chuyên gia",
+    note: "Phí cố định tháng, kể cả khi chưa có gói. Năm 1 nên tắt.",
+    unit: "trieu",
+    defaultOn: false,
+    value: () => 2,
+  },
+  {
+    id: "partner.cost.hoahong",
+    name: "Chi — hoa hồng vườn ươm / CLB / hiệp hội",
+    note: "Trường, incubator, hiệp hội startup giới thiệu founder.",
+    unit: "trieu",
+    defaultOn: false,
+    value: (s) => (s === "optimistic" ? 0.8 : 0.3),
+  },
+];
+
+const PAY_LINES: LineDef[] = [
+  {
+    id: "pay.bank",
+    name: "Phí tài khoản trung gian / duy trì STK",
+    note: "Phí quản lý TK doanh nghiệp, SMS ngân hàng. VietQR IBFT P2P thường 0%.",
+    unit: "trieu",
+    defaultOn: true,
+    value: () => 0.2,
+  },
+  {
+    id: "pay.gateway",
+    name: "Phí cổng thẻ / ví (nếu bật)",
+    note: "Mặc định tắt — chuyển khoản VietQR. Bật khi nhận thẻ/Visa/MoMo. 1,5–3% GMV thành công.",
+    unit: "pct_gmv",
+    defaultOn: false,
+    value: () => 1.5,
+  },
+  {
+    id: "pay.payout",
+    name: "Phí chi hộ Creator (lô giải ngân)",
+    note: "Chuyển khoản hàng loạt khi chốt chiến dịch. Nhiều NH miễn trong NH.",
+    unit: "trieu",
+    defaultOn: false,
+    value: () => 0.15,
+  },
+];
+
+const OFFICE_LINES: LineDef[] = [
+  {
+    id: "office.rent",
+    name: "Coworking / nhà / văn phòng",
+    note: "Năm 1 làm remote = 0. Coworking Biên Hòa / HCM khoảng 1,5–4 triệu/chỗ.",
+    unit: "trieu",
+    defaultOn: false,
+    value: () => 2.5,
+  },
+  {
+    id: "office.net",
+    name: "Internet + điện tại chỗ làm việc",
+    note: "Chỉ cộng nếu tách khỏi chi phí nhà riêng.",
+    unit: "trieu",
+    defaultOn: false,
+    value: () => 0.4,
+  },
+  {
+    id: "office.scan",
+    name: "Máy scan CCCD / in ấn hồ sơ",
+    note: "Khấu hao thiết bị + giấy mực.",
+    unit: "trieu",
+    defaultOn: false,
+    value: () => 0.2,
+  },
+];
+
+const INSURE_LINES: LineDef[] = [
+  {
+    id: "insure.cyber",
+    name: "Bảo hiểm rò rỉ dữ liệu / cyber",
+    note: "KYC/KYB chứa CCCD. Gói SME ước 0,5–2 triệu/tháng khi trải năm.",
+    unit: "trieu",
+    defaultOn: true,
+    value: (s) => (s === "optimistic" ? 1.5 : 0.5),
+  },
+  {
+    id: "insure.pi",
+    name: "Bảo hiểm trách nhiệm nghề nghiệp",
+    note: "Tranh chấp giao hàng / giữ hộ. Không bắt buộc năm 1.",
+    unit: "trieu",
+    defaultOn: false,
+    value: () => 0.8,
+  },
+];
+
+const TOOLS_LINES: LineDef[] = [
+  {
+    id: "tools.workspace",
+    name: "Google Workspace / Microsoft 365",
+    note: "Business Starter khoảng 7 USD/user. 1–2 user năm 1.",
+    unit: "usd",
+    defaultOn: true,
+    value: () => 7,
+  },
+  {
+    id: "tools.zalo",
+    name: "Zalo OA / fanpage",
+    note: "OA miễn phí; gói trả phí khi gửi ZNS hàng loạt.",
+    unit: "trieu",
+    defaultOn: false,
+    value: () => 0.5,
+  },
+  {
+    id: "tools.sms",
+    name: "SMS OTP / email transactional",
+    note: "OTP đăng nhập, thông báo đơn. Nhà VN khoảng 200–400 đ/SMS.",
+    unit: "trieu",
+    defaultOn: true,
+    value: (s) => (s === "optimistic" ? 1.2 : 0.2),
+  },
+  {
+    id: "tools.cf",
+    name: "Cloudflare (nếu tách khỏi Vercel)",
+    note: "Free đủ năm 1. Pro 20 USD khi cần WAF/bot.",
+    unit: "usd",
+    defaultOn: false,
+    value: () => 20,
+  },
+];
+
+const GROW_LINES: LineDef[] = [
+  {
+    id: "grow.school",
+    name: "Hợp tác trường / cuộc thi / vườn ươm",
+    note: "Tài trợ giải, booth, mentor. Đổi deal-flow founder.",
+    unit: "trieu",
+    defaultOn: false,
+    value: (s) => (s === "optimistic" ? 3 : 1),
+  },
+  {
+    id: "grow.event",
+    name: "Sự kiện cộng đồng Creator",
+    note: "Meetup, livestream khai trương.",
+    unit: "trieu",
+    defaultOn: false,
+    value: (s) => (s === "optimistic" ? 2 : 0.5),
+  },
+  {
+    id: "grow.pr",
+    name: "PR / báo chí / KOL nhỏ",
+    note: "Bài báo, review. Tách khỏi ads performance.",
+    unit: "trieu",
+    defaultOn: false,
+    value: (s) => (s === "optimistic" ? 3 : 0),
   },
 ];
 
@@ -334,7 +517,12 @@ const ALL_DEFS = [
   ...MANUAL_LINES,
   ...HYBRID_LINES,
   ...LEGAL_LINES,
-  ...VAS_LINES,
+  ...PARTNER_LINES,
+  ...PAY_LINES,
+  ...OFFICE_LINES,
+  ...INSURE_LINES,
+  ...TOOLS_LINES,
+  ...GROW_LINES,
   ...FOUNDER_LINES,
   ...MARKETING_LINES,
 ];
@@ -347,15 +535,35 @@ function defaultsFor(s: Scenario): Record<string, LineLive> {
   return out;
 }
 
+type OptKey =
+  | "legal"
+  | "partner"
+  | "pay"
+  | "office"
+  | "insure"
+  | "tools"
+  | "grow"
+  | "founder"
+  | "marketing";
+
+const OPT_OFF: Record<OptKey, boolean> = {
+  legal: false,
+  partner: false,
+  pay: false,
+  office: false,
+  insure: false,
+  tools: false,
+  grow: false,
+  founder: false,
+  marketing: false,
+};
+
 type Persist = {
   scenario: Scenario;
   revenueOn: boolean;
   infra: Infra | null;
   ops: Ops | null;
-  legalOn: boolean;
-  vasOn: boolean;
-  founderOn: boolean;
-  marketingOn: boolean;
+  opt: Record<OptKey, boolean>;
   usdRate: number;
   lines: Record<string, LineLive>;
 };
@@ -365,7 +573,8 @@ function loadPersist(): Persist | null {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    return JSON.parse(raw) as Persist;
+    const parsed = JSON.parse(raw) as Persist;
+    return parsed;
   } catch {
     return null;
   }
@@ -376,10 +585,7 @@ export default function PresentationPnlChecklist() {
   const [revenueOn, setRevenueOn] = useState(false);
   const [infra, setInfra] = useState<Infra | null>(null);
   const [ops, setOps] = useState<Ops | null>(null);
-  const [legalOn, setLegalOn] = useState(false);
-  const [vasOn, setVasOn] = useState(false);
-  const [founderOn, setFounderOn] = useState(false);
-  const [marketingOn, setMarketingOn] = useState(false);
+  const [opt, setOpt] = useState<Record<OptKey, boolean>>(OPT_OFF);
   const [usdRate, setUsdRate] = useState(USD_DEFAULT);
   const [lines, setLines] = useState<Record<string, LineLive>>(() => defaultsFor("early"));
   const [hydrated, setHydrated] = useState(false);
@@ -391,10 +597,7 @@ export default function PresentationPnlChecklist() {
       setRevenueOn(saved.revenueOn);
       setInfra(saved.infra);
       setOps(saved.ops);
-      setLegalOn(saved.legalOn);
-      setVasOn(saved.vasOn);
-      setFounderOn(saved.founderOn);
-      setMarketingOn(saved.marketingOn);
+      setOpt({ ...OPT_OFF, ...saved.opt });
       setUsdRate(saved.usdRate || USD_DEFAULT);
       setLines({ ...defaultsFor(saved.scenario), ...saved.lines });
     }
@@ -408,27 +611,12 @@ export default function PresentationPnlChecklist() {
       revenueOn,
       infra,
       ops,
-      legalOn,
-      vasOn,
-      founderOn,
-      marketingOn,
+      opt,
       usdRate,
       lines,
     };
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  }, [
-    hydrated,
-    scenario,
-    revenueOn,
-    infra,
-    ops,
-    legalOn,
-    vasOn,
-    founderOn,
-    marketingOn,
-    usdRate,
-    lines,
-  ]);
+  }, [hydrated, scenario, revenueOn, infra, ops, opt, usdRate, lines]);
 
   const changeScenario = useCallback((next: Scenario) => {
     setScenario(next);
@@ -457,13 +645,8 @@ export default function PresentationPnlChecklist() {
     });
   }
 
-  function sumGroup(defs: LineDef[], parentOn: boolean) {
-    if (!parentOn) return 0;
-    return defs.reduce((acc, def) => {
-      const row = live(def.id, def);
-      if (!row.on) return acc;
-      return acc + toTrieu(row.value, def.unit, usdRate);
-    }, 0);
+  function toggleOpt(key: OptKey) {
+    setOpt((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
   const gmvRewardQ = live("rev.gmvRewardQ", REVENUE_LINES[0]).on
@@ -477,26 +660,54 @@ export default function PresentationPnlChecklist() {
     : 0;
   const feePct = live("rev.fee", REVENUE_LINES[3]).on ? live("rev.fee", REVENUE_LINES[3]).value : 0;
   const tipPct = live("rev.tip", REVENUE_LINES[4]).on ? live("rev.tip", REVENUE_LINES[4]).value : 0;
-  const vasQ = live("rev.vasQ", REVENUE_LINES[5]).on ? live("rev.vasQ", REVENUE_LINES[5]).value : 0;
+  const gmvSuccessQ = gmvRewardQ * (1 - refundPct / 100);
 
-  const rewardFeeGross = gmvRewardQ * (1 - refundPct / 100) * (feePct / 100);
-  const tipGross = gmvDonationQ * (tipPct / 100);
-  const grossQ = revenueOn ? rewardFeeGross + tipGross + vasQ : 0;
+  const rewardFeeGross = revenueOn ? gmvSuccessQ * (feePct / 100) : 0;
+  const tipGross = revenueOn ? gmvDonationQ * (tipPct / 100) : 0;
+
+  function groupRevQ(defs: LineDef[], parentOn: boolean) {
+    if (!parentOn) return 0;
+    return defs.reduce((acc, def) => {
+      if (def.side !== "revenue") return acc;
+      const row = live(def.id, def);
+      if (!row.on) return acc;
+      return acc + toTrieu(row.value, def.unit, usdRate) * 3;
+    }, 0);
+  }
+
+  function groupOpexQ(defs: LineDef[], parentOn: boolean) {
+    if (!parentOn) return 0;
+    return defs.reduce((acc, def) => {
+      if (def.side === "revenue") return acc;
+      const row = live(def.id, def);
+      if (!row.on) return acc;
+      if (def.unit === "pct_gmv") return acc + gmvSuccessQ * (row.value / 100);
+      return acc + toTrieu(row.value, def.unit, usdRate) * 3;
+    }, 0);
+  }
+
+  const partnerRevQ = groupRevQ(PARTNER_LINES, opt.partner);
+  const coreGrossQ = rewardFeeGross + tipGross;
+  const grossQ = coreGrossQ + partnerRevQ;
   const netQ = grossQ / 1.1;
   const vatQ = grossQ - netQ;
 
-  const opexM =
-    sumGroup(CURRENT_LINES, infra === "current") +
-    sumGroup(CHEAP_LINES, infra === "cheap") +
-    sumGroup(MANUAL_LINES, ops === "manual") +
-    sumGroup(HYBRID_LINES, ops === "hybrid") +
-    sumGroup(LEGAL_LINES, legalOn) +
-    sumGroup(VAS_LINES, vasOn) +
-    sumGroup(FOUNDER_LINES, founderOn) +
-    sumGroup(MARKETING_LINES, marketingOn);
+  const opexQ =
+    groupOpexQ(CURRENT_LINES, infra === "current") +
+    groupOpexQ(CHEAP_LINES, infra === "cheap") +
+    groupOpexQ(MANUAL_LINES, ops === "manual") +
+    groupOpexQ(HYBRID_LINES, ops === "hybrid") +
+    groupOpexQ(LEGAL_LINES, opt.legal) +
+    groupOpexQ(PARTNER_LINES, opt.partner) +
+    groupOpexQ(PAY_LINES, opt.pay) +
+    groupOpexQ(OFFICE_LINES, opt.office) +
+    groupOpexQ(INSURE_LINES, opt.insure) +
+    groupOpexQ(TOOLS_LINES, opt.tools) +
+    groupOpexQ(GROW_LINES, opt.grow) +
+    groupOpexQ(FOUNDER_LINES, opt.founder) +
+    groupOpexQ(MARKETING_LINES, opt.marketing);
 
-  const opexQ = opexM * 3;
-  const opexY = opexM * 12;
+  const opexY = opexQ * 4;
   const ebtQ = netQ - opexQ;
   const ebtY = netQ * 4 - opexY;
   const cit = taxRate(netQ * 4);
@@ -518,11 +729,25 @@ export default function PresentationPnlChecklist() {
     setUsdRate(USD_DEFAULT);
   }
 
+  const optHint = [
+    opt.legal && "pháp lý công ty",
+    opt.partner && "hồ sơ startup",
+    opt.pay && "thanh toán",
+    opt.office && "văn phòng",
+    opt.insure && "bảo hiểm",
+    opt.tools && "công cụ",
+    opt.grow && "hệ sinh thái",
+    opt.founder && "lương founder",
+    opt.marketing && "marketing",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   const missingBox = (
     <div className="rounded-[1.5rem] border border-dashed border-amber-300 bg-amber-50 px-4 py-4">
       <div className="text-sm font-black text-amber-950">Bảng doanh thu chưa hiện</div>
       <p className="mt-1 text-sm text-amber-900">
-        Tích đủ ba mục bắt buộc. Pháp lý, đối tác, lương, marketing là tuỳ chọn.
+        Tích đủ ba mục bắt buộc. Mọi mục dưới là tuỳ chọn — không tích thì không cộng.
       </p>
       <ul className="mt-3 space-y-1 text-sm text-amber-950">
         {missing.map((item) => (
@@ -543,15 +768,15 @@ export default function PresentationPnlChecklist() {
           label="Một quý"
           rows={[
             ["GMV chảy qua sàn", trieu(gmvRewardQ + gmvDonationQ)],
-            ["Phí Reward (gồm VAT)", trieu(rewardFeeGross)],
+            ["Phí Reward trên GMV thành công (gồm VAT)", trieu(rewardFeeGross)],
             ["Tip Donation (gồm VAT)", trieu(tipGross)],
-            ["VAS", trieu(vasQ)],
+            ["Thu hợp tác hồ sơ startup", trieu(partnerRevQ)],
             ["Doanh thu gồm VAT", trieu(grossQ)],
-            ["Doanh thu thuần", trieu(netQ)],
+            ["Doanh thu thuần (chia 1,1)", trieu(netQ)],
             ["VAT đầu ra ~10%", trieu(vatQ)],
-            ["Chi phí (mục đã tích)", trieu(opexQ)],
+            ["Chi phí mục đã tích", trieu(opexQ)],
             ["Lãi trước thuế", trieu(ebtQ)],
-            [`Thuế TNDN ${(cit * 100).toFixed(0)}%`, trieu(taxQ)],
+            [`Thuế TNDN ${(cit * 100).toFixed(0)}% trên doanh thu năm`, trieu(taxQ)],
             ["Lãi sau thuế", trieu(patQ)],
           ]}
           highlight={patQ}
@@ -572,13 +797,12 @@ export default function PresentationPnlChecklist() {
         />
       </div>
       <p className="px-4 py-3 text-[11px] leading-relaxed text-gray-500">
-        Hạ tầng: {infra === "cheap" ? "VPS rẻ năm 2–3" : "đang xài"} · Vận hành:{" "}
-        {ops === "hybrid" ? "Bản B eKYC + bot" : "Bản A thủ công"}
-        {legalOn ? " · pháp lý" : ""}
-        {vasOn ? " · VAS" : ""}
-        {founderOn ? " · lương founder" : ""}
-        {marketingOn ? " · marketing" : ""}. Tỷ giá {usdRate.toLocaleString("vi-VN")} đ/USD. GMV không phải
-        doanh thu sàn. Số đã sửa được giữ trên máy này.
+        Công thức: phí Reward = GMV Reward × (1 − hoàn) × phí%. Tip = GMV ủng hộ × tip%. Thu hồ sơ chỉ cộng khi
+        tích mục hợp tác. Doanh thu thuần = tổng gồm VAT ÷ 1,1 (giả định giá đã gồm GTGT 10%). Chi quý = Σ dòng
+        chi đã tích (tháng × 3, hoặc % GMV thành công). Thuế TNDN 15/17/20% theo doanh thu năm (Luật 67/2025),
+        lãi âm thì thuế 0. GMV không phải doanh thu sàn.
+        {optHint ? ` Đang cộng: ${optHint}.` : " Chưa cộng mục tuỳ chọn."} Tỷ giá {usdRate.toLocaleString("vi-VN")}{" "}
+        đ/USD.
       </p>
     </div>
   );
@@ -621,7 +845,7 @@ export default function PresentationPnlChecklist() {
             ? "Trần giả định, không phải số đã đạt. Sửa GMV / % cho sát số bạn tính."
             : "Năm 1: GMV Reward khoảng 400 triệu/tháng. Sửa từng ô nếu bạn có số khác."}
         </p>
-        <LineList defs={REVENUE_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} />
+        <LineList defs={REVENUE_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} gmvSuccessQ={gmvSuccessQ} />
       </Group>
 
       <Group
@@ -636,7 +860,7 @@ export default function PresentationPnlChecklist() {
           <NumInput value={usdRate} onChange={setUsdRate} />
           <span className="text-xs text-gray-500">đ / USD — sửa khi tỷ giá đổi</span>
         </label>
-        <LineList defs={CURRENT_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} />
+        <LineList defs={CURRENT_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} gmvSuccessQ={gmvSuccessQ} />
       </Group>
 
       <Group
@@ -650,7 +874,7 @@ export default function PresentationPnlChecklist() {
           Tự host máy trong nước. Sửa đúng giá gói bạn xem trên GenCloud / AZDIGI / Vinahost. Không cộng cùng
           stack đang xài.
         </p>
-        <LineList defs={CHEAP_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} />
+        <LineList defs={CHEAP_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} gmvSuccessQ={gmvSuccessQ} />
       </Group>
 
       <Group
@@ -663,7 +887,7 @@ export default function PresentationPnlChecklist() {
         <p className="mb-3 text-sm text-gray-600">
           Phù hợp đồ án và dưới 50 hồ sơ/tháng. Sửa lương FTE nếu mức địa phương khác.
         </p>
-        <LineList defs={MANUAL_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} />
+        <LineList defs={MANUAL_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} gmvSuccessQ={gmvSuccessQ} />
       </Group>
 
       <Group
@@ -676,43 +900,92 @@ export default function PresentationPnlChecklist() {
         <p className="mb-3 text-sm text-gray-600">
           Sửa giá gói VNPT / FPT khi nhà cung cấp đổi bảng. Bot không xóa hết người.
         </p>
-        <LineList defs={HYBRID_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} />
+        <LineList defs={HYBRID_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} gmvSuccessQ={gmvSuccessQ} />
       </Group>
 
       <Group
-        checked={legalOn}
-        onToggle={() => setLegalOn((v) => !v)}
+        checked={opt.legal}
+        onToggle={() => toggleOpt("legal")}
         title="Pháp lý · thuế · chữ ký số của công ty sàn"
         hint="Tuỳ chọn"
       >
-        <LineList defs={LEGAL_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} />
+        <LineList defs={LEGAL_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} gmvSuccessQ={gmvSuccessQ} />
       </Group>
 
       <Group
-        checked={vasOn}
-        onToggle={() => setVasOn((v) => !v)}
-        title="Đối tác hỗ trợ giấy tờ pháp lý / thuế cho Creator"
-        hint="Tuỳ chọn — mặc định không cộng"
+        checked={opt.partner}
+        onToggle={() => toggleOpt("partner")}
+        title="Hợp tác tổ chức / DN ngoài — tư vấn hồ sơ startup"
+        hint="Tuỳ chọn — thu gói hồ sơ và chi trả đối tác"
       >
-        <LineList defs={VAS_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} />
+        <p className="mb-3 text-sm text-gray-600">
+          Sàn không tự làm luật/kế toán. Nối Creator với công ty luật, dịch vụ kế toán, vườn ươm. Có dòng thu
+          (Creator trả gói) và dòng chi (trả đối tác, hoa hồng). Tích dòng con để cộng đúng bên.
+        </p>
+        <LineList defs={PARTNER_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} gmvSuccessQ={gmvSuccessQ} />
       </Group>
 
       <Group
-        checked={founderOn}
-        onToggle={() => setFounderOn((v) => !v)}
+        checked={opt.pay}
+        onToggle={() => toggleOpt("pay")}
+        title="Ngân hàng / cổng thanh toán"
+        hint="Tuỳ chọn — VietQR mặc định 0% GMV"
+      >
+        <LineList defs={PAY_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} gmvSuccessQ={gmvSuccessQ} />
+      </Group>
+
+      <Group
+        checked={opt.office}
+        onToggle={() => toggleOpt("office")}
+        title="Văn phòng / coworking / thiết bị"
+        hint="Tuỳ chọn — remote thì để tắt"
+      >
+        <LineList defs={OFFICE_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} gmvSuccessQ={gmvSuccessQ} />
+      </Group>
+
+      <Group
+        checked={opt.insure}
+        onToggle={() => toggleOpt("insure")}
+        title="Bảo hiểm dữ liệu và trách nhiệm"
+        hint="Tuỳ chọn"
+      >
+        <LineList defs={INSURE_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} gmvSuccessQ={gmvSuccessQ} />
+      </Group>
+
+      <Group
+        checked={opt.tools}
+        onToggle={() => toggleOpt("tools")}
+        title="Công cụ vận hành — Workspace, OTP, Zalo OA"
+        hint="Tuỳ chọn"
+      >
+        <LineList defs={TOOLS_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} gmvSuccessQ={gmvSuccessQ} />
+      </Group>
+
+      <Group
+        checked={opt.grow}
+        onToggle={() => toggleOpt("grow")}
+        title="Hệ sinh thái — trường, vườn ươm, sự kiện, PR"
+        hint="Tuỳ chọn"
+      >
+        <LineList defs={GROW_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} gmvSuccessQ={gmvSuccessQ} />
+      </Group>
+
+      <Group
+        checked={opt.founder}
+        onToggle={() => toggleOpt("founder")}
         title="Lương founder tối thiểu"
         hint="Tuỳ chọn"
       >
-        <LineList defs={FOUNDER_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} />
+        <LineList defs={FOUNDER_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} gmvSuccessQ={gmvSuccessQ} />
       </Group>
 
       <Group
-        checked={marketingOn}
-        onToggle={() => setMarketingOn((v) => !v)}
-        title="Marketing / content"
+        checked={opt.marketing}
+        onToggle={() => toggleOpt("marketing")}
+        title="Marketing / content / ads"
         hint="Tuỳ chọn"
       >
-        <LineList defs={MARKETING_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} />
+        <LineList defs={MARKETING_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} gmvSuccessQ={gmvSuccessQ} />
       </Group>
     </div>
   );
@@ -773,18 +1046,31 @@ function LineList({
   scenario,
   onPatch,
   usdRate,
+  gmvSuccessQ,
 }: {
   defs: LineDef[];
   lines: Record<string, LineLive>;
   scenario: Scenario;
   onPatch: (id: string, patch: Partial<LineLive>) => void;
   usdRate: number;
+  gmvSuccessQ: number;
 }) {
   return (
     <ul className="space-y-2">
       {defs.map((def) => {
         const row = lines[def.id] ?? { on: def.defaultOn, value: def.value(scenario) };
-        const asTrieu = toTrieu(row.value, def.unit, usdRate);
+        const isRev = def.side === "revenue" || def.id.startsWith("rev.");
+        let shown = "";
+        if (row.on && def.unit === "pct_gmv") {
+          shown = `${trieu(gmvSuccessQ * (row.value / 100))}/quý`;
+        } else if (row.on && def.unit !== "pct") {
+          const month = toTrieu(row.value, def.unit, usdRate);
+          shown = isRev && !def.id.startsWith("rev.")
+            ? `${trieu(month)}/tháng · ${trieu(month * 3)}/quý`
+            : def.id.startsWith("rev.")
+              ? `${trieu(month)}/quý`
+              : `${trieu(month)}/tháng`;
+        }
         return (
           <li
             key={def.id}
@@ -799,8 +1085,19 @@ function LineList({
                   className="mt-1 h-3.5 w-3.5 shrink-0 accent-emerald-700"
                 />
                 <span>
-                  <span className="block text-sm font-bold text-slate-900">{def.name}</span>
-                  <span className="block text-xs leading-relaxed text-gray-500">{def.note}</span>
+                  <span className="flex flex-wrap items-center gap-2">
+                    {def.side === "revenue" ? (
+                      <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-black text-emerald-800">
+                        THU
+                      </span>
+                    ) : def.id.startsWith("rev.") ? null : (
+                      <span className="rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] font-black text-slate-700">
+                        CHI
+                      </span>
+                    )}
+                    <span className="text-sm font-bold text-slate-900">{def.name}</span>
+                  </span>
+                  <span className="mt-0.5 block text-xs leading-relaxed text-gray-500">{def.note}</span>
                 </span>
               </label>
               <div className="flex shrink-0 items-center gap-2 sm:flex-col sm:items-end">
@@ -814,11 +1111,8 @@ function LineList({
                     {lineUnitLabel(def)}
                   </span>
                 </div>
-                {row.on && def.unit !== "pct" ? (
-                  <span className="text-[11px] font-black tabular-nums text-emerald-800">
-                    {trieu(asTrieu)}
-                    {def.id.startsWith("rev.") ? "" : "/tháng"}
-                  </span>
+                {shown ? (
+                  <span className="text-[11px] font-black tabular-nums text-emerald-800">{shown}</span>
                 ) : null}
               </div>
             </div>
