@@ -212,7 +212,7 @@ export default function HybridModelPresentation({
 
       <main id="thuyet-trinh-scroll" className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain">
         <div className="mx-auto max-w-6xl px-4 py-8 pb-16 md:px-8">
-          {current ? <SlideView slide={current} /> : null}
+          {current ? <SlideView slide={current} liveStats={liveStats} /> : null}
         </div>
       </main>
 
@@ -250,7 +250,13 @@ export default function HybridModelPresentation({
   );
 }
 
-function SlideView({ slide }: { slide: PresentationSlide }) {
+function SlideView({
+  slide,
+  liveStats,
+}: {
+  slide: PresentationSlide;
+  liveStats?: PresentationLiveStats | null;
+}) {
   const Icon = (slide.kicker && KICKER_ICON[slide.kicker as keyof typeof KICKER_ICON]) || Sparkles;
   const isHero = slide.variant === "hero";
   const isClose = slide.variant === "close";

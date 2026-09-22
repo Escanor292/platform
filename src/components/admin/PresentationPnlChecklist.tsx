@@ -1045,8 +1045,6 @@ export default function PresentationPnlChecklist({ stats }: { stats?: Presentati
         </div>
       </div>
 
-      {ready ? pnlBox : null}
-
       <Group
         checked={revenueOn}
         onToggle={() => setRevenueOn((v) => !v)}
@@ -1209,6 +1207,8 @@ export default function PresentationPnlChecklist({ stats }: { stats?: Presentati
       >
         <LineList defs={MARKETING_LINES} lines={lines} scenario={scenario} onPatch={patchLine} usdRate={usdRate} gmvSuccessQ={gmvSuccessQ} />
       </Group>
+
+      {ready ? pnlBox : null}
     </div>
   );
 }
