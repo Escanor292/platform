@@ -49,7 +49,18 @@ function toTrieu(value: number, unit: Unit, usdRate: number) {
   return value;
 }
 
-function taxKind(def: LineDef): "labor" | "none" | "vn_gross10" | "vn_net10" | "fct5_5" {
+function taxKind(def: LineDef): "labor" | "none" | "vn_gross10" | "vn_net10" | "fct5_5" | "fct_cloud" {
+  if (
+    def.id === "current.vercel" ||
+    def.id === "current.neon" ||
+    def.id === "current.cloudinary" ||
+    def.id === "current.redis" ||
+    def.id === "current.mongo" ||
+    def.id === "current.sentry" ||
+    def.id === "tools.cf"
+  ) {
+    return "fct_cloud";
+  }
   if (def.unit === "usd") return "fct5_5";
   if (
     def.id === "manual.kyc" ||
@@ -76,11 +87,33 @@ function taxKind(def: LineDef): "labor" | "none" | "vn_gross10" | "vn_net10" | "
   return "vn_net10";
 }
 
-type TaxBucket = { net: number; inputVat: number; fctCit: number };
+function isHostLine(def: LineDef) {
+  return (
+    def.id.startsWith("cheap.") ||
+    def.id.startsWith("current.") ||
+    def.id === "tools.cf"
+  );
+}
+
+type TaxBucket = {
+  net: number;
+  inputVat: number;
+  fctCit: number;
+  vatHost: number;
+  vatOther: number;
+};
 
 function applyTax(bucket: TaxBucket, def: LineDef, amountQ: number, creditVat: boolean, applyFct: boolean) {
   const kind = taxKind(def);
-  if (!creditVat && !(applyFct && kind === "fct5_5")) {
+  const host = isHostLine(def);
+
+  function addInput(vat: number) {
+    bucket.inputVat += vat;
+    if (host) bucket.vatHost += vat;
+    else bucket.vatOther += vat;
+  }
+
+  if (!creditVat && !(applyFct && (kind === "fct5_5" || kind === "fct_cloud"))) {
     bucket.net += amountQ;
     return;
   }
@@ -91,7 +124,7 @@ function applyTax(bucket: TaxBucket, def: LineDef, amountQ: number, creditVat: b
   if (kind === "vn_gross10") {
     if (creditVat) {
       bucket.net += amountQ / 1.1;
-      bucket.inputVat += amountQ - amountQ / 1.1;
+      addInput(amountQ - amountQ / 1.1);
     } else {
       bucket.net += amountQ;
     }
@@ -99,14 +132,18 @@ function applyTax(bucket: TaxBucket, def: LineDef, amountQ: number, creditVat: b
   }
   if (kind === "vn_net10") {
     bucket.net += amountQ;
-    if (creditVat) bucket.inputVat += amountQ * 0.1;
+    if (creditVat) addInput(amountQ * 0.1);
     return;
   }
   bucket.net += amountQ;
-  if (applyFct) {
-    bucket.inputVat += creditVat ? amountQ * 0.05 : 0;
+  if (!applyFct) return;
+  if (kind === "fct_cloud") {
     bucket.fctCit += amountQ * 0.05;
+    if (creditVat) addInput(amountQ * 0.1);
+    return;
   }
+  bucket.fctCit += amountQ * 0.05;
+  if (creditVat) addInput(amountQ * 0.05);
 }
 
 function taxRate(netYear: number) {
@@ -757,7 +794,7 @@ export default function PresentationPnlChecklist() {
   const netQ = grossQ / 1.1;
   const outputVatQ = grossQ - netQ;
 
-  const bucket: TaxBucket = { net: 0, inputVat: 0, fctCit: 0 };
+  const bucket: TaxBucket = { net: 0, inputVat: 0, fctCit: 0, vatHost: 0, vatOther: 0 };
   addOpex(bucket, CURRENT_LINES, infra === "current");
   addOpex(bucket, CHEAP_LINES, infra === "cheap");
   addOpex(bucket, MANUAL_LINES, ops === "manual");
@@ -783,7 +820,6 @@ export default function PresentationPnlChecklist() {
   const patY = ebtY - taxY;
   const vatPayableQ = Math.max(0, outputVatQ - bucket.inputVat);
   const vatCarryQ = Math.max(0, bucket.inputVat - outputVatQ);
-  const vatRefundQ = 0;
   const nsnnQ = taxQ + vatPayableQ;
   const cashAfterQ = patQ - vatPayableQ;
 
@@ -851,7 +887,7 @@ export default function PresentationPnlChecklist() {
             checked={applyFct}
             onChange={() => setApplyFct((v) => !v)}
           />
-          FCT SaaS ngoại 5% VAT + 5% TNDN
+          FCT cloud/hosting ngoại 10% VAT + 5% TNDN
         </label>
       </div>
       <div className="grid gap-px bg-gray-100 sm:grid-cols-2">
@@ -861,13 +897,15 @@ export default function PresentationPnlChecklist() {
             ["GMV chảy qua sàn (không phải DT sàn)", trieu(gmvRewardQ + gmvDonationQ)],
             ["Doanh thu gồm VAT", trieu(grossQ)],
             ["Doanh thu thuần (đã tách VAT đầu ra)", trieu(netQ)],
-            ["VAT đầu ra 10%", trieu(outputVatQ)],
-            ["VAT đầu vào được khấu trừ", trieu(bucket.inputVat)],
-            ["VAT phải nộp (đầu ra − đầu vào)", trieu(vatPayableQ)],
-            ["VAT chuyển kỳ (nếu đầu vào lớn hơn)", trieu(vatCarryQ)],
-            ["Hoàn thuế GTGT tiền mặt", vatRefundQ === 0 ? "0 — không đủ điều kiện" : trieu(vatRefundQ)],
+            ["VAT đầu ra 10% trên phí sàn", trieu(outputVatQ)],
+            ["VAT đầu vào VPS / hosting / cloud", trieu(bucket.vatHost)],
+            ["VAT đầu vào dịch vụ VN khác (eKYC, luật, VP…)", trieu(bucket.vatOther)],
+            ["VAT đầu vào tổng — khấu trừ kỳ này", trieu(bucket.inputVat)],
+            ["VAT phải nộp = đầu ra − đầu vào", trieu(vatPayableQ)],
+            ["VAT còn chuyển kỳ sau (nếu đầu vào lớn hơn)", trieu(vatCarryQ)],
+            ["Cục Thuế hoàn tiền mặt", "0 — đã trừ vào VAT phải nộp"],
             ["Chi phí thuần + FCT TNDN", trieu(opexQ)],
-            ["Trong đó FCT TNDN 5% SaaS", trieu(bucket.fctCit)],
+            ["Trong đó FCT TNDN cloud ngoại", trieu(bucket.fctCit)],
             ["Lãi trước thuế TNDN", trieu(ebtQ)],
             [`Thuế TNDN ${(cit * 100).toFixed(0)}%`, trieu(taxQ)],
             ["Lãi sau thuế TNDN", trieu(patQ)],
@@ -882,9 +920,11 @@ export default function PresentationPnlChecklist() {
             ["Doanh thu gồm VAT", trieu(grossQ * 4)],
             ["Doanh thu thuần", trieu(netQ * 4)],
             ["VAT đầu ra", trieu(outputVatQ * 4)],
-            ["VAT đầu vào khấu trừ", trieu(bucket.inputVat * 4)],
+            ["VAT đầu vào VPS / hosting / cloud", trieu(bucket.vatHost * 4)],
+            ["VAT đầu vào khác", trieu(bucket.vatOther * 4)],
+            ["VAT đầu vào tổng", trieu(bucket.inputVat * 4)],
             ["VAT phải nộp", trieu(vatPayableQ * 4)],
-            ["Hoàn thuế GTGT tiền mặt", "0"],
+            ["Cục Thuế hoàn tiền mặt", "0 — đã trừ vào VAT phải nộp"],
             ["Chi phí thuần + FCT TNDN", trieu(opexY)],
             ["Lãi trước thuế TNDN", trieu(ebtY)],
             [`Thuế TNDN ${(cit * 100).toFixed(0)}%`, trieu(taxY)],
@@ -896,16 +936,13 @@ export default function PresentationPnlChecklist() {
         />
       </div>
       <p className="px-4 py-3 text-[11px] leading-relaxed text-gray-500">
-        Phí sàn / tip / gói hồ sơ chịu GTGT 10% (dịch vụ nền tảng số — không lấy mức giảm 8% đến 31/12/2026 vì
-        viễn thông / CNTT / tài chính / bảo hiểm bị loại khỏi NĐ 174/2025). VAT phải nộp = đầu ra − đầu vào được
-        khấu trừ (hóa đơn hợp lệ, thanh toán không tiền mặt từ 5 triệu; Luật 48/2024, NĐ 181/2025, NĐ 144/2026).
-        Hoàn thuế GTGT tiền mặt chỉ khi dư đầu vào từ 300 triệu và thuộc XK / dự án đầu tư / hàng 5% — sàn nội địa
-        đang bán dịch vụ 10% thì gần như chỉ khấu trừ, không hoàn tiền. FCT SaaS (Vercel, Neon, Cloudinary…): 5%
-        VAT được khấu trừ + 5% TNDN là chi phí (Thông tư 103; nếu NCC đã đăng ký eTax thì không khấu trừ hộ). Thuế
-        TNDN = lãi trước thuế × 15/17/20% theo doanh thu năm liền kề (Luật 67/2025) — năm đầu thường 20% nếu chưa
-        có kỳ trước; mô hình này dùng doanh thu năm giả định. Lãi âm thì TNDN = 0.
-        {optHint ? ` Đang cộng: ${optHint}.` : " Chưa cộng mục tuỳ chọn."} Tỷ giá {usdRate.toLocaleString("vi-VN")}{" "}
-        đ/USD.
+        Mua VPS GenCloud/AZDIGI, domain, eKYC VNPT: giá thường đã gồm GTGT 10% — phần 10/110 được khấu trừ, giảm
+        VAT phải nộp, không chờ Cục Thuế chuyển tiền. Cloud ngoại (Vercel, Neon, Cloudinary): Công văn 296/CT-CS
+        (19/01/2026) và AWS từ 01/7/2025 thu GTGT 10% trên dịch vụ đám mây; mô hình cộng 10% VAT (khấu trừ) + 5%
+        TNDN nhà thầu (chi phí). “Hoàn” ở đây = trừ vào VAT đầu ra cùng kỳ. Hoàn tiền mặt chỉ khi dư đầu vào từ
+        300 triệu và thuộc XK / dự án đầu tư — sàn đang bán dịch vụ 10% thì gần như không xảy ra. Hóa đơn dưới 5
+        triệu vẫn khấu trừ dù trả tiền mặt (NĐ 181/2025). Tắt ô khấu trừ nếu muốn xem bản chưa trừ VAT mua host.
+        {optHint ? ` Đang cộng: ${optHint}.` : ""} Tỷ giá {usdRate.toLocaleString("vi-VN")} đ/USD.
       </p>
     </div>
   );
