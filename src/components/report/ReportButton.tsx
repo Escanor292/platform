@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Flag } from 'lucide-react';
 import CampaignReportModal from '@/components/campaign/CampaignReportModal';
 import type { ReportTargetType } from '@/lib/content-report';
+import { useOwnerView } from '@/components/owner/OwnerViewContext';
 
 export default function ReportButton({
   targetType,
@@ -19,6 +20,8 @@ export default function ReportButton({
   label?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const { showOwnerUi } = useOwnerView();
+  if (showOwnerUi) return null;
   return (
     <>
       <button

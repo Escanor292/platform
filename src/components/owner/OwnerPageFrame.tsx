@@ -18,7 +18,11 @@ export function OwnerPageFrame({
 }) {
   return (
     <OwnerViewProvider isOwner={isOwner}>
-      {isOwner && <OwnerRevenuePanel kind={kind} id={id} />}
+      {isOwner && (
+        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
+          <OwnerRevenuePanel kind={kind} id={id} />
+        </div>
+      )}
       {children}
       <OwnerEyeButton />
     </OwnerViewProvider>

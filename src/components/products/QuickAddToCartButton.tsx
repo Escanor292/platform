@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check, ShoppingCart } from "lucide-react";
 import { useCart } from "@/components/products/CartProvider";
+import { useOwnerView } from "@/components/owner/OwnerViewContext";
 
 interface QuickAddToCartButtonProps {
   rewardId: string;
@@ -27,7 +28,9 @@ export default function QuickAddToCartButton({
 }: QuickAddToCartButtonProps) {
   const { addItem, items } = useCart();
   const [added, setAdded] = useState(false);
+  const { showOwnerUi } = useOwnerView();
   const inCart = items.some((item) => item.id === rewardId);
+  if (showOwnerUi) return null;
 
   const handleAdd = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();

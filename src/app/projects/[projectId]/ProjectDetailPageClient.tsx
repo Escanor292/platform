@@ -6,17 +6,14 @@ import ProjectDetailClient from './ProjectDetailClient';
 import { PublicProjectDetail } from '@/types/project-detail';
 import OwnerEditPanel from '@/components/OwnerEditPanel';
 import { ProjectFormDialog } from '@/components/dashboard/ProjectFormDialog';
+import { OwnerPageFrame } from '@/components/owner/OwnerPageFrame';
+import { OwnerOnly } from '@/components/owner/OwnerViewContext';
 
 interface ProjectDetailPageClientProps {
   project: PublicProjectDetail;
   isOwner: boolean;
 }
 
-/**
- * Client wrapper for the public project detail page.
- * Owns the "quick edit" dialog state so owners can edit the project
- * in place (without navigating to the dashboard).
- */
 export function ProjectDetailPageClient({
   project,
   isOwner,
@@ -39,29 +36,31 @@ export function ProjectDetailPageClient({
   };
 
   return (
-    <>
+    <OwnerPageFrame isOwner={isOwner} kind="project" id={project.id}>
       <ProjectDetailClient project={project} />
-      <OwnerEditPanel
-        isOwner={isOwner}
-        blocks={[
-          {
-            label: 'Thông tin dự án',
-            description: 'Tiêu đề, mô tả, ảnh bìa, liên kết',
-            onEdit: () => {
-              setDialogTab('basic');
-              setDialogOpen(true);
+      <OwnerOnly>
+        <OwnerEditPanel
+          isOwner={isOwner}
+          blocks={[
+            {
+              label: 'Thông tin dự án',
+              description: 'Tiêu đề, mô tả, ảnh bìa, liên kết',
+              onEdit: () => {
+                setDialogTab('basic');
+                setDialogOpen(true);
+              },
             },
-          },
-          {
-            label: 'Sản phẩm dự án',
-            description: 'Gắn, gỡ hoặc tạo sản phẩm thuộc dự án — không cần vào chiến dịch',
-            onEdit: () => {
-              setDialogTab('links');
-              setDialogOpen(true);
+            {
+              label: 'Sản phẩm dự án',
+              description: 'Gắn, gỡ hoặc tạo sản phẩm thuộc dự án — không cần vào chiến dịch',
+              onEdit: () => {
+                setDialogTab('links');
+                setDialogOpen(true);
+              },
             },
-          },
-        ]}
-      />
+          ]}
+        />
+      </OwnerOnly>
       <ProjectFormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
@@ -72,6 +71,6 @@ export function ProjectDetailPageClient({
           router.refresh();
         }}
       />
-    </>
+    </OwnerPageFrame>
   );
 }

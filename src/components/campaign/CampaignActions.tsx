@@ -4,6 +4,7 @@ import { HeartHandshake, Share2, Flag } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getFollowButtonClass, getFollowIconClass } from "@/lib/button-styles";
 import CampaignReportModal from "./CampaignReportModal";
+import { useOwnerView } from "@/components/owner/OwnerViewContext";
 
 interface CampaignActionsProps {
     campaignTitle: string;
@@ -14,6 +15,7 @@ interface CampaignActionsProps {
 export default function CampaignActions({ campaignTitle, campaignSlug, campaignId }: CampaignActionsProps) {
     const [isFavorited, setIsFavorited] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
+    const { showOwnerUi } = useOwnerView();
 
     useEffect(() => {
         const stored = localStorage.getItem("favoriteCampaigns");
@@ -73,19 +75,21 @@ export default function CampaignActions({ campaignTitle, campaignSlug, campaignI
     return (
         <>
             <div className="flex items-center gap-3">
-                <button
-                    onClick={handleFavorite}
-                    data-analytics-cta="campaign_favorite"
-                    data-analytics-label={isFavorited ? "Bo quan tam" : "Quan tam"}
-                    className={getFollowButtonClass(isFavorited, "flex-1 py-3 px-4")}
-                    title={isFavorited ? "Da quan tam" : "Quan tam"}
-                >
-                    <HeartHandshake
-                        size={16}
-                        className={getFollowIconClass(isFavorited)}
-                    />
-                    {isFavorited ? "Da quan tam" : "Quan tam"}
-                </button>
+                {!showOwnerUi && (
+                    <button
+                        onClick={handleFavorite}
+                        data-analytics-cta="campaign_favorite"
+                        data-analytics-label={isFavorited ? "Bo quan tam" : "Quan tam"}
+                        className={getFollowButtonClass(isFavorited, "flex-1 py-3 px-4")}
+                        title={isFavorited ? "Da quan tam" : "Quan tam"}
+                    >
+                        <HeartHandshake
+                            size={16}
+                            className={getFollowIconClass(isFavorited)}
+                        />
+                        {isFavorited ? "Da quan tam" : "Quan tam"}
+                    </button>
+                )}
 
                 <button
                     onClick={handleShare}
@@ -97,15 +101,17 @@ export default function CampaignActions({ campaignTitle, campaignSlug, campaignI
                     <Share2 size={18} className="text-gray-600" />
                 </button>
 
-                <button
-                    onClick={() => setShowReportModal(true)}
-                    data-analytics-cta="campaign_report"
-                    data-analytics-label="Bao cao chien dich"
-                    className="border border-gray-300 hover:bg-red-50 text-gray-700 hover:text-red-600 font-semibold p-3 rounded-lg transition-colors"
-                    title="Bao cao chien dich"
-                >
-                    <Flag size={18} className="text-gray-600 hover:text-red-600" />
-                </button>
+                {!showOwnerUi && (
+                    <button
+                        onClick={() => setShowReportModal(true)}
+                        data-analytics-cta="campaign_report"
+                        data-analytics-label="Bao cao chien dich"
+                        className="border border-gray-300 hover:bg-red-50 text-gray-700 hover:text-red-600 font-semibold p-3 rounded-lg transition-colors"
+                        title="Bao cao chien dich"
+                    >
+                        <Flag size={18} className="text-gray-600 hover:text-red-600" />
+                    </button>
+                )}
             </div>
 
             <CampaignReportModal
