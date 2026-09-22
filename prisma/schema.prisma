@@ -1374,3 +1374,10 @@ model user_notes {
   @@index([userId, expiresAt])
   @@index([targetUserId, expiresAt])
 }
+
+model so_ledgers {
+  id        String   @id
+  rev       Int      @default(0)
+  state     Json
+  updatedAt DateTime @updatedAt
+}

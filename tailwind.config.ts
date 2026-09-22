@@ -24,6 +24,12 @@ const config: Config = {
         dblue: '#1F4E79',
         ebrown: '#8B6B4A',
         cream: '#F8F7F2',
+        ink: '#091428',
+        surface: '#ffffff',
+        line: '#e7e2d4',
+        muted: '#5c6570',
+        navy: '#1F4E79',
+        danger: '#9b2c2c',
         warmw: 'rgba(255,255,255,0.7)',
         // Thay thế toàn bộ viền/text Đen/Xám thô cứng thành Tông Xanh Than (Slate/Navy) mềm mại
         gray: {

@@ -2,17 +2,11 @@ import type { Metadata, Viewport } from "next";
 import { Nunito, Playfair_Display, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import "./dark-compat.css";
-import NavbarNew from "@/components/layout/NavbarNew";
-import MobileBottomNav from "@/components/layout/MobileBottomNav";
-import FooterNew from "@/components/shared/FooterNew";
 import { Providers } from "@/components/shared/Providers";
 import { CartProvider } from "@/components/products/CartProvider";
-import QuickPageAssistant from "@/components/public/QuickPageAssistant";
-import PlatformHelpAssistant from "@/components/public/PlatformHelpAssistant";
-import PlatformAssistantGate from "@/components/public/PlatformAssistantGate";
 import ProfileThemeShell from "@/components/profile/ProfileThemeShell";
-import BehaviorTracker from "@/components/analytics/BehaviorTracker";
 import ThemedToaster from "@/components/layout/ThemedToaster";
+import { SiteFrame } from "@/components/layout/SiteFrame";
 import { Ga4Script } from "@/components/seo/Ga4Script";
 import { getGa4MeasurementId } from "@/lib/platform-settings";
 import { DEFAULT_OG_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, getSiteUrl } from "@/lib/seo";
@@ -102,19 +96,7 @@ export default async function RootLayout({
           <CartProvider>
           <ThemedToaster />
           <ProfileThemeShell>
-            <div className="flex min-h-screen flex-col bg-background pb-20 text-foreground md:pb-0">
-              <NavbarNew />
-              <main className="flex-grow">
-                {children}
-              </main>
-              <FooterNew />
-              <MobileBottomNav />
-              <PlatformAssistantGate>
-                <QuickPageAssistant />
-                <PlatformHelpAssistant />
-              </PlatformAssistantGate>
-              <BehaviorTracker />
-            </div>
+            <SiteFrame>{children}</SiteFrame>
           </ProfileThemeShell>
           </CartProvider>
         </Providers>

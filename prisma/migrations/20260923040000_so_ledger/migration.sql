@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS "so_ledgers" (
+    "id" TEXT NOT NULL,
+    "rev" INTEGER NOT NULL DEFAULT 0,
+    "state" JSONB NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "so_ledgers_pkey" PRIMARY KEY ("id")
+);
