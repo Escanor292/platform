@@ -17,6 +17,8 @@ import { getCampaignTypeLabel, getFundingModelLabel } from "@/lib/campaign-helpe
 import { getTagLabel } from "@/lib/taxonomy-helpers";
 import { getFundingModelDescription } from "@/lib/funding-model";
 import OwnerEditPanel from "@/components/OwnerEditPanel";
+import { OwnerPageFrame } from "@/components/owner/OwnerPageFrame";
+import { OwnerOnly } from "@/components/owner/OwnerViewContext";
 import { isPublicCampaignStatus, campaignModerationLabel } from "@/lib/moderation/policy";
 import { getCampaignReviewFields } from "@/lib/moderation/campaign-review";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -123,7 +125,6 @@ export default async function CampaignDetailPage({ params }: Params) {
          ? [campaign.imageUrl]
          : [];
 
-   // Serialize campaign data for client component
    const serializedCampaign = {
       ...campaign,
       goalAmount: Number(campaign.goalAmount),
@@ -163,6 +164,7 @@ export default async function CampaignDetailPage({ params }: Params) {
 
    return (
       <CampaignProvider>
+         <OwnerPageFrame isOwner={!!isCreator} kind="campaign" id={campaign.id}>
          <div className="min-h-screen bg-gray-50">
             {isPublicCampaignStatus(campaign.status) && (
                <JsonLd
@@ -177,7 +179,6 @@ export default async function CampaignDetailPage({ params }: Params) {
                   }}
                />
             )}
-            {/* Header with breadcrumb */}
             <div className="border-b border-gray-200 bg-white pt-20">
                <div className="max-w-7xl mx-auto px-6 py-4">
                   <div className="flex items-center gap-2 text-sm">
@@ -188,7 +189,6 @@ export default async function CampaignDetailPage({ params }: Params) {
                </div>
             </div>
 
-            {/* Main Content - Single Card */}
             <div className="max-w-7xl mx-auto px-6 py-8">
                {!isPublicCampaignStatus(campaign.status) && (
                   <div className={`mb-6 rounded-2xl border px-5 py-4 text-sm ${
@@ -204,7 +204,6 @@ export default async function CampaignDetailPage({ params }: Params) {
                   </div>
                )}
                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm p-8">
-                  {/* Title & Campaign Code - Now Full Width */}
                   <CampaignHeader
                      title={campaign.title}
                      description={campaign.description}
@@ -212,24 +211,17 @@ export default async function CampaignDetailPage({ params }: Params) {
                      project={campaign.projects}
                   />
 
-
                   <div className="mt-8">
-                     {/* Top Section - 2 Columns (Media & Progress) */}
                      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10">
-
-                        {/* Main Content - Media & Tags */}
                         <div>
-                           {/* Media */}
                            <div className="mb-6">
                               <div className="aspect-video w-full overflow-hidden rounded-lg border border-gray-200">
                                  <ImageCarousel images={campaignImages} alt={campaign.title} />
                               </div>
                            </div>
 
-                           {/* Creator Info & Tags Block */}
                            <div className="py-6 border-t border-gray-100 space-y-5">
                               <div className="space-y-3">
-                                 {/* Main Classification Badges */}
                                  <div className="flex flex-wrap gap-2">
                                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 shadow-sm">
                                        <Tag size={12} />
@@ -252,7 +244,6 @@ export default async function CampaignDetailPage({ params }: Params) {
                                     )}
                                  </div>
 
-                                 {/* Secondary Tags */}
                                  {campaign.tags && campaign.tags.length > 0 && (
                                     <div className="flex flex-wrap gap-2">
                                        {campaign.tags.map((tag: string, index: number) => (
@@ -285,10 +276,8 @@ export default async function CampaignDetailPage({ params }: Params) {
                            </div>
                         </div>
 
-                        {/* Sidebar - Funding Info (Sticky) */}
                         <div>
                            <div className="lg:sticky lg:top-24 space-y-6">
-                              {/* Funding Stats */}
                               <CampaignGrowthProgress
                                  currentAmount={Number(campaign.currentAmount)}
                                  goalAmount={Number(campaign.goalAmount)}
@@ -298,7 +287,6 @@ export default async function CampaignDetailPage({ params }: Params) {
                                  variant="default"
                               />
 
-                              {/* Backers & Days */}
                               <div className="grid grid-cols-2 gap-4">
                                  <div className="flex items-center gap-3 text-gray-600">
                                     <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -328,9 +316,6 @@ export default async function CampaignDetailPage({ params }: Params) {
                                  </div>
                               </div>
 
-
-
-                              {/* Support Button & Payment Section */}
                               <CampaignPageClient
                                  campaignId={campaign.id}
                                  campaignSlug={slug}
@@ -341,7 +326,6 @@ export default async function CampaignDetailPage({ params }: Params) {
                                  campaignStatus={campaign.status}
                               />
 
-                              {/* Funding model notice */}
                               {campaign.endDate && (
                                  <div className="text-xs text-gray-500 pt-4 border-t border-gray-200 leading-relaxed">
                                     <span className="font-semibold">{getFundingModelLabel(campaign.fundingModel)}.</span>{" "}
@@ -352,7 +336,6 @@ export default async function CampaignDetailPage({ params }: Params) {
                                  </div>
                               )}
 
-                              {/* Social Share */}
                               <CampaignActions
                                  campaignTitle={campaign.title}
                                  campaignSlug={slug}
@@ -363,9 +346,6 @@ export default async function CampaignDetailPage({ params }: Params) {
                      </div>
                   </div>
 
-                  {/* Campaign Stats Summary - REMOVED */}
-
-                  {/* Tabs Content - Full Width */}
                   <div className="border-t border-gray-100 pt-6">
                      <CampaignTabsWrapper
                         campaign={serializedCampaign}
@@ -378,7 +358,7 @@ export default async function CampaignDetailPage({ params }: Params) {
                </div>
             </div>
 
-            {/* Owner Edit Panel */}
+            <OwnerOnly>
             <OwnerEditPanel
                isOwner={!!isCreator}
                blocks={[
@@ -394,7 +374,9 @@ export default async function CampaignDetailPage({ params }: Params) {
                   }
                ]}
             />
+            </OwnerOnly>
          </div>
+         </OwnerPageFrame>
       </CampaignProvider>
    );
 }
