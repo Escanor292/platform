@@ -22,6 +22,7 @@ export const vi = {
   "nav.closeMenu": "Đóng menu",
   "cta.startCampaign": "Gây quỹ ngay",
   "auth.login": "Đăng nhập",
+  "auth.register": "Đăng ký",
   "brand.name": "TửTế Fund",
   "brand.tagline": "Lấy sự tử tế trồng tương lai",
   "footer.tagline": "Lấy sự tử tế trồng tương lai. Nền tảng gây quỹ cộng đồng minh bạch #2 Việt Nam.",

@@ -24,6 +24,7 @@ export const en: Record<MessageKey, string> = {
   "nav.closeMenu": "Close menu",
   "cta.startCampaign": "Start a campaign",
   "auth.login": "Log in",
+  "auth.register": "Sign up",
   "brand.name": "TuTe Fund",
   "brand.tagline": "Kindness plants the future",
   "footer.tagline": "Kindness plants the future. A transparent community crowdfunding platform in Vietnam.",

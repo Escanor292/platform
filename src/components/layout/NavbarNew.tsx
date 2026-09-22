@@ -385,6 +385,13 @@ export default function NavbarNew() {
           ) : (
             <>
               <Link
+                href="/auth/register"
+                className="py-2 text-sm font-medium text-gray-700 dark:text-slate-200"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {t("auth.register")}
+              </Link>
+              <Link
                 href="/auth/login"
                 className="py-2 text-sm font-medium text-pgreen"
                 onClick={() => setIsMenuOpen(false)}
