@@ -894,12 +894,6 @@ export default function PresentationPnlChecklist({ stats }: { stats?: Presentati
 
   const ready = revenueOn && infra !== null && ops !== null;
 
-  const missing = [
-    !revenueOn ? "Kịch bản doanh thu" : null,
-    infra === null ? "Một phương án hạ tầng (đang xài hoặc VPS rẻ)" : null,
-    ops === null ? "Một bản vận hành (A thủ công hoặc B eKYC)" : null,
-  ].filter(Boolean) as string[];
-
   function resetDefaults() {
     setLines(defaultsFor(scenario));
     setUsdRate(USD_DEFAULT);
@@ -935,20 +929,6 @@ export default function PresentationPnlChecklist({ stats }: { stats?: Presentati
   ]
     .filter(Boolean)
     .join(" · ");
-
-  const missingBox = (
-    <div className="rounded-[1.5rem] border border-dashed border-amber-300 bg-amber-50 px-4 py-4">
-      <div className="text-sm font-black text-amber-950">Bảng doanh thu chưa hiện</div>
-      <p className="mt-1 text-sm text-amber-900">
-        Tích đủ ba mục bắt buộc. Mọi mục dưới là tuỳ chọn — không tích thì không cộng.
-      </p>
-      <ul className="mt-3 space-y-1 text-sm text-amber-950">
-        {missing.map((item) => (
-          <li key={item}>○ {item}</li>
-        ))}
-      </ul>
-    </div>
-  );
 
   const pnlBox = (
     <div className="overflow-hidden rounded-[1.5rem] border border-emerald-200 bg-white shadow-sm">
@@ -1065,7 +1045,7 @@ export default function PresentationPnlChecklist({ stats }: { stats?: Presentati
         </div>
       </div>
 
-      {ready ? pnlBox : missingBox}
+      {ready ? pnlBox : null}
 
       <Group
         checked={revenueOn}
