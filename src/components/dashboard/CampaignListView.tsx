@@ -147,10 +147,9 @@ export default function CampaignListView({ campaigns, projects = [] }: CampaignL
     }
 
     return (
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-            {/* Header */}
-            <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
-                <div className="grid grid-cols-12 gap-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white">
+            <div className="hidden border-b border-gray-100 bg-gray-50 px-6 py-4 lg:block">
+                <div className="grid grid-cols-12 gap-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
                     <div className="col-span-4">Chiến dịch</div>
                     <div className="col-span-2">Trạng thái</div>
                     <div className="col-span-2">Tiến độ</div>
@@ -159,51 +158,157 @@ export default function CampaignListView({ campaigns, projects = [] }: CampaignL
                 </div>
             </div>
 
-            {/* Campaign List */}
             <div className="divide-y divide-gray-100">
                 {campaigns.map((campaign) => {
                     const progress = getProgressPercentage(campaign.currentAmount, campaign.goalAmount);
                     const daysLeft = getDaysLeft(campaign.endDate);
+                    const thumb = (
+                        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-gray-100">
+                            {campaign.imageUrl ? (
+                                <img
+                                    src={campaign.imageUrl}
+                                    alt=""
+                                    className="h-full w-full object-cover"
+                                />
+                            ) : (
+                                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-400 to-emerald-600">
+                                    <Target className="text-white" size={20} />
+                                </div>
+                            )}
+                        </div>
+                    );
+                    const actions = (
+                        <div className="flex flex-wrap items-center gap-1">
+                            <Link
+                                href={`/campaigns/${campaign.slug}`}
+                                className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-emerald-50 hover:text-emerald-600"
+                                title="Xem chiến dịch"
+                            >
+                                <Eye size={16} />
+                            </Link>
+                            <Link
+                                href={`/dashboard/creator/edit/${campaign.slug}`}
+                                className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-600"
+                                title="Chỉnh sửa"
+                            >
+                                <Edit size={16} />
+                            </Link>
+                            <Link
+                                href={`/dashboard/creator/rewards/${campaign.slug}`}
+                                className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-orange-50 hover:text-orange-600"
+                                title="Quà tặng"
+                            >
+                                <Gift size={16} />
+                            </Link>
+                            <Link
+                                href={`/dashboard/creator/statement/${campaign.id}`}
+                                className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-purple-50 hover:text-purple-600"
+                                title="Báo cáo"
+                            >
+                                <BarChart3 size={16} />
+                            </Link>
+                        </div>
+                    );
 
                     return (
-                        <div key={campaign.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
-                            <div className="grid grid-cols-12 gap-4 items-center">
+                        <div key={campaign.id} className="transition-colors hover:bg-gray-50">
+                            <div className="space-y-3 p-4 lg:hidden">
+                                <div className="flex gap-3">
+                                    {thumb}
+                                    <div className="min-w-0 flex-1">
+                                        <Link
+                                            href={`/campaigns/${campaign.slug}`}
+                                            className="block break-words font-semibold leading-snug text-gray-900 hover:text-emerald-600"
+                                        >
+                                            {campaign.title}
+                                        </Link>
+                                        <p className="mt-1 line-clamp-2 text-sm text-gray-500">
+                                            {extractTextFromDescription(campaign.description)}
+                                        </p>
+                                        <p className="mt-1 break-all font-mono text-[11px] text-gray-400">
+                                            #{campaign.campaignCode}
+                                        </p>
+                                        <p className="text-[11px] text-gray-400">{formatDate(campaign.createdAt)}</p>
+                                    </div>
+                                </div>
 
-                                {/* Campaign Info */}
-                                <div className="col-span-4">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    {getStatusBadge(campaign.status)}
+                                    {daysLeft !== null && campaign.status === "ACTIVE" && (
+                                        <span className="inline-flex items-center gap-1 text-xs text-gray-500">
+                                            <Clock size={12} />
+                                            {daysLeft > 0 ? `${daysLeft} ngày` : "Hết hạn"}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <CampaignSubmitBar
+                                    slug={campaign.slug}
+                                    status={campaign.status}
+                                    rejectionReason={campaign.rejectionReason}
+                                    successPledgeCount={campaign._count.pledges}
+                                />
+
+                                <div>
+                                    <CampaignGrowthProgress
+                                        currentAmount={campaign.currentAmount}
+                                        goalAmount={campaign.goalAmount}
+                                        variant="compact"
+                                        size="sm"
+                                        showTree={false}
+                                    />
+                                    <div className="mt-1 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                                        Mục tiêu: {formatVND(campaign.goalAmount)}
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-1 text-sm">
+                                    <Users size={14} className="text-gray-400" />
+                                    <span className="font-semibold text-gray-900">{campaign._count.pledges}</span>
+                                    <span className="text-xs text-gray-500">người ủng hộ</span>
+                                    <span className="ml-auto text-xs font-bold text-gray-500">{Math.round(progress)}%</span>
+                                </div>
+
+                                {projects.length > 0 && (
+                                    <select
+                                        value={campaign.projectId || ""}
+                                        onChange={(e) => handleAssignProject(campaign.slug, e.target.value || null)}
+                                        disabled={assigningProject === campaign.slug}
+                                        className="w-full rounded-lg border border-gray-300 bg-white px-2 py-2 text-xs hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50"
+                                        title="Gán vào Project"
+                                    >
+                                        <option value="">Chưa có project</option>
+                                        {projects.map((project) => (
+                                            <option key={project.id} value={project.id}>
+                                                {project.title}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
+
+                                {actions}
+                            </div>
+
+                            <div className="hidden grid-cols-12 items-center gap-4 px-6 py-4 lg:grid">
+                                <div className="col-span-4 min-w-0">
                                     <div className="flex items-center gap-4">
-                                        {/* Campaign Image */}
-                                        <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
-                                            {campaign.imageUrl ? (
-                                                <img
-                                                    src={campaign.imageUrl}
-                                                    alt={campaign.title}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
-                                                    <Target className="text-white" size={20} />
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {/* Campaign Details */}
+                                        {thumb}
                                         <div className="min-w-0 flex-1">
                                             <Link
                                                 href={`/campaigns/${campaign.slug}`}
-                                                className="font-semibold text-gray-900 hover:text-emerald-600 transition-colors line-clamp-1"
+                                                className="block truncate font-semibold text-gray-900 transition-colors hover:text-emerald-600"
                                             >
                                                 {campaign.title}
                                             </Link>
-                                            <p className="text-sm text-gray-500 line-clamp-1 mt-1">
+                                            <p className="mt-1 truncate text-sm text-gray-500">
                                                 {extractTextFromDescription(campaign.description)}
                                             </p>
-                                            <div className="flex items-center gap-2 mt-2">
-                                                <span className="text-xs text-gray-400 font-mono">
+                                            <div className="mt-2 flex min-w-0 items-center gap-2">
+                                                <span className="truncate font-mono text-xs text-gray-400">
                                                     #{campaign.campaignCode}
                                                 </span>
-                                                <span className="text-xs text-gray-300">•</span>
-                                                <span className="text-xs text-gray-400">
+                                                <span className="shrink-0 text-xs text-gray-300">•</span>
+                                                <span className="shrink-0 text-xs text-gray-400">
                                                     {formatDate(campaign.createdAt)}
                                                 </span>
                                             </div>
@@ -211,13 +316,12 @@ export default function CampaignListView({ campaigns, projects = [] }: CampaignL
                                     </div>
                                 </div>
 
-                                {/* Status */}
-                                <div className="col-span-2">
+                                <div className="col-span-2 min-w-0">
                                     {getStatusBadge(campaign.status)}
-                                    {daysLeft !== null && campaign.status === 'ACTIVE' && (
-                                        <div className="flex items-center gap-1 mt-2 text-xs text-gray-500">
+                                    {daysLeft !== null && campaign.status === "ACTIVE" && (
+                                        <div className="mt-2 flex items-center gap-1 text-xs text-gray-500">
                                             <Clock size={12} />
-                                            {daysLeft > 0 ? `${daysLeft} ngày` : 'Hết hạn'}
+                                            {daysLeft > 0 ? `${daysLeft} ngày` : "Hết hạn"}
                                         </div>
                                     )}
                                     <div className="mt-2">
@@ -230,8 +334,7 @@ export default function CampaignListView({ campaigns, projects = [] }: CampaignL
                                     </div>
                                 </div>
 
-                                {/* Progress */}
-                                <div className="col-span-2">
+                                <div className="col-span-2 min-w-0">
                                     <CampaignGrowthProgress
                                         currentAmount={campaign.currentAmount}
                                         goalAmount={campaign.goalAmount}
@@ -239,76 +342,38 @@ export default function CampaignListView({ campaigns, projects = [] }: CampaignL
                                         size="sm"
                                         showTree={false}
                                     />
-                                    <div className="text-[10px] text-gray-500 mt-1 uppercase font-black tracking-widest">
+                                    <div className="mt-1 text-[10px] font-black uppercase tracking-widest text-gray-500">
                                         Mục tiêu: {formatVND(campaign.goalAmount)}
                                     </div>
                                 </div>
 
-                                {/* Stats */}
-                                <div className="col-span-2">
-                                    <div className="space-y-1">
-                                        <div className="flex items-center gap-1 text-sm">
-                                            <Users size={14} className="text-gray-400" />
-                                            <span className="font-semibold text-gray-900">
-                                                {campaign._count.pledges}
-                                            </span>
-                                            <span className="text-gray-500 text-xs">người ủng hộ</span>
-                                        </div>
+                                <div className="col-span-2 min-w-0">
+                                    <div className="flex items-center gap-1 text-sm">
+                                        <Users size={14} className="shrink-0 text-gray-400" />
+                                        <span className="font-semibold text-gray-900">{campaign._count.pledges}</span>
+                                        <span className="text-xs text-gray-500">người ủng hộ</span>
                                     </div>
                                 </div>
 
-                                {/* Actions */}
-                                <div className="col-span-2">
-                                    <div className="flex items-center gap-2">
+                                <div className="col-span-2 min-w-0">
+                                    <div className="flex flex-col items-start gap-2">
                                         {projects.length > 0 && (
-                                            <div className="relative">
-                                                <select
-                                                    value={campaign.projectId || ''}
-                                                    onChange={(e) => handleAssignProject(campaign.slug, e.target.value || null)}
-                                                    disabled={assigningProject === campaign.slug}
-                                                    className="text-xs border border-gray-300 rounded px-2 py-1 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50"
-                                                    title="Gán vào Project"
-                                                >
-                                                    <option value="">Chưa có project</option>
-                                                    {projects.map((project) => (
-                                                        <option key={project.id} value={project.id}>
-                                                            {project.title}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
+                                            <select
+                                                value={campaign.projectId || ""}
+                                                onChange={(e) => handleAssignProject(campaign.slug, e.target.value || null)}
+                                                disabled={assigningProject === campaign.slug}
+                                                className="w-full max-w-[9rem] truncate rounded border border-gray-300 bg-white px-2 py-1 text-xs hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50"
+                                                title="Gán vào Project"
+                                            >
+                                                <option value="">Chưa có project</option>
+                                                {projects.map((project) => (
+                                                    <option key={project.id} value={project.id}>
+                                                        {project.title}
+                                                    </option>
+                                                ))}
+                                            </select>
                                         )}
-                                        <Link
-                                            href={`/campaigns/${campaign.slug}`}
-                                            className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                                            title="Xem chiến dịch"
-                                        >
-                                            <Eye size={16} />
-                                        </Link>
-
-                                        <Link
-                                            href={`/dashboard/creator/edit/${campaign.slug}`}
-                                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                            title="Chỉnh sửa"
-                                        >
-                                            <Edit size={16} />
-                                        </Link>
-
-                                        <Link
-                                            href={`/dashboard/creator/rewards/${campaign.slug}`}
-                                            className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                                            title="Quà tặng"
-                                        >
-                                            <Gift size={16} />
-                                        </Link>
-
-                                        <Link
-                                            href={`/dashboard/creator/statement/${campaign.id}`}
-                                            className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                                            title="Báo cáo"
-                                        >
-                                            <BarChart3 size={16} />
-                                        </Link>
+                                        {actions}
                                     </div>
                                 </div>
                             </div>

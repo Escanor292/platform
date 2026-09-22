@@ -202,15 +202,15 @@ export default function CreatorDashboardClient({
                 {/* View Mode Toggle & Campaign List */}
                 <div className="space-y-6">
                     {/* View Mode Toggle */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <h2 className="text-sm font-black text-gray-400 uppercase tracking-widest">
                             Danh sách chiến dịch ({filteredCampaigns.length})
                         </h2>
 
-                        <div className="flex items-center gap-2 bg-white rounded-xl border border-gray-200 p-1">
+                        <div className="flex w-full items-center gap-1 rounded-xl border border-gray-200 bg-white p-1 sm:w-auto">
                             <button
                                 onClick={() => setViewMode('list')}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${viewMode === 'list'
+                                className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors sm:flex-none sm:px-4 ${viewMode === 'list'
                                     ? 'bg-emerald-100 text-emerald-700'
                                     : 'text-gray-600 hover:text-gray-900'
                                     }`}
@@ -220,7 +220,7 @@ export default function CreatorDashboardClient({
                             </button>
                             <button
                                 onClick={() => setViewMode('grid')}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${viewMode === 'grid'
+                                className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors sm:flex-none sm:px-4 ${viewMode === 'grid'
                                     ? 'bg-emerald-100 text-emerald-700'
                                     : 'text-gray-600 hover:text-gray-900'
                                     }`}
