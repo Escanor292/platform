@@ -291,7 +291,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
                 )}
                 {user.role === "CREATOR" && (
                   <Link href="/dashboard/creator" className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-blue-700 sm:px-4 sm:text-sm">
-                    <Rocket size={16} /> Quản lý dự án
+                    <Rocket size={16} /> Quản lý chiến dịch
                   </Link>
                 )}
                 {(user.role === "BACKER" || user.role === "CREATOR_PENDING") && (
