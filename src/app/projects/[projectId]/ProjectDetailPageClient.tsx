@@ -41,6 +41,7 @@ export function ProjectDetailPageClient({
       <OwnerOnly>
         <OwnerEditPanel
           isOwner={isOwner}
+          besideEye
           blocks={[
             {
               label: 'Thông tin dự án',

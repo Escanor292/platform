@@ -15,15 +15,21 @@ interface EditBlock {
 interface OwnerEditPanelProps {
   isOwner: boolean;
   blocks: EditBlock[];
+  /** Nhường chỗ nút xem như khách bên trái */
+  besideEye?: boolean;
 }
 
-export default function OwnerEditPanel({ isOwner, blocks }: OwnerEditPanelProps) {
+export default function OwnerEditPanel({ isOwner, blocks, besideEye = false }: OwnerEditPanelProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   if (!isOwner) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div
+      className={`fixed z-[60] max-w-[min(22rem,calc(100vw-5.75rem))] bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:bottom-6 ${
+        besideEye ? "left-[4.25rem] md:left-[5.25rem]" : "left-3 md:left-6"
+      }`}
+    >
       <div className="overflow-hidden rounded-[1.5rem] border border-pgreen/15 bg-white shadow-soft">
         {/* Header */}
         <button

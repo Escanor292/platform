@@ -184,7 +184,6 @@ export function OwnerRevenuePanel({ kind, id }: { kind: PanelKind; id: string })
   return (
     <section className="mb-6 rounded-3xl border border-pgreen/15 bg-white p-5 shadow-soft">
       <div className="mb-4">
-        <p className="text-[11px] font-bold uppercase tracking-widest text-pgreen">Chỉ chủ thấy</p>
         <h2 className="font-display text-xl font-bold text-dblue">Thống kê doanh thu</h2>
       </div>
       {loading && <p className="text-sm text-gray-500">Đang tải số liệu...</p>}
@@ -197,10 +196,6 @@ export function OwnerRevenuePanel({ kind, id }: { kind: PanelKind; id: string })
             centerValue={formatVnd(project.slices.reduce((sum, slice) => sum + slice.amount, 0))}
           />
           <div className="space-y-4">
-            <p className="text-xs text-gray-500">
-              Ba lát không chồng nhau: ủng hộ không quà, ủng hộ có quà, và sản phẩm shop không gắn chiến dịch.
-              Tổng chiến dịch {formatVnd(project.campaignAmount)}.
-            </p>
             <SuccessRing orders={project.orders} />
           </div>
         </div>

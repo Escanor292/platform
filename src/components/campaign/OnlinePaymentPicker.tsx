@@ -820,15 +820,9 @@ export default function OnlinePaymentPicker({
                     </div>
                     {showCvvHelp ? (
                       <p className="text-[11px] leading-relaxed text-slate-500">
-                        3 số (Visa/Mastercard) hoặc 4 số (Amex) in ở mặt sau thẻ. PCI DSS: CVV chỉ dùng để xác thực cổng,
-                        không ghi vào cơ sở dữ liệu.
+                        3 số (Visa/Mastercard) hoặc 4 số (Amex) in ở mặt sau thẻ. Nền tảng không lưu số này.
                       </p>
-                    ) : (
-                      <p className="text-[11px] leading-relaxed text-slate-500">
-                        Chuẩn PCI: số thẻ đầy đủ và CVV không được lưu. Chỉ giữ nhãn, hãng thẻ và 4 số cuối sau khi cổng
-                        thanh toán xác thực.
-                      </p>
-                    )}
+                    ) : null}
                   </>
                 )}
 

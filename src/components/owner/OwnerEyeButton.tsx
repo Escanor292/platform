@@ -8,7 +8,7 @@ export function OwnerEyeButton() {
   if (!isOwner) return null;
 
   return (
-    <div className="fixed bottom-24 right-6 z-50 flex flex-col items-end gap-2">
+    <div className="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] left-3 z-[61] flex flex-col items-start gap-2 md:bottom-6 md:left-6">
       {guestPreview && (
         <div className="rounded-2xl border border-white/70 bg-white/95 px-3 py-1.5 text-xs font-semibold text-dblue shadow-soft">
           Đang xem như khách

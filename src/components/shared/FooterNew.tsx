@@ -68,7 +68,6 @@ export default function FooterNew() {
           <h4 className="font-semibold mb-4 text-sm">{t("footer.contact")}</h4>
           <div className="space-y-2 text-sm opacity-60" style={{ color: "var(--profile-contrast, #ffffff)" }}>
             <p>hello@tutefund.vn</p>
-            <p>1900 xxxx</p>
             <div className="flex gap-3 mt-3">
               <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center cursor-pointer hover:bg-white/20 transition">
                 <Facebook className="w-4 h-4" />

@@ -361,6 +361,7 @@ export default async function CampaignDetailPage({ params }: Params) {
             <OwnerOnly>
             <OwnerEditPanel
                isOwner={!!isCreator}
+               besideEye
                blocks={[
                   {
                      label: 'Thông tin chiến dịch',
