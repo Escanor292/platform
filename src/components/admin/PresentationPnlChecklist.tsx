@@ -49,6 +49,66 @@ function toTrieu(value: number, unit: Unit, usdRate: number) {
   return value;
 }
 
+function taxKind(def: LineDef): "labor" | "none" | "vn_gross10" | "vn_net10" | "fct5_5" {
+  if (def.unit === "usd") return "fct5_5";
+  if (
+    def.id === "manual.kyc" ||
+    def.id === "manual.cs" ||
+    def.id === "hybrid.reviewer" ||
+    def.id === "hybrid.cs" ||
+    def.id.startsWith("founder")
+  ) {
+    return "labor";
+  }
+  if (
+    def.id.startsWith("cheap.") ||
+    def.id === "hybrid.ekyc" ||
+    def.id === "manual.ekyc" ||
+    def.id === "current.domain" ||
+    def.id === "tools.sms" ||
+    def.id === "tools.zalo"
+  ) {
+    return "vn_gross10";
+  }
+  if (def.unit === "pct" || def.unit === "pct_gmv" || def.side === "revenue" || def.id.startsWith("rev.")) {
+    return "none";
+  }
+  return "vn_net10";
+}
+
+type TaxBucket = { net: number; inputVat: number; fctCit: number };
+
+function applyTax(bucket: TaxBucket, def: LineDef, amountQ: number, creditVat: boolean, applyFct: boolean) {
+  const kind = taxKind(def);
+  if (!creditVat && !(applyFct && kind === "fct5_5")) {
+    bucket.net += amountQ;
+    return;
+  }
+  if (kind === "labor" || kind === "none") {
+    bucket.net += amountQ;
+    return;
+  }
+  if (kind === "vn_gross10") {
+    if (creditVat) {
+      bucket.net += amountQ / 1.1;
+      bucket.inputVat += amountQ - amountQ / 1.1;
+    } else {
+      bucket.net += amountQ;
+    }
+    return;
+  }
+  if (kind === "vn_net10") {
+    bucket.net += amountQ;
+    if (creditVat) bucket.inputVat += amountQ * 0.1;
+    return;
+  }
+  bucket.net += amountQ;
+  if (applyFct) {
+    bucket.inputVat += creditVat ? amountQ * 0.05 : 0;
+    bucket.fctCit += amountQ * 0.05;
+  }
+}
+
 function taxRate(netYear: number) {
   if (netYear <= 3_000) return 0.15;
   if (netYear <= 50_000) return 0.17;
@@ -587,6 +647,8 @@ export default function PresentationPnlChecklist() {
   const [ops, setOps] = useState<Ops | null>(null);
   const [opt, setOpt] = useState<Record<OptKey, boolean>>(OPT_OFF);
   const [usdRate, setUsdRate] = useState(USD_DEFAULT);
+  const [creditVat, setCreditVat] = useState(true);
+  const [applyFct, setApplyFct] = useState(true);
   const [lines, setLines] = useState<Record<string, LineLive>>(() => defaultsFor("early"));
   const [hydrated, setHydrated] = useState(false);
 
@@ -675,38 +737,42 @@ export default function PresentationPnlChecklist() {
     }, 0);
   }
 
-  function groupOpexQ(defs: LineDef[], parentOn: boolean) {
-    if (!parentOn) return 0;
-    return defs.reduce((acc, def) => {
-      if (def.side === "revenue") return acc;
+  function addOpex(bucket: TaxBucket, defs: LineDef[], parentOn: boolean) {
+    if (!parentOn) return;
+    for (const def of defs) {
+      if (def.side === "revenue") continue;
       const row = live(def.id, def);
-      if (!row.on) return acc;
-      if (def.unit === "pct_gmv") return acc + gmvSuccessQ * (row.value / 100);
-      return acc + toTrieu(row.value, def.unit, usdRate) * 3;
-    }, 0);
+      if (!row.on) continue;
+      const amountQ =
+        def.unit === "pct_gmv"
+          ? gmvSuccessQ * (row.value / 100)
+          : toTrieu(row.value, def.unit, usdRate) * 3;
+      applyTax(bucket, def, amountQ, creditVat, applyFct);
+    }
   }
 
   const partnerRevQ = groupRevQ(PARTNER_LINES, opt.partner);
   const coreGrossQ = rewardFeeGross + tipGross;
   const grossQ = coreGrossQ + partnerRevQ;
   const netQ = grossQ / 1.1;
-  const vatQ = grossQ - netQ;
+  const outputVatQ = grossQ - netQ;
 
-  const opexQ =
-    groupOpexQ(CURRENT_LINES, infra === "current") +
-    groupOpexQ(CHEAP_LINES, infra === "cheap") +
-    groupOpexQ(MANUAL_LINES, ops === "manual") +
-    groupOpexQ(HYBRID_LINES, ops === "hybrid") +
-    groupOpexQ(LEGAL_LINES, opt.legal) +
-    groupOpexQ(PARTNER_LINES, opt.partner) +
-    groupOpexQ(PAY_LINES, opt.pay) +
-    groupOpexQ(OFFICE_LINES, opt.office) +
-    groupOpexQ(INSURE_LINES, opt.insure) +
-    groupOpexQ(TOOLS_LINES, opt.tools) +
-    groupOpexQ(GROW_LINES, opt.grow) +
-    groupOpexQ(FOUNDER_LINES, opt.founder) +
-    groupOpexQ(MARKETING_LINES, opt.marketing);
+  const bucket: TaxBucket = { net: 0, inputVat: 0, fctCit: 0 };
+  addOpex(bucket, CURRENT_LINES, infra === "current");
+  addOpex(bucket, CHEAP_LINES, infra === "cheap");
+  addOpex(bucket, MANUAL_LINES, ops === "manual");
+  addOpex(bucket, HYBRID_LINES, ops === "hybrid");
+  addOpex(bucket, LEGAL_LINES, opt.legal);
+  addOpex(bucket, PARTNER_LINES, opt.partner);
+  addOpex(bucket, PAY_LINES, opt.pay);
+  addOpex(bucket, OFFICE_LINES, opt.office);
+  addOpex(bucket, INSURE_LINES, opt.insure);
+  addOpex(bucket, TOOLS_LINES, opt.tools);
+  addOpex(bucket, GROW_LINES, opt.grow);
+  addOpex(bucket, FOUNDER_LINES, opt.founder);
+  addOpex(bucket, MARKETING_LINES, opt.marketing);
 
+  const opexQ = bucket.net + bucket.fctCit;
   const opexY = opexQ * 4;
   const ebtQ = netQ - opexQ;
   const ebtY = netQ * 4 - opexY;
@@ -715,6 +781,11 @@ export default function PresentationPnlChecklist() {
   const taxY = ebtY > 0 ? ebtY * cit : 0;
   const patQ = ebtQ - taxQ;
   const patY = ebtY - taxY;
+  const vatPayableQ = Math.max(0, outputVatQ - bucket.inputVat);
+  const vatCarryQ = Math.max(0, bucket.inputVat - outputVatQ);
+  const vatRefundQ = 0;
+  const nsnnQ = taxQ + vatPayableQ;
+  const cashAfterQ = patQ - vatPayableQ;
 
   const ready = revenueOn && infra !== null && ops !== null;
 
@@ -763,44 +834,76 @@ export default function PresentationPnlChecklist() {
         <Calculator size={16} />
         <span className="text-sm font-black">Bảng doanh thu — quý và năm</span>
       </div>
+      <div className="flex flex-wrap gap-3 border-b border-emerald-100 bg-emerald-50 px-4 py-3 text-xs font-bold text-emerald-950">
+        <label className="inline-flex cursor-pointer items-center gap-2">
+          <input
+            type="checkbox"
+            className="accent-emerald-700"
+            checked={creditVat}
+            onChange={() => setCreditVat((v) => !v)}
+          />
+          Khấu trừ VAT đầu vào (NĐ 181/2025)
+        </label>
+        <label className="inline-flex cursor-pointer items-center gap-2">
+          <input
+            type="checkbox"
+            className="accent-emerald-700"
+            checked={applyFct}
+            onChange={() => setApplyFct((v) => !v)}
+          />
+          FCT SaaS ngoại 5% VAT + 5% TNDN
+        </label>
+      </div>
       <div className="grid gap-px bg-gray-100 sm:grid-cols-2">
         <PnlCol
           label="Một quý"
           rows={[
-            ["GMV chảy qua sàn", trieu(gmvRewardQ + gmvDonationQ)],
-            ["Phí Reward trên GMV thành công (gồm VAT)", trieu(rewardFeeGross)],
-            ["Tip Donation (gồm VAT)", trieu(tipGross)],
-            ["Thu hợp tác hồ sơ startup", trieu(partnerRevQ)],
+            ["GMV chảy qua sàn (không phải DT sàn)", trieu(gmvRewardQ + gmvDonationQ)],
             ["Doanh thu gồm VAT", trieu(grossQ)],
-            ["Doanh thu thuần (chia 1,1)", trieu(netQ)],
-            ["VAT đầu ra ~10%", trieu(vatQ)],
-            ["Chi phí mục đã tích", trieu(opexQ)],
-            ["Lãi trước thuế", trieu(ebtQ)],
-            [`Thuế TNDN ${(cit * 100).toFixed(0)}% trên doanh thu năm`, trieu(taxQ)],
-            ["Lãi sau thuế", trieu(patQ)],
+            ["Doanh thu thuần (đã tách VAT đầu ra)", trieu(netQ)],
+            ["VAT đầu ra 10%", trieu(outputVatQ)],
+            ["VAT đầu vào được khấu trừ", trieu(bucket.inputVat)],
+            ["VAT phải nộp (đầu ra − đầu vào)", trieu(vatPayableQ)],
+            ["VAT chuyển kỳ (nếu đầu vào lớn hơn)", trieu(vatCarryQ)],
+            ["Hoàn thuế GTGT tiền mặt", vatRefundQ === 0 ? "0 — không đủ điều kiện" : trieu(vatRefundQ)],
+            ["Chi phí thuần + FCT TNDN", trieu(opexQ)],
+            ["Trong đó FCT TNDN 5% SaaS", trieu(bucket.fctCit)],
+            ["Lãi trước thuế TNDN", trieu(ebtQ)],
+            [`Thuế TNDN ${(cit * 100).toFixed(0)}%`, trieu(taxQ)],
+            ["Lãi sau thuế TNDN", trieu(patQ)],
+            ["Nộp NSNN (TNDN + VAT phải nộp)", trieu(nsnnQ)],
+            ["Lãi sau thuế − VAT phải nộp", trieu(cashAfterQ)],
           ]}
           highlight={patQ}
         />
         <PnlCol
           label="Một năm (×4 quý cùng số)"
           rows={[
-            ["GMV chảy qua sàn", trieu((gmvRewardQ + gmvDonationQ) * 4)],
             ["Doanh thu gồm VAT", trieu(grossQ * 4)],
             ["Doanh thu thuần", trieu(netQ * 4)],
-            ["VAT đầu ra", trieu(vatQ * 4)],
-            ["Chi phí", trieu(opexY)],
-            ["Lãi trước thuế", trieu(ebtY)],
+            ["VAT đầu ra", trieu(outputVatQ * 4)],
+            ["VAT đầu vào khấu trừ", trieu(bucket.inputVat * 4)],
+            ["VAT phải nộp", trieu(vatPayableQ * 4)],
+            ["Hoàn thuế GTGT tiền mặt", "0"],
+            ["Chi phí thuần + FCT TNDN", trieu(opexY)],
+            ["Lãi trước thuế TNDN", trieu(ebtY)],
             [`Thuế TNDN ${(cit * 100).toFixed(0)}%`, trieu(taxY)],
-            ["Lãi sau thuế", trieu(patY)],
+            ["Lãi sau thuế TNDN", trieu(patY)],
+            ["Nộp NSNN (TNDN + VAT)", trieu(nsnnQ * 4)],
+            ["Lãi sau thuế − VAT phải nộp", trieu(cashAfterQ * 4)],
           ]}
           highlight={patY}
         />
       </div>
       <p className="px-4 py-3 text-[11px] leading-relaxed text-gray-500">
-        Công thức: phí Reward = GMV Reward × (1 − hoàn) × phí%. Tip = GMV ủng hộ × tip%. Thu hồ sơ chỉ cộng khi
-        tích mục hợp tác. Doanh thu thuần = tổng gồm VAT ÷ 1,1 (giả định giá đã gồm GTGT 10%). Chi quý = Σ dòng
-        chi đã tích (tháng × 3, hoặc % GMV thành công). Thuế TNDN 15/17/20% theo doanh thu năm (Luật 67/2025),
-        lãi âm thì thuế 0. GMV không phải doanh thu sàn.
+        Phí sàn / tip / gói hồ sơ chịu GTGT 10% (dịch vụ nền tảng số — không lấy mức giảm 8% đến 31/12/2026 vì
+        viễn thông / CNTT / tài chính / bảo hiểm bị loại khỏi NĐ 174/2025). VAT phải nộp = đầu ra − đầu vào được
+        khấu trừ (hóa đơn hợp lệ, thanh toán không tiền mặt từ 5 triệu; Luật 48/2024, NĐ 181/2025, NĐ 144/2026).
+        Hoàn thuế GTGT tiền mặt chỉ khi dư đầu vào từ 300 triệu và thuộc XK / dự án đầu tư / hàng 5% — sàn nội địa
+        đang bán dịch vụ 10% thì gần như chỉ khấu trừ, không hoàn tiền. FCT SaaS (Vercel, Neon, Cloudinary…): 5%
+        VAT được khấu trừ + 5% TNDN là chi phí (Thông tư 103; nếu NCC đã đăng ký eTax thì không khấu trừ hộ). Thuế
+        TNDN = lãi trước thuế × 15/17/20% theo doanh thu năm liền kề (Luật 67/2025) — năm đầu thường 20% nếu chưa
+        có kỳ trước; mô hình này dùng doanh thu năm giả định. Lãi âm thì TNDN = 0.
         {optHint ? ` Đang cộng: ${optHint}.` : " Chưa cộng mục tuỳ chọn."} Tỷ giá {usdRate.toLocaleString("vi-VN")}{" "}
         đ/USD.
       </p>
