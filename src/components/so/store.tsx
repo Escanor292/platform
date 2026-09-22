@@ -1,8 +1,29 @@
+"use client";
+
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import type { CheckoutReceipt, Employee, PayMethod, Role, SoState, ViewId } from "@/lib/so/types";
 import { SEED } from "@/lib/so/seed";
 import * as eng from "@/lib/so/engine";
-import { pullLedger, pushLedger } from "@/lib/so/ledger";
+
+type LedgerSnap = { rev: number; state: SoState };
+
+async function pullLedger(): Promise<LedgerSnap | null> {
+  const res = await fetch("/api/so/ledger", { cache: "no-store" });
+  if (!res.ok) return null;
+  const data = (await res.json()) as LedgerSnap | null;
+  if (!data?.state?.products) return null;
+  return data;
+}
+
+async function pushLedger(body: { rev: number; state: SoState }) {
+  const res = await fetch("/api/so/ledger", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error("ledger");
+  return (await res.json()) as { ok: true; rev: number } | { ok: false; current: LedgerSnap };
+}
 
 const KEY = "tute-so-v3";
 const WHO_KEY = "tute-so-who";
@@ -120,7 +141,7 @@ export function SoProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(KEY, JSON.stringify(state));
     if (skipPush.current) return;
     const base = rev.current;
-    pushLedger({ data: { rev: base, state } })
+    pushLedger({ rev: base, state })
       .then((res) => {
         if (res.ok) rev.current = res.rev;
         else {
