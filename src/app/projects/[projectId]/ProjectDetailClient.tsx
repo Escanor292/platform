@@ -258,8 +258,8 @@ export default function ProjectDetailClient({ project }: ProjectDetailClientProp
                 </section>
             )}
 
-            <section className="max-w-7xl mx-auto px-6 py-16">
-                <h2 className="font-display font-bold text-3xl text-gray-900 mb-8">
+            <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-16">
+                <h2 className="mb-6 font-display text-2xl font-bold text-gray-900 sm:mb-8 sm:text-3xl">
                     Chiến dịch trong dự án
                 </h2>
 
@@ -283,67 +283,66 @@ export default function ProjectDetailClient({ project }: ProjectDetailClientProp
                             return (
                                 <Card
                                     key={campaign.id}
-                                    className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
+                                    className="cursor-pointer p-4 transition-shadow hover:shadow-lg sm:p-6"
                                     onClick={() => handleCampaignClick(campaign.slug)}
                                 >
-                                    <div className="flex items-start gap-6">
-                                        <div
-                                            className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg"
-                                            style={{
-                                                backgroundColor: isCompleted ? '#137333' : isActive ? '#f9a825' : '#757575',
-                                            }}
-                                        >
-                                            {index + 1}
-                                        </div>
-
-                                        <div className="flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden bg-gray-100">
-                                            {campaign.imageUrl ? (
-                                                <Image
-                                                    src={campaign.imageUrl}
-                                                    alt={campaign.title}
-                                                    width={96}
-                                                    height={96}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                                    <FolderKanban className="w-8 h-8" />
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-start justify-between gap-4 mb-2">
-                                                <div className="flex-1">
-                                                    <h3 className="font-display font-bold text-xl text-gray-900 mb-1">
-                                                        {campaign.title}
-                                                    </h3>
-                                                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                                                        <Calendar className="w-4 h-4" />
-                                                        <span>
-                                                            {isComingSoon || !launchDate
-                                                                ? 'Sắp ra mắt'
-                                                                : `Ra mắt: ${formatDate(launchDate)}`}
-                                                        </span>
+                                    <div className="flex items-start gap-3 sm:gap-6">
+                                        <div className="flex shrink-0 flex-col items-center gap-3">
+                                            <div
+                                                className="flex h-10 w-10 items-center justify-center rounded-full text-base font-bold text-white sm:h-12 sm:w-12 sm:text-lg"
+                                                style={{
+                                                    backgroundColor: isCompleted ? '#137333' : isActive ? '#f9a825' : '#757575',
+                                                }}
+                                            >
+                                                {index + 1}
+                                            </div>
+                                            <div className="h-16 w-16 overflow-hidden rounded-xl bg-gray-100 sm:h-24 sm:w-24">
+                                                {campaign.imageUrl ? (
+                                                    <Image
+                                                        src={campaign.imageUrl}
+                                                        alt=""
+                                                        width={96}
+                                                        height={96}
+                                                        className="h-full w-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="flex h-full w-full items-center justify-center text-gray-400">
+                                                        <FolderKanban className="h-8 w-8" />
                                                     </div>
-                                                </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="min-w-0 flex-1">
+                                            <div className="mb-2 flex flex-col items-start gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                                <h3 className="break-words font-display text-lg font-bold leading-snug text-gray-900 sm:text-xl">
+                                                    {campaign.title}
+                                                </h3>
                                                 <Badge
-                                                    className="text-white"
+                                                    className="shrink-0 whitespace-nowrap text-white"
                                                     style={{ backgroundColor: statusInfo.color }}
                                                 >
                                                     {statusInfo.label}
                                                 </Badge>
                                             </div>
+                                            <div className="flex items-center gap-2 text-sm text-gray-500">
+                                                <Calendar className="h-4 w-4 shrink-0" />
+                                                <span>
+                                                    {isComingSoon || !launchDate
+                                                        ? 'Sắp ra mắt'
+                                                        : `Ra mắt: ${formatDate(launchDate)}`}
+                                                </span>
+                                            </div>
 
                                             {isCompleted ? (
                                                 <div className="mt-3">
-                                                    <div className="flex items-center gap-2">
+                                                    <p className="text-sm">
                                                         <span className="font-semibold text-gray-900">
                                                             {formatAmount(campaign.currentAmount)}
                                                         </span>
-                                                        <span className="text-gray-500">/ {progress.toFixed(0)}%</span>
-                                                    </div>
-                                                    <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                                        <span className="text-gray-500"> · {progress.toFixed(0)}%</span>
+                                                    </p>
+                                                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-gray-200">
                                                         <div
                                                             className="h-full rounded-full transition-all duration-300"
                                                             style={{
@@ -355,16 +354,15 @@ export default function ProjectDetailClient({ project }: ProjectDetailClientProp
                                                 </div>
                                             ) : isActive ? (
                                                 <div className="mt-3">
-                                                    <div className="flex items-center gap-2">
+                                                    <p className="break-words text-sm">
                                                         <span className="font-semibold text-gray-900">
                                                             {formatAmount(campaign.currentAmount)}
                                                         </span>
                                                         <span className="text-gray-500">
-                                                            {' '}
-                                                            / {formatAmount(campaign.goalAmount)} ({progress.toFixed(0)}%)
+                                                            {' '}/ {formatAmount(campaign.goalAmount)} · {progress.toFixed(0)}%
                                                         </span>
-                                                    </div>
-                                                    <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                                    </p>
+                                                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-gray-200">
                                                         <div
                                                             className="h-full rounded-full transition-all duration-300"
                                                             style={{
@@ -381,9 +379,7 @@ export default function ProjectDetailClient({ project }: ProjectDetailClientProp
                                             )}
                                         </div>
 
-                                        <div className="flex-shrink-0">
-                                            <ArrowRight className="w-6 h-6 text-gray-400" />
-                                        </div>
+                                        <ArrowRight className="mt-1 hidden h-6 w-6 shrink-0 text-gray-400 sm:block" />
                                     </div>
                                 </Card>
                             );
