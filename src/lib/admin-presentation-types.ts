@@ -60,3 +60,38 @@ export type PresentationDeck = {
   version?: number;
   slides: PresentationSlide[];
 };
+
+export type LivePeriod = {
+  label: string;
+  fromIso: string;
+  projects: number;
+  campaigns: number;
+  campaignsReward: number;
+  campaignsDonation: number;
+  campaignsWithTx: number;
+  donationPledges: number;
+  donationBackers: number;
+  donationAmount: number;
+  donationTip: number;
+  rewardPledges: number;
+  rewardBackers: number;
+  rewardAmount: number;
+  platformFee: number;
+  certificates: number;
+  usersNew: number;
+};
+
+export type PresentationLiveStats = {
+  generatedAt: string;
+  quarterLabel: string;
+  snapshot: {
+    users: number;
+    projects: number;
+    campaignsActive: number;
+    campaignsRewardActive: number;
+    campaignsDonationActive: number;
+  };
+  quarter: LivePeriod;
+  year: LivePeriod;
+  all: LivePeriod;
+};

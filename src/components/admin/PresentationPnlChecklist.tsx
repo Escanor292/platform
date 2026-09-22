@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Calculator } from "lucide-react";
+import type { LivePeriod, PresentationLiveStats } from "@/lib/admin-presentation-types";
 
 type Scenario = "early" | "optimistic";
 type Infra = "current" | "cheap";
@@ -23,6 +24,10 @@ type LineLive = { on: boolean; value: number };
 const STORAGE_KEY = "ttf-pnl-checklist-v32";
 const USD_DEFAULT = 26200;
 
+function vnd(n: number) {
+  return `${Math.round(n).toLocaleString("vi-VN")} đ`;
+}
+
 function trieu(n: number) {
   const abs = Math.abs(n);
   const sign = n < 0 ? "−" : "";
@@ -30,6 +35,70 @@ function trieu(n: number) {
     return `${sign}${(abs / 1000).toLocaleString("vi-VN", { maximumFractionDigits: 2 })} tỷ`;
   }
   return `${sign}${abs.toLocaleString("vi-VN", { maximumFractionDigits: 1 })} triệu`;
+}
+
+function LiveTable({ stats }: { stats: PresentationLiveStats }) {
+  const cols: LivePeriod[] = [stats.quarter, stats.year, stats.all];
+  const rows: Array<[string, (p: LivePeriod) => string]> = [
+    ["Dự án tạo mới", (p) => String(p.projects)],
+    ["Chiến dịch tạo mới", (p) => String(p.campaigns)],
+    ["  · Reward", (p) => String(p.campaignsReward)],
+    ["  · Donation", (p) => String(p.campaignsDonation)],
+    ["Chiến dịch có giao dịch", (p) => String(p.campaignsWithTx)],
+    ["Người ủng hộ Donation", (p) => String(p.donationBackers)],
+    ["Lượt ủng hộ Donation", (p) => String(p.donationPledges)],
+    ["Tiền ủng hộ Donation", (p) => vnd(p.donationAmount)],
+    ["Tip tự nguyện Donation", (p) => vnd(p.donationTip)],
+    ["Người đặt Reward", (p) => String(p.rewardBackers)],
+    ["Đơn Reward thành công", (p) => String(p.rewardPledges)],
+    ["Tiền Reward (GMV)", (p) => vnd(p.rewardAmount)],
+    ["Phí sàn đã thu (gồm VAT)", (p) => vnd(p.platformFee)],
+    ["Giấy chứng nhận đã cấp", (p) => String(p.certificates)],
+    ["Người dùng mới", (p) => String(p.usersNew)],
+  ];
+  return (
+    <div className="overflow-x-auto rounded-[1.5rem] border border-slate-200 bg-white shadow-sm">
+      <div className="flex flex-wrap items-end justify-between gap-2 border-b border-slate-100 bg-slate-900 px-4 py-3 text-white">
+        <div>
+          <div className="text-[11px] font-bold uppercase tracking-wide text-slate-300">Số liệu thật trên Neon</div>
+          <div className="text-sm font-black">{stats.quarterLabel} · cập nhật lúc thuyết trình</div>
+        </div>
+        <div className="text-[11px] text-slate-300">
+          Đang chạy: {stats.snapshot.campaignsActive} chiến dịch ({stats.snapshot.campaignsRewardActive} Reward ·{" "}
+          {stats.snapshot.campaignsDonationActive} Donation) · {stats.snapshot.projects} dự án · {stats.snapshot.users}{" "}
+          người dùng
+        </div>
+      </div>
+      <table className="w-full min-w-[640px] text-left text-sm">
+        <thead>
+          <tr className="border-b border-slate-100 bg-slate-50 text-[11px] font-black uppercase tracking-wide text-slate-500">
+            <th className="px-4 py-2">Chỉ số</th>
+            {cols.map((c) => (
+              <th key={c.label} className="px-4 py-2">
+                {c.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(([name, pick]) => (
+            <tr key={name} className="border-b border-slate-50">
+              <td className="px-4 py-2 font-semibold text-slate-700">{name}</td>
+              {cols.map((c) => (
+                <td key={c.label} className="px-4 py-2 font-black text-slate-900">
+                  {pick(c)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="px-4 py-2 text-[11px] text-slate-500">
+        Donation = chiến dịch type DONATION, Pledge SUCCESS. Reward = type REWARD. Người ủng hộ đếm unique theo tài
+        khoản / email. GMV không phải doanh thu sàn — phí sàn mới là doanh thu.
+      </p>
+    </div>
+  );
 }
 
 function lineUnitLabel(def: LineDef) {
@@ -677,7 +746,7 @@ function loadPersist(): Persist | null {
   }
 }
 
-export default function PresentationPnlChecklist() {
+export default function PresentationPnlChecklist({ stats }: { stats?: PresentationLiveStats | null }) {
   const [scenario, setScenario] = useState<Scenario>("early");
   const [revenueOn, setRevenueOn] = useState(false);
   const [infra, setInfra] = useState<Infra | null>(null);
@@ -836,6 +905,23 @@ export default function PresentationPnlChecklist() {
     setUsdRate(USD_DEFAULT);
   }
 
+  function applyLiveQuarter() {
+    if (!stats) return;
+    const rewardTrieu = stats.quarter.rewardAmount / 1_000_000;
+    const donationTrieu = stats.quarter.donationAmount / 1_000_000;
+    const tipPctLive =
+      stats.quarter.donationAmount > 0
+        ? Math.round((stats.quarter.donationTip / stats.quarter.donationAmount) * 10000) / 100
+        : 0;
+    setRevenueOn(true);
+    setLines((prev) => ({
+      ...prev,
+      "rev.gmvRewardQ": { on: true, value: Number(rewardTrieu.toFixed(2)) },
+      "rev.gmvDonationQ": { on: true, value: Number(donationTrieu.toFixed(2)) },
+      "rev.tip": { on: true, value: tipPctLive },
+    }));
+  }
+
   const optHint = [
     opt.legal && "pháp lý công ty",
     opt.partner && "hồ sơ startup",
@@ -949,18 +1035,34 @@ export default function PresentationPnlChecklist() {
 
   return (
     <div className="space-y-4 text-left">
+      {stats ? <LiveTable stats={stats} /> : (
+        <div className="rounded-[1.5rem] border border-dashed border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+          Không lấy được số liệu từ Neon.
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-xs font-medium text-gray-500">
-          Chưa tích: chỉ tiêu đề. Đã tích: dòng con + ô số. Sửa số theo giá bạn tra được. Bảng doanh thu chỉ
-          hiện khi đã chọn doanh thu, một hạ tầng, một bản vận hành.
+          Bảng trên là số đang chạy trên Neon. Bên dưới là kịch bản P&L giả lập — có thể đổ GMV quý này vào.
         </p>
-        <button
-          type="button"
-          onClick={resetDefaults}
-          className="shrink-0 rounded-full border border-gray-200 bg-white px-3 py-1 text-[11px] font-black text-gray-600"
-        >
-          Khôi phục số mặc định
-        </button>
+        <div className="flex flex-wrap gap-2">
+          {stats ? (
+            <button
+              type="button"
+              onClick={applyLiveQuarter}
+              className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-black text-emerald-800"
+            >
+              Đổ GMV quý này vào P&L
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={resetDefaults}
+            className="shrink-0 rounded-full border border-gray-200 bg-white px-3 py-1 text-[11px] font-black text-gray-600"
+          >
+            Khôi phục số mặc định
+          </button>
+        </div>
       </div>
 
       {ready ? pnlBox : missingBox}

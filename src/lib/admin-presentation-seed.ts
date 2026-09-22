@@ -1,7 +1,7 @@
 ﻿import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 34;
+export const PRESENTATION_SEED_VERSION = 35;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -662,7 +662,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       variant: "pnl",
       kicker: "P&L",
       title: "Doanh thu và chi phí — tích để xem",
-      body: "Chưa tích: chỉ tiêu đề. Đã tích: dòng con và ô số. Bảng quý/năm hiện khi đã chọn doanh thu, một hạ tầng, một bản vận hành. Hợp tác hồ sơ startup và các khoản khác là tuỳ chọn.",
+      body: "Bảng đầu slide là số thật trên Neon: dự án, chiến dịch Reward/Donation, người ủng hộ, GMV, tip, phí sàn, giấy chứng nhận — quý này / năm / từ đầu. Kịch bản P&L bên dưới là giả lập; có nút đổ GMV quý này vào.",
     },
   ],
 };

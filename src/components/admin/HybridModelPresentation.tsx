@@ -37,6 +37,7 @@ import type {
   PresentationDeck,
   PresentationFigure,
   PresentationLane,
+  PresentationLiveStats,
   PresentationSchemaGroup,
   PresentationSlide,
   PresentationTreeNode,
@@ -79,7 +80,13 @@ function mediaUrl(key: string) {
   return `/api/admin/presentation/media/${encodeURIComponent(key)}`;
 }
 
-export default function HybridModelPresentation({ deck }: { deck: PresentationDeck }) {
+export default function HybridModelPresentation({
+  deck,
+  liveStats,
+}: {
+  deck: PresentationDeck;
+  liveStats?: PresentationLiveStats | null;
+}) {
   const router = useRouter();
   const slides = deck.slides;
   const slideCount = slides.length;
@@ -302,7 +309,7 @@ function SlideView({ slide }: { slide: PresentationSlide }) {
 
       {slide.cards?.length ? <CardGrid cards={slide.cards} /> : null}
 
-      {slide.variant === "pnl" ? <PresentationPnlChecklist /> : null}
+      {slide.variant === "pnl" ? <PresentationPnlChecklist stats={liveStats} /> : null}
 
       {slide.steps?.length ? (
         <ol
