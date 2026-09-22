@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import {
-  Rocket, LogOut, UserCircle, Menu, X, ChevronDown, Settings, ShieldCheck, FolderKanban, HeartHandshake, MessageCircle, PackageOpen, Bell
+  Rocket, LogOut, UserCircle, Menu, X, ChevronDown, Settings, ShieldCheck, FolderKanban, HeartHandshake, MessageCircle, PackageOpen
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
@@ -326,17 +326,8 @@ export default function NavbarNew() {
 
       {isMenuOpen && (
         <div className="md:hidden max-h-[70vh] overflow-y-auto px-6 pb-4 flex flex-col gap-1 bg-white border-t border-gray-100 dark:bg-slate-900 dark:border-white/10">
-          <div className="flex items-center justify-between py-2">
-            <ChromeToggles />
-          </div>
-          <Link href="/" className="py-2 text-sm font-medium text-gray-600 dark:text-slate-300" onClick={() => setIsMenuOpen(false)}>
-            {t("nav.home")}
-          </Link>
           <Link href="/gioi-thieu" className="py-2 text-sm font-medium text-gray-600 dark:text-slate-300" onClick={() => setIsMenuOpen(false)}>
             {t("nav.about")}
-          </Link>
-          <Link href="/projects" className="py-2 text-sm font-medium text-gray-600 dark:text-slate-300" onClick={() => setIsMenuOpen(false)}>
-            {t("nav.explore")}
           </Link>
           <Link href="/blog" className="py-2 text-sm font-medium text-gray-600 dark:text-slate-300" onClick={() => setIsMenuOpen(false)}>
             {t("nav.blog")}
@@ -347,9 +338,6 @@ export default function NavbarNew() {
 
           {session ? (
             <>
-              <Link href="/dashboard" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 dark:text-slate-200" onClick={() => setIsMenuOpen(false)}>
-                <UserCircle size={16} /> {t("nav.profile")}
-              </Link>
               {canUpgrade && (
                 <Link
                   href="/upgrade"
@@ -359,13 +347,6 @@ export default function NavbarNew() {
                   <Rocket size={16} /> {user?.role === "CREATOR_PENDING" ? t("nav.upgradePending") : t("nav.upgrade")}
                 </Link>
               )}
-              <Link href="/notifications" className="flex items-center gap-2 py-2 text-sm font-medium text-gray-700 dark:text-slate-200" onClick={() => setIsMenuOpen(false)}>
-                <Bell size={16} /> {t("nav.notifications")}
-              </Link>
-              <Link href="/chat" className="relative flex items-center gap-2 py-2 text-sm font-medium text-gray-700 dark:text-slate-200" onClick={() => setIsMenuOpen(false)}>
-                <MessageCircle size={16} /> {t("nav.messages")}
-                <ChatNotificationBadge />
-              </Link>
               <Link href="/cart" className="py-2 text-sm font-medium text-gray-700 dark:text-slate-200" onClick={() => setIsMenuOpen(false)}>
                 {t("nav.cart")}
               </Link>
