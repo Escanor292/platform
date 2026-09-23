@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useSo } from "./store";
 import { Btn, Kpi, Panel, Pill } from "./ui";
 import * as eng from "@/lib/so/engine";
@@ -293,16 +292,23 @@ export function ReportView() {
         <Kpi label="Giá vốn" value={vnd(cost)} />
         <Kpi label="Lãi gộp" value={vnd(revenue - cost)} />
       </div>
-      <div className="mt-4 h-64">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data}>
-            <XAxis dataKey="name" stroke="#5c6570" fontSize={12} />
-            <YAxis stroke="#5c6570" fontSize={12} />
-            <Tooltip formatter={(v) => vnd(Number(v))} />
-            <Bar dataKey="total" fill="#2e8b57" radius={8} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+      <ul className="mt-4 space-y-3">
+        {data.length === 0 ? <li className="text-sm text-muted">Chưa có doanh thu.</li> : null}
+        {data.map((row) => {
+          const width = revenue > 0 ? Math.max(4, Math.round((row.total / revenue) * 100)) : 0;
+          return (
+            <li key={row.name}>
+              <div className="mb-1 flex justify-between text-sm">
+                <span className="font-semibold">{row.name}</span>
+                <span>{vnd(row.total)}</span>
+              </div>
+              <div className="h-3 overflow-hidden rounded-full bg-cream">
+                <div className="h-full rounded-full bg-pgreen" style={{ width: `${width}%` }} />
+              </div>
+            </li>
+          );
+        })}
+      </ul>
     </Panel>
   );
 }
