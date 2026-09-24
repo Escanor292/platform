@@ -48,6 +48,13 @@ export async function POST(request: NextRequest) {
     const { reward, bucket } = target;
     const pledgeCampaignId = target.pledgeCampaignId;
 
+    if (reward && !session?.user?.id) {
+      return NextResponse.json({
+        error: "Dat qua can dang nhap de nhap dia chi hoac nhan Kho do",
+        code: "REWARD_LOGIN_REQUIRED",
+      }, { status: 401 });
+    }
+
     if (reward) {
       const check = validateRewardCheckout({
         reward,
