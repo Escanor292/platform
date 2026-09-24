@@ -53,13 +53,18 @@ async function seedMediaFromPublic() {
     try {
       const buf = await fs.readFile(path.join(dir, file));
       const hex = buf.toString("hex");
+      const mime = file.endsWith(".png")
+        ? "image/png"
+        : file.endsWith(".webp")
+          ? "image/webp"
+          : "image/jpeg";
       await prisma.$executeRawUnsafe(
         `INSERT INTO presentation_media (key, mime, bytes, updated_at)
          VALUES ($1, $2, decode($3, 'hex'), NOW())
          ON CONFLICT (key) DO UPDATE
            SET mime = EXCLUDED.mime, bytes = EXCLUDED.bytes, updated_at = NOW()`,
         file,
-        "image/jpeg",
+        mime,
         hex,
       );
     } catch (error) {
@@ -112,6 +117,7 @@ export async function getActivePresentationDeck(): Promise<PresentationDeck | nu
           PRESENTATION_DECK_ID,
           JSON.stringify(DEFAULT_PRESENTATION_DECK),
         );
+        await seedMediaFromPublic();
         row = await readRow();
       }
     }

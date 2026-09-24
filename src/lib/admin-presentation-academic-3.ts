@@ -4,7 +4,14 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
   {
     kicker: "Use Case",
     title: "Use Case Diagram (PlantUML)",
-    body: "Nguồn text. Ảnh nộp báo cáo thì dán khối này vào plantuml.com.",
+    body: "Ảnh use case bên dưới. UC-S1 trên hình còn chữ Webhook: khi thuyết trình đọc là đối soát tiền vào STK trung gian, không phải cổng PayOS.",
+    figures: [
+      {
+        key: "usecase-tute.png",
+        alt: "Use case Tử Tế Fund",
+        caption: "Guest, Backer, Creator, Admin, System. UC-S1 trên hình ghi Webhook — đúng nghĩa là đối soát STK.",
+      },
+    ],
     tree: [
       { path: "U01 @startuml uc-tute", note: "" },
       { path: "U02 left to right direction", note: "" },
@@ -73,6 +80,14 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
   {
     kicker: "Activity",
     title: "Activity — thanh toán đến chứng từ",
+    body: "Hình là bốn kênh trên màn. Bước chữ phía dưới là sổ đang chạy: chưa settle thì chưa SUCCESS, TT-UH ra cùng lúc settle.",
+    figures: [
+      {
+        key: "activity-checkout.png",
+        alt: "Activity checkout đến chứng từ",
+        caption: "VietQR hiện mã STK trung gian. Thẻ và ví là kênh trên màn — API chưa trừ last4. Nhánh thẻ chờ là trước đối soát, không phải sau SUCCESS.",
+      },
+    ],
     steps: [
       { n: "01", t: "PENDING", d: "Insert pledge. Chưa cộng currentAmount." },
       { n: "02", t: "Màn hình", d: "Ví, thẻ, NAPAS hoặc VietQR. API không nhận thẻ đã lưu. Mở trang chuyển khoản." },

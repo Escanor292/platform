@@ -58,8 +58,20 @@ export const ACADEMIC_SLIDES_4: PresentationSlide[] = [
   },
   {
     kicker: "User Flow",
-    title: "PlantUML — Guest/Backer và Creator/Admin",
-    body: "Hai sơ đồ. Mỗi dòng là một câu PlantUML. Chép cả khối vào plantuml.com để ra ảnh nộp Word. Slide web không vẽ UML.",
+    title: "Sơ đồ Guest/Backer và Creator/Admin",
+    body: "Hai ảnh nộp báo cáo. Khách có email vẫn tạo được pledge khi chưa NextAuth. Cộng tiền khi đối soát STK, không phải ngay lúc chọn kênh.",
+    figures: [
+      {
+        key: "flow-guest-backer.png",
+        alt: "User flow Guest và Backer",
+        caption: "Bốn kênh: ví, thẻ quốc tế, NAPAS, VietQR. SUCCESS trên hình là lúc settle, không phải cổng PayOS.",
+      },
+      {
+        key: "flow-creator-admin.png",
+        alt: "User flow Creator và Admin",
+        caption: "KYC hoặc KYB, admin duyệt có lý do, campaign ACTIVE rồi mới nhận pledge.",
+      },
+    ],
     tree: [
       { path: "A01 @startuml guest-backer", note: "" },
       { path: "A02 actor Guest", note: "" },
