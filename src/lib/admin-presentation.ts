@@ -20,11 +20,12 @@ type DeckRow = {
 
 function withAcademicAppendix(deck: PresentationDeck): PresentationDeck {
   const slides = Array.isArray(deck.slides) ? deck.slides : [];
-  const hasAcademic = slides.some(
+  const start = slides.findIndex(
     (slide) => slide.kicker === "Chương 1" || slide.title.includes("Phụ lục học thuật"),
   );
-  if (hasAcademic || ACADEMIC_SLIDES.length === 0) return deck;
-  return { ...deck, slides: [...slides, ...ACADEMIC_SLIDES] };
+  const business = start >= 0 ? slides.slice(0, start) : slides;
+  if (ACADEMIC_SLIDES.length === 0) return { ...deck, slides: business };
+  return { ...deck, slides: [...business, ...ACADEMIC_SLIDES] };
 }
 
 async function ensureTables() {
