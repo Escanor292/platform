@@ -864,7 +864,9 @@ function Figure({ fig }: { fig: PresentationFigure }) {
     <figure className="overflow-hidden rounded-[1.75rem] border border-gray-100 bg-white shadow-sm">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={mediaUrl(fig.key)} alt={fig.alt} className="h-auto w-full bg-stone-50 object-contain" />
-      <figcaption className="px-5 py-3 text-left text-sm text-gray-500">{fig.caption}</figcaption>
+      {fig.caption ? (
+        <figcaption className="px-5 py-3 text-left text-sm text-gray-500">{fig.caption}</figcaption>
+      ) : null}
     </figure>
   );
 }

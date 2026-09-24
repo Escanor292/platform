@@ -4,12 +4,11 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
   {
     kicker: "Use Case",
     title: "Use Case Diagram (PlantUML)",
-    body: "Ảnh use case bên dưới. UC-S1 trên hình còn chữ Webhook: khi thuyết trình đọc là đối soát tiền vào STK trung gian, không phải cổng PayOS.",
     figures: [
       {
         key: "usecase-tute.png",
         alt: "Use case Tử Tế Fund",
-        caption: "Guest, Backer, Creator, Admin, System. UC-S1 trên hình ghi Webhook — đúng nghĩa là đối soát STK.",
+        caption: "",
       },
     ],
     tree: [
@@ -80,12 +79,11 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
   {
     kicker: "Activity",
     title: "Activity — thanh toán đến chứng từ",
-    body: "Hình là bốn kênh trên màn. Bước chữ phía dưới là sổ đang chạy: chưa settle thì chưa SUCCESS, TT-UH ra cùng lúc settle.",
     figures: [
       {
         key: "activity-checkout.png",
         alt: "Activity checkout đến chứng từ",
-        caption: "VietQR hiện mã STK trung gian. Thẻ và ví là kênh trên màn — API chưa trừ last4. Nhánh thẻ chờ là trước đối soát, không phải sau SUCCESS.",
+        caption: "",
       },
     ],
     steps: [

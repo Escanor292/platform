@@ -59,17 +59,16 @@ export const ACADEMIC_SLIDES_4: PresentationSlide[] = [
   {
     kicker: "User Flow",
     title: "Sơ đồ Guest/Backer và Creator/Admin",
-    body: "Hai ảnh nộp báo cáo. Khách có email vẫn tạo được pledge khi chưa NextAuth. Cộng tiền khi đối soát STK, không phải ngay lúc chọn kênh.",
     figures: [
       {
         key: "flow-guest-backer.png",
         alt: "User flow Guest và Backer",
-        caption: "Bốn kênh: ví, thẻ quốc tế, NAPAS, VietQR. SUCCESS trên hình là lúc settle, không phải cổng PayOS.",
+        caption: "",
       },
       {
         key: "flow-creator-admin.png",
         alt: "User flow Creator và Admin",
-        caption: "KYC hoặc KYB, admin duyệt có lý do, campaign ACTIVE rồi mới nhận pledge.",
+        caption: "",
       },
     ],
     tree: [
