@@ -4,7 +4,7 @@ export const ACADEMIC_SLIDES_1: PresentationSlide[] = [
   {
     kicker: "Chương 1",
     title: "Phụ lục học thuật — nối sau bộ kinh doanh",
-    body: "Bộ kinh doanh hiện 19 slide, không ghi đè. Phụ lục bắt đầu ở slide 20. Đúng thứ tự thầy: khảo sát (6 mục + bài học) → bức tranh lớn → actor (loại + AC) → user story + AC → user flow → use case → ERD + schema → module + thẻ chức năng → test → deploy → đánh giá.",
+    body: "Bộ kinh doanh hiện 19 slide, không ghi đè. Phụ lục bắt đầu ở slide 20. Thứ tự: bức tranh lớn (bối cảnh đã làm / chưa làm) → khảo sát 9 sàn → bức tranh hệ thống → actor → user story → user flow → use case → ERD → module → test → deploy.",
     cards: [
       {
         title: "CARE — chuẩn viết",
@@ -18,6 +18,43 @@ export const ACADEMIC_SLIDES_1: PresentationSlide[] = [
     bullets: [
       "Không copy nghiệp vụ sàn phế liệu. Chỉ học mật độ: bài học từng sàn, AC ngay dưới actor, mỗi story có AC.",
       "PlantUML trên slide là nguồn text. Lane phía trên là hình đọc được lúc thuyết trình.",
+    ],
+  },
+  {
+    kicker: "Bức tranh lớn",
+    title: "Bối cảnh — đã làm, chưa làm, bài toán",
+    body: "Đúng ý thầy Tuần 6: vẽ bối cảnh tổ chức, không vẽ sơ đồ nối hộp. Hỏi: thị trường và nội địa đã làm được gì, còn thiếu gì, chức năng mặc định nào vẫn phải làm.",
+    blocks: [
+      {
+        heading: "1. Hiện trạng Việt Nam",
+        bullets: [
+          "Nhiều dự án gọi vốn hoặc ủng hộ vẫn ghi fanpage, form, Excel. Chỉ biết ai đã chuyển, bao nhiêu, ngày nào.",
+          "Sàn ngoại (Kickstarter, Indiegogo, GoFundMe, Patreon) đã chứng minh nhu cầu toàn cầu nhưng kẹt Stripe, PayPal, hộ chiếu, SSN. Creator Việt khó vượt KYC và rút tiền về STK nội địa.",
+          "Comicola làm được Reward văn hóa nhưng hẹp ngách, thiếu escrow theo đơn và SLA giao hàng.",
+          "Thiện Nguyện MB và GiveNow làm được ủng hộ, sao kê, chứng từ. Không mở pre-order, không Reward thương mại.",
+        ],
+      },
+      {
+        heading: "2. Đã có sẵn ở cấp quốc gia / hạ tầng",
+        bullets: [
+          "VietQR, NAPAS, ví điện tử, thẻ nội địa — người Việt đã trả được, không cần cổng ngoại.",
+          "CCCD gắn chip, eKYC, MST / GPKD — đủ định danh cá nhân và tổ chức trong nước.",
+          "NQ 86/NQ-CP và chương trình khởi nghiệp 2026–2035 đẩy ý tưởng ra thị trường. Chưa có sàn nhà nước đặt hàng cho crowdfunding lai.",
+          "Chức năng mặc định vẫn phải làm dù nơi khác đã có: tài khoản, chiến dịch, gói quà, thanh toán, duyệt, sao kê. Không bỏ vì Kickstarter hay MB đã làm.",
+        ],
+      },
+      {
+        heading: "3. Chưa làm — đây là bài toán Tử Tế Fund",
+        bullets: [
+          "Chưa có sàn nội địa mở cùng lúc ủng hộ không quà và đặt trước có quà trên một chiến dịch.",
+          "Chưa có giữ tiền theo từng đơn, SLA giao hàng + 2 ngày, hoàn đúng đơn trễ mà không khóa cả chiến dịch.",
+          "Chưa có chứng từ tách đôi: TT-UH cho Donation, INV- cho Reward. Kho đồ gắn tài khoản, không phụ thuộc tin nhắn.",
+          "Bài toán: số hóa đúng chỗ còn thiếu. Không copy Kickstarter, không làm thuần thiện nguyện, không làm cổ phần.",
+        ],
+      },
+    ],
+    bullets: [
+      "Đây là bức tranh lớn kiểu thầy: hiện trạng → cái đã có → cái còn thiếu. Slide vòng đời hệ thống để sau khảo sát.",
     ],
   },
   {
