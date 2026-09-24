@@ -6,6 +6,7 @@ import {
   PRESENTATION_MEDIA_FILES,
   PRESENTATION_SEED_VERSION,
 } from "@/lib/admin-presentation-seed";
+import { ACADEMIC_SLIDES } from "@/lib/admin-presentation-academic";
 import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 export type { PresentationDeck, PresentationSlide } from "@/lib/admin-presentation-types";
@@ -16,6 +17,15 @@ type DeckRow = {
   status: string;
   payload: PresentationDeck | null;
 };
+
+function withAcademicAppendix(deck: PresentationDeck): PresentationDeck {
+  const slides = Array.isArray(deck.slides) ? deck.slides : [];
+  const hasAcademic = slides.some(
+    (slide) => slide.kicker === "Chương 1" || slide.title.includes("Phụ lục học thuật"),
+  );
+  if (hasAcademic || ACADEMIC_SLIDES.length === 0) return deck;
+  return { ...deck, slides: [...slides, ...ACADEMIC_SLIDES] };
+}
 
 async function ensureTables() {
   await prisma.$executeRawUnsafe(`
@@ -106,7 +116,7 @@ export async function getActivePresentationDeck(): Promise<PresentationDeck | nu
     }
     if (!row || row.status !== "active" || !row.payload) return null;
     if (!Array.isArray(row.payload.slides) || row.payload.slides.length === 0) return null;
-    return row.payload;
+    return withAcademicAppendix(row.payload);
   } catch (error) {
     console.warn("[PRESENTATION READ]", error);
     return null;
