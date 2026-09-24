@@ -9,19 +9,19 @@ export const ACADEMIC_SLIDES_2: PresentationSlide[] = [
       {
         heading: "Guest — Người, chưa có users.id",
         bullets: [
-          "Việc: xem campaign public, tìm kiếm, đọc blog đã xuất bản. Ủng hộ không quà chỉ cần Gmail. Đặt quà thì phải đăng nhập.",
+          "Việc: xem campaign public, tìm kiếm, đọc blog đã xuất bản. Ủng hộ không quà chỉ cần Gmail — giấy gửi mail, không vào Kho đồ. Đặt quà thì phải đăng nhập.",
           "AC1: listing public chỉ chiến dịch ACTIVE. DRAFT và PENDING_REVIEW không hiện.",
           "AC2: không session thì không vào dashboard, sao kê, Kho đồ, không đặt được gói có quà.",
-          "AC3: không quà + email hợp lệ thì tạo pledge, userId null. Settle xong gửi TT-UH về Gmail.",
+          "AC3: không quà + email hợp lệ thì tạo pledge, userId null. Settle xong gửi TT-UH về Gmail. Không cấp Kho đồ cho khách.",
         ],
       },
       {
         heading: "Backer — Người, role BACKER",
         bullets: [
-          "Việc: ủng hộ không quà, đặt Reward, tip, chat, Kho đồ, nhận TT-UH hoặc INV-.",
+          "Việc: ủng hộ không quà, đặt Reward, tip, chat. Đã login: nhận TT-UH/INV- qua Gmail và trong Kho đồ.",
           "AC1: campaign phải ACTIVE, còn hạn, còn suất. Số tiền pledge > 0.",
           "AC2: không quà, hoặc gói không cho COD, thì method chỉ ONLINE. Không hiện radio COD.",
-          "AC3: đặt quà bắt buộc session để nhập địa chỉ hoặc nhận Kho đồ. Chưa settle thì không cộng tiền, không grant, không cấp chứng từ.",
+          "AC3: đặt quà bắt buộc session. Không quà khi đã login: Gmail + Kho đồ. Chưa settle thì không cộng tiền, không grant, không cấp chứng từ.",
         ],
       },
       {
@@ -78,7 +78,7 @@ export const ACADEMIC_SLIDES_2: PresentationSlide[] = [
       rows: [
         [
           "OnlinePaymentPicker + create-pledge",
-          "Bốn kênh: ví MoMo/ZaloPay/VNPay, thẻ quốc tế, NAPAS, VietQR. API trả BANK_ESCROW và trang chuyển khoản.",
+          "Bốn kênh: ví điện tử, thẻ quốc tế, NAPAS, VietQR. API trả BANK_ESCROW và trang chuyển khoản.",
           "Không quà: guestEmail đủ. Có quà: bắt session. Gửi paymentMethodId thì 400.",
         ],
         [
@@ -88,7 +88,7 @@ export const ACADEMIC_SLIDES_2: PresentationSlide[] = [
         ],
         [
           "Kho đồ + chứng từ",
-          "Không quà: settle xong gửi TT-UH về Gmail. Có quà: grant Kho đồ trên tài khoản đã đăng nhập.",
+          "Khách: TT-UH chỉ gửi Gmail. Đã login: Gmail và Kho đồ. Có quà số: grant trên tài khoản.",
           "Hoàn thì revoke asset. Khách chưa login không có Kho đồ.",
         ],
         [
@@ -159,10 +159,10 @@ export const ACADEMIC_SLIDES_2: PresentationSlide[] = [
       {
         heading: "US-B01 — Ủng hộ không quà",
         bullets: [
-          "As a Backer, I want ủng hộ không quà bằng Gmail hoặc tài khoản, so that nhận TT-UH qua email sau khi đối soát.",
-          "AC1: gói không quà luôn ONLINE. Form không hiện radio COD. Không bắt đăng nhập.",
+          "As a Backer, I want ủng hộ không quà khi đã đăng nhập, so that nhận TT-UH vừa qua email vừa trong Kho đồ.",
+          "AC1: gói không quà luôn ONLINE. Form không hiện radio COD.",
           "AC2: trước settle chưa có mã TT-UH.",
-          "AC3: settle SUCCESS gửi giấy về Gmail. Đơn PENDING thì không giấy, không cộng tiền.",
+          "AC3: settle SUCCESS gửi Gmail và hiện giấy trong Kho đồ. Đơn PENDING thì không giấy, không cộng tiền.",
         ],
       },
       {
@@ -229,7 +229,7 @@ export const ACADEMIC_SLIDES_2: PresentationSlide[] = [
         heading: "US-C02 — Một campaign vừa cho đi vừa đặt hàng",
         bullets: [
           "As a Creator, I want mở cả ủng hộ không quà và gói Reward trên một chiến dịch, so that không phải làm hai trang.",
-          "AC1: nhánh Donation ra TT-UH sau settle, gửi email. Nhánh Reward ra INV- và Kho đồ sau khi đăng nhập.",
+          "AC1: nhánh Donation ra TT-UH sau settle — khách chỉ Gmail, đã login thì Gmail và Kho đồ. Nhánh Reward ra INV- và Kho đồ trên tài khoản.",
           "AC2: form tạo không bắt chọn type. Bản ghi mặc định REWARD nếu không set.",
           "AC3: goal phải lớn hơn 0. Thiếu ảnh thì không qua duyệt.",
         ],
@@ -344,7 +344,7 @@ export const ACADEMIC_SLIDES_2: PresentationSlide[] = [
         bullets: [
           "As the System, I want chặn chứng từ và Kho đồ trước SUCCESS, so that QR chưa trả không thành quà.",
           "AC1: PENDING không có TT-UH, không có asset.",
-          "AC2: không quà + SUCCESS thì gửi TT-UH về email trong lần settle.",
+          "AC2: không quà + SUCCESS: khách gửi TT-UH về Gmail; đã login thì Gmail và Kho đồ.",
           "AC3: màn thanh toán thành công của donation không ghi là đã nhận sản phẩm số.",
         ],
       },
