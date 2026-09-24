@@ -40,7 +40,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     kicker: "Use Case",
     title: "Nhóm Use Case",
     cards: [
-      { title: "A. Tài khoản", body: "Đăng ký khi đặt quà. Ủng hộ không quà chỉ cần Gmail. Nâng CREATOR, khóa BANNED." },
+      { title: "A. Tài khoản", body: "Đăng ký khi đặt quà. Ủng hộ không quà: khách chỉ Gmail; đã login thì Gmail và Kho đồ. Nâng CREATOR, khóa BANNED." },
       { title: "B. Gây quỹ", body: "CRUD campaign và reward, AoN hoặc KIA, cập nhật, blog chờ duyệt." },
       { title: "C. Dòng tiền", body: "Bốn kênh trên màn, đơn BANK_ESCROW, tip, COD chỉ khi gói cho phép, settle STK, chi, hoàn." },
       { title: "D. Kiểm duyệt", body: "KYC, eKYC tắt được, KYB, hàng đợi campaign và blog, report." },
@@ -55,8 +55,8 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
         ["Actor chính", "Guest khi không quà. Backer khi có quà."],
         ["Actor phụ", "System, Admin đối soát STK trung gian"],
         ["Tiền điều kiện", "Không quà: Gmail hợp lệ, không bắt đăng nhập. Có quà: phải có session để nhập địa chỉ hoặc nhận Kho đồ. Campaign ACTIVE. Còn hạn. Còn suất."],
-        ["Hậu điều kiện", "SUCCESS cộng tiền. Không quà: TT-UH gửi Gmail. Có quà: INV- và Kho đồ trên tài khoản."],
-        ["Luồng chính", "Chọn không quà hoặc gói → nhập Gmail hoặc đăng nhập → PENDING BANK_ESCROW → chuyển khoản → settle SUCCESS → email hoặc Kho đồ."],
+        ["Hậu điều kiện", "SUCCESS cộng tiền. Khách không quà: TT-UH gửi Gmail. Đã login không quà: Gmail và Kho đồ. Có quà: INV- và Kho đồ."],
+        ["Luồng chính", "Chọn không quà hoặc gói → nhập Gmail hoặc đăng nhập → PENDING BANK_ESCROW → chuyển khoản → settle SUCCESS → khách nhận mail; đã login nhận mail và Kho đồ."],
         ["Ngoại lệ", "Hết hạn. Hết suất. Thiếu email. Có quà mà chưa login thì 401. paymentMethodId bị 400."],
       ],
     },
@@ -87,10 +87,10 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
       },
     ],
     steps: [
-      { n: "01", t: "PENDING", d: "Không quà: Gmail. Có quà: đã đăng nhập. Chưa cộng currentAmount." },
+      { n: "01", t: "PENDING", d: "Không quà có thể chỉ Gmail. Có quà: đã đăng nhập. Chưa cộng currentAmount." },
       { n: "02", t: "Màn hình", d: "Ví, thẻ, NAPAS hoặc VietQR. API không nhận thẻ đã lưu. Mở trang chuyển khoản." },
       { n: "03", t: "Đối soát", d: "settlePledgeAsPaid cộng tiền một lần. Chưa đối soát thì không grant." },
-      { n: "04", t: "Chứng từ", d: "Không quà: TT-UH gửi Gmail. Quà số: biên lai và Kho đồ." },
+      { n: "04", t: "Chứng từ", d: "Khách: TT-UH gửi Gmail. Đã login: Gmail và Kho đồ. Quà số: biên lai và Kho đồ." },
       { n: "05", t: "Reward", d: "Giao trong hạn, nhận đủ, chiến dịch chốt, chi trừ 8%." },
       { n: "06", t: "Hoàn", d: "Trễ SLA hoặc hụt goal kiểu AoN thì hoàn và revoke." },
     ],
@@ -150,7 +150,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
       headers: ["Story", "Chức năng", "Màn hoặc API"],
       rows: [
         ["US-G01", "Xem chiến dịch public", "/projects · GET /api/campaigns"],
-        ["US-G03", "Ủng hộ không quà bằng Gmail", "guestEmail · TT-UH gửi mail"],
+        ["US-G03", "Ủng hộ không quà bằng Gmail", "guestEmail · TT-UH chỉ gửi mail"],
         ["US-G02", "Đăng ký để đặt quà", "NextAuth · role BACKER"],
         ["US-B02", "Kho đồ sau khi login", "/purchases · grantDigitalWarehouseItem"],
         ["US-B04", "Tip", "0/5/10/15 và slider · ẩn nếu hàng sẵn hoặc COD"],
@@ -171,9 +171,9 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     table: {
       headers: ["TR", "Việc", "Kỳ vọng"],
       rows: [
-        ["TR-01", "Donation hoặc không quà", "Không hiện COD. Chỉ cần Gmail. Gửi TT-UH về mail."],
+        ["TR-01", "Donation khách / đã login", "Khách: chỉ Gmail. Đã login: Gmail và Kho đồ. Không COD."],
         ["TR-02", "Đặt quà chưa login", "API 401. Không tạo pledge."],
-        ["TR-03", "Settle SUCCESS không quà", "Có mã TT-UH gửi email."],
+        ["TR-03", "Settle SUCCESS không quà", "Khách: mã TT-UH gửi email. Đã login: email và Kho đồ."],
         ["TR-04", "Hoàn Reward", "Revoke Kho đồ. Sao kê còn dòng hoàn."],
         ["TR-05", "Tắt eKYC", "Form tay. API eKYC 403."],
         ["TR-06", "Chưa KYC", "Campaign không ACTIVE."],
@@ -191,12 +191,12 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     cards: [
       { title: "Neon Postgres", body: "Sổ chính: users, KYC, campaigns, pledges, invoices, certificates, presentation. Biến DATABASE_URL." },
       { title: "Mongo và Redis", body: "Mongo cho chat. Redis chỉ cache campaigns và stats, TTL 300 giây, fail-open." },
-      { title: "Vercel", body: "Next.js App Router. Demo platform-seven-navy-44.vercel.app. Checkout không phụ thuộc URL webhook PayOS." },
+      { title: "Vercel", body: "Next.js App Router. Demo platform-seven-navy-44.vercel.app. Checkout BANK_ESCROW, trang chuyển khoản STK trung gian." },
     ],
     steps: [
       { n: "01", t: "Build", d: "Push main. prisma generate. Không commit .env." },
       { n: "02", t: "Migrate", d: "Đồng bộ Neon với schema. Không dùng file schema placeholder." },
-      { n: "03", t: "STK trung gian", d: "Khai tài khoản escrow. Không trỏ webhook PayOS, SePay, MoMo cho checkout." },
+      { n: "03", t: "STK trung gian", d: "Khai tài khoản escrow. Checkout mở trang chuyển khoản, không cổng thanh toán ngoài." },
       { n: "04", t: "Smoke", d: "Một Guest Gmail không quà, một Reward có login, một reject có lý do." },
     ],
   },
