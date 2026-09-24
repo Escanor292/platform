@@ -46,7 +46,7 @@ export default function CampaignRewards({
                     <Gift className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                     <p className="text-gray-500 text-sm">Dự án này hiện chưa có phần quà</p>
                     <p className="text-gray-400 text-xs mt-1">
-                        Bạn vẫn có thể ủng hộ dự án mà không cần chọn phần quà
+                        Bạn vẫn có thể ủng hộ không quà chỉ bằng Gmail, không cần đăng nhập
                     </p>
                 </div>
             </div>
@@ -226,7 +226,7 @@ export default function CampaignRewards({
 
             <div className="mt-4 pt-4 border-t border-gray-100">
                 <p className="text-xs text-gray-500 leading-relaxed">
-                    💡 <strong>Lưu ý:</strong> Phần quà sẽ được gửi đến địa chỉ bạn cung cấp sau khi dự án thành công.
+                    💡 <strong>Lưu ý:</strong> Đặt quà cần đăng nhập — quà vật lý nhập địa chỉ, quà số vào Kho đồ. Ủng hộ không quà chỉ cần Gmail, giấy xác nhận gửi mail.
                 </p>
             </div>
         </div>
