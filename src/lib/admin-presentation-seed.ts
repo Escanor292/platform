@@ -1,7 +1,7 @@
 ﻿import type { PresentationDeck } from "@/lib/admin-presentation-types";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 35;
+export const PRESENTATION_SEED_VERSION = 36;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",
@@ -84,7 +84,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
     {
       kicker: "Thị trường",
       title: "Đối chiếu nền tảng — thế giới và Việt Nam",
-      body: "Cùng ngách crowdfunding, khác sản phẩm và khác cách kiếm tiền. Tử Tế Fund học hai dòng thu đã chứng minh: phí Reward (Kickstarter/Comicola) và tip Donation (GoFundMe) — cộng escrow (giữ hộ) + VietQR nội địa.",
+      body: "Cùng ngách crowdfunding, khác sản phẩm và khác cách kiếm tiền. Tử Tế Fund học hai dòng thu đã chứng minh: phí Reward (Kickstarter/Comicola) và tip Donation (GoFundMe) — cộng escrow (giữ hộ) và checkout nội địa bốn kênh, tiền vào STK trung gian.",
       table: {
         headers: ["Nền tảng", "Sản phẩm / ngách", "Cách kiếm tiền", "Quy mô (ước tính)", "Ưu điểm", "Nhược điểm"],
         rows: [
@@ -164,7 +164,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       },
       bullets: [
         "Ba kiểu thu đã có thật: (1) phí thương mại Reward 5–15% — Kickstarter, Indiegogo, Wadiz, Comicola; (2) 0% phí + tip (tiền boa) tự chọn — GoFundMe >100 triệu USD/năm; (3) 0% phí để lấy CASA (tiền gửi không kỳ hạn) và user — Thiện Nguyện MB.",
-        "Tử Tế Fund kết hợp: phí 8% mảng Reward (như Comicola/Kickstarter) + 0% chiết khấu khoản ủng hộ và tip tự chọn mảng Donation (như GoFundMe) + escrow (giữ hộ) theo SLA (cam kết thời hạn gửi hàng) và VietQR nội địa — chỗ sàn ngoại không làm được tại Việt Nam.",
+        "Tử Tế Fund kết hợp: phí 8% mảng Reward (như Comicola/Kickstarter) + 0% chiết khấu khoản ủng hộ và tip tự chọn mảng Donation (như GoFundMe) + escrow (giữ hộ) theo SLA (cam kết thời hạn gửi hàng) và checkout nội địa (ví, thẻ, NAPAS, VietQR), tiền vào STK trung gian — chỗ sàn ngoại không làm được tại Việt Nam.",
       ],
     },
     {
@@ -241,7 +241,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       kicker: "Luồng hàng Reward",
       title: "Giữ theo đơn đến khi chốt và nhận đủ",
       steps: [
-        { n: "01", t: "Thanh toán", d: "VietQR / chuyển khoản STK (số tài khoản) trung gian. Tiền chưa về creator." },
+        { n: "01", t: "Thanh toán", d: "Màn có ví, thẻ quốc tế, NAPAS, VietQR. Tiền vào STK (số tài khoản) trung gian, chưa về creator." },
         { n: "02", t: "Đối soát & giữ", d: "Xác nhận đã nhận. Cấp biên lai. Giữ theo từng đơn, không giải ngân sớm." },
         { n: "03", t: "Gửi hoặc sẵn sàng nhận", d: "Đúng SLA (cam kết thời hạn gửi hàng). Giao vận chuyển, hoặc mở nhận tại quán. Trễ hạn → hoàn đơn đó." },
         { n: "04", t: "Nhận đủ", d: "Hàng ship: xác nhận trên Kho đồ, hoặc 7 ngày không khiếu nại sau khi phát thành công. Phiếu/sản phẩm: đã nằm trong Kho đồ = đã giao quà — quét tại quán chỉ để đổi ưu đãi, không phải mốc giải ngân." },
@@ -251,10 +251,10 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
     {
       kicker: "Kiến trúc",
       title: "Dòng tiền: giữ hộ, đối soát, rồi mới chi",
-      body: "Backer không chuyển thẳng cho creator. Cổng thanh toán báo về webhook (cổng báo đã nhận tiền); sổ đơn nằm trên Postgres; tiền nằm trên tài khoản ngân hàng trung gian đến khi đủ điều kiện chi hộ hoặc hoàn. Phí sàn 8% trừ vào số giải ngân của creator (deducted from payout — trừ payout), không cộng thêm vào giá backer (không mark-up).",
+      body: "Backer không chuyển thẳng cho creator. Màn checkout có bốn kênh nhưng đơn ONLINE ghi BANK_ESCROW và mở trang chuyển khoản. Sổ đơn nằm trên Postgres; tiền nằm trên tài khoản ngân hàng trung gian đến khi đối soát rồi mới chi hộ hoặc hoàn. Phí sàn 8% trừ vào số giải ngân của creator (deducted from payout — trừ payout), không cộng thêm vào giá backer (không mark-up).",
       steps: [
-        { n: "01", t: "Checkout", d: "Tạo pledge PENDING. VietQR / chuyển khoản STK (số tài khoản) trung gian. Nội dung chuyển khoản gắn mã đơn." },
-        { n: "02", t: "Webhook đối soát", d: "Cổng báo đã nhận. settlePledgeAsPaid → SUCCESS. Cấp giấy TT-UH hoặc biên lai INV- vào Kho đồ." },
+        { n: "01", t: "Checkout", d: "Tạo pledge PENDING. Bốn kênh trên màn; API không nhận thẻ hoặc ví đã lưu. Trang chuyển khoản STK (số tài khoản) trung gian, nội dung gắn mã đơn." },
+        { n: "02", t: "Đối soát STK", d: "Tiền vào tài khoản trung gian thì settlePledgeAsPaid → SUCCESS. Cấp giấy TT-UH hoặc biên lai INV- vào Kho đồ. Không qua PayOS, SePay hay MoMo." },
         { n: "03", t: "Giữ hộ (escrow)", d: "Tiền trên STK (số tài khoản) trung gian. Không về creator. Phí 8% trừ payout creator — backer trả đúng giá niêm yết." },
         { n: "04", t: "Giao / nhận", d: "Reward: PROCESSING → gửi ĐVVC (đơn vị vận chuyển) hoặc nhận tại quán. Cron hoàn nếu trễ SLA (cam kết thời hạn gửi hàng)." },
         { n: "05", t: "Chi hộ hoặc hoàn", d: "Donation: chốt chiến dịch theo AoN (đạt mục tiêu mới giữ) / KiA (giữ kể cả chưa đạt). Reward: từng đơn khi đã chốt và đã nhận đủ." },
@@ -412,7 +412,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
         },
         {
           lead: "Dòng tiền hiện tại",
-          text: "VietQR + tài khoản ngân hàng trung gian, đối soát bằng webhook (cổng báo đã nhận tiền). Chi tiết máy trạng thái ở slide Kiến trúc. Chưa phải dịch vụ trung gian thanh toán theo giấy phép Ngân hàng Nhà nước — không đăng ký và không quảng cáo như vậy.",
+          text: "Bốn kênh trên màn hình, tiền vào tài khoản ngân hàng trung gian, đối soát bằng settlePledgeAsPaid. Chi tiết ở slide Kiến trúc. Chưa phải dịch vụ trung gian thanh toán theo giấy phép Ngân hàng Nhà nước — không đăng ký và không quảng cáo như vậy.",
         },
       ],
     },
@@ -572,7 +572,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
           steps: [
             "Vào hồ sơ chiến dịch (có thể từ MXH — mạng xã hội)",
             "Ủng hộ, không chọn quà",
-            "VietQR / chuyển khoản → webhook (cổng báo đã nhận tiền) SUCCESS",
+            "Chọn kênh trên màn, chuyển khoản STK trung gian, đối soát SUCCESS",
             "Giấy TT-UH (chứng nhận ủng hộ) vào Kho đồ",
             "Giải ngân khi chốt chiến dịch (AoN đạt mục tiêu, hoặc KiA)",
           ],
@@ -645,7 +645,7 @@ export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {
       title: "src/lib",
       body: "Phụ lục kỹ thuật. App Router nằm src/app. Dưới đây là thư viện lõi của mô hình lai. Tên file đúng repo.",
       tree: [
-        { path: "src/lib/payment/", note: "tạo đơn, escrow (giữ hộ), VietQR, chuyển khoản STK trung gian, đối soát, hoàn" },
+        { path: "src/lib/payment/", note: "tạo đơn BANK_ESCROW, bốn kênh trên màn, chuyển khoản STK trung gian, đối soát, hoàn" },
         { path: "src/lib/tax/", note: "giấy TT-UH (chứng nhận ủng hộ), sổ, khi pledges SUCCESS" },
         { path: "src/lib/ekyc/", note: "định danh điện tử VNPT/FPT, QR CCCD, KYB (xác minh doanh nghiệp) MST (mã số thuế)" },
         { path: "src/lib/campaign/", note: "tạo/sửa chiến dịch, đổi mô hình gây quỹ" },

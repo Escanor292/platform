@@ -12,7 +12,7 @@ export const ACADEMIC_SLIDES_1: PresentationSlide[] = [
       },
       {
         title: "Nguồn trong repo",
-        body: "Actor lấy từ users.role và users.isOrganization. Thanh toán: PayOS / VietQR / SePay / MoMo. Schema: prisma/schema.prisma. Test: kế hoạch kiểm thử nhóm 2. Deploy: Neon + Vercel + Mongo Atlas + Redis.",
+        body: "Actor lấy từ users.role và users.isOrganization. Thanh toán: bốn kênh trên màn (ví, thẻ quốc tế, NAPAS, VietQR), sổ đơn BANK_ESCROW, tiền vào STK trung gian. Schema: prisma/schema.prisma. Test: kế hoạch kiểm thử nhóm 2. Deploy: Neon + Vercel + Mongo Atlas + Redis.",
       },
     ],
     bullets: [
@@ -98,7 +98,7 @@ export const ACADEMIC_SLIDES_1: PresentationSlide[] = [
           "Chức năng: gọi vốn nội địa, gói truyền thông trong nước.",
           "Ưu: người Nhật trả được bằng kênh họ đang có.",
           "Nhược: khép thị trường Nhật, phí cao.",
-          "Bài học → Tử Tế Fund: nội địa hóa thanh toán. Họ dùng konbini, mình dùng VietQR / STK trung gian. Không lấy mức phí ~17%.",
+          "Bài học → Tử Tế Fund: nội địa hóa thanh toán. Họ dùng konbini. Mình hiện bốn kênh trên màn, tiền vào STK trung gian — không redirect PayOS, SePay hay MoMo. Không lấy mức phí ~17%.",
         ],
       },
       {
@@ -164,8 +164,8 @@ export const ACADEMIC_SLIDES_1: PresentationSlide[] = [
           "Thanh toán",
           "Stripe, thẻ, PayPal. FX khoảng 3–5%.",
           "Chuyển khoản, app ngân hàng.",
-          "VietQR / STK trung gian. Webhook PayOS, SePay, MoMo.",
-          "Backer Việt không có Stripe. Tiền không chuyển thẳng vào STK creator.",
+          "Bốn kênh trên màn: ví (MoMo, ZaloPay, VNPay), thẻ quốc tế, NAPAS, VietQR. Đơn ONLINE là BANK_ESCROW.",
+          "API từ chối paymentMethodId. Tiền vào STK trung gian, không về thẳng creator. Không dùng PayOS hay SePay.",
         ],
         [
           "KYC / KYB",
@@ -192,7 +192,7 @@ export const ACADEMIC_SLIDES_1: PresentationSlide[] = [
           "Kho quà",
           "Pledge Manager sau chiến dịch.",
           "Giao tay, fanpage.",
-          "/purchases. Grant khi webhook SUCCESS. Hoàn thì revoke.",
+          "/purchases. Grant quà số khi settle SUCCESS. Hoàn thì revoke.",
           "Quyền lợi nằm trên tài khoản backer, không phụ thuộc tin nhắn.",
         ],
         [
@@ -210,8 +210,8 @@ export const ACADEMIC_SLIDES_1: PresentationSlide[] = [
     title: "Bức tranh lớn của hệ thống",
     body: "Guest xem — Backer ủng hộ hoặc đặt trước — Creator gọi vốn sau KYC — Admin duyệt và chốt tiền — System ghi sổ, giữ quyền lợi, cấp chứng từ.",
     cards: [
-      { title: "Đầu vào", body: "Tài khoản, CCCD hoặc GPKD/MST, chiến dịch, gói Reward hoặc không quà, tip, VietQR." },
-      { title: "Xử lý", body: "Duyệt KYC, campaign, blog. Webhook SUCCESS/FAILED. Escrow theo đơn. SLA. Hoàn hoặc giải ngân. TT-UH hoặc INV-." },
+      { title: "Đầu vào", body: "Tài khoản hoặc email khách, CCCD hoặc GPKD/MST, chiến dịch, gói Reward hoặc không quà, tip, bốn kênh checkout." },
+      { title: "Xử lý", body: "Duyệt KYC, campaign, blog. Pledge PENDING trên STK trung gian. settlePledgeAsPaid mới SUCCESS. Escrow theo đơn. SLA. Hoàn hoặc giải ngân. TT-UH hoặc INV-." },
       { title: "Đầu ra", body: "Chiến dịch public, Kho đồ, chứng từ, sao kê, thông báo. Tiền vẫn ở STK trung gian đến khi đủ điều kiện chi." },
     ],
     lanes: [
@@ -223,7 +223,7 @@ export const ACADEMIC_SLIDES_1: PresentationSlide[] = [
           "KYC VERIFIED rồi gửi duyệt PENDING_REVIEW.",
           "Admin cho ACTIVE. Trước đó không nhận pledge.",
           "Backer trả ONLINE. Không quà thì luôn ONLINE, không COD.",
-          "Webhook SUCCESS mới cộng tiền. Reward vào Kho đồ. Donation chờ admin settle mới có TT-UH.",
+          "Chưa đối soát thì không cộng tiền. settlePledgeAsPaid mới SUCCESS: Donation có TT-UH, quà số vào Kho đồ.",
           "Reward: giao trong hạn, nhận đủ, chiến dịch đã chốt thì chi đơn đó, trừ 8%. Trễ hạn thì hoàn đơn và revoke quà.",
         ],
       },
