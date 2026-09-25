@@ -30035,7 +30035,7 @@ Build xanh không chứng minh provider payment, email delivery, webhook hoặc 
 
 ## 6. Deployment và Git
 
-Branch `main` được bảo vệ và thay đổi phải đi qua Pull Request. Trước khi commit/push, fetch và rebase với `origin/main`, chạy `git diff --check`, dùng đúng identity GitHub `NQP Tai / nguyenquachphutai@gmail.com`, rồi kiểm tra deployment Vercel. Preview deployment là branch/PR; Production deployment phải xuất phát từ `main` sau merge.
+Branch `main` được bảo vệ và thay đổi phải đi qua Pull Request. Trước khi commit/push, fetch và rebase với `origin/main`, chạy `git diff --check`, dùng đúng identity GitHub `NQP Tai / phutaigameplay@gmail.com`, rồi kiểm tra deployment Vercel. Preview deployment là branch/PR; Production deployment phải xuất phát từ `main` sau merge.
 
 ## 7. Rủi ro còn cần theo dõi
 
@@ -30201,7 +30201,7 @@ Việc còn lại:
 2. `ChatConversationClient.tsx`: gắn hook useCall với onFetchMessages = gọi GET messages + setMessages; truyền props CallModal (conversationId khi idle→visible=false, onClose=noop); truyền recipientName/Avatar/currentUserName/currentAvatar; gọi onClose={onClose} — visible khi phase !== 'idle' hoặc error.
    - Props ChatConversationClient chưa có currentUserName/currentAvatar — lấy từ session?.user?.name/image (session?.user có name? image?) — dùng session?.user?.name || 'Bạn'.
 3. API messages POST phải chấp nhận body có field `type`? Hiện sendMessage nhận (conversationId, userId, text, attachments, sensitive) — tin call-signal có text là JSON. Route POST validate text không rỗng OK. Cần đảm bảo message.type lưu = 'call-signal' khi gửi: kiểm tra chat.service.ts sendMessage xem có tham số type không — nếu không, sửa service cho phép truyền type.
-4. Typecheck, test 2 tab (test1 vs test2, conversation 6a86bd6d6dbff94146f47778 — participants test2=92df92ff + test3=cmphnhw8e0002so1uh16dwpvn), push git qua HTTPS remote https://github.com/Escanor292/platform.git (token connector transparent, dùng git -c user.email=nguyenquachphutai@gmail.com).
+4. Typecheck, test 2 tab (test1 vs test2, conversation 6a86bd6d6dbff94146f47778 — participants test2=92df92ff + test3=cmphnhw8e0002so1uh16dwpvn), push git qua HTTPS remote https://github.com/Escanor292/platform.git (token connector transparent, dùng git -c user.email=phutaigameplay@gmail.com).
 5. Lưu tin nhắn signaling vào DB (poll nhận tất cả tin), nhưng UI ẩn khỏi list chat.
 
 ## Trạng thái tích hợp (trước fix TS cuối)
@@ -30212,7 +30212,7 @@ Lỗi TS còn 3 (cần sửa):
 2. useCall.ts dòng 149-150: processedTsRef là Set<number> nhưng key là string. Sửa: đổi processedTsRef thành Set<string>.
 3. (đã sửa) chat.service.ts line 382 type không overlap — đã fix bằng việc thêm call-signal vào MessageType.
 
-Sau khi fix: typecheck sạch, test 2 tab (test1=test1@gmail.com backer, test2?? — 2 tài khoản: đăng nhập test2@gmail.com mật khẩu 123 và test1@gmail.com mật khẩu 123; conversation test: 6a86bd6d6dbff94146f47778). Dev server port 3322 (restart: fuser -k 3322/tcp; cd ~/platform; npx next dev -p 3322 > /tmp/dev2.log 2>&1 &). Push: git add -A; git commit với user.email=nguyenquachphutai@gmail.com; remote https://github.com/Escanor292/platform.git (git -c http... push origin main).
+Sau khi fix: typecheck sạch, test 2 tab (test1=test1@gmail.com backer, test2?? — 2 tài khoản: đăng nhập test2@gmail.com mật khẩu 123 và test1@gmail.com mật khẩu 123; conversation test: 6a86bd6d6dbff94146f47778). Dev server port 3322 (restart: fuser -k 3322/tcp; cd ~/platform; npx next dev -p 3322 > /tmp/dev2.log 2>&1 &). Push: git add -A; git commit với user.email=phutaigameplay@gmail.com; remote https://github.com/Escanor292/platform.git (git -c http... push origin main).
 
 ## Test gọi thực tế (09:41)
 Bấm "Gọi video" → CallModal hiện ngay với avatar + tên + lỗi "Không thể truy cập camera/micro. Vui lòng cấp quyền." → hook đã hoạt động, chỉ do sandbox Chrome block media device (không có camera thật). Điều này chứng minh luồng gọi hoạt động đúng.
@@ -30239,7 +30239,7 @@ TypeScript: đã clean (tsc --noEmit chỉ còn lỗi scripts cũ không quan tr
 ### Công cụ:
 - Dev server: port 3322, log /tmp/dev2.log; restart: fuser -k 3322/tcp; cd ~/platform; npx next dev -p 3322 > /tmp/dev2.log 2>&1 &
 - MongoDB check: cat /tmp/muri.txt → MONGODB_URI env; script check DB ở ~/platform/scripts hoặc /tmp/check_call.mjs (collection: messages, conversations; conversationId ObjectId)
-- Push: git add -A; git -c user.email=nguyenquachphutai@gmail.com -c user.name="Escanor292" commit -m "..."; git push https://github.com/Escanor292/platform.git HEAD:main (hoặc remote origin https)
+- Push: git add -A; git -c user.email=phutaigameplay@gmail.com -c user.name="Escanor292" commit -m "..."; git push https://github.com/Escanor292/platform.git HEAD:main (hoặc remote origin https)
 - Vercel production URL: platform-lcdguxlry-escanor292s-projects.vercel.app
 
 ## Bug: Nút "Hủy cuộc gọi" không hoạt động (báo cáo 20/8)
@@ -30261,7 +30261,7 @@ C) Emoji: user nói "hiện mã ký tự thay vì emoji" — EmojiPicker render 
 - CÒN LÀM: chat.service.ts dòng 396-401 update conversation.lastMessage CHƯA lưu field type → API GET conversations trả lastMessage không có type → describeCallSignal không chạy. SỬA: thêm `type: messageType` vào lastMessage trong updateData (dòng ~398).
 - ĐÃ LÀM: EmojiPicker trong ChatWindow di chuyển wrapper từ "absolute bottom-full right-4" → "absolute -top-2 right-0 translate-y-[-100%] z-50" (hiện bên phải khung nhập, phía trên). Picker nội tại position='top' giữ nguyên (bottom-full relative wrapper) — wrapper mới đặt đúng chỗ.
 - Emoji "mã ký tự": EmojiPicker render emoji thật {emoji}; user thấy mã do font Windows thiếu glyph → không fix được từ code. Để nguyên.
-- Tiếp: tsc + lint + commit push (email nguyenquachphutai@gmail.com), dev server 3322 OK.
+- Tiếp: tsc + lint + commit push (email phutaigameplay@gmail.com), dev server 3322 OK.
 
 ### Emoji picker vị trí (fix 20/8 lần 2)
 Cấu trúc hiện tại: div Input (border-t p-4, không relative) chứa `<div flex items-end gap-2>` (dòng 917-1003, không relative) và picker div tuyệt đối (dòng ~1005-1019). Vì cha trực tiếp không relative, vị trí absolute của picker bị lệch xa khỏi khung nhập (người dùng báo: bấm emoji nhưng picker KHÔNG hiện ở chỗ muốn — gần vùng đánh dấu trên màn hình chat).
@@ -30296,7 +30296,7 @@ CÒN PHẢI LÀM:
    }
    ```
 4. Gỡ className "absolute bottom-[76px] right-4 z-50" ở wrapper cũ — ĐÃ thay bằng EmojiPickerPortal rồi, không còn.
-5. Typecheck (npx tsc --noEmit | grep -c "src/" = 0), lint sạch, commit email nguyenquachphutai@gmail.com, push origin HEAD:main. Dev server port 3322 chạy (curl localhost:3322 = 200).
+5. Typecheck (npx tsc --noEmit | grep -c "src/" = 0), lint sạch, commit email phutaigameplay@gmail.com, push origin HEAD:main. Dev server port 3322 chạy (curl localhost:3322 = 200).
 6. Báo user: bảng emoji giờ render ngoài khung chat (portal), không bị cắt.
 
 ### Kéo dài khung chat theo chiều dọc (yêu cầu 20/8)
@@ -30334,7 +30334,7 @@ Preview tin nhắn cuối (ConversationItem lastMessage) còn hiện JSON: Conve
 CÒN LÀM:
 1. ChatWindow header (dòng ~573-630): header đã dùng recipientDeleted prop — OK về mặt logic; nhưng tên hiển thị vẫn là recipientName gốc ("Người dùng đã xóa" nếu DB đã gán nhãn) — ổn. Phụ đề "Tài khoản đã bị xóa" (dòng 627) — thống nhất dùng "Tài khoản đã xóa" cho khớp ConversationItem.
 2. MessageBubble.tsx dòng ~52: tên người gửi đã xóa in nghiêng — ok, thêm phụ đề? không cần.
-3. Typecheck + lint + commit push (email nguyenquachphutai@gmail.com, tên Escanor292), báo user.
+3. Typecheck + lint + commit push (email phutaigameplay@gmail.com, tên Escanor292), báo user.
 Quy trình: cd ~/platform && npx tsc --noEmit 2>&1 | grep -c "src/" (mong =0) && npx next lint; git add -A && git commit -m "..." && git push origin HEAD:main. Dev server localhost:3322 đang chạy.
 
 ### Chẩn đoán 2 bên vẫn khác (21/8, tiếp):
@@ -30353,8 +30353,8 @@ Ngoài ra user muốn "đồng nhất màu xám" — có thể chỉ cần thêm
 ### Root cause cuối (21/8):
 - Trang /chat → ChatPageClient.tsx map API conversations → truyền vào ChatSidebar. Map CŨ không có field `userDeleted` → ChatSidebar (đã có logic render xám khi userDeleted=true) không kích hoạt → render avatar xanh + tên đậm.
 - ĐÃ SỬA ChatPageClient.tsx: thêm userDeleted?: boolean; userName dùng label 'Người dùng đã xóa' khi deleted; userDeleted = !!deleted || name===label.
-- Còn lại: typecheck + commit (email nguyenquachphutai@gmail.com, name Escanor292) + push → báo user hard reload 2 tab.
-- Quy trình push: cd ~/platform && npx tsc --noEmit 2>&1 | grep -c "src/" (mong 0) && git add -A && git -c user.email="nguyenquachphutai@gmail.com" -c user.name="Escanor292" commit -m "..." && git push origin HEAD:main
+- Còn lại: typecheck + commit (email phutaigameplay@gmail.com, name Escanor292) + push → báo user hard reload 2 tab.
+- Quy trình push: cd ~/platform && npx tsc --noEmit 2>&1 | grep -c "src/" (mong 0) && git add -A && git -c user.email="phutaigameplay@gmail.com" -c user.name="Escanor292" commit -m "..." && git push origin HEAD:main
 - Dev server: localhost:3322 (session shell "check" chạy ok, session "dev" bị lỗi shell khi env chưa load).
 
 
@@ -30419,7 +30419,7 @@ Thiết kế:
 - Nút 👍+ "Thả cảm xúc" đã hiện dưới mọi tin nhắn (3 tin). Cần test: click nút → picker 8 emoji hiện → chọn ❤️ → pill xanh hiện + API PATCH 200 → polling cập nhật messages → pill hiện cả 2 bên.
 - Dev server cần reload trang sau file edit vì Next.js không tự hot-reload khi click test qua console.
 - Conversation test: 6a86bd6d6dbff94146f47778 (test2@gmail.com = Test Creator ↔ test3/cmphnhw8e0002so1uh16dwpvn = Test Creator Pro). Tin test vừa gửi: "Kiểm tra phản ứng emoji 😄❤️".
-- Còn lại: typecheck, commit push (git -c user.email=nguyenquachphutai@gmail.com), thông báo user.
+- Còn lại: typecheck, commit push (git -c user.email=phutaigameplay@gmail.com), thông báo user.
 - Emoji picker multi-select + nút X: đã PASS.
 
 
@@ -30427,7 +30427,7 @@ Thiết kế:
 - Nút 👍+ "Thả cảm xúc" hiện dưới 3 tin (index tool thường lệch: 26,27,28 không ổn định).
 - Screenshot: 3 nút reaction nằm ở cuối mỗi bubble: tin 1 (~722,350), tin 2 (~722,428), tin 3 (~722,465). ReactionPicker hiện trên bubble (-top-11).
 - Vấn đề: sau khi JS click nút reaction, nút bị biến mất khỏi DOM (không phải lỗi API — handler chỉ return sớm nếu !response.ok; có thể polling re-render hoặc lỗi component khi pickerOpen=true). Cần kiểm tra lại bằng click tọa độ thực (browser_click tọa độ 722,465) thay vì index.
-- Dev server: localhost:3322, dev session "check" grep /tmp/dev2.log. Git: push với -c user.email=nguyenquachphutai@gmail.com user.name="NQP Tai". Repo Escanor292/platform branch main.
+- Dev server: localhost:3322, dev session "check" grep /tmp/dev2.log. Git: push với -c user.email=phutaigameplay@gmail.com user.name="NQP Tai". Repo Escanor292/platform branch main.
 - Conversation test: 6a86bd6d6dbff94146f47778, user test2@gmail.com (Test Creator).
 
 
@@ -30461,7 +30461,7 @@ Yêu cầu user: pill phản ứng phải nằm ngay BÊN DƯỚI bong bóng cha
 Trạng thái: (1) ChatWindow.tsx: đã nhóm bubble + ReactionRow trong div flex-col items-end/items-start OK. (2) MessageReaction.tsx: div wrapper ReactionRow vẫn dùng 'ml-auto' khi alignment right → làm pill hàng bị dồn sang phải cực. Cần đổi 'ml-auto' → 'self-end' (và left → 'self-start') ở 2 chỗ:
 - Dòng ~77: return sớm khi list rỗng (div nút 👍+)
 - Dòng ~94-96: div chính render picker + pills
-Cách sửa: dùng Python sed hoặc read file rồi edit từng dòng riêng biệt. Sau đó typecheck, commit push (git -c user.name="NQP Tai" -c user.email="nguyenquachphutai@gmail.com"). Conversation test: 6a86bd6d6dbff94146f47778, dev http://localhost:3322 (log /tmp/dev2.log), user test2 id 92df92ff-0f15-469f-9f24-99b44984bd13, tin test có reaction ❤️ mid 6a876183672d3f039de8ae23.
+Cách sửa: dùng Python sed hoặc read file rồi edit từng dòng riêng biệt. Sau đó typecheck, commit push (git -c user.name="NQP Tai" -c user.email="phutaigameplay@gmail.com"). Conversation test: 6a86bd6d6dbff94146f47778, dev http://localhost:3322 (log /tmp/dev2.log), user test2 id 92df92ff-0f15-469f-9f24-99b44984bd13, tin test có reaction ❤️ mid 6a876183672d3f039de8ae23.
 
 
 ## 20:43b — Screenshot sau fix self-end: pill ❤️1 nằm ngay dưới cạnh phải bong bóng (phong cách Messenger), bong bóng gọn. Chấp nhận được. Commit + push.
@@ -30507,7 +30507,7 @@ Giữ nguyên dữ liệu chat MongoDB, sửa code để khi người tham gia t
 ## Context khác (đã hoàn thành trong task)
 - Đã sửa lỗi trang sản phẩm `/products/[rewardId]` crash khi `campaign.users` null → dùng `contactUserId` fallback (commit b440090 đã push lên GitHub).
 - Dev server chạy cổng 3322, đăng nhập browser đã có session test3@gmail.com.
-- Vercel connector chưa được bật (user chưa chấp nhận); email git đã set đúng `nguyenquachphutai@gmail.com`.
+- Vercel connector chưa được bật (user chưa chấp nhận); email git đã set đúng `phutaigameplay@gmail.com`.
 
 ## TIẾN ĐỘ SỬA (cập nhật 2026-08-20)
 
@@ -30525,7 +30525,7 @@ Giữ nguyên dữ liệu chat MongoDB, sửa code để khi người tham gia t
 2. Kiểm tra các component chat khác dùng participants: `ChatScreen.tsx` (dòng ~145), `ChatPageClient.tsx` (dòng ~49), `ChatSidebar.tsx`, `CampaignChatHeader.tsx` — xem có hiển thị tên user không.
 3. Build/typecheck: `cd /home/ubuntu/platform && npx tsc --noEmit 2>&1 | head -30` (dev server cổng 3322 tự reload).
 4. Test trên browser http://localhost:3322/chat (đã login test3@gmail.com). MONGODB Atlas block IP sandbox nên chat real không load được từ script trực tiếp, nhưng dev server có MONGODB_URI sẵn trong process pts/2 (env export trước đó) → test qua browser sẽ thật sự hit API.
-5. Commit + push: git email `nguyenquachphutai@gmail.com` name `Escanor292`. Repo: Escanor292/platform branch main.
+5. Commit + push: git email `phutaigameplay@gmail.com` name `Escanor292`. Repo: Escanor292/platform branch main.
 
 ### Lưu ý
 - IP sandbox bị MongoDB Atlas chặn (connection closed) — chỉ process có env đã load URI mới kết nối được.
@@ -30562,7 +30562,7 @@ Giữ nguyên dữ liệu chat MongoDB, sửa code để khi người tham gia t
 - Session server component: `const session = await auth(); const currentUserId = (session?.user as any)?.id;`
 - Auth client: import { useSession } from "next-auth/react" (client), blog dùng `import { auth } from "@/lib/auth"` ở server page.
 - Tài khoản: test1@gmail.com (BACKER), test2@gmail.com (CREATOR), test3@gmail.com (CREATOR, id cmphnhw8e0002so1uh16dwpvn, dự án "Mầm xanh tử tế" slug mam-xanh-tu-te, sản phẩm reward id b30ad967-c249-40ff-b6e4-f0b878d56e3b), admin@gmail.com (ADMIN). MK chung: 123.
-- Dev server chạy port 3322; git email nguyenquachphutai@gmail.com, name Escanor292.
+- Dev server chạy port 3322; git email phutaigameplay@gmail.com, name Escanor292.
 - MongoDB Atlas bị chặn IP sandbox (chat không test được từ sandbox), nhưng product/blog dùng PostgreSQL OK.
 - Blog API: PATCH /api/blog/posts/[slug], body {title, excerpt, content, coverImage, type, visibility}; blog_categories route /api/blog/categories; blog model prisma blog_posts.
 - Scripts mẫu tạo user/project: scripts/recreate_user_and_product.ts (dùng PrismaClient + bcrypt hashSync(password, 10)).
@@ -30594,7 +30594,7 @@ Git repo: https://github.com/Escanor292/platform.git branch main.
 - [ ] BlogPostStatus enum: cần grep "enum BlogPostStatus" schema.
 - Chạy script env: `cat .env | grep -v "^#" > /tmp/env_clean.txt && (set -a; source /tmp/env_clean.txt; set +a; npx tsx scripts/x.ts)`
 - typecheck: `npx tsc --noEmit -p tsconfig.json` (ignore scripts/recreate... bcrypt error cũ).
-- Commit: git -c user.email=nguyenquachphutai@gmail.com -c user.name=Escanor292; repo Escanor292/platform main.
+- Commit: git -c user.email=phutaigameplay@gmail.com -c user.name=Escanor292; repo Escanor292/platform main.
 
 ## Kết quả kiểm tra (phase 3)
 - Blog mẫu ĐÃ TẠO THÀNH CÔNG: id de9194b3-c31d-4e95-91ee-2648cb4c0481, slug hanh-trinh-mam-xanh-tu-te, thuộc dự án Mầm xanh tử tế, tác giả test3 (cmphnhw8e0002so1uh16dwpvn), status PUBLISHED, content JSON Tiptap đầy đủ (heading, paragraph, bold, blockquote).
@@ -30604,7 +30604,7 @@ Git repo: https://github.com/Escanor292/platform.git branch main.
 
 ## Còn lại
 - Test trang sản phẩm với user test3 login (xem panel Chỉnh sửa nhanh có hiện).
-- Commit + push (git email nguyenquachphutai@gmail.com, name Escanor292, repo Escanor292/platform, branch main).
+- Commit + push (git email phutaigameplay@gmail.com, name Escanor292, repo Escanor292/platform, branch main).
 - Báo kết quả user.
 
 
@@ -30649,7 +30649,7 @@ Git repo: https://github.com/Escanor292/platform.git branch main.
 1. Tạo component chung `src/components/products/ShopeeProductCard.tsx`: ảnh vuông 1:1 trên (placeholder icon nếu không có ảnh), badge % giảm góc trên phải ảnh, tên 2 dòng (line-clamp-2), giá cam-600 font-bold + giá gốc gạch nhỏ (màu xám nhỏ), nút giỏ hàng tròn cam góc dưới phải, hover border-cam, nền trắng, rounded nhỏ (rounded-md — Shopee dùng square-ish), nút giỏ hàng thêm vào state context (context giỏ hàng đơn giản: useState global qua event toast + localStorage? giữ đơn giản: thêm "toast: Đã thêm vào giỏ hàng" + icon số lượng trên header nếu muốn).
 2. User chỉ nói "thêm chức năng giỏ hàng" — làm đơn giản: click giỏ hàng → thêm vào localStorage cart (cartCount hiển thị badge ở header icon) + toast xác nhận. Dialog giỏ hàng: icon header mở dropdown list cart items (ảnh, tên, giá, tăng/giảm số lượng, tổng, nút "Đặt qua nhà sáng tạo" dẫn chat).
 3. Xóa badge "Sản phẩm độc lập" trong ProfileTabs; thay phần body card cũ bằng ShopeeProductCard trong ProfileTabs + projects/[projectId] nếu có grid tương tự.
-4. typecheck, test dev 3322, commit push (email nguyenquachphutai@gmail.com, name Escanor292, repo Escanor292/platform main).
+4. typecheck, test dev 3322, commit push (email phutaigameplay@gmail.com, name Escanor292, repo Escanor292/platform main).
 
 ## Tiến độ
 - [x] Rà soát code
@@ -30668,7 +30668,7 @@ Git repo: https://github.com/Escanor292/platform.git branch main.
 - [ ] Kiểm tra src/app/projects/[projectId]/page.tsx và src/app/products/[rewardId]/page.tsx có grid sản phẩm tương tự không để áp dụng (user chỉ thấy trên profile).
 - Typecheck: npx tsc --noEmit -p tsconfig.json (lỗi bcrypt trong scripts bỏ qua, là lỗi cũ).
 - Dev server: http://localhost:3322, login test3@gmail.com/123.
-- Commit/push: git -c user.email=nguyenquachphutai@gmail.com -c user.name=Escanor292, repo Escanor292/platform branch main.
+- Commit/push: git -c user.email=phutaigameplay@gmail.com -c user.name=Escanor292, repo Escanor292/platform branch main.
 - formatVND trả "X VNĐ" (src/lib/utils.ts).
 
 ## KẾT QUẢ KIỂM THỬ (dev, 2026-08-20)
@@ -30685,7 +30685,7 @@ Yêu cầu user: trang sản phẩm thêm nút chat → mở khung chat kèm th�
 - Còn lại: gắn StartChatButton vào `src/app/products/[rewardId]/page.tsx` thay nút `<a>Liên hệ nhà sáng tạo</a>` (chế độ chiến dịch ~dòng 383: `href={`/profile/${contactUserId}#products`}`, và chế độ độc lập có nút tương tự). Props: campaignOwnerId=contactUserId (lấy từ campaign.users.id || campaign.creatorId || project.creatorId), campaignOwnerName (cần fetch tên user — dùng campaign.users.name nếu có, else query thêm user name), rewardId=reward.id, rewardTitle=reward.title, rewardPrice=formatVND(reward.minAmount) (đã sửa page dùng replace "VNĐ"→"đ" cho giá), variant="outline" className="w-full" hoặc giữ style pgreen.
 - Lưu ý page là server component async; cần import StartChatButton ("use client") trực tiếp. Tên chủ sở hữu: campaign.users?.name, nếu null fetch thêm user name qua prisma.
 - Typecheck: npx tsc --noEmit -p tsconfig.json (lỗi bcrypt scripts bỏ qua).
-- Sau đó: test login test2@gmail.com/123 (backer) mở /products/b30ad967-... bấm nút chat → trang /chat/{id} hiện tin nhắn intro kèm sản phẩm. Commit/push: git -c user.email=nguyenquachphutai@gmail.com -c user.name=Escanor292 repo Escanor292/platform branch main.
+- Sau đó: test login test2@gmail.com/123 (backer) mở /products/b30ad967-... bấm nút chat → trang /chat/{id} hiện tin nhắn intro kèm sản phẩm. Commit/push: git -c user.email=phutaigameplay@gmail.com -c user.name=Escanor292 repo Escanor292/platform branch main.
 - Sản phẩm test: id b30ad967-c249-40ff-b6e4-f0b878d56e3b, owner=test3 (cmphnhw8e0002so1uh16dwpvn), KHÔNG thuộc chiến dịch (chế độ độc lập), thuộc dự án Mầm xanh tử tế.
 - Dev: localhost:3322. Login: test1/test2/admin/test3 @gmail.com pass 123.
 
@@ -30693,7 +30693,7 @@ Yêu cầu user: trang sản phẩm thêm nút chat → mở khung chat kèm th�
 Nút "Nhắn tin với Nhà sáng tạo" đã hiện đúng trên trang sản phẩm (chế độ độc lập), render bằng StartChatButton với props rewardId/rewardTitle/rewardPrice. Trang load bình thường không lỗi. Khi bấm với session chủ sở hữu (test3) thì đúng logic hiện alert "Bạn không thể nhắn tin với chính mình". Browser click thật bị timeout do alert block, nhưng hành vi đúng (alert đã hiện → click JS mô phỏng đã pass trước đó, url không đổi).
 Chưa test được luồng full (tạo conversation + gửi intro message) vì MongoDB Atlas chặn IP sandbox (API chat 500). Trên production sẽ hoạt động.
 Còn lại: login test2@gmail.com (backer) thử bấm nút chat → nếu không test được do Atlas, commit/push là đủ.
-Git: cd ~/platform, git config user.email nguyenquachphutai@gmail.com, user.name Escanor292, repo Escanor292/platform, branch main.
+Git: cd ~/platform, git config user.email phutaigameplay@gmail.com, user.name Escanor292, repo Escanor292/platform, branch main.
 
 ### Chẩn đoán lỗi chat (2026-08-20 08:24)
 Trang /chat hiện "Không thể tải danh sách cuộc trò chuyện". Dev log: `MongoServerSelectionError: connection <monitor> to 159.143.78.200:27017 closed` — .env dùng MONGODB_URI dạng trực tiếp với IP shard cũ, Atlas đã đổi IP shard. Dạng `mongodb+srv://` ping thành công. Fix: đổi MONGODB_URI trong .env sandbox sang dạng mongodb+srv; user cần cập nhật Vercel env var riêng nếu lỗi còn trên production.
@@ -30710,7 +30710,7 @@ Kiểm tra thực tế: `c.DuAn.command('ping')` fail `OperationFailure: bad aut
 ### KẾT QUẢ (08:40) — MongoDB cluster MỚI hoạt động
 User cung cấp URI mới: cluster `duan.b4wcshp.mongodb.net`, mk `0909115079@Tai`. Đã cập nhật .env (dòng MONGODB_URI). DB mới chứa conversations, messages... — API chat /api/chat/conversations trả 200.
 Luồng test hoàn chỉnh ĐÃ PASS: login test2@gmail.com/123 (backer) → mở /products/b30ad967-c249-40ff-b6e4-f0b878d56e3b → bấm "Nhắn tin với Nhà sáng tạo" → backend log: POST /api/chat/conversations/6a86bd6d6dbff94146f47778/messages 200, PATCH read 200, GET messages 200. Conversation mới id `6a86bd6d6dbff94146f47778` giữa test2 (TC backer) và Test Creator.
-Còn lại: typecheck, commit, push (git -c user.email=nguyenquachphutai@gmail.com -c user.name=Escanor292, repo Escanor292/platform branch main), báo user. Nhắc user: cập nhật biến MONGODB_URI trên Vercel (production) sang `mongodb+srv://nguyenquachphutai_db_user:0909115079%40Tai@duan.b4wcshp.mongodb.net/?retryWrites=true&w=majority&appName=DuAn` để chat hoạt động trên production.
+Còn lại: typecheck, commit, push (git -c user.email=phutaigameplay@gmail.com -c user.name=Escanor292, repo Escanor292/platform branch main), báo user. Nhắc user: cập nhật biến MONGODB_URI trên Vercel (production) sang `mongodb+srv://nguyenquachphutai_db_user:0909115079%40Tai@duan.b4wcshp.mongodb.net/?retryWrites=true&w=majority&appName=DuAn` để chat hoạt động trên production.
 Lưu ý: không push .env lên GitHub (đã có trong .gitignore).
 
 ### Yêu cầu 20/08 (08:47) — Nút "Ủng hộ ngay" theo stock
@@ -30719,7 +30719,7 @@ Lưu ý: không push .env lên GitHub (đã có trong .gitignore).
 2. Trang sản phẩm campaign-linked: nút "Đóng góp ngay" → "Ủng hộ ngay" (link tới /campaigns/{slug}?reward=...).
 3. Test pass: stock=100 → nút "Thêm vào giỏ" → bấm → "Đã thêm vào giỏ" + badge giỏ header tăng 1→2. stock=0 (đã đặt tạm qua scripts/set_stock.mjs với DATABASE_URL neon, chưa hoàn nguyên!) → hiện "Nhắn tin với Nhà sáng tạo".
 4. campaign page button: `src/components/campaign/CampaignRewards.tsx` hiện "Ủng hộ nhận quà" — đã là "Ủng hộ"; nút chung là "Ủng hộ" — không cần đổi.
-Còn lại: hoàn nguyên stock về 100 (node scripts/set_stock.mjs 100), xóa scripts/set_stock.mjs (không commit), commit src, push (git user email nguyenquachphutai@gmail.com, name Escanor292, repo Escanor292/platform, branch main). Không push .env.
+Còn lại: hoàn nguyên stock về 100 (node scripts/set_stock.mjs 100), xóa scripts/set_stock.mjs (không commit), commit src, push (git user email phutaigameplay@gmail.com, name Escanor292, repo Escanor292/platform, branch main). Không push .env.
 
 ### Yêu cầu 20/08 (08:55) — Thẻ sản phẩm có ảnh trong tin nhắn chat
 User muốn tin nhắn intro sản phẩm trong chat hiển thị dạng thẻ có HÌNH ẢNH sản phẩm, bấm vào → mở trang sản phẩm (hiện chỉ là text: 👋 Xin chào... 📦 tên... 💰 giá... 🔗 link).
@@ -30734,7 +30734,7 @@ Thiết kế:
 Cần làm: auto-linkify URL trong MessageBubble + ProductMessageCard component. Tin nhắn intro mới gửi với marker `__TUTEFUND_PRODUCT_V1__<json>__`.
 API message route: src/app/api/chat/conversations/[conversationId]/messages/route.ts — POST body {text, attachments, sensitive}; attachments image OK để gửi ảnh? user muốn thẻ ảnh, dùng marker JSON trong text cho gọn, không cần attachments (tránh thay đổi schema).
 Trang product: src/app/products/[rewardId]/page.tsx dùng AddToCartButton (out of stock → StartChatButton với props hiện tại chưa có rewardImage).
-Notes: dev server localhost:3322; git user email nguyenquachphutai@gmail.com name Escanor292; repo Escanor292/platform branch main; không push .env.
+Notes: dev server localhost:3322; git user email phutaigameplay@gmail.com name Escanor292; repo Escanor292/platform branch main; không push .env.
 
 ### Trạng thái 09:00 — Lỗi hiển thị thẻ sản phẩm
 Tin nhắn trong conversation đang mở (6a86bd6d với Test Creator Pro — "Không hoạt động") hiển thị marker RAW percent-encoded thay vì thẻ. Có 2 khả năng:
@@ -30742,7 +30742,7 @@ Tin nhắn trong conversation đang mở (6a86bd6d với Test Creator Pro — "K
 2. Tin nhắn "20/08/2026" có marker raw → có thể do cache HTML SSR chưa reload (dev server nên không cache; nhưng Next render server-side page.tsx lấy tin nhắn... cần bấm lại conversation để fetch client).
 Hành động: bấm vào conversation "Test Creator" (mục số 17) để load messages mới nhất, vì conversation hiện đang chọn là Test Creator Pro.
 Code đã xong: ProductMessageCard.tsx, MessageBubble parse + linkify, StartChatButton marker, AddToCartButton props.
-Git: user.email=nguyenquachphutai@gmail.com user.name=Escanor292 repo Escanor292/platform branch main. Không push .env, không push scripts/*_chat*.mjs.
+Git: user.email=phutaigameplay@gmail.com user.name=Escanor292 repo Escanor292/platform branch main. Không push .env, không push scripts/*_chat*.mjs.
 
 ### Chẩn đoán 09:00 (2)
 - Tin nhắn marker (msg 6a86bd70) thuộc conversation 6a86bd6d (Test Creator ↔ cmphnhw8e0002so1uh16dwpvn). Nhưng UI sau reload vẫn hiển thị conversation "Test Creator Pro" (địa chỉ URL 6a86bd6d nhưng header là Test Creator Pro??). Header hiển thị "Test Creator Pro / Không hoạt động" — bất thường. Có thể trang server-rendered với conversation khác, hoặc URL chat/6a86bd6d thực chất render Test Creator Pro.

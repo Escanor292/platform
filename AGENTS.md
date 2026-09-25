@@ -4,7 +4,7 @@
 
 Repo: https://github.com/Escanor292/platform.git  
 Clone: `gh repo clone Escanor292/platform`  
-Commit author: `Nguyễn Quách Phú Tài` `<nguyenquachphutai@gmail.com>`
+Commit author: `Nguyễn Quách Phú Tài` `<phutaigameplay@gmail.com>`
 
 Trước khi xây hoặc sửa gì: **đọc mã nguồn liên quan** (`src/`, `prisma/schema.prisma`, API route, component). Không đoán luồng từ docs cũ nếu khác code.
 
@@ -105,7 +105,7 @@ Sửa schema Prisma: migration trong `prisma/migrations/`. Không “sửa schem
 2. Admin thuyết trình chỉ trong `/dashboard/admin` — không public.
 3. Không commit `.env`, secret, `node_modules`, `prisma/generated/`.
 4. Không xóa `.env` khỏi git nếu chủ repo đã giữ vì repo private — trừ khi họ bảo gỡ.
-5. Push `main` với email `nguyenquachphutai@gmail.com`.
+5. Push `main` với email `phutaigameplay@gmail.com`.
 6. Docs đồ án: `docs/SRS-TU-TE-FUND.md`, `docs/system-map/`, `docs/phap-luat/`. `docs/archive/` là lịch sử, không phải nguồn sự thật.
 7. Mongo script (`mongo:init`, `scripts/init-mongodb.js`, …) là leftover — đừng phụ thuộc.
 8. Không thêm script debug (`check-*`, `dump_*`, `inspect_*`, `reset_pw`, `list_users`) vào `scripts/`. Folder này chỉ giữ seed / migrate / CI / DBML.
