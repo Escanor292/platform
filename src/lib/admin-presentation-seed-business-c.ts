@@ -75,14 +75,14 @@ export const BUSINESS_SLIDES_C: PresentationSlide[] = [
 {
       kicker: "Mô hình kinh doanh",
       title: "Đa dạng hóa dòng thu nhập",
-      body: "Không phụ thuộc một nguồn thu. Reward lấy phí dịch vụ sàn. Donation không chiết khấu khoản ủng hộ — thu từ tip (tiền boa) tự chọn lúc thanh toán. Gói pháp lý / thuế là lộ trình, hợp tác bên thứ ba. Năm đầu giảm tối đa chi phí khởi đầu: hạ tầng free hoặc VPS rẻ, KYC thủ công, không văn phòng — phí 8% và tip chỉ cần nuôi vận hành tối thiểu.",
+      body: "Không phụ thuộc một nguồn thu. Reward lấy phí dịch vụ sàn. Donation không chiết khấu khoản ủng hộ — thu từ tip (tiền boa) tự chọn lúc thanh toán. Gói pháp lý / thuế là lộ trình, hợp tác bên thứ ba. Với nhà sáng tạo: giảm tối đa chi phí khởi đầu — không thu phí mở chiến dịch, không bắt nhập hàng trước khi có đơn. Phí 8% chỉ trừ vào số giải ngân khi đơn thành công.",
       table: {
         headers: ["Luồng thu nhập", "Đối tượng", "Cơ chế", "Bản chất"],
         rows: [
           [
             "Phí thương mại (Reward)",
             "Creator",
-            "Phí 8% trừ vào số giải ngân khi chiến dịch thành công và đơn đã hoàn tất. Backer trả đúng giá niêm yết.",
+            "Phí 8% trừ vào số giải ngân khi chiến dịch thành công và đơn đã hoàn tất. Backer trả đúng giá niêm yết. Không phí mở chiến dịch.",
             "Phí dịch vụ sàn TMĐT (thương mại điện tử) và escrow (giữ hộ). Không mark-up giá backer.",
           ],
           [
@@ -107,7 +107,7 @@ export const BUSINESS_SLIDES_C: PresentationSlide[] = [
       cards: [
         {
           title: "Creator — bệ phóng lập nghiệp",
-          body: "CRM (quản lý quan hệ khách hàng): lịch sử backer, tin nhắn, không trôi bài như MXH (mạng xã hội). Đóng gói hồ sơ dự án và tập khách đầu tiên. Bảng tin và bán hàng sau gây quỹ: pre-order xong vẫn cập nhật, chuyển kênh bán. Theo dõi thu-chi dự án. Kết nối tư vấn pháp lý / thuế bên thứ ba là lộ trình — đón chính sách, không over-promise đã được ban ngành đặt hàng.",
+          body: "Giảm tối đa chi phí khởi đầu cho nhà sáng tạo: không phí mở chiến dịch, không phải ôm hàng trước khi có đơn — biết trước bao nhiêu người đặt rồi mới chuẩn bị. CRM (quản lý quan hệ khách hàng): lịch sử backer, tin nhắn, không trôi bài như MXH (mạng xã hội). Đóng gói hồ sơ dự án và tập khách đầu tiên. Bảng tin và bán hàng sau gây quỹ. Theo dõi thu-chi dự án. Kết nối tư vấn pháp lý / thuế bên thứ ba là lộ trình — đón chính sách, không over-promise đã được ban ngành đặt hàng.",
           tone: "emerald",
         },
         {
@@ -117,6 +117,7 @@ export const BUSINESS_SLIDES_C: PresentationSlide[] = [
         },
       ],
       bullets: [
+        "Giảm tối đa chi phí khởi đầu cho nhà sáng tạo: phí sàn chỉ khi giải ngân thành công, không thu trước để mở quán hay xưởng.",
         "Moat (hào bảo vệ): dữ liệu backer và công cụ thu-chi không có trên Facebook hay Shopee — Creator không bỏ nền tảng sau lần gọi vốn đầu.",
         "Hai phía cùng ở lại: Creator quản lý cộng đồng; backer quay lại vì hồ sơ minh bạch và giá đặt trước.",
         "Không đối đầu sàn lớn — mượn MXH (mạng xã hội) kể chuyện, đưa người về hồ sơ trên Tử Tế Fund.",
@@ -128,9 +129,9 @@ export const BUSINESS_SLIDES_C: PresentationSlide[] = [
       body: "Nơi biến ý tưởng trên giấy thành dự án thật. Cho đi thì có giấy, không bị chiết khấu ẩn. Nhận lại thì có hàng, tiền giữ đến đúng điều kiện. Sàn sống bằng phí Reward, tip tự chọn, và dịch vụ đóng gói — không ăn chặn tiền từ thiện.",
       bullets: [
         "Bệ phóng: điểm đến đầu của người lập nghiệp. Giữ chân bằng CRM (quản lý khách hàng) và hồ sơ, không phải cổng thu tiền một lần.",
+        "Giảm tối đa chi phí khởi đầu cho nhà sáng tạo: không phí mở chiến dịch, không phải ôm hàng trước khi có đơn. Phí 8% chỉ trừ khi giải ngân thành công.",
         "Hai nhánh, hai chứng từ: Cho đi (Donation) và Nhận lại (Reward) tách minh bạch — không trộn ủng hộ với mua, không biến Reward thành chia lãi.",
         "0% chiết khấu khoản ủng hộ; tip (tiền boa) do backer chọn. Reward: phí 8% trừ payout. Vé/phiếu giải ngân khi chốt; hàng ship khi chốt và nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng) thì hoàn.",
-        "Giảm tối đa chi phí khởi đầu: sống được ở quy mô nhỏ, hạ tầng free hoặc VPS rẻ, chưa văn phòng — rồi mới mở đội ngũ.",
         "Tuân thủ: không lấy trần P2P (cho vay ngang hàng) làm giấy thông hành. Vẫn TMĐT (thương mại điện tử), thuế, KYC/KYB (xác minh cá nhân / doanh nghiệp), an toàn dữ liệu.",
         "Đúng hướng chính sách vĩ mô (Chương trình quốc gia KNST 2026–2035): khớp khâu kiểm chứng thị trường. Không tự xưng quỹ nhà nước hay đơn vị được Bộ đặt hàng.",
       ],
@@ -248,6 +249,6 @@ export const BUSINESS_SLIDES_C: PresentationSlide[] = [
       variant: "pnl",
       kicker: "P&L",
       title: "Doanh thu và chi phí — tích để xem",
-      body: "Nguyên tắc năm đầu: giảm tối đa chi phí khởi đầu — ưu tiên gói free hoặc VPS rẻ, bản KYC thủ công, không văn phòng, không ads lớn. Chỉ bật khoản tùy chọn khi đã có giao dịch. Tích đủ doanh thu, một hạ tầng và một bản vận hành thì bảng quý/năm hiện ở cuối.",
+      body: "Giảm tối đa chi phí khởi đầu cho nhà sáng tạo: không thu phí mở chiến dịch, không bắt ôm hàng trước khi có đơn. Phí 8% chỉ trừ khi giải ngân thành công. Bảng dưới là chi phí vận hành của sàn, không phải khoản creator phải trả trước. Tích đủ doanh thu, một hạ tầng và một bản vận hành thì bảng quý/năm hiện ở cuối.",
     },
 ];
