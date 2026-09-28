@@ -4,7 +4,7 @@ import { BUSINESS_SLIDES_B } from "@/lib/admin-presentation-seed-business-b";
 import { BUSINESS_SLIDES_C } from "@/lib/admin-presentation-seed-business-c";
 
 /** Bump khi sửa nội dung slide — deck active trên Postgres sẽ được ghi đè payload. */
-export const PRESENTATION_SEED_VERSION = 38;
+export const PRESENTATION_SEED_VERSION = 39;
 
 export const PRESENTATION_MEDIA_FILES = [
   "chung-nhan-tt-uh.jpg",

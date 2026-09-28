@@ -75,7 +75,7 @@ export const BUSINESS_SLIDES_C: PresentationSlide[] = [
 {
       kicker: "Mô hình kinh doanh",
       title: "Đa dạng hóa dòng thu nhập",
-      body: "Không phụ thuộc một nguồn thu. Reward lấy phí dịch vụ sàn. Donation không chiết khấu khoản ủng hộ — thu từ tip (tiền boa) tự chọn lúc thanh toán. Gói pháp lý / thuế là lộ trình, hợp tác bên thứ ba.",
+      body: "Không phụ thuộc một nguồn thu. Reward lấy phí dịch vụ sàn. Donation không chiết khấu khoản ủng hộ — thu từ tip (tiền boa) tự chọn lúc thanh toán. Gói pháp lý / thuế là lộ trình, hợp tác bên thứ ba. Năm đầu giảm tối đa chi phí khởi đầu: hạ tầng free hoặc VPS rẻ, KYC thủ công, không văn phòng — phí 8% và tip chỉ cần nuôi vận hành tối thiểu.",
       table: {
         headers: ["Luồng thu nhập", "Đối tượng", "Cơ chế", "Bản chất"],
         rows: [
@@ -130,6 +130,7 @@ export const BUSINESS_SLIDES_C: PresentationSlide[] = [
         "Bệ phóng: điểm đến đầu của người lập nghiệp. Giữ chân bằng CRM (quản lý khách hàng) và hồ sơ, không phải cổng thu tiền một lần.",
         "Hai nhánh, hai chứng từ: Cho đi (Donation) và Nhận lại (Reward) tách minh bạch — không trộn ủng hộ với mua, không biến Reward thành chia lãi.",
         "0% chiết khấu khoản ủng hộ; tip (tiền boa) do backer chọn. Reward: phí 8% trừ payout. Vé/phiếu giải ngân khi chốt; hàng ship khi chốt và nhận đủ. Trễ SLA (cam kết thời hạn gửi hàng) thì hoàn.",
+        "Giảm tối đa chi phí khởi đầu: sống được ở quy mô nhỏ, hạ tầng free hoặc VPS rẻ, chưa văn phòng — rồi mới mở đội ngũ.",
         "Tuân thủ: không lấy trần P2P (cho vay ngang hàng) làm giấy thông hành. Vẫn TMĐT (thương mại điện tử), thuế, KYC/KYB (xác minh cá nhân / doanh nghiệp), an toàn dữ liệu.",
         "Đúng hướng chính sách vĩ mô (Chương trình quốc gia KNST 2026–2035): khớp khâu kiểm chứng thị trường. Không tự xưng quỹ nhà nước hay đơn vị được Bộ đặt hàng.",
       ],
@@ -247,6 +248,6 @@ export const BUSINESS_SLIDES_C: PresentationSlide[] = [
       variant: "pnl",
       kicker: "P&L",
       title: "Doanh thu và chi phí — tích để xem",
-      body: "Bảng đầu slide là số thật trên Neon: dự án, chiến dịch Reward/Donation, người ủng hộ, GMV, tip, phí sàn, giấy chứng nhận — quý này / năm / từ đầu. Kịch bản P&L bên dưới là giả lập; có nút đổ GMV quý này vào.",
+      body: "Nguyên tắc năm đầu: giảm tối đa chi phí khởi đầu — ưu tiên gói free hoặc VPS rẻ, bản KYC thủ công, không văn phòng, không ads lớn. Chỉ bật khoản tùy chọn khi đã có giao dịch. Tích đủ doanh thu, một hạ tầng và một bản vận hành thì bảng quý/năm hiện ở cuối.",
     },
 ];
