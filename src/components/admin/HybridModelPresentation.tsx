@@ -438,6 +438,12 @@ function SlideView({
         </div>
       ) : null}
 
+      {slide.note ? (
+        <p className="rounded-2xl border border-emerald-100 bg-emerald-50 px-5 py-4 text-left text-base font-bold text-emerald-900">
+          {slide.note}
+        </p>
+      ) : null}
+
       {isClose ? (
         <div className="flex flex-wrap justify-center gap-3">
           <Link
@@ -464,19 +470,49 @@ function FlowLanes({ lanes }: { lanes: PresentationLane[] }) {
               : lane.tone === "navy"
                 ? "border-slate-200 bg-slate-50"
                 : "border-gray-100 bg-white";
+        const compact = lane.steps.every((step) => step.length <= 48);
+        const tall = compact && lane.steps.length >= 6;
         return (
           <div key={lane.title} className={`rounded-[1.75rem] border p-4 shadow-sm md:p-5 ${tone}`}>
             <div className="mb-3 text-sm font-black text-slate-900">{lane.title}</div>
-            <ol className="flex flex-col gap-2">
-              {lane.steps.map((step, i) => (
-                <li key={step} className="flex items-start gap-2">
-                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-[11px] font-black text-emerald-700 shadow-sm">
-                    {i + 1}
-                  </span>
-                  <span className="rounded-xl bg-white px-3 py-2 text-sm text-gray-700 shadow-sm">{step}</span>
-                </li>
-              ))}
-            </ol>
+            {tall ? (
+              <ol className="mx-auto flex max-w-lg flex-col items-center gap-1">
+                {lane.steps.map((step, i) => (
+                  <li key={step} className="flex w-full flex-col items-center">
+                    <span className="w-full rounded-2xl bg-white px-4 py-3 text-center text-sm font-black text-slate-900 shadow-sm">
+                      {step}
+                    </span>
+                    {i < lane.steps.length - 1 ? (
+                      <span className="py-1 text-lg font-black text-emerald-600">↓</span>
+                    ) : null}
+                  </li>
+                ))}
+              </ol>
+            ) : compact ? (
+              <ol className="flex flex-wrap items-center gap-2">
+                {lane.steps.map((step, i) => (
+                  <li key={step} className="flex items-center gap-2">
+                    <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-slate-900 shadow-sm">
+                      {step}
+                    </span>
+                    {i < lane.steps.length - 1 ? (
+                      <span className="font-black text-emerald-600">→</span>
+                    ) : null}
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <ol className="flex flex-col gap-2">
+                {lane.steps.map((step, i) => (
+                  <li key={step} className="flex items-start gap-2">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-[11px] font-black text-emerald-700 shadow-sm">
+                      {i + 1}
+                    </span>
+                    <span className="rounded-xl bg-white px-3 py-2 text-sm text-gray-700 shadow-sm">{step}</span>
+                  </li>
+                ))}
+              </ol>
+            )}
           </div>
         );
       })}
@@ -522,7 +558,7 @@ function SourceTree({ nodes }: { nodes: PresentationTreeNode[] }) {
 function CardGrid({ cards }: { cards: PresentationCard[] }) {
   const split = cards.some((c) => c.tone === "rose" || c.tone === "emerald");
   return (
-    <div className={`grid gap-4 ${cards.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
+    <div className={`grid gap-4 ${cards.length % 3 === 0 ? "md:grid-cols-3" : cards.length === 4 ? "md:grid-cols-2 lg:grid-cols-4" : "md:grid-cols-2"}`}>
       {cards.map((card) => {
         const rose = card.tone === "rose";
         const emerald = card.tone === "emerald";
