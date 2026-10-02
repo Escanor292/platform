@@ -45,7 +45,6 @@ export const ACADEMIC_SLIDES_4: PresentationSlide[] = [
     cards: [
       {
         title: "A. Tài khoản",
-        tone: "emerald",
         body: "Đăng ký và đăng nhập bằng NextAuth. Xác minh Creator cá nhân tại /kyc. Xác minh tổ chức tại /kyc/to-chuc. Tài khoản bị BANNED không được tạo pledge mới.",
       },
       {
@@ -58,7 +57,6 @@ export const ACADEMIC_SLIDES_4: PresentationSlide[] = [
       },
       {
         title: "D. Kiểm duyệt",
-        tone: "rose",
         body: "Hàng đợi KYC, Campaign và Blog. Bật / tắt eKYC. Tiếp nhận báo cáo vi phạm. Ghi Audit Log đối với các thao tác quản trị.",
       },
     ],
@@ -72,17 +70,17 @@ export const ACADEMIC_SLIDES_4: PresentationSlide[] = [
       {
         title: "Guest / Backer",
         tone: "emerald",
-        steps: ["Campaign", "Pledge", "Payment", "Settle", "Certificate / Reward"],
+        steps: ["Chiến dịch", "Pledge", "Thanh toán", "Settle", "Chứng từ / Reward"],
       },
       {
         title: "Creator",
         tone: "navy",
-        steps: ["KYC", "Campaign", "Review", "Active", "Delivery"],
+        steps: ["KYC", "Chiến dịch", "Kiểm duyệt", "ACTIVE", "Giao hàng"],
       },
       {
         title: "Admin",
         tone: "rose",
-        steps: ["Review", "Settle", "Audit"],
+        steps: ["Kiểm duyệt", "Settle", "Audit Log"],
       },
       {
         title: "System",
@@ -105,7 +103,7 @@ export const ACADEMIC_SLIDES_4: PresentationSlide[] = [
       {
         title: "Backer",
         tone: "emerald",
-        steps: ["Đăng nhập", "Reward", "Tip", "Payment", "Kho đồ"],
+        steps: ["Đăng nhập", "Reward", "Tip", "Thanh toán", "Kho đồ"],
       },
       {
         title: "Creator",
