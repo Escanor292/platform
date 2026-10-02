@@ -3,43 +3,43 @@ import type { PresentationSlide } from "@/lib/admin-presentation-types";
 export const ACADEMIC_SLIDES_2: PresentationSlide[] = [
   {
     kicker: "Actor",
-    title: "Actor người — loại, việc, điều kiện",
-    body: "Loại Người: một tài khoản cá nhân, hoặc khách chưa có users.id. Điều kiện chấp nhận nằm ngay dưới actor, không để sang story.",
+    title: "Actor người — việc và điều kiện",
+    body: "Loại Người: một tài khoản cá nhân, hoặc khách chưa có users.id. Điều kiện chấp nhận nằm ngay dưới actor.",
     blocks: [
       {
-        heading: "Guest — Người, chưa có users.id",
+        heading: "Guest — chưa có users.id",
         bullets: [
-          "Việc: xem campaign public, tìm kiếm, đọc blog đã xuất bản. Ủng hộ không quà chỉ cần Gmail — giấy gửi mail, không vào Kho đồ. Đặt quà thì phải đăng nhập.",
+          "Việc: xem campaign public, tìm kiếm, đọc blog đã xuất bản. Ủng hộ không quà chỉ cần Gmail. Đặt quà thì phải đăng nhập.",
           "AC1: listing public chỉ chiến dịch ACTIVE. DRAFT và PENDING_REVIEW không hiện.",
           "AC2: không session thì không vào dashboard, sao kê, Kho đồ, không đặt được gói có quà.",
-          "AC3: không quà + email hợp lệ thì tạo pledge, userId null. Settle xong gửi TT-UH về Gmail. Không cấp Kho đồ cho khách.",
+          "AC3: không quà + email hợp lệ thì tạo pledge, userId null. Settle xong gửi TT-UH về Gmail. Không cấp Kho đồ.",
         ],
       },
       {
-        heading: "Backer — Người, role BACKER",
+        heading: "Backer — role BACKER",
         bullets: [
-          "Việc: ủng hộ không quà, đặt Reward, tip, chat. Đã login: nhận TT-UH/INV- qua Gmail và trong Kho đồ.",
-          "AC1: campaign phải ACTIVE, còn hạn, còn suất. Số tiền pledge > 0.",
+          "Việc: ủng hộ không quà, đặt Reward, tip, chat, báo cáo campaign, xem Kho đồ và chứng từ của chính mình.",
+          "AC1: campaign ACTIVE, còn hạn, còn suất, số tiền > 0.",
           "AC2: không quà, hoặc gói không cho COD, thì method chỉ ONLINE. Không hiện radio COD.",
-          "AC3: đặt quà bắt buộc session. Không quà khi đã login: Gmail + Kho đồ. Chưa settle thì không cộng tiền, không grant, không cấp chứng từ.",
+          "AC3: chưa settle thì không cộng tiền, không grant, không cấp chứng từ.",
         ],
       },
       {
-        heading: "Creator cá nhân — Người, CREATOR_PENDING rồi CREATOR",
+        heading: "Creator cá nhân — CREATOR_PENDING rồi CREATOR",
         bullets: [
-          "Việc: nộp CCCD, tạo project/campaign/reward, cập nhật, sao kê, xác nhận giao hàng.",
+          "Việc: nộp CCCD, tạo project/campaign/reward, sửa bản DRAFT, gửi lại sau khi bị từ chối, cập nhật, sao kê, xác nhận giao.",
           "AC1: chưa VERIFIED thì không đưa campaign lên ACTIVE.",
-          "AC2: form KYC thiếu ảnh CCCD thì API từ chối khi eKYC đang bật.",
-          "AC3: sao kê chỉ thêm dòng. Không xóa lịch sử thu, hoàn, chi.",
+          "AC2: eKYC bật mà thiếu ảnh CCCD thì API từ chối. QR mặt sau chỉ điền form.",
+          "AC3: sao kê chỉ thêm dòng. Không xóa lịch sử thu, hoàn, chi. Campaign REJECTED không public.",
         ],
       },
       {
-        heading: "Admin — Người, role ADMIN và isAdmin",
+        heading: "Admin — role ADMIN và isAdmin",
         bullets: [
-          "Việc: duyệt KYC, campaign, blog; settle BANK_ESCROW; bật/tắt eKYC; khóa user.",
-          "AC1: từ chối KYC, campaign hoặc blog thì bắt buộc có lý do. Không reject rỗng.",
+          "Việc: duyệt KYC, campaign, blog; settle BANK_ESCROW; bật/tắt eKYC; khóa user; xem audit.",
+          "AC1: từ chối KYC, campaign hoặc blog thì bắt buộc có lý do.",
           "AC2: TT-UH chỉ phát khi settle SUCCESS. Bấm duyệt campaign không ra giấy ủng hộ.",
-          "AC3: tắt eKYC thì form tay vẫn nhận. API eKYC trả 403.",
+          "AC3: tắt eKYC thì form tay vẫn nhận. API eKYC trả 403. Khóa user không xóa pledge cũ.",
         ],
       },
     ],
@@ -50,24 +50,25 @@ export const ACADEMIC_SLIDES_2: PresentationSlide[] = [
     body: "Loại Tổ chức: users.isOrganization. Cùng role với cá nhân, khác hồ sơ pháp lý. Sàn không trở thành người bán.",
     blocks: [
       {
-        heading: "Creator doanh nghiệp / HKD — Tổ chức",
+        heading: "Creator doanh nghiệp / HKD",
         bullets: [
-          "Việc: nộp GPKD và MST (eKYB), gọi vốn, xuất chứng từ với tư cách người bán.",
+          "Việc: nộp GPKD và MST, gọi vốn, xác nhận giao, đối soát sao kê với tư cách người bán.",
           "AC1: hồ sơ tổ chức chưa duyệt thì không được coi là VERIFIED để public chiến dịch.",
-          "AC2: QR hoặc MST chỉ điền form. Không tự kết luận doanh nghiệp hợp pháp nếu admin chưa duyệt.",
+          "AC2: MST chỉ điền form. Không tự kết luận doanh nghiệp hợp pháp nếu admin chưa duyệt.",
           "AC3: hóa đơn GTGT nếu có là của creator. INV- của sàn chỉ là biên lai đối chiếu.",
         ],
       },
       {
-        heading: "Backer tổ chức — Tổ chức, role BACKER",
+        heading: "Backer tổ chức",
         bullets: [
           "Việc: ủng hộ hoặc đặt hàng dưới tên tổ chức, xem Kho đồ và chứng từ của tài khoản đó.",
           "AC1: cùng rule tiền với backer cá nhân. Không có luồng cổ phần, không chia lợi nhuận.",
-          "AC2: Donation vẫn chờ settle mới có TT-UH. Tên trên giấy lấy từ hồ sơ đã lưu, không gõ tay lúc checkout.",
+          "AC2: Donation vẫn chờ settle mới có TT-UH. Tên trên giấy lấy từ hồ sơ đã lưu.",
           "AC3: tổ chức không vào màn admin và không settle hộ.",
         ],
       },
     ],
+    note: "Tài khoản nhân viên phụ và phân quyền admin phụ chưa làm trong P0. Một tổ chức hiện là một users.id.",
   },
   {
     kicker: "Actor",
@@ -78,33 +79,28 @@ export const ACADEMIC_SLIDES_2: PresentationSlide[] = [
       rows: [
         [
           "OnlinePaymentPicker + create-pledge",
-          "Bốn kênh: ví điện tử, thẻ quốc tế, NAPAS, VietQR. API trả BANK_ESCROW và trang chuyển khoản.",
+          "Bốn kênh: ví, thẻ quốc tế, NAPAS, VietQR. API trả BANK_ESCROW.",
           "Không quà: guestEmail đủ. Có quà: bắt session. Gửi paymentMethodId thì 400.",
         ],
         [
           "App + Neon Postgres",
           "Ghi user, KYC, campaign, pledge, invoice, certificate, Kho đồ.",
-          "Pledge PENDING chưa cộng currentAmount. SUCCESS mới cộng. FAILED không grant.",
+          "PENDING chưa cộng currentAmount. SUCCESS mới cộng. FAILED không grant.",
         ],
         [
           "Kho đồ + chứng từ",
-          "Khách: TT-UH chỉ gửi Gmail. Đã login: Gmail và Kho đồ. Có quà số: grant trên tài khoản.",
-          "Hoàn thì revoke asset. Khách chưa login không có Kho đồ.",
+          "Khách: TT-UH chỉ Gmail. Đã login: Gmail và Kho đồ. Quà số grant trên tài khoản.",
+          "Hoàn thì revoke. Gọi settle lần hai không tạo thêm asset cho cùng pledge.",
         ],
         [
-          "Redis",
-          "Cache GET /api/campaigns và /api/stats, TTL 300 giây.",
-          "Fail-open: Redis chết thì đọc DB. Không giữ session, không khóa payout. Xóa cache khi POST campaign.",
+          "ship-sla + money-buckets",
+          "Hạn giao + 2 ngày. Giữ, chi, hoàn theo từng đơn.",
+          "Đủ điều kiện chi: chiến dịch đã chốt, đơn đã nhận đủ, trừ 8%.",
         ],
         [
-          "MongoDB Atlas",
-          "Chat và nội dung linh hoạt.",
-          "Không giữ sổ tiền.",
-        ],
-        [
-          "Cloudinary",
-          "Ảnh campaign và ảnh CCCD.",
-          "Không tự quyết định KYC. Ảnh không thay cho trạng thái VERIFIED.",
+          "Redis / Mongo / Cloudinary",
+          "Cache campaigns và stats 300 giây. Chat ở Mongo. Ảnh ở Cloudinary.",
+          "Redis chết thì đọc DB. Mongo không giữ sổ tiền. Ảnh không thay cho VERIFIED.",
         ],
       ],
     },
@@ -124,21 +120,21 @@ export const ACADEMIC_SLIDES_2: PresentationSlide[] = [
         ],
       },
       {
-        heading: "US-G02 — Đăng ký",
+        heading: "US-G02 — Đăng ký để đặt quà",
         bullets: [
           "As a Guest, I want tạo tài khoản, so that đặt quà, nhập địa chỉ và giữ Kho đồ.",
           "AC1: đăng ký qua NextAuth. Role mặc định BACKER, chưa phải CREATOR.",
           "AC2: email đã tồn tại thì không tạo user thứ hai.",
-          "AC3: chưa session thì không tạo được pledge có quà. Ủng hộ không quà không cần bước này.",
+          "AC3: chưa session thì không tạo được pledge có quà.",
         ],
       },
       {
         heading: "US-G03 — Ủng hộ không quà bằng Gmail",
         bullets: [
-          "As a Guest, I want ủng hộ không quà chỉ bằng Gmail, so that nhận giấy TT-UH qua email mà không cần tài khoản.",
+          "As a Guest, I want ủng hộ không quà chỉ bằng Gmail, so that nhận TT-UH qua email mà không cần tài khoản.",
           "AC1: không quà + guestEmail hợp lệ thì insert pledge PENDING, userId null.",
           "AC2: có rewardId mà chưa session thì 401, không tạo đơn.",
-          "AC3: settle SUCCESS gửi TT-UH về đúng email đã nhập. Khách không vào được Kho đồ.",
+          "AC3: settle SUCCESS gửi TT-UH về đúng email. Khách không vào được Kho đồ.",
         ],
       },
       {
@@ -147,7 +143,7 @@ export const ACADEMIC_SLIDES_2: PresentationSlide[] = [
           "As a Guest, I want đọc bài đã xuất bản, so that hiểu dự án trước khi cho tiền.",
           "AC1: bài PENDING_REVIEW không lên trang public.",
           "AC2: bài đã publish đọc được không cần role ADMIN.",
-          "AC3: khách không mở được hàng đợi duyệt /dashboard/admin/blog.",
+          "AC3: khách không mở được /dashboard/admin/blog.",
         ],
       },
     ],
@@ -157,19 +153,19 @@ export const ACADEMIC_SLIDES_2: PresentationSlide[] = [
     title: "User Story + AC — Backer",
     blocks: [
       {
-        heading: "US-B01 — Ủng hộ không quà",
+        heading: "US-B01 — Ủng hộ không quà khi đã đăng nhập",
         bullets: [
           "As a Backer, I want ủng hộ không quà khi đã đăng nhập, so that nhận TT-UH vừa qua email vừa trong Kho đồ.",
           "AC1: gói không quà luôn ONLINE. Form không hiện radio COD.",
           "AC2: trước settle chưa có mã TT-UH.",
-          "AC3: settle SUCCESS gửi Gmail và hiện giấy trong Kho đồ. Đơn PENDING thì không giấy, không cộng tiền.",
+          "AC3: settle SUCCESS gửi Gmail và hiện giấy trong Kho đồ.",
         ],
       },
       {
         heading: "US-B02 — Đặt Reward và mở Kho đồ",
         bullets: [
           "As a Backer, I want đăng nhập rồi đặt gói quà, so that nhập địa chỉ hoặc nhận quà trong Kho đồ.",
-          "AC1: chưa session mà gửi rewardId thì API từ chối. Phải đăng nhập.",
+          "AC1: chưa session mà gửi rewardId thì API từ chối.",
           "AC2: settle SUCCESS và quà số thì grantDigitalWarehouseItem, href /purchases.",
           "AC3: hết suất hoặc hết hạn thì không tạo pledge mới.",
         ],
@@ -197,7 +193,7 @@ export const ACADEMIC_SLIDES_2: PresentationSlide[] = [
         bullets: [
           "As a Backer, I want nhắn creator trong thread, so that hỏi hạn giao mà không đưa ra mạng xã hội.",
           "AC1: chỉ user đã đăng nhập mở thread của mình.",
-          "AC2: cuộc gọi kết thúc ghi một trong bốn: completed, rejected, missed, cancelled.",
+          "AC2: cuộc gọi kết thúc ghi completed, rejected, missed hoặc cancelled.",
           "AC3: nội dung chat nằm Mongo, không ghi đè số tiền trên Postgres.",
         ],
       },
@@ -229,18 +225,18 @@ export const ACADEMIC_SLIDES_2: PresentationSlide[] = [
         heading: "US-C02 — Một campaign vừa cho đi vừa đặt hàng",
         bullets: [
           "As a Creator, I want mở cả ủng hộ không quà và gói Reward trên một chiến dịch, so that không phải làm hai trang.",
-          "AC1: nhánh Donation ra TT-UH sau settle — khách chỉ Gmail, đã login thì Gmail và Kho đồ. Nhánh Reward ra INV- và Kho đồ trên tài khoản.",
+          "AC1: Donation ra TT-UH sau settle. Reward ra INV- và Kho đồ trên tài khoản.",
           "AC2: form tạo không bắt chọn type. Bản ghi mặc định REWARD nếu không set.",
           "AC3: goal phải lớn hơn 0. Thiếu ảnh thì không qua duyệt.",
         ],
       },
       {
-        heading: "US-C03 — Sao kê",
+        heading: "US-C03 — Sao kê không xóa được",
         bullets: [
           "As a Creator, I want xem sao kê không xóa được dòng cũ, so that đối soát với STK trung gian.",
           "AC1: mỗi pledge SUCCESS, hoàn, chi là một dòng mới.",
           "AC2: creator không sửa số tiền đối soát đã ghi.",
-          "AC3: creator khác không xem sao kê này.",
+          "AC3: creator khác không xem sao kê này. Xuất Excel chưa làm trong P0.",
         ],
       },
       {
@@ -271,6 +267,49 @@ export const ACADEMIC_SLIDES_2: PresentationSlide[] = [
         ],
       },
     ],
+  },
+  {
+    kicker: "User Story",
+    title: "User Story + AC — sửa bài, hồ sơ, thông báo",
+    blocks: [
+      {
+        heading: "US-C07 — Sửa bản nháp và gửi lại sau từ chối",
+        bullets: [
+          "As a Creator, I want sửa campaign DRAFT hoặc bản bị từ chối, so that không phải tạo lại từ đầu.",
+          "AC1: campaign ACTIVE không bị creator tự sửa goal hoặc gói đã có người đặt.",
+          "AC2: bản REJECTED có lý do. Sửa xong phải gửi PENDING_REVIEW lại.",
+          "AC3: chưa VERIFIED thì nút gửi duyệt không đưa campaign lên public.",
+        ],
+      },
+      {
+        heading: "US-C08 — Hồ sơ creator",
+        bullets: [
+          "As a Creator, I want sắp xếp hồ sơ công khai, so that backer thấy chiến dịch và câu chuyện trên một trang.",
+          "AC1: chỉ chủ hồ sơ kéo section. Khách xem bản đã xuất bản.",
+          "AC2: phải Lưu nháp rồi Xuất bản. Kéo xong chưa bấm thì chưa đổi trang public.",
+          "AC3: hồ sơ không thay cho trạng thái KYC VERIFIED.",
+        ],
+      },
+      {
+        heading: "US-B07 — Theo dõi và nhận thông báo",
+        bullets: [
+          "As a Backer, I want theo dõi creator hoặc campaign, so that thấy cập nhật mà không phải vào lại fanpage.",
+          "AC1: chưa đăng nhập thì không theo dõi.",
+          "AC2: thông báo cập nhật không tự cộng tiền và không tự cấp chứng từ.",
+          "AC3: tắt theo dõi không xóa pledge và chứng từ cũ.",
+        ],
+      },
+      {
+        heading: "US-A05 — Nhật ký thao tác admin",
+        bullets: [
+          "As an Admin, I want mọi khóa user, duyệt và settle để lại audit, so that đối soát được ai bấm.",
+          "AC1: thao tác admin ghi audit log.",
+          "AC2: backer và creator không mở được nhật ký admin.",
+          "AC3: audit không sửa số tiền pledge. Sổ tiền vẫn ở Postgres.",
+        ],
+      },
+    ],
+    note: "Chưa làm trong P0: nhân bản campaign, tài khoản nhân viên, điểm uy tín tự động, xuất Excel, banner hệ thống, admin phụ.",
   },
   {
     kicker: "User Story",
