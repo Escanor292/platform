@@ -4,7 +4,7 @@ export const ACADEMIC_SLIDES_4: PresentationSlide[] = [
   {
     kicker: "Slide 37",
     title: "THẺ CHỨC NĂNG: USER STORY → MÀN HÌNH",
-    body: "Từ yêu cầu người dùng đến chức năng thực tế",
+    body: "User Story được triển khai thành màn hình nào?",
     table: {
       headers: ["User Story", "Chức năng", "Màn hình / API", "Trạng thái"],
       rows: [
@@ -32,6 +32,7 @@ export const ACADEMIC_SLIDES_4: PresentationSlide[] = [
       {
         heading: "Ý nghĩa",
         bullets: [
+          "Từ yêu cầu người dùng đến chức năng thực tế.",
           "Mỗi User Story được ánh xạ trực tiếp thành chức năng và màn hình cụ thể, giúp kiểm tra từ yêu cầu đến triển khai.",
         ],
       },
@@ -40,157 +41,81 @@ export const ACADEMIC_SLIDES_4: PresentationSlide[] = [
   {
     kicker: "Slide 38",
     title: "NHÓM MÀN HÌNH ĐANG CHẠY",
-    blocks: [
+    body: "Toàn bộ hệ thống có những nhóm màn hình nào?",
+    cards: [
       {
-        heading: "A. Tài khoản",
-        bullets: [
-          "Đăng ký và đăng nhập bằng NextAuth",
-          "Xác minh Creator cá nhân tại /kyc",
-          "Xác minh tổ chức tại /kyc/to-chuc",
-          "Tài khoản bị BANNED không được tạo pledge mới",
-        ],
+        title: "A. Tài khoản",
+        tone: "emerald",
+        body: "Đăng ký và đăng nhập bằng NextAuth. Xác minh Creator cá nhân tại /kyc. Xác minh tổ chức tại /kyc/to-chuc. Tài khoản bị BANNED không được tạo pledge mới.",
       },
       {
-        heading: "B. Gây quỹ",
-        bullets: [
-          "Tạo Project và Campaign ở trạng thái DRAFT",
-          "Tạo các gói Reward",
-          "Lựa chọn mô hình All-or-Nothing (AoN) hoặc Keep-It-All (KIA)",
-          "Gửi campaign sang PENDING_REVIEW",
-          "Creator đã VERIFIED có thể đăng cập nhật campaign",
-        ],
+        title: "B. Gây quỹ",
+        body: "Tạo Project và Campaign ở trạng thái DRAFT. Tạo các gói Reward. Lựa chọn mô hình All-or-Nothing (AoN) hoặc Keep-It-All (KIA). Gửi campaign sang PENDING_REVIEW. Creator đã VERIFIED có thể đăng cập nhật campaign.",
       },
       {
-        heading: "C. Dòng tiền",
-        bullets: [
-          "Thanh toán qua 4 kênh: Ví, Thẻ quốc tế, NAPAS và VietQR",
-          "Giao dịch được ghi nhận theo mô hình BANK_ESCROW",
-          "Hỗ trợ Tip và COD khi gói cho phép",
-          "Thực hiện settle, chi hoặc hoàn theo từng đơn",
-        ],
+        title: "C. Dòng tiền",
+        body: "Thanh toán qua 4 kênh: Ví, Thẻ quốc tế, NAPAS và VietQR. Giao dịch được ghi nhận theo mô hình BANK_ESCROW. Hỗ trợ Tip và COD khi gói cho phép. Thực hiện settle, chi hoặc hoàn theo từng đơn.",
       },
       {
-        heading: "D. Kiểm duyệt",
-        bullets: [
-          "Hàng đợi KYC, Campaign và Blog",
-          "Bật / tắt eKYC",
-          "Tiếp nhận báo cáo vi phạm",
-          "Ghi Audit Log đối với các thao tác quản trị",
-        ],
-      },
-      {
-        heading: "Điểm kiểm soát",
-        bullets: [
-          "Checkout không tự trừ tiền từ ví hoặc thẻ đã liên kết.",
-          "Giao dịch được xử lý qua tài khoản trung gian và chỉ được xác nhận sau đối soát.",
-        ],
+        title: "D. Kiểm duyệt",
+        tone: "rose",
+        body: "Hàng đợi KYC, Campaign và Blog. Bật / tắt eKYC. Tiếp nhận báo cáo vi phạm. Ghi Audit Log đối với các thao tác quản trị.",
       },
     ],
+    note: "Điểm kiểm soát: Checkout không tự trừ tiền từ ví hoặc thẻ đã liên kết. Giao dịch được xử lý qua tài khoản trung gian và chỉ được xác nhận sau đối soát.",
   },
   {
     kicker: "Slide 39",
     title: "USER FLOW: 4 LANE",
-    body: "Luồng người dùng và hệ thống",
+    body: "Tổng quan. Slide sau đi vào từng vai, không lặp lại mạch này.",
     lanes: [
       {
         title: "Guest / Backer",
         tone: "emerald",
-        steps: [
-          "Xem Campaign ACTIVE",
-          "Chọn Ủng hộ không quà hoặc Reward",
-          "Nhập Gmail / Đăng nhập",
-          "Tạo Pledge PENDING",
-          "Thanh toán",
-          "Settle SUCCESS",
-          "Nhận TT-UH / INV- / Quà",
-        ],
+        steps: ["Campaign", "Pledge", "Payment", "Settle", "Certificate / Reward"],
       },
       {
         title: "Creator",
         tone: "navy",
-        steps: [
-          "Nộp CCCD hoặc MST/GPKD",
-          "Xác minh",
-          "Tạo Project & Campaign DRAFT",
-          "Gửi PENDING_REVIEW",
-          "Admin duyệt",
-          "Campaign ACTIVE",
-          "Giao hàng / Cập nhật",
-          "Theo dõi sao kê",
-        ],
+        steps: ["KYC", "Campaign", "Review", "Active", "Delivery"],
       },
       {
         title: "Admin",
         tone: "rose",
-        steps: [
-          "Kiểm tra KYC",
-          "Duyệt / Từ chối",
-          "Kiểm duyệt Campaign / Blog",
-          "Settle giao dịch",
-          "Khóa tài khoản khi cần",
-          "Ghi nhận Audit Log",
-        ],
+        steps: ["Review", "Settle", "Audit"],
       },
       {
-        title: "System & Tài khoản trung gian",
+        title: "System",
         tone: "default",
-        steps: [
-          "Nhận yêu cầu giao dịch",
-          "PENDING",
-          "Đối soát",
-          "SUCCESS",
-          "Cấp chứng từ / Quà",
-          "Chi hoặc hoàn theo điều kiện",
-        ],
+        steps: ["PENDING", "Đối soát", "SUCCESS", "Chứng từ"],
       },
     ],
-    blocks: [
-      {
-        heading: "Nguyên tắc xuyên suốt",
-        bullets: [
-          "PENDING chưa cộng tiền.",
-          "SUCCESS mới ghi nhận giao dịch và cấp quyền lợi.",
-          "Hoàn tiền xử lý theo từng đơn.",
-        ],
-      },
-    ],
+    note: "PENDING chưa cộng tiền. SUCCESS mới ghi nhận giao dịch và cấp quyền lợi. Hoàn tiền xử lý theo từng đơn.",
   },
   {
     kicker: "Slide 40",
     title: "SƠ ĐỒ GUEST / BACKER VÀ CREATOR / ADMIN",
+    body: "Chi tiết từng vai. Không lặp mạch tổng quan ở slide trước.",
     lanes: [
       {
-        title: "Luồng Guest & Backer",
+        title: "Guest",
         tone: "emerald",
-        steps: [
-          "Guest",
-          "Xem Campaign ACTIVE",
-          "Ủng hộ không quà bằng Gmail",
-          "Guest muốn nhận Reward",
-          "Chọn Reward",
-          "Đăng nhập",
-          "Thanh toán",
-          "Chờ settle",
-          "Backer",
-          "Chọn Reward",
-          "Tip nếu được phép",
-          "Nhận thông tin thanh toán",
-          "Pledge PENDING",
-        ],
+        steps: ["Xem Campaign ACTIVE", "Ủng hộ không quà", "Gmail", "TT-UH"],
       },
       {
-        title: "Luồng Creator & Admin",
+        title: "Backer",
+        tone: "emerald",
+        steps: ["Đăng nhập", "Reward", "Tip", "Payment", "Kho đồ"],
+      },
+      {
+        title: "Creator",
         tone: "navy",
-        steps: [
-          "Creator",
-          "KYC / KYB",
-          "Tạo Campaign DRAFT",
-          "Gửi duyệt",
-          "Admin",
-          "Kiểm tra hồ sơ",
-          "Duyệt / Từ chối",
-          "ACTIVE",
-        ],
+        steps: ["KYC / KYB", "Campaign DRAFT", "Gửi duyệt", "Giao hàng"],
+      },
+      {
+        title: "Admin",
+        tone: "rose",
+        steps: ["Kiểm tra hồ sơ", "Duyệt / Từ chối", "Settle", "Hoàn"],
       },
     ],
     blocks: [
