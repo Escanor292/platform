@@ -2,277 +2,267 @@ import type { PresentationSlide } from "@/lib/admin-presentation-types";
 
 export const ACADEMIC_SLIDES_1: PresentationSlide[] = [
   {
-    kicker: "Chương 1",
-    title: "Phụ lục học thuật — nối sau 20 slide kinh doanh",
-    body: "Bộ kinh doanh giữ nguyên 20 slide, không ghi đè. Phụ lục bắt đầu ở slide 21. Bộ giới thiệu nối sau phụ lục, không còn cố định ở slide 50.",
+    kicker: "Slide 21",
+    title: "PHỤ LỤC HỌC THUẬT",
+    body: "Từ bài toán thực tế đến mô hình hệ thống",
+    blocks: [
+      {
+        heading: "Phần phụ lục tập trung làm rõ:",
+        bullets: [
+          "Bối cảnh và các bên tham gia",
+          "Khảo sát các mô hình tương đồng",
+          "Mô hình vận hành của hệ thống",
+          "Actor và User Story",
+          "Chức năng và màn hình tương ứng",
+          "Use Case và điều kiện chấp nhận",
+          "Luồng dữ liệu và quy trình xử lý",
+          "Thiết kế hệ thống và cơ sở dữ liệu",
+        ],
+      },
+      {
+        heading: "Mục tiêu",
+        bullets: [
+          "Chuyển bài toán kinh doanh thành một hệ thống có quy trình, vai trò, dữ liệu và chức năng rõ ràng.",
+        ],
+      },
+    ],
+  },
+  {
+    kicker: "Slide 22",
+    title: "AI THAM GIA VÀ BÀI TOÁN CÒN THIẾU",
+    body: "Các bên tham gia trong hệ thống",
+    blocks: [
+      {
+        heading: "GUEST / BACKER",
+        bullets: [
+          "Khám phá các chiến dịch đang hoạt động.",
+          "Ủng hộ dự án không nhận quà.",
+          "Đặt trước sản phẩm hoặc nhận Reward.",
+          "Theo dõi đơn hàng, chứng từ và quyền lợi.",
+        ],
+      },
+      {
+        heading: "CREATOR",
+        bullets: [
+          "Xác minh danh tính hoặc thông tin tổ chức.",
+          "Tạo và quản lý dự án, chiến dịch và Reward.",
+          "Theo dõi giao dịch, tiến độ và đối soát.",
+          "Thực hiện các cam kết với người tham gia.",
+        ],
+      },
+      {
+        heading: "ADMIN",
+        bullets: [
+          "Kiểm duyệt người tạo, chiến dịch và nội dung.",
+          "Quản lý giao dịch, hoàn tiền và đối soát.",
+          "Quản lý vi phạm và lịch sử thao tác.",
+        ],
+      },
+      {
+        heading: "SYSTEM",
+        bullets: [
+          "Xử lý trạng thái giao dịch.",
+          "Quản lý dữ liệu và quyền truy cập.",
+          "Cấp chứng từ và quyền lợi theo điều kiện.",
+          "Ghi nhận lịch sử xử lý.",
+        ],
+      },
+      {
+        heading: "Khoảng trống Tử Tế Fund hướng tới giải quyết",
+        bullets: [
+          "Kết hợp gây quỹ không nhận quà và đặt trước sản phẩm trong cùng một chiến dịch, đồng thời duy trì hồ sơ, giao dịch và hành trình phát triển của dự án trên cùng một nền tảng.",
+        ],
+      },
+    ],
+    note: "Nguồn gốc nội dung actor và mô hình vận hành được thể hiện trong phần phân tích hệ thống của tài liệu.",
+  },
+  {
+    kicker: "Slide 23",
+    title: "KHUNG KHẢO SÁT",
+    body: "6 tiêu chí đối chiếu các nền tảng tương đồng",
+    table: {
+      headers: ["Tiêu chí", "Nội dung xem xét"],
+      rows: [
+        ["1. Phân khúc", "Nền tảng phục vụ nhóm người dùng và nhu cầu nào?"],
+        ["2. Mô hình vận hành", "Ai tạo chiến dịch, ai tham gia và dòng tiền được xử lý như thế nào?"],
+        ["3. Chức năng chính", "Người dùng có thể thực hiện những hoạt động cốt lõi nào?"],
+        ["4. Ưu điểm", "Những điểm nào đã được thị trường chứng minh hoặc sử dụng hiệu quả?"],
+        ["5. Hạn chế", "Những điểm nào còn gây khó khăn cho người tạo hoặc người dùng Việt Nam?"],
+        ["6. Bài học áp dụng", "Tử Tế Fund có thể học hoặc điều chỉnh điểm nào?"],
+      ],
+    },
+    blocks: [
+      {
+        heading: "Nguyên tắc khảo sát",
+        bullets: [
+          "Không sao chép mô hình. Phân tích để xác định khoảng trống và lựa chọn những yếu tố phù hợp với Tử Tế Fund.",
+        ],
+      },
+    ],
+  },
+  {
+    kicker: "Slide 24",
+    title: "KICKSTARTER · INDIEGOGO · GOFUNDME",
+    blocks: [
+      {
+        heading: "Kickstarter",
+        bullets: [
+          "Mô hình: Reward, All-or-Nothing",
+          "Thế mạnh: Thương hiệu crowdfunding mạnh, cộng đồng backer quốc tế, Reward rõ ràng.",
+          "Hạn chế: Khó tiếp cận đối với creator Việt Nam do yêu cầu xác minh và cổng thanh toán quốc tế.",
+          "Bài học: Cơ chế mục tiêu, Reward và cộng đồng backer.",
+        ],
+      },
+      {
+        heading: "Indiegogo",
+        bullets: [
+          "Mô hình: All-or-Nothing hoặc Keep-It-All.",
+          "Thế mạnh: Linh hoạt hơn và có khả năng tiếp tục bán sau chiến dịch.",
+          "Hạn chế: Vẫn phụ thuộc vào hệ thống thanh toán quốc tế.",
+          "Bài học: Cho phép nhiều cách thức huy động và duy trì hành trình sau chiến dịch.",
+        ],
+      },
+      {
+        heading: "GoFundMe",
+        bullets: [
+          "Mô hình: Gây quỹ cộng đồng, không tập trung bán sản phẩm.",
+          "Thế mạnh: Đơn giản, phù hợp với các hoạt động ủng hộ.",
+          "Hạn chế: Không kết hợp Reward và Pre-order thương mại.",
+          "Bài học: Tách rõ hoạt động ủng hộ khỏi giao dịch mua bán.",
+        ],
+      },
+      {
+        heading: "Kết luận khảo sát",
+        bullets: [
+          "Tử Tế Fund có thể kế thừa những cơ chế phù hợp nhưng cần nội địa hóa thanh toán, xác minh và quy trình vận hành cho thị trường Việt Nam.",
+          "Các đặc điểm so sánh này được lấy từ phần khảo sát Kickstarter, Indiegogo và GoFundMe trong tài liệu.",
+        ],
+      },
+    ],
+  },
+  {
+    kicker: "Slide 25",
+    title: "PATREON · CAMPFIRE · WADIZ",
+    blocks: [
+      {
+        heading: "Patreon",
+        bullets: [
+          "Mô hình: Thành viên trả phí định kỳ cho nội dung số.",
+          "Thế mạnh: Tạo doanh thu lặp lại và duy trì cộng đồng.",
+          "Hạn chế: Không tập trung vào huy động vốn một lần để phát triển sản phẩm.",
+          "Bài học: Giá trị cộng đồng và khả năng duy trì người dùng.",
+        ],
+      },
+      {
+        heading: "Campfire",
+        bullets: [
+          "Mô hình: Crowdfunding nội địa Nhật Bản.",
+          "Thế mạnh: Nội địa hóa trải nghiệm và phương thức thanh toán.",
+          "Hạn chế: Thị trường chủ yếu tập trung tại Nhật Bản.",
+          "Bài học: Tử Tế Fund cần ưu tiên trải nghiệm và thanh toán phù hợp với người dùng Việt Nam.",
+        ],
+      },
+      {
+        heading: "Wadiz",
+        bullets: [
+          "Mô hình: Crowdfunding và Pre-order thương mại.",
+          "Thế mạnh: Pre-order mạnh và có các chương trình hỗ trợ dự án.",
+          "Hạn chế: Chi phí và điều kiện tham gia có thể cao đối với nhóm nhỏ.",
+          "Bài học: Tập trung vào khả năng kiểm chứng nhu cầu và cam kết giao hàng.",
+        ],
+      },
+    ],
+    note: "Các nội dung khảo sát tương ứng nằm trong phần nghiên cứu Patreon, Campfire và Wadiz.",
+  },
+  {
+    kicker: "Slide 26",
+    title: "COMICOLA · THIỆN NGUYỆN MB · GIVEDNOW",
+    blocks: [
+      {
+        heading: "Comicola",
+        bullets: [
+          "Định hướng: Nội dung và sản phẩm văn hóa.",
+          "Thế mạnh: Hiểu thị trường nội địa và cộng đồng chuyên biệt.",
+          "Hạn chế: Phạm vi tập trung vào một số nhóm sản phẩm.",
+          "Bài học: Nội địa hóa cộng đồng và phát triển hệ thống Reward.",
+        ],
+      },
+      {
+        heading: "Thiện Nguyện MB",
+        bullets: [
+          "Định hướng: Hoạt động thiện nguyện và nhân đạo.",
+          "Thế mạnh: Tính minh bạch và niềm tin cộng đồng.",
+          "Hạn chế: Không tập trung vào thương mại và Pre-order.",
+          "Bài học: Minh bạch dòng tiền và duy trì lịch sử giao dịch.",
+        ],
+      },
+      {
+        heading: "GiveNow",
+        bullets: [
+          "Định hướng: NGO, giáo dục, bảo tồn và các hoạt động cộng đồng.",
+          "Thế mạnh: Chứng từ và hoạt động ủng hộ rõ ràng.",
+          "Hạn chế: Không kết hợp gây quỹ với Pre-order thương mại.",
+          "Bài học: Phân biệt rõ hoạt động ủng hộ và giao dịch thương mại.",
+        ],
+      },
+      {
+        heading: "Kết luận",
+        bullets: [
+          "Thị trường hiện có nhiều nền tảng phục vụ từng nhu cầu riêng. Khoảng trống Tử Tế Fund hướng đến là kết nối các nhu cầu đó trong cùng một hành trình.",
+          "Các nội dung đối chiếu này được lấy từ phần khảo sát Comicola, Thiện Nguyện MB và GiveNow.",
+        ],
+      },
+    ],
+  },
+  {
+    kicker: "Slide 27",
+    title: "BẢNG SO SÁNH MÔ HÌNH",
+    body: "Tử Tế Fund kế thừa và khác biệt ở đâu?",
+    table: {
+      headers: ["Tiêu chí", "Nền tảng quốc tế", "Nền tảng Việt Nam", "Tử Tế Fund"],
+      rows: [
+        ["Thanh toán", "Thẻ, PayPal, Stripe", "Chuyển khoản, ứng dụng ngân hàng", "Ví, thẻ quốc tế, NAPAS, VietQR"],
+        ["Xác minh", "Hộ chiếu, địa chỉ quốc tế", "Thủ công hoặc tùy nền tảng", "CCCD / MST / GPKD"],
+        ["Giữ tiền", "Thường theo chiến dịch", "Hạn chế cơ chế theo đơn", "Định hướng giữ theo từng giao dịch"],
+        ["Chứng từ", "Biên lai nền tảng", "Sao kê hoặc chứng từ riêng", "TT-UH cho ủng hộ, chứng từ giao dịch Reward"],
+        ["Bán hàng tiếp", "Tùy nền tảng", "Có ở một số mô hình", "Cùng hồ sơ thương hiệu"],
+        ["Kiểm chứng nhu cầu", "Goal / Backer", "Tùy nền tảng", "Gây quỹ + Pre-order"],
+        ["Mô hình phí", "Theo từng nền tảng", "Theo từng nền tảng", "Phí giao dịch theo mô hình"],
+        ["Cộng đồng", "Tùy nền tảng", "Tùy nền tảng", "Blog · Chat · Thảo luận · Theo dõi"],
+      ],
+    },
+    blocks: [
+      {
+        heading: "Điểm khác biệt",
+        bullets: [
+          "Tử Tế Fund hướng tới một hành trình liên tục: Kiểm chứng → Huy động / Đặt trước → Sản xuất → Bán hàng → Xây dựng thương hiệu.",
+          "Bảng này được biên tập lại từ phần so sánh hệ thống hiện có trong tài liệu.",
+        ],
+      },
+    ],
+  },
+  {
+    kicker: "Slide 28",
+    title: "BỨC TRANH HỆ THỐNG",
+    body: "8 bước của một chiến dịch",
     steps: [
-      { n: "01", t: "Bối cảnh", d: "Ai tham gia, đã có gì, còn thiếu gì." },
-      { n: "02", t: "Khảo sát", d: "9 sàn, 6 mục, bảng vì sao." },
-      { n: "03", t: "Hệ thống", d: "Đầu vào, xử lý, đầu ra, vòng đời." },
-      { n: "04", t: "Actor + story", d: "Người, tổ chức, hệ thống. AC ngay dưới." },
-      { n: "05", t: "Màn hình", d: "Story chiếu sang route đang chạy." },
-      { n: "06", t: "Flow → thiết kế", d: "4 lane, use case, ERD, test, deploy." },
-    ],
-    bullets: [
-      "Không copy nghiệp vụ sàn phế liệu. Chỉ học mật độ: 6 mục khảo sát, AC dưới actor, mỗi story có AC, chức năng ra màn hình.",
-      "Việc chưa làm ghi là chưa làm. Không đưa EPR, bảng giá, e-Manifest, ví escrow vào Tử Tế Fund.",
-    ],
-  },
-  {
-    kicker: "Bức tranh lớn",
-    title: "Ai tham gia — và bài toán còn thiếu",
-    body: "Bức tranh tổ chức, không phải sơ đồ nối hộp. Sàn là bên thứ ba giữ chứng từ và tiền trung gian, không trở thành người bán.",
-    lanes: [
-      {
-        title: "Guest / Backer",
-        tone: "emerald",
-        steps: ["Xem campaign ACTIVE", "Ủng hộ không quà bằng Gmail", "Đặt quà khi đã đăng nhập", "Nhận TT-UH hoặc Kho đồ"],
-      },
-      {
-        title: "Creator cá nhân / tổ chức",
-        tone: "navy",
-        steps: ["CCCD hoặc MST/GPKD", "Tạo campaign DRAFT", "Chờ ACTIVE", "Giao hàng và xem sao kê"],
-      },
-      {
-        title: "Admin + System",
-        tone: "rose",
-        steps: ["Duyệt KYC, campaign, blog", "Settle STK trung gian", "Cấp TT-UH / INV-", "Hoàn đúng đơn trễ"],
-      },
+      { n: "01", t: "XÁC MINH", d: "Creator cung cấp thông tin cá nhân hoặc tổ chức." },
+      { n: "02", t: "TẠO CHIẾN DỊCH", d: "Tạo Project và Campaign ở trạng thái DRAFT." },
+      { n: "03", t: "KIỂM DUYỆT", d: "Admin kiểm tra KYC và nội dung chiến dịch." },
+      { n: "04", t: "CÔNG KHAI", d: "Chiến dịch được chuyển sang ACTIVE và bắt đầu nhận tham gia." },
+      { n: "05", t: "GIAO DỊCH", d: "Backer ủng hộ hoặc đặt Reward." },
+      { n: "06", t: "ĐỐI SOÁT", d: "Giao dịch được xác nhận sau khi hệ thống đối soát." },
+      { n: "07", t: "THỰC HIỆN CAM KẾT", d: "Creator sản xuất, giao hàng hoặc cung cấp sản phẩm." },
+      { n: "08", t: "CHI / HOÀN", d: "Đủ điều kiện → giải ngân. Không đạt điều kiện → hoàn tiền theo quy định." },
     ],
     blocks: [
       {
-        heading: "Đã có ở Việt Nam",
-        headingTone: "navy",
+        heading: "Luồng tổng quát",
         bullets: [
-          "Fanpage, form, Excel biết ai chuyển, bao nhiêu, ngày nào. Không có escrow theo đơn.",
-          "Kickstarter, Indiegogo, GoFundMe, Patreon đã chứng minh nhu cầu, nhưng kẹt Stripe, PayPal, hộ chiếu.",
-          "Comicola làm Reward văn hóa. Thiện Nguyện MB và GiveNow làm ủng hộ, sao kê, chứng từ. Không mở pre-order trên cùng chiến dịch.",
-          "VietQR, NAPAS, ví, CCCD, MST đã có. Chưa có sàn nhà nước đặt hàng cho crowdfunding lai.",
-        ],
-      },
-      {
-        heading: "Tử Tế Fund làm chỗ còn thiếu",
-        headingTone: "emerald",
-        bullets: [
-          "Một chiến dịch vừa ủng hộ không quà vừa đặt trước có quà.",
-          "Giữ tiền theo từng đơn trên STK trung gian. Một đơn trễ không khóa đơn đã giao xong.",
-          "SLA = hạn cam kết + 2 ngày. Chứng từ tách: TT-UH cho Donation, INV- cho Reward.",
-          "Kho đồ gắn tài khoản đã đăng nhập. Khách không quà chỉ nhận giấy qua Gmail.",
+          "Creator → Kiểm duyệt → Campaign → Backer → Giao dịch → Đối soát → Giao hàng → Giải ngân / Hoàn tiền",
         ],
       },
     ],
-    note: "Không làm cổ phần, không làm thuần thiện nguyện, không bán gói quay phim.",
-  },
-  {
-    kicker: "Khảo sát",
-    title: "Khung khảo sát — 6 mục",
-    body: "Mỗi sàn đối chiếu cùng một khung, rồi mới rút một quyết định mang về Tử Tế Fund. Số quy mô là ước tính đã dùng ở slide kinh doanh, không phải báo cáo đã kiểm toán.",
-    table: {
-      headers: ["Mục", "Hỏi gì", "Không viết"],
-      rows: [
-        ["Định hướng", "Sàn giải quyết ngách nào, cho ai", "Không chép mô tả marketing"],
-        ["Mô hình vận hành", "Ai giữ tiền, thu phí lúc nào", "Không gộp phí cổng vào phí sàn"],
-        ["Chức năng chính", "Việc user làm được trên sản phẩm", "Không liệt kê mọi nút"],
-        ["Ưu điểm", "Chỗ đã chứng minh trên thị trường", "Không khen chung chung"],
-        ["Nhược điểm", "Chỗ creator hoặc backer Việt bị kẹt", "Không đổ lỗi ngoài phạm vi"],
-        ["Bài học áp dụng", "Một quyết định cụ thể của Tử Tế Fund", "Không copy nguyên mô hình"],
-      ],
-    },
-  },
-  {
-    kicker: "Khảo sát",
-    title: "Kickstarter, Indiegogo, GoFundMe",
-    blocks: [
-      {
-        heading: "1. Kickstarter (Mỹ)",
-        bullets: [
-          "Định hướng: gọi vốn Reward cho phần cứng, game, phim, thiết kế, sách.",
-          "Mô hình: All-or-Nothing. Phí sàn 5% khi thành công, cộng phí Stripe khoảng 3–5%.",
-          "Chức năng: reward tiers, goal, cộng đồng backer toàn cầu, không escrow theo SLA giao hàng.",
-          "Ưu: thương hiệu Reward số 1, backer quốc tế, gói quà rõ.",
-          "Nhược: KYC và Stripe chặn creator Việt; giữ cả chiến dịch; tỷ lệ trượt goal cao.",
-          "Bài học: lấy All-or-Nothing và gói Reward. Không dùng Stripe. Giữ tiền theo từng đơn.",
-        ],
-      },
-      {
-        heading: "2. Indiegogo (Mỹ)",
-        bullets: [
-          "Định hướng: gadget và cả dự án cá nhân, cứu trợ; có bán tiếp sau chiến dịch (InDemand).",
-          "Mô hình: creator chọn All-or-Nothing hoặc Keep-It-All. Phí sàn khoảng 5%.",
-          "Chức năng: hai kiểu giữ tiền, pre-order sau khi đóng chiến dịch, gói quảng bá.",
-          "Ưu: linh hoạt hơn Kickstarter, có đường bán tiếp.",
-          "Nhược: kiểm duyệt lỏng hơn nên dễ bùng hàng; vẫn kẹt cổng ngoại.",
-          "Bài học: cho chọn AoN hoặc KIA. Campaign chỉ ACTIVE sau admin. Chưa mở chợ bán tiếp kiểu InDemand.",
-        ],
-      },
-      {
-        heading: "3. GoFundMe (Mỹ)",
-        bullets: [
-          "Định hướng: thuần cho đi — y tế, học phí, thiên tai. Không bán hàng.",
-          "Mô hình: 0% phí bắt buộc với creator. Doanh thu từ tip tự chọn lúc checkout.",
-          "Chức năng: trang hoàn cảnh, chia sẻ, biên lai ngoại.",
-          "Ưu: niềm tin vì không cắt khoản quyên góp.",
-          "Nhược: không Reward, không pre-order, không phủ creator Việt.",
-          "Bài học: nhánh Donation không chiết khấu khoản ủng hộ, tip tự chọn. Reward vẫn thu 8%.",
-        ],
-      },
-    ],
-  },
-  {
-    kicker: "Khảo sát",
-    title: "Patreon, Campfire, Wadiz",
-    blocks: [
-      {
-        heading: "4. Patreon (Mỹ)",
-        bullets: [
-          "Định hướng: membership nội dung số, trả tiền theo tháng.",
-          "Mô hình: subscription. Hoa hồng khoảng 5% / 8% / 12% tùy gói.",
-          "Chức năng: cấp nội dung độc quyền, thu định kỳ, cộng đồng fan.",
-          "Ưu: doanh thu lặp lại.",
-          "Nhược: không gom vốn một lần để sản xuất hoặc nhập hàng.",
-          "Bài học: không lấy subscription làm lõi. Form tạo không set type, mặc định REWARD. Giữ chân bằng cập nhật và blog.",
-        ],
-      },
-      {
-        heading: "5. Campfire (Nhật)",
-        bullets: [
-          "Định hướng: văn hóa nội địa Nhật — anime, manga, F&B, thủ công, game indie.",
-          "Mô hình: phí sàn khoảng 12% cộng phí cổng khoảng 5%. Thanh toán cả tiền mặt tại konbini.",
-          "Chức năng: gọi vốn nội địa, gói truyền thông trong nước.",
-          "Ưu: người Nhật trả được bằng kênh họ đang có.",
-          "Nhược: khép thị trường Nhật, phí cao.",
-          "Bài học: nội địa hóa thanh toán. Bốn kênh trên màn, tiền vào STK trung gian. Không lấy mức phí ~17%.",
-        ],
-      },
-      {
-        heading: "6. Wadiz (Hàn)",
-        bullets: [
-          "Định hướng: pre-order thương mại. Nhánh Partner là equity.",
-          "Mô hình: phí khoảng 7–15% theo gói, cộng phí kiểm định và marketing.",
-          "Chức năng: duyệt hàng trước khi lên sàn, gói quảng bá trọn gói.",
-          "Ưu: pre-order mạnh, có kiểm hàng.",
-          "Nhược: phí nặng với creator nhỏ; equity đòi pháp nhân Hàn.",
-          "Bài học: học pre-order và cam kết giao hàng. Không làm cổ phần. Không bán gói quay phim.",
-        ],
-      },
-    ],
-  },
-  {
-    kicker: "Khảo sát",
-    title: "Comicola, Thiện Nguyện MB, GiveNow",
-    blocks: [
-      {
-        heading: "7. Comicola (Việt Nam)",
-        bullets: [
-          "Định hướng: truyện, boardgame, nhạc indie, vật phẩm văn hóa.",
-          "Mô hình: phí gây quỹ khoảng 8–10% khi thành công, sau đó có thể phân phối vật lý.",
-          "Chức năng: gọi vốn fandom Việt, hỗ trợ in và phát hành.",
-          "Ưu: hiểu người mua nội địa, có dự án lớn.",
-          "Nhược: hẹp ngách nghệ thuật, thiếu escrow theo SLA, công cụ còn đơn.",
-          "Bài học: phí Reward 8% bám khoảng này. Bổ sung giữ tiền theo đơn và SLA + 2 ngày. Không khóa sàn vào comic.",
-        ],
-      },
-      {
-        heading: "8. Thiện Nguyện MB (Việt Nam)",
-        bullets: [
-          "Định hướng: 100% nhân đạo — trường vùng cao, mổ tim, cứu trợ.",
-          "Mô hình: 0% phí nền tảng. Ngân hàng được CASA và người dùng app.",
-          "Chức năng: sao kê realtime, tài khoản minh bạch.",
-          "Ưu: niềm tin cộng đồng rất cao.",
-          "Nhược: không Reward, không khởi nghiệp thương mại.",
-          "Bài học: sao kê không xóa lịch sử, dòng hoàn nhìn thấy được. Không copy 0% cho cả sàn.",
-        ],
-      },
-      {
-        heading: "9. Kindmate / GiveNow (Việt Nam)",
-        bullets: [
-          "Định hướng: NGO, bảo tồn, giáo dục, sinh kế.",
-          "Mô hình: phí kỹ thuật khoảng 3–5%, cộng tài trợ quỹ và CSR.",
-          "Chức năng: kết nối tổ chức, chứng từ quyên góp.",
-          "Ưu: chứng từ rõ cho bên cho đi.",
-          "Nhược: truyền thông yếu, không pre-order.",
-          "Bài học: Donation có giấy TT-UH sau khi admin chốt tiền. TT-UH không thay hóa đơn GTGT.",
-        ],
-      },
-    ],
-  },
-  {
-    kicker: "Khảo sát",
-    title: "Bảng so sánh — cột hệ thống của tôi",
-    body: "Cột cuối là quyết định, không chỉ điền tên tính năng.",
-    table: {
-      headers: ["Tiêu chí", "Sàn ngoại", "Sàn VN", "Tử Tế Fund", "Vì sao"],
-      rows: [
-        [
-          "Thanh toán",
-          "Stripe, thẻ, PayPal. FX khoảng 3–5%.",
-          "Chuyển khoản, app ngân hàng.",
-          "Ví, thẻ quốc tế, NAPAS, VietQR. Đơn ONLINE là BANK_ESCROW.",
-          "API từ chối paymentMethodId. Tiền vào STK trung gian, không về thẳng creator.",
-        ],
-        [
-          "KYC / KYB",
-          "Hộ chiếu, SSN, địa chỉ nước ngoài.",
-          "Thủ công hoặc không có.",
-          "CCCD. eKYC tắt được về form tay. Tổ chức nộp MST / GPKD.",
-          "QR mặt sau chỉ điền form, không gọi CSDL quốc gia.",
-        ],
-        [
-          "Giữ tiền",
-          "Thường giữ cả chiến dịch.",
-          "Ít escrow theo từng đơn.",
-          "Giữ theo pledge. Chi khi chiến dịch đã chốt và đơn đã nhận đủ.",
-          "Một đơn trễ không khóa tiền của đơn đã giao xong.",
-        ],
-        [
-          "Chứng từ",
-          "Biên lai nước ngoài.",
-          "Sao kê hoặc hóa đơn tự phát.",
-          "TT-UH sau settle SUCCESS. Reward có INV-.",
-          "Ủng hộ không được ghi thành mua hàng. Sàn không xuất hóa đơn GTGT thay creator.",
-        ],
-        [
-          "Kho quà",
-          "Pledge Manager sau chiến dịch.",
-          "Giao tay, fanpage.",
-          "Khách: Gmail. Đã login: Kho đồ. Hoàn thì revoke.",
-          "Kho gắn tài khoản, không phụ thuộc tin nhắn.",
-        ],
-        [
-          "Cách thu",
-          "Phí 5% hoặc tip GoFundMe.",
-          "8–10% hoặc 0% vì CSR ngân hàng.",
-          "Reward 8% trừ lúc chi. Donation 0% trên khoản ủng hộ, tip tự chọn.",
-          "Không cộng phí sàn vào giá backer.",
-        ],
-      ],
-    },
-  },
-  {
-    kicker: "Bức tranh lớn",
-    title: "Bức tranh hệ thống — 8 bước một chiến dịch",
-    body: "Đặt sau khảo sát. Đây là vòng đời đang chạy, không phải kiến trúc vi dịch vụ.",
-    cards: [
-      { title: "Đầu vào", body: "Email khách hoặc session, CCCD hoặc MST/GPKD, campaign, gói hoặc không quà, tip, bốn kênh checkout." },
-      { title: "Xử lý", body: "Duyệt KYC và campaign. Pledge PENDING. settlePledgeAsPaid mới SUCCESS. Escrow theo đơn. SLA. Hoàn hoặc chi." },
-      { title: "Đầu ra", body: "Campaign public, TT-UH hoặc INV-, sao kê, thông báo. Tiền ở STK trung gian đến khi đủ điều kiện chi." },
-    ],
-    lanes: [
-      {
-        title: "Tám bước",
-        tone: "navy",
-        steps: [
-          "Creator nộp CCCD hoặc MST. QR chỉ điền form.",
-          "Admin VERIFIED. Reject thì có lý do.",
-          "Campaign DRAFT, goal > 0, rồi PENDING_REVIEW.",
-          "Admin cho ACTIVE. Trước đó không nhận pledge.",
-          "Backer hoặc khách trả ONLINE. Pledge PENDING, trang chuyển khoản.",
-          "Admin settle SUCCESS. Khách nhận TT-UH qua Gmail. Đã login thì thêm Kho đồ.",
-          "Reward giao trong hạn, nhận đủ, chiến dịch đã chốt thì chi, trừ 8%.",
-          "Trễ SLA hoặc hụt goal kiểu AoN thì hoàn đúng đơn và revoke quà.",
-        ],
-      },
-    ],
-    note: "Redis chỉ cache danh sách 300 giây. Mongo chỉ chat. Không giữ sổ tiền.",
+    note: "Mô hình 8 bước và các trạng thái xử lý được lấy từ phần mô tả hệ thống trong tài liệu.",
   },
 ];

@@ -2,221 +2,774 @@ import type { PresentationSlide } from "@/lib/admin-presentation-types";
 
 export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
   {
-    kicker: "Use Case",
-    title: "Use Case — ai làm việc gì",
-    figures: [
-      { key: "usecase-tute.png", alt: "Use case Tử Tế Fund", caption: "Guest ủng hộ không quà. Backer đặt Reward. Creator nộp KYC. Admin settle." },
-    ],
-    cards: [
-      { title: "Guest", body: "Xem chiến dịch. Đăng ký. Ủng hộ không quà bằng Gmail." },
-      { title: "Backer", body: "Đặt Reward. Kho đồ. Tip. Chat. Báo cáo." },
-      { title: "Creator", body: "KYC hoặc KYB. Quản lý campaign. Giao hàng. Sao kê." },
-      { title: "Admin / System", body: "Duyệt. Settle. Khóa user. Đối soát STK. Cấp chứng từ và Kho đồ." },
+    kicker: "Slide 42",
+    title: "USE CASE: AI LÀM VIỆC GÌ?",
+    blocks: [
+      {
+        heading: "Guest",
+        bullets: [
+          "Xem chiến dịch",
+          "Đăng ký tài khoản",
+          "Ủng hộ không quà bằng Gmail",
+        ],
+      },
+      {
+        heading: "Backer",
+        bullets: [
+          "Đặt Reward",
+          "Xem Kho đồ",
+          "Chọn Tip",
+          "Chat với Creator",
+          "Báo cáo campaign",
+        ],
+      },
+      {
+        heading: "Creator",
+        bullets: [
+          "KYC / KYB",
+          "Tạo và quản lý Campaign",
+          "Quản lý Reward",
+          "Xác nhận giao hàng",
+          "Theo dõi sao kê",
+        ],
+      },
+      {
+        heading: "Admin / System",
+        bullets: [
+          "Kiểm duyệt",
+          "Settle giao dịch",
+          "Khóa tài khoản",
+          "Đối soát tài khoản trung gian",
+          "Cấp chứng từ và quà",
+        ],
+      },
+      {
+        heading: "Mục tiêu của Use Case",
+        bullets: [
+          "Xác định rõ actor nào thực hiện hành động nào và hệ thống phản hồi ra sao.",
+        ],
+      },
     ],
   },
   {
-    kicker: "Use Case",
-    title: "Nhóm Use Case",
-    cards: [
-      { title: "A. Tài khoản", body: "Đăng ký khi đặt quà. Ủng hộ không quà: khách chỉ Gmail; đã login thì Gmail và Kho đồ. Nâng CREATOR, khóa BANNED." },
-      { title: "B. Gây quỹ", body: "CRUD campaign và reward khi còn DRAFT, AoN hoặc KIA, cập nhật, blog chờ duyệt, hồ sơ xuất bản." },
-      { title: "C. Dòng tiền", body: "Bốn kênh trên màn, đơn BANK_ESCROW, tip, COD chỉ khi gói cho phép, settle STK, chi, hoàn." },
-      { title: "D. Kiểm duyệt", body: "KYC, eKYC tắt được, KYB, hàng đợi campaign và blog, report, audit." },
+    kicker: "Slide 43",
+    title: "NHÓM USE CASE",
+    blocks: [
+      {
+        heading: "A. Tài khoản",
+        bullets: [
+          "Đăng ký và đăng nhập",
+          "Ủng hộ không quà bằng Gmail",
+          "Đặt Reward khi đã đăng nhập",
+          "Nâng cấp tài khoản Creator",
+          "Khóa tài khoản vi phạm",
+        ],
+      },
+      {
+        heading: "B. Gây quỹ",
+        bullets: [
+          "Tạo, sửa và quản lý Campaign",
+          "Tạo và quản lý Reward",
+          "Chọn AoN hoặc KIA",
+          "Đăng cập nhật",
+          "Quản lý Blog",
+          "Xuất bản hồ sơ Creator",
+        ],
+      },
+      {
+        heading: "C. Dòng tiền",
+        bullets: [
+          "Chọn phương thức thanh toán",
+          "Tạo Pledge",
+          "Tip",
+          "COD khi gói cho phép",
+          "Đối soát và Settle",
+          "Chi hoặc hoàn tiền",
+        ],
+      },
+      {
+        heading: "D. Kiểm duyệt",
+        bullets: [
+          "KYC / KYB",
+          "Quản lý eKYC",
+          "Duyệt Campaign",
+          "Duyệt Blog",
+          "Xử lý Report",
+          "Ghi Audit Log",
+        ],
+      },
     ],
   },
   {
-    kicker: "Đặc tả",
-    title: "Đặc tả UC-01 Tạo pledge",
+    kicker: "Slide 44",
+    title: "ĐẶC TẢ USE CASE UC-01: TẠO PLEDGE",
+    blocks: [
+      { heading: "Thông tin chính" },
+      {
+        heading: "Actor chính",
+        bullets: [
+          "Guest: khi ủng hộ không quà",
+          "Backer: khi đặt Reward",
+        ],
+      },
+      {
+        heading: "Actor phụ",
+        bullets: ["System", "Admin đối soát tài khoản trung gian"],
+      },
+      {
+        heading: "Tiền điều kiện",
+        bullets: [
+          "Campaign phải ở trạng thái ACTIVE",
+          "Campaign còn trong thời hạn",
+          "Reward còn số lượng",
+          "Không quà: chỉ cần Gmail hợp lệ",
+          "Có quà: bắt buộc đăng nhập",
+        ],
+      },
+      {
+        heading: "Luồng chính",
+        bullets: [
+          "Chọn Ủng hộ không quà hoặc Reward",
+          "→ Nhập Gmail / Đăng nhập",
+          "→ Tạo Pledge PENDING",
+          "→ Thực hiện thanh toán",
+          "→ Admin đối soát",
+          "→ Settle SUCCESS",
+        ],
+      },
+      { heading: "Hậu điều kiện" },
+      {
+        heading: "Không quà",
+        bullets: [
+          "Khách: nhận TT-UH qua Gmail",
+          "Người dùng đã đăng nhập: nhận Gmail và lưu chứng từ trong Kho đồ",
+        ],
+      },
+      {
+        heading: "Có quà",
+        bullets: [
+          "Cấp INV-",
+          "Quà được ghi nhận trong Kho đồ nếu là quà số",
+        ],
+      },
+      {
+        heading: "Ngoại lệ",
+        bullets: [
+          "Campaign hết hạn",
+          "Reward hết suất",
+          "Email không hợp lệ",
+          "Reward nhưng chưa đăng nhập → từ chối",
+          "Gửi paymentMethodId không hợp lệ → API trả lỗi",
+        ],
+      },
+      {
+        heading: "Quy tắc cốt lõi",
+        bullets: [
+          "PENDING chưa được tính vào số tiền huy động.",
+          "Chỉ SUCCESS mới tạo quyền lợi cho người dùng.",
+        ],
+      },
+    ],
+  },
+  {
+    kicker: "Slide 44",
+    title: "ĐẶC TẢ USE CASE UC-01: TẠO PLEDGE",
+    blocks: [
+      {
+        heading: "Mục tiêu",
+        bullets: [
+          "Cho phép Guest ủng hộ không quà hoặc Backer đặt Reward trong một chiến dịch đang hoạt động.",
+        ],
+      },
+      { heading: "Actor" },
+      {
+        heading: "Actor chính",
+        bullets: [
+          "Guest: ủng hộ không quà",
+          "Backer: đặt Reward",
+        ],
+      },
+      {
+        heading: "Actor phụ",
+        bullets: ["System", "Admin đối soát tài khoản trung gian"],
+      },
+      {
+        heading: "Tiền điều kiện",
+        bullets: [
+          "Campaign ở trạng thái ACTIVE",
+          "Campaign còn thời hạn",
+          "Reward còn số lượng",
+          "Donation không quà: chỉ cần Gmail hợp lệ",
+          "Reward: bắt buộc đăng nhập",
+        ],
+      },
+      {
+        heading: "Luồng chính",
+        bullets: [
+          "Chọn hình thức → Nhập Gmail / Đăng nhập → Tạo Pledge PENDING → Thanh toán → Đối soát → SUCCESS",
+        ],
+      },
+      {
+        heading: "Hậu điều kiện",
+        bullets: [
+          "Donation → cấp TT-UH",
+          "Reward → cấp INV- và quà tương ứng",
+          "Giao dịch thành công mới được ghi nhận vào số tiền huy động",
+        ],
+      },
+      {
+        heading: "Ngoại lệ",
+        bullets: [
+          "Campaign hết hạn",
+          "Reward hết suất",
+          "Email không hợp lệ",
+          "Reward nhưng chưa đăng nhập",
+          "Phương thức thanh toán không hợp lệ",
+        ],
+      },
+      {
+        heading: "Quy tắc",
+        bullets: [
+          "PENDING chưa tạo quyền lợi. SUCCESS mới kích hoạt chứng từ, quà và ghi nhận giao dịch.",
+        ],
+      },
+    ],
+  },
+  {
+    kicker: "Slide 45",
+    title: "ĐẶC TẢ USE CASE UC-02: TẠO VÀ DUYỆT CAMPAIGN",
+    blocks: [
+      { heading: "Actor" },
+      {
+        heading: "Actor chính: Creator",
+        bullets: ["Actor phụ: Admin"],
+      },
+      {
+        heading: "Tiền điều kiện",
+        bullets: [
+          "Hồ sơ Creator đã VERIFIED",
+          "Cá nhân có thông tin CCCD hợp lệ",
+          "Tổ chức có MST/GPKD đã được duyệt",
+        ],
+      },
+      {
+        heading: "Luồng chính",
+        bullets: [
+          "Tạo DRAFT → Hoàn thiện nội dung → Gửi PENDING_REVIEW → Admin kiểm duyệt → ACTIVE",
+        ],
+      },
+      {
+        heading: "Hậu điều kiện",
+        bullets: [
+          "ACTIVE: campaign được phép nhận pledge",
+          "REJECTED: campaign không được công khai và phải có lý do từ chối",
+        ],
+      },
+      {
+        heading: "Kiểm tra chính",
+        bullets: [
+          "Đủ thông tin và hình ảnh bắt buộc",
+          "Goal phải lớn hơn 0",
+          "Creator phải hoàn tất KYC/KYB",
+          "Không cho phép tự hạ mục tiêu sau khi campaign đã ACTIVE",
+        ],
+      },
+      {
+        heading: "Nguyên tắc",
+        bullets: [
+          "Campaign chỉ được công khai và nhận giao dịch sau khi hoàn tất xác minh và kiểm duyệt.",
+        ],
+      },
+    ],
+  },
+  {
+    kicker: "Slide 46",
+    title: "ĐẶC TẢ USE CASE UC-03: SETTLE, CHI VÀ HOÀN",
+    blocks: [
+      { heading: "Actor" },
+      {
+        heading: "Actor chính",
+        bullets: [
+          "Admin: thực hiện Settle",
+          "System: xử lý chi hoặc hoàn",
+        ],
+      },
+      {
+        heading: "Actor phụ",
+        bullets: [
+          "Creator: xác nhận giao hàng",
+          "Backer: nhận chứng từ",
+        ],
+      },
+      {
+        heading: "Tiền điều kiện",
+        bullets: [
+          "Pledge đang ở trạng thái PENDING",
+          "Phương thức thanh toán là BANK_ESCROW",
+          "Khoản tiền đã được đối soát vào tài khoản trung gian",
+        ],
+      },
+      {
+        heading: "Luồng Settle",
+        bullets: ["PENDING → Đối soát → SUCCESS → Cấp chứng từ / Quà"],
+      },
+      {
+        heading: "Luồng chi",
+        bullets: [
+          "Khi:",
+          "Campaign đã chốt",
+          "Đơn đã được giao hoặc xác nhận hoàn thành",
+          "Đơn vẫn trong thời hạn cam kết",
+          "→ Hệ thống thực hiện chi cho Creator",
+          "→ Phần Reward áp dụng feeRate 8%",
+        ],
+      },
+      {
+        heading: "Luồng hoàn",
+        bullets: [
+          "Khi:",
+          "Đơn vượt quá SLA",
+          "Hoặc campaign thất bại theo mô hình All-or-Nothing",
+          "→ Hoàn đúng đơn",
+          "→ Thu hồi quà đã cấp",
+          "→ Giữ nguyên lịch sử giao dịch và sao kê",
+        ],
+      },
+      {
+        heading: "Nguyên tắc",
+        bullets: [
+          "Tiền được xử lý theo từng đơn, vì vậy một đơn chậm không làm ảnh hưởng đến các đơn đã hoàn thành.",
+        ],
+      },
+    ],
+  },
+  {
+    kicker: "Slide 47",
+    title: "ACTIVITY: TỪ THANH TOÁN ĐẾN CHỨNG TỪ",
+    blocks: [
+      {
+        heading: "1. Tạo Pledge",
+        bullets: [
+          "PENDING",
+          "Chưa cộng currentAmount",
+          "Chưa cấp TT-UH",
+          "Chưa cấp INV-",
+          "Chưa cấp quà",
+        ],
+      },
+      {
+        heading: "2. Thanh toán",
+        bullets: [
+          "Hỗ trợ các kênh:",
+          "Ví điện tử",
+          "Thẻ quốc tế",
+          "NAPAS",
+          "VietQR",
+          "Sau đó mở trang thanh toán qua tài khoản trung gian.",
+        ],
+      },
+      {
+        heading: "3. Đối soát",
+        bullets: [
+          "settlePledgeAsPaid",
+          "Chuyển Pledge sang SUCCESS",
+          "Ghi nhận tiền đúng một lần",
+        ],
+      },
+      {
+        heading: "4. Cấp quyền lợi",
+        bullets: [
+          "Donation",
+          "TT-UH qua Gmail",
+          "Người dùng đăng nhập được lưu thêm trong Kho đồ",
+          "Reward",
+          "INV-",
+          "Quà số được cấp vào Kho đồ",
+          "Quà vật lý tiếp tục qua quy trình giao hàng",
+        ],
+      },
+      {
+        heading: "5. Chi hoặc hoàn",
+        bullets: [
+          "Đủ điều kiện → Chi cho Creator",
+          "Trễ SLA → Hoàn đúng đơn",
+          "Hoàn → Thu hồi quà đã cấp",
+        ],
+      },
+      {
+        heading: "Nguyên tắc xuyên suốt",
+        bullets: ["PENDING → Đối soát → SUCCESS → Cấp quyền lợi → Chi / Hoàn"],
+      },
+    ],
+  },
+  {
+    kicker: "Slide 48",
+    title: "ERD: VÒNG GÂY QUỸ LAI",
+    blocks: [
+      {
+        heading: "1. Người dùng và xác minh",
+        bullets: [
+          "users",
+          "→ kyc_info",
+          "Quan hệ 1–1",
+          "Người dùng có thể mang các role:",
+          "ADMIN",
+          "BACKER",
+          "CREATOR_PENDING",
+          "CREATOR",
+          "Ngoài ra lưu:",
+          "isOrganization",
+          "isAdmin",
+        ],
+      },
+      {
+        heading: "2. Cấu trúc gây quỹ",
+        bullets: [
+          "users",
+          "→ projects",
+          "→ campaigns",
+          "→ rewards",
+          "Campaign hỗ trợ:",
+          "DONATION",
+          "REWARD",
+          "All-or-Nothing (AoN)",
+          "Keep-It-All (KIA)",
+        ],
+      },
+      {
+        heading: "3. Dòng tiền",
+        bullets: [
+          "campaigns",
+          "→ pledges",
+          "Một pledge có thể liên kết với:",
+          "Donation Certificate (TT-UH)",
+          "Invoice (INV-)",
+          "Digital Reward Asset",
+        ],
+      },
+      {
+        heading: "4. Kiểm soát hệ thống",
+        bullets: [
+          "Các thành phần hỗ trợ:",
+          "Campaign Reports",
+          "Audit Logs",
+          "Blacklist",
+          "Blog và trạng thái kiểm duyệt",
+        ],
+      },
+      {
+        heading: "Ý nghĩa ERD",
+        bullets: [
+          "Mô hình dữ liệu liên kết xuyên suốt từ tài khoản → campaign → giao dịch → chứng từ → quà → kiểm soát.",
+        ],
+      },
+    ],
+  },
+  {
+    kicker: "Slide 49",
+    title: "QUAN HỆ DỮ LIỆU & PRISMA",
+    body: "Các quan hệ chính",
     table: {
-      headers: ["Mục", "Nội dung"],
+      headers: ["Quan hệ", "Ý nghĩa"],
       rows: [
-        ["Actor chính", "Guest khi không quà. Backer khi có quà."],
-        ["Actor phụ", "System, Admin đối soát STK trung gian"],
-        ["Tiền điều kiện", "Không quà: Gmail hợp lệ, không bắt đăng nhập. Có quà: phải có session. Campaign ACTIVE. Còn hạn. Còn suất."],
-        ["Hậu điều kiện", "SUCCESS cộng tiền. Khách không quà: TT-UH gửi Gmail. Đã login không quà: Gmail và Kho đồ. Có quà: INV- và Kho đồ."],
-        ["Luồng chính", "Chọn không quà hoặc gói → nhập Gmail hoặc đăng nhập → PENDING BANK_ESCROW → chuyển khoản → settle SUCCESS."],
-        ["Ngoại lệ", "Hết hạn. Hết suất. Thiếu email. Có quà mà chưa login thì 401. paymentMethodId bị 400."],
+        ["Users → Campaigns", "Một Creator có thể tạo nhiều campaign"],
+        ["Users → Pledges", "Một Backer có thể có nhiều pledge"],
+        ["Campaigns → Pledges", "Một campaign nhận nhiều giao dịch"],
+        ["Pledge → TT-UH", "Donation thành công có một chứng từ"],
+        ["Pledge → INV-", "Reward có một biên lai/hoá đơn hệ thống"],
+        ["Pledge → Digital Asset", "Một giao dịch có thể cấp nhiều tài sản số"],
+        ["Users → KYC", "Mỗi tài khoản có một hồ sơ xác minh"],
       ],
     },
+    blocks: [
+      { heading: "Một số trường dữ liệu trọng tâm" },
+      {
+        heading: "users",
+        bullets: ["role", "isOrganization", "isAdmin"],
+      },
+      {
+        heading: "kyc_info",
+        bullets: [
+          "Hình ảnh xác minh",
+          "Thời điểm đồng ý",
+          "Thông tin eKYC",
+          "Lý do từ chối",
+        ],
+      },
+      {
+        heading: "campaigns",
+        bullets: ["feeRate", "fundingModel", "status"],
+      },
+      {
+        heading: "Trạng thái Campaign",
+        bullets: ["DRAFT → PENDING_REVIEW → ACTIVE → SUCCESS / FAILED / CANCELED"],
+      },
+      {
+        heading: "Nguyên tắc thiết kế",
+        bullets: [
+          "Không tạo một bảng Kho đồ riêng; quà số được quản lý thông qua reward_digital_assets.",
+        ],
+      },
+    ],
   },
   {
-    kicker: "Đặc tả",
-    title: "Đặc tả UC-02 Tạo và duyệt campaign",
+    kicker: "Slide 50",
+    title: "MODULE CHỨC NĂNG THEO CODEBASE",
+    blocks: [
+      {
+        heading: "Xác minh",
+        bullets: [
+          "src/lib/kyc.ts",
+          "→ Nộp và duyệt KYC",
+          "src/lib/ekyc/cccd-qr.ts",
+          "→ Xử lý thông tin từ QR CCCD",
+          "src/lib/platform-settings.ts",
+          "→ Quản lý trạng thái eKYC",
+        ],
+      },
+      {
+        heading: "Quà và giao hàng",
+        bullets: [
+          "src/lib/digital-warehouse.ts",
+          "→ Cấp và thu hồi quà số",
+          "src/lib/ship-sla.ts",
+          "→ Tính thời hạn giao hàng",
+        ],
+      },
+      {
+        heading: "Dòng tiền",
+        bullets: [
+          "src/lib/money-buckets.ts",
+          "→ Quản lý giữ tiền, chi và hoàn",
+          "src/lib/payment/create-pledge.ts",
+          "→ Tạo pledge và kiểm tra điều kiện thanh toán",
+        ],
+      },
+      {
+        heading: "Hiệu năng",
+        bullets: [
+          "src/lib/redis.ts",
+          "→ Cache Campaign và thống kê trong 300 giây",
+        ],
+      },
+      {
+        heading: "Nguyên tắc",
+        bullets: [
+          "Mỗi nghiệp vụ chính được tách thành module riêng, giúp dễ kiểm thử, bảo trì và mở rộng hệ thống.",
+        ],
+      },
+    ],
+  },
+  {
+    kicker: "Slide 51",
+    title: "MÔ HÌNH THU PHÍ",
+    blocks: [
+      {
+        heading: "Nguyên tắc",
+        bullets: ["Phí nền tảng không cộng thêm vào giá mà Backer phải trả."],
+      },
+      {
+        heading: "Reward",
+        bullets: [
+          "Backer trả",
+          "Giá gói Reward",
+          "Tip nếu người dùng tự chọn",
+          "Sàn giữ",
+          "8% trên phần Reward",
+          "Creator nhận",
+          "Phần còn lại sau phí",
+          "Thời điểm",
+          "Sau khi campaign chốt và đơn đủ điều kiện chi",
+        ],
+      },
+      {
+        heading: "Donation",
+        bullets: [
+          "Backer trả",
+          "Khoản ủng hộ",
+          "Tip nếu tự chọn",
+          "Sàn giữ",
+          "0% trên khoản Donation",
+          "Creator / dự án nhận",
+          "Khoản ủng hộ sau khi giao dịch được settle",
+          "Chứng từ",
+          "TT-UH chỉ được cấp sau SUCCESS",
+        ],
+      },
+      {
+        heading: "Hàng sẵn / COD",
+        bullets: [
+          "Không áp dụng Tip",
+          "Không đi qua luồng Tip",
+          "COD chỉ xuất hiện khi Reward cho phép",
+        ],
+      },
+      {
+        heading: "Quy tắc",
+        bullets: [
+          "Không gộp phí cổng thanh toán vào phí nền tảng và không cộng phí nền tảng trực tiếp vào giá Reward.",
+        ],
+      },
+    ],
+  },
+  {
+    kicker: "Slide 52",
+    title: "GIỮ CHÂN CREATOR & PHẠM VI SẢN PHẨM",
+    blocks: [
+      {
+        heading: "Các tính năng đã có",
+        bullets: [
+          "Cập nhật Campaign",
+          "Blog và quy trình kiểm duyệt",
+          "Chat với cộng đồng",
+          "Hồ sơ công khai",
+          "Thông báo",
+          "Kho đồ sau thanh toán",
+        ],
+      },
+      {
+        heading: "Những mô hình chưa triển khai",
+        bullets: [
+          "Gói quay phim / sản xuất nội dung",
+          "Gói Marketing trọn gói",
+          "Subscription theo tháng",
+          "Gọi vốn cổ phần",
+        ],
+      },
+      {
+        heading: "Chưa làm trong P0",
+        bullets: [
+          "Xuất sao kê Excel",
+          "Nhân bản Campaign",
+          "Tài khoản nhân viên",
+          "Điểm uy tín tự động",
+          "Banner hệ thống",
+          "Admin phụ",
+        ],
+      },
+      {
+        heading: "Định hướng doanh thu dịch vụ",
+        bullets: [
+          "Các dịch vụ trả phí cho Creator chỉ được xem xét sau khi:",
+          "Take rate Reward 8% + đối soát tài khoản trung gian vận hành ổn định.",
+        ],
+      },
+      {
+        heading: "Trạng thái hiện tại",
+        bullets: ["Các dịch vụ bổ sung chưa được ghi nhận là doanh thu hiện tại."],
+      },
+    ],
+  },
+  {
+    kicker: "Slide 53",
+    title: "PCA, TEST PLAN & TEST RESULT",
+    paragraphs: [
+      { text: "Baseline" },
+      { text: "PRD: 07/09/2026" },
+      { text: "Test Lead: Nguyễn Quách Phú Tài" },
+      { text: "Phạm vi kiểm thử chính" },
+    ],
     table: {
-      headers: ["Mục", "Nội dung"],
+      headers: ["Mã", "Tình huống", "Kết quả kỳ vọng"],
       rows: [
-        ["Actor chính", "Creator"],
-        ["Actor phụ", "Admin"],
-        ["Tiền điều kiện", "kyc_info VERIFIED. Cá nhân có CCCD. Tổ chức có MST/GPKD đã duyệt."],
-        ["Hậu điều kiện", "ACTIVE thì nhận pledge. REJECTED thì có lý do và không public."],
-        ["Luồng chính", "DRAFT → sửa nếu cần → submit PENDING_REVIEW → Admin approve ACTIVE."],
-        ["Ngoại lệ", "Thiếu ảnh. Goal không lớn hơn 0. Chưa KYC. Lý do từ chối để trống. ACTIVE rồi creator không tự hạ goal."],
+        ["TR-01", "Donation Guest / Backer", "Gmail, không COD"],
+        ["TR-02", "Đặt Reward khi chưa đăng nhập", "API từ chối, không tạo pledge"],
+        ["TR-03", "Settle Donation", "TT-UH được gửi đúng kênh"],
+        ["TR-04", "Hoàn Reward", "Thu hồi quà, giữ lịch sử sao kê"],
+        ["TR-05", "Tắt eKYC", "Chuyển sang form thủ công"],
+        ["TR-06", "Creator chưa KYC", "Campaign không ACTIVE"],
+        ["TR-07", "Reject không có lý do", "Không chuyển sang REJECTED"],
+        ["TR-08", "Redis gặp lỗi", "Hệ thống vẫn đọc DB"],
+        ["TR-09", "Gửi paymentMethodId", "API từ chối"],
+        ["TR-10", "Settle lần hai", "Không cấp quà trùng"],
       ],
     },
-  },
-  {
-    kicker: "Đặc tả",
-    title: "Đặc tả UC-03 Settle, chi và hoàn",
-    table: {
-      headers: ["Mục", "Nội dung"],
-      rows: [
-        ["Actor chính", "Admin settle. System chi hoặc hoàn."],
-        ["Actor phụ", "Creator xác nhận giao. Backer nhận chứng từ."],
-        ["Tiền điều kiện", "Pledge PENDING, method BANK_ESCROW, tiền đã vào STK trung gian theo đối soát admin."],
-        ["Hậu điều kiện", "SUCCESS cộng currentAmount một lần. Donation ra TT-UH. Reward ra INV- và có thể grant Kho đồ."],
-        ["Luồng chi", "Đơn đã nhận đủ, chiến dịch đã chốt, trong SLA thì chi creator, trừ 8% trên phần Reward."],
-        ["Luồng hoàn", "Trễ SLA hoặc hụt goal kiểu AoN thì hoàn đúng đơn, revoke asset, giữ dòng sao kê cũ."],
-      ],
-    },
-  },
-  {
-    kicker: "Activity",
-    title: "Activity — thanh toán đến chứng từ",
-    figures: [
-      { key: "activity-checkout.png", alt: "Activity checkout đến chứng từ", caption: "PENDING không ra giấy. SUCCESS mới cộng tiền và cấp chứng từ." },
-    ],
-    steps: [
-      { n: "01", t: "PENDING", d: "Không quà có thể chỉ Gmail. Có quà: đã đăng nhập. Chưa cộng currentAmount." },
-      { n: "02", t: "Màn hình", d: "Ví, thẻ, NAPAS hoặc VietQR. API không nhận thẻ đã lưu. Mở trang chuyển khoản." },
-      { n: "03", t: "Đối soát", d: "settlePledgeAsPaid cộng tiền một lần. Chưa đối soát thì không grant." },
-      { n: "04", t: "Chứng từ", d: "Khách: TT-UH gửi Gmail. Đã login: Gmail và Kho đồ. Quà số: biên lai và Kho đồ." },
-      { n: "05", t: "Reward", d: "Giao trong hạn, nhận đủ, chiến dịch chốt, chi trừ 8%." },
-      { n: "06", t: "Hoàn", d: "Trễ SLA hoặc hụt goal kiểu AoN thì hoàn và revoke." },
+    blocks: [
+      {
+        heading: "Nguyên tắc kiểm thử",
+        bullets: [
+          "Ghi nhận ngày test",
+          "Ghi nhận commit / phiên bản",
+          "Ghi nhận môi trường kiểm thử",
+          "Chỉ kết luận PASS sau khi kiểm thử thực tế",
+        ],
+      },
+      {
+        heading: "Phạm vi P0",
+        bullets: ["Không đưa Web3, Chatbot hoặc PayPal vào phạm vi P0."],
+      },
     ],
   },
   {
-    kicker: "ERD",
-    title: "ERD — vòng gây quỹ lai",
-    schema: [
-      { title: "Định danh", items: ["users 1—1 kyc_info", "role ADMIN | BACKER | CREATOR_PENDING | CREATOR", "isOrganization, isAdmin"] },
-      { title: "Gây quỹ", items: ["users 1—n projects 1—n campaigns", "campaigns 1—n rewards", "type REWARD hoặc DONATION", "fundingModel AoN | KIA"] },
-      { title: "Dòng tiền", items: ["campaigns 1—n pledges", "pledges 1—1 certificates (TT-UH)", "pledges 1—1 invoices (INV-)", "pledges 1—n reward_digital_assets"] },
-      { title: "Kiểm duyệt", items: ["campaign_reports", "audit_logs", "blacklist", "blog rejectionReason"] },
-    ],
-  },
-  {
-    kicker: "Schema",
-    title: "Quan hệ và script Prisma",
-    body: "Khóa đúng schema đang chạy. Không thêm bảng Kho đồ riêng — quà nằm reward_digital_assets.",
-    table: {
-      headers: ["Từ", "Đến", "Loại"],
-      rows: [
-        ["users", "campaigns", "1—n creatorId"],
-        ["users", "pledges", "1—n userId. Null chỉ với đơn không quà."],
-        ["campaigns", "pledges", "1—n"],
-        ["pledges", "donation_certificates", "1—1 mã TT-UH"],
-        ["pledges", "backer_invoices", "1—1 mã INV-"],
-        ["users", "kyc_info", "1—1"],
-      ],
-    },
-    tree: [
-      { path: "model users", note: "role UserRole · isOrganization · isAdmin" },
-      { path: "model kyc_info", note: "selfieImage · consentAt · ekycMeta · rejectedReason" },
-      { path: "model campaigns", note: "feeRate mặc định 0.08 · fundingModel · status" },
-      { path: "enum UserRole", note: "ADMIN BACKER CREATOR_PENDING CREATOR" },
-      { path: "enum CampaignStatus", note: "DRAFT PENDING_REVIEW ACTIVE SUCCESS FAILED CANCELED" },
-    ],
-  },
-  {
-    kicker: "Module",
-    title: "Module theo file đang chạy",
-    tree: [
-      { path: "src/lib/kyc.ts", note: "nộp và duyệt KYC" },
-      { path: "src/lib/ekyc/cccd-qr.ts", note: "QR CCCD, chỉ điền form" },
-      { path: "src/lib/platform-settings.ts", note: "ekyc_enabled, không sửa schema.prisma" },
-      { path: "src/lib/digital-warehouse.ts", note: "grant và revoke Kho đồ" },
-      { path: "src/lib/ship-sla.ts", note: "hạn giao + 2 ngày" },
-      { path: "src/lib/money-buckets.ts", note: "giữ, chi, hoàn" },
-      { path: "src/lib/redis.ts", note: "cache 300s, fail-open" },
-      { path: "src/lib/payment/create-pledge.ts", note: "không quà: Gmail. có quà: session. BANK_ESCROW" },
-    ],
-  },
-  {
-    kicker: "Take rate",
-    title: "Cách sàn thu — đang chạy, không cộng vào giá",
-    body: "Take rate là phần sàn giữ khi chi, không phải khoản cộng thêm lúc backer trả.",
-    table: {
-      headers: ["Nhánh", "Backer trả", "Sàn giữ", "Creator nhận", "Lúc nào"],
-      rows: [
-        ["Reward", "Giá gói. Tip nếu có, tách riêng.", "8% trên phần Reward, feeRate 0.08.", "Phần còn lại sau 8%.", "Khi chiến dịch đã chốt và đơn đã nhận đủ."],
-        ["Donation", "Khoản ủng hộ. Tip tự chọn.", "0% trên khoản ủng hộ. Tip là của sàn.", "Đủ khoản ủng hộ sau settle.", "TT-UH chỉ sau settle SUCCESS."],
-        ["Hàng sẵn / COD", "Giá gói. Không tip.", "Không đi đường tip.", "Theo đơn COD nếu gói cho phép.", "Ẩn tip và ẩn radio COD khi không cho phép."],
-      ],
-    },
-    bullets: [
-      "Không gộp phí cổng vào phí sàn. Checkout hiện không trừ ví hay thẻ đã lưu.",
-      "Không lấy mức Campfire ~17%, không lấy 0% của MB cho cả sàn, không bán gói quảng bá như Wadiz.",
-    ],
-  },
-  {
-    kicker: "Dịch vụ creator",
-    title: "Giữ chân creator — cái đã có và cái chưa bán",
-    cards: [
-      { title: "Đã chạy", body: "Cập nhật chiến dịch, blog có hàng đợi duyệt, chat, hồ sơ xuất bản, thông báo, Kho đồ sau thanh toán." },
-      { title: "Không bán", body: "Gói quay phim, gói marketing trọn, subscription tháng, gọi vốn cổ phần. Wadiz và Patreon chỉ là bài học, không phải lộ trình P0." },
-      { title: "Chưa làm P0", body: "Xuất sao kê Excel, nhân bản campaign, tài khoản nhân viên, điểm uy tín tự động, banner hệ thống, admin phụ." },
-    ],
-    note: "Dịch vụ trả phí cho creator chỉ đưa vào sau khi take rate Reward 8% và đối soát STK chạy ổn. Chưa ghi thành doanh thu hiện tại.",
-  },
-  {
-    kicker: "Test",
-    title: "PCA, Test Plan, TR/TC",
-    body: "Baseline PRD 07/09/2026. Test lead: Nguyễn Quách Phú Tài. Không đưa Web3, chatbot, PayPal vào P0.",
-    table: {
-      headers: ["TR", "Việc", "Kỳ vọng"],
-      rows: [
-        ["TR-01", "Donation khách / đã login", "Khách: chỉ Gmail. Đã login: Gmail và Kho đồ. Không COD."],
-        ["TR-02", "Đặt quà chưa login", "API 401. Không tạo pledge."],
-        ["TR-03", "Settle SUCCESS không quà", "Khách: mã TT-UH gửi email. Đã login: email và Kho đồ."],
-        ["TR-04", "Hoàn Reward", "Revoke Kho đồ. Sao kê còn dòng hoàn."],
-        ["TR-05", "Tắt eKYC", "Form tay. API eKYC 403."],
-        ["TR-06", "Chưa KYC", "Campaign không ACTIVE."],
-        ["TR-07", "Reject không lý do", "Không ghi REJECTED."],
-        ["TR-08", "Redis chết", "Trang campaign vẫn đọc DB."],
-        ["TR-09", "paymentMethodId", "API 400. Không trừ thẻ đã lưu."],
-        ["TR-10", "Settle lần hai", "Không grant thêm asset cho cùng pledge."],
-      ],
-    },
-    bullets: [
-      "Biên bản test phải ghi ngày, commit, môi trường. Không ghi 100% pass nếu chưa chạy lại.",
-    ],
-  },
-  {
-    kicker: "Deploy",
-    title: "Database server và web server",
-    cards: [
-      { title: "Neon Postgres", body: "Sổ chính: users, KYC, campaigns, pledges, invoices, certificates, presentation. Biến DATABASE_URL." },
-      { title: "Mongo và Redis", body: "Mongo cho chat. Redis chỉ cache campaigns và stats, TTL 300 giây, fail-open." },
-      { title: "Vercel", body: "Next.js App Router. Demo platform-seven-navy-44.vercel.app. Checkout BANK_ESCROW, trang chuyển khoản STK trung gian." },
-    ],
-    steps: [
-      { n: "01", t: "Build", d: "Push main. prisma generate. Không commit .env." },
-      { n: "02", t: "Migrate", d: "Đồng bộ Neon với schema. Không dùng file schema placeholder." },
-      { n: "03", t: "STK trung gian", d: "Khai tài khoản escrow. Checkout mở trang chuyển khoản, không cổng thanh toán ngoài." },
-      { n: "04", t: "Smoke", d: "Một Guest Gmail không quà, một Reward có login, một reject có lý do." },
-    ],
-  },
-  {
-    kicker: "Chương 5",
-    title: "Đánh giá đủ mục thầy",
-    table: {
-      headers: ["Mục", "Mức"],
-      rows: [
-        ["Khảo sát 6 mục và bài học 9 sàn", "Đủ"],
-        ["Bảng có cột Tử Tế Fund và vì sao", "Đủ"],
-        ["Bức tranh lớn: ai tham gia, đã có, còn thiếu, 8 bước", "Đủ sau khảo sát"],
-        ["Actor người, tổ chức, hệ thống kèm AC", "Đủ"],
-        ["User story Guest, Backer, Creator, Admin, System", "Đủ, mỗi story 3 AC"],
-        ["Thẻ chức năng ngay sau story", "Đủ, có cột đang chạy / chưa làm"],
-        ["User flow 4 lane", "Đủ chữ. Ảnh Guest và Creator đã có. Mã PlantUML không chiếu"],
-        ["Use case, đặc tả UC-01 đến UC-03, activity", "Đủ"],
-        ["ERD, schema, module", "Đủ lõi đang chạy"],
-        ["Take rate và dịch vụ creator", "Đủ: 8% và 0% đang chạy. Gói trả phí chưa bán"],
-        ["Test và deploy", "Khung đủ. Số pass phải chạy lại"],
-      ],
-    },
-    bullets: [
-      "Slide kinh doanh phía trước không bị thay. Phụ lục này thay phụ lục cũ mỗi lần mở thuyết trình.",
+    kicker: "Slide 54",
+    title: "DATABASE SERVER & WEB SERVER",
+    blocks: [
+      {
+        heading: "Database Server",
+        bullets: ["Neon PostgreSQL"],
+      },
+      {
+        heading: "Neon PostgreSQL",
+        bullets: [
+          "Users",
+          "KYC",
+          "Campaigns",
+          "Pledges",
+          "Invoices",
+          "Certificates",
+          "Presentation",
+          "Biến kết nối:",
+          "DATABASE_URL",
+        ],
+      },
+      {
+        heading: "Dịch vụ dữ liệu bổ trợ",
+        bullets: [
+          "MongoDB",
+          "→ Lưu dữ liệu Chat",
+          "Redis",
+          "→ Cache Campaign và Statistics",
+          "→ TTL 300 giây",
+          "→ Redis lỗi vẫn cho phép đọc từ Database",
+        ],
+      },
+      {
+        heading: "Web Server",
+        bullets: ["Vercel"],
+      },
+      {
+        heading: "Vercel",
+        bullets: [
+          "Next.js App Router",
+          "Triển khai ứng dụng Web",
+          "Checkout theo mô hình BANK_ESCROW",
+          "Trang thanh toán qua tài khoản trung gian",
+        ],
+      },
+      {
+        heading: "Quy trình triển khai",
+        bullets: ["Push main → Build → Prisma Generate → Migrate → Smoke Test"],
+      },
+      {
+        heading: "Smoke Test",
+        bullets: [
+          "Guest ủng hộ không quà bằng Gmail",
+          "Backer đặt Reward sau khi đăng nhập",
+          "Campaign bị từ chối với đầy đủ lý do",
+        ],
+      },
+      {
+        heading: "Nguyên tắc bảo mật",
+        bullets: [
+          "Không commit .env",
+          "Schema Database phải đồng bộ với môi trường triển khai",
+          "Không sử dụng schema placeholder",
+        ],
+      },
+      {
+        heading: "Tổng thể",
+        bullets: ["Web App → API / Business Logic → PostgreSQL + MongoDB + Redis → Tài khoản trung gian"],
+      },
     ],
   },
 ];

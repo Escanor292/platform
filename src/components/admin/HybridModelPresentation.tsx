@@ -388,8 +388,8 @@ function SlideView({
 
       {slide.bullets?.length ? (
         <ul className="space-y-4 text-left text-lg text-gray-700">
-          {slide.bullets.map((item) => (
-            <li key={item} className="flex gap-3">
+          {slide.bullets.map((item, bi) => (
+            <li key={bi} className="flex gap-3">
               <CheckCircle2 className="mt-1 shrink-0 text-emerald-600" size={20} />
               {item}
             </li>
@@ -397,8 +397,8 @@ function SlideView({
         </ul>
       ) : null}
 
-      {slide.blocks?.map((block) => (
-        <div key={block.heading || block.body} className="space-y-4 text-left">
+      {slide.blocks?.map((block, blockIndex) => (
+        <div key={`${block.heading || block.body || "block"}-${blockIndex}`} className="space-y-4 text-left">
           {block.heading ? (
             <h3
               className={`text-xl font-black ${block.headingTone === "rose"
@@ -416,8 +416,8 @@ function SlideView({
           ))}
           {block.bullets?.length ? (
             <ul className="space-y-2 text-sm text-gray-600">
-              {block.bullets.map((b) => (
-                <li key={b}>{b}</li>
+              {block.bullets.map((b, bi) => (
+                <li key={`${block.heading || "b"}-${bi}`}>{b}</li>
               ))}
             </ul>
           ) : null}
@@ -480,7 +480,7 @@ function FlowLanes({ lanes }: { lanes: PresentationLane[] }) {
             {tall ? (
               <ol className="mx-auto flex max-w-lg flex-col items-center gap-1">
                 {lane.steps.map((step, i) => (
-                  <li key={step} className="flex w-full flex-col items-center">
+                  <li key={`${lane.title}-${i}`} className="flex w-full flex-col items-center">
                     <span className="w-full rounded-2xl bg-white px-4 py-3 text-center text-sm font-black text-slate-900 shadow-sm">
                       {step}
                     </span>
@@ -493,7 +493,7 @@ function FlowLanes({ lanes }: { lanes: PresentationLane[] }) {
             ) : compact ? (
               <ol className="flex flex-wrap items-center gap-2">
                 {lane.steps.map((step, i) => (
-                  <li key={step} className="flex items-center gap-2">
+                  <li key={`${lane.title}-${i}`} className="flex items-center gap-2">
                     <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-slate-900 shadow-sm">
                       {step}
                     </span>
@@ -506,7 +506,7 @@ function FlowLanes({ lanes }: { lanes: PresentationLane[] }) {
             ) : (
               <ol className="flex flex-col gap-2">
                 {lane.steps.map((step, i) => (
-                  <li key={step} className="flex items-start gap-2">
+                  <li key={`${lane.title}-${i}`} className="flex items-start gap-2">
                     <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-[11px] font-black text-emerald-700 shadow-sm">
                       {i + 1}
                     </span>
