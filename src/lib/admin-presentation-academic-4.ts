@@ -4,7 +4,7 @@ export const ACADEMIC_SLIDES_4: PresentationSlide[] = [
   {
     kicker: "Slide 37",
     title: "THẺ CHỨC NĂNG: USER STORY → MÀN HÌNH",
-    body: "User Story được triển khai thành màn hình nào?",
+    body: "Mỗi story gắn một màn hình hoặc API.",
     table: {
       headers: ["User Story", "Chức năng", "Màn hình / API", "Trạng thái"],
       rows: [
@@ -28,44 +28,36 @@ export const ACADEMIC_SLIDES_4: PresentationSlide[] = [
         ["US-C07", "Nhân bản campaign", "Chưa có chức năng Clone", "Chưa làm P0"],
       ],
     },
-    blocks: [
-      {
-        heading: "Ý nghĩa",
-        bullets: [
-          "Từ yêu cầu người dùng đến chức năng thực tế.",
-          "Mỗi User Story được ánh xạ trực tiếp thành chức năng và màn hình cụ thể, giúp kiểm tra từ yêu cầu đến triển khai.",
-        ],
-      },
-    ],
+    note: "16 dòng đã chạy. 2 dòng chưa làm trong P0: xuất sao kê Excel, nhân bản campaign.",
   },
   {
     kicker: "Slide 38",
     title: "NHÓM MÀN HÌNH ĐANG CHẠY",
-    body: "Toàn bộ hệ thống có những nhóm màn hình nào?",
+    body: "Bốn nhóm màn hình đang chạy.",
     cards: [
       {
         title: "A. Tài khoản",
-        body: "Đăng ký và đăng nhập bằng NextAuth. Xác minh Creator cá nhân tại /kyc. Xác minh tổ chức tại /kyc/to-chuc. Tài khoản bị BANNED không được tạo pledge mới.",
+        body: "Đăng ký, đăng nhập, KYC cá nhân, KYB tổ chức. Tài khoản BANNED không tạo pledge mới.",
       },
       {
         title: "B. Gây quỹ",
-        body: "Tạo Project và Campaign ở trạng thái DRAFT. Tạo các gói Reward. Lựa chọn mô hình All-or-Nothing (AoN) hoặc Keep-It-All (KIA). Gửi campaign sang PENDING_REVIEW. Creator đã VERIFIED có thể đăng cập nhật campaign.",
+        body: "Project và Campaign DRAFT, gói Reward, AoN hoặc KIA, gửi PENDING_REVIEW, cập nhật khi đã VERIFIED.",
       },
       {
         title: "C. Dòng tiền",
-        body: "Thanh toán qua 4 kênh: Ví, Thẻ quốc tế, NAPAS và VietQR. Giao dịch được ghi nhận theo mô hình BANK_ESCROW. Hỗ trợ Tip và COD khi gói cho phép. Thực hiện settle, chi hoặc hoàn theo từng đơn.",
+        body: "Ví, thẻ quốc tế, NAPAS, VietQR. BANK_ESCROW, Tip, COD khi gói cho phép, settle hoặc hoàn theo đơn.",
       },
       {
         title: "D. Kiểm duyệt",
-        body: "Hàng đợi KYC, Campaign và Blog. Bật / tắt eKYC. Tiếp nhận báo cáo vi phạm. Ghi Audit Log đối với các thao tác quản trị.",
+        body: "Hàng đợi KYC, Campaign, Blog. Bật hoặc tắt eKYC. Báo cáo vi phạm. Audit Log.",
       },
     ],
-    note: "Điểm kiểm soát: Checkout không tự trừ tiền từ ví hoặc thẻ đã liên kết. Giao dịch được xử lý qua tài khoản trung gian và chỉ được xác nhận sau đối soát.",
+    note: "Checkout không tự trừ ví hoặc thẻ đã liên kết. Tiền đi qua tài khoản trung gian, chỉ xác nhận sau đối soát.",
   },
   {
     kicker: "Slide 39",
     title: "USER FLOW: 4 LANE",
-    body: "Tổng quan. Slide sau đi vào từng vai, không lặp lại mạch này.",
+    body: "Bốn lane, nhìn toàn cảnh.",
     lanes: [
       {
         title: "Guest / Backer",
@@ -93,7 +85,7 @@ export const ACADEMIC_SLIDES_4: PresentationSlide[] = [
   {
     kicker: "Slide 40",
     title: "SƠ ĐỒ GUEST / BACKER VÀ CREATOR / ADMIN",
-    body: "Chi tiết từng vai. Không lặp mạch tổng quan ở slide trước.",
+    body: "Từng vai, đi sâu hơn slide trước.",
     lanes: [
       {
         title: "Guest",
