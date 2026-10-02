@@ -450,54 +450,98 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
   },
   {
     kicker: "Slide 50",
-    title: "MODULE CHỨC NĂNG THEO CODEBASE",
-    blocks: [
+    title: "DANH SÁCH MODULE",
+    body: "Sáu module nghiệp vụ. Use case cấp 0 ở slide sau bám đúng danh sách này.",
+    table: {
+      headers: ["Mã", "Tên module", "Mục tiêu", "File chính"],
+      rows: [
+        ["M01", "Xác minh", "Chỉ creator đã duyệt mới được công khai chiến dịch", "kyc.ts · platform-settings.ts"],
+        ["M02", "Chiến dịch", "Tạo, gửi duyệt và chuyển campaign sang ACTIVE", "campaign-lifecycle.ts"],
+        ["M03", "Giao dịch", "Tạo pledge đúng điều kiện, chưa cộng tiền khi PENDING", "payment/create-pledge.ts"],
+        ["M04", "Chứng từ và Kho đồ", "SUCCESS mới cấp TT-UH, INV- hoặc quà số", "digital-warehouse.ts · invoice-generator.ts"],
+        ["M05", "Đối soát tiền", "Giữ, chi hoặc hoàn theo từng đơn", "money-buckets.ts · ship-sla.ts"],
+        ["M06", "Kiểm duyệt", "Duyệt nội dung, nhận báo cáo, ghi Audit Log", "moderation.ts · audit.ts"],
+      ],
+    },
+  },
+  {
+    kicker: "Slide 51",
+    title: "M01 · M02 — MỤC TIÊU VÀ CHỨC NĂNG CON",
+    cards: [
       {
-        heading: "Xác minh",
-        bullets: [
-          "src/lib/kyc.ts",
-          "→ Nộp và duyệt KYC",
-          "src/lib/ekyc/cccd-qr.ts",
-          "→ Xử lý thông tin từ QR CCCD",
-          "src/lib/platform-settings.ts",
-          "→ Quản lý trạng thái eKYC",
-        ],
+        title: "M01 Xác minh",
+        body: "Mục tiêu: hồ sơ cá nhân hoặc tổ chức đạt trước khi campaign ACTIVE. Chức năng con: nộp CCCD, đọc QR, eKYC hoặc form thủ công, duyệt hoặc từ chối kèm lý do, bật tắt eKYC.",
       },
       {
-        heading: "Quà và giao hàng",
-        bullets: [
-          "src/lib/digital-warehouse.ts",
-          "→ Cấp và thu hồi quà số",
-          "src/lib/ship-sla.ts",
-          "→ Tính thời hạn giao hàng",
-        ],
-      },
-      {
-        heading: "Dòng tiền",
-        bullets: [
-          "src/lib/money-buckets.ts",
-          "→ Quản lý giữ tiền, chi và hoàn",
-          "src/lib/payment/create-pledge.ts",
-          "→ Tạo pledge và kiểm tra điều kiện thanh toán",
-        ],
-      },
-      {
-        heading: "Hiệu năng",
-        bullets: [
-          "src/lib/redis.ts",
-          "→ Cache Campaign và thống kê trong 300 giây",
-        ],
-      },
-      {
-        heading: "Nguyên tắc",
-        bullets: [
-          "Mỗi nghiệp vụ chính được tách thành module riêng, giúp dễ kiểm thử, bảo trì và mở rộng hệ thống.",
-        ],
+        title: "M02 Chiến dịch",
+        body: "Mục tiêu: một campaign có thể gồm ủng hộ không quà và Reward. Chức năng con: tạo DRAFT, gói Reward, chọn AoN hoặc KIA, gửi PENDING_REVIEW, admin duyệt thành ACTIVE hoặc REJECTED.",
       },
     ],
   },
   {
-    kicker: "Slide 51",
+    kicker: "Slide 52",
+    title: "M03 · M04 — MỤC TIÊU VÀ CHỨC NĂNG CON",
+    cards: [
+      {
+        title: "M03 Giao dịch",
+        body: "Mục tiêu: nhận ủng hộ hoặc đặt Reward khi campaign còn hiệu lực. Chức năng con: kiểm tra ACTIVE, hạn, suất, Gmail hoặc đăng nhập, tạo pledge PENDING, từ chối paymentMethodId.",
+      },
+      {
+        title: "M04 Chứng từ và Kho đồ",
+        body: "Mục tiêu: quyền lợi chỉ phát sinh sau SUCCESS, không cấp trùng. Chức năng con: TT-UH qua Gmail, lưu Kho đồ nếu đã đăng nhập, INV- và quà số, thu hồi quà khi hoàn.",
+      },
+    ],
+  },
+  {
+    kicker: "Slide 53",
+    title: "M05 · M06 — MỤC TIÊU VÀ CHỨC NĂNG CON",
+    cards: [
+      {
+        title: "M05 Đối soát tiền",
+        body: "Mục tiêu: tiền đi theo từng đơn, một đơn trễ không chặn đơn đã xong. Chức năng con: settle một lần, chi khi đủ điều kiện, phí Reward 8%, Donation 0%, hoàn quá SLA.",
+      },
+      {
+        title: "M06 Kiểm duyệt",
+        body: "Mục tiêu: nội dung công khai đã được duyệt và thao tác admin truy được. Chức năng con: hàng đợi KYC, campaign, blog, báo cáo, khóa tài khoản, Audit Log.",
+      },
+    ],
+    note: "Redis chỉ cache 300 giây. Không phải module nghiệp vụ.",
+  },
+  {
+    kicker: "Slide 54",
+    title: "USE CASE CẤP 0",
+    body: "Hệ thống là một khối. Tác nhân đứng ngoài. Mỗi use case lấy từ một module.",
+    table: {
+      headers: ["Mã", "Tên mô hình", "Tác nhân", "Module"],
+      rows: [
+        ["UC-01", "Tạo pledge", "Guest, Backer", "M03"],
+        ["UC-02", "Tạo và duyệt campaign", "Creator, Admin", "M02"],
+        ["UC-03", "Settle, chi và hoàn", "Admin, System", "M05"],
+        ["UC-04", "Xác minh hồ sơ", "Creator, Admin", "M01"],
+        ["UC-05", "Cấp chứng từ và quà", "System", "M04"],
+        ["UC-06", "Kiểm duyệt nội dung", "Admin", "M06"],
+      ],
+    },
+    note: "Tác nhân: Guest, Backer, Creator, Admin, System. Danh sách đầy đủ ở slide 29–31.",
+  },
+  {
+    kicker: "Slide 55",
+    title: "ĐẶC TẢ VÀ ACTIVITY",
+    body: "Ba use case lõi đã đặc tả. Ba use case còn lại bám chức năng con của module.",
+    table: {
+      headers: ["Mã", "Đặc tả", "Activity"],
+      rows: [
+        ["UC-01", "Slide 44", "Slide 47: PENDING → SUCCESS → chứng từ"],
+        ["UC-02", "Slide 45", "DRAFT → PENDING_REVIEW → ACTIVE"],
+        ["UC-03", "Slide 46", "Settle → chi hoặc hoàn theo đơn"],
+        ["UC-04", "M01", "Nộp hồ sơ → duyệt → VERIFIED"],
+        ["UC-05", "M04", "SUCCESS → TT-UH hoặc INV- → Kho đồ"],
+        ["UC-06", "M06", "Hàng đợi → duyệt hoặc từ chối → Audit Log"],
+      ],
+    },
+  },
+  {
+    kicker: "Slide 56",
     title: "MÔ HÌNH THU PHÍ",
     blocks: [
       {
@@ -549,7 +593,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     ],
   },
   {
-    kicker: "Slide 52",
+    kicker: "Slide 57",
     title: "GIỮ CHÂN CREATOR & PHẠM VI SẢN PHẨM",
     blocks: [
       {
@@ -597,7 +641,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     ],
   },
   {
-    kicker: "Slide 53",
+    kicker: "Slide 58",
     title: "PCA, TEST PLAN & TEST RESULT",
     paragraphs: [
       { text: "Baseline" },
@@ -637,7 +681,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     ],
   },
   {
-    kicker: "Slide 54",
+    kicker: "Slide 59",
     title: "DATABASE SERVER & WEB SERVER",
     blocks: [
       {
