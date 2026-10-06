@@ -25,6 +25,8 @@ export default function SupportTiersPanel({
   memberCount,
   isLoggedIn,
   isOwnProfile,
+  canManage,
+  membership,
 }: {
   creatorId: string;
   creatorName: string;
@@ -33,11 +35,14 @@ export default function SupportTiersPanel({
   memberCount: number;
   isLoggedIn: boolean;
   isOwnProfile: boolean;
+  canManage: boolean;
+  membership: { status: string; currentPeriodEnd: string | null; canceling: boolean } | null;
 }) {
   const [anonymous, setAnonymous] = useState(false);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [transfer, setTransfer] = useState<Transfer | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   async function join(tierId: string) {
     setError(null);
@@ -51,11 +56,28 @@ export default function SupportTiersPanel({
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Không tạo được kỳ ủng hộ");
       setTransfer(data);
+      if (data.reused && data.tierTitle) setNotice(`Đang có kỳ chờ đối soát cho mức ${data.tierTitle}. Chuyển khoản đúng nội dung bên dưới.`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Không tạo được kỳ ủng hộ");
     } finally {
       setPendingId(null);
     }
+  }
+
+  async function changeRenewal(resume: boolean) {
+    setError(null);
+    const response = await fetch("/api/memberships", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ creatorId, resume }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      setError(data.error || "Không cập nhật được hội viên");
+      return;
+    }
+    setNotice(data.message);
+    window.location.reload();
   }
 
   if (!tiers.length && !isOwnProfile) return null;
@@ -73,10 +95,20 @@ export default function SupportTiersPanel({
         <div className="text-sm font-bold text-dblue">{memberCount} hội viên đang hoạt động</div>
       </div>
 
-      {isOwnProfile && (
+      {isOwnProfile && canManage && (
         <Link href="/dashboard/creator/hoi-vien" className="mb-5 inline-flex rounded-2xl bg-dblue px-4 py-2 text-sm font-bold text-white">
           Quản lý mức ủng hộ
         </Link>
+      )}
+      {isOwnProfile && !canManage && (
+        <p className="mb-5 text-sm text-gray-600">Chỉ Creator đã duyệt mới mở mức ủng hộ dài lâu.</p>
+      )}
+
+      {!isOwnProfile && isLoggedIn && tiers.length > 0 && (
+        <label className="mt-4 flex items-center gap-2 text-sm text-gray-600">
+          <input type="checkbox" checked={anonymous} onChange={(event) => setAnonymous(event.target.checked)} />
+          Hiện tên là ẩn danh trong danh sách hội viên
+        </label>
       )}
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -99,17 +131,20 @@ export default function SupportTiersPanel({
         ))}
       </div>
 
-      {!isOwnProfile && isLoggedIn && tiers.length > 0 && (
-        <label className="mt-4 flex items-center gap-2 text-sm text-gray-600">
-          <input type="checkbox" checked={anonymous} onChange={(event) => setAnonymous(event.target.checked)} />
-          Hiện tên là ẩn danh trong danh sách hội viên
-        </label>
+      {membership && (
+        <div className="mt-4 rounded-2xl bg-white px-4 py-3 text-sm text-dblue">
+          <p>Kỳ của bạn đến {membership.currentPeriodEnd ? new Date(membership.currentPeriodEnd).toLocaleDateString("vi-VN") : "khi admin đối soát"}{membership.canceling ? ". Đã dừng kỳ sau." : "."}</p>
+          <button type="button" onClick={() => changeRenewal(membership.canceling)} className="mt-2 font-bold text-pgreen">
+            {membership.canceling ? "Giữ tiếp các kỳ sau" : "Dừng kỳ sau"}
+          </button>
+        </div>
       )}
       {!isOwnProfile && !isLoggedIn && tiers.length > 0 && (
         <Link href={`/auth/login?callbackUrl=/profile/${creatorId}`} className="mt-4 inline-flex text-sm font-bold text-pgreen">
           Đăng nhập để ủng hộ {creatorName}
         </Link>
       )}
+      {notice && <p className="mt-3 text-sm font-medium text-dblue">{notice}</p>}
       {error && <p className="mt-3 text-sm font-medium text-red-600">{error}</p>}
 
       {transfer && (
@@ -121,7 +156,7 @@ export default function SupportTiersPanel({
             <div className="flex justify-between gap-3"><dt>Số tài khoản</dt><dd className="font-bold">{transfer.accountNumber}</dd></div>
             <div className="flex justify-between gap-3"><dt>Chủ tài khoản</dt><dd className="font-bold">{transfer.accountHolder}</dd></div>
             <div className="flex justify-between gap-3"><dt>Số tiền</dt><dd className="font-bold">{formatVND(transfer.amount)}</dd></div>
-            <div className="flex justify-between gap-3"><dt>Nội dung</dt><dd className="font-bold">{transfer.transferContent}</dd></div>
+            <div className="flex justify-between gap-3"><dt>Nội dung</dt><dd className="break-all text-right font-bold">{transfer.transferContent}</dd></div>
           </dl>
           <Link href={transfer.confirmationUrl} className="mt-4 inline-flex text-sm font-bold text-pgreen">Xem trang xác nhận</Link>
         </div>

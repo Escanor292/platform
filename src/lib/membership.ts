@@ -61,14 +61,15 @@ export async function createMembershipPledge(params: {
       pledgeKind: "MEMBERSHIP",
       support_tiers: { creatorId: tier.creatorId },
     },
-    select: { id: true, amount: true, transactionId: true, payosOrderCode: true },
+    select: { id: true, amount: true, transactionId: true, support_tiers: { select: { title: true } } },
   });
   if (open) {
     return {
       ok: true as const,
       reused: true,
       creatorName: tier.users.displayName || tier.users.name,
-      ...transferView(open, open.payosOrderCode || buildTransferContent(open.id)),
+      tierTitle: open.support_tiers?.title || tier.title,
+      ...transferView(open, buildTransferContent(open.id)),
     };
   }
 

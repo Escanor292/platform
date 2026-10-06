@@ -170,7 +170,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
     notFound();
   }
 
-  const [supportTiers, activeMembers, memberCount, verifiedCredentials] = await Promise.all([
+  const [supportTiers, activeMembers, memberCount, verifiedCredentials, myMembership] = await Promise.all([
     prisma.support_tiers.findMany({
       where: { creatorId: userId, isActive: true },
       orderBy: [{ sortOrder: "asc" }, { amount: "asc" }],
@@ -193,6 +193,12 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
       orderBy: [{ issuedAt: "desc" }, { createdAt: "desc" }],
       select: { id: true, subjectType: true, kind: true, title: true, issuer: true, issuedAt: true, credentialCode: true, fileUrl: true },
     }),
+    currentUserId && currentUserId !== userId
+      ? prisma.memberships.findUnique({
+          where: { supporterId_creatorId: { supporterId: currentUserId, creatorId: userId } },
+          select: { status: true, currentPeriodEnd: true, canceledAt: true },
+        })
+      : Promise.resolve(null),
   ]);
 
   const profileIsPublic = !isOwnProfile || showAsPublic;
@@ -458,6 +464,12 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
           memberCount={memberCount}
           isLoggedIn={Boolean(currentUserId)}
           isOwnProfile={isOwnProfile && !showAsPublic}
+          canManage={user.role === "CREATOR" || user.role === "ADMIN" || user.isAdmin}
+          membership={myMembership && myMembership.status === "ACTIVE" ? {
+            status: myMembership.status,
+            currentPeriodEnd: myMembership.currentPeriodEnd?.toISOString() || null,
+            canceling: Boolean(myMembership.canceledAt),
+          } : null}
         />
         <CredentialsSection items={verifiedCredentials} isOwnProfile={isOwnProfile && !showAsPublic} />
 
