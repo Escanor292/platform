@@ -7,7 +7,8 @@
   "crons": [
     { "path": "/api/cron/update-campaign-status", "schedule": "0 1 * * *" },
     { "path": "/api/cron/ship-sla", "schedule": "0 2 * * *" },
-    { "path": "/api/cron/cleanup-payments", "schedule": "30 2 * * *" }
+    { "path": "/api/cron/cleanup-payments", "schedule": "30 2 * * *" },
+    { "path": "/api/cron/memberships", "schedule": "0 3 * * *" }
   ],
   "functions": {
     "src/app/api/**/*.ts": {

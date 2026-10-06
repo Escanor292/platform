@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { LucideIcon } from 'lucide-react';
 import {
-  Home, Users, ShieldCheck, Award, DollarSign, FileText, Flag, ShieldAlert, Settings, UserCheck, FolderKanban, Package, KeyRound, LayoutTemplate,
+  Home, Users, ShieldCheck, Award, DollarSign, FileText, Flag, ShieldAlert, Settings, UserCheck, FolderKanban, Package, KeyRound, LayoutTemplate, GraduationCap,
 } from 'lucide-react';
 
 type NavItem = { href: string; label: string; icon: LucideIcon; exact?: boolean };
@@ -15,6 +15,7 @@ const BASE_NAV: NavItem[] = [
   { href: '/dashboard/admin/campaigns', label: 'Chiến dịch', icon: ShieldCheck },
   { href: '/dashboard/admin/blog', label: 'Blog', icon: FileText },
   { href: '/dashboard/admin/kyc', label: 'KYC', icon: UserCheck },
+  { href: '/dashboard/admin/credentials', label: 'Bằng cấp', icon: GraduationCap },
   { href: '/dashboard/admin/projects', label: 'Dự án', icon: FolderKanban },
   { href: '/dashboard/admin/products', label: 'Sản phẩm', icon: Package },
   { href: '/dashboard/admin/badges', label: 'Huy hiệu', icon: Award },

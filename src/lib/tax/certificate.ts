@@ -36,6 +36,7 @@ export async function issueTaxDocumentForPledge(pledgeId: string) {
     include: {
       campaigns: { select: { id: true, title: true, slug: true, creatorId: true, feeRate: true } },
       rewards: { select: { id: true, title: true, isPreorder: true } },
+      support_tiers: { select: { creatorId: true, title: true } },
       users: { select: { id: true, email: true, name: true } },
       donation_certificate: true,
     },
@@ -69,7 +70,7 @@ export async function issueTaxDocumentForPledge(pledgeId: string) {
       code,
       pledgeId: pledge.id,
       campaignId: pledge.campaignId,
-      creatorId: pledge.campaigns?.creatorId || null,
+      creatorId: pledge.campaigns?.creatorId || pledge.support_tiers?.creatorId || null,
       backerUserId: pledge.userId,
       guestEmail,
       displayName,

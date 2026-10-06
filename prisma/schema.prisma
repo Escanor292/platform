@@ -569,16 +569,25 @@ model pledges {
   webhookProcessedAt DateTime?
   receivedAt         DateTime?
   handedToCarrierAt  DateTime?
+  pledgeKind         PledgeKind       @default(ONE_TIME)
+  tierId             String?
+  membershipId       String?
+  periodStart        DateTime?
+  periodEnd          DateTime?
   audit_logs         audit_logs[]
   backer_invoices    backer_invoices?
   donation_certificate donation_certificates?
   campaigns          campaigns?       @relation(fields: [campaignId], references: [id])
   rewards            rewards?         @relation(fields: [rewardId], references: [id])
+  support_tiers      support_tiers?   @relation(fields: [tierId], references: [id], onDelete: SetNull)
+  memberships        memberships?     @relation(fields: [membershipId], references: [id], onDelete: SetNull)
   product_reviews    product_reviews?
   users              users?           @relation(fields: [userId], references: [id])
 
   @@index([campaignId, status])
   @@index([status, createdAt])
+  @@index([tierId])
+  @@index([membershipId])
 }
 
 model payment_methods {
@@ -829,6 +838,71 @@ model users {
   user_metadata                              user_metadata?
   user_notes_authored                        user_notes[]         @relation("user_notes_author")
   user_notes_received                        user_notes[]         @relation("user_notes_target")
+  support_tiers_owned                        support_tiers[]      @relation("tier_creator")
+  memberships_supporting                     memberships[]        @relation("membership_supporter")
+  memberships_receiving                      memberships[]        @relation("membership_creator")
+  credentials                                credentials[]
+}
+
+model support_tiers {
+  id          String        @id
+  creatorId   String
+  title       String
+  description String?
+  amount      Decimal
+  isActive    Boolean       @default(true)
+  sortOrder   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  users       users         @relation("tier_creator", fields: [creatorId], references: [id], onDelete: Cascade)
+  memberships memberships[]
+  pledges     pledges[]
+
+  @@index([creatorId, isActive])
+}
+
+model memberships {
+  id               String           @id
+  supporterId      String
+  creatorId        String
+  tierId           String
+  status           MembershipStatus @default(ACTIVE)
+  currentPeriodEnd DateTime?
+  lastReminderAt   DateTime?
+  canceledAt       DateTime?
+  isAnonymous      Boolean          @default(false)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime
+  supporter        users            @relation("membership_supporter", fields: [supporterId], references: [id], onDelete: Cascade)
+  creator          users            @relation("membership_creator", fields: [creatorId], references: [id], onDelete: Cascade)
+  support_tiers    support_tiers    @relation(fields: [tierId], references: [id])
+  pledges          pledges[]
+
+  @@unique([supporterId, creatorId])
+  @@index([creatorId, status])
+  @@index([status, currentPeriodEnd])
+}
+
+model credentials {
+  id             String             @id
+  userId         String
+  subjectType    CredentialSubject
+  kind           CredentialKind
+  title          String
+  issuer         String
+  issuedAt       DateTime?
+  credentialCode String?
+  fileUrl        String
+  status         CredentialStatus   @default(PENDING)
+  reviewedAt     DateTime?
+  reviewedBy     String?
+  rejectedReason String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime
+  users          users              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([status, createdAt])
 }
 
 model password_reset_tokens {
@@ -853,6 +927,35 @@ model assistant_telemetry_events {
 
   @@index([createdAt])
   @@index([assistant, eventType, createdAt])
+}
+
+enum PledgeKind {
+  ONE_TIME
+  MEMBERSHIP
+}
+
+enum MembershipStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+enum CredentialSubject {
+  INDIVIDUAL
+  ORGANIZATION
+}
+
+enum CredentialKind {
+  DEGREE
+  CERTIFICATE
+  BUSINESS_LICENSE
+  TAX_REGISTRATION
+}
+
+enum CredentialStatus {
+  PENDING
+  VERIFIED
+  REJECTED
 }
 
 enum AuditAction {

@@ -18,6 +18,8 @@ import { getActiveSelfNote } from "@/services/mongodb/chat.service";
 import { userHasPermission } from "@/lib/permissions";
 import { canExposePrivacyField } from "@/lib/profile-settings";
 import { getPublicProfileCustomization, isLayoutSectionVisible, normalizeProfileCustomization, profileAudience, resolveProfileLayout } from "@/lib/profile-customization";
+import SupportTiersPanel from "@/components/profile/SupportTiersPanel";
+import CredentialsSection from "@/components/profile/CredentialsSection";
 
 interface ProfilePageProps {
   params: Promise<{ userId: string }>;
@@ -167,6 +169,31 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
   if (!user) {
     notFound();
   }
+
+  const [supportTiers, activeMembers, memberCount, verifiedCredentials] = await Promise.all([
+    prisma.support_tiers.findMany({
+      where: { creatorId: userId, isActive: true },
+      orderBy: [{ sortOrder: "asc" }, { amount: "asc" }],
+      select: { id: true, title: true, description: true, amount: true },
+    }),
+    prisma.memberships.findMany({
+      where: { creatorId: userId, status: "ACTIVE" },
+      orderBy: { createdAt: "desc" },
+      take: 8,
+      select: {
+        id: true,
+        isAnonymous: true,
+        supporter: { select: { name: true, displayName: true } },
+        support_tiers: { select: { title: true } },
+      },
+    }),
+    prisma.memberships.count({ where: { creatorId: userId, status: "ACTIVE" } }),
+    prisma.credentials.findMany({
+      where: { userId, status: "VERIFIED" },
+      orderBy: [{ issuedAt: "desc" }, { createdAt: "desc" }],
+      select: { id: true, subjectType: true, kind: true, title: true, issuer: true, issuedAt: true, credentialCode: true, fileUrl: true },
+    }),
+  ]);
 
   const profileIsPublic = !isOwnProfile || showAsPublic;
   const storedProfileConfig = normalizeProfileCustomization(
@@ -418,6 +445,21 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
             </div>
           </div>
         </div>
+
+        <SupportTiersPanel
+          creatorId={userId}
+          creatorName={user.displayName || user.name || "người sáng tạo"}
+          tiers={supportTiers.map((tier) => ({ ...tier, amount: Number(tier.amount) }))}
+          members={activeMembers.map((member) => ({
+            id: member.id,
+            name: member.isAnonymous ? "Ẩn danh" : (member.supporter.displayName || member.supporter.name),
+            tierTitle: member.support_tiers.title,
+          }))}
+          memberCount={memberCount}
+          isLoggedIn={Boolean(currentUserId)}
+          isOwnProfile={isOwnProfile && !showAsPublic}
+        />
+        <CredentialsSection items={verifiedCredentials} isOwnProfile={isOwnProfile && !showAsPublic} />
 
         <ProfileTabs
           userId={userId}

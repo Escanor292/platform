@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { createAuditLog } from "@/lib/audit";
 import { recalculateCampaignAmount } from "@/lib/order-fulfillment";
 import { onPledgeSuccess } from "@/lib/tax/on-pledge-success";
+import { activateMembershipFromPledge } from "@/lib/membership";
 
 export async function settlePledgeAsPaid(pledgeId: string, meta?: { transactionId?: string; reason?: string; userId?: string | null }) {
   const pledge = await prisma.pledges.findUnique({
@@ -14,6 +15,7 @@ export async function settlePledgeAsPaid(pledgeId: string, meta?: { transactionI
   }
 
   if (pledge.status === "SUCCESS") {
+    await activateMembershipFromPledge(pledge.id);
     const docs = await onPledgeSuccess(pledge.id);
     return { ok: true as const, docs };
   }
@@ -45,6 +47,7 @@ export async function settlePledgeAsPaid(pledgeId: string, meta?: { transactionI
       select: { status: true },
     });
     if (current?.status === "SUCCESS") {
+      await activateMembershipFromPledge(pledge.id);
       return { ok: true as const, docs: { ok: true as const, skipped: "already-settled" as const } };
     }
     return { ok: false as const, reason: "not-settlable" as const };
@@ -60,6 +63,7 @@ export async function settlePledgeAsPaid(pledgeId: string, meta?: { transactionI
     reason: meta?.reason || "Đối soát tiền vào tài khoản trung gian",
   });
 
+  await activateMembershipFromPledge(pledge.id);
   const docs = await onPledgeSuccess(pledge.id);
   return { ok: true as const, docs };
 }

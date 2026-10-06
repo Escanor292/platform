@@ -154,6 +154,12 @@ export default function CreatorDashboardClient({
                     <Link href="/dashboard/creator/thue" className="h-12 px-8 border border-gray-200 bg-white text-gray-800 font-bold rounded-2xl hover:border-pgreen hover:text-pgreen transition flex items-center justify-center">
                         Sổ thuế / sao kê
                     </Link>
+                    <Link href="/dashboard/creator/hoi-vien" className="h-12 px-8 border border-pgreen/20 bg-cream text-dblue font-bold rounded-2xl hover:border-pgreen hover:text-pgreen transition flex items-center justify-center">
+                        Ủng hộ dài lâu
+                    </Link>
+                    <Link href="/dashboard/bang-cap" className="h-12 px-8 border border-gray-200 bg-white text-gray-800 font-bold rounded-2xl hover:border-pgreen hover:text-pgreen transition flex items-center justify-center">
+                        Bằng cấp / chứng chỉ
+                    </Link>
                     </div>
                 </div>
 
