@@ -10,7 +10,6 @@ import { SiteFrame } from "@/components/layout/SiteFrame";
 import { Ga4Script } from "@/components/seo/Ga4Script";
 import { getGa4MeasurementId } from "@/lib/platform-settings";
 import { refreshDatabaseTarget } from "@/lib/prisma";
-import { refreshDatabaseTarget } from "@/lib/prisma";
 import { DEFAULT_OG_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, getSiteUrl } from "@/lib/seo";
 import { PREFERENCE_BOOTSTRAP_SCRIPT } from "@/lib/preferences";
 
@@ -85,9 +84,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const ga4MeasurementId = await refreshDatabaseTarget();
   await refreshDatabaseTarget();
-  await getGa4MeasurementId();
+  const ga4MeasurementId = await getGa4MeasurementId();
 
   return (
     <html lang="vi" suppressHydrationWarning>
