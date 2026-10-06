@@ -177,7 +177,7 @@ export default function AdminSystemPage() {
               </div>
               <p className="mt-1 text-sm text-gray-500">
                 Đang dùng: {database?.effective === "sqlserver" ? "MS SQL cho SQL thô" : "PostgreSQL (Neon)"}.
-                Tắt nút thì code không đổi. Bật chỉ khi đã gắn SQL Server.
+                Tắt nút là về Postgres, dữ liệu Neon không bị xóa. Bật chỉ khi đã gắn MSSQL_URL.
               </p>
             </div>
             <button
@@ -196,7 +196,7 @@ export default function AdminSystemPage() {
                   const data = await res.json();
                   if (!res.ok) throw new Error(data.error || "Không chuyển được");
                   setDatabase(data);
-                  toast.success(data.effective === "sqlserver" ? "SQL thô đang sang MS SQL" : "Đã về Postgres");
+                  toast.success(data.effective === "sqlserver" ? "Đã chuyển sang MS SQL" : "Đã về Postgres");
                 } catch (error: any) {
                   toast.error(error.message);
                 } finally {

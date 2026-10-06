@@ -1,7 +1,7 @@
 // Schema SQL Server sinh từ prisma/schema.prisma.
 // Không dùng cho Neon. Chạy lại: node scripts/build-sqlserver-schema.mjs
 // Prisma 5.22 trên SQL Server không có scalar list, Json, enum.
-// Mảng thành bảng nối. Json thành NVARCHAR(MAX). Enum thành String. onUpdate là NoAction.
+// Mảng và Json thành NVARCHAR(MAX) cùng tên trường. Enum thành String. onUpdate là NoAction.
 
 generator client {
   provider = "prisma-client-js"
@@ -340,6 +340,7 @@ model campaign_reports {
   userId      String
   reason      String
   description String
+  imageUrls   String @db.NVarChar(Max)             @default("[]")
   occurredAt  DateTime?
   status      String         @default("PENDING")
   resolvedAt  DateTime?
@@ -350,7 +351,6 @@ model campaign_reports {
   campaigns   campaigns?           @relation(fields: [campaignId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users       users                @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  campaign_report_images campaign_report_images[]
   @@unique([targetType, targetId, userId])
   @@index([campaignId])
   @@index([status])
@@ -367,11 +367,12 @@ model campaign_updates {
   imageUrl   String?
   createdAt  DateTime  @default(now())
   isPinned   Boolean   @default(false)
+  tags       String @db.NVarChar(Max)  @default("[]")
   updatedAt  DateTime  @default(now())
   campaigns  campaigns @relation(fields: [campaignId], references: [id], onUpdate: NoAction)
 
-  campaign_update_tags campaign_update_tags[]
   @@index([campaignId, isPinned])
+
 }
 
 
@@ -386,6 +387,7 @@ model campaigns {
   imageUrl            String?
   type                String          @default("REWARD")
   category            String
+  tags                String @db.NVarChar(Max)              @default("[]")
   isFeatured          Boolean               @default(false)
   fundingModel        String          @default("ALL_OR_NOTHING")
   goalAmount          Decimal
@@ -401,6 +403,7 @@ model campaigns {
   feeRate             Float                 @default(0.08)
   createdAt           DateTime              @default(now())
   updatedAt           DateTime
+  images              String @db.NVarChar(Max)              @default("[]")
   blog_posts          blog_posts[]
   campaign_blog_links campaign_blog_links[]
   campaign_followers  campaign_followers[]
@@ -417,10 +420,9 @@ model campaigns {
   campaign_comments   campaign_comments[]
   campaign_contents   campaign_contents[]
 
-  campaign_tags campaign_tags[]
-  campaign_images campaign_images[]
   @@index([category])
   @@index([projectId])
+
   @@index([isFeatured])
   @@index([fundingModel])
   @@index([status, createdAt])
@@ -688,6 +690,7 @@ model rewards {
   minAmount            Decimal
   maxAmount            Decimal?
   stock                Int?
+  productImages        String @db.NVarChar(Max)               @default("[]")
   productVideo         String?
   updatedAt            DateTime
   availability         String   @default("AVAILABLE")
@@ -700,7 +703,6 @@ model rewards {
   blog_posts           blog_posts[]
   project_reward_links project_reward_links[]
 
-  reward_images reward_images[]
   @@index([campaignId])
   @@index([projectId])
 }
@@ -736,13 +738,13 @@ model product_reviews {
   userId    String
   rating    Int
   comment   String
+  mediaUrls String @db.NVarChar(Max) @default("[]")
   createdAt DateTime @default(now())
   updatedAt DateTime
   rewards   rewards  @relation(fields: [rewardId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   pledges   pledges  @relation(fields: [pledgeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users     users    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  review_media review_media[]
   @@index([rewardId, createdAt])
   @@index([userId])
 }
@@ -1162,11 +1164,11 @@ model user_metadata {
   preferences String @db.NVarChar(Max)    @default("{}")
   onboarding  String @db.NVarChar(Max)    @default("{}")
   stats       String @db.NVarChar(Max)    @default("{}")
+  tags        String @db.NVarChar(Max) @default("[]")
   customData  String? @db.NVarChar(Max)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   users       users    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  user_metadata_tags user_metadata_tags[]
 }
 
 
@@ -1250,21 +1252,21 @@ model conversations {
   id              String         @id @default(cuid())
   conversationKey String         @unique
   type            String         @default("direct") @db.VarChar(32)
+  participantIds  String @db.NVarChar(Max)
   participants    String @db.NVarChar(Max)           @default("[]")
   campaignData    String? @db.NVarChar(Max)
   lastMessage     String? @db.NVarChar(Max)
   unreadCount     String @db.NVarChar(Max)           @default("{}")
   isActive        Boolean        @default(true)
   isReported      Boolean        @default(false)
+  blockedBy       String @db.NVarChar(Max)       @default("[]")
+  hiddenBy        String @db.NVarChar(Max)       @default("[]")
   typingBy        String @db.NVarChar(Max)           @default("{}")
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   messages        messages[]
   chat_reports    chat_reports[]
 
-  conversation_members conversation_members[]
-  conversation_blocks conversation_blocks[]
-  conversation_hides conversation_hides[]
   @@index([updatedAt(sort: Desc)])
 }
 
@@ -1278,15 +1280,15 @@ model messages {
   text              String
   type              String            @default("text") @db.VarChar(32)
   attachments       String @db.NVarChar(Max)              @default("[]")
+  readBy            String @db.NVarChar(Max)          @default("[]")
   isDeleted         Boolean           @default(false)
   sensitive         Boolean           @default(false)
+  revealedBy        String @db.NVarChar(Max)          @default("[]")
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   conversations     conversations     @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   message_reactions message_reactions[]
 
-  message_reads message_reads[]
-  message_reveals message_reveals[]
   @@index([conversationId, createdAt(sort: Desc)])
   @@index([senderId])
 }
@@ -1296,9 +1298,9 @@ model message_reactions {
   id        String   @id @default(cuid())
   messageId String
   emoji     String   @db.VarChar(16)
+  userIds   String @db.NVarChar(Max) @default("[]")
   messages  messages @relation(fields: [messageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  reaction_users reaction_users[]
   @@unique([messageId, emoji])
   @@index([messageId])
 }
@@ -1311,6 +1313,7 @@ model chat_reports {
   reporterId     String
   reason         String        @db.VarChar(32)
   description    String
+  imageUrls      String @db.NVarChar(Max)      @default("[]")
   occurredAt     DateTime?
   status         String        @default("pending") @db.VarChar(32)
   reviewedAt     DateTime?
@@ -1319,7 +1322,6 @@ model chat_reports {
   updatedAt      DateTime      @updatedAt
   conversations  conversations @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  chat_report_images chat_report_images[]
   @@index([conversationId])
   @@index([reporterId])
   @@index([status])
@@ -1349,142 +1351,3 @@ model so_ledgers {
   updatedAt DateTime @updatedAt
 }
 
-model campaign_report_images {
-  reportId String
-  url String
-  position Int @default(0)
-  campaign_reports campaign_reports @relation(fields: [reportId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@id([reportId, url])
-  @@index([reportId])
-}
-
-model campaign_update_tags {
-  updateId String
-  tag String
-  position Int @default(0)
-  campaign_updates campaign_updates @relation(fields: [updateId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@id([updateId, tag])
-  @@index([updateId])
-}
-
-model campaign_tags {
-  campaignId String
-  tag String
-  position Int @default(0)
-  campaigns campaigns @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@id([campaignId, tag])
-  @@index([campaignId])
-}
-
-model campaign_images {
-  campaignId String
-  url String
-  position Int @default(0)
-  campaigns campaigns @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@id([campaignId, url])
-  @@index([campaignId])
-}
-
-model reward_images {
-  rewardId String
-  url String
-  position Int @default(0)
-  rewards rewards @relation(fields: [rewardId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@id([rewardId, url])
-  @@index([rewardId])
-}
-
-model review_media {
-  reviewId String
-  url String
-  position Int @default(0)
-  product_reviews product_reviews @relation(fields: [reviewId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@id([reviewId, url])
-  @@index([reviewId])
-}
-
-model user_metadata_tags {
-  metadataId String
-  tag String
-  position Int @default(0)
-  user_metadata user_metadata @relation(fields: [metadataId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@id([metadataId, tag])
-  @@index([metadataId])
-}
-
-model conversation_members {
-  conversationId String
-  userId String
-  position Int @default(0)
-  conversations conversations @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@id([conversationId, userId])
-  @@index([conversationId])
-}
-
-model conversation_blocks {
-  conversationId String
-  userId String
-  position Int @default(0)
-  conversations conversations @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@id([conversationId, userId])
-  @@index([conversationId])
-}
-
-model conversation_hides {
-  conversationId String
-  userId String
-  position Int @default(0)
-  conversations conversations @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@id([conversationId, userId])
-  @@index([conversationId])
-}
-
-model message_reads {
-  messageId String
-  userId String
-  position Int @default(0)
-  messages messages @relation(fields: [messageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@id([messageId, userId])
-  @@index([messageId])
-}
-
-model message_reveals {
-  messageId String
-  userId String
-  position Int @default(0)
-  messages messages @relation(fields: [messageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@id([messageId, userId])
-  @@index([messageId])
-}
-
-model reaction_users {
-  reactionId String
-  userId String
-  position Int @default(0)
-  message_reactions message_reactions @relation(fields: [reactionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@id([reactionId, userId])
-  @@index([reactionId])
-}
-
-model chat_report_images {
-  reportId String
-  url String
-  position Int @default(0)
-  chat_reports chat_reports @relation(fields: [reportId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@id([reportId, url])
-  @@index([reportId])
-}

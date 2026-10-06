@@ -6,14 +6,19 @@ export type DatabaseTarget = "postgresql" | "sqlserver";
 export const ACTIVE_DATABASE_KEY = "active_database";
 
 let effective: DatabaseTarget = "postgresql";
+let refreshedAt = 0;
 
 export function getDatabaseTarget(): DatabaseTarget {
   return effective;
 }
 
-export function applyDatabaseTarget(stored: DatabaseTarget): DatabaseTarget {
-  const readiness = inspectDatabaseReadiness(stored);
-  return readiness.effective;
+export function setDatabaseTarget(target: DatabaseTarget) {
+  effective = target;
+  refreshedAt = Date.now();
+}
+
+export function shouldRefreshDatabaseTarget() {
+  return Boolean(process.env.MSSQL_URL?.trim()) && Date.now() - refreshedAt > 5000;
 }
 
 export function mssqlUrlConfigured(): boolean {
@@ -36,25 +41,19 @@ export type DatabaseReadiness = {
 export function inspectDatabaseReadiness(stored: DatabaseTarget = "postgresql"): DatabaseReadiness {
   const mssqlConfigured = mssqlUrlConfigured();
   const mssqlClientReady = mssqlClientGenerated();
-  const unlocked = process.env.DB_SWITCH_UNLOCK === "1";
   const reasons: string[] = [];
   if (!mssqlConfigured) reasons.push("Chưa có MSSQL_URL trên server.");
-  if (!mssqlClientReady) reasons.push("Chưa generate client Prisma cho SQL Server.");
-  if (!unlocked) reasons.push("Chưa bật DB_SWITCH_UNLOCK. Neon vẫn là database đang ghi.");
-  const canSwitch = mssqlConfigured && mssqlClientReady && unlocked;
+  if (!mssqlClientReady) reasons.push("Chưa generate client Prisma cho SQL Server. Deploy lại sau khi gắn URL.");
+  const canSwitch = mssqlConfigured && mssqlClientReady;
   if (!canSwitch) {
-    reasons.push("Nút tắt: câu SQL và client vẫn là Postgres.");
     effective = "postgresql";
+    reasons.push("Nút tắt: web vẫn dùng Postgres, không đổi câu SQL.");
   } else {
-    reasons.push("Bật nút chỉ đổi SQL thô sang SQL Server. Query campaign, user, pledge vẫn Neon.");
     effective = stored === "sqlserver" ? "sqlserver" : "postgresql";
+    refreshedAt = Date.now();
+    reasons.push(effective === "sqlserver"
+      ? "Đang dùng MS SQL. Tắt nút để về Postgres, dữ liệu Neon không bị xóa."
+      : "Đang dùng Postgres. Bật nút sẽ chuyển web sang MS SQL đã gắn.");
   }
-  return {
-    stored,
-    effective,
-    mssqlConfigured,
-    mssqlClientReady,
-    canSwitch,
-    reasons,
-  };
+  return { stored, effective, mssqlConfigured, mssqlClientReady, canSwitch, reasons };
 }

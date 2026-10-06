@@ -9,7 +9,7 @@
     "lint": "eslint",
     "analyze": "ANALYZE=true next build",
     "postinstall": "prisma generate",
-    "vercel-build": "prisma generate && node scripts/prisma-migrate-deploy.mjs && next build",
+    "vercel-build": "prisma generate && MSSQL_URL=${MSSQL_URL:-sqlserver://localhost:1433;database=tute;user=sa;password=placeholder;encrypt=true} prisma generate --schema prisma/schema.sqlserver.prisma && node scripts/prisma-migrate-deploy.mjs && next build",
     "clear:campaigns": "tsx scripts/clear-all-campaigns.ts",
     "clear:campaigns:seed": "tsx scripts/clear-campaigns-for-seed.ts",
     "seed:campaigns": "node seed-campaigns-comprehensive.js",

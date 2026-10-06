@@ -7,28 +7,7 @@ const header = blocks.shift();
 const models = [];
 const junctions = [];
 
-const specs = {
-  campaign_reports: { imageUrls: ["campaign_report_images", "reportId", "url"] },
-  campaign_updates: { tags: ["campaign_update_tags", "updateId", "tag"] },
-  campaigns: {
-    tags: ["campaign_tags", "campaignId", "tag"],
-    images: ["campaign_images", "campaignId", "url"],
-  },
-  rewards: { productImages: ["reward_images", "rewardId", "url"] },
-  product_reviews: { mediaUrls: ["review_media", "reviewId", "url"] },
-  user_metadata: { tags: ["user_metadata_tags", "metadataId", "tag"] },
-  conversations: {
-    participantIds: ["conversation_members", "conversationId", "userId"],
-    blockedBy: ["conversation_blocks", "conversationId", "userId"],
-    hiddenBy: ["conversation_hides", "conversationId", "userId"],
-  },
-  messages: {
-    readBy: ["message_reads", "messageId", "userId"],
-    revealedBy: ["message_reveals", "messageId", "userId"],
-  },
-  message_reactions: { userIds: ["reaction_users", "reactionId", "userId"] },
-  chat_reports: { imageUrls: ["chat_report_images", "reportId", "url"] },
-};
+const specs = {};
 
 for (const block of blocks) {
   const name = block.match(/^model\s+(\w+)/)?.[1];
@@ -71,10 +50,14 @@ let schema = header
 schema = `// Schema SQL Server sinh từ prisma/schema.prisma.
 // Không dùng cho Neon. Chạy lại: node scripts/build-sqlserver-schema.mjs
 // Prisma 5.22 trên SQL Server không có scalar list, Json, enum.
-// Mảng thành bảng nối. Json thành NVARCHAR(MAX). Enum thành String. onUpdate là NoAction.
+// Mảng và Json thành NVARCHAR(MAX) cùng tên trường. Enum thành String. onUpdate là NoAction.
 
 ${schema}${models.join("\n")}\n${junctions.join("\n")}`;
 schema = schema.replace(/@db\.Text\b/g, "@db.NVarChar(Max)");
+schema = schema.replace(/^([ \t]+)([A-Za-z_][A-Za-z0-9_]*)([ \t]+)String\[\](.*)$/gm, (_all, indent, name, space, rest) => {
+  const cleaned = rest.replace(/@db\.[A-Za-z0-9_()]+/g, "").replace("@default([])", "@default(\"[]\")");
+  return `${indent}${name}${space}String @db.NVarChar(Max)${cleaned}`;
+});
 schema = schema.replace(/^([ \t]+)([A-Za-z_][A-Za-z0-9_]*)([ \t]+)Json(\??)(.*)$/gm, (_all, indent, name, space, opt, rest) => {
   const db = rest.includes("@db.") ? "" : " @db.NVarChar(Max)";
   return `${indent}${name}${space}String${opt}${db}${rest}`;
@@ -95,6 +78,7 @@ if (enumNames.length) {
 }
 schema = schema.replace(/@default\(([A-Za-z_][A-Za-z0-9_]*)\)/g, (all, value) => enumValues.has(value) ? `@default("${value}")` : all);
 
+schema = schema.replace(/^\s*@@index\(\[(tags|images|productImages|mediaUrls|participantIds|blockedBy|hiddenBy|readBy|revealedBy|userIds|imageUrls)\]\)\s*$/gm, "");
 if (schema.includes("String[]")) {
   console.error("schema.sqlserver.prisma still has String[]");
   process.exit(1);
