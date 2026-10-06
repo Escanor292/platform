@@ -9,7 +9,7 @@
  *   cfvn:stats:v2                 — platform statistics
  */
 
-import { redisGet, redisSet, redisDel, redisDelByPrefix } from "@/lib/redis";
+import { redisGet, redisSet, redisDel, redisDelByPrefix, redisSetNx } from "@/lib/redis";
 
 /** TTL mặc định: 5 phút */
 const DEFAULT_TTL_SECONDS = 300;
@@ -80,4 +80,41 @@ export const STATS_CACHE_KEY = "cfvn:stats:v2";
  */
 export function buildCampaignsCacheKey(queryString: string): string {
   return CAMPAIGNS_CACHE_PREFIX + (queryString || "default");
+}
+
+/** TTL cộng một ít giây ngẫu nhiên để nhiều key không hết hạn cùng một nhịp. */
+export function withTtlJitter(baseSeconds: number, spreadSeconds = 60): number {
+  const spread = Math.max(0, Math.floor(spreadSeconds));
+  return baseSeconds + Math.floor(Math.random() * (spread + 1));
+}
+
+/**
+ * Một request giữ khóa Redis và nạp cache. Request khác chờ bản vừa nạp,
+ * tránh nhiều cache miss cùng đập database.
+ */
+export async function cacheReadThrough<T>(
+  key: string,
+  ttlSeconds: number,
+  load: () => Promise<T>
+): Promise<T> {
+  const cached = await cacheGet<T>(key);
+  if (cached !== null) return cached;
+
+  const lockKey = key + ":lock";
+  const gotLock = await redisSetNx(lockKey, "1", 15);
+  if (!gotLock) {
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 120));
+      const again = await cacheGet<T>(key);
+      if (again !== null) return again;
+    }
+  }
+
+  try {
+    const fresh = await load();
+    await cacheSet(key, fresh, withTtlJitter(ttlSeconds));
+    return fresh;
+  } finally {
+    if (gotLock) await redisDel(lockKey);
+  }
 }

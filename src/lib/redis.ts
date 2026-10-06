@@ -115,6 +115,39 @@ export async function redisDel(key: string): Promise<void> {
   }
 }
 
+/** SET NX EX. true nếu giữ được khóa. Redis lỗi hoặc chưa cấu hình thì true để request vẫn làm việc. */
+export async function redisSetNx(key: string, value: string, ttlSeconds: number): Promise<boolean> {
+  try {
+    if (!redisClient) return true;
+    const result = await redisClient.set(key, value, "EX", ttlSeconds, "NX");
+    return result === "OK";
+  } catch (err) {
+    console.warn("[Redis] redisSetNx(\"" + key + "\") thất bại:", (err as Error).message);
+    return true;
+  }
+}
+
+/** ok = còn quota, limited = vượt cửa sổ, unavailable = Redis không đếm được. */
+export async function redisRateLimit(
+  key: string,
+  limit: number,
+  windowSeconds: number
+): Promise<"ok" | "limited" | "unavailable"> {
+  try {
+    if (!redisClient) return "unavailable";
+    const count = await redisClient.eval(
+      "local c = redis.call('INCR', KEYS[1]) if c == 1 or redis.call('TTL', KEYS[1]) < 0 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end return c",
+      1,
+      key,
+      String(windowSeconds)
+    );
+    return Number(count) <= limit ? "ok" : "limited";
+  } catch (err) {
+    console.warn("[Redis] redisRateLimit(\"" + key + "\") thất bại:", (err as Error).message);
+    return "unavailable";
+  }
+}
+
 /**
  * Xóa tất cả key theo prefix (SCAN để tránh block Redis).
  * Dùng khi cần invalidate nhóm cache (VD: sau khi write campaigns).

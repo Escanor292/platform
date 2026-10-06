@@ -1,11 +1,17 @@
 import { NextResponse } from "next/server";
+import { unauthorizedCron } from "@/lib/cron-auth";
 import { prisma } from "@/lib/prisma";
 
 /**
  * CRON: Don phien chuyen khoan PENDING qua 48h.
- * Khong dung COD (don cho giao) va khong dung SUCCESS.
+ * Giu 48h vi doi soat ngan hang la thu cong, khong phai checkout the 15 phut.
+ * Khong dung COD va khong dung SUCCESS.
+ * Chi khoa dong khi status van la PENDING, de khong nhả kho cua lenh vua doi soat.
  */
-export async function GET() {
+export async function GET(request: Request) {
+  const denied = unauthorizedCron(request);
+  if (denied) return denied;
+
   try {
     const threshold = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
@@ -15,23 +21,21 @@ export async function GET() {
         createdAt: { lt: threshold },
         paymentProvider: { not: "COD" },
       },
+      select: {
+        id: true,
+        rewardId: true,
+        quantity: true,
+        stockReserved: true,
+      },
+      orderBy: { createdAt: "asc" },
+      take: 200,
     });
 
+    let closed = 0;
     for (const pledge of stalePledges) {
-      await prisma.$transaction(async (tx) => {
-        const current = await tx.pledges.findUnique({
-          where: { id: pledge.id },
-          select: { status: true, stockReserved: true, rewardId: true, quantity: true },
-        });
-        if (!current || current.status !== "PENDING") return;
-        if (current.stockReserved && current.rewardId) {
-          await tx.rewards.update({
-            where: { id: current.rewardId },
-            data: { stock: { increment: current.quantity }, updatedAt: new Date() },
-          });
-        }
-        await tx.pledges.update({
-          where: { id: pledge.id },
+      const didClose = await prisma.$transaction(async (tx) => {
+        const updated = await tx.pledges.updateMany({
+          where: { id: pledge.id, status: "PENDING" },
           data: {
             status: "FAILED",
             stockReserved: false,
@@ -40,12 +44,22 @@ export async function GET() {
             updatedAt: new Date(),
           },
         });
+        if (updated.count !== 1) return false;
+        if (pledge.stockReserved && pledge.rewardId) {
+          await tx.rewards.update({
+            where: { id: pledge.rewardId },
+            data: { stock: { increment: pledge.quantity }, updatedAt: new Date() },
+          });
+        }
+        return true;
       });
+      if (didClose) closed += 1;
     }
 
     return NextResponse.json({
       success: true,
-      message: `Da danh dau that bai cho ${stalePledges.length} giao dich het han.`,
+      closed,
+      message: `Da danh dau that bai cho ${closed} giao dich het han.`,
     });
   } catch (error: any) {
     console.error("Cron Error (cleanup):", error);

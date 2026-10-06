@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { cacheGet, cacheSet, STATS_CACHE_KEY } from "@/lib/redis-cache";
+import { cacheReadThrough, STATS_CACHE_KEY } from "@/lib/redis-cache";
 
 /**
  * GET /api/stats
@@ -8,17 +8,7 @@ import { cacheGet, cacheSet, STATS_CACHE_KEY } from "@/lib/redis-cache";
  */
 export async function GET() {
     try {
-        // Check if we have valid cached data in Redis
-        const cachedStats = await cacheGet(STATS_CACHE_KEY);
-        if (cachedStats) {
-            return NextResponse.json(cachedStats, {
-                headers: {
-                    'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
-                }
-            });
-        }
-
-        // Get total funds raised (sum of successful pledges)
+        const statsData = await cacheReadThrough(STATS_CACHE_KEY, 300, async () => {
         const totalFundsResult = await prisma.pledges.aggregate({
             where: {
                 status: 'SUCCESS'
@@ -28,46 +18,31 @@ export async function GET() {
             }
         });
 
-        // Get successful campaigns count
         const successfulCampaigns = await prisma.campaigns.count({
             where: {
                 status: 'SUCCESS'
             }
         });
 
-        // Get total unique backers (count distinct users who made successful pledges)
-        const totalBackers = await prisma.pledges.findMany({
-            where: {
-                status: 'SUCCESS'
-            },
-            select: {
-                userId: true,
-                email: true
-            },
-            distinct: ['userId', 'email']
-        });
+        const backerRows = await prisma.$queryRaw<Array<{ count: number }>>`
+            SELECT COUNT(*)::int AS count FROM (
+                SELECT COALESCE("userId", "email") AS who
+                FROM pledges
+                WHERE status::text = 'SUCCESS'
+                  AND COALESCE("userId", "email") IS NOT NULL
+                GROUP BY 1
+            ) backers
+        `;
+        const totalBackers = Number(backerRows[0]?.count ?? 0);
 
-        // Count unique backers (by userId or email for anonymous)
-        const uniqueBackersSet = new Set<string>();
-        totalBackers.forEach(pledge => {
-            if (pledge.userId) {
-                uniqueBackersSet.add(pledge.userId);
-            } else if (pledge.email) {
-                uniqueBackersSet.add(pledge.email);
-            }
-        });
-
-        // Get active campaigns count
         const activeCampaigns = await prisma.campaigns.count({
             where: {
                 status: 'ACTIVE'
             }
         });
 
-        // Calculate total funds in VND
         const totalFunds = Number(totalFundsResult._sum.amount || 0);
 
-        // Format total funds (convert to billions if > 1B)
         let totalFundsFormatted = '0';
         if (totalFunds >= 1_000_000_000) {
             totalFundsFormatted = `${(totalFunds / 1_000_000_000).toFixed(1)} tỷ`;
@@ -77,16 +52,14 @@ export async function GET() {
             totalFundsFormatted = totalFunds.toLocaleString('vi-VN');
         }
 
-        const statsData = {
+        return {
             totalFunds: totalFundsFormatted,
             totalFundsRaw: totalFunds,
             successfulCampaigns,
             activeCampaigns,
-            totalBackers: uniqueBackersSet.size
+            totalBackers
         };
-
-        // Update Redis cache with 300s TTL (5 minutes)
-        await cacheSet(STATS_CACHE_KEY, statsData, 300);
+        });
 
         return NextResponse.json(statsData, {
             headers: {

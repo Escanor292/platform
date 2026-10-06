@@ -1,15 +1,10 @@
 import { NextResponse } from "next/server";
+import { unauthorizedCron } from "@/lib/cron-auth";
 import { scanCreatorLinks } from "@/lib/link-checks";
 
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const header = request.headers.get("authorization");
-    const query = new URL(request.url).searchParams.get("secret");
-    if (header !== `Bearer ${secret}` && query !== secret) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-  }
+  const denied = unauthorizedCron(request);
+  if (denied) return denied;
   try {
     const result = await scanCreatorLinks({ limit: 20 });
     return NextResponse.json({ success: true, ...result });

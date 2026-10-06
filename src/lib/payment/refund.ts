@@ -18,8 +18,12 @@ export async function refundPledgeLedger(pledgeId: string, reason: string) {
   if (!pledge || pledge.status !== "SUCCESS" || pledge.refundStatus === "COMPLETED") {
     return false;
   }
-  await prisma.pledges.update({
-    where: { id: pledge.id },
+  const updated = await prisma.pledges.updateMany({
+    where: {
+      id: pledge.id,
+      status: "SUCCESS",
+      refundStatus: { not: "COMPLETED" },
+    },
     data: {
       refundStatus: "COMPLETED",
       refundedAt: now,
@@ -30,6 +34,7 @@ export async function refundPledgeLedger(pledgeId: string, reason: string) {
       updatedAt: now,
     },
   });
+  if (updated.count !== 1) return false;
   await revokeDigitalWarehouseItem(pledge.id);
   if (pledge.campaignId) {
     await prisma.$transaction((tx) => recalculateCampaignAmount(tx, pledge.campaignId!));

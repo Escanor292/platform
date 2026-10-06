@@ -4,6 +4,7 @@ import {
   UGC_TRANSLATE_MAX_CHARS,
   UGC_TRANSLATE_MAX_ITEMS,
 } from "@/lib/ugc-translate";
+import { redisRateLimit } from "@/lib/redis";
 
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS_PER_WINDOW = 30;
@@ -13,7 +14,7 @@ function clientKey(request: NextRequest) {
   return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "anonymous";
 }
 
-function allowed(request: NextRequest) {
+function localAllowed(request: NextRequest) {
   const now = Date.now();
   const key = clientKey(request);
   const recent = (requestLog.get(key) || []).filter((time) => now - time < WINDOW_MS);
@@ -23,8 +24,15 @@ function allowed(request: NextRequest) {
   return true;
 }
 
+async function allowed(request: NextRequest) {
+  const remote = await redisRateLimit(`cfvn:rl:translate:${clientKey(request)}`, MAX_REQUESTS_PER_WINDOW, 60);
+  if (remote === "limited") return false;
+  if (remote === "ok") return true;
+  return localAllowed(request);
+}
+
 export async function POST(request: NextRequest) {
-  if (!allowed(request)) {
+  if (!(await allowed(request))) {
     return NextResponse.json({ error: "rate-limited" }, { status: 429 });
   }
 

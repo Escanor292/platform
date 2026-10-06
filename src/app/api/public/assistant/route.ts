@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { COMMAND_REFUSAL, isCommandLikeRequest } from "@/lib/assistant-safety";
 import { arePlatformAssistantWidgetsEnabled } from "@/lib/platform-ai-status";
+import { redisRateLimit } from "@/lib/redis";
 
 const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 const MAX_QUESTION_CHARS = 1_200;
@@ -15,7 +16,7 @@ function clientKey(request: NextRequest) {
   return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "anonymous";
 }
 
-function allowed(request: NextRequest) {
+function localAllowed(request: NextRequest) {
   const now = Date.now();
   const key = clientKey(request);
   const recent = (requestLog.get(key) || []).filter(time => now - time < WINDOW_MS);
@@ -28,6 +29,13 @@ function allowed(request: NextRequest) {
     }
   }
   return true;
+}
+
+async function allowed(request: NextRequest) {
+  const remote = await redisRateLimit(`cfvn:rl:assistant:${clientKey(request)}`, MAX_REQUESTS_PER_WINDOW, 60);
+  if (remote === "limited") return false;
+  if (remote === "ok") return true;
+  return localAllowed(request);
 }
 
 function sanitize(value: unknown, depth = 0): unknown {
@@ -98,7 +106,7 @@ export async function POST(request: NextRequest) {
   if (!(await arePlatformAssistantWidgetsEnabled())) {
     return NextResponse.json({ error: "Trợ lý AI đang tắt." }, { status: 403, headers: { "Cache-Control": "no-store" } });
   }
-  if (!allowed(request)) {
+  if (!(await allowed(request))) {
     return NextResponse.json({ error: "Bạn gửi hơi nhanh, hãy thử lại sau một phút nhé." }, { status: 429, headers: { "Cache-Control": "no-store" } });
   }
 

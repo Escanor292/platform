@@ -402,6 +402,7 @@ model campaigns {
   @@index([tags])
   @@index([isFeatured])
   @@index([fundingModel])
+  @@index([status, createdAt])
 }
 
 model daily_tip_invoices {
@@ -575,6 +576,9 @@ model pledges {
   rewards            rewards?         @relation(fields: [rewardId], references: [id])
   product_reviews    product_reviews?
   users              users?           @relation(fields: [userId], references: [id])
+
+  @@index([campaignId, status])
+  @@index([status, createdAt])
 }
 
 model payment_methods {

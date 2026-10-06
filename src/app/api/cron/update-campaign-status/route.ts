@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { closeExpiredCampaigns } from "@/lib/campaign-lifecycle";
+import { unauthorizedCron } from "@/lib/cron-auth";
 
 /**
  * CRON: Dong chien dich theo ngay het han.
  * Goal chi xet luc het han (AON khong hang). Khong dong som khi du goal.
  */
-export async function GET() {
+export async function GET(request: Request) {
+  const denied = unauthorizedCron(request);
+  if (denied) return denied;
   try {
     const result = await closeExpiredCampaigns();
     return NextResponse.json({
