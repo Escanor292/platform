@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { executeRaw, queryRaw } from "@/lib/sql/raw";
 import { notificationService } from "@/services/mongodb/notification.service";
 import { PUBLIC_CAMPAIGN_STATUSES } from "@/lib/moderation/policy";
 import { extractHttpUrls, probeHttpUrl } from "@/lib/link-health";
@@ -16,7 +17,7 @@ type LinkTarget = {
 };
 
 async function ensureLinkChecksTable() {
-  await prisma.$executeRawUnsafe(`
+  await executeRaw(`
     CREATE TABLE IF NOT EXISTS link_checks (
       id TEXT PRIMARY KEY,
       owner_id TEXT NOT NULL,
@@ -109,7 +110,7 @@ async function collectTargets(ownerIds: string[]): Promise<LinkTarget[]> {
 
 async function upsertTargets(targets: LinkTarget[]) {
   for (const target of targets) {
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       `INSERT INTO link_checks (id, owner_id, entity_type, entity_id, entity_title, entity_path, url, status, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', NOW())
        ON CONFLICT (owner_id, entity_type, entity_id, url)
@@ -127,7 +128,7 @@ async function upsertTargets(targets: LinkTarget[]) {
 
 export async function listBrokenLinks(ownerId: string) {
   await ensureLinkChecksTable();
-  return prisma.$queryRawUnsafe<Array<{
+  return queryRaw<Array<{
     id: string;
     entity_type: string;
     entity_title: string;
@@ -176,7 +177,7 @@ export async function scanCreatorLinks(options?: { ownerId?: string; limit?: num
 
   const params = [...ownerIds, limit];
   const idList = ownerIds.map((_, index) => `$${index + 1}`).join(", ");
-  const due = await prisma.$queryRawUnsafe<Array<{
+  const due = await queryRaw<Array<{
     id: string;
     owner_id: string;
     entity_title: string;
@@ -200,7 +201,7 @@ export async function scanCreatorLinks(options?: { ownerId?: string; limit?: num
     const nextStatus = result.ok ? "ok" : "broken";
     if (!result.ok) broken += 1;
     const shouldNotify = !result.ok && (!row.notified_at || Date.now() - new Date(row.notified_at).getTime() > 7 * 24 * 60 * 60 * 1000);
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       `UPDATE link_checks
        SET status = $2,
            http_status = $3,

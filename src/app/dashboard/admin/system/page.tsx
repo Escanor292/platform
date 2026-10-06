@@ -1,10 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BarChart3, Loader2, Search, Settings, Shield } from "lucide-react";
+import { BarChart3, Database, Loader2, Search, Settings, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+
+type DatabaseReadiness = {
+  stored: string;
+  effective: string;
+  mssqlConfigured: boolean;
+  mssqlClientReady: boolean;
+  canSwitch: boolean;
+  reasons: string[];
+};
 
 type SettingsPayload = {
   ekycEnabled: boolean;
@@ -34,6 +43,7 @@ export default function AdminSystemPage() {
   const [ga4Configured, setGa4Configured] = useState(false);
   const [sitemapPath, setSitemapPath] = useState("/sitemap.xml");
   const [robotsPath, setRobotsPath] = useState("/robots.txt");
+  const [database, setDatabase] = useState<DatabaseReadiness | null>(null);
 
   const apply = (data: SettingsPayload) => {
     if (typeof data.ekycEnabled === "boolean") setEkycEnabled(data.ekycEnabled);
@@ -49,6 +59,12 @@ export default function AdminSystemPage() {
       .then(apply)
       .catch(() => toast.error("Không tải được cài đặt hệ thống"))
       .finally(() => setLoading(false));
+    fetch("/api/admin/database-target")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data && Array.isArray(data.reasons)) setDatabase(data);
+      })
+      .catch(() => undefined);
   }, []);
 
   const toggleEkyc = async () => {
@@ -98,7 +114,7 @@ export default function AdminSystemPage() {
             <Settings size={12} /> Quản lý hệ thống
           </div>
           <h1 className="text-4xl font-black tracking-tight text-gray-900">Cài đặt nền tảng</h1>
-          <p className="mt-2 text-gray-500">eKYC, đo lường GA4, sitemap và thẻ chia sẻ mạng xã hội.</p>
+          <p className="mt-2 text-gray-500">eKYC, đo lường GA4, sitemap và database.</p>
         </div>
 
         <div className="rounded-[2rem] border border-gray-100 bg-white p-8 shadow-sm">
@@ -150,6 +166,34 @@ export default function AdminSystemPage() {
               Lưu Analytics
             </Button>
           </div>
+        </div>
+
+        <div className="rounded-[2rem] border border-gray-100 bg-white p-8 shadow-sm">
+          <div className="flex items-start justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-2 text-lg font-black text-gray-900">
+                <Database size={18} className="text-sky-700" /> Database
+              </div>
+              <p className="mt-1 text-sm text-gray-500">
+                Đang ghi: {database?.effective === "sqlserver" ? "MS SQL" : "PostgreSQL (Neon)"}.
+                Nút chuyển khóa cho đến khi có SQL Server, client Prisma và worker đồng bộ.
+              </p>
+            </div>
+            <button
+              type="button"
+              disabled
+              className="relative h-8 w-14 shrink-0 cursor-not-allowed rounded-full bg-gray-300 opacity-60"
+              aria-pressed={false}
+              title="Chưa chuyển được"
+            >
+              <span className="absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow" />
+            </button>
+          </div>
+          <ul className="mt-4 space-y-1 text-sm text-gray-500">
+            {(database?.reasons?.length ? database.reasons : ["Đang kiểm tra điều kiện chuyển database."]).map((reason) => (
+              <li key={reason}>{reason}</li>
+            ))}
+          </ul>
         </div>
 
         <div className="rounded-[2rem] border border-gray-100 bg-white p-8 shadow-sm">

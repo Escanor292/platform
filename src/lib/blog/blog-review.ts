@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { executeRaw, queryRaw } from "@/lib/sql/raw";
 import { normalizeRejectReason, resolvePublishAt } from './blog-policy';
 
 export {
@@ -26,19 +27,19 @@ export type BlogReviewFields = {
 
 export async function ensureBlogReviewColumns(): Promise<void> {
   try {
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       'ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS "rejectionReason" TEXT'
     );
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       'ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS "reviewedAt" TIMESTAMP(3)'
     );
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       'ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS "reviewedBy" TEXT'
     );
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       'ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS "reviewerNote" TEXT'
     );
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       'ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS "scheduledAt" TIMESTAMP(3)'
     );
   } catch (error) {
@@ -71,7 +72,7 @@ export async function applyBlogReview(params: {
   });
 
   try {
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       `UPDATE blog_posts
        SET "rejectionReason" = $1,
            "reviewedAt" = NOW(),
@@ -106,7 +107,7 @@ export async function saveBlogSchedule(postId: string, scheduledAt: Date | strin
         : new Date(scheduledAt);
   if (date && Number.isNaN(date.getTime())) return;
   try {
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       `UPDATE blog_posts SET "scheduledAt" = $1, "updatedAt" = NOW() WHERE id = $2`,
       date,
       postId
@@ -119,7 +120,7 @@ export async function saveBlogSchedule(postId: string, scheduledAt: Date | strin
 export async function saveReviewerNote(postId: string, note: string | null, reviewerId: string): Promise<void> {
   await ensureBlogReviewColumns();
   try {
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       `UPDATE blog_posts
        SET "reviewerNote" = $1,
            "reviewedBy" = $2,
@@ -137,7 +138,7 @@ export async function saveReviewerNote(postId: string, note: string | null, revi
 export async function clearBlogRejection(postId: string): Promise<void> {
   await ensureBlogReviewColumns();
   try {
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       `UPDATE blog_posts
        SET "rejectionReason" = NULL,
            "reviewedAt" = NULL,
@@ -158,7 +159,7 @@ export async function getBlogReviewFields(
   await ensureBlogReviewColumns();
   try {
     const placeholders = postIds.map((_, index) => `$${index + 1}`).join(', ');
-    const rows = await prisma.$queryRawUnsafe<
+    const rows = await queryRaw<
       Array<{
         id: string;
         rejectionReason: string | null;

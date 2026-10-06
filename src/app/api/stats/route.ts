@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { queryRaw } from "@/lib/sql/raw";
 import { cacheReadThrough, STATS_CACHE_KEY } from "@/lib/redis-cache";
 
 /**
@@ -24,15 +25,15 @@ export async function GET() {
             }
         });
 
-        const backerRows = await prisma.$queryRaw<Array<{ count: number }>>`
-            SELECT COUNT(*)::int AS count FROM (
+        const backerRows = await queryRaw<Array<{ count: number }>>(
+            `SELECT COUNT(*)::int AS count FROM (
                 SELECT COALESCE("userId", "email") AS who
                 FROM pledges
                 WHERE status::text = 'SUCCESS'
                   AND COALESCE("userId", "email") IS NOT NULL
                 GROUP BY 1
-            ) backers
-        `;
+            ) backers`
+        );
         const totalBackers = Number(backerRows[0]?.count ?? 0);
 
         const activeCampaigns = await prisma.campaigns.count({

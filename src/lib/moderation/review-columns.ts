@@ -1,11 +1,12 @@
 import { prisma } from '@/lib/prisma';
+import { executeRaw, queryRaw } from "@/lib/sql/raw";
 
 type Column = { name: string; sqlType: string };
 
 export async function ensureTableColumns(table: string, columns: Column[]): Promise<void> {
   for (const column of columns) {
     try {
-      await prisma.$executeRawUnsafe(
+      await executeRaw(
         `ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS "${column.name}" ${column.sqlType}`
       );
     } catch (error) {
@@ -23,7 +24,7 @@ export async function getExtraFields<T extends Record<string, unknown>>(
   const selectList = ['id', ...columns.map((name) => `"${name}"`)].join(', ');
   const placeholders = ids.map((_, index) => `$${index + 1}`).join(', ');
   try {
-    const rows = await prisma.$queryRawUnsafe<Array<T & { id: string }>>(
+    const rows = await queryRaw<Array<T & { id: string }>>(
       `SELECT ${selectList} FROM ${table} WHERE id IN (${placeholders})`,
       ...ids
     );

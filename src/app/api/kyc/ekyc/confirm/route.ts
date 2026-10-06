@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { executeRaw } from "@/lib/sql/raw";
 import { createAuditLog } from "@/lib/audit";
 import { validateIDCard } from "@/lib/kyc";
 import { notificationService } from "@/services/mongodb/notification.service";
@@ -107,7 +108,7 @@ export async function POST(request: NextRequest) {
       national: national.status,
     };
     try {
-      await prisma.$executeRawUnsafe(
+      await executeRaw(
         `UPDATE "kyc_info" SET "selfieImage" = $1, "consentAt" = $2, "ekycMeta" = $3::jsonb WHERE "userId" = $4`,
         selfieImageUrl || null,
         new Date(rec.consentAt),

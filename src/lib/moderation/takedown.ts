@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { executeRaw, queryRaw } from "@/lib/sql/raw";
 import { createAuditLog } from '@/lib/audit';
 import { cacheInvalidatePrefix, CAMPAIGNS_CACHE_PREFIX } from '@/lib/redis-cache';
 import { ensureTableColumns } from './review-columns';
@@ -49,7 +50,7 @@ export async function takedownProject(params: {
 
   await ensureProjectLockColumns();
   try {
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       `UPDATE projects
        SET "lockReason" = $1, "lockedAt" = $2, "lockedBy" = $3, "updatedAt" = NOW()
        WHERE id = $4`,
@@ -115,7 +116,7 @@ export async function takedownProduct(params: {
 
   await ensureRewardHideColumns();
   try {
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       `UPDATE rewards
        SET "hideReason" = $1, "hiddenAt" = $2, "hiddenBy" = $3, "updatedAt" = NOW()
        WHERE id = $4`,
@@ -186,7 +187,7 @@ export async function takedownCampaign(params: {
       data: { status: 'CANCELED' },
     });
     try {
-      await prisma.$executeRawUnsafe(
+      await executeRaw(
         `UPDATE campaigns
          SET "rejectionReason" = $1,
              "reviewedAt" = NOW(),
@@ -222,7 +223,7 @@ export async function takedownCampaign(params: {
     return { id: campaign.id, status: 'CANCELED' as const };
   }
 
-  const extra = await prisma.$queryRawUnsafe<Array<{ moderationAction: string | null }>>(
+  const extra = await queryRaw<Array<{ moderationAction: string | null }>>(
     `SELECT "moderationAction" FROM campaigns WHERE id = $1`,
     params.id
   ).catch(() => [] as Array<{ moderationAction: string | null }>);
@@ -243,7 +244,7 @@ export async function takedownCampaign(params: {
     data: { status: 'ACTIVE' },
   });
   try {
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       `UPDATE campaigns
        SET "rejectionReason" = NULL,
            "moderationAction" = 'APPROVE',

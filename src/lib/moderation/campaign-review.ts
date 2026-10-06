@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { executeRaw } from "@/lib/sql/raw";
 import { createAuditLog } from '@/lib/audit';
 import { cacheInvalidatePrefix, CAMPAIGNS_CACHE_PREFIX } from '@/lib/redis-cache';
 import { ensureTableColumns, getExtraFields } from './review-columns';
@@ -54,7 +55,7 @@ export async function applyCampaignReview(params: {
   });
 
   try {
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       `UPDATE campaigns
        SET "rejectionReason" = $1,
            "reviewedAt" = NOW(),
@@ -98,7 +99,7 @@ export async function submitCampaignForReview(params: {
       data: { status: 'ACTIVE' },
     });
     await ensureCampaignReviewColumns();
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       `UPDATE campaigns SET "rejectionReason" = NULL, "moderationAction" = 'APPROVE', "reviewedAt" = NOW(), "updatedAt" = NOW() WHERE id = $1`,
       params.campaignId
     );
@@ -116,7 +117,7 @@ export async function submitCampaignForReview(params: {
   });
   await ensureCampaignReviewColumns();
   try {
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       `UPDATE campaigns
        SET "rejectionReason" = NULL,
            "moderationAction" = NULL,

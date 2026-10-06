@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { executeRaw, queryRaw } from "@/lib/sql/raw";
 import { auth } from "@/lib/auth";
 import {
   applyShareableTemplate,
@@ -51,7 +52,7 @@ type TemplateRow = {
 };
 
 async function ensureProfileTemplatesTable() {
-  await prisma.$executeRawUnsafe(`
+  await executeRaw(`
     CREATE TABLE IF NOT EXISTS profile_templates (
       id TEXT PRIMARY KEY,
       slug TEXT UNIQUE NOT NULL,
@@ -67,15 +68,15 @@ async function ensureProfileTemplatesTable() {
       published_at TIMESTAMPTZ
     )
   `);
-  await prisma.$executeRawUnsafe(`
+  await executeRaw(`
     CREATE INDEX IF NOT EXISTS profile_templates_public_idx
     ON profile_templates (status, visibility, use_count DESC)
   `);
-  await prisma.$executeRawUnsafe(`
+  await executeRaw(`
     CREATE INDEX IF NOT EXISTS profile_templates_author_idx
     ON profile_templates (author_id)
   `);
-  await prisma.$executeRawUnsafe(`
+  await executeRaw(`
     CREATE TABLE IF NOT EXISTS profile_template_uses (
       template_id TEXT NOT NULL,
       user_id TEXT NOT NULL,
@@ -138,7 +139,7 @@ export async function getSessionUserId() {
 
 export async function listMine(authorId: string) {
   await ensureProfileTemplatesTable();
-  const rows = await prisma.$queryRawUnsafe<TemplateRow[]>(
+  const rows = await queryRaw<TemplateRow[]>(
     `SELECT t.*, u.name AS author_name, COALESCE(u.image, u.avatar) AS author_avatar
      FROM profile_templates t
      LEFT JOIN users u ON u.id = t.author_id
@@ -151,7 +152,7 @@ export async function listMine(authorId: string) {
 
 export async function listPublic(limit = 24) {
   await ensureProfileTemplatesTable();
-  const rows = await prisma.$queryRawUnsafe<TemplateRow[]>(
+  const rows = await queryRaw<TemplateRow[]>(
     `SELECT t.*, u.name AS author_name, COALESCE(u.image, u.avatar) AS author_avatar
      FROM profile_templates t
      LEFT JOIN users u ON u.id = t.author_id
@@ -165,7 +166,7 @@ export async function listPublic(limit = 24) {
 
 export async function listPending(limit = 50) {
   await ensureProfileTemplatesTable();
-  const rows = await prisma.$queryRawUnsafe<TemplateRow[]>(
+  const rows = await queryRaw<TemplateRow[]>(
     `SELECT t.*, u.name AS author_name, COALESCE(u.image, u.avatar) AS author_avatar
      FROM profile_templates t
      LEFT JOIN users u ON u.id = t.author_id
@@ -179,7 +180,7 @@ export async function listPending(limit = 50) {
 
 export async function getTemplateById(id: string) {
   await ensureProfileTemplatesTable();
-  const rows = await prisma.$queryRawUnsafe<TemplateRow[]>(
+  const rows = await queryRaw<TemplateRow[]>(
     `SELECT t.*, u.name AS author_name, COALESCE(u.image, u.avatar) AS author_avatar
      FROM profile_templates t
      LEFT JOIN users u ON u.id = t.author_id
@@ -192,7 +193,7 @@ export async function getTemplateById(id: string) {
 
 export async function getTemplateBySlug(slug: string) {
   await ensureProfileTemplatesTable();
-  const rows = await prisma.$queryRawUnsafe<TemplateRow[]>(
+  const rows = await queryRaw<TemplateRow[]>(
     `SELECT t.*, u.name AS author_name, COALESCE(u.image, u.avatar) AS author_avatar
      FROM profile_templates t
      LEFT JOIN users u ON u.id = t.author_id
@@ -231,7 +232,7 @@ export async function createTemplate(input: {
   if (!parsed.success) throw new Error("Cấu hình mẫu không hợp lệ.");
 
   await ensureProfileTemplatesTable();
-  const mine = await prisma.$queryRawUnsafe<Array<{ total: bigint; public_count: bigint }>>(
+  const mine = await queryRaw<Array<{ total: bigint; public_count: bigint }>>(
     `SELECT COUNT(*)::bigint AS total,
             COUNT(*) FILTER (WHERE visibility = 'PUBLIC')::bigint AS public_count
      FROM profile_templates WHERE author_id = $1`,
@@ -261,7 +262,7 @@ export async function createTemplate(input: {
   let slug = slugifyTitle(title);
   for (let i = 0; i < 4; i += 1) {
     try {
-      await prisma.$executeRawUnsafe(
+      await executeRaw(
         `INSERT INTO profile_templates
           (id, slug, author_id, title, description, visibility, status, config, published_at)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8::jsonb, $9)`,
@@ -308,7 +309,7 @@ export async function updateTemplate(
   }
 
   if (visibility === "PUBLIC") {
-    const pub = await prisma.$queryRawUnsafe<Array<{ count: bigint }>>(
+    const pub = await queryRaw<Array<{ count: bigint }>>(
       `SELECT COUNT(*)::bigint AS count FROM profile_templates
        WHERE author_id = $1 AND visibility = 'PUBLIC' AND id <> $2`,
       current.authorId,
@@ -332,7 +333,7 @@ export async function updateTemplate(
     if (status !== "PUBLISHED") publishedAt = null;
   }
 
-  await prisma.$executeRawUnsafe(
+  await executeRaw(
     `UPDATE profile_templates
      SET title = $2, description = $3, visibility = $4, status = $5, published_at = $6, updated_at = NOW()
      WHERE id = $1`,
@@ -350,7 +351,7 @@ export async function reviewTemplate(id: string, action: "APPROVE" | "REJECT") {
   const current = await getTemplateById(id);
   if (!current) throw new Error("Không tìm thấy mẫu.");
   const status: TemplateStatus = action === "APPROVE" ? "PUBLISHED" : "REJECTED";
-  await prisma.$executeRawUnsafe(
+  await executeRaw(
     `UPDATE profile_templates
      SET status = $2, published_at = $3, updated_at = NOW()
      WHERE id = $1`,
@@ -365,8 +366,8 @@ export async function deleteTemplate(id: string, authorId: string, isAdmin = fal
   const current = await getTemplateById(id);
   if (!current) throw new Error("Không tìm thấy mẫu.");
   if (current.authorId !== authorId && !isAdmin) throw new Error("Không xóa được mẫu của người khác.");
-  await prisma.$executeRawUnsafe(`DELETE FROM profile_template_uses WHERE template_id = $1`, id);
-  await prisma.$executeRawUnsafe(`DELETE FROM profile_templates WHERE id = $1`, id);
+  await executeRaw(`DELETE FROM profile_template_uses WHERE template_id = $1`, id);
+  await executeRaw(`DELETE FROM profile_templates WHERE id = $1`, id);
 }
 
 export async function applyTemplate(templateId: string, userId: string, viewer: { id?: string; role?: string; isAdmin?: boolean } | null) {
@@ -393,7 +394,7 @@ export async function applyTemplate(templateId: string, userId: string, viewer: 
     });
   }
 
-  const inserted = await prisma.$queryRawUnsafe<Array<{ template_id: string }>>(
+  const inserted = await queryRaw<Array<{ template_id: string }>>(
     `INSERT INTO profile_template_uses (template_id, user_id, used_at)
      VALUES ($1,$2,NOW())
      ON CONFLICT (template_id, user_id) DO NOTHING
@@ -402,12 +403,12 @@ export async function applyTemplate(templateId: string, userId: string, viewer: 
     userId,
   );
   if (inserted.length) {
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       `UPDATE profile_templates SET use_count = use_count + 1, updated_at = NOW() WHERE id = $1`,
       templateId,
     );
   } else {
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       `UPDATE profile_template_uses SET used_at = NOW() WHERE template_id = $1 AND user_id = $2`,
       templateId,
       userId,
@@ -430,7 +431,7 @@ export async function sharePublishedAsUnlisted(input: {
   if (!parsed.success) throw new Error("Cấu hình mẫu không hợp lệ.");
 
   await ensureProfileTemplatesTable();
-  const existing = await prisma.$queryRawUnsafe<TemplateRow[]>(
+  const existing = await queryRaw<TemplateRow[]>(
     `SELECT t.*, u.name AS author_name, COALESCE(u.image, u.avatar) AS author_avatar
      FROM profile_templates t
      LEFT JOIN users u ON u.id = t.author_id
@@ -440,7 +441,7 @@ export async function sharePublishedAsUnlisted(input: {
     input.authorId,
   );
   if (existing[0]) {
-    await prisma.$executeRawUnsafe(
+    await executeRaw(
       `UPDATE profile_templates
        SET title = $2, config = $3::jsonb, visibility = 'PRIVATE', status = 'DRAFT',
            published_at = COALESCE(published_at, NOW()), updated_at = NOW()

@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
+import { executeRaw, queryRaw } from "@/lib/sql/raw";
 
 async function ensureUserFollowersTable() {
-  await prisma.$executeRawUnsafe(`
+  await executeRaw(`
     CREATE TABLE IF NOT EXISTS user_followers (
       follower_id TEXT NOT NULL,
       following_id TEXT NOT NULL,
@@ -9,7 +10,7 @@ async function ensureUserFollowersTable() {
       PRIMARY KEY (follower_id, following_id)
     )
   `);
-  await prisma.$executeRawUnsafe(`
+  await executeRaw(`
     CREATE INDEX IF NOT EXISTS user_followers_following_idx
     ON user_followers (following_id)
   `);
@@ -19,16 +20,16 @@ export async function getUserFollowStats(userId: string, viewerId?: string | nul
   try {
     await ensureUserFollowersTable();
     const [followers, following, mine] = await Promise.all([
-      prisma.$queryRawUnsafe<Array<{ count: bigint }>>(
+      queryRaw<Array<{ count: bigint }>>(
         `SELECT COUNT(*)::bigint AS count FROM user_followers WHERE following_id = $1`,
         userId,
       ),
-      prisma.$queryRawUnsafe<Array<{ count: bigint }>>(
+      queryRaw<Array<{ count: bigint }>>(
         `SELECT COUNT(*)::bigint AS count FROM user_followers WHERE follower_id = $1`,
         userId,
       ),
       viewerId
-        ? prisma.$queryRawUnsafe<Array<{ follower_id: string }>>(
+        ? queryRaw<Array<{ follower_id: string }>>(
             `SELECT follower_id FROM user_followers WHERE follower_id = $1 AND following_id = $2 LIMIT 1`,
             viewerId,
             userId,
@@ -49,7 +50,7 @@ export async function getUserFollowStats(userId: string, viewerId?: string | nul
 export async function listFollowingIds(followerId: string): Promise<string[]> {
   try {
     await ensureUserFollowersTable();
-    const rows = await prisma.$queryRawUnsafe<Array<{ following_id: string }>>(
+    const rows = await queryRaw<Array<{ following_id: string }>>(
       `SELECT following_id FROM user_followers WHERE follower_id = $1 ORDER BY created_at DESC`,
       followerId,
     );
@@ -70,7 +71,7 @@ export async function followUser(followerId: string, followingId: string) {
   });
   if (!target) throw new Error("Không tìm thấy người dùng");
   await ensureUserFollowersTable();
-  await prisma.$executeRawUnsafe(
+  await executeRaw(
     `INSERT INTO user_followers (follower_id, following_id, created_at)
      VALUES ($1, $2, NOW())
      ON CONFLICT (follower_id, following_id) DO NOTHING`,
@@ -82,7 +83,7 @@ export async function followUser(followerId: string, followingId: string) {
 
 export async function unfollowUser(followerId: string, followingId: string) {
   await ensureUserFollowersTable();
-  await prisma.$executeRawUnsafe(
+  await executeRaw(
     `DELETE FROM user_followers WHERE follower_id = $1 AND following_id = $2`,
     followerId,
     followingId,

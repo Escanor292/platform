@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { prisma } from "@/lib/prisma";
+import { executeRaw, queryRaw } from "@/lib/sql/raw";
 import {
   DEFAULT_PRESENTATION_DECK,
   PRESENTATION_MEDIA_FILES,
@@ -29,7 +30,7 @@ function withAcademicAppendix(deck: PresentationDeck): PresentationDeck {
 }
 
 async function ensureTables() {
-  await prisma.$executeRawUnsafe(`
+  await executeRaw(`
     CREATE TABLE IF NOT EXISTS presentation_deck (
       id TEXT PRIMARY KEY,
       status TEXT NOT NULL DEFAULT 'active',
@@ -37,7 +38,7 @@ async function ensureTables() {
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `);
-  await prisma.$executeRawUnsafe(`
+  await executeRaw(`
     CREATE TABLE IF NOT EXISTS presentation_media (
       key TEXT PRIMARY KEY,
       mime TEXT NOT NULL,
@@ -58,7 +59,7 @@ async function seedMediaFromPublic() {
         : file.endsWith(".webp")
           ? "image/webp"
           : "image/jpeg";
-      await prisma.$executeRawUnsafe(
+      await executeRaw(
         `INSERT INTO presentation_media (key, mime, bytes, updated_at)
          VALUES ($1, $2, decode($3, 'hex'), NOW())
          ON CONFLICT (key) DO UPDATE
@@ -74,7 +75,7 @@ async function seedMediaFromPublic() {
 }
 
 async function seedFreshIfMissing() {
-  await prisma.$executeRawUnsafe(
+  await executeRaw(
     `INSERT INTO presentation_deck (id, status, payload, updated_at)
      VALUES ($1, 'active', $2::jsonb, NOW())
      ON CONFLICT (id) DO UPDATE
@@ -83,7 +84,7 @@ async function seedFreshIfMissing() {
     PRESENTATION_DECK_ID,
     JSON.stringify(DEFAULT_PRESENTATION_DECK),
   );
-  const rows = await prisma.$queryRawUnsafe<Array<{ status: string }>>(
+  const rows = await queryRaw<Array<{ status: string }>>(
     `SELECT status FROM presentation_deck WHERE id = $1`,
     PRESENTATION_DECK_ID,
   );
@@ -94,7 +95,7 @@ async function seedFreshIfMissing() {
 
 async function readRow(): Promise<DeckRow | null> {
   await ensureTables();
-  const rows = await prisma.$queryRawUnsafe<Array<{ status: string; payload: PresentationDeck | null }>>(
+  const rows = await queryRaw<Array<{ status: string; payload: PresentationDeck | null }>>(
     `SELECT status, payload FROM presentation_deck WHERE id = $1`,
     PRESENTATION_DECK_ID,
   );
@@ -110,7 +111,7 @@ export async function getActivePresentationDeck(): Promise<PresentationDeck | nu
     } else if (row.status === "active") {
       const storedVersion = row.payload?.version;
       if (storedVersion !== PRESENTATION_SEED_VERSION) {
-        await prisma.$executeRawUnsafe(
+        await executeRaw(
           `UPDATE presentation_deck
            SET payload = $2::jsonb, updated_at = NOW()
            WHERE id = $1 AND status = 'active'`,
@@ -137,7 +138,7 @@ export async function isPresentationActive(): Promise<boolean> {
 export async function getPresentationMedia(key: string) {
   if (!/^[a-z0-9._-]+$/i.test(key)) return null;
   await ensureTables();
-  const rows = await prisma.$queryRawUnsafe<Array<{ mime: string; b64: string }>>(
+  const rows = await queryRaw<Array<{ mime: string; b64: string }>>(
     `SELECT mime, encode(bytes, 'base64') AS b64
      FROM presentation_media
      WHERE key = $1
@@ -151,12 +152,12 @@ export async function getPresentationMedia(key: string) {
 
 export async function deletePresentationDeck() {
   await ensureTables();
-  await prisma.$executeRawUnsafe(
+  await executeRaw(
     `INSERT INTO presentation_deck (id, status, payload, updated_at)
      VALUES ($1, 'deleted', NULL, NOW())
      ON CONFLICT (id) DO UPDATE
        SET status = 'deleted', payload = NULL, updated_at = NOW()`,
     PRESENTATION_DECK_ID,
   );
-  await prisma.$executeRawUnsafe(`DELETE FROM presentation_media`);
+  await executeRaw(`DELETE FROM presentation_media`);
 }

@@ -1,11 +1,12 @@
 import { prisma } from "@/lib/prisma";
+import { executeRaw, queryRaw } from "@/lib/sql/raw";
 import { normalizeGa4Id } from "@/lib/seo";
 
 export const EKYC_ENABLED_KEY = "ekyc_enabled";
 export const GA4_ID_KEY = "ga4_measurement_id";
 
 async function ensureSettingsTable() {
-  await prisma.$executeRawUnsafe(`
+  await executeRaw(`
     CREATE TABLE IF NOT EXISTS platform_settings (
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL,
@@ -17,7 +18,7 @@ async function ensureSettingsTable() {
 export async function getPlatformSetting(key: string): Promise<string | null> {
   try {
     await ensureSettingsTable();
-    const rows = await prisma.$queryRawUnsafe<Array<{ value: string }>>(
+    const rows = await queryRaw<Array<{ value: string }>>(
       `SELECT value FROM platform_settings WHERE key = $1`,
       key,
     );
@@ -30,7 +31,7 @@ export async function getPlatformSetting(key: string): Promise<string | null> {
 
 export async function setPlatformSetting(key: string, value: string) {
   await ensureSettingsTable();
-  await prisma.$executeRawUnsafe(
+  await executeRaw(
     `INSERT INTO platform_settings (key, value, updated_at)
      VALUES ($1, $2, NOW())
      ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,

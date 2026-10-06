@@ -1,0 +1,1490 @@
+// Schema SQL Server sinh từ prisma/schema.prisma.
+// Không dùng cho Neon. Chạy lại: node scripts/build-sqlserver-schema.mjs
+// Prisma 5.22 trên SQL Server không có scalar list, Json, enum.
+// Mảng thành bảng nối. Json thành NVARCHAR(MAX). Enum thành String. onUpdate là NoAction.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/mssql"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("MSSQL_URL")
+}
+
+model audit_logs {
+  id         String      @id
+  userId     String?
+  action     String
+  entityType String
+  entityId   String
+  oldValue   String? @db.NVarChar(Max)
+  newValue   String? @db.NVarChar(Max)
+  changes    String? @db.NVarChar(Max)
+  ipAddress  String?
+  userAgent  String?
+  reason     String?
+  metadata   String? @db.NVarChar(Max)
+  createdAt  DateTime    @default(now())
+  pledges    pledges     @relation(fields: [entityId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users?      @relation(fields: [userId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+
+  @@index([createdAt])
+  @@index([entityType, entityId])
+  @@index([userId])
+}
+
+
+model backer_invoices {
+  id            String        @id
+  invoiceNumber String        @unique
+  pledgeId      String        @unique
+  backerName    String
+  backerEmail   String?
+  backerPhone   String?
+  backerAddress String?
+  backerTaxCode String?
+  companyName   String?
+  amount        Decimal
+  tipAmount     Decimal
+  platformFee   Decimal
+  vatAmount     Decimal
+  totalAmount   Decimal
+  campaignTitle String
+  paymentMethod String
+  transactionId String
+  status        String @default("PENDING")
+  issuedAt      DateTime      @default(now())
+  pdfUrl        String?
+  sentAt        DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime
+  pledges       pledges       @relation(fields: [pledgeId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+
+model donation_certificates {
+  id              String             @id
+  code            String             @unique
+  pledgeId        String             @unique
+  campaignId      String?
+  creatorId       String?
+  backerUserId    String?
+  guestEmail      String?
+  displayName     String
+  amount          Decimal
+  flowType        String
+  documentKind    String
+  status          String  @default("ISSUED")
+  issuedAt        DateTime           @default(now())
+  emailSentAt     DateTime?
+  claimedAt       DateTime?
+  claimedByUserId String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime
+  pledges         pledges            @relation(fields: [pledgeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  campaigns       campaigns?         @relation(fields: [campaignId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  backer          users?             @relation("certificate_backer", fields: [backerUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  claimedBy       users?             @relation("certificate_claimed_by", fields: [claimedByUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([guestEmail])
+  @@index([backerUserId, status])
+  @@index([creatorId, flowType])
+  @@index([campaignId])
+}
+
+
+model badges {
+  id               String        @id
+  name             String        @db.VarChar(100)
+  slug             String        @unique @db.VarChar(120)
+  description      String?
+  icon_url         String?
+  icon_name        String?       @db.VarChar(100)
+  color            String?       @db.VarChar(30)
+  background_color String?       @db.VarChar(30)
+  type             String
+  rarity           String   @default("common")
+  is_active        Boolean       @default(true)
+  created_by       String
+  created_at       DateTime      @default(now())
+  updated_at       DateTime
+  deleted_at       DateTime?
+  users            users         @relation(fields: [created_by], references: [id], onUpdate: NoAction)
+  user_badges      user_badges[]
+
+  @@index([deleted_at])
+  @@index([is_active])
+  @@index([slug])
+  @@index([type])
+}
+
+
+model blacklist {
+  id        String        @id
+  type      String
+  value     String
+  reason    String
+  addedBy   String?
+  isActive  Boolean       @default(true)
+  expiresAt DateTime?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime
+
+  @@unique([type, value])
+  @@index([type, value, isActive])
+}
+
+
+model blog_bookmarks {
+  id         String     @id
+  postId     String
+  userId     String
+  createdAt  DateTime   @default(now())
+  blog_posts blog_posts @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+}
+
+
+model blog_categories {
+  id                   String                 @id
+  name                 String                 @db.VarChar(100)
+  slug                 String                 @unique @db.VarChar(100)
+  description          String?
+  createdAt            DateTime               @default(now())
+  blog_post_categories blog_post_categories[]
+}
+
+
+model blog_comments {
+  id                  String            @id
+  postId              String
+  userId              String
+  parentId            String?
+  content             String
+  status              String @default("VISIBLE")
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime
+  deletedAt           DateTime?
+  blog_comments       blog_comments?    @relation("blog_commentsToblog_comments", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  other_blog_comments blog_comments[]   @relation("blog_commentsToblog_comments")
+  blog_posts          blog_posts        @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users               users             @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([parentId])
+  @@index([postId])
+  @@index([userId])
+}
+
+
+model blog_likes {
+  id         String     @id
+  postId     String
+  userId     String
+  createdAt  DateTime   @default(now())
+  blog_posts blog_posts @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+}
+
+
+model blog_post_categories {
+  postId          String
+  categoryId      String
+  blog_categories blog_categories @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  blog_posts      blog_posts      @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([postId, categoryId])
+}
+
+
+model blog_post_tags {
+  postId     String
+  tagId      String
+  blog_posts blog_posts @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  blog_tags  blog_tags  @relation(fields: [tagId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([postId, tagId])
+}
+
+
+model blog_posts {
+  id                   String                 @id
+  authorId             String
+  campaignId           String?
+  projectId            String?
+  mongoContentId       String?
+  title                String                 @db.VarChar(255)
+  slug                 String                 @unique @db.VarChar(255)
+  excerpt              String?
+  coverImage           String?
+  status               String         @default("DRAFT")
+  type                 String           @default("PLATFORM")
+  visibility           String         @default("PUBLIC")
+  publishedAt          DateTime?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime
+  deletedAt            DateTime?
+  viewCount            Int                    @default(0)
+  likeCount            Int                    @default(0)
+  commentCount         Int                    @default(0)
+  bookmarkCount        Int                    @default(0)
+  isFeatured           Boolean                @default(false)
+  wordCount            Int                    @default(0)
+  readingTimeMinutes   Int                    @default(0)
+  content              String?
+  blog_bookmarks       blog_bookmarks[]
+  blog_comments        blog_comments[]
+  blog_likes           blog_likes[]
+  blog_post_categories blog_post_categories[]
+  blog_post_tags       blog_post_tags[]
+  users                users                  @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  campaigns            campaigns?             @relation(fields: [campaignId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  projects             projects?              @relation(fields: [projectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  blog_reports         blog_reports[]
+  campaign_blog_links  campaign_blog_links[]
+  project_blog_links   project_blog_links[]
+  rewards              rewards[]
+  blog_drafts          blog_drafts?
+  blog_versions        blog_versions[]
+  blog_view_logs       blog_view_logs[]
+
+  @@index([authorId])
+  @@index([campaignId])
+  @@index([projectId])
+  @@index([deletedAt])
+  @@index([isFeatured])
+  @@index([publishedAt])
+  @@index([slug])
+  @@index([status])
+  @@index([type])
+  @@index([visibility])
+}
+
+
+model blog_reports {
+  id          String           @id
+  postId      String?
+  commentId   String?
+  reporterId  String
+  reason      String
+  description String?
+  status      String     @default("PENDING")
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  createdAt   DateTime         @default(now())
+  blog_posts  blog_posts?      @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users       users            @relation(fields: [reporterId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([commentId])
+  @@index([postId])
+  @@index([reporterId])
+  @@index([status])
+}
+
+
+model blog_tags {
+  id             String           @id
+  name           String           @db.VarChar(100)
+  slug           String           @unique @db.VarChar(100)
+  blog_post_tags blog_post_tags[]
+}
+
+
+model campaign_blog_links {
+  id         String     @id
+  campaignId String
+  blogPostId String
+  order      Int        @default(0)
+  createdAt  DateTime   @default(now())
+  blog_posts blog_posts @relation(fields: [blogPostId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  campaigns  campaigns  @relation(fields: [campaignId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([campaignId, blogPostId])
+  @@index([blogPostId])
+  @@index([campaignId])
+}
+
+
+model campaign_followers {
+  id         String    @id
+  campaignId String
+  userId     String?
+  email      String?
+  createdAt  DateTime  @default(now())
+  campaigns  campaigns @relation(fields: [campaignId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users?    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([campaignId, email])
+  @@unique([campaignId, userId])
+  @@index([campaignId])
+  @@index([userId])
+}
+
+
+model campaign_reports {
+  id          String               @id
+  campaignId  String?
+  targetType  String     @default("CAMPAIGN")
+  targetId    String
+  targetTitle String?
+  targetHref  String?
+  userId      String
+  reason      String
+  description String
+  occurredAt  DateTime?
+  status      String         @default("PENDING")
+  resolvedAt  DateTime?
+  resolvedBy  String?
+  resolution  String?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime
+  campaigns   campaigns?           @relation(fields: [campaignId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users       users                @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  campaign_report_images campaign_report_images[]
+  @@unique([targetType, targetId, userId])
+  @@index([campaignId])
+  @@index([status])
+  @@index([userId])
+  @@index([targetType, targetId])
+}
+
+
+model campaign_updates {
+  id         String    @id
+  campaignId String
+  title      String
+  content    String
+  imageUrl   String?
+  createdAt  DateTime  @default(now())
+  isPinned   Boolean   @default(false)
+  updatedAt  DateTime  @default(now())
+  campaigns  campaigns @relation(fields: [campaignId], references: [id], onUpdate: NoAction)
+
+  campaign_update_tags campaign_update_tags[]
+  @@index([campaignId, isPinned])
+}
+
+
+model campaigns {
+  id                  String                @id
+  campaignCode        String                @unique
+  slug                String                @unique
+  title               String
+  description         String
+  longDescription     String?
+  videoUrl            String?
+  imageUrl            String?
+  type                String          @default("REWARD")
+  category            String
+  isFeatured          Boolean               @default(false)
+  fundingModel        String          @default("ALL_OR_NOTHING")
+  goalAmount          Decimal
+  currentAmount       Decimal               @default(0)
+  closedAmount        Decimal?
+  closedAt            DateTime?
+  fulfillmentConfirmedAt DateTime?
+  status              String        @default("DRAFT")
+  startDate           DateTime?
+  endDate             DateTime?
+  creatorId           String
+  projectId           String?
+  feeRate             Float                 @default(0.08)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime
+  blog_posts          blog_posts[]
+  campaign_blog_links campaign_blog_links[]
+  campaign_followers  campaign_followers[]
+  campaign_reports    campaign_reports[]
+  campaign_updates    campaign_updates[]
+  users               users                 @relation(fields: [creatorId], references: [id], onUpdate: NoAction)
+  projects            projects?             @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  platform_invoices   platform_invoices[]
+  pledges             pledges[]
+  reviews             reviews[]
+  rewards             rewards[]
+  reward_digital_assets reward_digital_assets[]
+  donation_certificates donation_certificates[]
+  campaign_comments   campaign_comments[]
+  campaign_contents   campaign_contents[]
+
+  campaign_tags campaign_tags[]
+  campaign_images campaign_images[]
+  @@index([category])
+  @@index([projectId])
+  @@index([isFeatured])
+  @@index([fundingModel])
+  @@index([status, createdAt])
+}
+
+
+model daily_tip_invoices {
+  id          String   @id
+  invoiceDate DateTime @unique
+  totalTip    Decimal
+  totalVat    Decimal
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+}
+
+
+model kyc_info {
+  id                 String     @id
+  userId             String     @unique
+  fullName           String
+  idCardNumber       String     @unique
+  idCardType         String
+  idCardFrontImage   String?
+  idCardBackImage    String?
+  idCardIssueDate    DateTime?
+  idCardIssuePlace   String?
+  dateOfBirth        DateTime?
+  placeOfBirth       String?
+  nationality        String     @default("VN")
+  permanentAddress   String?
+  currentAddress     String?
+  occupation         String?
+  monthlyIncome      String?
+  verificationStatus String  @default("PENDING")
+  verifiedAt         DateTime?
+  verifiedBy         String?
+  rejectedReason     String?
+  riskLevel          String  @default("LOW")
+  selfieImage        String?
+  consentAt          DateTime?
+  ekycMeta           String? @db.NVarChar(Max)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime
+  users              users      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+
+model platform_invoices {
+  id            String        @id
+  invoiceNumber String        @unique
+  campaignId    String
+  creatorId     String
+  amount        Decimal
+  vatAmount     Decimal
+  totalAmount   Decimal
+  status        String @default("PENDING")
+  dueDate       DateTime
+  paidAt        DateTime?
+  paymentMethod String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime
+  campaigns     campaigns     @relation(fields: [campaignId], references: [id], onUpdate: NoAction)
+  users         users         @relation(fields: [creatorId], references: [id], onUpdate: NoAction)
+}
+
+
+model projects {
+  id                   String                 @id @default(cuid())
+  creatorId            String
+  title                String                 @db.VarChar(255)
+  slug                 String?                @unique @db.VarChar(255)
+  description          String?                @db.NVarChar(Max)
+  coverImage           String?                @db.VarChar(512)
+  richDescription      String? @db.NVarChar(Max)
+  /// Kiểu nền hero: 'image' (ảnh bìa coverImage) hoặc 'color' (gradient từ mã màu trong heroBackgroundConfig)
+  heroBackgroundType   String                 @default("image") @db.VarChar(16)
+  /// Cấu hình nền màu, ví dụ: { "colors": ["#2563eb", "#1d4ed8", "#7c3aed"], "angle": 135 }
+  heroBackgroundConfig String? @db.NVarChar(Max)
+  isLocked             Boolean                @default(false)
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  users                users                  @relation(fields: [creatorId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  campaigns            campaigns[]
+  blog_posts           blog_posts[]
+  rewards              rewards[]
+  project_blog_links   project_blog_links[]
+  project_reward_links project_reward_links[]
+
+  @@index([creatorId])
+  @@index([slug])
+}
+
+// Blog được gắn vào dự án (nhiều-nhiều, độc lập với projectId chính của blog)
+
+model project_blog_links {
+  id         String     @id @default(cuid())
+  projectId  String
+  blogPostId String
+  order      Int        @default(0)
+  createdAt  DateTime   @default(now())
+  projects   projects   @relation(fields: [projectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  blog_posts blog_posts @relation(fields: [blogPostId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([projectId, blogPostId])
+  @@index([blogPostId])
+  @@index([projectId])
+}
+
+// Sản phẩm/Reward được gắn hiển thị vào dự án (nhiều-nhiều)
+
+model project_reward_links {
+  id        String   @id @default(cuid())
+  projectId String
+  rewardId  String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  projects  projects @relation(fields: [projectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  rewards   rewards  @relation(fields: [rewardId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([projectId, rewardId])
+  @@index([rewardId])
+  @@index([projectId])
+}
+
+
+model pledges {
+  id                 String           @id
+  campaignId         String?
+  userId             String?
+  displayName        String
+  isAnonymous        Boolean          @default(false)
+  quantity           Int              @default(1)
+  isCashOnDelivery   Boolean          @default(false)
+  stockReserved      Boolean          @default(false)
+  email              String?
+  phoneNumber        String?
+  amount             Decimal
+  depositAmount      Decimal          @default(0)
+  chargeAmount       Decimal          @default(0)
+  orderTotalAmount   Decimal          @default(0)
+  remainingAmount    Decimal          @default(0)
+  paidAmount         Decimal          @default(0)
+  accountingAmount   Decimal          @default(0)
+  refundAmount       Decimal          @default(0)
+  cancellationFeeAmount Decimal       @default(0)
+  tipAmount          Decimal          @default(0)
+  platformFee        Decimal          @default(0)
+  vatAmount          Decimal          @default(0)
+  totalAmount        Decimal
+  paymentProvider    String
+  transactionId      String           @unique
+  ipAddress          String?
+  deviceInfo         String? @db.NVarChar(Max)
+  status             String     @default("PENDING")
+  refundStatus       String     @default("NO_REFUND")
+  refundedAt         DateTime?
+  invoiceGroupDate   DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime
+  rewardId           String?
+  shippingAddress    String?
+  fulfillmentType    String?
+  fulfillmentStatus  String    @default("NOT_APPLICABLE")
+  shippingMethod     String?
+  shippingFee        Decimal              @default(0)
+  shippingProvider   String?
+  trackingNumber    String?
+  deliveryFailureReason String?
+  cancellationReason    String?
+  returnReason          String?
+  accountingReversedAt  DateTime?
+  digitalAsset         reward_digital_assets?
+  payosOrderCode     String?          @unique
+  webhookProcessedAt DateTime?
+  receivedAt         DateTime?
+  handedToCarrierAt  DateTime?
+  pledgeKind         String       @default("ONE_TIME")
+  tierId             String?
+  membershipId       String?
+  periodStart        DateTime?
+  periodEnd          DateTime?
+  audit_logs         audit_logs[]
+  backer_invoices    backer_invoices?
+  donation_certificate donation_certificates?
+  campaigns          campaigns?       @relation(fields: [campaignId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  rewards            rewards?         @relation(fields: [rewardId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  support_tiers      support_tiers?   @relation(fields: [tierId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  memberships        memberships?     @relation(fields: [membershipId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  product_reviews    product_reviews?
+  users              users?           @relation(fields: [userId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+
+  @@index([campaignId, status])
+  @@index([status, createdAt])
+  @@index([tierId])
+  @@index([membershipId])
+}
+
+
+model payment_methods {
+  id                String              @id @default(cuid())
+  userId            String
+  provider          String
+  methodType        String
+  label             String
+  brand             String?
+  last4             String?
+  providerMethodRef String?
+  status            String @default("ACTIVE")
+  isDefault         Boolean             @default(false)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  users             users               @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([userId, status])
+  @@index([provider, providerMethodRef])
+}
+
+
+model checkout_sessions {
+  id         String                @id @default(cuid())
+  userId     String?
+  campaignId String
+  rewardId   String?
+  payload    String @db.NVarChar(Max)
+  returnPath String
+  status     String @default("ACTIVE")
+  expiresAt  DateTime
+  createdAt  DateTime              @default(now())
+  updatedAt  DateTime
+  users      users?                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([userId, status])
+  @@index([expiresAt, status])
+  @@index([campaignId, rewardId])
+}
+
+
+model reviews {
+  id         String     @id
+  userId     String
+  campaignId String?
+  rating     Int
+  comment    String
+  imageUrl   String?
+  createdAt  DateTime   @default(now())
+  campaigns  campaigns? @relation(fields: [campaignId], references: [id], onUpdate: NoAction)
+  users      users      @relation(fields: [userId], references: [id], onUpdate: NoAction)
+}
+
+
+model rewards {
+  id                   String                 @id
+  campaignId           String?
+  projectId            String?
+  title                String
+  description          String?
+  createdAt            DateTime               @default(now())
+  deliveryDate         DateTime?
+  isPreorder           Boolean                @default(false)
+  onlineDepositPercent Int                    @default(30)
+  codDepositPercent    Int                    @default(50)
+  isActive             Boolean                @default(true)
+  isIncludedInProject  Boolean                @default(true)
+  maxQuantity          Int?
+  minAmount            Decimal
+  maxAmount            Decimal?
+  stock                Int?
+  productVideo         String?
+  updatedAt            DateTime
+  availability         String   @default("AVAILABLE")
+  fulfillmentType      String @default("PHYSICAL")
+  pledges              pledges[]
+  product_reviews      product_reviews[]
+  campaigns            campaigns?             @relation(fields: [campaignId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  projects             projects?              @relation(fields: [projectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  digitalAssets        reward_digital_assets[]
+  blog_posts           blog_posts[]
+  project_reward_links project_reward_links[]
+
+  reward_images reward_images[]
+  @@index([campaignId])
+  @@index([projectId])
+}
+
+
+model reward_digital_assets {
+  id             String             @id @default(cuid())
+  rewardId       String
+  campaignId     String?
+  pledgeId       String?            @unique
+  assetType      String
+  encryptedValue String?
+  assetUrl       String?
+  deliveryEmail  String?
+  status         String @default("AVAILABLE")
+  deliveredAt    DateTime?
+  claimedAt      DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  rewards        rewards            @relation(fields: [rewardId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  campaigns      campaigns?         @relation(fields: [campaignId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  pledges        pledges?           @relation(fields: [pledgeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([rewardId, status])
+  @@index([campaignId, status])
+}
+
+
+model product_reviews {
+  id        String   @id
+  rewardId  String
+  pledgeId  String   @unique
+  userId    String
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  rewards   rewards  @relation(fields: [rewardId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  pledges   pledges  @relation(fields: [pledgeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users     users    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  review_media review_media[]
+  @@index([rewardId, createdAt])
+  @@index([userId])
+}
+
+
+model transaction_limits {
+  id                    String     @id
+  userId                String?    @unique
+  kycStatus             String?
+  maxPerTransaction     Decimal
+  maxPerDay             Decimal
+  maxPerMonth           Decimal
+  maxTransactionsPerDay Int
+  isActive              Boolean    @default(true)
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime
+}
+
+
+model user_badges {
+  id                                   String    @id
+  user_id                              String
+  badge_id                             String
+  assigned_by                          String
+  reason                               String?
+  note                                 String?
+  assigned_at                          DateTime  @default(now())
+  expires_at                           DateTime?
+  revoked_at                           DateTime?
+  revoked_by                           String?
+  revoke_reason                        String?
+  is_visible                           Boolean   @default(true)
+  users_user_badges_assigned_byTousers users     @relation("user_badges_assigned_byTousers", fields: [assigned_by], references: [id], onUpdate: NoAction)
+  badges                               badges    @relation(fields: [badge_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users_user_badges_revoked_byTousers  users?    @relation("user_badges_revoked_byTousers", fields: [revoked_by], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  users_user_badges_user_idTousers     users     @relation("user_badges_user_idTousers", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([assigned_by])
+  @@index([badge_id])
+  @@index([revoked_at])
+  @@index([user_id])
+}
+
+
+model profile_customizations {
+  id                  String                             @id @default(cuid())
+  userId              String                             @unique
+  draftConfig         String @db.NVarChar(Max)
+  publishedConfig     String @db.NVarChar(Max)
+  draftVersion        Int                                @default(1)
+  publishedVersion    Int                                @default(1)
+  publishedAt         DateTime?
+  createdAt           DateTime                           @default(now())
+  updatedAt           DateTime                           @updatedAt
+  users               users                              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  versions            profile_customization_versions[]
+
+  @@index([updatedAt])
+}
+
+
+model profile_customization_versions {
+  id              String               @id @default(cuid())
+  customizationId String
+  version         Int
+  action          String               @db.VarChar(24)
+  config          String @db.NVarChar(Max)
+  createdAt       DateTime             @default(now())
+  customization   profile_customizations @relation(fields: [customizationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([customizationId, createdAt])
+  @@unique([customizationId, version])
+}
+
+
+model users {
+  id                                         String               @id
+  email                                      String               @unique
+  password                                   String?
+  name                                       String
+  displayName                                String?
+  avatar                                     String?
+  phone                                      String?
+  role                                       String             @default("BACKER")
+  isOrganization                             Boolean              @default(false)
+  isAdmin                                    Boolean              @default(false)
+  bio                                        String?
+  idCard                                     String?
+  businessLicense                            String?
+  bankAccount                                String?
+  bankName                                   String?
+  approvedAt                                 DateTime?
+  createdAt                                  DateTime             @default(now())
+  updatedAt                                  DateTime
+  image                                      String?
+  location                                   String?
+  website                                    String?
+  coverImage                                 String?
+  shippingAddress                            String?
+  socialLinks                                String? @db.NVarChar(Max)
+  privacySettings                            String? @db.NVarChar(Max)
+  notificationSettings                       String? @db.NVarChar(Max)
+  profile_customization                      profile_customizations?
+  status                                     String           @default("NORMAL")
+  audit_logs                                 audit_logs[]
+  badges                                     badges[]
+  blog_bookmarks                             blog_bookmarks[]
+  blog_comments                              blog_comments[]
+  blog_likes                                 blog_likes[]
+  blog_posts                                 blog_posts[]
+  blog_reports                               blog_reports[]
+  campaign_followers                         campaign_followers[]
+  campaign_reports                           campaign_reports[]
+  campaigns                                  campaigns[]
+  kyc_info                                   kyc_info?
+  platform_invoices                          platform_invoices[]
+  pledges                                    pledges[]
+  donation_certificates_as_backer            donation_certificates[] @relation("certificate_backer")
+  donation_certificates_claimed              donation_certificates[] @relation("certificate_claimed_by")
+  projects                                   projects[]
+  reviews                                    reviews[]
+  product_reviews                            product_reviews[]
+  payment_methods                            payment_methods[]
+  checkout_sessions                          checkout_sessions[]
+  password_reset_tokens                      password_reset_tokens[]
+  user_badges_user_badges_assigned_byTousers user_badges[]        @relation("user_badges_assigned_byTousers")
+  user_badges_user_badges_revoked_byTousers  user_badges[]        @relation("user_badges_revoked_byTousers")
+  user_badges_user_badges_user_idTousers     user_badges[]        @relation("user_badges_user_idTousers")
+  notifications                              notifications[]
+  campaign_comments                          campaign_comments[]
+  campaign_comment_reactions                 campaign_comment_reactions[]
+  user_metadata                              user_metadata?
+  user_notes_authored                        user_notes[]         @relation("user_notes_author")
+  user_notes_received                        user_notes[]         @relation("user_notes_target")
+  support_tiers_owned                        support_tiers[]      @relation("tier_creator")
+  memberships_supporting                     memberships[]        @relation("membership_supporter")
+  memberships_receiving                      memberships[]        @relation("membership_creator")
+  credentials                                credentials[]
+}
+
+
+model support_tiers {
+  id          String        @id
+  creatorId   String
+  title       String
+  description String?
+  amount      Decimal
+  isActive    Boolean       @default(true)
+  sortOrder   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  users       users         @relation("tier_creator", fields: [creatorId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  memberships memberships[]
+  pledges     pledges[]
+
+  @@index([creatorId, isActive])
+}
+
+
+model memberships {
+  id               String           @id
+  supporterId      String
+  creatorId        String
+  tierId           String
+  status           String @default("ACTIVE")
+  currentPeriodEnd DateTime?
+  lastReminderAt   DateTime?
+  canceledAt       DateTime?
+  isAnonymous      Boolean          @default(false)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime
+  supporter        users            @relation("membership_supporter", fields: [supporterId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  creator          users            @relation("membership_creator", fields: [creatorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  support_tiers    support_tiers    @relation(fields: [tierId], references: [id], onUpdate: NoAction)
+  pledges          pledges[]
+
+  @@unique([supporterId, creatorId])
+  @@index([creatorId, status])
+  @@index([status, currentPeriodEnd])
+}
+
+
+model credentials {
+  id             String             @id
+  userId         String
+  subjectType    String
+  kind           String
+  title          String
+  issuer         String
+  issuedAt       DateTime?
+  credentialCode String?
+  fileUrl        String
+  status         String   @default("PENDING")
+  reviewedAt     DateTime?
+  reviewedBy     String?
+  rejectedReason String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime
+  users          users              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([userId, status])
+  @@index([status, createdAt])
+}
+
+
+model password_reset_tokens {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  users     users     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([userId, expiresAt])
+  @@index([expiresAt, usedAt])
+}
+
+
+model assistant_telemetry_events {
+  id        String   @id @default(cuid())
+  assistant String   @db.VarChar(64)
+  eventType String   @db.VarChar(64)
+  metadata  String? @db.NVarChar(Max)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([assistant, eventType, createdAt])
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ─── Enums mới cho MongoDB → PG migration ───────────────────────────────────
+
+
+
+// ─── Models mới (MongoDB → PostgreSQL) ──────────────────────────────────────
+
+
+model notifications {
+  id        String    @id @default(cuid())
+  userId    String
+  type      String    @db.VarChar(64)
+  title     String
+  message   String
+  payload   String @db.NVarChar(Max)      @default("{}")
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  users     users     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([createdAt])
+}
+
+
+model activity_logs_v2 {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String   @db.VarChar(64)
+  entityType String   @db.VarChar(64)
+  entityId   String
+  details    String? @db.NVarChar(Max)
+  metadata   String? @db.NVarChar(Max)
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([createdAt(sort: Desc)])
+}
+
+
+model campaign_comments {
+  id              String                       @id @default(cuid())
+  campaignId      String
+  userId          String
+  userName        String
+  userAvatar      String?
+  content         String
+  parentId        String?
+  depth           Int                          @default(0)
+  isEdited        Boolean                      @default(false)
+  isDeleted       Boolean                      @default(false)
+  status          String        @default("APPROVED")
+  replyCount      Int                          @default(0)
+  editHistory     String @db.NVarChar(Max)                         @default("[]")
+  createdAt       DateTime                     @default(now())
+  updatedAt       DateTime                     @updatedAt
+  campaigns       campaigns                    @relation(fields: [campaignId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users           users                        @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  parent          campaign_comments?           @relation("campaign_comment_replies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies         campaign_comments[]          @relation("campaign_comment_replies")
+  comment_reactions campaign_comment_reactions[]
+
+  @@index([campaignId, createdAt(sort: Desc)])
+  @@index([campaignId, parentId, createdAt])
+  @@index([parentId, createdAt])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([status])
+}
+
+
+model campaign_comment_reactions {
+  id        String            @id @default(cuid())
+  commentId String
+  userId    String
+  type      String            @db.VarChar(16)
+  createdAt DateTime          @default(now())
+  comment   campaign_comments @relation(fields: [commentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users     users             @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([commentId, userId, type])
+  @@index([commentId])
+}
+
+
+model campaign_contents {
+  id             String    @id @default(cuid())
+  campaignId     String
+  lastSavedBy    String
+  version        Int       @default(1)
+  sections       String @db.NVarChar(Max)      @default("[]")
+  mediaGallery   String @db.NVarChar(Max)      @default("[]")
+  customFields   String @db.NVarChar(Max)      @default("{}")
+  isDraft        Boolean   @default(true)
+  publishedAt    DateTime?
+  versionHistory String @db.NVarChar(Max)      @default("[]")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  campaigns      campaigns @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([campaignId, isDraft])
+  @@index([campaignId])
+}
+
+
+model user_metadata {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  preferences String @db.NVarChar(Max)    @default("{}")
+  onboarding  String @db.NVarChar(Max)    @default("{}")
+  stats       String @db.NVarChar(Max)    @default("{}")
+  customData  String? @db.NVarChar(Max)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       users    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user_metadata_tags user_metadata_tags[]
+}
+
+
+model analytics_events {
+  id         String   @id @default(cuid())
+  eventName  String   @db.VarChar(64)
+  userId     String?
+  campaignId String?
+  sessionId  String?
+  path       String?
+  payload    String? @db.NVarChar(Max)
+  device     String? @db.NVarChar(Max)
+  createdAt  DateTime @default(now())
+
+  @@index([eventName])
+  @@index([userId])
+  @@index([campaignId])
+  @@index([path, eventName])
+  @@index([createdAt(sort: Desc)])
+}
+
+
+model analytics_settings {
+  id        String   @id @default("behavior")
+  ttlDays   Int      @default(180)
+  updatedBy String?
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+
+model blog_drafts {
+  id                  String     @id @default(cuid())
+  postId              String     @unique
+  authorId            String
+  titleSnapshot       String?
+  excerptSnapshot     String?
+  contentSnapshot     String?
+  richContentSnapshot String? @db.NVarChar(Max)
+  autosavedAt         DateTime   @default(now())
+  blog_posts          blog_posts @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([postId])
+  @@index([authorId])
+}
+
+
+model blog_versions {
+  id                  String     @id @default(cuid())
+  postId              String
+  versionNumber       Int
+  authorId            String
+  titleSnapshot       String?
+  excerptSnapshot     String?
+  contentSnapshot     String?
+  richContentSnapshot String? @db.NVarChar(Max)
+  changeNote          String?
+  createdAt           DateTime   @default(now())
+  blog_posts          blog_posts @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([postId, versionNumber])
+  @@index([postId, versionNumber(sort: Desc)])
+}
+
+
+model blog_view_logs {
+  id        String     @id @default(cuid())
+  postId    String
+  userId    String?
+  ip        String?
+  userAgent String?
+  viewedAt  DateTime   @default(now())
+  blog_posts blog_posts @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([postId, viewedAt(sort: Desc)])
+  @@index([userId])
+}
+
+
+model conversations {
+  id              String         @id @default(cuid())
+  conversationKey String         @unique
+  type            String         @default("direct") @db.VarChar(32)
+  participants    String @db.NVarChar(Max)           @default("[]")
+  campaignData    String? @db.NVarChar(Max)
+  lastMessage     String? @db.NVarChar(Max)
+  unreadCount     String @db.NVarChar(Max)           @default("{}")
+  isActive        Boolean        @default(true)
+  isReported      Boolean        @default(false)
+  typingBy        String @db.NVarChar(Max)           @default("{}")
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  messages        messages[]
+  chat_reports    chat_reports[]
+
+  conversation_members conversation_members[]
+  conversation_blocks conversation_blocks[]
+  conversation_hides conversation_hides[]
+  @@index([updatedAt(sort: Desc)])
+}
+
+
+model messages {
+  id                String            @id @default(cuid())
+  conversationId    String
+  senderId          String
+  senderName        String
+  senderAvatar      String?
+  text              String
+  type              String            @default("text") @db.VarChar(32)
+  attachments       String @db.NVarChar(Max)              @default("[]")
+  isDeleted         Boolean           @default(false)
+  sensitive         Boolean           @default(false)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  conversations     conversations     @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  message_reactions message_reactions[]
+
+  message_reads message_reads[]
+  message_reveals message_reveals[]
+  @@index([conversationId, createdAt(sort: Desc)])
+  @@index([senderId])
+}
+
+
+model message_reactions {
+  id        String   @id @default(cuid())
+  messageId String
+  emoji     String   @db.VarChar(16)
+  messages  messages @relation(fields: [messageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  reaction_users reaction_users[]
+  @@unique([messageId, emoji])
+  @@index([messageId])
+}
+
+
+model chat_reports {
+  id             String        @id @default(cuid())
+  conversationId String
+  messageId      String?
+  reporterId     String
+  reason         String        @db.VarChar(32)
+  description    String
+  occurredAt     DateTime?
+  status         String        @default("pending") @db.VarChar(32)
+  reviewedAt     DateTime?
+  reviewedBy     String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  conversations  conversations @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  chat_report_images chat_report_images[]
+  @@index([conversationId])
+  @@index([reporterId])
+  @@index([status])
+}
+
+
+model user_notes {
+  id           String   @id @default(cuid())
+  userId       String
+  targetUserId String
+  note         String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  users        users    @relation("user_notes_author", fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  target       users    @relation("user_notes_target", fields: [targetUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([userId, expiresAt])
+  @@index([targetUserId, expiresAt])
+}
+
+
+model so_ledgers {
+  id        String   @id
+  rev       Int      @default(0)
+  state     String @db.NVarChar(Max)
+  updatedAt DateTime @updatedAt
+}
+
+model campaign_report_images {
+  reportId String
+  url String
+  position Int @default(0)
+  campaign_reports campaign_reports @relation(fields: [reportId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([reportId, url])
+  @@index([reportId])
+}
+
+model campaign_update_tags {
+  updateId String
+  tag String
+  position Int @default(0)
+  campaign_updates campaign_updates @relation(fields: [updateId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([updateId, tag])
+  @@index([updateId])
+}
+
+model campaign_tags {
+  campaignId String
+  tag String
+  position Int @default(0)
+  campaigns campaigns @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([campaignId, tag])
+  @@index([campaignId])
+}
+
+model campaign_images {
+  campaignId String
+  url String
+  position Int @default(0)
+  campaigns campaigns @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([campaignId, url])
+  @@index([campaignId])
+}
+
+model reward_images {
+  rewardId String
+  url String
+  position Int @default(0)
+  rewards rewards @relation(fields: [rewardId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([rewardId, url])
+  @@index([rewardId])
+}
+
+model review_media {
+  reviewId String
+  url String
+  position Int @default(0)
+  product_reviews product_reviews @relation(fields: [reviewId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([reviewId, url])
+  @@index([reviewId])
+}
+
+model user_metadata_tags {
+  metadataId String
+  tag String
+  position Int @default(0)
+  user_metadata user_metadata @relation(fields: [metadataId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([metadataId, tag])
+  @@index([metadataId])
+}
+
+model conversation_members {
+  conversationId String
+  userId String
+  position Int @default(0)
+  conversations conversations @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([conversationId, userId])
+  @@index([conversationId])
+}
+
+model conversation_blocks {
+  conversationId String
+  userId String
+  position Int @default(0)
+  conversations conversations @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([conversationId, userId])
+  @@index([conversationId])
+}
+
+model conversation_hides {
+  conversationId String
+  userId String
+  position Int @default(0)
+  conversations conversations @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([conversationId, userId])
+  @@index([conversationId])
+}
+
+model message_reads {
+  messageId String
+  userId String
+  position Int @default(0)
+  messages messages @relation(fields: [messageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([messageId, userId])
+  @@index([messageId])
+}
+
+model message_reveals {
+  messageId String
+  userId String
+  position Int @default(0)
+  messages messages @relation(fields: [messageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([messageId, userId])
+  @@index([messageId])
+}
+
+model reaction_users {
+  reactionId String
+  userId String
+  position Int @default(0)
+  message_reactions message_reactions @relation(fields: [reactionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([reactionId, userId])
+  @@index([reactionId])
+}
+
+model chat_report_images {
+  reportId String
+  url String
+  position Int @default(0)
+  chat_reports chat_reports @relation(fields: [reportId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([reportId, url])
+  @@index([reportId])
+}
