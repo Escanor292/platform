@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { ACTIVE_DATABASE_KEY, inspectDatabaseReadiness, setDatabaseTarget, type DatabaseTarget } from "@/lib/db/target";
 import { getPlatformSetting, setPlatformSetting } from "@/lib/platform-settings";
 import { refreshDatabaseTarget } from "@/lib/prisma";
+import { copyPostgresToMssql } from "@/lib/db/sync";
 
 function isAdmin(user: unknown) {
   const account = user as { role?: string; isAdmin?: boolean } | undefined;
@@ -43,14 +44,17 @@ export async function PATCH(request: NextRequest) {
   if (!current.canSwitch) {
     return NextResponse.json({ error: "Chưa gắn MSSQL_URL. Web vẫn dùng Postgres.", ...current, requested }, { status: 409 });
   }
+  let copied: { tables: number; rows: number } | null = null;
   if (requested === "sqlserver") {
-    try { await pushSqlServerSchema(); }
-    catch (error) {
+    try {
+      await pushSqlServerSchema();
+      copied = await copyPostgresToMssql();
+    } catch (error) {
       setDatabaseTarget("postgresql");
       return NextResponse.json({ error: error instanceof Error ? error.message : "Không kết nối được MS SQL", ...current }, { status: 409 });
     }
   }
   await setPlatformSetting(ACTIVE_DATABASE_KEY, requested);
   setDatabaseTarget(requested);
-  return NextResponse.json({ success: true, ...inspectDatabaseReadiness(requested), requested });
+  return NextResponse.json({ success: true, ...inspectDatabaseReadiness(requested), requested, copied });
 }

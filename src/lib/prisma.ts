@@ -36,17 +36,40 @@ function activeClient() {
   return getMssqlClient() ?? postgresPrisma;
 }
 
+function callOnActive(owner: object, fn: (...args: unknown[]) => unknown, args: unknown[]) {
+  if (owner === postgresPrisma || getDatabaseTarget() !== "sqlserver") return fn.apply(owner, args);
+  const result = fn.apply(owner, args.map(packWriteArgs));
+  return result instanceof Promise ? result.then(unpackRead) : unpackRead(result);
+}
+
+function bindCall(model: PropertyKey, method: PropertyKey) {
+  return async (...args: unknown[]) => {
+    if (shouldRefreshDatabaseTarget()) await refreshDatabaseTarget();
+    const client = activeClient() as Record<PropertyKey, unknown>;
+    if (method === model) {
+      const fn = client[model];
+      if (typeof fn !== "function") return fn;
+      return callOnActive(client, fn as (...args: unknown[]) => unknown, args);
+    }
+    const delegate = client[model] as Record<PropertyKey, unknown> | undefined;
+    const fn = delegate?.[method];
+    if (typeof fn !== "function" || !delegate) return undefined;
+    return callOnActive(delegate, fn as (...args: unknown[]) => unknown, args);
+  };
+}
+
 const switchingPrisma = new Proxy(postgresPrisma, {
   get(target, prop) {
-    const client = activeClient();
-    if (client === target) return Reflect.get(target, prop, target);
-    const value = Reflect.get(client, prop, client);
-    if (typeof value !== "function") return value;
-    return (...args: unknown[]) => {
-      const packed = args.map(packWriteArgs);
-      const result = value.apply(client, packed);
-      return result instanceof Promise ? result.then(unpackRead) : unpackRead(result);
-    };
+    if (prop === "then") return undefined;
+    const sample = Reflect.get(target, prop, target);
+    if (typeof sample === "function") return bindCall(prop, prop);
+    if (!sample || typeof sample !== "object") return sample;
+    return new Proxy(sample, {
+      get(_delegate, method) {
+        if (typeof method === "symbol") return Reflect.get(sample, method, sample);
+        return bindCall(prop, method);
+      },
+    });
   },
 }) as PrismaClient;
 

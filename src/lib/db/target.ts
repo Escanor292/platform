@@ -18,7 +18,7 @@ export function setDatabaseTarget(target: DatabaseTarget) {
 }
 
 export function shouldRefreshDatabaseTarget() {
-  return Boolean(process.env.MSSQL_URL?.trim()) && Date.now() - refreshedAt > 5000;
+  return Boolean(process.env.MSSQL_URL?.trim()) && Date.now() - refreshedAt > 1000;
 }
 
 export function mssqlUrlConfigured(): boolean {

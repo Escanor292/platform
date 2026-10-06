@@ -177,7 +177,7 @@ export default function AdminSystemPage() {
               </div>
               <p className="mt-1 text-sm text-gray-500">
                 Đang dùng: {database?.effective === "sqlserver" ? "MS SQL cho SQL thô" : "PostgreSQL (Neon)"}.
-                Tắt nút là về Postgres, dữ liệu Neon không bị xóa. Bật chỉ khi đã gắn MSSQL_URL.
+                Bật nút sẽ tạo bảng và chép dữ liệu Neon sang MS SQL. Tắt nút về Postgres, Neon không bị xóa.
               </p>
             </div>
             <button
