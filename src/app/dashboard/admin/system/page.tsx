@@ -44,6 +44,7 @@ export default function AdminSystemPage() {
   const [sitemapPath, setSitemapPath] = useState("/sitemap.xml");
   const [robotsPath, setRobotsPath] = useState("/robots.txt");
   const [database, setDatabase] = useState<DatabaseReadiness | null>(null);
+  const [savingDatabase, setSavingDatabase] = useState(false);
 
   const apply = (data: SettingsPayload) => {
     if (typeof data.ekycEnabled === "boolean") setEkycEnabled(data.ekycEnabled);
@@ -175,18 +176,42 @@ export default function AdminSystemPage() {
                 <Database size={18} className="text-sky-700" /> Database
               </div>
               <p className="mt-1 text-sm text-gray-500">
-                Đang ghi: {database?.effective === "sqlserver" ? "MS SQL" : "PostgreSQL (Neon)"}.
-                Nút chuyển khóa cho đến khi có SQL Server, client Prisma và worker đồng bộ.
+                Đang dùng: {database?.effective === "sqlserver" ? "MS SQL cho SQL thô" : "PostgreSQL (Neon)"}.
+                Tắt nút thì code không đổi. Bật chỉ khi đã gắn SQL Server.
               </p>
             </div>
             <button
               type="button"
-              disabled
-              className="relative h-8 w-14 shrink-0 cursor-not-allowed rounded-full bg-gray-300 opacity-60"
-              aria-pressed={false}
-              title="Chưa chuyển được"
+              disabled={!database?.canSwitch || savingDatabase}
+              onClick={async () => {
+                if (!database?.canSwitch) return;
+                const next = database.effective === "sqlserver" ? "postgresql" : "sqlserver";
+                setSavingDatabase(true);
+                try {
+                  const res = await fetch("/api/admin/database-target", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ target: next }),
+                  });
+                  const data = await res.json();
+                  if (!res.ok) throw new Error(data.error || "Không chuyển được");
+                  setDatabase(data);
+                  toast.success(data.effective === "sqlserver" ? "SQL thô đang sang MS SQL" : "Đã về Postgres");
+                } catch (error: any) {
+                  toast.error(error.message);
+                } finally {
+                  setSavingDatabase(false);
+                }
+              }}
+              className={`relative h-8 w-14 shrink-0 rounded-full transition ${
+                database?.effective === "sqlserver" ? "bg-sky-700" : "bg-gray-300"
+              } ${!database?.canSwitch || savingDatabase ? "cursor-not-allowed opacity-60" : ""}`}
+              aria-pressed={database?.effective === "sqlserver"}
+              title={database?.canSwitch ? "Chuyển SQL thô" : "Chưa gắn SQL Server"}
             >
-              <span className="absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow" />
+              <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition ${
+                database?.effective === "sqlserver" ? "left-7" : "left-1"
+              }`} />
             </button>
           </div>
           <ul className="mt-4 space-y-1 text-sm text-gray-500">

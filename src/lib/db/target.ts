@@ -5,12 +5,15 @@ export type DatabaseTarget = "postgresql" | "sqlserver";
 
 export const ACTIVE_DATABASE_KEY = "active_database";
 
-const SYNC_WORKER_READY = false;
-
 let effective: DatabaseTarget = "postgresql";
 
 export function getDatabaseTarget(): DatabaseTarget {
   return effective;
+}
+
+export function applyDatabaseTarget(stored: DatabaseTarget): DatabaseTarget {
+  const readiness = inspectDatabaseReadiness(stored);
+  return readiness.effective;
 }
 
 export function mssqlUrlConfigured(): boolean {
@@ -38,16 +41,20 @@ export function inspectDatabaseReadiness(stored: DatabaseTarget = "postgresql"):
   if (!mssqlConfigured) reasons.push("Chưa có MSSQL_URL trên server.");
   if (!mssqlClientReady) reasons.push("Chưa generate client Prisma cho SQL Server.");
   if (!unlocked) reasons.push("Chưa bật DB_SWITCH_UNLOCK. Neon vẫn là database đang ghi.");
-  if (!SYNC_WORKER_READY) reasons.push("Chưa có worker đồng bộ. Chưa chuyển để tránh lệch đơn PayOS.");
-  const canSwitch = mssqlConfigured && mssqlClientReady && unlocked && SYNC_WORKER_READY;
-  if (!canSwitch) effective = "postgresql";
-  else effective = stored === "sqlserver" ? "sqlserver" : "postgresql";
+  const canSwitch = mssqlConfigured && mssqlClientReady && unlocked;
+  if (!canSwitch) {
+    reasons.push("Nút tắt: câu SQL và client vẫn là Postgres.");
+    effective = "postgresql";
+  } else {
+    reasons.push("Bật nút chỉ đổi SQL thô sang SQL Server. Query campaign, user, pledge vẫn Neon.");
+    effective = stored === "sqlserver" ? "sqlserver" : "postgresql";
+  }
   return {
     stored,
     effective,
     mssqlConfigured,
     mssqlClientReady,
     canSwitch,
-    reasons: canSwitch ? [] : reasons,
+    reasons,
   };
 }

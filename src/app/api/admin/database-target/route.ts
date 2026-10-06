@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { ACTIVE_DATABASE_KEY, inspectDatabaseReadiness, type DatabaseTarget } from "@/lib/db/target";
-import { getPlatformSetting } from "@/lib/platform-settings";
+import { getPlatformSetting, setPlatformSetting } from "@/lib/platform-settings";
 
 function isAdmin(user: unknown) {
   const account = user as { role?: string; isAdmin?: boolean } | undefined;
@@ -18,8 +18,7 @@ export async function GET() {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   const stored = normalizeTarget(await getPlatformSetting(ACTIVE_DATABASE_KEY));
-  const readiness = inspectDatabaseReadiness(stored);
-  return NextResponse.json(readiness);
+  return NextResponse.json(inspectDatabaseReadiness(stored));
 }
 
 export async function PATCH(request: NextRequest) {
@@ -29,17 +28,14 @@ export async function PATCH(request: NextRequest) {
   }
   const body = await request.json().catch(() => ({}));
   const requested = normalizeTarget(body.target);
-  const stored = normalizeTarget(await getPlatformSetting(ACTIVE_DATABASE_KEY));
-  const readiness = inspectDatabaseReadiness(stored);
-  if (!readiness.canSwitch) {
+  const current = inspectDatabaseReadiness(normalizeTarget(await getPlatformSetting(ACTIVE_DATABASE_KEY)));
+  if (!current.canSwitch) {
     return NextResponse.json(
-      {
-        error: "Chưa chuyển database. Neon vẫn đang ghi.",
-        ...readiness,
-        requested,
-      },
+      { error: "Chưa gắn SQL Server. Web vẫn dùng Postgres.", ...current, requested },
       { status: 409 },
     );
   }
-  return NextResponse.json({ ...readiness, requested });
+  await setPlatformSetting(ACTIVE_DATABASE_KEY, requested);
+  const readiness = inspectDatabaseReadiness(requested);
+  return NextResponse.json({ success: true, ...readiness, requested });
 }
