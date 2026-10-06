@@ -124,13 +124,6 @@ export async function PATCH(request: NextRequest, { params }: Context) {
         ? Number(current.orderTotalAmount || current.amount)
         : Number(current.paidAmount);
 
-      if (shouldReleaseStock) {
-        await tx.rewards.update({
-          where: { id: current.rewardId! },
-          data: { stock: { increment: current.quantity }, updatedAt: new Date() },
-        });
-      }
-
       const pledgeStatus = reversing
         ? (Number(current.paidAmount) > 0 ? "REFUNDED" : "FAILED")
         : (nextStatus === "DELIVERED" ? "SUCCESS" : current.status);
@@ -138,8 +131,13 @@ export async function PATCH(request: NextRequest, { params }: Context) {
       const nextAccountingAmount = nextStatus === "DELIVERED"
         ? Number(current.amount)
         : (isBuyerCancellation ? cancellationSettlement.cancellationFeeAmount : (reversing ? 0 : Number(current.accountingAmount)));
-      const updated = await tx.pledges.update({
-        where: { id: pledgeId },
+
+      const claimed = await tx.pledges.updateMany({
+        where: {
+          id: pledgeId,
+          fulfillmentStatus: current.fulfillmentStatus,
+          ...(shouldReleaseStock ? { stockReserved: true } : {}),
+        },
         data: {
           fulfillmentStatus: nextStatus,
           stockReserved: shouldReleaseStock ? false : current.stockReserved,
@@ -148,7 +146,12 @@ export async function PATCH(request: NextRequest, { params }: Context) {
           ...(nextStatus === "DELIVERY_FAILED" ? { deliveryFailureReason: reason } : {}),
           ...(nextStatus === "CANCELED" ? { cancellationReason: reason } : {}),
           ...(nextStatus === "RETURNED" ? { returnReason: reason } : {}),
-          ...(nextStatus === "DELIVERED" ? { receivedAt: new Date(), paidAmount: new Decimal(deliveredPaidAmount), remainingAmount: 0 } : {}),
+          ...(nextStatus === "DELIVERED" ? {
+            receivedAt: new Date(),
+            paidAmount: new Decimal(deliveredPaidAmount),
+            remainingAmount: 0,
+            accountingAmount: new Decimal(nextAccountingAmount),
+          } : {}),
           ...(nextStatus === "SHIPPED" ? { handedToCarrierAt: new Date() } : {}),
           ...(reversing ? {
             accountingAmount: new Decimal(nextAccountingAmount),
@@ -159,6 +162,17 @@ export async function PATCH(request: NextRequest, { params }: Context) {
           updatedAt: new Date(),
         },
       });
+      if (claimed.count !== 1) throw new Error("CONFLICT");
+
+      if (shouldReleaseStock && current.rewardId) {
+        await tx.rewards.update({
+          where: { id: current.rewardId },
+          data: { stock: { increment: current.quantity }, updatedAt: new Date() },
+        });
+      }
+
+      const updated = await tx.pledges.findUnique({ where: { id: pledgeId } });
+      if (!updated) throw new Error("NOT_FOUND");
 
       const currentAmount = current.campaignId && (shouldReverseAccounting || nextStatus === "DELIVERED")
         ? await recalculateCampaignAmount(tx, current.campaignId)
@@ -181,6 +195,9 @@ export async function PATCH(request: NextRequest, { params }: Context) {
   } catch (error) {
     if (error instanceof Error && error.message === "NOT_FOUND") {
       return NextResponse.json({ error: "Không tìm thấy đơn hàng" }, { status: 404 });
+    }
+    if (error instanceof Error && error.message === "CONFLICT") {
+      return NextResponse.json({ error: "Đơn hàng vừa được cập nhật, hãy tải lại" }, { status: 409 });
     }
     console.error("[FULFILLMENT_PATCH]", error instanceof Error ? error.message : "unknown error");
     return NextResponse.json({ error: "Không thể cập nhật trạng thái đơn hàng" }, { status: 500 });

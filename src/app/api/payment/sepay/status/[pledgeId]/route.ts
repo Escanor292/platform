@@ -21,15 +21,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ ple
     // Tìm pledge trong database
     const pledge = await prisma.pledges.findUnique({
       where: { id: pledgeId },
-      include: {
-        campaigns: {
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-          },
-        },
-      },
+      select: { status: true },
     });
 
     if (!pledge) {
@@ -41,27 +33,15 @@ export async function GET(request: NextRequest, context: { params: Promise<{ ple
 
     // Trả về trạng thái
     return NextResponse.json({
-      success: true,
-      pledge: {
-        id: pledge.id,
-        status: pledge.status,
-        amount: Number(pledge.amount),
-        totalAmount: Number(pledge.totalAmount),
-        paymentProvider: pledge.paymentProvider,
-        transactionId: pledge.transactionId,
-        createdAt: pledge.createdAt,
-        updatedAt: pledge.updatedAt,
-      },
-      campaign: pledge.campaigns,
       isPending: pledge.status === "PENDING",
       isSuccess: pledge.status === "SUCCESS",
-      isFailed: pledge.status === "FAILED",
+      isFailed: pledge.status === "FAILED" || pledge.status === "REFUNDED",
     });
 
   } catch (error: any) {
     console.error("SePay Status Check Error:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to check payment status" },
+      { error: "Failed to check payment status" },
       { status: 500 }
     );
   }

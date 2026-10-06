@@ -18,12 +18,7 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ txId: 
 
     // Trong schema mới, thông tin thanh toán nằm trong model Pledge
     const pledge = await prisma.pledges.findFirst({
-      where: {
-        OR: [
-          { id: txId },
-          { transactionId: txId },
-        ],
-      },
+      where: { transactionId: txId },
       select: {
         id: true,
         transactionId: true,

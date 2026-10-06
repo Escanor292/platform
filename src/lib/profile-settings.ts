@@ -29,7 +29,7 @@ export function normalizePrivacySettings(role: string, value: unknown): PrivacyS
 
   return {
     // Account name, account ID and display identity are intentionally not configurable.
-    email: creatorContactLocked ? true : booleanValue(input.email, true),
+    email: creatorContactLocked ? true : booleanValue(input.email, false),
     phone: creatorContactLocked ? true : booleanValue(input.phone, false),
     location: booleanValue(input.location, true),
     bio: booleanValue(input.bio, true),

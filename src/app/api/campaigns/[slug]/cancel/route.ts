@@ -26,7 +26,7 @@ export async function POST(
     if (!campaign) return NextResponse.json({ error: "Du an khong ton tai" }, { status: 404 });
 
     const isOwner = campaign.creatorId === user.id;
-    const isAdmin = user.role === "ADMIN";
+    const isAdmin = user.role === "ADMIN" || user.isAdmin === true;
     if (!isOwner && !isAdmin) {
       return NextResponse.json({ error: "Khong co quyen huy du an nay" }, { status: 403 });
     }

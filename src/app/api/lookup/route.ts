@@ -78,7 +78,6 @@ export async function GET(request: NextRequest) {
       where: {
         OR: [
           { transactionId: transactionId },
-          { id: transactionId },
           { payosOrderCode: transactionId }
         ]
       },

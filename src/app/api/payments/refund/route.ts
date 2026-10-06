@@ -6,7 +6,8 @@ import { auth } from "@/lib/auth";
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user || (session.user as any).role !== "ADMIN") {
+    const actor = session?.user as { role?: string; isAdmin?: boolean } | undefined;
+    if (!actor || (actor.role !== "ADMIN" && !actor.isAdmin)) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
@@ -26,16 +27,9 @@ export async function POST(req: NextRequest) {
     }
 
     if (campaign.status !== "FAILED" && campaign.status !== "CANCELED") {
-      const now = new Date();
-      await prisma.campaigns.update({
-        where: { id: campaignId },
-        data: {
-          status: "FAILED",
-          closedAmount: campaign.currentAmount,
-          closedAt: now,
-          updatedAt: now,
-        },
-      });
+      return NextResponse.json({
+        error: "Chỉ hoàn sổ khi chiến dịch đã FAILED hoặc CANCELED. Hủy chiến dịch trước, route này không tự đóng chiến dịch đang chạy.",
+      }, { status: 400 });
     }
 
     const result = await processCampaignRefund(campaignId);

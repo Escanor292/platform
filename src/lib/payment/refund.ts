@@ -4,42 +4,81 @@ import { recalculateCampaignAmount } from "@/lib/order-fulfillment";
 
 export async function refundPledgeLedger(pledgeId: string, reason: string) {
   const now = new Date();
-  const pledge = await prisma.pledges.findUnique({
-    where: { id: pledgeId },
-    select: {
-      id: true,
-      campaignId: true,
-      rewardId: true,
-      status: true,
-      refundStatus: true,
-      cancellationReason: true,
-    },
+  const claimed = await prisma.$transaction(async (tx) => {
+    const pledge = await tx.pledges.findUnique({
+      where: { id: pledgeId },
+      select: {
+        id: true,
+        campaignId: true,
+        rewardId: true,
+        quantity: true,
+        status: true,
+        refundStatus: true,
+        stockReserved: true,
+        cancellationReason: true,
+      },
+    });
+    if (!pledge || pledge.status !== "SUCCESS" || pledge.refundStatus === "COMPLETED") return null;
+    const updated = await tx.pledges.updateMany({
+      where: {
+        id: pledge.id,
+        status: "SUCCESS",
+        refundStatus: { not: "COMPLETED" },
+        stockReserved: pledge.stockReserved,
+      },
+      data: {
+        refundStatus: "COMPLETED",
+        refundedAt: now,
+        status: "REFUNDED",
+        stockReserved: false,
+        accountingReversedAt: now,
+        fulfillmentStatus: pledge.rewardId ? "CANCELED" : "NOT_APPLICABLE",
+        cancellationReason: pledge.cancellationReason || reason,
+        updatedAt: now,
+      },
+    });
+    if (updated.count !== 1) return null;
+    if (pledge.stockReserved && pledge.rewardId) {
+      await tx.rewards.update({
+        where: { id: pledge.rewardId },
+        data: { stock: { increment: pledge.quantity }, updatedAt: now },
+      });
+    }
+    if (pledge.campaignId) await recalculateCampaignAmount(tx, pledge.campaignId);
+    return pledge;
   });
-  if (!pledge || pledge.status !== "SUCCESS" || pledge.refundStatus === "COMPLETED") {
-    return false;
-  }
-  const updated = await prisma.pledges.updateMany({
-    where: {
-      id: pledge.id,
-      status: "SUCCESS",
-      refundStatus: { not: "COMPLETED" },
-    },
-    data: {
-      refundStatus: "COMPLETED",
-      refundedAt: now,
-      status: "REFUNDED",
-      accountingReversedAt: now,
-      fulfillmentStatus: pledge.rewardId ? "CANCELED" : "NOT_APPLICABLE",
-      cancellationReason: pledge.cancellationReason || reason,
-      updatedAt: now,
-    },
-  });
-  if (updated.count !== 1) return false;
-  await revokeDigitalWarehouseItem(pledge.id);
-  if (pledge.campaignId) {
-    await prisma.$transaction((tx) => recalculateCampaignAmount(tx, pledge.campaignId!));
-  }
+  if (!claimed) return false;
+  await revokeDigitalWarehouseItem(claimed.id);
   return true;
+}
+
+async function closePendingPledges(campaignId: string, reason: string) {
+  const now = new Date();
+  const pending = await prisma.pledges.findMany({
+    where: { campaignId, status: "PENDING" },
+    select: { id: true, rewardId: true, quantity: true, stockReserved: true },
+  });
+  for (const pledge of pending) {
+    await prisma.$transaction(async (tx) => {
+      const updated = await tx.pledges.updateMany({
+        where: { id: pledge.id, status: "PENDING" },
+        data: {
+          status: "FAILED",
+          stockReserved: false,
+          fulfillmentStatus: pledge.rewardId ? "CANCELED" : "NOT_APPLICABLE",
+          cancellationReason: reason,
+          updatedAt: now,
+        },
+      });
+      if (updated.count !== 1) return;
+      if (pledge.stockReserved && pledge.rewardId) {
+        await tx.rewards.update({
+          where: { id: pledge.rewardId },
+          data: { stock: { increment: pledge.quantity }, updatedAt: now },
+        });
+      }
+    });
+  }
 }
 
 export async function processCampaignRefund(campaignId: string) {
@@ -49,6 +88,8 @@ export async function processCampaignRefund(campaignId: string) {
     if (campaign.status !== "FAILED" && campaign.status !== "CANCELED") {
       throw new Error("Dự án chưa ở trạng thái có thể hoàn tiền (phải là FAILED hoặc CANCELED)");
     }
+
+    await closePendingPledges(campaignId, "Chiến dịch đã hủy, phiên chờ thanh toán được đóng");
 
     const pledges = await prisma.pledges.findMany({
       where: { campaignId, status: "SUCCESS", refundStatus: "NO_REFUND" },

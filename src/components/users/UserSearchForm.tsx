@@ -7,7 +7,7 @@ import Link from "next/link";
 interface SearchResult {
   id: string;
   name: string | null;
-  email: string;
+  email: string | null;
   role: string;
   image: string | null;
 }
@@ -46,7 +46,12 @@ export default function UserSearchForm() {
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     const query = searchQuery.trim();
-    if (!query) return;
+    if (query.length < 2) {
+      setError("Nhập ít nhất 2 ký tự.");
+      setResults([]);
+      setSearched(true);
+      return;
+    }
 
     setIsLoading(true);
     setSearched(true);
@@ -74,7 +79,7 @@ export default function UserSearchForm() {
     <div className="mx-auto w-full max-w-3xl text-left">
       <form onSubmit={handleSearch} className="glass rounded-3xl p-4 shadow-soft sm:p-5">
         <label htmlFor="user-search" className="sr-only">
-          Tìm theo tên, email hoặc ID
+          Tìm theo tên hoặc mã người dùng
         </label>
         <div className="flex flex-col gap-3 sm:flex-row">
           <div className="relative flex-1">
@@ -84,7 +89,7 @@ export default function UserSearchForm() {
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tên hiển thị, email hoặc ID..."
+              placeholder="Tên hiển thị hoặc mã người dùng..."
               autoComplete="off"
               className="h-12 w-full rounded-2xl border border-white/70 bg-white/80 pl-12 pr-4 text-base text-dblue outline-none transition placeholder:text-gray-400 focus:border-pgreen/40 focus:ring-2 focus:ring-pgreen/20"
             />
@@ -135,14 +140,14 @@ export default function UserSearchForm() {
                     {user.image ? (
                       <img src={user.image} alt={user.name || "User"} className="h-full w-full object-cover" />
                     ) : (
-                      user.name?.[0]?.toUpperCase() || user.email[0].toUpperCase()
+                      user.name?.[0]?.toUpperCase() || "?"
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-semibold text-dblue transition group-hover:text-pgreen">
                       {user.name || "Người dùng ẩn danh"}
                     </div>
-                    <div className="truncate text-sm text-gray-500">{user.email}</div>
+                    {user.email ? <div className="truncate text-sm text-gray-500">{user.email}</div> : null}
                   </div>
                   <span className={`hidden rounded-full px-3 py-1 text-xs font-bold sm:inline ${roleBadgeClass(user.role)}`}>
                     {roleLabel(user.role)}
@@ -158,7 +163,7 @@ export default function UserSearchForm() {
               </div>
               <h3 className="font-display font-bold text-dblue">Không tìm thấy người phù hợp</h3>
               <p className="mx-auto mt-2 max-w-md text-sm text-gray-500">
-                Thử tên hiển thị, email hoặc mã người dùng khác.
+                Thử tên hiển thị hoặc mã người dùng khác.
               </p>
             </div>
           )}

@@ -483,14 +483,16 @@ export async function getTotalUnreadCount(userId: string): Promise<number> {
 
 export async function searchUsers(query: string, currentUserId: string): Promise<any[]> {
     if (!query || query.trim().length < 2) return [];
+    const needle = query.trim();
+    const folded = needle.toLocaleLowerCase();
     const users = await prisma.users.findMany({
         where: {
             AND: [
                 {
                     OR: [
-                        { name: { contains: query, mode: 'insensitive' } },
-                        { displayName: { contains: query, mode: 'insensitive' } },
-                        { email: { contains: query, mode: 'insensitive' } },
+                        { name: { contains: needle, mode: 'insensitive' } },
+                        { displayName: { contains: needle, mode: 'insensitive' } },
+                        { email: { equals: needle, mode: 'insensitive' } },
                     ],
                 },
                 { id: { not: currentUserId } },
@@ -507,13 +509,19 @@ export async function searchUsers(query: string, currentUserId: string): Promise
         },
         take: 10,
     });
-    return users.map((u) => ({
-        id: u.id,
-        name: u.displayName || u.name,
-        email: normalizePrivacySettings(u.role, u.privacySettings).email ? u.email : null,
-        avatar: u.avatar,
-        role: u.role,
-    }));
+    return users.flatMap((u) => {
+        const visibleEmail = normalizePrivacySettings(u.role, u.privacySettings).email;
+        const name = u.displayName || u.name;
+        const nameHit = name.toLocaleLowerCase().includes(folded);
+        if (!nameHit && !visibleEmail) return [];
+        return [{
+            id: u.id,
+            name,
+            email: visibleEmail ? u.email : null,
+            avatar: u.avatar,
+            role: u.role,
+        }];
+    });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

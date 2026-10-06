@@ -6,27 +6,31 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const query = searchParams.get("query")?.trim() || "";
-    if (!query) return NextResponse.json({ users: [] });
+    if (query.length < 2) return NextResponse.json({ users: [] });
 
+    const folded = query.toLocaleLowerCase();
     const candidates = await prisma.users.findMany({
       where: {
         OR: [
           { id: query },
-          { email: { contains: query, mode: "insensitive" } },
           { name: { contains: query, mode: "insensitive" } },
+          { displayName: { contains: query, mode: "insensitive" } },
         ],
       },
-      select: { id: true, name: true, email: true, role: true, image: true, privacySettings: true },
+      select: { id: true, name: true, displayName: true, email: true, role: true, image: true, privacySettings: true },
       take: 20,
       orderBy: { name: "asc" },
     });
 
     const users = candidates
-      .filter((user) => user.name.toLocaleLowerCase().includes(query.toLocaleLowerCase()) || user.id === query || normalizePrivacySettings(user.role, user.privacySettings).email)
+      .filter((user) => {
+        const name = (user.displayName || user.name).toLocaleLowerCase();
+        return name.includes(folded) || user.id === query;
+      })
       .slice(0, 10)
       .map((user) => ({
         id: user.id,
-        name: user.name,
+        name: user.displayName || user.name,
         email: normalizePrivacySettings(user.role, user.privacySettings).email ? user.email : null,
         role: user.role,
         image: user.image,
