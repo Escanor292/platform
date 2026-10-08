@@ -800,4 +800,76 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
       },
     ],
   },
+  {
+    kicker: "Slide 65",
+    title: "SRS: PHẠM VI ĐỌC TỪ CODE",
+    body: "Bản đặc tả kỹ thuật trên slide. Không tạo file .md riêng.",
+    table: {
+      headers: ["Mã", "Module", "Nguồn code", "Trạng thái"],
+      rows: [
+        ["SRS-01", "Xác thực và phân quyền", "auth.ts · permissions-catalog.ts", "Đã có"],
+        ["SRS-02", "Danh mục", "taxonomy.ts · /api/taxonomy", "Xem và gán đã có"],
+        ["SRS-03", "Tác vụ gây quỹ", "campaign-lifecycle.ts · create-pledge.ts", "Đã có"],
+        ["SRS-04", "Báo cáo và dashboard", "/api/stats · /dashboard/admin/analytics", "Số liệu đã có"],
+        ["SRS-05", "Tham số hệ thống", "platform-settings.ts", "Đã có"],
+      ],
+    },
+    note: "Không đưa sao lưu SQL Server 2019 vào SRS này.",
+  },
+  {
+    kicker: "Slide 66",
+    title: "SRS-01 XÁC THỰC VÀ BIT FIELD",
+    cards: [
+      { title: "Đăng nhập", body: "NextAuth, session strategy jwt. Token giữ id, role, status, isAdmin. BANNED không tạo pledge." },
+      { title: "Người dùng", body: "Năm loại: Guest, Backer, Creator, Creator Pro, Admin. Admin hoặc isAdmin vào trang quản trị." },
+      { title: "Bit field", body: "Mỗi quyền là một bit, 0 đến 17. Mặt nạ lưu ở platform_settings.role_permissions. hasBit kiểm tra. Admin khóa bit admin.panel." },
+    ],
+  },
+  {
+    kicker: "Slide 67",
+    title: "SRS-02 DANH MỤC",
+    table: {
+      headers: ["Việc", "Thiết kế", "Code hiện tại"],
+      rows: [
+        ["Xem", "10 danh mục chính và nhóm tag", "GET /api/taxonomy"],
+        ["Gán", "Campaign lưu category và tags", "taxonomy-write.ts"],
+        ["Thêm", "Admin thêm danh mục", "Chưa có API ghi"],
+        ["Sửa", "Admin sửa nhãn, không phá tag cũ", "Dữ liệu đang nằm file taxonomy.ts"],
+      ],
+    },
+    note: "Bộ lọc phải khớp đúng nhãn danh mục.",
+  },
+  {
+    kicker: "Slide 68",
+    title: "SRS-03 TÁC VỤ GÂY QUỸ",
+    body: "Nghiệp vụ cốt lõi của Tử Tế Fund, không phải module chung chung.",
+    cards: [
+      { title: "Chiến dịch", body: "Tạo DRAFT, gửi duyệt, ACTIVE hoặc REJECTED có lý do. Một campaign có ủng hộ và Reward." },
+      { title: "Pledge", body: "Guest ủng hộ bằng Gmail. Backer đặt Reward sau đăng nhập. PENDING chưa cộng tiền." },
+      { title: "Đối soát", body: "Settle một lần. Reward phí 8%. Donation 0%. SUCCESS mới cấp TT-UH, INV- hoặc quà." },
+    ],
+  },
+  {
+    kicker: "Slide 69",
+    title: "SRS-04 DASHBOARD VÀ BIỂU ĐỒ",
+    table: {
+      headers: ["Khối", "Dữ liệu", "Dạng"],
+      rows: [
+        ["Thẻ tổng", "Tiền SUCCESS, campaign ACTIVE, backer", "Số lớn, cache 300 giây"],
+        ["Cột theo ngày", "Pledge SUCCESS theo createdAt", "Biểu đồ cột"],
+        ["Đường chiến dịch", "ACTIVE và SUCCESS theo tuần", "Biểu đồ đường"],
+        ["Top 10", "Campaign theo số tiền, backer theo số đơn", "Bảng"],
+      ],
+    },
+    note: "Màn /dashboard/admin/analytics đã có thẻ và top 10. Biểu đồ theo thời gian là phần thiết kế trên cùng nguồn pledges.",
+  },
+  {
+    kicker: "Slide 70",
+    title: "SRS-05 THAM SỐ HỆ THỐNG",
+    cards: [
+      { title: "Settings", body: "platform_settings lưu ekyc_enabled và ga4_measurement_id. Tắt eKYC thì form thủ công." },
+      { title: "Phân quyền", body: "role_permissions là mặt nạ bit. Admin sửa tại /dashboard/admin/permissions." },
+      { title: "Ngoài phạm vi", body: "Không thiết kế sao lưu hay phục hồi SQL Server 2019 trong slide này." },
+    ],
+  },
 ];
