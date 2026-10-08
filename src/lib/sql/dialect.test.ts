@@ -122,3 +122,13 @@ test("raw call sites no longer use prisma unsafe helpers", () => {
     assert.equal(text.includes("prisma.$executeRawUnsafe") || text.includes("prisma.$queryRawUnsafe") || text.includes("prisma.$queryRaw"), false, file);
   }
 });
+
+test("array has becomes charindex", () => {
+  const sql = toDialect(
+    `SELECT id FROM conversations WHERE "participantIds" @> ARRAY[$1]::text[] AND NOT ("hiddenBy" @> ARRAY[$1]::text[])`,
+    "sqlserver",
+  );
+  assert.match(sql, /CHARINDEX\(CONCAT\(N'"', @p1, N'"'\), \[participantIds\]\) > 0/);
+  assert.match(sql, /\[hiddenBy\]/);
+  assert.doesNotMatch(sql, /@>|::text/);
+});

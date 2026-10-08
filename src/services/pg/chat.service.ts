@@ -4,6 +4,8 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { conversationForUser, idsMatchingArray } from '@/lib/db/array-has';
+import { getDatabaseTarget } from '@/lib/db/target';
 import { normalizePrivacySettings } from '@/lib/profile-settings';
 import { listFollowingIds } from '@/lib/user-follows';
 import type {
@@ -165,6 +167,17 @@ export async function startConversation(
 }
 
 export async function getUserConversations(userId: string) {
+    if (getDatabaseTarget() === "sqlserver") {
+        const ids = await idsMatchingArray(
+            "conversations",
+            "participantIds",
+            userId,
+            `AND ("hiddenBy" IS NULL OR NOT ("hiddenBy" @> ARRAY[$1]::text[])) ORDER BY updatedAt DESC`,
+        );
+        if (ids.length === 0) return [];
+        const convs = await prisma.conversations.findMany({ where: { id: { in: ids } }, orderBy: { updatedAt: 'desc' } });
+        return convs.map(serializeConv);
+    }
     const convs = await prisma.conversations.findMany({
         where: {
             participantIds: { has: userId },
@@ -176,9 +189,7 @@ export async function getUserConversations(userId: string) {
 }
 
 export async function getConversationById(conversationId: string, userId: string) {
-    const conv = await prisma.conversations.findFirst({
-        where: { id: conversationId, participantIds: { has: userId } },
-    });
+    const conv = await conversationForUser(conversationId, userId);
     return conv ? serializeConv(conv) : null;
 }
 
@@ -201,9 +212,7 @@ export async function sendMessage(
     sensitive = false,
     type: string = 'text'
 ): Promise<any> {
-    const conv = await prisma.conversations.findFirst({
-        where: { id: conversationId, participantIds: { has: senderId } },
-    });
+    const conv = await conversationForUser(conversationId, senderId);
     if (!conv) throw new Error('Conversation not found');
 
     const blockedBy = (conv.blockedBy as string[]) ?? [];
@@ -261,9 +270,7 @@ export async function getMessages(
     limit = 30,
     before?: string
 ): Promise<{ messages: any[]; hasMore: boolean }> {
-    const conv = await prisma.conversations.findFirst({
-        where: { id: conversationId, participantIds: { has: userId } },
-    });
+    const conv = await conversationForUser(conversationId, userId);
     if (!conv) throw new Error('Conversation not found');
 
     const where: any = { conversationId, isDeleted: false };
@@ -281,9 +288,7 @@ export async function getMessages(
 }
 
 export async function markAsRead(conversationId: string, userId: string): Promise<void> {
-    const conv = await prisma.conversations.findFirst({
-        where: { id: conversationId, participantIds: { has: userId } },
-    });
+    const conv = await conversationForUser(conversationId, userId);
     if (!conv) throw new Error('Conversation not found');
 
     const unreadCount = { ...((conv.unreadCount as any) ?? {}), [userId]: 0 };
@@ -362,9 +367,7 @@ export async function searchMessages(
     userId: string,
     query: string
 ): Promise<{ messages: any[]; count: number }> {
-    const conv = await prisma.conversations.findFirst({
-        where: { id: conversationId, participantIds: { has: userId } },
-    });
+    const conv = await conversationForUser(conversationId, userId);
     if (!conv) throw new Error('Conversation not found');
 
     const messages = await prisma.messages.findMany({
@@ -388,9 +391,7 @@ export async function blockConversation(
     conversationId: string,
     userId: string
 ): Promise<void> {
-    const conv = await prisma.conversations.findFirst({
-        where: { id: conversationId, participantIds: { has: userId } },
-    });
+    const conv = await conversationForUser(conversationId, userId);
     if (!conv) throw new Error('Conversation not found or user is not a participant');
     const blocked = (conv.blockedBy as string[]) ?? [];
     if (!blocked.includes(userId)) {
@@ -418,9 +419,7 @@ export async function deleteConversation(
     conversationId: string,
     userId: string
 ): Promise<void> {
-    const conv = await prisma.conversations.findFirst({
-        where: { id: conversationId, participantIds: { has: userId } },
-    });
+    const conv = await conversationForUser(conversationId, userId);
     if (!conv) throw new Error('Conversation not found or user is not a participant');
     const hidden = (conv.hiddenBy as string[]) ?? [];
     if (!hidden.includes(userId)) {
@@ -439,9 +438,7 @@ export async function reportConversation(
     messageId?: string,
     extras?: { imageUrls?: string[]; occurredAt?: Date | null }
 ): Promise<any> {
-    const conv = await prisma.conversations.findFirst({
-        where: { id: conversationId, participantIds: { has: reporterId } },
-    });
+    const conv = await conversationForUser(conversationId, reporterId);
     if (!conv) throw new Error('Conversation not found');
 
     const report = await prisma.chat_reports.create({
@@ -467,6 +464,18 @@ export async function reportConversation(
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function getTotalUnreadCount(userId: string): Promise<number> {
+    if (getDatabaseTarget() === "sqlserver") {
+        const ids = await idsMatchingArray("conversations", "participantIds", userId);
+        if (ids.length === 0) return 0;
+        const convs = await prisma.conversations.findMany({
+            where: { id: { in: ids } },
+            select: { unreadCount: true },
+        });
+        return convs.reduce(
+            (sum, c) => sum + (((c.unreadCount as any)?.[userId]) || 0),
+            0
+        );
+    }
     const convs = await prisma.conversations.findMany({
         where: { participantIds: { has: userId } },
         select: { unreadCount: true },

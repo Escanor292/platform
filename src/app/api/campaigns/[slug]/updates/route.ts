@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { persistRichText, RichTextValidationError } from "@/lib/editor/persist";
+import { getDatabaseTarget } from "@/lib/db/target";
+import { queryRaw } from "@/lib/sql/raw";
 
 export async function GET(
   req: NextRequest,
@@ -32,7 +34,16 @@ export async function GET(
     }
 
     if (tag) {
-      where.tags = { has: tag };
+      if (getDatabaseTarget() === "sqlserver") {
+        const rows = await queryRaw<Array<{ id: string }>>(
+          `SELECT id FROM campaign_updates WHERE campaignId = $1 AND "tags" @> ARRAY[$2]::text[]`,
+          campaign.id,
+          tag,
+        );
+        where.id = { in: rows.map((row) => row.id) };
+      } else {
+        where.tags = { has: tag };
+      }
     }
 
     const updates = await prisma.campaign_updates.findMany({

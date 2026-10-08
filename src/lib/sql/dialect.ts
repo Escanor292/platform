@@ -5,6 +5,7 @@ const LEFTOVER = /ON CONFLICT|ILIKE|\bRETURNING\b|::(?:bigint|int|text|jsonb)|\$
 export function toDialect(sql: string, provider: SqlProvider): string {
   if (provider === "postgresql") return sql;
   let next = sql.trim();
+  next = rewriteArrayHas(next);
   next = rewriteCountFilter(next);
   next = rewriteGroupByOrdinal(next);
   next = rewriteCasts(next);
@@ -35,6 +36,13 @@ function rewriteCasts(sql: string): string {
       const cast = type.toLowerCase() === "bigint" ? "BIGINT" : type.toLowerCase() === "int" ? "INT" : "NVARCHAR(MAX)";
       return `CAST(${expr} AS ${cast})`;
     },
+  );
+}
+
+function rewriteArrayHas(sql: string): string {
+  return sql.replace(
+    /"([A-Za-z0-9_]+)"\s*@>\s*ARRAY\[(\$\d+)\]::text\[\]/gi,
+    (_all, column: string, param: string) => `CHARINDEX(CONCAT(N'"', ${param}, N'"'), [${column}]) > 0`,
   );
 }
 
