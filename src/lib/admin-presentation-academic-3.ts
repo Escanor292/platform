@@ -814,7 +814,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
         ["SRS-05", "Tham số hệ thống", "platform-settings.ts", "Đã có"],
       ],
     },
-    note: "Không đưa sao lưu SQL Server 2019 vào SRS này.",
+    note: "Báo cáo dùng schema SQL Server của nền tảng.",
   },
   {
     kicker: "Slide 66",
@@ -869,7 +869,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     cards: [
       { title: "Settings", body: "platform_settings lưu ekyc_enabled và ga4_measurement_id. Tắt eKYC thì form thủ công." },
       { title: "Phân quyền", body: "role_permissions là mặt nạ bit. Admin sửa tại /dashboard/admin/permissions." },
-      { title: "Ngoài phạm vi", body: "Không thiết kế sao lưu hay phục hồi SQL Server 2019 trong slide này." },
+      { title: "Cơ sở báo cáo", body: "Báo cáo dùng schema SQL Server của nền tảng, file prisma/schema.sqlserver.prisma." },
     ],
   },
 ];
