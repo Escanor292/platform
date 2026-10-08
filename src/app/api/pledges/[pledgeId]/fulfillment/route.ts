@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { recalculateCampaignAmount } from "@/lib/order-fulfillment";
 import { calculateCancellationSettlement } from "@/lib/preorder-deposit";
 import { Decimal } from "@prisma/client/runtime/library";
+import { onPledgeSuccess } from "@/lib/tax/on-pledge-success";
 
 const FULFILLMENT_STATUSES = [
   "PROCESSING",
@@ -120,8 +121,10 @@ export async function PATCH(request: NextRequest, { params }: Context) {
       const cancellationSettlement = isBuyerCancellation
         ? calculateCancellationSettlement(Number(current.paidAmount), Number(current.amount), configuredForfeiturePercent)
         : { cancellationFeeAmount: 0, refundAmount: reversing ? Number(current.paidAmount) : 0 };
-      const deliveredPaidAmount = nextStatus === "DELIVERED" && current.isCashOnDelivery
-        ? Number(current.orderTotalAmount || current.amount)
+      const deliveredPaidAmount = nextStatus === "DELIVERED"
+        ? (current.isCashOnDelivery
+          ? Number(current.orderTotalAmount || current.amount)
+          : Math.max(Number(current.paidAmount), Number(current.amount)))
         : Number(current.paidAmount);
 
       const pledgeStatus = reversing
@@ -179,6 +182,10 @@ export async function PATCH(request: NextRequest, { params }: Context) {
         : null;
       return { updated, currentAmount };
     });
+
+    if (nextStatus === "DELIVERED" && result.updated.rewardId && result.updated.status === "SUCCESS") {
+      await onPledgeSuccess(result.updated.id);
+    }
 
     return NextResponse.json({
       pledge: {

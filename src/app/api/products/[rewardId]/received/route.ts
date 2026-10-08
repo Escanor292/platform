@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { hasOpenRewardReport, releaseHeldReward } from "@/lib/payment/release-reward";
 
 export async function POST(
   _request: NextRequest,
@@ -16,7 +17,7 @@ export async function POST(
     const { rewardId } = await context.params;
     const pledge = await prisma.pledges.findFirst({
       where: { rewardId, userId, status: "SUCCESS" },
-      select: { id: true, receivedAt: true },
+      select: { id: true, receivedAt: true, fulfillmentStatus: true },
       orderBy: { createdAt: "desc" },
     });
 
@@ -24,11 +25,20 @@ export async function POST(
       return NextResponse.json({ error: "Không tìm thấy đơn hàng hợp lệ cho sản phẩm này" }, { status: 403 });
     }
 
-    const receivedAt = pledge.receivedAt || new Date();
+    if (["RETURN_REQUESTED", "RETURNED", "CANCELED", "DELIVERY_FAILED"].includes(pledge.fulfillmentStatus)) {
+      return NextResponse.json({ error: "Đơn đang khiếu nại hoặc đã đóng, không xác nhận nhận hàng" }, { status: 409 });
+    }
+
+    if (await hasOpenRewardReport(pledge.id)) {
+      return NextResponse.json({ error: "Đơn đang có báo cáo, admin sẽ xử lý" }, { status: 409 });
+    }
+
+    const receivedAt = new Date();
     await prisma.pledges.update({
       where: { id: pledge.id },
-      data: { receivedAt },
+      data: { receivedAt, fulfillmentStatus: "DELIVERED", updatedAt: receivedAt },
     });
+    await releaseHeldReward(pledge.id, receivedAt);
 
     return NextResponse.json({ receivedAt });
   } catch (error) {
