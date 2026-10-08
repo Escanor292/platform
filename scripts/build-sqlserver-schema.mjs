@@ -52,7 +52,7 @@ schema = `// Schema SQL Server 2019, sinh từ prisma/schema.prisma.
 // Prisma 5.22 trên SQL Server không có scalar list, Json, enum.
 // Mảng và Json thành NVARCHAR(MAX) cùng tên trường. Enum thành String. onUpdate là NoAction.
 // Khóa và trường index dùng NVARCHAR(250) để vừa giới hạn 1700 byte của SQL Server 2019.
-// Thêm 6 bảng tạo bằng SQL thô: platform_settings, profile_templates, profile_template_uses, link_checks, presentation_deck, presentation_media.
+// Thêm 7 bảng tạo bằng SQL thô: platform_settings, profile_templates, profile_template_uses, link_checks, presentation_deck, presentation_media, user_followers.
 
 ${schema}${models.join("\n")}\n${junctions.join("\n")}`;
 schema = schema.replace(/@db\.Text\b/g, "@db.NVarChar(Max)");
@@ -159,6 +159,15 @@ model presentation_media {
   mime       String   @db.NVarChar(100)
   bytes      Bytes    @db.VarBinary(Max)
   updated_at DateTime @default(now())
+}
+
+model user_followers {
+  follower_id  String   @db.NVarChar(200)
+  following_id String   @db.NVarChar(200)
+  created_at   DateTime @default(now())
+
+  @@id([follower_id, following_id])
+  @@index([following_id])
 }
 `;
 
