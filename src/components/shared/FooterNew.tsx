@@ -61,6 +61,9 @@ export default function FooterNew() {
             <Link href="/huong-dan/thue" className="block cursor-pointer transition hover:opacity-100">
               {t("footer.taxGuide")}
             </Link>
+            <Link href="/gop-y" className="block cursor-pointer transition hover:opacity-100">
+              Góp ý
+            </Link>
           </div>
         </div>
 
