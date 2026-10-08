@@ -2,13 +2,32 @@ import { prisma } from "@/lib/prisma";
 import { Decimal } from "@prisma/client/runtime/library";
 import { recalculateCampaignAmount } from "@/lib/order-fulfillment";
 import { onPledgeSuccess } from "@/lib/tax/on-pledge-success";
+import { isDigitalFulfillment } from "@/lib/warehouse-ui";
+import { grantDigitalWarehouseItem } from "@/lib/digital-warehouse";
 
 export const REWARD_HOLD_DAYS = 7;
+export const DIGITAL_HOLD_DAYS = 2;
 
 const BLOCKED = ["DELIVERY_FAILED", "CANCELED", "RETURNED", "RETURN_REQUESTED"];
 
 export function isPhysicalReward(fulfillmentType: string | null | undefined) {
   return fulfillmentType === "PHYSICAL";
+}
+
+export function isDigitalReward(fulfillmentType: string | null | undefined) {
+  return isDigitalFulfillment(fulfillmentType);
+}
+
+export function shouldReleaseHeldDigital(pledge: {
+  fulfillmentStatus: string;
+  receivedAt: Date | null;
+  hasOpenReport: boolean;
+}, now = new Date()) {
+  if (pledge.hasOpenReport) return false;
+  if (BLOCKED.includes(pledge.fulfillmentStatus)) return false;
+  if (!pledge.receivedAt) return false;
+  const due = pledge.receivedAt.getTime() + DIGITAL_HOLD_DAYS * 24 * 60 * 60 * 1000;
+  return now.getTime() >= due;
 }
 
 export function shouldReleaseHeldReward(pledge: {
@@ -25,6 +44,10 @@ export function shouldReleaseHeldReward(pledge: {
   return now.getTime() >= due;
 }
 
+export async function deliverDigitalForInspection(pledgeId: string) {
+  return grantDigitalWarehouseItem(pledgeId);
+}
+
 export async function hasOpenRewardReport(pledgeId: string) {
   const report = await prisma.campaign_reports.findFirst({
     where: { targetId: pledgeId, status: { in: ["PENDING", "REVIEWING"] } },
@@ -35,8 +58,8 @@ export async function hasOpenRewardReport(pledgeId: string) {
 
 export async function releaseHeldReward(pledgeId: string, now = new Date()) {
   const pledge = await prisma.pledges.findUnique({ where: { id: pledgeId } });
-  if (!pledge?.rewardId || !isPhysicalReward(pledge.fulfillmentType)) {
-    return { ok: false as const, reason: "not-physical" as const };
+  if (!pledge?.rewardId || (!isPhysicalReward(pledge.fulfillmentType) && !isDigitalReward(pledge.fulfillmentType))) {
+    return { ok: false as const, reason: "not-reward" as const };
   }
   if (pledge.status !== "SUCCESS" || pledge.refundStatus !== "NO_REFUND") {
     return { ok: false as const, reason: "not-held" as const };
@@ -46,14 +69,19 @@ export async function releaseHeldReward(pledgeId: string, now = new Date()) {
     return { ok: true as const, skipped: "already-released" as const };
   }
   const hasOpenReport = await hasOpenRewardReport(pledge.id);
-  if (!shouldReleaseHeldReward({
-    fulfillmentStatus: pledge.fulfillmentStatus,
-    receivedAt: pledge.receivedAt,
-    handedToCarrierAt: pledge.handedToCarrierAt,
-    hasOpenReport,
-  }, now)) {
-    return { ok: false as const, reason: "still-held" as const };
-  }
+  const ready = isDigitalReward(pledge.fulfillmentType)
+    ? shouldReleaseHeldDigital({
+      fulfillmentStatus: pledge.fulfillmentStatus,
+      receivedAt: pledge.receivedAt,
+      hasOpenReport,
+    }, now)
+    : shouldReleaseHeldReward({
+      fulfillmentStatus: pledge.fulfillmentStatus,
+      receivedAt: pledge.receivedAt,
+      handedToCarrierAt: pledge.handedToCarrierAt,
+      hasOpenReport,
+    }, now);
+  if (!ready) return { ok: false as const, reason: "still-held" as const };
 
   const accountingAmount = pledge.isCashOnDelivery
     ? Number(pledge.orderTotalAmount || pledge.amount)
@@ -82,10 +110,13 @@ export async function autoReleaseHeldRewards(now = new Date()) {
     where: {
       status: "SUCCESS",
       rewardId: { not: null },
-      fulfillmentType: "PHYSICAL",
+      fulfillmentType: { in: ["PHYSICAL", "EMAIL", "DOWNLOAD", "LICENSE_KEY", "DIGITAL_COMIC"] },
       refundStatus: "NO_REFUND",
       accountingAmount: { lte: 0 },
-      fulfillmentStatus: { in: ["SHIPPED", "DELIVERED"] },
+      OR: [
+        { fulfillmentType: "PHYSICAL", fulfillmentStatus: { in: ["SHIPPED", "DELIVERED"] } },
+        { fulfillmentType: { in: ["EMAIL", "DOWNLOAD", "LICENSE_KEY", "DIGITAL_COMIC"] } },
+      ],
     },
     select: { id: true },
   });
