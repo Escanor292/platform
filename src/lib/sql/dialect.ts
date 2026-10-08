@@ -86,10 +86,20 @@ function rewriteCreateTable(sql: string): string {
 }
 
 function rewriteColumnTypes(body: string): string {
+  const multi = new Set<string>();
+  for (const match of body.matchAll(/(?:PRIMARY KEY|UNIQUE)\s*\(([^)]+)\)/gi)) {
+    const names = match[1].split(",").map((item) => item.trim().replace(/[\[\]"]/g, "").toLowerCase());
+    if (names.length > 1) names.forEach((name) => multi.add(name));
+  }
+  const bounded = new Set(["id", "key", "slug", "author_id", "status", "visibility", "owner_id", "entity_type", "entity_id", "template_id", "user_id", "url"]);
   return body.replace(/\bTEXT\b/gi, (match, offset: number, source: string) => {
+    const name = source.slice(0, offset).match(/([A-Za-z_][\w]*)\s*$/)?.[1]?.toLowerCase() || "";
+    if (multi.has(name)) return "NVARCHAR(200)";
     const tail = source.slice(offset);
     const inKey = /PRIMARY KEY|UNIQUE/i.test(tail.split(",")[0] || "") || columnInKey(source, offset);
-    return inKey ? "NVARCHAR(450)" : "NVARCHAR(MAX)";
+    if (inKey) return "NVARCHAR(450)";
+    if (bounded.has(name)) return "NVARCHAR(250)";
+    return "NVARCHAR(MAX)";
   });
 }
 

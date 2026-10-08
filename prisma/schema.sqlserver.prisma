@@ -1,8 +1,9 @@
-// Schema SQL Server sinh từ prisma/schema.prisma.
-// Không dùng cho Neon. Chạy lại: node scripts/build-sqlserver-schema.mjs
+// Schema SQL Server 2019, sinh từ prisma/schema.prisma.
+// Chạy lại: node scripts/build-sqlserver-schema.mjs
 // Prisma 5.22 trên SQL Server không có scalar list, Json, enum.
 // Mảng và Json thành NVARCHAR(MAX) cùng tên trường. Enum thành String. onUpdate là NoAction.
 // Khóa và trường index dùng NVARCHAR(250) để vừa giới hạn 1700 byte của SQL Server 2019.
+// Thêm 6 bảng tạo bằng SQL thô: platform_settings, profile_templates, profile_template_uses, link_checks, presentation_deck, presentation_media.
 
 generator client {
   provider = "prisma-client-js"
@@ -1373,3 +1374,67 @@ model so_ledgers {
   updatedAt DateTime @updatedAt
 }
 
+
+model platform_settings {
+  key        String   @id @db.NVarChar(250)
+  value      String   @db.NVarChar(Max)
+  updated_at DateTime @default(now())
+}
+
+model profile_templates {
+  id           String    @id @db.NVarChar(250)
+  slug         String    @unique @db.NVarChar(250)
+  author_id    String    @db.NVarChar(250)
+  title        String    @db.NVarChar(250)
+  description  String    @default("") @db.NVarChar(Max)
+  visibility   String    @default("PRIVATE") @db.NVarChar(20)
+  status       String    @default("DRAFT") @db.NVarChar(20)
+  config       String    @db.NVarChar(Max)
+  use_count    Int       @default(0)
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @default(now())
+  published_at DateTime?
+
+  @@index([status, visibility, use_count])
+  @@index([author_id])
+}
+
+model profile_template_uses {
+  template_id String   @db.NVarChar(250)
+  user_id     String   @db.NVarChar(250)
+  used_at     DateTime @default(now())
+
+  @@id([template_id, user_id])
+}
+
+model link_checks {
+  id              String    @id @db.NVarChar(250)
+  owner_id        String    @db.NVarChar(120)
+  entity_type     String    @db.NVarChar(40)
+  entity_id       String    @db.NVarChar(120)
+  entity_title    String?   @db.NVarChar(250)
+  entity_path     String?   @db.NVarChar(250)
+  url             String    @db.NVarChar(200)
+  status          String    @default("pending") @db.NVarChar(20)
+  http_status     Int?
+  last_checked_at DateTime?
+  broken_at       DateTime?
+  notified_at     DateTime?
+  created_at      DateTime  @default(now())
+
+  @@unique([owner_id, entity_type, entity_id, url])
+}
+
+model presentation_deck {
+  id         String   @id @db.NVarChar(250)
+  status     String   @default("active") @db.NVarChar(20)
+  payload    String?  @db.NVarChar(Max)
+  updated_at DateTime @default(now())
+}
+
+model presentation_media {
+  key        String   @id @db.NVarChar(250)
+  mime       String   @db.NVarChar(100)
+  bytes      Bytes    @db.VarBinary(Max)
+  updated_at DateTime @default(now())
+}

@@ -31,7 +31,7 @@ test("create table and index", () => {
     "sqlserver",
   );
   assert.match(table, /OBJECT_ID/);
-  assert.match(table, /NVARCHAR\(450\)/);
+  assert.match(table, /NVARCHAR\(200\)/);
   assert.match(table, /DATETIMEOFFSET/);
   const index = toDialect(
     `CREATE INDEX IF NOT EXISTS user_followers_following_idx
