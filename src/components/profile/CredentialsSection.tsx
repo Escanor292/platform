@@ -37,7 +37,6 @@ export default function CredentialsSection({
         <div>
           <p className="text-xs font-black uppercase tracking-[0.2em] text-pgreen">Đã đối chiếu</p>
           <h2 className="font-display text-3xl font-black text-dblue">Bằng cấp và chứng chỉ</h2>
-          <p className="mt-2 text-sm text-gray-600">Chỉ hiện hồ sơ admin đã đối chiếu. Ảnh mới tải lên chưa phải là đã xác minh.</p>
         </div>
         {isOwnProfile && (
           <Link href="/dashboard/bang-cap" className="rounded-2xl bg-gradient-to-r from-pgreen to-fgreen px-4 py-2 text-sm font-bold text-white">

@@ -242,8 +242,7 @@ export function EkycWizard({
       )}
       {step === 5 && (
         <section className="rounded-3xl border bg-white p-8 shadow-sm">
-          <h2 className="mb-2 text-2xl font-black">P2 — NFC / VNeID (tuỳ chọn)</h2>
-          <p className="mb-4 text-sm text-gray-600">Web không đọc được chip ICAO. QR vừa quét chỉ điền form, chưa phải đối chiếu CSDL nhà nước.</p>
+          <h2 className="mb-4 text-2xl font-black">P2 — NFC / VNeID (tuỳ chọn)</h2>
           <div className="grid gap-4">
             <Input placeholder="Chip DG1 / mã NFC sandbox" value={chipDg1} onChange={(e) => setChipDg1(e.target.value)} />
             <Input placeholder="Mã VNeID (nếu có)" value={vneidCode} onChange={(e) => setVneidCode(e.target.value)} />

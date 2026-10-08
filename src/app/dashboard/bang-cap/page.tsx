@@ -85,7 +85,6 @@ export default function CredentialsPage() {
       <div className="mx-auto max-w-3xl">
         <Link href="/dashboard" className="text-sm font-bold text-pgreen">Về bảng điều khiển</Link>
         <h1 className="mt-3 font-display text-4xl font-black text-dblue md:text-5xl">Bằng cấp và chứng chỉ</h1>
-        <p className="mt-3 text-gray-600">Dùng cho cá nhân hoặc doanh nghiệp. Ảnh chỉ hiện công khai sau khi admin đối chiếu, không thay cho KYC.</p>
 
         <form onSubmit={submit} className="mt-8 space-y-4 rounded-[2rem] bg-white p-6 shadow-sm">
           <div className="grid gap-4 md:grid-cols-2">

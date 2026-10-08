@@ -396,7 +396,6 @@ export default function BlogEditorPage() {
               onChange={(e) => setFormData({ ...formData, scheduledAt: e.target.value })}
               className="w-full rounded-lg border border-gray-300 px-4 py-2"
             />
-            <p className="mt-1 text-xs text-gray-500">Admin sẽ thấy lịch này khi duyệt. Bài chỉ hiện công khai khi đến giờ.</p>
           </div>
 
           <div>
