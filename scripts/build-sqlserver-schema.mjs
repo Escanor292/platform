@@ -51,6 +51,7 @@ schema = `// Schema SQL Server sinh từ prisma/schema.prisma.
 // Không dùng cho Neon. Chạy lại: node scripts/build-sqlserver-schema.mjs
 // Prisma 5.22 trên SQL Server không có scalar list, Json, enum.
 // Mảng và Json thành NVARCHAR(MAX) cùng tên trường. Enum thành String. onUpdate là NoAction.
+// Khóa và trường index dùng NVARCHAR(250) để vừa giới hạn 1700 byte của SQL Server 2019.
 
 ${schema}${models.join("\n")}\n${junctions.join("\n")}`;
 schema = schema.replace(/@db\.Text\b/g, "@db.NVarChar(Max)");
@@ -78,6 +79,21 @@ if (enumNames.length) {
 }
 schema = schema.replace(/@default\(([A-Za-z_][A-Za-z0-9_]*)\)/g, (all, value) => enumValues.has(value) ? `@default("${value}")` : all);
 
+schema = schema.replace(/^(model [\s\S]*?)(?=^model |\Z)/gm, (block) => {
+  const indexed = new Set();
+  for (const match of block.matchAll(/@@(?:id|unique|index)\(\[([^\]]+)\]/g)) {
+    for (const part of match[1].split(",")) indexed.add(part.trim().split("(")[0]);
+  }
+  for (const match of block.matchAll(/^\s+(\w+)\s+String.*@(?:id|unique)\b/gm)) indexed.add(match[1]);
+  for (const match of block.matchAll(/fields:\s*\[([^\]]+)\]/g)) {
+    for (const part of match[1].split(",")) indexed.add(part.trim());
+  }
+  return block.split("\n").map((line) => {
+    const field = line.match(/^(\s+)(\w+)(\s+)String(\??)(.*)$/);
+    if (!field || !indexed.has(field[2]) || /@db\./.test(line)) return line;
+    return `${field[1]}${field[2]}${field[3]}String${field[4]} @db.NVarChar(250)${field[5]}`;
+  }).join("\n");
+});
 schema = schema.replace(/^\s*@@index\(\[(tags|images|productImages|mediaUrls|participantIds|blockedBy|hiddenBy|readBy|revealedBy|userIds|imageUrls)\]\)\s*$/gm, "");
 if (schema.includes("String[]")) {
   console.error("schema.sqlserver.prisma still has String[]");

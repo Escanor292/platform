@@ -2,6 +2,7 @@
 // Không dùng cho Neon. Chạy lại: node scripts/build-sqlserver-schema.mjs
 // Prisma 5.22 trên SQL Server không có scalar list, Json, enum.
 // Mảng và Json thành NVARCHAR(MAX) cùng tên trường. Enum thành String. onUpdate là NoAction.
+// Khóa và trường index dùng NVARCHAR(250) để vừa giới hạn 1700 byte của SQL Server 2019.
 
 generator client {
   provider = "prisma-client-js"
@@ -14,11 +15,11 @@ datasource db {
 }
 
 model audit_logs {
-  id         String      @id
-  userId     String?
+  id         String @db.NVarChar(250)      @id
+  userId     String? @db.NVarChar(250)
   action     String
-  entityType String
-  entityId   String
+  entityType String @db.NVarChar(250)
+  entityId   String @db.NVarChar(250)
   oldValue   String? @db.NVarChar(Max)
   newValue   String? @db.NVarChar(Max)
   changes    String? @db.NVarChar(Max)
@@ -37,9 +38,9 @@ model audit_logs {
 
 
 model backer_invoices {
-  id            String        @id
-  invoiceNumber String        @unique
-  pledgeId      String        @unique
+  id            String @db.NVarChar(250)        @id
+  invoiceNumber String @db.NVarChar(250)        @unique
+  pledgeId      String @db.NVarChar(250)        @unique
   backerName    String
   backerEmail   String?
   backerPhone   String?
@@ -65,22 +66,22 @@ model backer_invoices {
 
 
 model donation_certificates {
-  id              String             @id
-  code            String             @unique
-  pledgeId        String             @unique
-  campaignId      String?
-  creatorId       String?
-  backerUserId    String?
-  guestEmail      String?
+  id              String @db.NVarChar(250)             @id
+  code            String @db.NVarChar(250)             @unique
+  pledgeId        String @db.NVarChar(250)             @unique
+  campaignId      String? @db.NVarChar(250)
+  creatorId       String? @db.NVarChar(250)
+  backerUserId    String? @db.NVarChar(250)
+  guestEmail      String? @db.NVarChar(250)
   displayName     String
   amount          Decimal
-  flowType        String
+  flowType        String @db.NVarChar(250)
   documentKind    String
-  status          String  @default("ISSUED")
+  status          String @db.NVarChar(250)  @default("ISSUED")
   issuedAt        DateTime           @default(now())
   emailSentAt     DateTime?
   claimedAt       DateTime?
-  claimedByUserId String?
+  claimedByUserId String? @db.NVarChar(250)
   createdAt       DateTime           @default(now())
   updatedAt       DateTime
   pledges         pledges            @relation(fields: [pledgeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -96,7 +97,7 @@ model donation_certificates {
 
 
 model badges {
-  id               String        @id
+  id               String @db.NVarChar(250)        @id
   name             String        @db.VarChar(100)
   slug             String        @unique @db.VarChar(120)
   description      String?
@@ -104,10 +105,10 @@ model badges {
   icon_name        String?       @db.VarChar(100)
   color            String?       @db.VarChar(30)
   background_color String?       @db.VarChar(30)
-  type             String
+  type             String @db.NVarChar(250)
   rarity           String   @default("common")
   is_active        Boolean       @default(true)
-  created_by       String
+  created_by       String @db.NVarChar(250)
   created_at       DateTime      @default(now())
   updated_at       DateTime
   deleted_at       DateTime?
@@ -122,9 +123,9 @@ model badges {
 
 
 model blacklist {
-  id        String        @id
-  type      String
-  value     String
+  id        String @db.NVarChar(250)        @id
+  type      String @db.NVarChar(250)
+  value     String @db.NVarChar(250)
   reason    String
   addedBy   String?
   isActive  Boolean       @default(true)
@@ -138,9 +139,9 @@ model blacklist {
 
 
 model blog_bookmarks {
-  id         String     @id
-  postId     String
-  userId     String
+  id         String @db.NVarChar(250)     @id
+  postId     String @db.NVarChar(250)
+  userId     String @db.NVarChar(250)
   createdAt  DateTime   @default(now())
   blog_posts blog_posts @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users      users      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -152,7 +153,7 @@ model blog_bookmarks {
 
 
 model blog_categories {
-  id                   String                 @id
+  id                   String @db.NVarChar(250)                 @id
   name                 String                 @db.VarChar(100)
   slug                 String                 @unique @db.VarChar(100)
   description          String?
@@ -162,10 +163,10 @@ model blog_categories {
 
 
 model blog_comments {
-  id                  String            @id
-  postId              String
-  userId              String
-  parentId            String?
+  id                  String @db.NVarChar(250)            @id
+  postId              String @db.NVarChar(250)
+  userId              String @db.NVarChar(250)
+  parentId            String? @db.NVarChar(250)
   content             String
   status              String @default("VISIBLE")
   createdAt           DateTime          @default(now())
@@ -183,9 +184,9 @@ model blog_comments {
 
 
 model blog_likes {
-  id         String     @id
-  postId     String
-  userId     String
+  id         String @db.NVarChar(250)     @id
+  postId     String @db.NVarChar(250)
+  userId     String @db.NVarChar(250)
   createdAt  DateTime   @default(now())
   blog_posts blog_posts @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users      users      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -197,8 +198,8 @@ model blog_likes {
 
 
 model blog_post_categories {
-  postId          String
-  categoryId      String
+  postId          String @db.NVarChar(250)
+  categoryId      String @db.NVarChar(250)
   blog_categories blog_categories @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   blog_posts      blog_posts      @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
@@ -207,8 +208,8 @@ model blog_post_categories {
 
 
 model blog_post_tags {
-  postId     String
-  tagId      String
+  postId     String @db.NVarChar(250)
+  tagId      String @db.NVarChar(250)
   blog_posts blog_posts @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   blog_tags  blog_tags  @relation(fields: [tagId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
@@ -217,18 +218,18 @@ model blog_post_tags {
 
 
 model blog_posts {
-  id                   String                 @id
-  authorId             String
-  campaignId           String?
-  projectId            String?
+  id                   String @db.NVarChar(250)                 @id
+  authorId             String @db.NVarChar(250)
+  campaignId           String? @db.NVarChar(250)
+  projectId            String? @db.NVarChar(250)
   mongoContentId       String?
   title                String                 @db.VarChar(255)
   slug                 String                 @unique @db.VarChar(255)
   excerpt              String?
   coverImage           String?
-  status               String         @default("DRAFT")
-  type                 String           @default("PLATFORM")
-  visibility           String         @default("PUBLIC")
+  status               String @db.NVarChar(250)         @default("DRAFT")
+  type                 String @db.NVarChar(250)           @default("PLATFORM")
+  visibility           String @db.NVarChar(250)         @default("PUBLIC")
   publishedAt          DateTime?
   createdAt            DateTime               @default(now())
   updatedAt            DateTime
@@ -271,13 +272,13 @@ model blog_posts {
 
 
 model blog_reports {
-  id          String           @id
-  postId      String?
-  commentId   String?
-  reporterId  String
+  id          String @db.NVarChar(250)           @id
+  postId      String? @db.NVarChar(250)
+  commentId   String? @db.NVarChar(250)
+  reporterId  String @db.NVarChar(250)
   reason      String
   description String?
-  status      String     @default("PENDING")
+  status      String @db.NVarChar(250)     @default("PENDING")
   reviewedBy  String?
   reviewedAt  DateTime?
   createdAt   DateTime         @default(now())
@@ -292,7 +293,7 @@ model blog_reports {
 
 
 model blog_tags {
-  id             String           @id
+  id             String @db.NVarChar(250)           @id
   name           String           @db.VarChar(100)
   slug           String           @unique @db.VarChar(100)
   blog_post_tags blog_post_tags[]
@@ -300,9 +301,9 @@ model blog_tags {
 
 
 model campaign_blog_links {
-  id         String     @id
-  campaignId String
-  blogPostId String
+  id         String @db.NVarChar(250)     @id
+  campaignId String @db.NVarChar(250)
+  blogPostId String @db.NVarChar(250)
   order      Int        @default(0)
   createdAt  DateTime   @default(now())
   blog_posts blog_posts @relation(fields: [blogPostId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -315,10 +316,10 @@ model campaign_blog_links {
 
 
 model campaign_followers {
-  id         String    @id
-  campaignId String
-  userId     String?
-  email      String?
+  id         String @db.NVarChar(250)    @id
+  campaignId String @db.NVarChar(250)
+  userId     String? @db.NVarChar(250)
+  email      String? @db.NVarChar(250)
   createdAt  DateTime  @default(now())
   campaigns  campaigns @relation(fields: [campaignId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users      users?    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -331,18 +332,18 @@ model campaign_followers {
 
 
 model campaign_reports {
-  id          String               @id
-  campaignId  String?
-  targetType  String     @default("CAMPAIGN")
-  targetId    String
+  id          String @db.NVarChar(250)               @id
+  campaignId  String? @db.NVarChar(250)
+  targetType  String @db.NVarChar(250)     @default("CAMPAIGN")
+  targetId    String @db.NVarChar(250)
   targetTitle String?
   targetHref  String?
-  userId      String
+  userId      String @db.NVarChar(250)
   reason      String
   description String
   imageUrls   String @db.NVarChar(Max)             @default("[]")
   occurredAt  DateTime?
-  status      String         @default("PENDING")
+  status      String @db.NVarChar(250)         @default("PENDING")
   resolvedAt  DateTime?
   resolvedBy  String?
   resolution  String?
@@ -360,8 +361,8 @@ model campaign_reports {
 
 
 model campaign_updates {
-  id         String    @id
-  campaignId String
+  id         String @db.NVarChar(250)    @id
+  campaignId String @db.NVarChar(250)
   title      String
   content    String
   imageUrl   String?
@@ -377,29 +378,29 @@ model campaign_updates {
 
 
 model campaigns {
-  id                  String                @id
-  campaignCode        String                @unique
-  slug                String                @unique
+  id                  String @db.NVarChar(250)                @id
+  campaignCode        String @db.NVarChar(250)                @unique
+  slug                String @db.NVarChar(250)                @unique
   title               String
   description         String
   longDescription     String?
   videoUrl            String?
   imageUrl            String?
   type                String          @default("REWARD")
-  category            String
+  category            String @db.NVarChar(250)
   tags                String @db.NVarChar(Max)              @default("[]")
   isFeatured          Boolean               @default(false)
-  fundingModel        String          @default("ALL_OR_NOTHING")
+  fundingModel        String @db.NVarChar(250)          @default("ALL_OR_NOTHING")
   goalAmount          Decimal
   currentAmount       Decimal               @default(0)
   closedAmount        Decimal?
   closedAt            DateTime?
   fulfillmentConfirmedAt DateTime?
-  status              String        @default("DRAFT")
+  status              String @db.NVarChar(250)        @default("DRAFT")
   startDate           DateTime?
   endDate             DateTime?
-  creatorId           String
-  projectId           String?
+  creatorId           String @db.NVarChar(250)
+  projectId           String? @db.NVarChar(250)
   feeRate             Float                 @default(0.08)
   createdAt           DateTime              @default(now())
   updatedAt           DateTime
@@ -430,7 +431,7 @@ model campaigns {
 
 
 model daily_tip_invoices {
-  id          String   @id
+  id          String @db.NVarChar(250)   @id
   invoiceDate DateTime @unique
   totalTip    Decimal
   totalVat    Decimal
@@ -440,10 +441,10 @@ model daily_tip_invoices {
 
 
 model kyc_info {
-  id                 String     @id
-  userId             String     @unique
+  id                 String @db.NVarChar(250)     @id
+  userId             String @db.NVarChar(250)     @unique
   fullName           String
-  idCardNumber       String     @unique
+  idCardNumber       String @db.NVarChar(250)     @unique
   idCardType         String
   idCardFrontImage   String?
   idCardBackImage    String?
@@ -471,10 +472,10 @@ model kyc_info {
 
 
 model platform_invoices {
-  id            String        @id
-  invoiceNumber String        @unique
-  campaignId    String
-  creatorId     String
+  id            String @db.NVarChar(250)        @id
+  invoiceNumber String @db.NVarChar(250)        @unique
+  campaignId    String @db.NVarChar(250)
+  creatorId     String @db.NVarChar(250)
   amount        Decimal
   vatAmount     Decimal
   totalAmount   Decimal
@@ -490,8 +491,8 @@ model platform_invoices {
 
 
 model projects {
-  id                   String                 @id @default(cuid())
-  creatorId            String
+  id                   String @db.NVarChar(250)                 @id @default(cuid())
+  creatorId            String @db.NVarChar(250)
   title                String                 @db.VarChar(255)
   slug                 String?                @unique @db.VarChar(255)
   description          String?                @db.NVarChar(Max)
@@ -518,9 +519,9 @@ model projects {
 // Blog được gắn vào dự án (nhiều-nhiều, độc lập với projectId chính của blog)
 
 model project_blog_links {
-  id         String     @id @default(cuid())
-  projectId  String
-  blogPostId String
+  id         String @db.NVarChar(250)     @id @default(cuid())
+  projectId  String @db.NVarChar(250)
+  blogPostId String @db.NVarChar(250)
   order      Int        @default(0)
   createdAt  DateTime   @default(now())
   projects   projects   @relation(fields: [projectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -534,9 +535,9 @@ model project_blog_links {
 // Sản phẩm/Reward được gắn hiển thị vào dự án (nhiều-nhiều)
 
 model project_reward_links {
-  id        String   @id @default(cuid())
-  projectId String
-  rewardId  String
+  id        String @db.NVarChar(250)   @id @default(cuid())
+  projectId String @db.NVarChar(250)
+  rewardId  String @db.NVarChar(250)
   order     Int      @default(0)
   createdAt DateTime @default(now())
   projects  projects @relation(fields: [projectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -549,9 +550,9 @@ model project_reward_links {
 
 
 model pledges {
-  id                 String           @id
-  campaignId         String?
-  userId             String?
+  id                 String @db.NVarChar(250)           @id
+  campaignId         String? @db.NVarChar(250)
+  userId             String? @db.NVarChar(250)
   displayName        String
   isAnonymous        Boolean          @default(false)
   quantity           Int              @default(1)
@@ -573,16 +574,16 @@ model pledges {
   vatAmount          Decimal          @default(0)
   totalAmount        Decimal
   paymentProvider    String
-  transactionId      String           @unique
+  transactionId      String @db.NVarChar(250)           @unique
   ipAddress          String?
   deviceInfo         String? @db.NVarChar(Max)
-  status             String     @default("PENDING")
+  status             String @db.NVarChar(250)     @default("PENDING")
   refundStatus       String     @default("NO_REFUND")
   refundedAt         DateTime?
   invoiceGroupDate   DateTime?
   createdAt          DateTime         @default(now())
   updatedAt          DateTime
-  rewardId           String?
+  rewardId           String? @db.NVarChar(250)
   shippingAddress    String?
   fulfillmentType    String?
   fulfillmentStatus  String    @default("NOT_APPLICABLE")
@@ -595,13 +596,13 @@ model pledges {
   returnReason          String?
   accountingReversedAt  DateTime?
   digitalAsset         reward_digital_assets?
-  payosOrderCode     String?          @unique
+  payosOrderCode     String? @db.NVarChar(250)          @unique
   webhookProcessedAt DateTime?
   receivedAt         DateTime?
   handedToCarrierAt  DateTime?
   pledgeKind         String       @default("ONE_TIME")
-  tierId             String?
-  membershipId       String?
+  tierId             String? @db.NVarChar(250)
+  membershipId       String? @db.NVarChar(250)
   periodStart        DateTime?
   periodEnd          DateTime?
   audit_logs         audit_logs[]
@@ -622,15 +623,15 @@ model pledges {
 
 
 model payment_methods {
-  id                String              @id @default(cuid())
-  userId            String
-  provider          String
+  id                String @db.NVarChar(250)              @id @default(cuid())
+  userId            String @db.NVarChar(250)
+  provider          String @db.NVarChar(250)
   methodType        String
   label             String
   brand             String?
   last4             String?
-  providerMethodRef String?
-  status            String @default("ACTIVE")
+  providerMethodRef String? @db.NVarChar(250)
+  status            String @db.NVarChar(250) @default("ACTIVE")
   isDefault         Boolean             @default(false)
   createdAt         DateTime            @default(now())
   updatedAt         DateTime
@@ -642,13 +643,13 @@ model payment_methods {
 
 
 model checkout_sessions {
-  id         String                @id @default(cuid())
-  userId     String?
-  campaignId String
-  rewardId   String?
+  id         String @db.NVarChar(250)                @id @default(cuid())
+  userId     String? @db.NVarChar(250)
+  campaignId String @db.NVarChar(250)
+  rewardId   String? @db.NVarChar(250)
   payload    String @db.NVarChar(Max)
   returnPath String
-  status     String @default("ACTIVE")
+  status     String @db.NVarChar(250) @default("ACTIVE")
   expiresAt  DateTime
   createdAt  DateTime              @default(now())
   updatedAt  DateTime
@@ -661,9 +662,9 @@ model checkout_sessions {
 
 
 model reviews {
-  id         String     @id
-  userId     String
-  campaignId String?
+  id         String @db.NVarChar(250)     @id
+  userId     String @db.NVarChar(250)
+  campaignId String? @db.NVarChar(250)
   rating     Int
   comment    String
   imageUrl   String?
@@ -674,9 +675,9 @@ model reviews {
 
 
 model rewards {
-  id                   String                 @id
-  campaignId           String?
-  projectId            String?
+  id                   String @db.NVarChar(250)                 @id
+  campaignId           String? @db.NVarChar(250)
+  projectId            String? @db.NVarChar(250)
   title                String
   description          String?
   createdAt            DateTime               @default(now())
@@ -709,15 +710,15 @@ model rewards {
 
 
 model reward_digital_assets {
-  id             String             @id @default(cuid())
-  rewardId       String
-  campaignId     String?
-  pledgeId       String?            @unique
+  id             String @db.NVarChar(250)             @id @default(cuid())
+  rewardId       String @db.NVarChar(250)
+  campaignId     String? @db.NVarChar(250)
+  pledgeId       String? @db.NVarChar(250)            @unique
   assetType      String
   encryptedValue String?
   assetUrl       String?
   deliveryEmail  String?
-  status         String @default("AVAILABLE")
+  status         String @db.NVarChar(250) @default("AVAILABLE")
   deliveredAt    DateTime?
   claimedAt      DateTime?
   createdAt      DateTime           @default(now())
@@ -732,10 +733,10 @@ model reward_digital_assets {
 
 
 model product_reviews {
-  id        String   @id
-  rewardId  String
-  pledgeId  String   @unique
-  userId    String
+  id        String @db.NVarChar(250)   @id
+  rewardId  String @db.NVarChar(250)
+  pledgeId  String @db.NVarChar(250)   @unique
+  userId    String @db.NVarChar(250)
   rating    Int
   comment   String
   mediaUrls String @db.NVarChar(Max) @default("[]")
@@ -751,8 +752,8 @@ model product_reviews {
 
 
 model transaction_limits {
-  id                    String     @id
-  userId                String?    @unique
+  id                    String @db.NVarChar(250)     @id
+  userId                String? @db.NVarChar(250)    @unique
   kycStatus             String?
   maxPerTransaction     Decimal
   maxPerDay             Decimal
@@ -765,16 +766,16 @@ model transaction_limits {
 
 
 model user_badges {
-  id                                   String    @id
-  user_id                              String
-  badge_id                             String
-  assigned_by                          String
+  id                                   String @db.NVarChar(250)    @id
+  user_id                              String @db.NVarChar(250)
+  badge_id                             String @db.NVarChar(250)
+  assigned_by                          String @db.NVarChar(250)
   reason                               String?
   note                                 String?
   assigned_at                          DateTime  @default(now())
   expires_at                           DateTime?
   revoked_at                           DateTime?
-  revoked_by                           String?
+  revoked_by                           String? @db.NVarChar(250)
   revoke_reason                        String?
   is_visible                           Boolean   @default(true)
   users_user_badges_assigned_byTousers users     @relation("user_badges_assigned_byTousers", fields: [assigned_by], references: [id], onUpdate: NoAction)
@@ -790,8 +791,8 @@ model user_badges {
 
 
 model profile_customizations {
-  id                  String                             @id @default(cuid())
-  userId              String                             @unique
+  id                  String @db.NVarChar(250)                             @id @default(cuid())
+  userId              String @db.NVarChar(250)                             @unique
   draftConfig         String @db.NVarChar(Max)
   publishedConfig     String @db.NVarChar(Max)
   draftVersion        Int                                @default(1)
@@ -807,8 +808,8 @@ model profile_customizations {
 
 
 model profile_customization_versions {
-  id              String               @id @default(cuid())
-  customizationId String
+  id              String @db.NVarChar(250)               @id @default(cuid())
+  customizationId String @db.NVarChar(250)
   version         Int
   action          String               @db.VarChar(24)
   config          String @db.NVarChar(Max)
@@ -821,8 +822,8 @@ model profile_customization_versions {
 
 
 model users {
-  id                                         String               @id
-  email                                      String               @unique
+  id                                         String @db.NVarChar(250)               @id
+  email                                      String @db.NVarChar(250)               @unique
   password                                   String?
   name                                       String
   displayName                                String?
@@ -883,12 +884,13 @@ model users {
   memberships_supporting                     memberships[]        @relation("membership_supporter")
   memberships_receiving                      memberships[]        @relation("membership_creator")
   credentials                                credentials[]
+  platform_feedback                          platform_feedback[]
 }
 
 
 model support_tiers {
-  id          String        @id
-  creatorId   String
+  id          String @db.NVarChar(250)        @id
+  creatorId   String @db.NVarChar(250)
   title       String
   description String?
   amount      Decimal
@@ -905,11 +907,11 @@ model support_tiers {
 
 
 model memberships {
-  id               String           @id
-  supporterId      String
-  creatorId        String
-  tierId           String
-  status           String @default("ACTIVE")
+  id               String @db.NVarChar(250)           @id
+  supporterId      String @db.NVarChar(250)
+  creatorId        String @db.NVarChar(250)
+  tierId           String @db.NVarChar(250)
+  status           String @db.NVarChar(250) @default("ACTIVE")
   currentPeriodEnd DateTime?
   lastReminderAt   DateTime?
   canceledAt       DateTime?
@@ -928,8 +930,8 @@ model memberships {
 
 
 model credentials {
-  id             String             @id
-  userId         String
+  id             String @db.NVarChar(250)             @id
+  userId         String @db.NVarChar(250)
   subjectType    String
   kind           String
   title          String
@@ -937,7 +939,7 @@ model credentials {
   issuedAt       DateTime?
   credentialCode String?
   fileUrl        String
-  status         String   @default("PENDING")
+  status         String @db.NVarChar(250)   @default("PENDING")
   reviewedAt     DateTime?
   reviewedBy     String?
   rejectedReason String?
@@ -950,10 +952,30 @@ model credentials {
 }
 
 
+model platform_feedback {
+  id        String @db.NVarChar(250)               @id
+  userId    String @db.NVarChar(250)
+  category  String     @default("IDEA")
+  message   String
+  pageUrl   String?
+  status    String @db.NVarChar(250)       @default("NEW")
+  createdAt DateTime             @default(now())
+  updatedAt DateTime
+  users     users                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+}
+
+
+
+
+
+
 model password_reset_tokens {
-  id        String    @id @default(cuid())
-  userId    String
-  tokenHash String    @unique
+  id        String @db.NVarChar(250)    @id @default(cuid())
+  userId    String @db.NVarChar(250)
+  tokenHash String @db.NVarChar(250)    @unique
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime  @default(now())
@@ -965,7 +987,7 @@ model password_reset_tokens {
 
 
 model assistant_telemetry_events {
-  id        String   @id @default(cuid())
+  id        String @db.NVarChar(250)   @id @default(cuid())
   assistant String   @db.VarChar(64)
   eventType String   @db.VarChar(64)
   metadata  String? @db.NVarChar(Max)
@@ -1059,8 +1081,8 @@ model assistant_telemetry_events {
 
 
 model notifications {
-  id        String    @id @default(cuid())
-  userId    String
+  id        String @db.NVarChar(250)    @id @default(cuid())
+  userId    String @db.NVarChar(250)
   type      String    @db.VarChar(64)
   title     String
   message   String
@@ -1078,11 +1100,11 @@ model notifications {
 
 
 model activity_logs_v2 {
-  id         String   @id @default(cuid())
-  userId     String?
+  id         String @db.NVarChar(250)   @id @default(cuid())
+  userId     String? @db.NVarChar(250)
   action     String   @db.VarChar(64)
   entityType String   @db.VarChar(64)
-  entityId   String
+  entityId   String @db.NVarChar(250)
   details    String? @db.NVarChar(Max)
   metadata   String? @db.NVarChar(Max)
   createdAt  DateTime @default(now())
@@ -1095,17 +1117,17 @@ model activity_logs_v2 {
 
 
 model campaign_comments {
-  id              String                       @id @default(cuid())
-  campaignId      String
-  userId          String
+  id              String @db.NVarChar(250)                       @id @default(cuid())
+  campaignId      String @db.NVarChar(250)
+  userId          String @db.NVarChar(250)
   userName        String
   userAvatar      String?
   content         String
-  parentId        String?
+  parentId        String? @db.NVarChar(250)
   depth           Int                          @default(0)
   isEdited        Boolean                      @default(false)
   isDeleted       Boolean                      @default(false)
-  status          String        @default("APPROVED")
+  status          String @db.NVarChar(250)        @default("APPROVED")
   replyCount      Int                          @default(0)
   editHistory     String @db.NVarChar(Max)                         @default("[]")
   createdAt       DateTime                     @default(now())
@@ -1125,9 +1147,9 @@ model campaign_comments {
 
 
 model campaign_comment_reactions {
-  id        String            @id @default(cuid())
-  commentId String
-  userId    String
+  id        String @db.NVarChar(250)            @id @default(cuid())
+  commentId String @db.NVarChar(250)
+  userId    String @db.NVarChar(250)
   type      String            @db.VarChar(16)
   createdAt DateTime          @default(now())
   comment   campaign_comments @relation(fields: [commentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -1139,8 +1161,8 @@ model campaign_comment_reactions {
 
 
 model campaign_contents {
-  id             String    @id @default(cuid())
-  campaignId     String
+  id             String @db.NVarChar(250)    @id @default(cuid())
+  campaignId     String @db.NVarChar(250)
   lastSavedBy    String
   version        Int       @default(1)
   sections       String @db.NVarChar(Max)      @default("[]")
@@ -1159,8 +1181,8 @@ model campaign_contents {
 
 
 model user_metadata {
-  id         String   @id @default(cuid())
-  userId     String   @unique
+  id         String @db.NVarChar(250)   @id @default(cuid())
+  userId     String @db.NVarChar(250)   @unique
   preferences String @db.NVarChar(Max)    @default("{}")
   onboarding  String @db.NVarChar(Max)    @default("{}")
   stats       String @db.NVarChar(Max)    @default("{}")
@@ -1173,12 +1195,12 @@ model user_metadata {
 
 
 model analytics_events {
-  id         String   @id @default(cuid())
+  id         String @db.NVarChar(250)   @id @default(cuid())
   eventName  String   @db.VarChar(64)
-  userId     String?
-  campaignId String?
+  userId     String? @db.NVarChar(250)
+  campaignId String? @db.NVarChar(250)
   sessionId  String?
-  path       String?
+  path       String? @db.NVarChar(250)
   payload    String? @db.NVarChar(Max)
   device     String? @db.NVarChar(Max)
   createdAt  DateTime @default(now())
@@ -1192,7 +1214,7 @@ model analytics_events {
 
 
 model analytics_settings {
-  id        String   @id @default("behavior")
+  id        String @db.NVarChar(250)   @id @default("behavior")
   ttlDays   Int      @default(180)
   updatedBy String?
   updatedAt DateTime @updatedAt
@@ -1201,9 +1223,9 @@ model analytics_settings {
 
 
 model blog_drafts {
-  id                  String     @id @default(cuid())
-  postId              String     @unique
-  authorId            String
+  id                  String @db.NVarChar(250)     @id @default(cuid())
+  postId              String @db.NVarChar(250)     @unique
+  authorId            String @db.NVarChar(250)
   titleSnapshot       String?
   excerptSnapshot     String?
   contentSnapshot     String?
@@ -1217,8 +1239,8 @@ model blog_drafts {
 
 
 model blog_versions {
-  id                  String     @id @default(cuid())
-  postId              String
+  id                  String @db.NVarChar(250)     @id @default(cuid())
+  postId              String @db.NVarChar(250)
   versionNumber       Int
   authorId            String
   titleSnapshot       String?
@@ -1235,9 +1257,9 @@ model blog_versions {
 
 
 model blog_view_logs {
-  id        String     @id @default(cuid())
-  postId    String
-  userId    String?
+  id        String @db.NVarChar(250)     @id @default(cuid())
+  postId    String @db.NVarChar(250)
+  userId    String? @db.NVarChar(250)
   ip        String?
   userAgent String?
   viewedAt  DateTime   @default(now())
@@ -1249,8 +1271,8 @@ model blog_view_logs {
 
 
 model conversations {
-  id              String         @id @default(cuid())
-  conversationKey String         @unique
+  id              String @db.NVarChar(250)         @id @default(cuid())
+  conversationKey String @db.NVarChar(250)         @unique
   type            String         @default("direct") @db.VarChar(32)
   participantIds  String @db.NVarChar(Max)
   participants    String @db.NVarChar(Max)           @default("[]")
@@ -1272,9 +1294,9 @@ model conversations {
 
 
 model messages {
-  id                String            @id @default(cuid())
-  conversationId    String
-  senderId          String
+  id                String @db.NVarChar(250)            @id @default(cuid())
+  conversationId    String @db.NVarChar(250)
+  senderId          String @db.NVarChar(250)
   senderName        String
   senderAvatar      String?
   text              String
@@ -1295,8 +1317,8 @@ model messages {
 
 
 model message_reactions {
-  id        String   @id @default(cuid())
-  messageId String
+  id        String @db.NVarChar(250)   @id @default(cuid())
+  messageId String @db.NVarChar(250)
   emoji     String   @db.VarChar(16)
   userIds   String @db.NVarChar(Max) @default("[]")
   messages  messages @relation(fields: [messageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -1307,10 +1329,10 @@ model message_reactions {
 
 
 model chat_reports {
-  id             String        @id @default(cuid())
-  conversationId String
+  id             String @db.NVarChar(250)        @id @default(cuid())
+  conversationId String @db.NVarChar(250)
   messageId      String?
-  reporterId     String
+  reporterId     String @db.NVarChar(250)
   reason         String        @db.VarChar(32)
   description    String
   imageUrls      String @db.NVarChar(Max)      @default("[]")
@@ -1329,9 +1351,9 @@ model chat_reports {
 
 
 model user_notes {
-  id           String   @id @default(cuid())
-  userId       String
-  targetUserId String
+  id           String @db.NVarChar(250)   @id @default(cuid())
+  userId       String @db.NVarChar(250)
+  targetUserId String @db.NVarChar(250)
   note         String
   expiresAt    DateTime
   createdAt    DateTime @default(now())
