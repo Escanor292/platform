@@ -2,7 +2,7 @@ import type { PresentationSlide } from "@/lib/admin-presentation-types";
 
 export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
   {
-    kicker: "Slide 42",
+    kicker: "Slide 43",
     title: "USE CASE: AI LÀM VIỆC GÌ?",
     blocks: [
       {
@@ -52,7 +52,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     ],
   },
   {
-    kicker: "Slide 43",
+    kicker: "Slide 44",
     title: "NHÓM USE CASE",
     blocks: [
       {
@@ -101,7 +101,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     ],
   },
   {
-    kicker: "Slide 44",
+    kicker: "Slide 45",
     title: "ĐẶC TẢ USE CASE UC-01: TẠO PLEDGE",
     blocks: [
       { heading: "Thông tin chính" },
@@ -172,7 +172,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     ],
   },
   {
-    kicker: "Slide 45",
+    kicker: "Slide 46",
     title: "ĐẶC TẢ USE CASE UC-02: TẠO VÀ DUYỆT CAMPAIGN",
     blocks: [
       { heading: "Actor" },
@@ -219,7 +219,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     ],
   },
   {
-    kicker: "Slide 46",
+    kicker: "Slide 47",
     title: "ĐẶC TẢ USE CASE UC-03: SETTLE, CHI VÀ HOÀN",
     blocks: [
       { heading: "Actor" },
@@ -280,7 +280,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     ],
   },
   {
-    kicker: "Slide 47",
+    kicker: "Slide 48",
     title: "ACTIVITY: TỪ THANH TOÁN ĐẾN CHỨNG TỪ",
     blocks: [
       {
@@ -339,7 +339,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     ],
   },
   {
-    kicker: "Slide 48",
+    kicker: "Slide 49",
     title: "ERD: VÒNG GÂY QUỸ LAI",
     blocks: [
       {
@@ -402,7 +402,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     ],
   },
   {
-    kicker: "Slide 49",
+    kicker: "Slide 50",
     title: "QUAN HỆ DỮ LIỆU & PRISMA",
     body: "Các quan hệ chính",
     table: {
@@ -449,9 +449,9 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     ],
   },
   {
-    kicker: "Slide 50",
-    title: "DANH SÁCH MODULE",
-    body: "Sáu module nghiệp vụ. Use case cấp 0 ở slide sau bám đúng danh sách này.",
+    kicker: "Slide 51",
+    title: "MODULE CẤP 0 VÀ CẤP 1",
+    body: "Cấp 0 là M0 Tử Tế Fund. Cấp 1 là M01–M06. Chức năng con ở ba slide sau.",
     table: {
       headers: ["Mã", "Tên module", "Mục tiêu", "File chính"],
       rows: [
@@ -465,7 +465,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     },
   },
   {
-    kicker: "Slide 51",
+    kicker: "Slide 52",
     title: "M01 · M02 — MỤC TIÊU VÀ CHỨC NĂNG CON",
     cards: [
       {
@@ -479,7 +479,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     ],
   },
   {
-    kicker: "Slide 52",
+    kicker: "Slide 53",
     title: "M03 · M04 — MỤC TIÊU VÀ CHỨC NĂNG CON",
     cards: [
       {
@@ -493,7 +493,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     ],
   },
   {
-    kicker: "Slide 53",
+    kicker: "Slide 54",
     title: "M05 · M06 — MỤC TIÊU VÀ CHỨC NĂNG CON",
     cards: [
       {
@@ -508,7 +508,55 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     note: "Redis chỉ cache 300 giây. Không phải module nghiệp vụ.",
   },
   {
-    kicker: "Slide 54",
+    kicker: "Slide 55",
+    title: "DFD CẤP 0",
+    body: "Một tiến trình. Bốn tác nhân ngoài. Sinh từ danh sách module.",
+    figures: [
+      { key: "dfd-cap-0.png", alt: "DFD cấp 0 Tử Tế Fund", caption: "Sơ đồ sinh bằng code. Nguồn: module M0 và tác nhân slide 29–31." },
+    ],
+  },
+  {
+    kicker: "Slide 56",
+    title: "DFD CẤP 1",
+    body: "Tách tiến trình 0 thành M01–M06 và bốn kho dữ liệu.",
+    figures: [
+      { key: "dfd-cap-1.png", alt: "DFD cấp 1 sáu module", caption: "D1 hồ sơ, D2 campaign, D3 pledge, D4 chứng từ." },
+    ],
+  },
+  {
+    kicker: "Slide 57",
+    title: "ĐẶC TẢ LUỒNG DỮ LIỆU DF-01",
+    table: {
+      headers: ["Mục", "Nội dung"],
+      rows: [
+        ["Tên", "DF-01 Tạo pledge"],
+        ["Mô tả", "Guest hoặc Backer đưa dữ liệu ủng hộ vào M03"],
+        ["Tác nhân", "Guest, Backer, System"],
+        ["Tiền điều kiện", "Campaign ACTIVE, còn hạn, còn suất"],
+        ["Dữ liệu vào", "Gmail hoặc session, số tiền, rewardId, tip"],
+        ["Luồng chính", "Nhập dữ liệu → pledge PENDING → chưa cộng tiền"],
+        ["Ngoại lệ", "Hết hạn, hết suất, chưa đăng nhập khi có quà, paymentMethodId sai"],
+      ],
+    },
+  },
+  {
+    kicker: "Slide 58",
+    title: "ĐẶC TẢ LUỒNG DỮ LIỆU DF-02",
+    table: {
+      headers: ["Mục", "Nội dung"],
+      rows: [
+        ["Tên", "DF-02 Settle và cấp chứng từ"],
+        ["Mô tả", "Admin đối soát, M05 ghi SUCCESS, M04 cấp quyền lợi"],
+        ["Tác nhân", "Admin, System, Creator"],
+        ["Tiền điều kiện", "Pledge PENDING, tiền đã vào tài khoản trung gian"],
+        ["Dữ liệu vào", "pledgeId, kết quả đối soát, hạn giao hàng"],
+        ["Luồng chính", "Settle một lần → TT-UH hoặc INV- → Kho đồ"],
+        ["Ngoại lệ", "Settle lần hai không cấp trùng. Quá SLA thì hoàn và thu hồi quà"],
+      ],
+    },
+  },
+  {
+    kicker: "Slide 59",
     title: "USE CASE CẤP 0",
     body: "Hệ thống là một khối. Tác nhân đứng ngoài. Mỗi use case lấy từ một module.",
     table: {
@@ -525,7 +573,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     note: "Tác nhân: Guest, Backer, Creator, Admin, System. Danh sách đầy đủ ở slide 29–31.",
   },
   {
-    kicker: "Slide 55",
+    kicker: "Slide 60",
     title: "ĐẶC TẢ VÀ ACTIVITY",
     body: "Ba use case lõi đã đặc tả. Ba use case còn lại bám chức năng con của module.",
     table: {
@@ -541,7 +589,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     },
   },
   {
-    kicker: "Slide 56",
+    kicker: "Slide 61",
     title: "MÔ HÌNH THU PHÍ",
     blocks: [
       {
@@ -593,7 +641,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     ],
   },
   {
-    kicker: "Slide 57",
+    kicker: "Slide 62",
     title: "GIỮ CHÂN CREATOR & PHẠM VI SẢN PHẨM",
     blocks: [
       {
@@ -641,7 +689,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     ],
   },
   {
-    kicker: "Slide 58",
+    kicker: "Slide 63",
     title: "PCA, TEST PLAN & TEST RESULT",
     paragraphs: [
       { text: "Baseline" },
@@ -681,7 +729,7 @@ export const ACADEMIC_SLIDES_3: PresentationSlide[] = [
     ],
   },
   {
-    kicker: "Slide 59",
+    kicker: "Slide 64",
     title: "DATABASE SERVER & WEB SERVER",
     blocks: [
       {

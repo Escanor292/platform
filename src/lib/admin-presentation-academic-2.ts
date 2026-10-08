@@ -425,4 +425,19 @@ export const ACADEMIC_SLIDES_2: PresentationSlide[] = [
       },
     ],
   },
+  {
+    kicker: "Slide 37",
+    title: "USER GOAL ĐÃ CHỐT",
+    body: "Mục tiêu người dùng, khóa cùng danh sách story ở slide 32–36.",
+    table: {
+      headers: ["Tác nhân", "User Goal", "Story chính"],
+      rows: [
+        ["Guest", "Xem chiến dịch và ủng hộ không cần tài khoản", "US-G01 · US-G03"],
+        ["Backer", "Đặt Reward, nhận quà và chứng từ", "US-B01 · US-B02"],
+        ["Creator", "Gọi vốn và giữ hồ sơ thương hiệu", "US-C01 · US-C02"],
+        ["Admin", "Kiểm duyệt và đối soát đúng đơn", "US-A02 · US-A03"],
+        ["System", "Cấp quyền lợi đúng điều kiện, không trùng", "US-S01 · US-S04"],
+      ],
+    },
+  },
 ];

@@ -19,6 +19,8 @@ export const PRESENTATION_MEDIA_FILES = [
   "flow-guest-backer.png",
   "flow-creator-admin.png",
   "activity-checkout.png",
+  "dfd-cap-0.png",
+  "dfd-cap-1.png",
 ] as const;
 
 export const DEFAULT_PRESENTATION_DECK: PresentationDeck = {

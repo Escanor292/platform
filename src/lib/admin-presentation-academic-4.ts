@@ -2,7 +2,7 @@ import type { PresentationSlide } from "@/lib/admin-presentation-types";
 
 export const ACADEMIC_SLIDES_4: PresentationSlide[] = [
   {
-    kicker: "Slide 37",
+    kicker: "Slide 38",
     title: "THẺ CHỨC NĂNG: USER STORY → MÀN HÌNH",
     body: "Mỗi story gắn một màn hình hoặc API.",
     table: {
@@ -31,7 +31,7 @@ export const ACADEMIC_SLIDES_4: PresentationSlide[] = [
     note: "16 dòng đã chạy. 2 dòng chưa làm trong P0: xuất sao kê Excel, nhân bản campaign.",
   },
   {
-    kicker: "Slide 38",
+    kicker: "Slide 39",
     title: "NHÓM MÀN HÌNH ĐANG CHẠY",
     body: "Bốn nhóm màn hình đang chạy.",
     cards: [
@@ -55,7 +55,7 @@ export const ACADEMIC_SLIDES_4: PresentationSlide[] = [
     note: "Checkout không tự trừ ví hoặc thẻ đã liên kết. Tiền đi qua tài khoản trung gian, chỉ xác nhận sau đối soát.",
   },
   {
-    kicker: "Slide 39",
+    kicker: "Slide 40",
     title: "USER FLOW: 4 LANE",
     body: "Bốn lane, nhìn toàn cảnh.",
     lanes: [
@@ -83,7 +83,7 @@ export const ACADEMIC_SLIDES_4: PresentationSlide[] = [
     note: "PENDING chưa cộng tiền. SUCCESS mới ghi nhận giao dịch và cấp quyền lợi. Hoàn tiền xử lý theo từng đơn.",
   },
   {
-    kicker: "Slide 40",
+    kicker: "Slide 41",
     title: "SƠ ĐỒ GUEST / BACKER VÀ CREATOR / ADMIN",
     body: "Từng vai, đi sâu hơn slide trước.",
     lanes: [
@@ -120,7 +120,7 @@ export const ACADEMIC_SLIDES_4: PresentationSlide[] = [
     ],
   },
   {
-    kicker: "Slide 41",
+    kicker: "Slide 42",
     title: "LUỒNG SYSTEM: ĐỐI SOÁT ĐẾN CHỨNG TỪ",
     blocks: [
       {
